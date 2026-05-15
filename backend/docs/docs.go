@@ -401,7 +401,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateDNSRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateDNSRequest"
                         }
                     }
                 ],
@@ -558,7 +558,7 @@ const docTemplate = `{
                     "200": {
                         "description": "System logs retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/handler.GetLogsResponse"
+                            "$ref": "#/definitions/internal_handler.GetLogsResponse"
                         }
                     },
                     "400": {
@@ -605,7 +605,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ScanRequest"
+                            "$ref": "#/definitions/internal_handler.ScanRequest"
                         }
                     }
                 ],
@@ -779,7 +779,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.IPVerifyRequest"
+                            "$ref": "#/definitions/internal_handler.IPVerifyRequest"
                         }
                     }
                 ],
@@ -831,13 +831,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateCheckResponse"
+                                            "$ref": "#/definitions/internal_handler.UpdateCheckResponse"
                                         }
                                     }
                                 }
@@ -847,7 +847,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -942,7 +942,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.SetSystemIdentityRequest"
+                            "$ref": "#/definitions/internal_handler.SetSystemIdentityRequest"
                         }
                     }
                 ],
@@ -1067,13 +1067,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateInstallResponse"
+                                            "$ref": "#/definitions/internal_handler.UpdateInstallResponse"
                                         }
                                     }
                                 }
@@ -1083,7 +1083,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1121,7 +1121,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ChangeUserPasswordRequest"
+                            "$ref": "#/definitions/internal_handler.ChangeUserPasswordRequest"
                         }
                     }
                 ],
@@ -1367,13 +1367,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateInfoResponse"
+                                            "$ref": "#/definitions/internal_handler.UpdateInfoResponse"
                                         }
                                     }
                                 }
@@ -1383,19 +1383,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1431,7 +1431,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
@@ -1439,7 +1439,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.VPNClientResponse"
+                                                "$ref": "#/definitions/internal_handler.VPNClientResponse"
                                             }
                                         }
                                     }
@@ -1450,7 +1450,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1493,13 +1493,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/internal_handler.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -1509,13 +1509,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1558,7 +1558,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateVPNClientRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateVPNClientRequest"
                         }
                     }
                 ],
@@ -1568,13 +1568,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/internal_handler.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -1584,19 +1584,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1634,7 +1634,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AddL2TPClientRequest"
+                            "$ref": "#/definitions/internal_handler.AddL2TPClientRequest"
                         }
                     }
                 ],
@@ -1644,13 +1644,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/internal_handler.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -1660,13 +1660,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1711,7 +1711,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateL2TPClientRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateL2TPClientRequest"
                         }
                     }
                 ],
@@ -1721,13 +1721,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/internal_handler.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -1737,19 +1737,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1791,13 +1791,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1840,13 +1840,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.L2TPClientResponse"
+                                            "$ref": "#/definitions/internal_handler.L2TPClientResponse"
                                         }
                                     }
                                 }
@@ -1856,13 +1856,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1898,13 +1898,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.L2tpServerDetailsResponse"
+                                            "$ref": "#/definitions/internal_handler.L2tpServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -1914,7 +1914,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -1957,13 +1957,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.OvpnServerDetailsResponse"
+                                            "$ref": "#/definitions/internal_handler.OvpnServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -1973,13 +1973,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2015,13 +2015,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.PptpServerDetailsResponse"
+                                            "$ref": "#/definitions/internal_handler.PptpServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -2031,7 +2031,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2067,13 +2067,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNServersStatusResponse"
+                                            "$ref": "#/definitions/internal_handler.VPNServersStatusResponse"
                                         }
                                     }
                                 }
@@ -2083,7 +2083,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2119,13 +2119,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SstpServerDetailsResponse"
+                                            "$ref": "#/definitions/internal_handler.SstpServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -2135,7 +2135,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2170,7 +2170,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateWireGuardInterfaceRequest"
+                            "$ref": "#/definitions/internal_handler.CreateWireGuardInterfaceRequest"
                         }
                     }
                 ],
@@ -2180,13 +2180,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardClientCreateResponse"
+                                            "$ref": "#/definitions/internal_handler.WireGuardClientCreateResponse"
                                         }
                                     }
                                 }
@@ -2196,13 +2196,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2245,13 +2245,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardDetailedResponse"
+                                            "$ref": "#/definitions/internal_handler.WireGuardDetailedResponse"
                                         }
                                     }
                                 }
@@ -2261,13 +2261,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2310,13 +2310,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardInterfaceResponse"
+                                            "$ref": "#/definitions/internal_handler.WireGuardInterfaceResponse"
                                         }
                                     }
                                 }
@@ -2326,13 +2326,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2372,7 +2372,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWireGuardInterfaceRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateWireGuardInterfaceRequest"
                         }
                     }
                 ],
@@ -2382,13 +2382,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardInterfaceResponse"
+                                            "$ref": "#/definitions/internal_handler.WireGuardInterfaceResponse"
                                         }
                                     }
                                 }
@@ -2398,19 +2398,92 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/wireguard/peer": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new peer to an existing WireGuard server interface with auto-generated keys",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create WireGuard Server Peer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Peer configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.CreateWireGuardServerPeerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/internal_handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_handler.WireGuardServerPeerCreateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2452,7 +2525,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWireGuardPeerRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateWireGuardPeerRequest"
                         }
                     }
                 ],
@@ -2462,13 +2535,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardPeerResponse"
+                                            "$ref": "#/definitions/internal_handler.WireGuardPeerResponse"
                                         }
                                     }
                                 }
@@ -2478,19 +2551,76 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete a WireGuard peer by name or ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Delete WireGuard Peer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WireGuard peer name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2533,7 +2663,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2541,7 +2671,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.WireGuardPeerResponse"
+                                                "$ref": "#/definitions/internal_handler.WireGuardPeerResponse"
                                             }
                                         }
                                     }
@@ -2552,13 +2682,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -2593,7 +2723,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateWireGuardServerRequest"
+                            "$ref": "#/definitions/internal_handler.CreateWireGuardServerRequest"
                         }
                     }
                 ],
@@ -2603,13 +2733,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/internal_handler.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardServerCreateResponse"
+                                            "$ref": "#/definitions/internal_handler.WireGuardServerCreateResponse"
                                         }
                                     }
                                 }
@@ -2619,93 +2749,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/vpn/wireguard/server/{interfaceName}/peer": {
-            "post": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Add a new peer to an existing WireGuard server interface with auto-generated keys",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "VPN"
-                ],
-                "summary": "Create WireGuard Server Peer",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "RouterOS host address",
-                        "name": "X-RouterOS-Host",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "WireGuard server interface name",
-                        "name": "interfaceName",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Peer configuration",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.CreateWireGuardServerPeerRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/handler.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/handler.WireGuardServerPeerCreateResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/internal_handler.Response"
                         }
                     }
                 }
@@ -3011,7 +3061,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWiFiInterfaceRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateWiFiInterfaceRequest"
                         }
                     }
                 ],
@@ -3157,7 +3207,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ChangeWiFiPassphraseRequest"
+                            "$ref": "#/definitions/internal_handler.ChangeWiFiPassphraseRequest"
                         }
                     }
                 ],
@@ -3232,7 +3282,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWiFiSettingsRequest"
+                            "$ref": "#/definitions/internal_handler.UpdateWiFiSettingsRequest"
                         }
                     }
                 ],
@@ -3303,7 +3353,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.AddL2TPClientRequest": {
+        "internal_handler.AddL2TPClientRequest": {
             "type": "object",
             "properties": {
                 "connectTo": {
@@ -3332,7 +3382,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ChangeUserPasswordRequest": {
+        "internal_handler.ChangeUserPasswordRequest": {
             "type": "object",
             "properties": {
                 "newPassword": {
@@ -3343,7 +3393,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ChangeWiFiPassphraseRequest": {
+        "internal_handler.ChangeWiFiPassphraseRequest": {
             "type": "object",
             "properties": {
                 "passphrase": {
@@ -3351,7 +3401,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateWireGuardInterfaceRequest": {
+        "internal_handler.CreateWireGuardInterfaceRequest": {
             "type": "object",
             "required": [
                 "allowedAddress",
@@ -3419,17 +3469,46 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateWireGuardServerPeerRequest": {
+        "internal_handler.CreateWireGuardServerPeerRequest": {
             "type": "object",
             "required": [
                 "allowedAddresses",
                 "endpointAddress",
-                "endpointPort"
+                "endpointPort",
+                "interfaceName"
             ],
             "properties": {
                 "allowedAddresses": {
                     "type": "string",
                     "example": "192.168.1.0/24"
+                },
+                "clientAddress": {
+                    "type": "string",
+                    "example": "10.0.0.2/32"
+                },
+                "clientAllowedAddress": {
+                    "type": "string",
+                    "example": "10.0.0.0/24"
+                },
+                "clientDNS": {
+                    "type": "string",
+                    "example": "8.8.8.8,8.8.4.4"
+                },
+                "clientEndpoint": {
+                    "type": "string",
+                    "example": "10.0.0.1:51820"
+                },
+                "clientKeepalive": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "clientListenPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN Peer"
                 },
                 "disabled": {
                     "type": "boolean",
@@ -3442,6 +3521,10 @@ const docTemplate = `{
                 "endpointPort": {
                     "type": "integer",
                     "example": 51820
+                },
+                "interfaceName": {
+                    "type": "string",
+                    "example": "wg-server"
                 },
                 "name": {
                     "type": "string",
@@ -3463,13 +3546,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
                 },
+                "responder": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "savePrivateKey": {
                     "type": "boolean",
                     "example": false
                 }
             }
         },
-        "handler.CreateWireGuardServerRequest": {
+        "internal_handler.CreateWireGuardServerRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -3505,7 +3592,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.GetLogsResponse": {
+        "internal_handler.GetLogsResponse": {
             "type": "object",
             "properties": {
                 "availableLevels": {
@@ -3526,12 +3613,12 @@ const docTemplate = `{
                 "entries": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.LogEntryResponse"
+                        "$ref": "#/definitions/internal_handler.LogEntryResponse"
                     }
                 }
             }
         },
-        "handler.IPVerifyRequest": {
+        "internal_handler.IPVerifyRequest": {
             "type": "object",
             "properties": {
                 "ip": {
@@ -3539,7 +3626,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.L2TPClientResponse": {
+        "internal_handler.L2TPClientResponse": {
             "type": "object",
             "properties": {
                 "addDefaultRoute": {
@@ -3641,7 +3728,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.L2TPUserSecret": {
+        "internal_handler.L2TPUserSecret": {
             "type": "object",
             "properties": {
                 "password": {
@@ -3652,7 +3739,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.L2tpServerDetailsResponse": {
+        "internal_handler.L2tpServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -3694,7 +3781,7 @@ const docTemplate = `{
                 "secrets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                        "$ref": "#/definitions/internal_handler.L2TPUserSecret"
                     }
                 },
                 "useCompression": {
@@ -3705,7 +3792,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.LogEntryResponse": {
+        "internal_handler.LogEntryResponse": {
             "type": "object",
             "properties": {
                 "account": {
@@ -3734,7 +3821,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.OvpnServerDetailsResponse": {
+        "internal_handler.OvpnServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -3772,7 +3859,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.PptpServerDetailsResponse": {
+        "internal_handler.PptpServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -3802,7 +3889,7 @@ const docTemplate = `{
                 "secrets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                        "$ref": "#/definitions/internal_handler.L2TPUserSecret"
                     }
                 },
                 "useCompression": {
@@ -3813,7 +3900,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.Response": {
+        "internal_handler.Response": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -3828,7 +3915,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ScanRequest": {
+        "internal_handler.ScanRequest": {
             "type": "object",
             "properties": {
                 "subnet": {
@@ -3836,7 +3923,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ServerStatusItem": {
+        "internal_handler.ServerStatusItem": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -3865,7 +3952,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SetSystemIdentityRequest": {
+        "internal_handler.SetSystemIdentityRequest": {
             "type": "object",
             "properties": {
                 "name": {
@@ -3873,7 +3960,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SingleServerStatus": {
+        "internal_handler.SingleServerStatus": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -3899,7 +3986,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SstpServerDetailsResponse": {
+        "internal_handler.SstpServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -3941,7 +4028,7 @@ const docTemplate = `{
                 "secrets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                        "$ref": "#/definitions/internal_handler.L2TPUserSecret"
                     }
                 },
                 "tlsVersion": {
@@ -3958,7 +4045,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateCheckResponse": {
+        "internal_handler.UpdateCheckResponse": {
             "type": "object",
             "properties": {
                 "channel": {
@@ -3978,7 +4065,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateDNSRequest": {
+        "internal_handler.UpdateDNSRequest": {
             "type": "object",
             "properties": {
                 "dohServer": {
@@ -3989,7 +4076,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateInfoResponse": {
+        "internal_handler.UpdateInfoResponse": {
             "type": "object",
             "properties": {
                 "channel": {
@@ -4006,7 +4093,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateInstallResponse": {
+        "internal_handler.UpdateInstallResponse": {
             "type": "object",
             "properties": {
                 "installedVersion": {
@@ -4023,7 +4110,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateL2TPClientRequest": {
+        "internal_handler.UpdateL2TPClientRequest": {
             "type": "object",
             "properties": {
                 "connectTo": {
@@ -4048,7 +4135,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateVPNClientRequest": {
+        "internal_handler.UpdateVPNClientRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -4061,7 +4148,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateWiFiInterfaceRequest": {
+        "internal_handler.UpdateWiFiInterfaceRequest": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -4069,7 +4156,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateWiFiSettingsRequest": {
+        "internal_handler.UpdateWiFiSettingsRequest": {
             "type": "object",
             "properties": {
                 "password": {
@@ -4084,7 +4171,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateWireGuardInterfaceRequest": {
+        "internal_handler.UpdateWireGuardInterfaceRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -4109,20 +4196,40 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateWireGuardPeerRequest": {
+        "internal_handler.UpdateWireGuardPeerRequest": {
             "type": "object",
             "properties": {
                 "allowedAddresses": {
                     "type": "string",
                     "example": "192.168.1.0/24,10.0.0.0/8"
                 },
+                "clientAddress": {
+                    "type": "string",
+                    "example": "10.0.0.2/32"
+                },
                 "clientAllowedAddress": {
                     "type": "string",
-                    "example": "10.0.0.1/24"
+                    "example": "10.0.0.0/24"
+                },
+                "clientDNS": {
+                    "type": "string",
+                    "example": "8.8.8.8,8.8.4.4"
                 },
                 "clientEndpoint": {
                     "type": "string",
-                    "example": "203.0.113.50:51820"
+                    "example": "10.0.0.1:51820"
+                },
+                "clientKeepalive": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "clientListenPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN Peer"
                 },
                 "disabled": {
                     "type": "boolean",
@@ -4136,13 +4243,17 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 51820
                 },
-                "persistentKeepalive": {
+                "name": {
                     "type": "string",
-                    "example": "25s"
+                    "example": "updated-peer-name"
+                },
+                "persistentKeepalive": {
+                    "type": "integer",
+                    "example": 25
                 },
                 "preSharedKey": {
                     "type": "string",
-                    "example": "HIgo9xNzJMu..."
+                    "example": "qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="
                 },
                 "privateKey": {
                     "type": "string",
@@ -4150,11 +4261,15 @@ const docTemplate = `{
                 },
                 "publicKey": {
                     "type": "string",
-                    "example": "HIgo9xNzJMu7..."
+                    "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
+                },
+                "responder": {
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },
-        "handler.VPNClientResponse": {
+        "internal_handler.VPNClientResponse": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -4211,33 +4326,33 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.VPNServersStatusResponse": {
+        "internal_handler.VPNServersStatusResponse": {
             "type": "object",
             "properties": {
                 "l2tp": {
-                    "$ref": "#/definitions/handler.SingleServerStatus"
+                    "$ref": "#/definitions/internal_handler.SingleServerStatus"
                 },
                 "ovpnServers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.ServerStatusItem"
+                        "$ref": "#/definitions/internal_handler.ServerStatusItem"
                     }
                 },
                 "pptp": {
-                    "$ref": "#/definitions/handler.SingleServerStatus"
+                    "$ref": "#/definitions/internal_handler.SingleServerStatus"
                 },
                 "sstp": {
-                    "$ref": "#/definitions/handler.SingleServerStatus"
+                    "$ref": "#/definitions/internal_handler.SingleServerStatus"
                 },
                 "wireguards": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.ServerStatusItem"
+                        "$ref": "#/definitions/internal_handler.ServerStatusItem"
                     }
                 }
             }
         },
-        "handler.WireGuardClientCreateResponse": {
+        "internal_handler.WireGuardClientCreateResponse": {
             "type": "object",
             "properties": {
                 "allowedAddress": {
@@ -4286,7 +4401,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardDetailedResponse": {
+        "internal_handler.WireGuardDetailedResponse": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -4313,7 +4428,7 @@ const docTemplate = `{
                 "peers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.WireGuardPeerResponse"
+                        "$ref": "#/definitions/internal_handler.WireGuardPeerResponse"
                     }
                 },
                 "privateKey": {
@@ -4327,7 +4442,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardInterfaceResponse": {
+        "internal_handler.WireGuardInterfaceResponse": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -4353,7 +4468,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardPeerResponse": {
+        "internal_handler.WireGuardPeerResponse": {
             "type": "object",
             "properties": {
                 "allowedAddresses": {
@@ -4421,7 +4536,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardServerCreateResponse": {
+        "internal_handler.WireGuardServerCreateResponse": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -4453,7 +4568,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardServerPeerCreateResponse": {
+        "internal_handler.WireGuardServerPeerCreateResponse": {
             "type": "object",
             "properties": {
                 "allowedAddresses": {

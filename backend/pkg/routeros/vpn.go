@@ -201,16 +201,46 @@ type WireGuardClientConfig struct {
 
 // WireGuardPeerConfig contains the configuration for creating a WireGuard peer.
 type WireGuardPeerConfig struct {
-	InterfaceName       string
-	PeerName            string
-	PublicKey           *string
-	PrivateKey          *string
-	EndpointAddress     string
-	EndpointPort        int
-	AllowedAddresses    []string
-	PresharedKey        *string
-	PersistentKeepalive *int
-	SavePrivateKey      bool
+	InterfaceName        string
+	PeerName             string
+	PublicKey            *string
+	PrivateKey           *string
+	EndpointAddress      string
+	EndpointPort         int
+	AllowedAddresses     []string
+	PresharedKey         *string
+	PersistentKeepalive  *int
+	SavePrivateKey       bool
+	Disabled             *bool
+	ClientEndpoint       *string
+	ClientAddress        *string
+	ClientKeepalive      *int
+	ClientAllowedAddress *string
+	ClientListenPort     *int
+	ClientDNS            *string
+	Comment              *string
+	Responder            *bool
+}
+
+// UpdateWireGuardPeerConfig represents the configuration for updating a WireGuard peer.
+type UpdateWireGuardPeerConfig struct {
+	Name                 *string
+	PublicKey            *string
+	PrivateKey           *string
+	EndpointAddress      *string
+	EndpointPort         *int
+	AllowedAddresses     *string
+	PreSharedKey         *string
+	PersistentKeepalive  *int
+	Disabled             *bool
+	ClientEndpoint       *string
+	ClientAddress        *string
+	ClientKeepalive      *int
+	ClientAllowedAddress *string
+	ClientListenPort     *int
+	ClientDNS            *string
+	Comment              *string
+	Responder            *bool
 }
 
 // WireGuardPeerInfo represents a WireGuard peer configuration.
@@ -985,6 +1015,38 @@ func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 		args = append(args, "=private-key="+*config.PrivateKey)
 	}
 
+	if config.ClientEndpoint != nil && *config.ClientEndpoint != "" {
+		args = append(args, "=client-endpoint="+*config.ClientEndpoint)
+	}
+
+	if config.ClientAddress != nil && *config.ClientAddress != "" {
+		args = append(args, "=client-address="+*config.ClientAddress)
+	}
+
+	if config.ClientKeepalive != nil && *config.ClientKeepalive > 0 {
+		args = append(args, "=client-keepalive="+strconv.Itoa(*config.ClientKeepalive))
+	}
+
+	if config.ClientAllowedAddress != nil && *config.ClientAllowedAddress != "" {
+		args = append(args, "=client-allowed-address="+*config.ClientAllowedAddress)
+	}
+
+	if config.ClientListenPort != nil && *config.ClientListenPort > 0 {
+		args = append(args, "=client-listen-port="+strconv.Itoa(*config.ClientListenPort))
+	}
+
+	if config.ClientDNS != nil && *config.ClientDNS != "" {
+		args = append(args, "=client-dns="+*config.ClientDNS)
+	}
+
+	if config.Comment != nil && *config.Comment != "" {
+		args = append(args, "=comment="+*config.Comment)
+	}
+
+	if config.Responder != nil && *config.Responder {
+		args = append(args, "=responder=true")
+	}
+
 	id, err := c.Add("/interface/wireguard/peers", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add WireGuard peer: %w", err)
@@ -1062,43 +1124,86 @@ func (c *Client) GetWireGuardPeerByNameOrID(nameOrID string) (*WireGuardPeerInfo
 	return nil, fmt.Errorf("WireGuard peer not found: %s", nameOrID)
 }
 
+// DeleteWireGuardPeer deletes a WireGuard peer by name or ID.
+func (c *Client) DeleteWireGuardPeer(nameOrID string) error {
+	if nameOrID == "" {
+		return fmt.Errorf("peer name or ID is required")
+	}
+
+	// Get the peer to find its ID if name is provided
+	peer, err := c.GetWireGuardPeerByNameOrID(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return err
+	}
+
+	_, err = c.Remove("/interface/wireguard/peers", "=.id="+peer.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete WireGuard peer %s: %w", nameOrID, err)
+	}
+
+	return nil
+}
+
 // UpdateWireGuardPeer updates a WireGuard peer configuration.
-func (c *Client) UpdateWireGuardPeer(peerID string, publicKey, privateKey, endpointAddress *string, endpointPort *int, allowedAddresses, preSharedKey, persistentKeepalive, clientEndpoint, clientAllowedAddress *string, disabled *bool) error {
+func (c *Client) UpdateWireGuardPeer(peerID string, config UpdateWireGuardPeerConfig) error {
 	if peerID == "" {
 		return fmt.Errorf("peer ID is required")
 	}
 
 	args := []string{"=.id=" + peerID}
 
-	if publicKey != nil {
-		args = append(args, "=public-key="+*publicKey)
+	if config.Name != nil && *config.Name != "" {
+		args = append(args, "=name="+*config.Name)
 	}
-	if privateKey != nil {
-		args = append(args, "=private-key="+*privateKey)
+	if config.PublicKey != nil && *config.PublicKey != "" {
+		args = append(args, "=public-key="+*config.PublicKey)
 	}
-	if endpointAddress != nil {
-		args = append(args, "=endpoint-address="+*endpointAddress)
+	if config.PrivateKey != nil && *config.PrivateKey != "" {
+		args = append(args, "=private-key="+*config.PrivateKey)
 	}
-	if endpointPort != nil {
-		args = append(args, "=endpoint-port="+strconv.Itoa(*endpointPort))
+	if config.EndpointAddress != nil && *config.EndpointAddress != "" {
+		args = append(args, "=endpoint-address="+*config.EndpointAddress)
 	}
-	if allowedAddresses != nil {
-		args = append(args, "=allowed-address="+*allowedAddresses)
+	if config.EndpointPort != nil && *config.EndpointPort > 0 {
+		args = append(args, "=endpoint-port="+strconv.Itoa(*config.EndpointPort))
 	}
-	if preSharedKey != nil {
-		args = append(args, "=preshared-key="+*preSharedKey)
+	if config.AllowedAddresses != nil && *config.AllowedAddresses != "" {
+		args = append(args, "=allowed-address="+*config.AllowedAddresses)
 	}
-	if persistentKeepalive != nil {
-		args = append(args, "=persistent-keepalive="+*persistentKeepalive)
+	if config.PreSharedKey != nil {
+		if *config.PreSharedKey != "" {
+			args = append(args, "=preshared-key="+*config.PreSharedKey)
+		}
 	}
-	if clientEndpoint != nil {
-		args = append(args, "=client-endpoint="+*clientEndpoint)
+	if config.PersistentKeepalive != nil && *config.PersistentKeepalive > 0 {
+		args = append(args, "=persistent-keepalive="+strconv.Itoa(*config.PersistentKeepalive))
 	}
-	if clientAllowedAddress != nil {
-		args = append(args, "=client-allowed-address="+*clientAllowedAddress)
+	if config.ClientEndpoint != nil && *config.ClientEndpoint != "" {
+		args = append(args, "=client-endpoint="+*config.ClientEndpoint)
 	}
-	if disabled != nil {
-		args = append(args, "=disabled="+strconv.FormatBool(*disabled))
+	if config.ClientAddress != nil && *config.ClientAddress != "" {
+		args = append(args, "=client-address="+*config.ClientAddress)
+	}
+	if config.ClientKeepalive != nil && *config.ClientKeepalive > 0 {
+		args = append(args, "=client-keepalive="+strconv.Itoa(*config.ClientKeepalive))
+	}
+	if config.ClientAllowedAddress != nil && *config.ClientAllowedAddress != "" {
+		args = append(args, "=client-allowed-address="+*config.ClientAllowedAddress)
+	}
+	if config.ClientListenPort != nil && *config.ClientListenPort > 0 {
+		args = append(args, "=client-listen-port="+strconv.Itoa(*config.ClientListenPort))
+	}
+	if config.ClientDNS != nil && *config.ClientDNS != "" {
+		args = append(args, "=client-dns="+*config.ClientDNS)
+	}
+	if config.Comment != nil && *config.Comment != "" {
+		args = append(args, "=comment="+*config.Comment)
+	}
+	if config.Responder != nil && *config.Responder {
+		args = append(args, "=responder=yes")
+	}
+	if config.Disabled != nil {
+		args = append(args, "=disabled="+strconv.FormatBool(*config.Disabled))
 	}
 
 	_, err := c.Set("/interface/wireguard/peers", args...) //nolint:misspell // pkg name is routeros not routers

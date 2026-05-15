@@ -336,16 +336,23 @@ type WireGuardPeerResponse struct {
 
 // UpdateWireGuardPeerRequest represents a request to update a WireGuard peer.
 type UpdateWireGuardPeerRequest struct {
-	PublicKey            *string `json:"publicKey" example:"HIgo9xNzJMu7..."`
-	PrivateKey           *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
+	Name                 *string `json:"name" example:"updated-peer-name"`
 	EndpointAddress      *string `json:"endpointAddress" example:"203.0.113.50"`
 	EndpointPort         *int    `json:"endpointPort" example:"51820"`
 	AllowedAddresses     *string `json:"allowedAddresses" example:"192.168.1.0/24,10.0.0.0/8"`
-	PreSharedKey         *string `json:"preSharedKey" example:"HIgo9xNzJMu..."`
-	PersistentKeepalive  *string `json:"persistentKeepalive" example:"25s"`
-	ClientEndpoint       *string `json:"clientEndpoint" example:"203.0.113.50:51820"`
-	ClientAllowedAddress *string `json:"clientAllowedAddress" example:"10.0.0.1/24"`
+	PrivateKey           *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
+	PublicKey            *string `json:"publicKey" example:"wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="`
+	PreSharedKey         *string `json:"preSharedKey" example:"qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="`
+	PersistentKeepalive  *int    `json:"persistentKeepalive" example:"25"`
 	Disabled             *bool   `json:"disabled" example:"false"`
+	ClientEndpoint       *string `json:"clientEndpoint" example:"10.0.0.1:51820"`
+	ClientAddress        *string `json:"clientAddress" example:"10.0.0.2/32"`
+	ClientKeepalive      *int    `json:"clientKeepalive" example:"10"`
+	ClientAllowedAddress *string `json:"clientAllowedAddress" example:"10.0.0.0/24"`
+	ClientListenPort     *int    `json:"clientListenPort" example:"51820"`
+	ClientDNS            *string `json:"clientDNS" example:"8.8.8.8,8.8.4.4"`
+	Comment              *string `json:"comment" example:"Office VPN Peer"`
+	Responder            *bool   `json:"responder" example:"false"`
 }
 
 // WireGuardDetailedResponse represents a complete WireGuard client with interface and peers.
@@ -484,16 +491,25 @@ func ToWireGuardDetailedResponse(wg *routeros.WireGuardInfo, peers []routeros.Wi
 
 // CreateWireGuardServerPeerRequest represents a request to add a peer to a WireGuard server.
 type CreateWireGuardServerPeerRequest struct {
-	Name                *string `json:"name" example:"office-peer-1"`
-	EndpointAddress     string  `json:"endpointAddress" example:"203.0.113.50" binding:"required"`
-	EndpointPort        int     `json:"endpointPort" example:"51820" binding:"required"`
-	AllowedAddresses    string  `json:"allowedAddresses" example:"192.168.1.0/24" binding:"required"`
-	PrivateKey          *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
-	PublicKey           *string `json:"publicKey" example:"wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="`
-	PreSharedKey        *string `json:"preSharedKey" example:"qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="`
-	PersistentKeepalive *int    `json:"persistentKeepalive" example:"25"`
-	SavePrivateKey      *bool   `json:"savePrivateKey" example:"false"`
-	Disabled            *bool   `json:"disabled" example:"false"`
+	InterfaceName        string  `json:"interfaceName" binding:"required" example:"wg-server"`
+	Name                 *string `json:"name" example:"office-peer-1"`
+	EndpointAddress      string  `json:"endpointAddress" example:"203.0.113.50" binding:"required"`
+	EndpointPort         int     `json:"endpointPort" example:"51820" binding:"required"`
+	AllowedAddresses     string  `json:"allowedAddresses" example:"192.168.1.0/24" binding:"required"`
+	PrivateKey           *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
+	PublicKey            *string `json:"publicKey" example:"wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="`
+	PreSharedKey         *string `json:"preSharedKey" example:"qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="`
+	PersistentKeepalive  *int    `json:"persistentKeepalive" example:"25"`
+	SavePrivateKey       *bool   `json:"savePrivateKey" example:"false"`
+	Disabled             *bool   `json:"disabled" example:"false"`
+	ClientEndpoint       *string `json:"clientEndpoint" example:"10.0.0.1:51820"`
+	ClientAddress        *string `json:"clientAddress" example:"10.0.0.2/32"`
+	ClientKeepalive      *int    `json:"clientKeepalive" example:"10"`
+	ClientAllowedAddress *string `json:"clientAllowedAddress" example:"10.0.0.0/24"`
+	ClientListenPort     *int    `json:"clientListenPort" example:"51820"`
+	ClientDNS            *string `json:"clientDNS" example:"8.8.8.8,8.8.4.4"`
+	Comment              *string `json:"comment" example:"Office VPN Peer"`
+	Responder            *bool   `json:"responder" example:"false"`
 }
 
 // WireGuardServerPeerCreateResponse represents the response after creating a peer on a WireGuard server.

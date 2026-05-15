@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  handler.AddL2TPClientRequest:
+  internal_handler.AddL2TPClientRequest:
     properties:
       connectTo:
         example: 192.168.1.1
@@ -21,19 +21,19 @@ definitions:
         example: username
         type: string
     type: object
-  handler.ChangeUserPasswordRequest:
+  internal_handler.ChangeUserPasswordRequest:
     properties:
       newPassword:
         type: string
       username:
         type: string
     type: object
-  handler.ChangeWiFiPassphraseRequest:
+  internal_handler.ChangeWiFiPassphraseRequest:
     properties:
       passphrase:
         type: string
     type: object
-  handler.CreateWireGuardInterfaceRequest:
+  internal_handler.CreateWireGuardInterfaceRequest:
     properties:
       allowedAddress:
         example: 192.168.1.0/24,10.0.0.0/8,2001:db8::/32
@@ -84,10 +84,31 @@ definitions:
     - interfaceLocalAddress
     - name
     type: object
-  handler.CreateWireGuardServerPeerRequest:
+  internal_handler.CreateWireGuardServerPeerRequest:
     properties:
       allowedAddresses:
         example: 192.168.1.0/24
+        type: string
+      clientAddress:
+        example: 10.0.0.2/32
+        type: string
+      clientAllowedAddress:
+        example: 10.0.0.0/24
+        type: string
+      clientDNS:
+        example: 8.8.8.8,8.8.4.4
+        type: string
+      clientEndpoint:
+        example: 10.0.0.1:51820
+        type: string
+      clientKeepalive:
+        example: 10
+        type: integer
+      clientListenPort:
+        example: 51820
+        type: integer
+      comment:
+        example: Office VPN Peer
         type: string
       disabled:
         example: false
@@ -98,6 +119,9 @@ definitions:
       endpointPort:
         example: 51820
         type: integer
+      interfaceName:
+        example: wg-server
+        type: string
       name:
         example: office-peer-1
         type: string
@@ -113,6 +137,9 @@ definitions:
       publicKey:
         example: wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs=
         type: string
+      responder:
+        example: false
+        type: boolean
       savePrivateKey:
         example: false
         type: boolean
@@ -120,8 +147,9 @@ definitions:
     - allowedAddresses
     - endpointAddress
     - endpointPort
+    - interfaceName
     type: object
-  handler.CreateWireGuardServerRequest:
+  internal_handler.CreateWireGuardServerRequest:
     properties:
       comment:
         example: Office VPN server
@@ -147,7 +175,7 @@ definitions:
     required:
     - name
     type: object
-  handler.GetLogsResponse:
+  internal_handler.GetLogsResponse:
     properties:
       availableLevels:
         items:
@@ -161,15 +189,15 @@ definitions:
         type: integer
       entries:
         items:
-          $ref: '#/definitions/handler.LogEntryResponse'
+          $ref: '#/definitions/internal_handler.LogEntryResponse'
         type: array
     type: object
-  handler.IPVerifyRequest:
+  internal_handler.IPVerifyRequest:
     properties:
       ip:
         type: string
     type: object
-  handler.L2TPClientResponse:
+  internal_handler.L2TPClientResponse:
     properties:
       addDefaultRoute:
         type: boolean
@@ -237,14 +265,14 @@ definitions:
       user:
         type: string
     type: object
-  handler.L2TPUserSecret:
+  internal_handler.L2TPUserSecret:
     properties:
       password:
         type: string
       username:
         type: string
     type: object
-  handler.L2tpServerDetailsResponse:
+  internal_handler.L2tpServerDetailsResponse:
     properties:
       auth:
         type: string
@@ -272,14 +300,14 @@ definitions:
         type: string
       secrets:
         items:
-          $ref: '#/definitions/handler.L2TPUserSecret'
+          $ref: '#/definitions/internal_handler.L2TPUserSecret'
         type: array
       useCompression:
         type: string
       useEncryption:
         type: string
     type: object
-  handler.LogEntryResponse:
+  internal_handler.LogEntryResponse:
     properties:
       account:
         type: string
@@ -298,7 +326,7 @@ definitions:
       topic:
         type: string
     type: object
-  handler.OvpnServerDetailsResponse:
+  internal_handler.OvpnServerDetailsResponse:
     properties:
       auth:
         type: string
@@ -323,7 +351,7 @@ definitions:
       userAuthMethod:
         type: string
     type: object
-  handler.PptpServerDetailsResponse:
+  internal_handler.PptpServerDetailsResponse:
     properties:
       auth:
         type: string
@@ -343,14 +371,14 @@ definitions:
         type: string
       secrets:
         items:
-          $ref: '#/definitions/handler.L2TPUserSecret'
+          $ref: '#/definitions/internal_handler.L2TPUserSecret'
         type: array
       useCompression:
         type: string
       useEncryption:
         type: string
     type: object
-  handler.Response:
+  internal_handler.Response:
     properties:
       data: {}
       error:
@@ -360,12 +388,12 @@ definitions:
       status:
         type: integer
     type: object
-  handler.ScanRequest:
+  internal_handler.ScanRequest:
     properties:
       subnet:
         type: string
     type: object
-  handler.ServerStatusItem:
+  internal_handler.ServerStatusItem:
     properties:
       enabled:
         type: boolean
@@ -384,12 +412,12 @@ definitions:
       remoteIpPool:
         type: string
     type: object
-  handler.SetSystemIdentityRequest:
+  internal_handler.SetSystemIdentityRequest:
     properties:
       name:
         type: string
     type: object
-  handler.SingleServerStatus:
+  internal_handler.SingleServerStatus:
     properties:
       enabled:
         type: boolean
@@ -406,7 +434,7 @@ definitions:
       remoteIpPool:
         type: string
     type: object
-  handler.SstpServerDetailsResponse:
+  internal_handler.SstpServerDetailsResponse:
     properties:
       auth:
         type: string
@@ -434,7 +462,7 @@ definitions:
         type: string
       secrets:
         items:
-          $ref: '#/definitions/handler.L2TPUserSecret'
+          $ref: '#/definitions/internal_handler.L2TPUserSecret'
         type: array
       tlsVersion:
         type: string
@@ -445,7 +473,7 @@ definitions:
       verifyClientCertificate:
         type: boolean
     type: object
-  handler.UpdateCheckResponse:
+  internal_handler.UpdateCheckResponse:
     properties:
       channel:
         type: string
@@ -458,14 +486,14 @@ definitions:
       updateAvailable:
         type: boolean
     type: object
-  handler.UpdateDNSRequest:
+  internal_handler.UpdateDNSRequest:
     properties:
       dohServer:
         type: string
       servers:
         type: string
     type: object
-  handler.UpdateInfoResponse:
+  internal_handler.UpdateInfoResponse:
     properties:
       channel:
         type: string
@@ -476,7 +504,7 @@ definitions:
       status:
         type: string
     type: object
-  handler.UpdateInstallResponse:
+  internal_handler.UpdateInstallResponse:
     properties:
       installedVersion:
         type: string
@@ -487,7 +515,7 @@ definitions:
       success:
         type: boolean
     type: object
-  handler.UpdateL2TPClientRequest:
+  internal_handler.UpdateL2TPClientRequest:
     properties:
       connectTo:
         example: 192.168.1.2
@@ -505,7 +533,7 @@ definitions:
         example: newusername
         type: string
     type: object
-  handler.UpdateVPNClientRequest:
+  internal_handler.UpdateVPNClientRequest:
     properties:
       comment:
         example: Updated comment
@@ -514,12 +542,12 @@ definitions:
         example: false
         type: boolean
     type: object
-  handler.UpdateWiFiInterfaceRequest:
+  internal_handler.UpdateWiFiInterfaceRequest:
     properties:
       enabled:
         type: boolean
     type: object
-  handler.UpdateWiFiSettingsRequest:
+  internal_handler.UpdateWiFiSettingsRequest:
     properties:
       password:
         type: string
@@ -529,7 +557,7 @@ definitions:
       ssid:
         type: string
     type: object
-  handler.UpdateWireGuardInterfaceRequest:
+  internal_handler.UpdateWireGuardInterfaceRequest:
     properties:
       comment:
         example: Updated comment
@@ -547,16 +575,31 @@ definitions:
         example: KIEp5mJ2Llk...
         type: string
     type: object
-  handler.UpdateWireGuardPeerRequest:
+  internal_handler.UpdateWireGuardPeerRequest:
     properties:
       allowedAddresses:
         example: 192.168.1.0/24,10.0.0.0/8
         type: string
+      clientAddress:
+        example: 10.0.0.2/32
+        type: string
       clientAllowedAddress:
-        example: 10.0.0.1/24
+        example: 10.0.0.0/24
+        type: string
+      clientDNS:
+        example: 8.8.8.8,8.8.4.4
         type: string
       clientEndpoint:
-        example: 203.0.113.50:51820
+        example: 10.0.0.1:51820
+        type: string
+      clientKeepalive:
+        example: 10
+        type: integer
+      clientListenPort:
+        example: 51820
+        type: integer
+      comment:
+        example: Office VPN Peer
         type: string
       disabled:
         example: false
@@ -567,20 +610,26 @@ definitions:
       endpointPort:
         example: 51820
         type: integer
-      persistentKeepalive:
-        example: 25s
+      name:
+        example: updated-peer-name
         type: string
+      persistentKeepalive:
+        example: 25
+        type: integer
       preSharedKey:
-        example: HIgo9xNzJMu...
+        example: qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y=
         type: string
       privateKey:
         example: KIEp5mJ2Llk...
         type: string
       publicKey:
-        example: HIgo9xNzJMu7...
+        example: wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs=
         type: string
+      responder:
+        example: false
+        type: boolean
     type: object
-  handler.VPNClientResponse:
+  internal_handler.VPNClientResponse:
     properties:
       comment:
         type: string
@@ -618,24 +667,24 @@ definitions:
         example: ovpn-out
         type: string
     type: object
-  handler.VPNServersStatusResponse:
+  internal_handler.VPNServersStatusResponse:
     properties:
       l2tp:
-        $ref: '#/definitions/handler.SingleServerStatus'
+        $ref: '#/definitions/internal_handler.SingleServerStatus'
       ovpnServers:
         items:
-          $ref: '#/definitions/handler.ServerStatusItem'
+          $ref: '#/definitions/internal_handler.ServerStatusItem'
         type: array
       pptp:
-        $ref: '#/definitions/handler.SingleServerStatus'
+        $ref: '#/definitions/internal_handler.SingleServerStatus'
       sstp:
-        $ref: '#/definitions/handler.SingleServerStatus'
+        $ref: '#/definitions/internal_handler.SingleServerStatus'
       wireguards:
         items:
-          $ref: '#/definitions/handler.ServerStatusItem'
+          $ref: '#/definitions/internal_handler.ServerStatusItem'
         type: array
     type: object
-  handler.WireGuardClientCreateResponse:
+  internal_handler.WireGuardClientCreateResponse:
     properties:
       allowedAddress:
         type: string
@@ -668,7 +717,7 @@ definitions:
       peerPublicKey:
         type: string
     type: object
-  handler.WireGuardDetailedResponse:
+  internal_handler.WireGuardDetailedResponse:
     properties:
       comment:
         type: string
@@ -686,7 +735,7 @@ definitions:
         type: string
       peers:
         items:
-          $ref: '#/definitions/handler.WireGuardPeerResponse'
+          $ref: '#/definitions/internal_handler.WireGuardPeerResponse'
         type: array
       privateKey:
         type: string
@@ -695,7 +744,7 @@ definitions:
       running:
         type: boolean
     type: object
-  handler.WireGuardInterfaceResponse:
+  internal_handler.WireGuardInterfaceResponse:
     properties:
       enabled:
         type: boolean
@@ -712,7 +761,7 @@ definitions:
       running:
         type: boolean
     type: object
-  handler.WireGuardPeerResponse:
+  internal_handler.WireGuardPeerResponse:
     properties:
       allowedAddresses:
         type: string
@@ -757,7 +806,7 @@ definitions:
       txBytes:
         type: integer
     type: object
-  handler.WireGuardServerCreateResponse:
+  internal_handler.WireGuardServerCreateResponse:
     properties:
       comment:
         type: string
@@ -778,7 +827,7 @@ definitions:
       publicKey:
         type: string
     type: object
-  handler.WireGuardServerPeerCreateResponse:
+  internal_handler.WireGuardServerPeerCreateResponse:
     properties:
       allowedAddresses:
         type: string
@@ -1059,7 +1108,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateDNSRequest'
+          $ref: '#/definitions/internal_handler.UpdateDNSRequest'
       produces:
       - application/json
       responses:
@@ -1166,7 +1215,7 @@ paths:
         "200":
           description: System logs retrieved successfully
           schema:
-            $ref: '#/definitions/handler.GetLogsResponse'
+            $ref: '#/definitions/internal_handler.GetLogsResponse'
         "400":
           description: Bad request
           schema:
@@ -1198,7 +1247,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.ScanRequest'
+          $ref: '#/definitions/internal_handler.ScanRequest'
       produces:
       - application/json
       responses:
@@ -1316,7 +1365,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.IPVerifyRequest'
+          $ref: '#/definitions/internal_handler.IPVerifyRequest'
       produces:
       - application/json
       responses:
@@ -1349,15 +1398,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.UpdateCheckResponse'
+                  $ref: '#/definitions/internal_handler.UpdateCheckResponse'
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Check for package updates
@@ -1417,7 +1466,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.SetSystemIdentityRequest'
+          $ref: '#/definitions/internal_handler.SetSystemIdentityRequest'
       produces:
       - application/json
       responses:
@@ -1501,15 +1550,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.UpdateInstallResponse'
+                  $ref: '#/definitions/internal_handler.UpdateInstallResponse'
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Install package update
@@ -1531,7 +1580,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.ChangeUserPasswordRequest'
+          $ref: '#/definitions/internal_handler.ChangeUserPasswordRequest'
       produces:
       - application/json
       responses:
@@ -1695,23 +1744,23 @@ paths:
           description: Update information
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.UpdateInfoResponse'
+                  $ref: '#/definitions/internal_handler.UpdateInfoResponse'
               type: object
         "400":
           description: Bad request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get system updates information
@@ -1733,17 +1782,17 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/handler.VPNClientResponse'
+                    $ref: '#/definitions/internal_handler.VPNClientResponse'
                   type: array
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: List VPN Clients
@@ -1770,19 +1819,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.VPNClientResponse'
+                  $ref: '#/definitions/internal_handler.VPNClientResponse'
               type: object
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get VPN Client
@@ -1808,7 +1857,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateVPNClientRequest'
+          $ref: '#/definitions/internal_handler.UpdateVPNClientRequest'
       produces:
       - application/json
       responses:
@@ -1816,23 +1865,23 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.VPNClientResponse'
+                  $ref: '#/definitions/internal_handler.VPNClientResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Update VPN Client
@@ -1855,7 +1904,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.AddL2TPClientRequest'
+          $ref: '#/definitions/internal_handler.AddL2TPClientRequest'
       produces:
       - application/json
       responses:
@@ -1863,19 +1912,19 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.VPNClientResponse'
+                  $ref: '#/definitions/internal_handler.VPNClientResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Add L2TP Client
@@ -1902,19 +1951,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.L2TPClientResponse'
+                  $ref: '#/definitions/internal_handler.L2TPClientResponse'
               type: object
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get L2TP Client Details
@@ -1942,11 +1991,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Delete L2TP Client
@@ -1972,7 +2021,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateL2TPClientRequest'
+          $ref: '#/definitions/internal_handler.UpdateL2TPClientRequest'
       produces:
       - application/json
       responses:
@@ -1980,23 +2029,23 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.VPNClientResponse'
+                  $ref: '#/definitions/internal_handler.VPNClientResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Update L2TP Client
@@ -2018,15 +2067,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.L2tpServerDetailsResponse'
+                  $ref: '#/definitions/internal_handler.L2tpServerDetailsResponse'
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get L2TP Server Details
@@ -2053,19 +2102,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.OvpnServerDetailsResponse'
+                  $ref: '#/definitions/internal_handler.OvpnServerDetailsResponse'
               type: object
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get OpenVPN Server Details
@@ -2087,15 +2136,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.PptpServerDetailsResponse'
+                  $ref: '#/definitions/internal_handler.PptpServerDetailsResponse'
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get PPTP Server Details
@@ -2117,15 +2166,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.VPNServersStatusResponse'
+                  $ref: '#/definitions/internal_handler.VPNServersStatusResponse'
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: List VPN Servers
@@ -2147,15 +2196,15 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.SstpServerDetailsResponse'
+                  $ref: '#/definitions/internal_handler.SstpServerDetailsResponse'
               type: object
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get SSTP Server Details
@@ -2175,7 +2224,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateWireGuardInterfaceRequest'
+          $ref: '#/definitions/internal_handler.CreateWireGuardInterfaceRequest'
       produces:
       - application/json
       responses:
@@ -2183,19 +2232,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.WireGuardClientCreateResponse'
+                  $ref: '#/definitions/internal_handler.WireGuardClientCreateResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Create WireGuard Client Interface
@@ -2223,19 +2272,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.WireGuardDetailedResponse'
+                  $ref: '#/definitions/internal_handler.WireGuardDetailedResponse'
               type: object
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get WireGuard Client
@@ -2262,19 +2311,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.WireGuardInterfaceResponse'
+                  $ref: '#/definitions/internal_handler.WireGuardInterfaceResponse'
               type: object
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get WireGuard Interface
@@ -2298,7 +2347,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateWireGuardInterfaceRequest'
+          $ref: '#/definitions/internal_handler.UpdateWireGuardInterfaceRequest'
       produces:
       - application/json
       responses:
@@ -2306,29 +2355,111 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.WireGuardInterfaceResponse'
+                  $ref: '#/definitions/internal_handler.WireGuardInterfaceResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Update WireGuard Interface
       tags:
       - VPN
+  /api/vpn/wireguard/peer:
+    post:
+      description: Add a new peer to an existing WireGuard server interface with auto-generated
+        keys
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Peer configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateWireGuardServerPeerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_handler.WireGuardServerPeerCreateResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Create WireGuard Server Peer
+      tags:
+      - VPN
   /api/vpn/wireguard/peer/{nameOrID}:
+    delete:
+      description: Delete a WireGuard peer by name or ID
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard peer name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Delete WireGuard Peer
+      tags:
+      - VPN
     put:
       description: Update the properties of an existing WireGuard peer
       parameters:
@@ -2347,7 +2478,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateWireGuardPeerRequest'
+          $ref: '#/definitions/internal_handler.UpdateWireGuardPeerRequest'
       produces:
       - application/json
       responses:
@@ -2355,23 +2486,23 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.WireGuardPeerResponse'
+                  $ref: '#/definitions/internal_handler.WireGuardPeerResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Update WireGuard Peer
@@ -2398,21 +2529,21 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/handler.WireGuardPeerResponse'
+                    $ref: '#/definitions/internal_handler.WireGuardPeerResponse'
                   type: array
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Get WireGuard Peers
@@ -2432,7 +2563,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateWireGuardServerRequest'
+          $ref: '#/definitions/internal_handler.CreateWireGuardServerRequest'
       produces:
       - application/json
       responses:
@@ -2440,72 +2571,22 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handler.Response'
+            - $ref: '#/definitions/internal_handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.WireGuardServerCreateResponse'
+                  $ref: '#/definitions/internal_handler.WireGuardServerCreateResponse'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/internal_handler.Response'
       security:
       - BasicAuth: []
       summary: Create WireGuard Server Interface
-      tags:
-      - VPN
-  /api/vpn/wireguard/server/{interfaceName}/peer:
-    post:
-      description: Add a new peer to an existing WireGuard server interface with auto-generated
-        keys
-      parameters:
-      - description: RouterOS host address
-        in: header
-        name: X-RouterOS-Host
-        required: true
-        type: string
-      - description: WireGuard server interface name
-        in: path
-        name: interfaceName
-        required: true
-        type: string
-      - description: Peer configuration
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/handler.CreateWireGuardServerPeerRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/handler.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/handler.WireGuardServerPeerCreateResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.Response'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.Response'
-      security:
-      - BasicAuth: []
-      summary: Create WireGuard Server Peer
       tags:
       - VPN
   /api/wifi/clients:
@@ -2703,7 +2784,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateWiFiInterfaceRequest'
+          $ref: '#/definitions/internal_handler.UpdateWiFiInterfaceRequest'
       produces:
       - application/json
       responses:
@@ -2801,7 +2882,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.ChangeWiFiPassphraseRequest'
+          $ref: '#/definitions/internal_handler.ChangeWiFiPassphraseRequest'
       produces:
       - application/json
       responses:
@@ -2851,7 +2932,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateWiFiSettingsRequest'
+          $ref: '#/definitions/internal_handler.UpdateWiFiSettingsRequest'
       produces:
       - application/json
       responses:

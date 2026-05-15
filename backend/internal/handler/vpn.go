@@ -1088,19 +1088,25 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 	}
 
-	if err := client.UpdateWireGuardPeer(
-		peer.ID,
-		req.PublicKey,
-		req.PrivateKey,
-		req.EndpointAddress,
-		req.EndpointPort,
-		req.AllowedAddresses,
-		req.PreSharedKey,
-		req.PersistentKeepalive,
-		req.ClientEndpoint,
-		req.ClientAllowedAddress,
-		req.Disabled,
-	); err != nil {
+	if err := client.UpdateWireGuardPeer(peer.ID, routeros.UpdateWireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
+		Name:                 req.Name,
+		PublicKey:            req.PublicKey,
+		PrivateKey:           req.PrivateKey,
+		EndpointAddress:      req.EndpointAddress,
+		EndpointPort:         req.EndpointPort,
+		AllowedAddresses:     req.AllowedAddresses,
+		PreSharedKey:         req.PreSharedKey,
+		PersistentKeepalive:  req.PersistentKeepalive,
+		ClientEndpoint:       req.ClientEndpoint,
+		ClientAddress:        req.ClientAddress,
+		ClientKeepalive:      req.ClientKeepalive,
+		ClientAllowedAddress: req.ClientAllowedAddress,
+		ClientListenPort:     req.ClientListenPort,
+		ClientDNS:            req.ClientDNS,
+		Comment:              req.Comment,
+		Responder:            req.Responder,
+		Disabled:             req.Disabled,
+	}); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 		}
@@ -1229,23 +1235,17 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param interfaceName path string true "WireGuard server interface name"
 // @Param body body CreateWireGuardServerPeerRequest true "Peer configuration"
 // @Produce json
 // @Success 200 {object} Response{data=WireGuardServerPeerCreateResponse}
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/wireguard/server/{interfaceName}/peer [post].
+// @Router /api/vpn/wireguard/peer [post].
 func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
-	}
-
-	interfaceName := c.Param("interfaceName")
-	if interfaceName == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
 	}
 
 	var req CreateWireGuardServerPeerRequest
@@ -1253,16 +1253,16 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
 	}
 
+	if req.InterfaceName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
+	}
+
+	interfaceName := req.InterfaceName
+
 	// Verify the WireGuard interface exists
 	_, err = client.GetWireGuard(interfaceName) //nolint:misspell // pkg name is routeros not routers
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
-	}
-
-	// Get existing peers to determine the next peer number
-	peers, err := client.GetWireGuardPeers(interfaceName) //nolint:misspell // pkg name is routeros not routers
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve existing peers", err)
 	}
 
 	// Determine peer name
@@ -1270,8 +1270,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	if req.Name != nil && *req.Name != "" {
 		peerName = *req.Name
 	} else {
-		peerNumber := len(peers) + 1
-		peerName = fmt.Sprintf("%s-peer-%d", interfaceName, peerNumber)
+		peerName = utils.RandString(8)
 	}
 
 	// Determine private key
@@ -1319,16 +1318,25 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	allowedAddrs := []string{req.AllowedAddresses}
 
 	config := routeros.WireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
-		InterfaceName:       interfaceName,
-		PeerName:            peerName,
-		PrivateKey:          &privateKey,
-		PublicKey:           &publicKey,
-		EndpointAddress:     req.EndpointAddress,
-		EndpointPort:        req.EndpointPort,
-		AllowedAddresses:    allowedAddrs,
-		PresharedKey:        preSharedKey,
-		PersistentKeepalive: req.PersistentKeepalive,
-		SavePrivateKey:      req.SavePrivateKey != nil && *req.SavePrivateKey,
+		InterfaceName:        interfaceName,
+		PeerName:             peerName,
+		PrivateKey:           &privateKey,
+		PublicKey:            &publicKey,
+		EndpointAddress:      req.EndpointAddress,
+		EndpointPort:         req.EndpointPort,
+		AllowedAddresses:     allowedAddrs,
+		PresharedKey:         preSharedKey,
+		PersistentKeepalive:  req.PersistentKeepalive,
+		SavePrivateKey:       req.SavePrivateKey != nil && *req.SavePrivateKey,
+		Disabled:             req.Disabled,
+		ClientEndpoint:       req.ClientEndpoint,
+		ClientAddress:        req.ClientAddress,
+		ClientKeepalive:      req.ClientKeepalive,
+		ClientAllowedAddress: req.ClientAllowedAddress,
+		ClientListenPort:     req.ClientListenPort,
+		ClientDNS:            req.ClientDNS,
+		Comment:              req.Comment,
+		Responder:            req.Responder,
 	}
 
 	_, err = client.AddWireGuardPeer(config)
@@ -1359,4 +1367,36 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard server peer created successfully", response)
+}
+
+// HandleDeleteWireGuardPeer deletes a WireGuard peer.
+// @Summary Delete WireGuard Peer
+// @Description Delete a WireGuard peer by name or ID
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "WireGuard peer name or ID"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/peer/{nameOrID} [delete].
+func HandleDeleteWireGuardPeer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard peer name or ID is required", nil)
+	}
+
+	err = client.DeleteWireGuardPeer(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard peer", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard peer deleted successfully", nil)
 }
