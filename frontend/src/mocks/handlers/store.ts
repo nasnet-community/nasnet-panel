@@ -32,9 +32,7 @@ export interface Store {
 }
 
 const STORAGE_KEY = 'nasnet-panel.mock-store.v9';
-const LEGACY_KEYS = [
-  'nasnet-panel.mock-store.v8'
-];
+const LEGACY_KEYS = ['nasnet-panel.mock-store.v8'];
 
 const createStore = (): Store => ({
   routers: [],
