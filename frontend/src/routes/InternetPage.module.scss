@@ -1,0 +1,188 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  min-height: 360px;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-text-muted) 65%, transparent);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.edgeActive {
+  stroke: color-mix(in srgb, var(--color-success) 75%, transparent);
+  stroke-dasharray: none;
+  stroke-width: 2.5;
+}
+
+.arrow {
+  fill: color-mix(in srgb, var(--color-text-muted) 65%, transparent);
+}
+
+.arrowActive {
+  fill: color-mix(in srgb, var(--color-success) 75%, transparent);
+}
+
+.dotGreen {
+  fill: var(--color-success);
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-success) 80%, transparent));
+}
+
+.nodeBubble {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+}
+
+.nodeBubbleClickable {
+  cursor: pointer;
+  transition:
+    transform 120ms ease-out,
+    filter 120ms ease-out;
+}
+
+.nodeBubbleClickable:hover .nodeIcon,
+.nodeBubbleClickable:focus-visible .nodeIcon {
+  transform: scale(1.06);
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+.nodeBubbleClickable:focus-visible {
+  outline: 2px solid var(--color-info);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+.nodeIcon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition:
+    transform 120ms ease-out,
+    border-color 120ms ease-out,
+    color 120ms ease-out;
+}
+
+.nodeIconActive {
+  border-color: color-mix(in srgb, var(--color-success) 60%, transparent);
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 8%, var(--color-surface-alt));
+}
+
+.nodeIconDetached {
+  opacity: 0.55;
+}
+
+.nodeLabel {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  font-size: var(--font-xs);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.nodeSubLabel {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.columnHeader {
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendSwatch {
+  width: 18px;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-text-muted) 65%, transparent);
+}
+
+.legendSwatchActive {
+  background: color-mix(in srgb, var(--color-success) 75%, transparent);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-success) 80%, transparent);
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dotGreen {
+    display: none;
+  }
+}

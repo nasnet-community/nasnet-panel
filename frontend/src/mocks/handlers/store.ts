@@ -11,6 +11,7 @@ import type {
   LogLevel,
   Router,
   RouterUser,
+  RoutingTopology,
   VPNClient,
   VPNPeer,
   VPNServer,
@@ -26,10 +27,14 @@ export interface Store {
   appUpdate: AppUpdateInfo;
   firmware: Record<string, FirmwareUpdateInfo>;
   logs: LogEntry[];
+  routingTopologies: Record<string, RoutingTopology>;
   idCounter: number;
 }
 
-const STORAGE_KEY = 'nasnet-panel.mock-store.v4';
+const STORAGE_KEY = 'nasnet-panel.mock-store.v9';
+const LEGACY_KEYS = [
+  'nasnet-panel.mock-store.v8'
+];
 
 const createStore = (): Store => ({
   routers: [],
@@ -41,15 +46,30 @@ const createStore = (): Store => ({
   appUpdate: seededAppUpdate(),
   firmware: seededFirmwareUpdates(),
   logs: seededLogs(),
+  routingTopologies: {},
   idCounter: 1,
 });
 
 const loadStore = (): Store => {
   if (typeof window === 'undefined') return createStore();
   try {
-    const raw = window.localStorage?.getItem(STORAGE_KEY);
+    let raw = window.localStorage?.getItem(STORAGE_KEY);
+    if (!raw) {
+      for (const legacy of LEGACY_KEYS) {
+        const legacyRaw = window.localStorage?.getItem(legacy);
+        if (legacyRaw) {
+          raw = legacyRaw;
+          window.localStorage?.removeItem(legacy);
+          break;
+        }
+      }
+    }
     if (!raw) return createStore();
-    return JSON.parse(raw) as Store;
+    const parsed = JSON.parse(raw) as Store;
+    if (!parsed.routingTopologies) {
+      parsed.routingTopologies = {};
+    }
+    return parsed;
   } catch {
     return createStore();
   }
@@ -99,6 +119,12 @@ export const mockStore = {
     state.current.vpnClients = [];
     state.current.vpnServers = [];
     state.current.vpnPeers = [];
+    state.current.routingTopologies = {};
+    commit();
+  },
+  seedRoutingTopology(topology: RoutingTopology): void {
+    const store = state.current;
+    store.routingTopologies = { ...store.routingTopologies, [topology.routerId]: topology };
     commit();
   },
   seedRouter(router: Partial<Router> & Pick<Router, 'id'>): Router {
