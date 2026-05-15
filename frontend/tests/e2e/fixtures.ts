@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import type { Router } from '../../packages/mocks/src/types';
+import type { Router, RoutingTopology } from '../../packages/mocks/src/types';
 
 export interface SeedInput extends Partial<Router> {
   id: string;
@@ -48,6 +48,7 @@ export interface DhcpBackendOptions {
 export interface TestFixtures {
   resetMocks: () => Promise<void>;
   seedRouter: (input: SeedInput) => Promise<void>;
+  seedRoutingTopology: (topology: RoutingTopology) => Promise<void>;
   mockBackendScan: (devices?: ScanMockDevice[]) => Promise<void>;
   mockOverviewBackend: (router?: OverviewBackendRouter) => Promise<void>;
   mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
@@ -80,6 +81,14 @@ export const test = base.extend<TestFixtures>({
         window.__PENDING_SEEDS__ = window.__PENDING_SEEDS__ ?? [];
         window.__PENDING_SEEDS__.push(seed);
       }, input);
+    });
+  },
+  seedRoutingTopology: async ({ context }, use) => {
+    await use(async (topology) => {
+      await context.addInitScript((t) => {
+        window.__PENDING_TOPOLOGIES__ = window.__PENDING_TOPOLOGIES__ ?? [];
+        window.__PENDING_TOPOLOGIES__.push(t);
+      }, topology);
     });
   },
   mockBackendScan: async ({ context }, use) => {
@@ -559,6 +568,7 @@ declare global {
     };
     __SEED_EMPTY__?: boolean;
     __PENDING_SEEDS__?: SeedInput[];
+    __PENDING_TOPOLOGIES__?: RoutingTopology[];
   }
 }
 

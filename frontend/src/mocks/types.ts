@@ -224,3 +224,28 @@ export interface BatchJobResult {
   appliedLines: number;
   errors?: Array<{ line: number; message: string }>;
 }
+
+export type RoutingNodeKind = 'group' | 'router' | 'wan' | 'vpn';
+export type RoutingWanKind = 'starlink' | 'mobile' | 'fiber' | 'ether' | 'other';
+
+export interface RoutingNode {
+  id: string;
+  kind: RoutingNodeKind;
+  label: string;
+  wanKind?: RoutingWanKind;
+  protocol?: VPNProtocol;
+  subnet?: string;
+}
+
+export interface RoutingHop {
+  id: string;
+  fromId: string;
+  toId: string;
+  isActive: boolean;
+}
+
+export interface RoutingTopology {
+  routerId: string;
+  nodes: RoutingNode[];
+  hops: RoutingHop[];
+}
