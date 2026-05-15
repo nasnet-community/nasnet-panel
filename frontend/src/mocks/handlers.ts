@@ -6,6 +6,7 @@ import { users } from './handlers/users';
 import { updates } from './handlers/updates';
 import { logs } from './handlers/logs';
 import { batch } from './handlers/batch';
+import { routing } from './handlers/routing';
 
 export { mockStore, getProtocolOptions };
 
@@ -17,6 +18,7 @@ export const mockApi = {
   updates,
   logs,
   batch,
+  routing,
 };
 
 export type MockApi = typeof mockApi;
