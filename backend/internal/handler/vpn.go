@@ -822,7 +822,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	}
 
 	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
-		Name:       req.Name,
+		Name:       req.Name + "-client",
 		PrivateKey: req.InterfacePrivateKey,
 		ListenPort: req.ListenPort,
 		MTU:        req.MTU,
@@ -892,6 +892,110 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard client interface created successfully", response)
+}
+
+// HandleCreateWireGuardServer creates a new WireGuard server interface.
+// @Summary Create WireGuard Server Interface
+// @Description Create a new WireGuard server interface with the specified configuration
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body CreateWireGuardServerRequest true "WireGuard server interface configuration"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardServerCreateResponse}
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/server [post].
+func HandleCreateWireGuardServer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req CreateWireGuardServerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
+	}
+
+	// Check if listenPort is already in use
+	if req.ListenPort != nil && *req.ListenPort > 0 {
+		wireguards, err := client.ListWireGuards()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to check WireGuard interfaces", err)
+		}
+		for _, wg := range wireguards {
+			if wg.ListenPort == *req.ListenPort {
+				return ErrorResponse(c, http.StatusBadRequest, "Listen port already in use", fmt.Errorf("listen port %d is already used by interface %s", *req.ListenPort, wg.Name))
+			}
+		}
+	}
+
+	// Check existing addresses for validation
+	addresses, err := client.ListIPAddresses()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check existing addresses", err)
+	}
+
+	// Determine the local address
+	localAddress := req.LocalAddress
+	if localAddress == nil || *localAddress == "" {
+		// Auto-assign IP in format 192.168.x.1/24
+		assigned := false
+		for i := 30; i <= 254; i++ {
+			candidate := fmt.Sprintf("192.168.%d.1/24", i)
+			found := false
+			for _, addr := range addresses {
+				if addr.Address == candidate {
+					found = true
+					break
+				}
+			}
+			if !found {
+				localAddress = &candidate
+				assigned = true
+				break
+			}
+		}
+		if !assigned {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to assign IP address", fmt.Errorf("no available IP addresses in 192.168.x.1/24 range"))
+		}
+	} else {
+		// Validate provided IP is not already in use
+		for _, addr := range addresses {
+			if addr.Address == *localAddress {
+				return ErrorResponse(c, http.StatusBadRequest, "IP address already exists", fmt.Errorf("address %s is already in use", *localAddress))
+			}
+		}
+	}
+
+	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+		Name:       req.Name + "-server",
+		PrivateKey: req.PrivateKey,
+		ListenPort: req.ListenPort,
+		MTU:        req.MTU,
+		Disabled:   req.Disabled,
+		Comment:    req.Comment,
+	}
+
+	wireguard, err := client.CreateWireGuardInterface(config)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard server interface", err)
+	}
+
+	// Add IP address to the interface
+	ipConfig := routeros.IPAddressConfig{ //nolint:misspell // routeros is the package name
+		Interface: wireguard.Name,
+		Address:   *localAddress,
+		Disabled:  false,
+	}
+
+	if _, err := client.AddIPAddress(ipConfig); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
+	}
+
+	response := ToWireGuardServerCreateResponse(wireguard)
+	response.LocalAddress = *localAddress
+	return SuccessResponse(c, http.StatusOK, "WireGuard server interface created successfully", response)
 }
 
 // HandleUpdateWireGuardInterface updates a WireGuard interface.
@@ -1117,4 +1221,142 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard peers retrieved successfully", response)
+}
+
+// HandleCreateWireGuardServerPeer creates a new peer on a WireGuard server interface.
+// @Summary Create WireGuard Server Peer
+// @Description Add a new peer to an existing WireGuard server interface with auto-generated keys
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param interfaceName path string true "WireGuard server interface name"
+// @Param body body CreateWireGuardServerPeerRequest true "Peer configuration"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardServerPeerCreateResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/server/{interfaceName}/peer [post].
+func HandleCreateWireGuardServerPeer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	interfaceName := c.Param("interfaceName")
+	if interfaceName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
+	}
+
+	var req CreateWireGuardServerPeerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
+	}
+
+	// Verify the WireGuard interface exists
+	_, err = client.GetWireGuard(interfaceName) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
+	}
+
+	// Get existing peers to determine the next peer number
+	peers, err := client.GetWireGuardPeers(interfaceName) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve existing peers", err)
+	}
+
+	// Determine peer name
+	var peerName string
+	if req.Name != nil && *req.Name != "" {
+		peerName = *req.Name
+	} else {
+		peerNumber := len(peers) + 1
+		peerName = fmt.Sprintf("%s-peer-%d", interfaceName, peerNumber)
+	}
+
+	// Determine private key
+	var privateKey string
+	if req.PrivateKey != nil && *req.PrivateKey != "" {
+		privateKey = *req.PrivateKey
+	} else if req.PublicKey == nil || *req.PublicKey == "" {
+		// Only generate private key if public key is not supplied
+		var err error
+		privateKey, err = utils.GenerateWireGuardPrivateKey()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate private key", err)
+		}
+	}
+	// If public key is supplied but private key is not, leave private key empty
+
+	// Determine public key
+	var publicKey string
+	if req.PublicKey != nil && *req.PublicKey != "" {
+		publicKey = *req.PublicKey
+	} else if privateKey != "" {
+		// Only generate public key if private key is available
+		var err error
+		publicKey, err = utils.GenerateWireGuardPublicKey(privateKey)
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate public key", err)
+		}
+	}
+
+	// Determine preshared key
+	var preSharedKey *string
+	if req.PreSharedKey != nil {
+		// If preshared key is explicitly provided (even empty string), use it as is
+		preSharedKey = req.PreSharedKey
+	} else {
+		// Generate preshared key if not provided
+		generated, err := utils.GenerateWireGuardPrivateKey()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate preshared key", err)
+		}
+		preSharedKey = &generated
+	}
+
+	// Parse allowed addresses
+	allowedAddrs := []string{req.AllowedAddresses}
+
+	config := routeros.WireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
+		InterfaceName:       interfaceName,
+		PeerName:            peerName,
+		PrivateKey:          &privateKey,
+		PublicKey:           &publicKey,
+		EndpointAddress:     req.EndpointAddress,
+		EndpointPort:        req.EndpointPort,
+		AllowedAddresses:    allowedAddrs,
+		PresharedKey:        preSharedKey,
+		PersistentKeepalive: req.PersistentKeepalive,
+		SavePrivateKey:      req.SavePrivateKey != nil && *req.SavePrivateKey,
+	}
+
+	_, err = client.AddWireGuardPeer(config)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
+	}
+
+	// Determine response values
+	var preSharedKeyResponse string
+	if preSharedKey != nil {
+		preSharedKeyResponse = *preSharedKey
+	}
+
+	response := WireGuardServerPeerCreateResponse{
+		Name:             peerName,
+		InterfaceName:    interfaceName,
+		PublicKey:        publicKey,
+		PrivateKey:       privateKey,
+		PreSharedKey:     preSharedKeyResponse,
+		EndpointAddress:  req.EndpointAddress,
+		EndpointPort:     req.EndpointPort,
+		AllowedAddresses: req.AllowedAddresses,
+		Disabled:         false,
+	}
+
+	if req.PersistentKeepalive != nil {
+		response.PersistentKeepalive = *req.PersistentKeepalive
+	}
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard server peer created successfully", response)
 }
