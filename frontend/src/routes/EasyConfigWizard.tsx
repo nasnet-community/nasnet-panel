@@ -1,30 +1,78 @@
 import { useParams } from 'react-router-dom';
-import { Button, FormError, Inline, Stack, Stepper } from '@nasnet/ui';
+import { ArrowRight } from 'lucide-react';
+import { Button, FormError, Stack, Stepper } from '@nasnet/ui';
 import styles from './EasyConfigWizard.module.scss';
 import { stepOrder, stepTitles } from './easy-config/state';
 import { useEasyConfig } from './easy-config/useEasyConfig';
 import { ModeStep } from './easy-config/steps/ModeStep';
 import { WanStep } from './easy-config/steps/WanStep';
-import { LanStep } from './easy-config/steps/LanStep';
-import { ExtraStep } from './easy-config/steps/ExtraStep';
-import { ShowStep } from './easy-config/steps/ShowStep';
+import { IpMaskStep } from './easy-config/steps/IpMaskStep';
+import { WifiStep } from './easy-config/steps/WifiStep';
+import { VpnServerStep } from './easy-config/steps/VpnServerStep';
+import { ApplyDialog } from './easy-config/steps/show/ApplyDialog';
+import { useApplyDialog } from './easy-config/steps/show/useApplyDialog';
 
 export function EasyConfigWizard() {
   const { id } = useParams<{ id: string }>();
-  const { state, dispatch, interfaces, script, onApply, goNext, goPrev } = useEasyConfig(id);
+  const { state, dispatch, interfaces, onApply, goNext, goPrev, advanceProblem } =
+    useEasyConfig(id);
   const activeIndex = stepOrder.indexOf(state.currentStep);
+  const canSave = advanceProblem === null;
+  const isLastStep = activeIndex === stepOrder.length - 1;
+  const { dialogOpen, openDialog, closeDialog, goToOverview } = useApplyDialog(
+    state.applying,
+    state.applied,
+  );
+
+  const handleApply = () => {
+    openDialog();
+    onApply();
+  };
+
+  const onPrimary = () => {
+    if (isLastStep) {
+      handleApply();
+    } else {
+      goNext();
+    }
+  };
 
   const footer = (
     <div className={styles.stepFooter}>
-      {state.error ? <FormError>{state.error}</FormError> : null}
-      <Inline>
-        <Button variant="ghost" onClick={goPrev} disabled={activeIndex === 0}>
-          Back
+      {state.error && !dialogOpen ? <FormError>{state.error}</FormError> : null}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          gap: 'var(--space-sm)',
+          width: '100%',
+        }}
+      >
+        {activeIndex > 0 ? (
+          <Button variant="ghost" onClick={goPrev} disabled={state.applying}>
+            Back
+          </Button>
+        ) : null}
+        <Button
+          variant="success"
+          onClick={onPrimary}
+          disabled={!canSave || state.applying || state.applied}
+          loading={state.applying}
+        >
+          {isLastStep ? (
+            state.applied ? (
+              'Applied'
+            ) : (
+              'Apply'
+            )
+          ) : (
+            <>
+              Next <ArrowRight size={16} strokeWidth={2} />
+            </>
+          )}
         </Button>
-        <Button variant="success" onClick={goNext}>
-          Next
-        </Button>
-      </Inline>
+      </div>
     </div>
   );
 
@@ -36,12 +84,12 @@ export function EasyConfigWizard() {
         return (
           <WanStep state={state} dispatch={dispatch} interfaces={interfaces} footer={footer} />
         );
-      case 'lan':
-        return <LanStep state={state} dispatch={dispatch} footer={footer} />;
-      case 'extra':
-        return <ExtraStep state={state} dispatch={dispatch} footer={footer} />;
-      case 'show':
-        return <ShowStep script={script} state={state} onApply={onApply} onBack={goPrev} />;
+      case 'ipmask':
+        return <IpMaskStep state={state} dispatch={dispatch} footer={footer} />;
+      case 'wifi':
+        return <WifiStep state={state} dispatch={dispatch} footer={footer} />;
+      case 'vpnsrv':
+        return <VpnServerStep state={state} dispatch={dispatch} footer={footer} />;
       default:
         return null;
     }
@@ -59,6 +107,15 @@ export function EasyConfigWizard() {
         }))}
       />
       {renderStep()}
+      <ApplyDialog
+        open={dialogOpen}
+        applying={state.applying}
+        applied={state.applied}
+        error={state.error}
+        onClose={closeDialog}
+        onRetry={() => onApply()}
+        onDone={goToOverview}
+      />
     </Stack>
   );
 }

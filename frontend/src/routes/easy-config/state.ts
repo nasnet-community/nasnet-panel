@@ -1,8 +1,16 @@
 export type Mode = 'starlink-only' | 'dual-link';
-export type StepId = 'mode' | 'wan' | 'lan' | 'extra' | 'show';
+export type StepId = 'mode' | 'wan' | 'ipmask' | 'wifi' | 'vpnsrv';
+export type InterfaceType = 'ethernet' | 'wireless' | 'sfp' | 'lte';
+export type VpnServerProtocol = 'wireguard' | 'openvpn' | 'l2tp';
 
 export interface State {
   mode: Mode | null;
+  starlinkInterfaceType: InterfaceType;
+  domesticInterfaceType: InterfaceType;
+  starlinkWanSsid: string;
+  starlinkWanPassword: string;
+  domesticWanSsid: string;
+  domesticWanPassword: string;
   starlinkInterface: string;
   domesticInterface: string;
   domesticMode: 'dhcp' | 'static' | 'pppoe';
@@ -11,13 +19,22 @@ export interface State {
   staticIp: string;
   staticGateway: string;
   staticDns: string;
+  wifiInterface: string;
+  wifi24Enabled: boolean;
+  wifi5Enabled: boolean;
+  wifi6Enabled: boolean;
   ssid: string;
   wifiPassword: string;
+  ssid5: string;
+  wifiPassword5: string;
+  ssid6: string;
+  wifiPassword6: string;
   security: 'WPA2-PSK' | 'WPA3-PSK';
   band: '2.4ghz' | '5ghz';
   countryCode: string;
   ipMaskEnabled: boolean;
   ipMaskKind: 'wireguard' | 'l2tp';
+  wgConfig: string;
   wgEndpoint: string;
   wgEndpointPort: string;
   wgPeerPublicKey: string;
@@ -29,13 +46,17 @@ export interface State {
   l2tpServer: string;
   l2tpUsername: string;
   l2tpPassword: string;
+  l2tpUseIpsec: boolean;
   l2tpIpsecSecret: string;
   l2tpProfile: string;
   vpnServerEnabled: boolean;
-  vpnServerProtocol: 'wireguard' | 'l2tp';
+  vpnServerProtocol: VpnServerProtocol;
   vpnServerPort: string;
   vpnServerIpPool: string;
   vpnServerDns: string;
+  firstUserName: string;
+  firstUserKey: string;
+  vpnServerCertPassphrase: string;
   currentStep: StepId;
   error: string | null;
   applying: boolean;
@@ -44,6 +65,12 @@ export interface State {
 
 export const initial: State = {
   mode: 'dual-link',
+  starlinkInterfaceType: 'ethernet',
+  domesticInterfaceType: 'ethernet',
+  starlinkWanSsid: '',
+  starlinkWanPassword: '',
+  domesticWanSsid: '',
+  domesticWanPassword: '',
   starlinkInterface: '',
   domesticInterface: '',
   domesticMode: 'dhcp',
@@ -52,13 +79,22 @@ export const initial: State = {
   staticIp: '',
   staticGateway: '',
   staticDns: '',
+  wifiInterface: '',
+  wifi24Enabled: true,
+  wifi5Enabled: false,
+  wifi6Enabled: false,
   ssid: '',
   wifiPassword: '',
+  ssid5: '',
+  wifiPassword5: '',
+  ssid6: '',
+  wifiPassword6: '',
   security: 'WPA2-PSK',
   band: '5ghz',
   countryCode: 'US',
-  ipMaskEnabled: false,
+  ipMaskEnabled: true,
   ipMaskKind: 'wireguard',
+  wgConfig: '',
   wgEndpoint: '',
   wgEndpointPort: '51820',
   wgPeerPublicKey: '',
@@ -70,13 +106,17 @@ export const initial: State = {
   l2tpServer: '',
   l2tpUsername: '',
   l2tpPassword: '',
+  l2tpUseIpsec: false,
   l2tpIpsecSecret: '',
   l2tpProfile: 'default-encryption',
   vpnServerEnabled: false,
-  vpnServerProtocol: 'wireguard',
+  vpnServerProtocol: 'openvpn',
   vpnServerPort: '51820',
   vpnServerIpPool: '10.8.0.0/24',
   vpnServerDns: '',
+  firstUserName: '',
+  firstUserKey: '',
+  vpnServerCertPassphrase: '',
   currentStep: 'mode',
   error: null,
   applying: false,
@@ -113,12 +153,12 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-export const stepOrder: StepId[] = ['mode', 'wan', 'lan', 'extra', 'show'];
+export const stepOrder: StepId[] = ['mode', 'wan', 'ipmask', 'wifi', 'vpnsrv'];
 
 export const stepTitles: Record<StepId, { title: string; description: string }> = {
-  mode: { title: 'Mode', description: 'Setup type' },
+  mode: { title: 'Choose', description: 'Setup type' },
   wan: { title: 'WAN', description: 'Uplink interfaces' },
-  lan: { title: 'LAN', description: 'Wireless SSID' },
-  extra: { title: 'Extra', description: 'VPN options' },
-  show: { title: 'Show', description: 'Review & apply' },
+  ipmask: { title: 'IP-Mask', description: 'Starlink VPN client' },
+  wifi: { title: 'WiFi', description: 'Wireless network' },
+  vpnsrv: { title: 'VPN Server', description: 'Inbound VPN' },
 };

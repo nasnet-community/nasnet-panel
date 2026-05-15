@@ -147,7 +147,14 @@ export const mockStore = {
       store.interfaces[defaults.id] = [
         { name: 'ether1', type: 'ether', mac: 'AA:AA:AA:AA:AA:01', running: true },
         { name: 'ether2', type: 'ether', mac: 'AA:AA:AA:AA:AA:02', running: true },
-        { name: 'wlan1', type: 'wireless', mac: 'AA:AA:AA:AA:AA:0C', running: true },
+        {
+          name: 'wifi2.4',
+          type: 'wireless',
+          mac: 'AA:AA:AA:AA:AA:0C',
+          running: true,
+          band: '2.4ghz',
+        },
+        { name: 'wifi5', type: 'wireless', mac: 'AA:AA:AA:AA:AA:0D', running: true, band: '5ghz' },
       ];
     }
     if (!store.routerUsers.some((u) => u.routerId === defaults.id)) {

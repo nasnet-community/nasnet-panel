@@ -5,6 +5,10 @@ export interface FlowNode {
   id: string;
   icon: React.ReactNode;
   label: string;
+  sublabel?: string;
+  sublabelIcon?: React.ReactNode;
+  selected?: boolean;
+  badge?: { icon: React.ReactNode; label: string };
 }
 
 export interface FlowDiagramProps {
@@ -17,8 +21,29 @@ export const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, ariaLabel = 'Ne
     {nodes.map((node, i) => (
       <React.Fragment key={node.id}>
         <div className={styles.node}>
-          <div className={styles.nodeIcon}>{node.icon}</div>
+          <div
+            className={[styles.nodeIcon, node.selected ? styles.nodeIconSelected : '']
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {node.icon}
+          </div>
           <div className={styles.nodeLabel}>{node.label}</div>
+          {node.sublabel ? (
+            <div className={styles.nodeSublabel}>
+              (
+              {node.sublabelIcon ? (
+                <span className={styles.nodeSublabelIcon}>{node.sublabelIcon}</span>
+              ) : null}
+              {node.sublabel})
+            </div>
+          ) : null}
+          {node.badge ? (
+            <div className={styles.nodeBadge}>
+              {node.badge.icon}
+              <span>{node.badge.label}</span>
+            </div>
+          ) : null}
         </div>
         {i < nodes.length - 1 ? (
           <div className={styles.connector} aria-hidden="true">
