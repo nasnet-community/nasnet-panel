@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { useToast } from '@nasnet/ui';
-import { api, type Interface } from '../../api';
+import { api, fetchInterfaces, type InterfaceResponse } from '../../api';
+import { useSession } from '../../state/SessionContext';
+import { useRouter } from '../../state/RouterStoreContext';
 import { buildEasyConfigScript, type EasyConfigInput } from '../../utils/rsc-builder';
 import { canAdvance } from './validation';
 import { initial, reducer, stepOrder, type State } from './state';
@@ -28,6 +29,9 @@ function buildScript(state: State): string {
       security: state.security,
       band: state.band,
       countryCode: state.countryCode,
+      splitBands: state.wifi24Enabled && state.wifi5Enabled,
+      band24: state.wifi24Enabled ? { ssid: state.ssid, password: state.wifiPassword } : undefined,
+      band5: state.wifi5Enabled ? { ssid: state.ssid5, password: state.wifiPassword5 } : undefined,
     },
     ipMask: state.ipMaskEnabled
       ? state.ipMaskKind === 'wireguard'
@@ -46,6 +50,7 @@ function buildScript(state: State): string {
             server: state.l2tpServer,
             username: state.l2tpUsername,
             password: state.l2tpPassword,
+            useIpsec: state.l2tpUseIpsec,
             ipsecSecret: state.l2tpIpsecSecret,
             profile: state.l2tpProfile,
           }
@@ -56,6 +61,10 @@ function buildScript(state: State): string {
           listenPort: Number(state.vpnServerPort) || 51820,
           ipPool: state.vpnServerIpPool,
           dns: state.vpnServerDns || undefined,
+          firstUser:
+            state.firstUserName && state.firstUserKey
+              ? { name: state.firstUserName, key: state.firstUserKey }
+              : undefined,
         }
       : undefined,
   };
@@ -63,23 +72,54 @@ function buildScript(state: State): string {
 }
 
 export function useEasyConfig(routerId: string | undefined) {
-  const toast = useToast();
+  const { getCredentials } = useSession();
+  const router = useRouter(routerId);
   const [state, dispatch] = useReducer(reducer, initial);
-  const [interfaces, setInterfaces] = useState<Interface[]>([]);
+  const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
 
   useEffect(() => {
     if (!routerId) return;
-    let cancelled = false;
-    void api.system.listInterfaces(routerId).then((list) => {
-      if (cancelled) return;
-      setInterfaces(list.filter((i) => i.type === 'ether'));
-    });
-    return () => {
-      cancelled = true;
+    const creds = getCredentials(routerId);
+    const host = router?.host;
+    const controller = new AbortController();
+
+    const loadFromApi = async () => {
+      if (!creds || !host) return null;
+      try {
+        return await fetchInterfaces({ host, ...creds }, controller.signal);
+      } catch {
+        return null;
+      }
     };
-  }, [routerId]);
+
+    const loadFromMock = async () => {
+      const list = await api.system.listInterfaces(routerId);
+      return list.map((i) => ({
+        id: i.name,
+        name: i.name,
+        type: i.type,
+        running: i.running,
+        disabled: i.disabled ?? false,
+        mac: i.mac,
+        comment: i.comment,
+      })) satisfies InterfaceResponse[];
+    };
+
+    void (async () => {
+      const fromApi = await loadFromApi();
+      if (controller.signal.aborted) return;
+      const list = fromApi ?? (await loadFromMock());
+      if (controller.signal.aborted) return;
+      setInterfaces(list.filter((i) => i.type === 'ether' || i.type === 'wireless'));
+    })();
+
+    return () => {
+      controller.abort();
+    };
+  }, [routerId, router?.host, getCredentials]);
 
   const script = useMemo(() => buildScript(state), [state]);
+  const advanceProblem = useMemo(() => canAdvance(state), [state]);
 
   const onApply = useCallback(
     async (override?: string) => {
@@ -90,24 +130,18 @@ export function useEasyConfig(routerId: string | undefined) {
         if (result.status !== 'ok') {
           throw new Error(result.errors?.[0]?.message ?? 'Apply failed');
         }
-        toast.notify({
-          title: 'Configuration applied',
-          description: `${result.appliedLines} lines applied`,
-          tone: 'success',
-        });
         dispatch({ type: 'applied' });
       } catch (err) {
         dispatch({ type: 'error', message: (err as Error).message ?? 'Apply failed' });
         dispatch({ type: 'applying', value: false });
       }
     },
-    [script, toast],
+    [script],
   );
 
   const goNext = () => {
-    const problem = canAdvance(state);
-    if (problem) {
-      dispatch({ type: 'error', message: problem });
+    if (advanceProblem) {
+      dispatch({ type: 'error', message: advanceProblem });
       return;
     }
     const idx = stepOrder.indexOf(state.currentStep);
@@ -121,5 +155,5 @@ export function useEasyConfig(routerId: string | undefined) {
     if (prev) dispatch({ type: 'step', step: prev });
   };
 
-  return { state, dispatch, interfaces, script, onApply, goNext, goPrev };
+  return { state, dispatch, interfaces, script, onApply, goNext, goPrev, advanceProblem };
 }
