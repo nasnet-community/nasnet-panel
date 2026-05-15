@@ -16,6 +16,8 @@ interface BaseSelectProps {
   className?: string;
   searchable?: boolean;
   searchPlaceholder?: string;
+  /** Max height of the option list in pixels; overrides the 240px default. */
+  maxOptionsHeight?: number;
   'aria-label'?: string;
   'aria-labelledby'?: string;
 }
@@ -48,6 +50,7 @@ export const Select: React.FC<SelectProps> = (props) => {
     className,
     searchable = false,
     searchPlaceholder = 'Search…',
+    maxOptionsHeight,
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledBy,
     multiple = false,
@@ -256,6 +259,7 @@ export const Select: React.FC<SelectProps> = (props) => {
             role="listbox"
             aria-labelledby={triggerId}
             className={styles.list}
+            style={maxOptionsHeight ? { maxHeight: maxOptionsHeight } : undefined}
             tabIndex={-1}
           >
             {filteredOptions.length === 0 ? (

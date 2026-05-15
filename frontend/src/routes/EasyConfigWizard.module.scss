@@ -28,6 +28,10 @@
   margin-top: -50px;
 }
 
+.flowStageLarge {
+  height: 500px;
+}
+
 @media (max-width: 640px) {
   .modeLayout {
     grid-template-columns: 1fr;

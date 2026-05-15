@@ -21,6 +21,11 @@
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
+  transition: color 240ms ease;
+}
+
+.nodeIconSelected {
+  color: var(--color-success);
 }
 
 .nodeLabel {
@@ -28,6 +33,35 @@
   color: var(--color-text);
   font-size: var(--font-xs);
   letter-spacing: 0.02em;
+}
+
+.nodeSublabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
+.nodeSublabelIcon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-muted);
+}
+
+.nodeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-success);
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-top: 2px;
 }
 
 .connector {
