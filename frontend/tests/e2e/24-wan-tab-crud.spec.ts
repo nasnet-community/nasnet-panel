@@ -43,9 +43,8 @@ test.describe('WAN tab', () => {
     await page.getByRole('option', { name: 'ether1' }).click();
     await dialog.getByRole('button', { name: /^save$/i }).click();
 
-    const card = page.getByText('My SL').locator('..');
-    await expect(card).toBeVisible();
-    await expect(card).toContainText('ethernet · ether1');
+    await expect(page.getByText('My SL')).toBeVisible();
+    await expect(page.getByText('ether1')).toBeVisible();
 
     await page.reload();
     await expect(page.getByText('My SL')).toBeVisible();
@@ -80,6 +79,6 @@ test.describe('WAN tab', () => {
     await dialog.getByRole('button', { name: /^save$/i }).click();
 
     await expect(page.getByText('mask-one')).toBeVisible();
-    await expect(page.getByText('mask-one').locator('..')).toContainText('L2TP · vpn.example.com');
+    await expect(page.getByText('vpn.example.com')).toBeVisible();
   });
 });

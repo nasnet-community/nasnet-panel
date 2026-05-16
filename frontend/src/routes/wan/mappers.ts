@@ -39,11 +39,6 @@ export function seedDomestic(entity?: DomesticUplink): State {
     domesticWanSsid: entity.wirelessSsid ?? '',
     domesticWanPassword: entity.wirelessPassword ?? '',
     domesticMode: entity.mode,
-    pppoeUser: entity.pppoeUser ?? '',
-    pppoePassword: entity.pppoePassword ?? '',
-    staticIp: entity.staticIp ?? '',
-    staticGateway: entity.staticGateway ?? '',
-    staticDns: entity.staticDns ?? '',
   };
 }
 
@@ -63,11 +58,6 @@ export function domesticFromState(
     wirelessSsid: wireless ? s.domesticWanSsid : undefined,
     wirelessPassword: wireless ? s.domesticWanPassword : undefined,
     mode: s.domesticMode,
-    pppoeUser: s.domesticMode === 'pppoe' ? s.pppoeUser : undefined,
-    pppoePassword: s.domesticMode === 'pppoe' ? s.pppoePassword : undefined,
-    staticIp: s.domesticMode === 'static' ? s.staticIp : undefined,
-    staticGateway: s.domesticMode === 'static' ? s.staticGateway : undefined,
-    staticDns: s.domesticMode === 'static' ? s.staticDns : undefined,
   };
 }
 

@@ -19,8 +19,6 @@ export const seededDomesticUplinks = (): DomesticUplink[] => [
     interfaceType: 'ethernet',
     interfaceName: 'ether2',
     mode: 'pppoe',
-    pppoeUser: 'isp-user',
-    pppoePassword: 'isp-pass',
     enabled: true,
   },
 ];

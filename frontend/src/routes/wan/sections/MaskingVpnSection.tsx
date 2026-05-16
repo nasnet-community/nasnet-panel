@@ -3,11 +3,9 @@ import { Lock } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import { api, type WanVpnClient } from '../../../api';
 import { SectionHeader } from '../../vpn/sections/SectionHeader';
-import { EmptyHint } from '../EmptyHint';
-import { WanCard } from '../WanCard';
+import { WanTable } from '../WanTable';
 import { WanVpnDialog } from '../dialogs/WanVpnDialog';
 import { vpnMeta } from '../vpnMeta';
-import styles from '../WanPage.module.scss';
 
 interface Props {
   routerId: string;
@@ -67,31 +65,41 @@ export function MaskingVpnSection({ routerId, items, onChanged }: Props) {
     onChanged();
   };
 
+  const onToggle = async (c: WanVpnClient, enabled: boolean) => {
+    try {
+      await api.wan.updateMaskingVpn(c.id, { enabled });
+    } catch (err) {
+      toast.notify({
+        title: 'Failed to update VPN client',
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+      return;
+    }
+    onChanged();
+  };
+
   return (
     <Stack>
       <Card>
         <SectionHeader
           title="Starlink Masking VPN Client"
-          count={items.length}
           description="VPN clients that conceal the Starlink IP."
           action={{ label: 'New', onClick: openAdd }}
         />
-        {items.length === 0 ? (
-          <EmptyHint icon={<Lock size={20} aria-hidden />} text="No masking VPN clients yet" />
-        ) : (
-          <div className={styles.grid}>
-            {items.map((c) => (
-              <WanCard
-                key={c.id}
-                title={c.name}
-                meta={vpnMeta(c)}
-                enabled={c.enabled}
-                onEdit={() => openEdit(c)}
-                onDelete={() => setPendingDelete(c)}
-              />
-            ))}
-          </div>
-        )}
+        <WanTable
+          rows={items}
+          rowKey={(c) => c.id}
+          name={(c) => c.name}
+          tag={(c) => vpnMeta(c).tag}
+          detail={(c) => vpnMeta(c).detail}
+          enabled={(c) => c.enabled}
+          emptyIcon={<Lock size={20} aria-hidden />}
+          emptyMessage="No masking VPN clients yet"
+          onToggle={onToggle}
+          onEdit={(c) => openEdit(c)}
+          onDelete={(c) => setPendingDelete(c)}
+        />
       </Card>
       {dialogOpen ? (
         <WanVpnDialog

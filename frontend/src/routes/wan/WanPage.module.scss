@@ -17,62 +17,11 @@
   flex: 1;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-md);
-  margin-top: 16px;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.cardHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-}
-
-.cardTitle {
-  font-weight: var(--weight-semibold);
-}
-
-.cardMeta {
-  color: var(--color-text-muted);
-  font-size: var(--font-sm);
-}
-
-.cardActions {
-  display: flex;
+.rowActions {
+  display: inline-flex;
   gap: var(--space-xs);
-  margin-top: auto;
-  padding-top: var(--space-sm);
 }
 
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  min-height: 250px;
-  margin-top: 16px;
-  padding: var(--space-2xl);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  font-size: var(--font-sm);
-}
-
-.dialogStack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
+.iconBtn {
+  padding: 4px 6px;
 }

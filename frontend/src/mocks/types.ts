@@ -274,11 +274,6 @@ export interface DomesticUplink {
   wirelessSsid?: string;
   wirelessPassword?: string;
   mode: DomesticConnMode;
-  pppoeUser?: string;
-  pppoePassword?: string;
-  staticIp?: string;
-  staticGateway?: string;
-  staticDns?: string;
   enabled: boolean;
 }
 

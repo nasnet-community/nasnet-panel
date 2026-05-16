@@ -3,10 +3,8 @@ import { Cable } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import { api, type DomesticUplink, type InterfaceResponse } from '../../../api';
 import { SectionHeader } from '../../vpn/sections/SectionHeader';
-import { EmptyHint } from '../EmptyHint';
-import { WanCard } from '../WanCard';
+import { WanTable } from '../WanTable';
 import { DomesticUplinkDialog } from '../dialogs/DomesticUplinkDialog';
-import styles from '../WanPage.module.scss';
 
 interface Props {
   routerId: string;
@@ -67,31 +65,41 @@ export function DomesticUplinkSection({ routerId, items, interfaces, onChanged }
     onChanged();
   };
 
+  const onToggle = async (u: DomesticUplink, enabled: boolean) => {
+    try {
+      await api.wan.updateDomestic(u.id, { enabled });
+    } catch (err) {
+      toast.notify({
+        title: 'Failed to update uplink',
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+      return;
+    }
+    onChanged();
+  };
+
   return (
     <Stack>
       <Card>
         <SectionHeader
           title="Domestic"
-          count={items.length}
           description="Domestic uplink interfaces and connection type."
           action={{ label: 'New', onClick: openAdd }}
         />
-        {items.length === 0 ? (
-          <EmptyHint icon={<Cable size={20} aria-hidden />} text="No domestic uplinks yet" />
-        ) : (
-          <div className={styles.grid}>
-            {items.map((u) => (
-              <WanCard
-                key={u.id}
-                title={u.name}
-                meta={`${u.mode} · ${u.interfaceName || 'no interface'}`}
-                enabled={u.enabled}
-                onEdit={() => openEdit(u)}
-                onDelete={() => setPendingDelete(u)}
-              />
-            ))}
-          </div>
-        )}
+        <WanTable
+          rows={items}
+          rowKey={(u) => u.id}
+          name={(u) => u.name}
+          tag={(u) => u.mode}
+          detail={(u) => u.interfaceName || 'no interface'}
+          enabled={(u) => u.enabled}
+          emptyIcon={<Cable size={20} aria-hidden />}
+          emptyMessage="No domestic uplinks yet"
+          onToggle={onToggle}
+          onEdit={(u) => openEdit(u)}
+          onDelete={(u) => setPendingDelete(u)}
+        />
       </Card>
       {dialogOpen ? (
         <DomesticUplinkDialog
