@@ -1,10 +1,17 @@
 import { seededInterfaces } from '../fixtures/interfaces';
 import { seededVPNClients, seededVPNServers, seededVPNPeers } from '../fixtures/vpn';
+import {
+  seededStarlinkUplinks,
+  seededDomesticUplinks,
+  seededMaskingVpnClients,
+  seededDomesticVpnInterfaces,
+} from '../fixtures/wan';
 import { seededRouterUsers } from '../fixtures/router-users';
 import { seededAppUpdate, seededFirmwareUpdates } from '../fixtures/update-info';
 import { seededLogs } from '../fixtures/logs';
 import type {
   AppUpdateInfo,
+  DomesticUplink,
   FirmwareUpdateInfo,
   Interface,
   LogEntry,
@@ -12,9 +19,11 @@ import type {
   Router,
   RouterUser,
   RoutingTopology,
+  StarlinkUplink,
   VPNClient,
   VPNPeer,
   VPNServer,
+  WanVpnClient,
 } from '../types';
 
 export interface Store {
@@ -23,6 +32,10 @@ export interface Store {
   vpnClients: VPNClient[];
   vpnServers: VPNServer[];
   vpnPeers: VPNPeer[];
+  starlinkUplinks: StarlinkUplink[];
+  domesticUplinks: DomesticUplink[];
+  maskingVpnClients: WanVpnClient[];
+  domesticVpnInterfaces: WanVpnClient[];
   routerUsers: RouterUser[];
   appUpdate: AppUpdateInfo;
   firmware: Record<string, FirmwareUpdateInfo>;
@@ -31,8 +44,8 @@ export interface Store {
   idCounter: number;
 }
 
-const STORAGE_KEY = 'nasnet-panel.mock-store.v9';
-const LEGACY_KEYS = ['nasnet-panel.mock-store.v8'];
+const STORAGE_KEY = 'nasnet-panel.mock-store.v10';
+const LEGACY_KEYS = ['nasnet-panel.mock-store.v9', 'nasnet-panel.mock-store.v8'];
 
 const createStore = (): Store => ({
   routers: [],
@@ -40,6 +53,10 @@ const createStore = (): Store => ({
   vpnClients: seededVPNClients(),
   vpnServers: seededVPNServers(),
   vpnPeers: seededVPNPeers(),
+  starlinkUplinks: seededStarlinkUplinks(),
+  domesticUplinks: seededDomesticUplinks(),
+  maskingVpnClients: seededMaskingVpnClients(),
+  domesticVpnInterfaces: seededDomesticVpnInterfaces(),
   routerUsers: seededRouterUsers(),
   appUpdate: seededAppUpdate(),
   firmware: seededFirmwareUpdates(),
@@ -66,6 +83,12 @@ const loadStore = (): Store => {
     const parsed = JSON.parse(raw) as Store;
     if (!parsed.routingTopologies) {
       parsed.routingTopologies = {};
+    }
+    if (!parsed.starlinkUplinks) parsed.starlinkUplinks = seededStarlinkUplinks();
+    if (!parsed.domesticUplinks) parsed.domesticUplinks = seededDomesticUplinks();
+    if (!parsed.maskingVpnClients) parsed.maskingVpnClients = seededMaskingVpnClients();
+    if (!parsed.domesticVpnInterfaces) {
+      parsed.domesticVpnInterfaces = seededDomesticVpnInterfaces();
     }
     return parsed;
   } catch {
@@ -117,6 +140,10 @@ export const mockStore = {
     state.current.vpnClients = [];
     state.current.vpnServers = [];
     state.current.vpnPeers = [];
+    state.current.starlinkUplinks = [];
+    state.current.domesticUplinks = [];
+    state.current.maskingVpnClients = [];
+    state.current.domesticVpnInterfaces = [];
     state.current.routingTopologies = {};
     commit();
   },

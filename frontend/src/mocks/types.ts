@@ -250,3 +250,52 @@ export interface RoutingTopology {
   nodes: RoutingNode[];
   hops: RoutingHop[];
 }
+
+export type WanInterfaceKind = 'ethernet' | 'wireless' | 'sfp' | 'lte';
+export type DomesticConnMode = 'dhcp' | 'static' | 'pppoe';
+export type WanVpnKind = 'wireguard' | 'l2tp';
+
+export interface StarlinkUplink {
+  id: string;
+  routerId: string;
+  name: string;
+  interfaceType: WanInterfaceKind;
+  interfaceName: string;
+  wirelessSsid?: string;
+  wirelessPassword?: string;
+  enabled: boolean;
+}
+
+export interface DomesticUplink {
+  id: string;
+  routerId: string;
+  name: string;
+  interfaceType: WanInterfaceKind;
+  interfaceName: string;
+  wirelessSsid?: string;
+  wirelessPassword?: string;
+  mode: DomesticConnMode;
+  enabled: boolean;
+}
+
+export interface WanVpnClient {
+  id: string;
+  routerId: string;
+  name: string;
+  kind: WanVpnKind;
+  wgConfig?: string;
+  wgEndpoint?: string;
+  wgEndpointPort?: string;
+  wgPeerPublicKey?: string;
+  wgPrivateKey?: string;
+  wgPublicKey?: string;
+  wgAllowedIps?: string;
+  wgKeepalive?: string;
+  wgMtu?: string;
+  l2tpServer?: string;
+  l2tpUsername?: string;
+  l2tpPassword?: string;
+  l2tpUseIpsec?: boolean;
+  l2tpIpsecSecret?: string;
+  enabled: boolean;
+}
