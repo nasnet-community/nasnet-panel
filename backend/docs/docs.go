@@ -5043,34 +5043,10 @@ const docTemplate = `{
         "handler.wiFiAccessPointResponse": {
             "type": "object",
             "properties": {
-                "authentication": {
-                    "type": "string"
-                },
-                "band": {
-                    "type": "string"
-                },
-                "bssid": {
-                    "type": "string"
-                },
                 "channel": {
                     "type": "string"
                 },
-                "channelWidth": {
-                    "type": "string"
-                },
-                "encryption": {
-                    "type": "string"
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "interface": {
-                    "type": "string"
-                },
-                "mode": {
-                    "type": "string"
-                },
-                "noiseFloor": {
+                "macAddress": {
                     "type": "string"
                 },
                 "security": {
@@ -5080,9 +5056,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ssid": {
-                    "type": "string"
-                },
-                "wps": {
                     "type": "string"
                 }
             }

@@ -82,20 +82,11 @@ type ConnectedClient struct {
 
 // WiFiAccessPoint represents a discovered nearby access point during scan.
 type WiFiAccessPoint struct {
-	SSID           string
-	BSSID          string
-	Interface      string
-	Frequency      string
-	Band           string
-	Channel        string
-	ChannelWidth   string
-	Signal         string
-	NoiseFloor     string
-	Security       string
-	Authentication string
-	Encryption     string
-	WPS            string
-	Mode           string
+	MACAddress string
+	SSID       string
+	Channel    string
+	Security   string
+	Signal     string
 }
 
 type WifiPassword struct {

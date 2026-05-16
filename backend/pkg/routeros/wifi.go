@@ -525,20 +525,11 @@ func (c *Client) scanWiFiAccessPointsByInterface(nameOrID, duration string) ([]W
 		}
 
 		aps = append(aps, WiFiAccessPoint{
-			SSID:           ssid,
-			BSSID:          firstNonEmpty(result["bssid"], result["mac-address"]),
-			Interface:      firstNonEmpty(result["interface"]),
-			Frequency:      firstNonEmpty(result["frequency"], result["channel.frequency"]),
-			Band:           firstNonEmpty(result["band"], result["channel.band"]),
-			Channel:        firstNonEmpty(result["channel"]),
-			ChannelWidth:   firstNonEmpty(result["channel-width"], result["channel.width"]),
-			Signal:         firstNonEmpty(result["signal"], result["signal-strength"]),
-			NoiseFloor:     firstNonEmpty(result["noise-floor"]),
-			Security:       firstNonEmpty(result["security"], result["authentication-types"], result["security.authentication-types"]),
-			Authentication: firstNonEmpty(result["authentication-types"], result["security.authentication-types"]),
-			Encryption:     firstNonEmpty(result["encryption"], result["security.encryption"]),
-			WPS:            firstNonEmpty(result["wps"]),
-			Mode:           firstNonEmpty(result["mode"]),
+			MACAddress: firstNonEmpty(result["address"], result["mac-address"], result["bssid"]),
+			SSID:       ssid,
+			Channel:    firstNonEmpty(result["channel"]),
+			Security:   firstNonEmpty(result["security"], result["authentication-types"], result["security.authentication-types"]),
+			Signal:     firstNonEmpty(result["signal"], result["signal-strength"]),
 		})
 	}
 
