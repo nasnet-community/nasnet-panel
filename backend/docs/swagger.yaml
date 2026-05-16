@@ -951,6 +951,37 @@ definitions:
       vrf:
         type: string
     type: object
+  handler.wiFiAccessPointResponse:
+    properties:
+      authentication:
+        type: string
+      band:
+        type: string
+      bssid:
+        type: string
+      channel:
+        type: string
+      channelWidth:
+        type: string
+      encryption:
+        type: string
+      frequency:
+        type: string
+      interface:
+        type: string
+      mode:
+        type: string
+      noiseFloor:
+        type: string
+      security:
+        type: string
+      signal:
+        type: string
+      ssid:
+        type: string
+      wps:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -3134,6 +3165,65 @@ paths:
       security:
       - BasicAuth: []
       summary: Update WiFi passphrase
+      tags:
+      - WiFi
+  /api/wifi/scan/{nameOrID}:
+    get:
+      consumes:
+      - application/json
+      description: Scan nearby access points for 5 seconds on the specified WiFi interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WiFi interface name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      - description: 'Scan duration in seconds (default: 5)'
+        in: query
+        name: duration
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handler.wiFiAccessPointResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: WiFi interface not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Scan available WiFi access points
       tags:
       - WiFi
   /api/wifi/settings/{name}:

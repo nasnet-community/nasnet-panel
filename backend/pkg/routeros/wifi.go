@@ -485,3 +485,62 @@ func (c *Client) updateWiFiSettingsImpl(interfaceName string, settings WiFiSetti
 
 	return nil
 }
+
+func (c *Client) resolveWiFiInterfaceID(nameOrID string) (string, error) {
+	result, err := c.GetFirst("/interface/wifi", "?=.id="+nameOrID)
+	if err == nil {
+		return result[".id"], nil
+	}
+
+	result, err = c.GetFirst("/interface/wifi", "?name="+nameOrID)
+	if err != nil {
+		return "", fmt.Errorf("WiFi interface %s not found", nameOrID)
+	}
+
+	return result[".id"], nil
+}
+
+func (c *Client) scanWiFiAccessPointsByInterface(nameOrID, duration string) ([]WiFiAccessPoint, error) {
+	interfaceID, err := c.resolveWiFiInterfaceID(nameOrID)
+	if err != nil {
+		return nil, err
+	}
+
+	args := []string{"=.id=" + interfaceID}
+	if duration != "" {
+		args = append(args, "=duration="+duration)
+	}
+
+	reply, err := c.Execute("/interface/wifi/scan", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan WiFi access points: %w", err)
+	}
+
+	aps := make([]WiFiAccessPoint, 0, len(reply.Re))
+	for _, sentence := range reply.Re {
+		result := sentence.Map
+		ssid := firstNonEmpty(result["ssid"])
+		if ssid == "" {
+			continue
+		}
+
+		aps = append(aps, WiFiAccessPoint{
+			SSID:           ssid,
+			BSSID:          firstNonEmpty(result["bssid"], result["mac-address"]),
+			Interface:      firstNonEmpty(result["interface"]),
+			Frequency:      firstNonEmpty(result["frequency"], result["channel.frequency"]),
+			Band:           firstNonEmpty(result["band"], result["channel.band"]),
+			Channel:        firstNonEmpty(result["channel"]),
+			ChannelWidth:   firstNonEmpty(result["channel-width"], result["channel.width"]),
+			Signal:         firstNonEmpty(result["signal"], result["signal-strength"]),
+			NoiseFloor:     firstNonEmpty(result["noise-floor"]),
+			Security:       firstNonEmpty(result["security"], result["authentication-types"], result["security.authentication-types"]),
+			Authentication: firstNonEmpty(result["authentication-types"], result["security.authentication-types"]),
+			Encryption:     firstNonEmpty(result["encryption"], result["security.encryption"]),
+			WPS:            firstNonEmpty(result["wps"]),
+			Mode:           firstNonEmpty(result["mode"]),
+		})
+	}
+
+	return aps, nil
+}

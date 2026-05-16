@@ -504,3 +504,62 @@ func (c *Client) updateWirelessSettingsImpl(interfaceName string, settings WiFiS
 
 	return nil
 }
+
+func (c *Client) resolveWirelessInterfaceName(nameOrID string) (string, error) {
+	result, err := c.GetFirst("/interface/wireless", "?=.id="+nameOrID)
+	if err == nil {
+		return result["name"], nil
+	}
+
+	result, err = c.GetFirst("/interface/wireless", "?name="+nameOrID)
+	if err != nil {
+		return "", fmt.Errorf("wireless interface %s not found", nameOrID)
+	}
+
+	return result["name"], nil
+}
+
+func (c *Client) scanWirelessAccessPointsByInterface(nameOrID, duration string) ([]WiFiAccessPoint, error) {
+	interfaceName, err := c.resolveWirelessInterfaceName(nameOrID)
+	if err != nil {
+		return nil, err
+	}
+
+	args := []string{"=interface=" + interfaceName}
+	if duration != "" {
+		args = append(args, "=duration="+duration)
+	}
+
+	reply, err := c.Execute("/interface/wireless/scan", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan wireless access points: %w", err)
+	}
+
+	aps := make([]WiFiAccessPoint, 0, len(reply.Re))
+	for _, sentence := range reply.Re {
+		result := sentence.Map
+		ssid := firstNonEmpty(result["ssid"])
+		if ssid == "" {
+			continue
+		}
+
+		aps = append(aps, WiFiAccessPoint{
+			SSID:           ssid,
+			BSSID:          firstNonEmpty(result["bssid"], result["mac-address"]),
+			Interface:      firstNonEmpty(result["interface"]),
+			Frequency:      firstNonEmpty(result["frequency"]),
+			Band:           firstNonEmpty(result["band"]),
+			Channel:        firstNonEmpty(result["channel"]),
+			ChannelWidth:   firstNonEmpty(result["channel-width"]),
+			Signal:         firstNonEmpty(result["signal-strength"], result["signal"]),
+			NoiseFloor:     firstNonEmpty(result["noise-floor"]),
+			Security:       firstNonEmpty(result["security"], result["authentication-types"]),
+			Authentication: firstNonEmpty(result["authentication-types"]),
+			Encryption:     firstNonEmpty(result["encryption"]),
+			WPS:            firstNonEmpty(result["wps"]),
+			Mode:           firstNonEmpty(result["mode"]),
+		})
+	}
+
+	return aps, nil
+}

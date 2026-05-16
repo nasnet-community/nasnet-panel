@@ -44,6 +44,23 @@ type WiFiConnectedClientResponse struct {
 	Authorized      bool   `json:"authorized"`
 }
 
+type wiFiAccessPointResponse struct {
+	SSID           string `json:"ssid,omitempty"`
+	BSSID          string `json:"bssid,omitempty"`
+	Interface      string `json:"interface,omitempty"`
+	Frequency      string `json:"frequency,omitempty"`
+	Band           string `json:"band,omitempty"`
+	Channel        string `json:"channel,omitempty"`
+	ChannelWidth   string `json:"channelWidth,omitempty"`
+	Signal         string `json:"signal,omitempty"`
+	NoiseFloor     string `json:"noiseFloor,omitempty"`
+	Security       string `json:"security,omitempty"`
+	Authentication string `json:"authentication,omitempty"`
+	Encryption     string `json:"encryption,omitempty"`
+	WPS            string `json:"wps,omitempty"`
+	Mode           string `json:"mode,omitempty"`
+}
+
 type ChangeWiFiPassphraseRequest struct {
 	Passphrase string `json:"passphrase" form:"passphrase"`
 }
@@ -143,5 +160,39 @@ func ToWiFiConnectedClientsResponse(clients []routeros.ConnectedClient) []WiFiCo
 			responses = append(responses, *resp)
 		}
 	}
+	return responses
+}
+
+func toWiFiAccessPointResponse(ap *routeros.WiFiAccessPoint) *wiFiAccessPointResponse {
+	if ap == nil {
+		return nil
+	}
+
+	return &wiFiAccessPointResponse{
+		SSID:           ap.SSID,
+		BSSID:          ap.BSSID,
+		Interface:      ap.Interface,
+		Frequency:      ap.Frequency,
+		Band:           ap.Band,
+		Channel:        ap.Channel,
+		ChannelWidth:   ap.ChannelWidth,
+		Signal:         ap.Signal,
+		NoiseFloor:     ap.NoiseFloor,
+		Security:       ap.Security,
+		Authentication: ap.Authentication,
+		Encryption:     ap.Encryption,
+		WPS:            ap.WPS,
+		Mode:           ap.Mode,
+	}
+}
+
+func toWiFiAccessPointsResponse(aps []routeros.WiFiAccessPoint) []wiFiAccessPointResponse {
+	responses := make([]wiFiAccessPointResponse, 0, len(aps))
+	for i := range aps {
+		if resp := toWiFiAccessPointResponse(&aps[i]); resp != nil {
+			responses = append(responses, *resp)
+		}
+	}
+
 	return responses
 }

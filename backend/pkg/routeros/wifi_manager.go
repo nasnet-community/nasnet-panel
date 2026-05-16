@@ -80,6 +80,24 @@ type ConnectedClient struct {
 	Authorized      bool
 }
 
+// WiFiAccessPoint represents a discovered nearby access point during scan.
+type WiFiAccessPoint struct {
+	SSID           string
+	BSSID          string
+	Interface      string
+	Frequency      string
+	Band           string
+	Channel        string
+	ChannelWidth   string
+	Signal         string
+	NoiseFloor     string
+	Security       string
+	Authentication string
+	Encryption     string
+	WPS            string
+	Mode           string
+}
+
 type WifiPassword struct {
 	InterfaceName string
 	SSID          string
@@ -351,5 +369,22 @@ func (c *Client) UpdateWiFiSettings(interfaceName string, settings WiFiSettings)
 		return c.updateWirelessSettingsImpl(interfaceName, settings)
 	default:
 		return fmt.Errorf("router has no WiFi package installed")
+	}
+}
+
+// ScanWiFiAccessPoints scans nearby access points on the provided WiFi interface.
+func (c *Client) ScanWiFiAccessPoints(interfaceName, duration string) ([]WiFiAccessPoint, error) {
+	driverType, err := c.GetWiFiDriverType()
+	if err != nil {
+		return nil, err
+	}
+
+	switch driverType {
+	case WiFiDriverWifiQcom, WiFiDriverWifiQcomAC, WiFiDriverWifiWave2, WiFiDriverWifi:
+		return c.scanWiFiAccessPointsByInterface(interfaceName, duration)
+	case WiFiDriverWireless:
+		return c.scanWirelessAccessPointsByInterface(interfaceName, duration)
+	default:
+		return nil, fmt.Errorf("router has no WiFi package installed")
 	}
 }
