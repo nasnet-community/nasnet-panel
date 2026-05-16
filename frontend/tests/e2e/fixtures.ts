@@ -14,10 +14,40 @@ export interface ScanMockDevice {
   services?: string[];
 }
 
+export interface OverviewBackendInterface {
+  id?: string;
+  name: string;
+  type?: string;
+  running?: boolean;
+  disabled?: boolean;
+  speed?: string;
+  comment?: string;
+}
+
+export interface OverviewBackendIpAddress {
+  id?: string;
+  address: string;
+  interface: string;
+  dynamic?: boolean;
+  disabled?: boolean;
+}
+
+export interface OverviewBackendRoute {
+  id?: string;
+  dstAddress: string;
+  gateway: string;
+  interface?: string;
+  active?: boolean;
+  distance?: number;
+}
+
 export interface OverviewBackendRouter {
   id?: string;
   model?: string;
   version?: string;
+  interfaces?: OverviewBackendInterface[];
+  addresses?: OverviewBackendIpAddress[];
+  routes?: OverviewBackendRoute[];
 }
 
 export interface WifiBackendInterface {
@@ -184,6 +214,66 @@ export const test = base.extend<TestFixtures>({
       const envelope = <T>(data: T, status = 200) =>
         JSON.stringify({ status, message: 'OK', data });
 
+      const norm = model.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const ethCount = norm.includes('rb4011') ? 10 : norm.includes('rb5009') ? 8 : 5;
+      const hasSfp = norm.includes('rb4011') || norm.includes('rb5009');
+      const defaultInterfaces: OverviewBackendInterface[] = [
+        ...Array.from({ length: ethCount }, (_, i) => {
+          const n = i + 1;
+          return {
+            id: `*${n}`,
+            name: `ether${n}`,
+            type: 'ether',
+            running: n !== 5,
+            disabled: n === 3,
+            speed: n === 8 ? '2.5Gbps' : '1Gbps',
+            comment: n === 1 ? 'WAN uplink' : undefined,
+          } as OverviewBackendInterface;
+        }),
+        ...(hasSfp
+          ? [
+              {
+                id: '*20',
+                name: 'sfp-sfpplus1',
+                type: 'ether',
+                running: true,
+                disabled: false,
+                speed: '10Gbps',
+              } as OverviewBackendInterface,
+            ]
+          : []),
+        { id: '*30', name: 'bridge1', type: 'bridge', running: true, disabled: false },
+      ];
+      const interfaces = (router.interfaces ?? defaultInterfaces).map((i) => ({
+        id: i.id ?? `*${i.name}`,
+        name: i.name,
+        type: i.type ?? 'ether',
+        running: i.running ?? true,
+        disabled: i.disabled ?? false,
+        speed: i.speed,
+        comment: i.comment,
+      }));
+      const addresses = router.addresses ?? [
+        { id: '*1', address: '100.64.0.2/24', interface: 'ether1', dynamic: true, disabled: false },
+        {
+          id: '*2',
+          address: '192.168.88.1/24',
+          interface: 'bridge1',
+          dynamic: false,
+          disabled: false,
+        },
+      ];
+      const routes = router.routes ?? [
+        {
+          id: '*1',
+          dstAddress: '0.0.0.0/0',
+          gateway: '100.64.0.1',
+          interface: 'ether1',
+          active: true,
+          distance: 1,
+        },
+      ];
+
       await context.route('**/api/system/info', async (route) => {
         await route.fulfill({
           status: 200,
@@ -242,9 +332,23 @@ export const test = base.extend<TestFixtures>({
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope([
-            { id: '*1', name: 'ether1', type: 'ether', running: true, disabled: false },
-          ]),
+          body: envelope(interfaces),
+        });
+      });
+
+      await context.route('**/api/ip/addresses', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(addresses),
+        });
+      });
+
+      await context.route('**/api/routes', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(routes),
         });
       });
 
