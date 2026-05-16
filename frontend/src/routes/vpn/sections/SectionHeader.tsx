@@ -4,7 +4,7 @@ import styles from '../../VPNPage.module.scss';
 
 interface Props {
   title: string;
-  count: number;
+  count?: number;
   description: string;
   search?: {
     value: string;
@@ -24,7 +24,13 @@ export function SectionHeader({ title, count, description, search, action }: Pro
     <CardHeader className={styles.sectionHeader}>
       <div>
         <CardTitle>
-          {title} <Badge tone="info">{count}</Badge>
+          {title}
+          {count !== undefined ? (
+            <>
+              {' '}
+              <Badge tone="info">{count}</Badge>
+            </>
+          ) : null}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </div>

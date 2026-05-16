@@ -25,7 +25,7 @@ const TABS: Array<TabItem & { path: string }> = [
     path: 'internet',
     icon: <Globe size={16} />,
   },
-  { id: 'wan', label: 'WAN', path: 'wan', icon: <Cable size={16} />, disabled: true },
+  { id: 'wan', label: 'WAN', path: 'wan', icon: <Cable size={16} /> },
   { id: 'lan', label: 'LAN', path: 'lan', icon: <Network size={16} />, disabled: true },
   { id: 'wireless', label: 'WIFI', path: 'wireless', icon: <Wifi size={16} /> },
   { id: 'vpn', label: 'VPN Server', path: 'vpn', icon: <Shield size={16} /> },
