@@ -16,10 +16,16 @@ test.describe('WAN tab', () => {
     await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await expect(page.getByText('Foreign / Starlink')).toBeVisible();
-    await expect(page.getByText('Domestic', { exact: true })).toBeVisible();
-    await expect(page.getByText('Starlink Masking VPN Client')).toBeVisible();
-    await expect(page.getByText('Domestic VPN Interfaces')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Foreign / Starlink', exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Domestic', exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Starlink Masking VPN Client', exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Domestic VPN Interfaces', exact: true }),
+    ).toBeVisible();
 
     await expect(page.getByText('No Starlink uplinks yet')).toBeVisible();
     await expect(page.getByText('No masking VPN clients yet')).toBeVisible();
