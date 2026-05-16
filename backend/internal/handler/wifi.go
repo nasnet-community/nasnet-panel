@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -115,6 +116,57 @@ func HandleGetWiFiInterface(c echo.Context) error {
 
 	response := ToWiFiInterfaceResponse(iface)
 	return SuccessResponse(c, http.StatusOK, "WiFi interface retrieved", response)
+}
+
+// HandleScanWiFiAccessPoints godoc
+// @Summary Scan available WiFi access points
+// @Description Scan nearby access points for 5 seconds on the specified WiFi interface
+// @Tags WiFi
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "WiFi interface name or ID"
+// @Param duration query int false "Scan duration in seconds (default: 5)"
+// @Success 200 {object} Response{data=[]wiFiAccessPointResponse}
+// @Failure 400 {object} map[string]interface{} "Bad request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 404 {object} map[string]interface{} "WiFi interface not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/wifi/scan/{nameOrID} [get].
+func HandleScanWiFiAccessPoints(c echo.Context) error {
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	durationArg := "5s"
+	if durationValue := strings.TrimSpace(c.QueryParam("duration")); durationValue != "" {
+		durationSeconds, err := strconv.Atoi(durationValue)
+		if err != nil || durationSeconds <= 0 {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid duration value", fmt.Errorf("duration must be a positive integer in seconds"))
+		}
+		durationArg = fmt.Sprintf("%ds", durationSeconds)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	aps, err := client.ScanWiFiAccessPoints(nameOrID, durationArg)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
+			return ErrorResponse(c, http.StatusNotFound, "WiFi interface not found", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to scan WiFi access points", err)
+	}
+
+	response := toWiFiAccessPointsResponse(aps)
+	return SuccessResponse(c, http.StatusOK, "WiFi access points scanned successfully", response)
 }
 
 // HandleListWiFiConnectedClients godoc
