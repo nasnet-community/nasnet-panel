@@ -504,3 +504,53 @@ func (c *Client) updateWirelessSettingsImpl(interfaceName string, settings WiFiS
 
 	return nil
 }
+
+func (c *Client) resolveWirelessInterfaceName(nameOrID string) (string, error) {
+	result, err := c.GetFirst("/interface/wireless", "?=.id="+nameOrID)
+	if err == nil {
+		return result["name"], nil
+	}
+
+	result, err = c.GetFirst("/interface/wireless", "?name="+nameOrID)
+	if err != nil {
+		return "", fmt.Errorf("wireless interface %s not found", nameOrID)
+	}
+
+	return result["name"], nil
+}
+
+func (c *Client) scanWirelessAccessPointsByInterface(nameOrID, duration string) ([]WiFiAccessPoint, error) {
+	interfaceName, err := c.resolveWirelessInterfaceName(nameOrID)
+	if err != nil {
+		return nil, err
+	}
+
+	args := []string{"=interface=" + interfaceName}
+	if duration != "" {
+		args = append(args, "=duration="+duration)
+	}
+
+	reply, err := c.Execute("/interface/wireless/scan", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan wireless access points: %w", err)
+	}
+
+	aps := make([]WiFiAccessPoint, 0, len(reply.Re))
+	for _, sentence := range reply.Re {
+		result := sentence.Map
+		ssid := firstNonEmpty(result["ssid"])
+		if ssid == "" {
+			continue
+		}
+
+		aps = append(aps, WiFiAccessPoint{
+			MACAddress: firstNonEmpty(result["address"], result["mac-address"], result["bssid"]),
+			SSID:       ssid,
+			Channel:    firstNonEmpty(result["channel"]),
+			Security:   firstNonEmpty(result["security"], result["authentication-types"]),
+			Signal:     firstNonEmpty(result["signal-strength"], result["signal"]),
+		})
+	}
+
+	return aps, nil
+}
