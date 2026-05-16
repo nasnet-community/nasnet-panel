@@ -8,7 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"nasnet-panel/pkg/routeros" //nolint:misspell // pkg name is routeros not routers
+	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 )
 
@@ -36,7 +36,7 @@ func HandleListVPNClients(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN clients", err)
 	}
 
-	filtered := make([]routeros.VPNClientInfo, 0) //nolint:misspell // pkg name is routeros not routers
+	filtered := make([]routeros.VPNClientInfo, 0)
 	for i := range vpnClients {
 		vpn := &vpnClients[i]
 		if vpn.Type == "wg" {
@@ -814,7 +814,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		interfaceName += "-client"
 	}
 
-	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+	config := routeros.WireGuardClientConfig{
 		Name:       interfaceName,
 		PrivateKey: req.InterfacePrivateKey,
 		ListenPort: req.ListenPort,
@@ -828,7 +828,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
 	}
 
-	ipConfig := routeros.IPAddressConfig{ //nolint:misspell // routeros is the package name
+	ipConfig := routeros.IPAddressConfig{
 		Interface: wireguard.Name,
 		Address:   req.InterfaceLocalAddress,
 		Disabled:  false,
@@ -851,7 +851,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		cleanedCIDRs[i] = strings.TrimSpace(cidr)
 	}
 
-	peerConfig := routeros.WireGuardPeerConfig{ //nolint:misspell // routeros is the package name
+	peerConfig := routeros.WireGuardPeerConfig{
 		InterfaceName:       wireguard.Name,
 		PeerName:            peerName,
 		PublicKey:           publicKey,
@@ -966,7 +966,7 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		interfaceName += "-server"
 	}
 
-	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+	config := routeros.WireGuardClientConfig{
 		Name:       interfaceName,
 		PrivateKey: req.PrivateKey,
 		ListenPort: req.ListenPort,
@@ -981,7 +981,7 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 	}
 
 	// Add IP address to the interface
-	ipConfig := routeros.IPAddressConfig{ //nolint:misspell // routeros is the package name
+	ipConfig := routeros.IPAddressConfig{
 		Interface: wireguard.Name,
 		Address:   *localAddress,
 		Disabled:  false,
@@ -1026,7 +1026,7 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
 	}
 
-	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+	config := routeros.WireGuardClientConfig{
 		Disabled:   req.Disabled,
 		Comment:    req.Comment,
 		MTU:        req.MTU,
@@ -1041,7 +1041,7 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WireGuard interface", err)
 	}
 
-	wireguard, err := client.GetWireGuard(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	wireguard, err := client.GetWireGuard(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated interface", err)
 	}
@@ -1081,12 +1081,12 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 	}
 
 	// Retrieve peer by name or ID to get its ID
-	peer, err := client.GetWireGuardPeerByNameOrID(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	peer, err := client.GetWireGuardPeerByNameOrID(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 	}
 
-	if err := client.UpdateWireGuardPeer(peer.ID, routeros.UpdateWireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
+	if err := client.UpdateWireGuardPeer(peer.ID, routeros.UpdateWireGuardPeerConfig{
 		Name:                 req.Name,
 		PublicKey:            req.PublicKey,
 		PrivateKey:           req.PrivateKey,
@@ -1112,7 +1112,7 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 	}
 
 	// Retrieve the updated peer
-	updatedPeer, err := client.GetWireGuardPeerByNameOrID(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	updatedPeer, err := client.GetWireGuardPeerByNameOrID(nameOrID)
 	if err == nil && updatedPeer != nil {
 		response := ToWireGuardPeerResponse(updatedPeer)
 		return SuccessResponse(c, http.StatusOK, "WireGuard peer updated successfully", response)
@@ -1145,12 +1145,12 @@ func HandleGetWireGuardDetailed(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
 	}
 
-	wireguard, err := client.GetWireGuard(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	wireguard, err := client.GetWireGuard(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
 	}
 
-	peers, err := client.GetWireGuardPeers(wireguard.Name) //nolint:misspell // pkg name is routeros not routers
+	peers, err := client.GetWireGuardPeers(wireguard.Name)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve WireGuard peers", err)
 	}
@@ -1183,7 +1183,7 @@ func HandleGetWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
 	}
 
-	wireguard, err := client.GetWireGuard(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	wireguard, err := client.GetWireGuard(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
 	}
@@ -1214,7 +1214,7 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
 	}
 
-	peers, err := client.GetWireGuardPeers(wireguardName) //nolint:misspell // pkg name is routeros not routers
+	peers, err := client.GetWireGuardPeers(wireguardName)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve WireGuard peers", err)
 	}
@@ -1258,7 +1258,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	interfaceName := req.InterfaceName
 
 	// Verify the WireGuard interface exists
-	_, err = client.GetWireGuard(interfaceName) //nolint:misspell // pkg name is routeros not routers
+	_, err = client.GetWireGuard(interfaceName)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
 	}
@@ -1315,7 +1315,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	// Parse allowed addresses
 	allowedAddrs := []string{req.AllowedAddresses}
 
-	config := routeros.WireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
+	config := routeros.WireGuardPeerConfig{
 		InterfaceName:        interfaceName,
 		PeerName:             peerName,
 		PrivateKey:           &privateKey,
@@ -1391,7 +1391,7 @@ func HandleDeleteWireGuardPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard peer name or ID is required", nil)
 	}
 
-	err = client.DeleteWireGuardPeer(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	err = client.DeleteWireGuardPeer(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard peer", err)
 	}
@@ -1423,7 +1423,7 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
 	}
 
-	err = client.DeleteWireGuardInterface(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	err = client.DeleteWireGuardInterface(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard interface", err)
 	}
@@ -1502,7 +1502,7 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	}
 
 	// Create interface
-	interfaceConfig2 := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+	interfaceConfig2 := routeros.WireGuardClientConfig{
 		Name:       interfaceName,
 		ListenPort: &listenPort,
 	}
@@ -1510,14 +1510,14 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		interfaceConfig2.PrivateKey = &privateKey
 	}
 
-	wg, err := client.CreateWireGuardInterface(interfaceConfig2) //nolint:misspell // pkg name is routeros not routers
+	wg, err := client.CreateWireGuardInterface(interfaceConfig2)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
 	}
 
 	// Add address to interface if specified
 	if address != "" {
-		ipConfig := routeros.IPAddressConfig{ //nolint:misspell // pkg name is routeros not routers
+		ipConfig := routeros.IPAddressConfig{
 			Interface: wg.Name,
 			Address:   address,
 		}
@@ -1580,7 +1580,7 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 
 		peerName = publicKey[:8]
 
-		config := routeros.WireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
+		config := routeros.WireGuardPeerConfig{
 			InterfaceName:       wg.Name,
 			PeerName:            peerName,
 			PublicKey:           &publicKey,

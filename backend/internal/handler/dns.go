@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"nasnet-panel/pkg/routeros" //nolint:misspell // intentional package name
+	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
 )
@@ -93,7 +93,7 @@ func HandleUpdateDNS(c echo.Context) error {
 		dohServer = req.DOHServer
 	}
 
-	config := routeros.DNSUpdateConfig{ //nolint:misspell // intentional package name
+	config := routeros.DNSUpdateConfig{
 		Servers:   servers,
 		DOHServer: dohServer,
 	}

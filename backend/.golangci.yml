@@ -89,6 +89,18 @@ linters:
       - path: certificate\.go
         linters:
           - misspell
+      - path: pkg/routeros
+        linters:
+          - misspell
+      - path: internal/handler
+        linters:
+          - misspell
+      - path: internal/scanner
+        linters:
+          - misspell
+      - path: pkg/utils
+        linters:
+          - misspell
 
 formatters:
   enable:

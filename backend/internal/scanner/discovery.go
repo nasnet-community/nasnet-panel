@@ -58,7 +58,7 @@ func ValidateRouterOSResponse(body []byte) RouterOSInfo { //nolint:gocyclo // ne
 		if matched, err := regexp.MatchString(`^\d+\.\d+`, version); err == nil && matched {
 			confidence += 20
 		}
-		if strings.Contains(strings.ToLower(version), "routeros") { //nolint:misspell // routeros is correct
+		if strings.Contains(strings.ToLower(version), "routeros") {
 			confidence += 30
 		}
 	} else if versionString, ok := data["version-string"].(string); ok {

@@ -1,4 +1,3 @@
-//nolint:misspell // package name is intentional: routeros not routers
 package routeros
 
 import "nasnet-panel/pkg/utils"

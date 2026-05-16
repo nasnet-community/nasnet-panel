@@ -1,4 +1,3 @@
-//nolint:misspell // package name is intentional: routeros not routers
 package routeros
 
 import (
@@ -1103,13 +1102,13 @@ func (c *Client) GetWireGuardPeerByNameOrID(nameOrID string) (*WireGuardPeerInfo
 		return nil, fmt.Errorf("peer name or ID is required")
 	}
 
-	interfaces, err := c.ListWireGuards() //nolint:misspell // pkg name is routeros not routers
+	interfaces, err := c.ListWireGuards()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, iface := range interfaces {
-		peers, err := c.GetWireGuardPeers(iface.Name) //nolint:misspell // pkg name is routeros not routers
+		peers, err := c.GetWireGuardPeers(iface.Name)
 		if err != nil {
 			continue
 		}
@@ -1131,7 +1130,7 @@ func (c *Client) DeleteWireGuardPeer(nameOrID string) error {
 	}
 
 	// Get the peer to find its ID if name is provided
-	peer, err := c.GetWireGuardPeerByNameOrID(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	peer, err := c.GetWireGuardPeerByNameOrID(nameOrID)
 	if err != nil {
 		return err
 	}
@@ -1243,7 +1242,7 @@ func (c *Client) UpdateWireGuardPeer(peerID string, config UpdateWireGuardPeerCo
 		args = append(args, "=disabled="+strconv.FormatBool(*config.Disabled))
 	}
 
-	_, err := c.Set("/interface/wireguard/peers", args...) //nolint:misspell // pkg name is routeros not routers
+	_, err := c.Set("/interface/wireguard/peers", args...)
 	return err
 }
 
@@ -1309,7 +1308,7 @@ func (c *Client) UpdateWireGuardInterface(nameOrID string, config WireGuardClien
 		args = append(args, "=private-key="+*config.PrivateKey)
 	}
 
-	_, err = c.Set("/interface/wireguard", args...) //nolint:misspell // pkg name is routeros not routers
+	_, err = c.Set("/interface/wireguard", args...)
 	return err
 }
 
