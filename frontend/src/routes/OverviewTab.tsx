@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Activity,
+  Cpu,
   Network as NetworkIcon,
-  Power,
-  RotateCw,
+  Router as RouterIcon,
   Shield,
   Timer,
-  Users as UsersIcon,
 } from 'lucide-react';
 import {
   Badge,
@@ -23,7 +22,6 @@ import {
   Skeleton,
   Stack,
   StatusDot,
-  Tooltip,
   TrafficChart,
   useToast,
 } from '@nasnet/ui';
@@ -32,12 +30,16 @@ import {
   fetchDynamicOverview,
   fetchInterfaceTraffic,
   fetchInterfaces,
+  fetchIpAddresses,
+  fetchRoutes,
   fetchSystemOverview,
   fetchVPNClients,
   rebootSystem,
   shutdownSystem,
   type DHCPLeaseResponse,
   type InterfaceResponse,
+  type IpAddressResponse,
+  type RouteResponse,
   type SystemOverview,
   type TrafficSample,
   type VPNActiveClient,
@@ -45,6 +47,9 @@ import {
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useThemeColors } from '../utils/theme-colors';
+import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
+import { UplinkIpCard } from './overview-panel/UplinkIpCard';
+import { resolveModelStrict } from './overview-panel/resolveModel';
 import styles from './OverviewTab.module.scss';
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
@@ -95,9 +100,11 @@ export function OverviewTab() {
   const [vpnClients, setVpnClients] = useState<VPNActiveClient[]>([]);
   const [dhcpLeaseList, setDhcpLeaseList] = useState<DHCPLeaseResponse[]>([]);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
+  const [ipAddresses, setIpAddresses] = useState<IpAddressResponse[]>([]);
+  const [routes, setRoutes] = useState<RouteResponse[]>([]);
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
+  const selectedIfaceRef = useRef(selectedIface);
   const [powerAction, setPowerAction] = useState<'reboot' | 'shutdown' | null>(null);
-  const [powerBusy, setPowerBusy] = useState<'reboot' | 'shutdown' | null>(null);
   const colors = useThemeColors();
   const toast = useToast();
 
@@ -107,7 +114,6 @@ export function OverviewTab() {
     const creds = getCredentials(id);
     const host = router?.host;
     if (!creds || !host) return;
-    setPowerBusy(action);
     try {
       if (action === 'reboot') {
         await rebootSystem({ host, ...creds });
@@ -123,8 +129,6 @@ export function OverviewTab() {
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
-    } finally {
-      setPowerBusy(null);
     }
   };
 
@@ -137,14 +141,18 @@ export function OverviewTab() {
 
     const loadInitial = async () => {
       try {
-        const [ov, list] = await Promise.all([
+        const [ov, list, addrs, routeList] = await Promise.all([
           fetchSystemOverview(id, { host, ...creds }),
           fetchInterfaces({ host, ...creds }).catch(() => [] as InterfaceResponse[]),
+          fetchIpAddresses({ host, ...creds }).catch(() => [] as IpAddressResponse[]),
+          fetchRoutes({ host, ...creds }).catch(() => [] as RouteResponse[]),
         ]);
         if (cancelled) return;
         setOverview(ov);
         setInterfaces(list);
-        if (list.length > 0 && !list.some((i) => i.name === selectedIface)) {
+        setIpAddresses(addrs);
+        setRoutes(routeList);
+        if (list.length > 0 && !list.some((i) => i.name === selectedIfaceRef.current)) {
           const preferred = list.find((i) => i.running && i.type === 'ether') ?? list[0];
           setSelectedIface(preferred.name);
         }
@@ -157,7 +165,7 @@ export function OverviewTab() {
       try {
         const [dynamic, trafficSample, vpnList, leases] = await Promise.all([
           fetchDynamicOverview({ host, ...creds }),
-          fetchInterfaceTraffic({ host, ...creds }, selectedIface).catch(() => null),
+          fetchInterfaceTraffic({ host, ...creds }, selectedIfaceRef.current).catch(() => null),
           fetchVPNClients({ host, ...creds }).catch(() => [] as VPNActiveClient[]),
           fetchDHCPLeases({ host, ...creds }).catch(() => [] as DHCPLeaseResponse[]),
         ]);
@@ -192,9 +200,10 @@ export function OverviewTab() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [id, router?.host, getCredentials, selectedIface]);
+  }, [id, router?.host, getCredentials]);
 
   useEffect(() => {
+    selectedIfaceRef.current = selectedIface;
     setTraffic([]);
   }, [selectedIface]);
 
@@ -219,65 +228,92 @@ export function OverviewTab() {
   return (
     <Stack>
       <Card className={styles.bannerCard}>
-        <div className={styles.bannerLeft}>
-          <h1 className={styles.routerTitleRow}>
-            {router?.name ?? 'Router'}{' '}
-            <span
-              className={cx(styles.statusChip, statusChipClass(router?.status ?? 'unknown'))}
-              aria-hidden
-            />
-          </h1>
-          <span className={styles.bannerHost}>{router?.host}</span>
-        </div>
-        <div className={styles.bannerStats}>
-          <span className={styles.bannerStat}>
-            <Timer size={14} aria-hidden />{' '}
-            <span className={styles.statValue} data-testid="overview-uptime">
-              {overview.uptime}
-            </span>{' '}
-            <span>uptime</span>
-          </span>
-          <span className={styles.bannerDivider} aria-hidden />
-          <span className={styles.bannerStat}>
-            <UsersIcon size={14} aria-hidden />{' '}
-            <span className={styles.statValue}>{overview.dhcpLeases}</span> <span>devices</span>
-          </span>
-          <span className={styles.bannerDivider} aria-hidden />
-          <span className={styles.bannerStat}>
-            <Activity size={14} aria-hidden />{' '}
-            <span className={styles.statValue}>{overview.vpnTunnels}</span> <span>VPN</span>
-          </span>
-          <span className={styles.bannerDivider} aria-hidden />
-          <div style={{ display: 'inline-flex', gap: 'var(--space-sm)' }}>
-            <Tooltip label="Reboot router">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setPowerAction('reboot')}
-                loading={powerBusy === 'reboot'}
-                disabled={powerBusy !== null}
-                aria-label="Reboot router"
-                className={styles.rebootBtn}
-                data-testid="overview-reboot"
-              >
-                <RotateCw size={14} aria-hidden />
-              </Button>
-            </Tooltip>
-            <Tooltip label="Shutdown router">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setPowerAction('shutdown')}
-                loading={powerBusy === 'shutdown'}
-                disabled={powerBusy !== null}
-                aria-label="Shutdown router"
-                className={styles.shutdownBtn}
-                data-testid="overview-shutdown"
-              >
-                <Power size={14} aria-hidden />
-              </Button>
-            </Tooltip>
+        <div className={styles.bannerHeader}>
+          <div className={styles.bannerLeft}>
+            <h1 className={styles.routerTitleRow}>
+              <RouterIcon size={18} aria-hidden />
+              {router?.name ?? 'Router'}{' '}
+              <span
+                className={cx(styles.statusChip, statusChipClass(router?.status ?? 'unknown'))}
+                aria-hidden
+              />
+            </h1>
+            <span className={styles.bannerHost} data-testid="banner-model">
+              <Cpu size={14} aria-hidden /> {resolveModelStrict(overview.model).displayName}
+            </span>
+            <span className={styles.bannerHost}>
+              <NetworkIcon size={14} aria-hidden /> {router?.host}
+            </span>
+            <span className={styles.bannerStat}>
+              <Timer size={14} aria-hidden />{' '}
+              <span className={styles.statValue} data-testid="overview-uptime">
+                {overview.uptime}
+              </span>{' '}
+              <span>uptime</span>
+            </span>
           </div>
+          <div className={styles.bannerRight}>
+            <RouterPortDiagramCard
+              model={overview.model}
+              interfaces={interfaces}
+              onPower={setPowerAction}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card className={cx(styles.networkCard, styles.trafficCard)}>
+        <div className={styles.networkCardHeader}>
+          <div className={styles.networkCardTitle}>
+            <div className={styles.iconCircle} aria-hidden>
+              <Activity size={16} />
+            </div>
+            Network Traffic
+          </div>
+          {interfaces.length > 0 ? (
+            <Select
+              className={styles.ifaceSelect}
+              aria-label="Select interface for traffic"
+              value={selectedIface}
+              onChange={setSelectedIface}
+              options={interfaces.map((i) => ({
+                value: i.name,
+                label: i.running ? i.name : `${i.name} (down)`,
+                disabled: i.disabled,
+              }))}
+            />
+          ) : null}
+        </div>
+        <div className={styles.trafficLine}>
+          <div className={styles.trafficColumn}>
+            <span className={styles.trafficLabel}>
+              <span style={{ color: colors.success }}>↓</span> Download
+            </span>
+            <span className={styles.trafficValue}>{formatMbps(downloadKbps)}</span>
+          </div>
+          <div className={styles.trafficColumn}>
+            <span className={styles.trafficLabel}>
+              <span style={{ color: colors.warning }}>↑</span> Upload
+            </span>
+            <span className={styles.trafficValue}>{formatMbps(uploadKbps)}</span>
+          </div>
+        </div>
+        <div className={styles.chartArea}>
+          <TrafficChart data={traffic} colors={colors} formatValue={formatMbps} />
+        </div>
+        <div className={styles.chartAxis}>
+          <span>{traffic.length > 1 ? `-${Math.round(TRAFFIC_WINDOW_MS / 1000)}s` : ''}</span>
+          <span>now</span>
+        </div>
+        <div className={styles.chartLegend}>
+          <span className={styles.chartLegendItem}>
+            <span className={styles.chartLegendSwatch} style={{ background: colors.success }} />
+            Download
+          </span>
+          <span className={styles.chartLegendItem}>
+            <span className={styles.chartLegendSwatch} style={{ background: colors.warning }} />
+            Upload
+          </span>
         </div>
       </Card>
 
@@ -394,60 +430,7 @@ export function OverviewTab() {
             )}
           </Card>
 
-          <Card className={cx(styles.networkCard, styles.trafficCard)}>
-            <div className={styles.networkCardHeader}>
-              <div className={styles.networkCardTitle}>
-                <div className={styles.iconCircle} aria-hidden>
-                  <Activity size={16} />
-                </div>
-                Network Traffic
-              </div>
-              {interfaces.length > 0 ? (
-                <Select
-                  className={styles.ifaceSelect}
-                  aria-label="Select interface for traffic"
-                  value={selectedIface}
-                  onChange={setSelectedIface}
-                  options={interfaces.map((i) => ({
-                    value: i.name,
-                    label: i.running ? i.name : `${i.name} (down)`,
-                    disabled: i.disabled,
-                  }))}
-                />
-              ) : null}
-            </div>
-            <div className={styles.trafficLine}>
-              <div className={styles.trafficColumn}>
-                <span className={styles.trafficLabel}>
-                  <span style={{ color: colors.success }}>↓</span> Download
-                </span>
-                <span className={styles.trafficValue}>{formatMbps(downloadKbps)}</span>
-              </div>
-              <div className={styles.trafficColumn}>
-                <span className={styles.trafficLabel}>
-                  <span style={{ color: colors.warning }}>↑</span> Upload
-                </span>
-                <span className={styles.trafficValue}>{formatMbps(uploadKbps)}</span>
-              </div>
-            </div>
-            <div className={styles.chartArea}>
-              <TrafficChart data={traffic} colors={colors} formatValue={formatMbps} />
-            </div>
-            <div className={styles.chartAxis}>
-              <span>{traffic.length > 1 ? `-${Math.round(TRAFFIC_WINDOW_MS / 1000)}s` : ''}</span>
-              <span>now</span>
-            </div>
-            <div className={styles.chartLegend}>
-              <span className={styles.chartLegendItem}>
-                <span className={styles.chartLegendSwatch} style={{ background: colors.success }} />
-                Download
-              </span>
-              <span className={styles.chartLegendItem}>
-                <span className={styles.chartLegendSwatch} style={{ background: colors.warning }} />
-                Upload
-              </span>
-            </div>
-          </Card>
+          <UplinkIpCard interfaces={interfaces} addresses={ipAddresses} routes={routes} />
 
           <Card className={styles.networkCard}>
             <div className={styles.networkCardHeader}>
@@ -577,15 +560,25 @@ function OverviewSkeleton() {
   return (
     <Stack aria-busy="true" aria-label="Loading overview">
       <Card className={styles.bannerCard}>
-        <div className={styles.bannerLeft}>
-          <Skeleton width={180} height={22} />
-          <Skeleton width={120} height={14} style={{ marginTop: 8 }} />
+        <div className={styles.bannerHeader}>
+          <div className={styles.bannerLeft}>
+            <Skeleton width={180} height={22} />
+            <Skeleton width={120} height={14} style={{ marginTop: 8 }} />
+          </div>
+          <div className={styles.bannerStats}>
+            <Skeleton width={80} height={14} />
+            <Skeleton width={80} height={14} />
+            <Skeleton width={80} height={14} />
+          </div>
         </div>
-        <div className={styles.bannerStats}>
-          <Skeleton width={80} height={14} />
-          <Skeleton width={80} height={14} />
-          <Skeleton width={80} height={14} />
+        <Skeleton width="100%" height={64} style={{ marginTop: 12 }} />
+      </Card>
+
+      <Card className={styles.networkCard}>
+        <div className={styles.networkCardHeader}>
+          <Skeleton width={160} height={16} />
         </div>
+        <Skeleton width="70%" height={14} style={{ marginTop: 12 }} />
       </Card>
 
       <div>

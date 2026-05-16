@@ -1,11 +1,24 @@
 .bannerCard {
   display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.bannerHeader {
+  display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-lg);
-  padding: var(--space-md) var(--space-lg);
+}
+
+.bannerRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-sm);
 }
 
 .bannerLeft {
@@ -45,9 +58,16 @@
 }
 
 .bannerHost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-text-muted);
   font-size: var(--font-sm);
   font-variant-numeric: tabular-nums;
+
+  svg {
+    color: var(--color-text-muted);
+  }
 }
 
 .bannerStats {
@@ -69,27 +89,9 @@
   }
 }
 
-.bannerDivider {
-  width: 1px;
-  height: 18px;
-  background: var(--color-border);
-}
-
 .statValue {
   color: var(--color-text);
   font-weight: var(--weight-semibold);
-}
-
-.rebootBtn:not(:disabled):hover {
-  background: var(--color-warning);
-  border-color: var(--color-warning);
-  color: #000;
-}
-
-.shutdownBtn:not(:disabled):hover {
-  background: var(--color-danger);
-  border-color: var(--color-danger);
-  color: #fff;
 }
 
 .resourceCard {
