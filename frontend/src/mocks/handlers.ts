@@ -7,6 +7,7 @@ import { updates } from './handlers/updates';
 import { logs } from './handlers/logs';
 import { batch } from './handlers/batch';
 import { routing } from './handlers/routing';
+import { wan } from './handlers/wan';
 
 export { mockStore, getProtocolOptions };
 
@@ -19,6 +20,7 @@ export const mockApi = {
   logs,
   batch,
   routing,
+  wan,
 };
 
 export type MockApi = typeof mockApi;

@@ -1,0 +1,121 @@
+import { useState } from 'react';
+import { SatelliteDish } from 'lucide-react';
+import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
+import { api, type InterfaceResponse, type StarlinkUplink } from '../../../api';
+import { SectionHeader } from '../../vpn/sections/SectionHeader';
+import { EmptyHint } from '../EmptyHint';
+import { WanCard } from '../WanCard';
+import { StarlinkUplinkDialog } from '../dialogs/StarlinkUplinkDialog';
+import styles from '../WanPage.module.scss';
+
+interface Props {
+  routerId: string;
+  items: StarlinkUplink[];
+  interfaces: InterfaceResponse[];
+  onChanged: () => void;
+}
+
+export function StarlinkSection({ routerId, items, interfaces, onChanged }: Props) {
+  const toast = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<StarlinkUplink | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<StarlinkUplink | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
+  const openAdd = () => {
+    setEditing(null);
+    setDialogOpen(true);
+  };
+  const openEdit = (u: StarlinkUplink) => {
+    setEditing(u);
+    setDialogOpen(true);
+  };
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditing(null);
+  };
+
+  const onSubmit = async (payload: Omit<StarlinkUplink, 'id'>) => {
+    if (editing) await api.wan.updateStarlink(editing.id, payload);
+    else await api.wan.createStarlink(payload);
+    closeDialog();
+    toast.notify({
+      title: editing ? 'Starlink uplink updated' : 'Starlink uplink added',
+      tone: 'success',
+    });
+    onChanged();
+  };
+
+  const onConfirmDelete = async () => {
+    if (!pendingDelete) return;
+    const target = pendingDelete;
+    setDeleteSubmitting(true);
+    try {
+      await api.wan.deleteStarlink(target.id);
+    } catch (err) {
+      toast.notify({
+        title: 'Failed to delete uplink',
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+      setDeleteSubmitting(false);
+      return;
+    }
+    setDeleteSubmitting(false);
+    setPendingDelete(null);
+    toast.notify({ title: `Uplink "${target.name}" deleted`, tone: 'info' });
+    onChanged();
+  };
+
+  return (
+    <Stack>
+      <Card>
+        <SectionHeader
+          title="Foreign / Starlink"
+          count={items.length}
+          description="Starlink uplink interfaces."
+          action={{ label: 'New', onClick: openAdd }}
+        />
+        {items.length === 0 ? (
+          <EmptyHint
+            icon={<SatelliteDish size={20} aria-hidden />}
+            text="No Starlink uplinks yet"
+          />
+        ) : (
+          <div className={styles.grid}>
+            {items.map((u) => (
+              <WanCard
+                key={u.id}
+                title={u.name}
+                meta={`${u.interfaceType} · ${u.interfaceName || 'no interface'}`}
+                enabled={u.enabled}
+                onEdit={() => openEdit(u)}
+                onDelete={() => setPendingDelete(u)}
+              />
+            ))}
+          </div>
+        )}
+      </Card>
+      {dialogOpen ? (
+        <StarlinkUplinkDialog
+          entity={editing ?? undefined}
+          interfaces={interfaces}
+          routerId={routerId}
+          onCancel={closeDialog}
+          onSubmit={onSubmit}
+        />
+      ) : null}
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete Starlink uplink"
+        description={
+          pendingDelete ? `Remove "${pendingDelete.name}"? This cannot be undone.` : undefined
+        }
+        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
+        destructive
+        onConfirm={onConfirmDelete}
+        onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+      />
+    </Stack>
+  );
+}
