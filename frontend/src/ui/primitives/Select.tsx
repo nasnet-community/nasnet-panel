@@ -144,7 +144,13 @@ export const Select: React.FC<SelectProps> = (props) => {
     }
     const reposition = () => {
       const r = triggerRef.current?.getBoundingClientRect();
-      if (r) setMenuPos({ left: r.left, top: r.bottom + 4, width: r.width });
+      if (r) {
+        setMenuPos({
+          left: r.left + window.scrollX,
+          top: r.bottom + window.scrollY + 4,
+          width: r.width,
+        });
+      }
     };
     reposition();
     window.addEventListener('scroll', reposition, true);
@@ -273,7 +279,7 @@ export const Select: React.FC<SelectProps> = (props) => {
               ref={menuRef}
               className={styles.menu}
               style={{
-                position: 'fixed',
+                position: 'absolute',
                 left: menuPos.left,
                 top: menuPos.top,
                 width: menuPos.width,
