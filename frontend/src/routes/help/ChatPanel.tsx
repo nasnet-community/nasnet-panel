@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Bot, Send, User } from 'lucide-react';
-import { Button, Textarea } from '@nasnet/ui';
+import { ArrowUp, Bot, Paperclip, User } from 'lucide-react';
 import {
   fetchChatMessages,
   hasChatwootSession,
@@ -10,6 +9,13 @@ import {
 import styles from '../HelpPage.module.scss';
 
 const POLL_INTERVAL_MS = 4000;
+
+const SUGGESTED_PROMPTS = [
+  'How do I set up a VPN client?',
+  'My Wi-Fi keeps dropping — what can I check?',
+  'How do I update RouterOS firmware?',
+  'How do I port-forward to a device?',
+];
 
 export function ChatPanel() {
   const [messages, setMessages] = useState<ChatwootMessage[]>([]);
@@ -70,33 +76,38 @@ export function ChatPanel() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [rendered.length, sending]);
 
-  const handleSend = useCallback(async () => {
-    const text = input.trim();
-    if (!text || sending) return;
-    setError(null);
-    setInput('');
-    setOptimistic((prev) => [...prev, { id: -Date.now(), content: text, role: 'user' }]);
-    setSending(true);
-    try {
-      await sendChatMessage(text);
-      await refresh();
-      startPolling();
-    } catch {
-      setError("Couldn't reach support chat. Check your connection and try again.");
-    } finally {
-      if (mountedRef.current) setSending(false);
-    }
-  }, [input, sending, refresh, startPolling]);
+  const submit = useCallback(
+    async (raw: string) => {
+      const text = raw.trim();
+      if (!text || sending) return;
+      setError(null);
+      setInput('');
+      setOptimistic((prev) => [...prev, { id: -Date.now(), content: text, role: 'user' }]);
+      setSending(true);
+      try {
+        await sendChatMessage(text);
+        await refresh();
+        startPolling();
+      } catch {
+        setError("Couldn't reach support chat. Check your connection and try again.");
+      } finally {
+        if (mountedRef.current) setSending(false);
+      }
+    },
+    [sending, refresh, startPolling],
+  );
+
+  const handleSend = useCallback(() => {
+    void submit(input);
+  }, [submit, input]);
+
+  const hasThread = rendered.length > 0 || sending;
 
   return (
-    <div className={styles.chat}>
-      <div className={styles.chatLog} data-testid="help-chat" ref={scrollRef}>
-        {rendered.length === 0 ? (
-          <p className={styles.chatEmpty}>
-            Ask anything about your router setup, VPN, or Wi-Fi. Our assistant replies here.
-          </p>
-        ) : (
-          rendered.map((m) => (
+    <div className={styles.chat} data-testid="help-chat">
+      {hasThread ? (
+        <div className={styles.chatLog} ref={scrollRef}>
+          {rendered.map((m) => (
             <div key={m.id} className={m.role === 'user' ? styles.rowUser : styles.rowAgent}>
               <span className={styles.avatar} aria-hidden>
                 {m.role === 'user' ? <User size={14} /> : <Bot size={14} />}
@@ -105,23 +116,23 @@ export function ChatPanel() {
                 {m.content}
               </div>
             </div>
-          ))
-        )}
-        {sending ? (
-          <div className={styles.rowAgent}>
-            <span className={styles.avatar} aria-hidden>
-              <Bot size={14} />
-            </span>
-            <div className={styles.bubbleAgent}>
-              <span className={styles.typing} aria-label="Assistant is typing">
-                <span />
-                <span />
-                <span />
+          ))}
+          {sending ? (
+            <div className={styles.rowAgent}>
+              <span className={styles.avatar} aria-hidden>
+                <Bot size={14} />
               </span>
+              <div className={styles.bubbleAgent}>
+                <span className={styles.typing} aria-label="Assistant is typing">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              </div>
             </div>
-          </div>
-        ) : null}
-      </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {error ? (
         <p className={styles.chatError} role="alert">
@@ -130,29 +141,53 @@ export function ChatPanel() {
       ) : null}
 
       <div className={styles.composer}>
-        <Textarea
+        <textarea
+          className={styles.composerInput}
           aria-label="Message"
-          placeholder="Ask a question..."
-          rows={2}
+          placeholder="Ask me anything…"
+          rows={3}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              void handleSend();
+              handleSend();
             }
           }}
         />
-        <Button
-          variant="primary"
-          aria-label="Send message"
-          loading={sending}
-          disabled={!input.trim()}
-          onClick={() => void handleSend()}
-        >
-          <Send size={16} aria-hidden />
-        </Button>
+        <div className={styles.composerBar}>
+          <span className={styles.attach} aria-hidden>
+            <Paperclip size={18} />
+          </span>
+          <button
+            type="button"
+            className={styles.sendButton}
+            aria-label="Send message"
+            disabled={!input.trim() || sending}
+            onClick={() => handleSend()}
+          >
+            <ArrowUp size={18} aria-hidden />
+          </button>
+        </div>
       </div>
+
+      {!hasThread ? (
+        <div className={styles.suggestions}>
+          {SUGGESTED_PROMPTS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              className={styles.suggestionChip}
+              onClick={() => {
+                void submit(p);
+              }}
+              disabled={sending}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

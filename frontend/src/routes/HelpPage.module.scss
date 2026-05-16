@@ -5,27 +5,53 @@
 .chat {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .chatLog {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  height: 360px;
+  max-height: 360px;
   overflow-y: auto;
-  padding: var(--space-lg);
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
 }
 
-.chatEmpty {
-  margin: auto;
-  max-width: 42ch;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: var(--font-sm);
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.suggestionChip {
+  appearance: none;
+  cursor: pointer;
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-borderStrong, var(--color-border));
+    background: var(--color-surface-alt);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .rowUser,
@@ -69,8 +95,8 @@
 }
 
 .bubbleUser {
-  background: var(--color-primary);
-  color: var(--color-primary-text);
+  background: #16a34a;
+  color: #fff;
   border-bottom-right-radius: var(--radius-sm);
 }
 
@@ -122,25 +148,85 @@
 
 .composer {
   display: flex;
-  align-items: stretch;
-  gap: var(--space-sm);
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
 
-  textarea {
-    flex: 1;
-    resize: none;
+  &:focus-within {
+    border-color: var(--color-borderStrong, var(--color-border));
+  }
+}
+
+.composerInput {
+  width: 100%;
+  min-height: 56px;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-lg);
+  line-height: 1.5;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+}
+
+.composerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.attach {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.sendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+  color: var(--color-background);
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
   }
 }
 
 .links {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-md);
-}
-
-@media (max-width: 640px) {
-  .links {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 .linkCard {
@@ -148,24 +234,40 @@
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-md) var(--space-lg);
-  background: var(--color-surface-alt);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-text);
   text-decoration: none;
   transition:
     border-color 0.15s ease,
-    background 0.15s ease;
+    background 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:hover {
     border-color: var(--color-borderStrong, var(--color-border));
-    background: var(--color-surface);
+    background: var(--color-surface-alt);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
   }
 
   &:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
+}
+
+.telegram .linkIcon {
+  background: #229ed9;
+}
+
+.youtube .linkIcon {
+  background: #ff0000;
+}
+
+.github .linkIcon {
+  background: #1b1f24;
 }
 
 .linkIcon {
@@ -176,9 +278,8 @@
   height: 36px;
   flex-shrink: 0;
   border-radius: var(--radius-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
+  background: var(--color-text-muted);
+  color: #fff;
 }
 
 .linkBody {
