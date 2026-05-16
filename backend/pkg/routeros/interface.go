@@ -3,17 +3,135 @@ package routeros
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
+// InterfaceType represents a RouterOS interface type.
+type InterfaceType string
+
+// InterfaceType values map to RouterOS /interface type field values.
+const (
+	InterfaceTypeEther     InterfaceType = "ether"
+	InterfaceTypeBonding   InterfaceType = "bonding"
+	InterfaceTypeBridge    InterfaceType = "bridge"
+	InterfaceTypeVLAN      InterfaceType = "vlan"
+	InterfaceTypeVRRP      InterfaceType = "vrrp"
+	InterfaceTypeVeth      InterfaceType = "veth"
+	InterfaceTypeEOIP      InterfaceType = "eoip"
+	InterfaceTypeGRE       InterfaceType = "gre"
+	InterfaceTypeIPIP      InterfaceType = "ipip"
+	InterfaceTypeSIT       InterfaceType = "sit"
+	InterfaceTypeVXLAN     InterfaceType = "vxlan"
+	InterfaceTypeWireGuard InterfaceType = "wg"
+	InterfaceTypeWiFi      InterfaceType = "wifi"
+	InterfaceTypeWireless  InterfaceType = "wireless"
+	InterfaceTypeWLAN      InterfaceType = "wlan"
+	InterfaceTypeW60G      InterfaceType = "w60g"
+	InterfaceTypePPPoEIn   InterfaceType = "pppoe-in"
+	InterfaceTypePPPoEOut  InterfaceType = "pppoe-out"
+	InterfaceTypePPTPIn    InterfaceType = "pptp-in"
+	InterfaceTypePPTPOut   InterfaceType = "pptp-out"
+	InterfaceTypeL2TPIn    InterfaceType = "l2tp-in"
+	InterfaceTypeL2TPOut   InterfaceType = "l2tp-out"
+	InterfaceTypeSSTPIn    InterfaceType = "sstp-in"
+	InterfaceTypeSSTPOut   InterfaceType = "sstp-out"
+	InterfaceTypeOVPNIn    InterfaceType = "ovpn-in"
+	InterfaceTypeOVPNOut   InterfaceType = "ovpn-out"
+	InterfaceType6to4      InterfaceType = "6to4"
+	InterfaceType6in4      InterfaceType = "6in4"
+	InterfaceTypeLoopback  InterfaceType = "loopback"
+	InterfaceTypePPPOut    InterfaceType = "ppp-out"
+)
+
+// AllInterfaceTypes contains all interface types accepted by interface type filtering.
+var AllInterfaceTypes = []InterfaceType{
+	InterfaceTypeEther,
+	InterfaceTypeBonding,
+	InterfaceTypeBridge,
+	InterfaceTypeVLAN,
+	InterfaceTypeVRRP,
+	InterfaceTypeVeth,
+	InterfaceTypeEOIP,
+	InterfaceTypeGRE,
+	InterfaceTypeIPIP,
+	InterfaceTypeSIT,
+	InterfaceTypeVXLAN,
+	InterfaceTypeWireGuard,
+	InterfaceTypeWiFi,
+	InterfaceTypeWireless,
+	InterfaceTypeWLAN,
+	InterfaceTypeW60G,
+	InterfaceTypePPPoEIn,
+	InterfaceTypePPPoEOut,
+	InterfaceTypePPTPIn,
+	InterfaceTypePPTPOut,
+	InterfaceTypeL2TPIn,
+	InterfaceTypeL2TPOut,
+	InterfaceTypeSSTPIn,
+	InterfaceTypeSSTPOut,
+	InterfaceTypeOVPNIn,
+	InterfaceTypeOVPNOut,
+	InterfaceType6to4,
+	InterfaceType6in4,
+	InterfaceTypeLoopback,
+	InterfaceTypePPPOut,
+}
+
+// IsSupportedInterfaceType returns true when interfaceType is present in AllInterfaceTypes.
+func IsSupportedInterfaceType(interfaceType string) bool {
+	for _, t := range AllInterfaceTypes {
+		if string(t) == interfaceType {
+			return true
+		}
+	}
+
+	return false
+}
+
+// SupportedInterfaceTypes returns all supported interface types as plain strings.
+func SupportedInterfaceTypes() []string {
+	types := make([]string, 0, len(AllInterfaceTypes))
+	for _, t := range AllInterfaceTypes {
+		types = append(types, string(t))
+	}
+
+	return types
+}
+
 type InterfaceInfo struct {
-	ID       string
-	Name     string
-	Type     string
-	Running  bool
-	Mac      string
-	MTU      int
-	Disabled bool
-	Comment  string
+	ID               string
+	Name             string
+	DefaultName      *string
+	Type             string
+	MTU              *string
+	ActualMTU        *int64
+	L2MTU            *int64
+	MaxL2MTU         *int64
+	VRF              *string
+	MACAddress       *string
+	LastLinkUpTime   *string
+	LastLinkDownTime *string
+	LinkDowns        *int64
+	RxByte           *int64
+	TxByte           *int64
+	RxPacket         *int64
+	TxPacket         *int64
+	RxDrop           *int64
+	TxDrop           *int64
+	TxQueueDrop      *int64
+	RxError          *int64
+	TxError          *int64
+	FPRxByte         *int64
+	FPTxByte         *int64
+	FPRxPacket       *int64
+	FPTxPacket       *int64
+	FPRpsDrop        *int64
+	Running          *bool
+	Inactive         *bool
+	Slave            *bool
+	Dynamic          *bool
+	Disabled         *bool
+	Comment          *string
 }
 
 type EthernetConfig struct {
@@ -71,24 +189,24 @@ type VirtualInterfaceConfig struct {
 }
 
 func (c *Client) ListInterfaces() ([]InterfaceInfo, error) {
-	results, err := c.GetAll("/interface")
+	return c.ListInterfacesByType("")
+}
+
+// ListInterfacesByType lists interfaces and optionally filters by RouterOS interface type.
+func (c *Client) ListInterfacesByType(interfaceType string) ([]InterfaceInfo, error) {
+	args := []string{}
+	if interfaceType != "" {
+		args = append(args, "?=type="+interfaceType)
+	}
+
+	results, err := c.GetAll("/interface", args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list interfaces: %w", err)
 	}
 
 	interfaces := make([]InterfaceInfo, 0)
 	for _, result := range results {
-		mtu, _ := strconv.Atoi(result["mtu"])
-		interfaces = append(interfaces, InterfaceInfo{
-			ID:       result[".id"],
-			Name:     result["name"],
-			Type:     result["type"],
-			Running:  result["running"] == "true",
-			Mac:      result["mac-address"],
-			MTU:      mtu,
-			Disabled: result["disabled"] == "true",
-			Comment:  result["comment"],
-		})
+		interfaces = append(interfaces, parseInterfaceInfo(result))
 	}
 
 	return interfaces, nil
@@ -100,17 +218,87 @@ func (c *Client) GetInterface(name string) (*InterfaceInfo, error) {
 		return nil, fmt.Errorf("failed to get interface %s: %w", name, err)
 	}
 
-	mtu, _ := strconv.Atoi(result["mtu"])
-	return &InterfaceInfo{
-		ID:       result[".id"],
-		Name:     result["name"],
-		Type:     result["type"],
-		Running:  result["running"] == "true",
-		Mac:      result["mac-address"],
-		MTU:      mtu,
-		Disabled: result["disabled"] == "true",
-		Comment:  result["comment"],
-	}, nil
+	parsed := parseInterfaceInfo(result)
+	return &parsed, nil
+}
+
+func parseInterfaceInfo(result map[string]string) InterfaceInfo {
+	return InterfaceInfo{
+		ID:               result[".id"],
+		Name:             result["name"],
+		DefaultName:      getStringPtr(result, "default-name"),
+		Type:             result["type"],
+		MTU:              getStringPtr(result, "mtu"),
+		ActualMTU:        getInt64Ptr(result, "actual-mtu"),
+		L2MTU:            getInt64Ptr(result, "l2mtu"),
+		MaxL2MTU:         getInt64Ptr(result, "max-l2mtu"),
+		VRF:              getStringPtr(result, "vrf"),
+		MACAddress:       getStringPtr(result, "mac-address"),
+		LastLinkUpTime:   getStringPtr(result, "last-link-up-time"),
+		LastLinkDownTime: getStringPtr(result, "last-link-down-time"),
+		LinkDowns:        getInt64Ptr(result, "link-downs"),
+		RxByte:           getInt64Ptr(result, "rx-byte"),
+		TxByte:           getInt64Ptr(result, "tx-byte"),
+		RxPacket:         getInt64Ptr(result, "rx-packet"),
+		TxPacket:         getInt64Ptr(result, "tx-packet"),
+		RxDrop:           getInt64Ptr(result, "rx-drop"),
+		TxDrop:           getInt64Ptr(result, "tx-drop"),
+		TxQueueDrop:      getInt64Ptr(result, "tx-queue-drop"),
+		RxError:          getInt64Ptr(result, "rx-error"),
+		TxError:          getInt64Ptr(result, "tx-error"),
+		FPRxByte:         getInt64Ptr(result, "fp-rx-byte"),
+		FPTxByte:         getInt64Ptr(result, "fp-tx-byte"),
+		FPRxPacket:       getInt64Ptr(result, "fp-rx-packet"),
+		FPTxPacket:       getInt64Ptr(result, "fp-tx-packet"),
+		FPRpsDrop:        getInt64Ptr(result, "fp-rps-drop"),
+		Running:          getBoolPtr(result, "running"),
+		Inactive:         getBoolPtr(result, "inactive"),
+		Slave:            getBoolPtr(result, "slave"),
+		Dynamic:          getBoolPtr(result, "dynamic"),
+		Disabled:         getBoolPtr(result, "disabled"),
+		Comment:          getStringPtr(result, "comment"),
+	}
+}
+
+func getStringPtr(result map[string]string, key string) *string {
+	value, ok := result[key]
+	if !ok || value == "" {
+		return nil
+	}
+
+	return &value
+}
+
+func getInt64Ptr(result map[string]string, key string) *int64 {
+	value, ok := result[key]
+	if !ok || value == "" {
+		return nil
+	}
+
+	parsed, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return nil
+	}
+
+	return &parsed
+}
+
+func getBoolPtr(result map[string]string, key string) *bool {
+	value, ok := result[key]
+	if !ok || value == "" {
+		return nil
+	}
+
+	switch strings.ToLower(value) {
+	case "true", "yes":
+		v := true
+		return &v
+	case "false", "no":
+		v := false
+		return &v
+	default:
+		return nil
+	}
 }
 
 func (c *Client) AddEthernetInterface(config EthernetConfig) (string, error) {
