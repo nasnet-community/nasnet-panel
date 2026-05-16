@@ -44,6 +44,14 @@ type WiFiConnectedClientResponse struct {
 	Authorized      bool   `json:"authorized"`
 }
 
+type wiFiAccessPointResponse struct {
+	MACAddress string `json:"macAddress,omitempty"`
+	SSID       string `json:"ssid,omitempty"`
+	Channel    string `json:"channel,omitempty"`
+	Security   string `json:"security,omitempty"`
+	Signal     string `json:"signal,omitempty"`
+}
+
 type ChangeWiFiPassphraseRequest struct {
 	Passphrase string `json:"passphrase" form:"passphrase"`
 }
@@ -143,5 +151,30 @@ func ToWiFiConnectedClientsResponse(clients []routeros.ConnectedClient) []WiFiCo
 			responses = append(responses, *resp)
 		}
 	}
+	return responses
+}
+
+func toWiFiAccessPointResponse(ap *routeros.WiFiAccessPoint) *wiFiAccessPointResponse {
+	if ap == nil {
+		return nil
+	}
+
+	return &wiFiAccessPointResponse{
+		MACAddress: ap.MACAddress,
+		SSID:       ap.SSID,
+		Channel:    ap.Channel,
+		Security:   ap.Security,
+		Signal:     ap.Signal,
+	}
+}
+
+func toWiFiAccessPointsResponse(aps []routeros.WiFiAccessPoint) []wiFiAccessPointResponse {
+	responses := make([]wiFiAccessPointResponse, 0, len(aps))
+	for i := range aps {
+		if resp := toWiFiAccessPointResponse(&aps[i]); resp != nil {
+			responses = append(responses, *resp)
+		}
+	}
+
 	return responses
 }

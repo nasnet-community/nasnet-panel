@@ -502,6 +502,79 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/interface/interfaces": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get all RouterOS interfaces, optionally filtered by interface type (?type=ether)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "List interfaces",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface type filter",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.interfaceResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/logs": {
             "get": {
                 "security": [
@@ -3367,6 +3440,99 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/wifi/scan/{nameOrID}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Scan nearby access points for 5 seconds on the specified WiFi interface",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WiFi"
+                ],
+                "summary": "Scan available WiFi access points",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WiFi interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Scan duration in seconds (default: 5)",
+                        "name": "duration",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.wiFiAccessPointResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "WiFi interface not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/wifi/settings/{name}": {
             "put": {
                 "security": [
@@ -4754,6 +4920,142 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "publicKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.interfaceResponse": {
+            "type": "object",
+            "properties": {
+                "actualMtu": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "defaultName": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "dynamic": {
+                    "type": "boolean"
+                },
+                "fpRpsDrop": {
+                    "type": "integer"
+                },
+                "fpRx": {
+                    "type": "string"
+                },
+                "fpRxByte": {
+                    "type": "integer"
+                },
+                "fpRxPacket": {
+                    "type": "integer"
+                },
+                "fpTx": {
+                    "type": "string"
+                },
+                "fpTxByte": {
+                    "type": "integer"
+                },
+                "fpTxPacket": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inactive": {
+                    "type": "boolean"
+                },
+                "l2Mtu": {
+                    "type": "integer"
+                },
+                "lastLinkDownTime": {
+                    "type": "string"
+                },
+                "lastLinkUpTime": {
+                    "type": "string"
+                },
+                "linkDowns": {
+                    "type": "integer"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "maxL2Mtu": {
+                    "type": "integer"
+                },
+                "mtu": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "rx": {
+                    "type": "string"
+                },
+                "rxByte": {
+                    "type": "integer"
+                },
+                "rxDrop": {
+                    "type": "integer"
+                },
+                "rxError": {
+                    "type": "integer"
+                },
+                "rxPacket": {
+                    "type": "integer"
+                },
+                "slave": {
+                    "type": "boolean"
+                },
+                "tx": {
+                    "type": "string"
+                },
+                "txByte": {
+                    "type": "integer"
+                },
+                "txDrop": {
+                    "type": "integer"
+                },
+                "txError": {
+                    "type": "integer"
+                },
+                "txPacket": {
+                    "type": "integer"
+                },
+                "txQueueDrop": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "vrf": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.wiFiAccessPointResponse": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "security": {
+                    "type": "string"
+                },
+                "signal": {
+                    "type": "string"
+                },
+                "ssid": {
                     "type": "string"
                 }
             }

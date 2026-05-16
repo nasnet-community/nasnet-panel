@@ -29,6 +29,7 @@ func RegisterRoutes(e *echo.Echo) {
 	wifiGroup.Use(middleware.RouterOSAuth)
 	wifiGroup.GET("/interfaces", handler.HandleListWiFiInterfaces)
 	wifiGroup.GET("/interfaces/:name", handler.HandleGetWiFiInterface)
+	wifiGroup.GET("/scan/:nameOrID", handler.HandleScanWiFiAccessPoints)
 	wifiGroup.PUT("/interfaces/:name", handler.HandleUpdateWiFiInterface)
 	wifiGroup.PUT("/settings/:name", handler.HandleUpdateWiFiSettings)
 	wifiGroup.GET("/clients", handler.HandleListWiFiConnectedClients)
@@ -58,6 +59,10 @@ func RegisterRoutes(e *echo.Echo) {
 	logsGroup := e.Group("/api/logs")
 	logsGroup.Use(middleware.RouterOSAuth)
 	logsGroup.GET("", handler.HandleGetLogs)
+
+	interfaceGroup := e.Group("/api/interface")
+	interfaceGroup.Use(middleware.RouterOSAuth)
+	interfaceGroup.GET("/interfaces", handler.HandleListInterfaces)
 
 	dnsGroup := e.Group("/api/dns")
 	dnsGroup.Use(middleware.RouterOSAuth)
