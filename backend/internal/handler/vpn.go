@@ -1459,19 +1459,19 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	}
 
 	// Parse configuration
-	sections, err := ParseWireGuardConfig(req.Config)
+	sections, err := utils.ParseWireGuardConfig(req.Config)
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadRequest, "Failed to parse configuration", err)
 	}
 
 	// Get interface section
-	interfaceConfig, err := GetInterfaceConfig(sections)
+	interfaceConfig, err := utils.GetInterfaceConfig(sections)
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid configuration: "+err.Error(), err)
 	}
 
 	// Get peer sections
-	peerConfigs := GetPeerConfigs(sections)
+	peerConfigs := utils.GetPeerConfigs(sections)
 
 	// Parse interface fields
 	listenPort := 51820
