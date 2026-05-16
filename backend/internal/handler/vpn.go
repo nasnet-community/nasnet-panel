@@ -1476,7 +1476,10 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	// Parse interface fields
 	listenPort := 51820
 	if portStr, exists := interfaceConfig["ListenPort"]; exists {
-		fmt.Sscanf(portStr, "%d", &listenPort) //nolint:errcheck // use default port if parsing fails
+		_, err := fmt.Sscanf(portStr, "%d", &listenPort)
+		if err != nil {
+			return err
+		} //nolint:errcheck // use default port if parsing fails
 	}
 
 	privateKey := ""
@@ -1551,7 +1554,10 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 
 		persistentKeepalive := 0
 		if ka, exists := peerConfig["PersistentKeepalive"]; exists {
-			fmt.Sscanf(ka, "%d", &persistentKeepalive) //nolint:errcheck // use default if parsing fails
+			_, err := fmt.Sscanf(ka, "%d", &persistentKeepalive)
+			if err != nil {
+				return err
+			} //nolint:errcheck // use default if parsing fails
 		}
 
 		if publicKey == "" {
@@ -1565,7 +1571,10 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			parts := strings.Split(endpoint, ":")
 			if len(parts) >= 2 {
 				endpointAddr = parts[0]
-				fmt.Sscanf(parts[1], "%d", &endpointPort) //nolint:errcheck // use default if parsing fails
+				_, err := fmt.Sscanf(parts[1], "%d", &endpointPort)
+				if err != nil {
+					return err
+				} //nolint:errcheck // use default if parsing fails
 			}
 		}
 
