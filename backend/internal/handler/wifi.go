@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"nasnet-panel/pkg/routeros" //nolint:misspell // intentional package name
+	"nasnet-panel/pkg/routeros"
 )
 
 // validateSecurityTypes validates security types format.
@@ -430,7 +430,7 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 	}
 
 	// Update settings.
-	settings := routeros.WiFiSettings{ //nolint:misspell // intentional package name
+	settings := routeros.WiFiSettings{
 		SSID:          req.SSID,
 		Password:      req.Password,
 		SecurityTypes: req.SecurityTypes,

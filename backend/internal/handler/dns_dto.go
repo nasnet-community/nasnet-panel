@@ -1,6 +1,6 @@
 package handler
 
-import "nasnet-panel/pkg/routeros" //nolint:misspell // intentional package name
+import "nasnet-panel/pkg/routeros"
 
 // DNSInfoResponse represents the DNS information response.
 type DNSInfoResponse struct {
@@ -15,7 +15,7 @@ type UpdateDNSRequest struct {
 	DOHServer *string `json:"dohServer" description:"DoH server URL (e.g., 'https://dns.google/dns-query'). Set to empty string to clear."`
 }
 
-func convertDNSInfoResponse(info *routeros.DNSInfo) *DNSInfoResponse { //nolint:misspell // intentional package name
+func convertDNSInfoResponse(info *routeros.DNSInfo) *DNSInfoResponse {
 	if info == nil {
 		return nil
 	}

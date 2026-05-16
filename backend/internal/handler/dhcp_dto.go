@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"nasnet-panel/pkg/routeros" //nolint:misspell // intentional package name
+	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 )
 
@@ -51,7 +51,7 @@ type DHCPServerResponse struct {
 }
 
 // ToDHCPLeaseResponse converts a RouterOS DHCP lease info to an API response.
-func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse { //nolint:misspell // intentional package name
+func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse {
 	if dl == nil {
 		return nil
 	}
@@ -73,7 +73,7 @@ func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse { //noli
 }
 
 // ToDHCPLeasesResponse converts a list of DHCP lease infos to API responses.
-func ToDHCPLeasesResponse(leases []routeros.DHCPLeaseInfo) []DHCPLeaseResponse { //nolint:misspell // intentional package name
+func ToDHCPLeasesResponse(leases []routeros.DHCPLeaseInfo) []DHCPLeaseResponse {
 	var responses []DHCPLeaseResponse
 	for i := range leases {
 		if resp := ToDHCPLeaseResponse(&leases[i]); resp != nil {

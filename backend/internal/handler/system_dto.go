@@ -98,7 +98,7 @@ type ClockInfoResponse struct {
 
 // ToSystemInfoResponse converts SystemInfo to SystemInfoResponse.
 //
-//nolint:misspell // package name is intentional: routeros not routers
+
 func ToSystemInfoResponse(si *routeros.SystemInfo) *SystemInfoResponse {
 	if si == nil {
 		return nil
@@ -182,7 +182,7 @@ func ToUpdateInfoResponse(ui *routeros.UpdateInfo) *UpdateInfoResponse {
 
 // ToUpdateCheckResponse converts UpdateCheckInfo to UpdateCheckResponse.
 //
-//nolint:misspell // package name is intentional: routeros not routers
+
 func ToUpdateCheckResponse(uc *routeros.UpdateCheckInfo) *UpdateCheckResponse {
 	if uc == nil {
 		return nil
@@ -199,7 +199,7 @@ func ToUpdateCheckResponse(uc *routeros.UpdateCheckInfo) *UpdateCheckResponse {
 
 // ToUpdateInstallResponse converts UpdateInstallResult to UpdateInstallResponse.
 //
-//nolint:misspell // package name is intentional: routeros not routers
+
 func ToUpdateInstallResponse(ui *routeros.UpdateInstallResult) *UpdateInstallResponse {
 	if ui == nil {
 		return nil

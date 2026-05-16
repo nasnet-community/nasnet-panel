@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"nasnet-panel/pkg/routeros" //nolint:misspell // intentional package name
+	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,7 +30,7 @@ func HandleListFirewallRules(c echo.Context) error {
 
 	chain := c.QueryParam("chain")
 
-	var rules []routeros.FirewallRule //nolint:misspell // intentional package name
+	var rules []routeros.FirewallRule
 	if chain != "" {
 		rules, err = client.GetFirewallRulesByChain(chain)
 	} else {

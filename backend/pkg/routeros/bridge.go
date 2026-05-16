@@ -1,4 +1,3 @@
-//nolint:misspell // intentional package name
 package routeros
 
 import "fmt"

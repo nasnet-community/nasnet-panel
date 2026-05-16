@@ -45,3 +45,8 @@ func GenerateWireGuardPublicKey(privateKeyB64 string) (string, error) {
 
 	return base64.StdEncoding.EncodeToString(publicKeyBytes), nil
 }
+
+// RandString generates a random string of the specified length using crypto/rand.
+func RandString(length int) string {
+	return rand.Text()[:length]
+}
