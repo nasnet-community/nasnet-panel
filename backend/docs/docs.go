@@ -2273,7 +2273,74 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/vpn/wireguard/interface/{name}": {
+        "/api/vpn/wireguard/import-config": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Import a WireGuard interface and peer from a configuration file format",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Import WireGuard Configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "WireGuard configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ImportWireGuardConfigRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.ImportWireGuardConfigResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/wireguard/interface/{nameOrID}": {
             "get": {
                 "security": [
                     {
@@ -2299,7 +2366,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "WireGuard interface name or ID",
-                        "name": "name",
+                        "name": "nameOrID",
                         "in": "path",
                         "required": true
                     }
@@ -2362,7 +2429,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "WireGuard interface name or ID",
-                        "name": "name",
+                        "name": "nameOrID",
                         "in": "path",
                         "required": true
                     },
@@ -2389,6 +2456,136 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/handler.WireGuardInterfaceResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete a WireGuard interface by name or ID, including all associated peers and IP addresses",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Delete WireGuard Interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WireGuard interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/wireguard/peer": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new peer to an existing WireGuard server interface with auto-generated keys",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create WireGuard Server Peer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Peer configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateWireGuardServerPeerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.WireGuardServerPeerCreateResponse"
                                         }
                                     }
                                 }
@@ -2473,6 +2670,63 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete a WireGuard peer by name or ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Delete WireGuard Peer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WireGuard peer name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
                         }
                     },
                     "400": {
@@ -2618,86 +2872,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/vpn/wireguard/server/{interfaceName}/peer": {
-            "post": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Add a new peer to an existing WireGuard server interface with auto-generated keys",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "VPN"
-                ],
-                "summary": "Create WireGuard Server Peer",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "RouterOS host address",
-                        "name": "X-RouterOS-Host",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "WireGuard server interface name",
-                        "name": "interfaceName",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Peer configuration",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.CreateWireGuardServerPeerRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/handler.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/handler.WireGuardServerPeerCreateResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -3424,12 +3598,41 @@ const docTemplate = `{
             "required": [
                 "allowedAddresses",
                 "endpointAddress",
-                "endpointPort"
+                "endpointPort",
+                "interfaceName"
             ],
             "properties": {
                 "allowedAddresses": {
                     "type": "string",
                     "example": "192.168.1.0/24"
+                },
+                "clientAddress": {
+                    "type": "string",
+                    "example": "10.0.0.2/32"
+                },
+                "clientAllowedAddress": {
+                    "type": "string",
+                    "example": "10.0.0.0/24"
+                },
+                "clientDNS": {
+                    "type": "string",
+                    "example": "8.8.8.8,8.8.4.4"
+                },
+                "clientEndpoint": {
+                    "type": "string",
+                    "example": "10.0.0.1:51820"
+                },
+                "clientKeepalive": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "clientListenPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN Peer"
                 },
                 "disabled": {
                     "type": "boolean",
@@ -3442,6 +3645,10 @@ const docTemplate = `{
                 "endpointPort": {
                     "type": "integer",
                     "example": 51820
+                },
+                "interfaceName": {
+                    "type": "string",
+                    "example": "wg-server"
                 },
                 "name": {
                     "type": "string",
@@ -3462,6 +3669,10 @@ const docTemplate = `{
                 "publicKey": {
                     "type": "string",
                     "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
+                },
+                "responder": {
+                    "type": "boolean",
+                    "example": false
                 },
                 "savePrivateKey": {
                     "type": "boolean",
@@ -3535,6 +3746,37 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "ip": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ImportWireGuardConfigRequest": {
+            "type": "object",
+            "required": [
+                "config",
+                "interfaceName"
+            ],
+            "properties": {
+                "config": {
+                    "type": "string",
+                    "example": "[Interface]\nListenPort = 51820\n..."
+                },
+                "interfaceName": {
+                    "type": "string",
+                    "example": "wg-client"
+                }
+            }
+        },
+        "handler.ImportWireGuardConfigResponse": {
+            "type": "object",
+            "properties": {
+                "interfaceIP": {
+                    "type": "string"
+                },
+                "interfaceName": {
+                    "type": "string"
+                },
+                "peerName": {
                     "type": "string"
                 }
             }
@@ -4116,13 +4358,33 @@ const docTemplate = `{
                     "type": "string",
                     "example": "192.168.1.0/24,10.0.0.0/8"
                 },
+                "clientAddress": {
+                    "type": "string",
+                    "example": "10.0.0.2/32"
+                },
                 "clientAllowedAddress": {
                     "type": "string",
-                    "example": "10.0.0.1/24"
+                    "example": "10.0.0.0/24"
+                },
+                "clientDNS": {
+                    "type": "string",
+                    "example": "8.8.8.8,8.8.4.4"
                 },
                 "clientEndpoint": {
                     "type": "string",
-                    "example": "203.0.113.50:51820"
+                    "example": "10.0.0.1:51820"
+                },
+                "clientKeepalive": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "clientListenPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN Peer"
                 },
                 "disabled": {
                     "type": "boolean",
@@ -4136,13 +4398,17 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 51820
                 },
-                "persistentKeepalive": {
+                "name": {
                     "type": "string",
-                    "example": "25s"
+                    "example": "updated-peer-name"
+                },
+                "persistentKeepalive": {
+                    "type": "integer",
+                    "example": 25
                 },
                 "preSharedKey": {
                     "type": "string",
-                    "example": "HIgo9xNzJMu..."
+                    "example": "qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="
                 },
                 "privateKey": {
                     "type": "string",
@@ -4150,7 +4416,11 @@ const docTemplate = `{
                 },
                 "publicKey": {
                     "type": "string",
-                    "example": "HIgo9xNzJMu7..."
+                    "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
+                },
+                "responder": {
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },

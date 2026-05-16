@@ -83,7 +83,7 @@ func (c *Client) ListIPAddresses() ([]IPAddressInfo, error) {
 }
 
 func (c *Client) GetIPAddressesByInterface(ifName string) ([]IPAddressInfo, error) {
-	results, err := c.GetAll("/ip/address", "interface="+ifName)
+	results, err := c.GetAll("/ip/address", "?=interface="+ifName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get IP addresses for interface %s: %w", ifName, err)
 	}
