@@ -10,6 +10,7 @@ import { RouterDashboard } from './routes/RouterDashboard';
 import { OverviewTab } from './routes/OverviewTab';
 import { EasyConfigWizard } from './routes/EasyConfigWizard';
 import { InternetPage } from './routes/InternetPage';
+import { WanPage } from './routes/WanPage';
 import { VPNPage } from './routes/VPNPage';
 import { WirelessPage } from './routes/WirelessPage';
 import { LogsPage } from './routes/LogsPage';
@@ -53,6 +54,7 @@ export function App() {
                   <Route index element={<OverviewTab />} />
                   <Route path="config" element={<EasyConfigWizard />} />
                   <Route path="internet" element={<InternetPage />} />
+                  <Route path="wan" element={<WanPage />} />
                   <Route path="vpn" element={<VPNPage />} />
                   <Route path="wireless" element={<WirelessPage />} />
                   <Route path="logs" element={<LogsPage />} />

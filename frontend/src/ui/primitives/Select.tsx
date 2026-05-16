@@ -1,4 +1,13 @@
-import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Select.module.scss';
 
 export interface SelectOption {
@@ -77,6 +86,8 @@ export const Select: React.FC<SelectProps> = (props) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuPos, setMenuPos] = useState<{ left: number; top: number; width: number } | null>(null);
   const listboxId = useId();
   const triggerId = id ?? `${listboxId}-trigger`;
 
@@ -118,10 +129,36 @@ export const Select: React.FC<SelectProps> = (props) => {
   useEffect(() => {
     if (!open) return;
     const onDocClick = (e: MouseEvent) => {
-      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (wrapperRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      setOpen(false);
     };
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setMenuPos(null);
+      return;
+    }
+    const reposition = () => {
+      const r = triggerRef.current?.getBoundingClientRect();
+      if (r) {
+        setMenuPos({
+          left: r.left + window.scrollX,
+          top: r.bottom + window.scrollY + 4,
+          width: r.width,
+        });
+      }
+    };
+    reposition();
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
   }, [open]);
 
   const selectAt = (idx: number) => {
@@ -236,84 +273,98 @@ export const Select: React.FC<SelectProps> = (props) => {
         </svg>
       </button>
       {name ? <input type="hidden" name={name} value={selectedValues.join(',')} /> : null}
-      {open ? (
-        <div className={styles.menu}>
-          {searchable ? (
-            <input
-              ref={searchRef}
-              type="text"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setActiveIdx(0);
+      {open && menuPos
+        ? createPortal(
+            <div
+              ref={menuRef}
+              className={styles.menu}
+              style={{
+                position: 'absolute',
+                left: menuPos.left,
+                top: menuPos.top,
+                width: menuPos.width,
+                right: 'auto',
+                zIndex: 1100,
               }}
-              onKeyDown={onSearchKeyDown}
-              placeholder={searchPlaceholder}
-              aria-label="Search options"
-              aria-controls={listboxId}
-              className={styles.search}
-            />
-          ) : null}
-          <ul
-            id={listboxId}
-            role="listbox"
-            aria-labelledby={triggerId}
-            className={styles.list}
-            style={maxOptionsHeight ? { maxHeight: maxOptionsHeight } : undefined}
-            tabIndex={-1}
-          >
-            {filteredOptions.length === 0 ? (
-              <li className={styles.emptyOption} role="presentation">
-                No matches
-              </li>
-            ) : (
-              filteredOptions.map((opt, idx) => {
-                const selectedOpt = selectedValues.includes(opt.value);
-                const active = idx === activeIdx;
-                return (
-                  <li
-                    key={opt.value}
-                    role="option"
-                    aria-selected={selectedOpt}
-                    aria-disabled={opt.disabled || undefined}
-                    className={cx(
-                      styles.option,
-                      active && styles.optionActive,
-                      selectedOpt && styles.optionSelected,
-                      opt.disabled && styles.optionDisabled,
-                    )}
-                    onMouseEnter={() => !opt.disabled && setActiveIdx(idx)}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      selectAt(idx);
-                    }}
-                  >
-                    <span>{opt.label}</span>
-                    {selectedOpt ? (
-                      <svg
-                        className={styles.check}
-                        width={14}
-                        height={14}
-                        viewBox="0 0 20 20"
-                        aria-hidden
-                      >
-                        <path
-                          d="M5 10.5l3.5 3.5L15 6.5"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    ) : null}
+            >
+              {searchable ? (
+                <input
+                  ref={searchRef}
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setActiveIdx(0);
+                  }}
+                  onKeyDown={onSearchKeyDown}
+                  placeholder={searchPlaceholder}
+                  aria-label="Search options"
+                  aria-controls={listboxId}
+                  className={styles.search}
+                />
+              ) : null}
+              <ul
+                id={listboxId}
+                role="listbox"
+                aria-labelledby={triggerId}
+                className={styles.list}
+                style={maxOptionsHeight ? { maxHeight: maxOptionsHeight } : undefined}
+                tabIndex={-1}
+              >
+                {filteredOptions.length === 0 ? (
+                  <li className={styles.emptyOption} role="presentation">
+                    No matches
                   </li>
-                );
-              })
-            )}
-          </ul>
-        </div>
-      ) : null}
+                ) : (
+                  filteredOptions.map((opt, idx) => {
+                    const selectedOpt = selectedValues.includes(opt.value);
+                    const active = idx === activeIdx;
+                    return (
+                      <li
+                        key={opt.value}
+                        role="option"
+                        aria-selected={selectedOpt}
+                        aria-disabled={opt.disabled || undefined}
+                        className={cx(
+                          styles.option,
+                          active && styles.optionActive,
+                          selectedOpt && styles.optionSelected,
+                          opt.disabled && styles.optionDisabled,
+                        )}
+                        onMouseEnter={() => !opt.disabled && setActiveIdx(idx)}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          selectAt(idx);
+                        }}
+                      >
+                        <span>{opt.label}</span>
+                        {selectedOpt ? (
+                          <svg
+                            className={styles.check}
+                            width={14}
+                            height={14}
+                            viewBox="0 0 20 20"
+                            aria-hidden
+                          >
+                            <path
+                              d="M5 10.5l3.5 3.5L15 6.5"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        ) : null}
+                      </li>
+                    );
+                  })
+                )}
+              </ul>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 };
