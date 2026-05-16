@@ -25,6 +25,7 @@ const (
 	InterfaceTypeWireGuard InterfaceType = "wg"
 	InterfaceTypeWiFi      InterfaceType = "wifi"
 	InterfaceTypeWireless  InterfaceType = "wireless"
+	InterfaceTypeLTE       InterfaceType = "lte"
 	InterfaceTypeWLAN      InterfaceType = "wlan"
 	InterfaceTypeW60G      InterfaceType = "w60g"
 	InterfaceTypePPPoEIn   InterfaceType = "pppoe-in"
@@ -59,6 +60,7 @@ var AllInterfaceTypes = []InterfaceType{
 	InterfaceTypeWireGuard,
 	InterfaceTypeWiFi,
 	InterfaceTypeWireless,
+	InterfaceTypeLTE,
 	InterfaceTypeWLAN,
 	InterfaceTypeW60G,
 	InterfaceTypePPPoEIn,
