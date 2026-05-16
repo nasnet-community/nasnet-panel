@@ -123,7 +123,9 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 	if err != nil || resp == nil {
 		return nil
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -159,13 +161,16 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 	return nil
 }
 
-func CheckNativeRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Duration) *RouterOSInfo {
+// CheckNativeRouterOSAPI checks if a RouterOS native API is running on the given address.
+func CheckNativeRouterOSAPI(_ context.Context, ip string, port int, timeout time.Duration) *RouterOSInfo {
 	address := net.JoinHostPort(ip, fmt.Sprintf("%d", port))
 	conn, err := net.DialTimeout("tcp", address, timeout)
 	if err != nil {
 		return nil
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	confidenceScore := 40
 	if port == 8729 {
@@ -178,13 +183,16 @@ func CheckNativeRouterOSAPI(ctx context.Context, ip string, port int, timeout ti
 	}
 }
 
-func CheckWinBoxAPI(ctx context.Context, ip string, port int, timeout time.Duration) *RouterOSInfo {
+// CheckWinBoxAPI checks if a WinBox API is running on the given address.
+func CheckWinBoxAPI(_ context.Context, ip string, port int, timeout time.Duration) *RouterOSInfo {
 	address := net.JoinHostPort(ip, fmt.Sprintf("%d", port))
 	conn, err := net.DialTimeout("tcp", address, timeout)
 	if err != nil {
 		return nil
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	return &RouterOSInfo{
 		IsValid:    true,
