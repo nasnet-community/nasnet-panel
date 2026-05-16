@@ -525,3 +525,16 @@ type WireGuardServerPeerCreateResponse struct {
 	PersistentKeepalive int    `json:"persistentKeepalive"`
 	Disabled            bool   `json:"disabled"`
 }
+
+// ImportWireGuardConfigRequest represents a request to import a WireGuard configuration.
+type ImportWireGuardConfigRequest struct {
+	InterfaceName string `json:"interfaceName" binding:"required" example:"wg-client"`
+	Config        string `json:"config" binding:"required" example:"[Interface]\nListenPort = 51820\n..."`
+}
+
+// ImportWireGuardConfigResponse represents the response after importing a WireGuard configuration.
+type ImportWireGuardConfigResponse struct {
+	InterfaceName string `json:"interfaceName"`
+	InterfaceIP   string `json:"interfaceIP"`
+	PeerName      string `json:"peerName"`
+}

@@ -1144,6 +1144,43 @@ func (c *Client) DeleteWireGuardPeer(nameOrID string) error {
 	return nil
 }
 
+// DeleteWireGuardInterface deletes a WireGuard interface along with all its peers and associated IP addresses.
+func (c *Client) DeleteWireGuardInterface(nameOrID string) error {
+	if nameOrID == "" {
+		return fmt.Errorf("interface name or ID is required")
+	}
+
+	// Get the interface to find its ID and name if name is provided
+	wg, err := c.GetWireGuard(nameOrID)
+	if err != nil {
+		return err
+	}
+
+	// Delete all peers associated with this interface
+	peers, err := c.GetWireGuardPeers(wg.Name)
+	if err == nil {
+		for i := range peers {
+			_, _ = c.Remove("/interface/wireguard/peers", "=.id="+peers[i].ID)
+		}
+	}
+
+	// Delete all IP addresses associated with this interface
+	addresses, err := c.GetIPAddressesByInterface(wg.Name)
+	if err == nil {
+		for _, addr := range addresses {
+			_ = c.RemoveIPAddress(addr.ID)
+		}
+	}
+
+	// Delete the interface itself
+	_, err = c.Remove("/interface/wireguard", "=.id="+wg.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete WireGuard interface %s: %w", nameOrID, err)
+	}
+
+	return nil
+}
+
 // UpdateWireGuardPeer updates a WireGuard peer configuration.
 func (c *Client) UpdateWireGuardPeer(peerID string, config UpdateWireGuardPeerConfig) error {
 	if peerID == "" {

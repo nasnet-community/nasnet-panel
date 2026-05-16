@@ -809,20 +809,13 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	if req.PersistentKeepalive != nil && *req.PersistentKeepalive <= 0 {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
-
-	addresses, err := client.ListIPAddresses()
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check existing addresses", err)
-	}
-
-	for _, addr := range addresses {
-		if addr.Address == req.InterfaceLocalAddress {
-			return ErrorResponse(c, http.StatusBadRequest, "IP address already exists", fmt.Errorf("address %s is already in use", req.InterfaceLocalAddress))
-		}
+	interfaceName := req.Name
+	if !strings.HasSuffix(interfaceName, "-client") {
+		interfaceName += "-client"
 	}
 
 	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
-		Name:       req.Name + "-client",
+		Name:       interfaceName,
 		PrivateKey: req.InterfacePrivateKey,
 		ListenPort: req.ListenPort,
 		MTU:        req.MTU,
@@ -968,8 +961,13 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		}
 	}
 
+	interfaceName := req.Name
+	if !strings.HasSuffix(interfaceName, "-server") {
+		interfaceName += "-server"
+	}
+
 	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
-		Name:       req.Name + "-server",
+		Name:       interfaceName,
 		PrivateKey: req.PrivateKey,
 		ListenPort: req.ListenPort,
 		MTU:        req.MTU,
@@ -1004,21 +1002,21 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param name path string true "WireGuard interface name or ID"
+// @Param nameOrID path string true "WireGuard interface name or ID"
 // @Param body body UpdateWireGuardInterfaceRequest true "WireGuard interface update configuration"
 // @Produce json
 // @Success 200 {object} Response{data=WireGuardInterfaceResponse}
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/wireguard/interface/{name} [put].
+// @Router /api/vpn/wireguard/interface/{nameOrID} [put].
 func HandleUpdateWireGuardInterface(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
 	}
 
-	nameOrID := c.Param("name")
+	nameOrID := c.Param("nameOrID")
 	if nameOrID == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
 	}
@@ -1168,19 +1166,19 @@ func HandleGetWireGuardDetailed(c echo.Context) error {
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param name path string true "WireGuard interface name or ID"
+// @Param nameOrID path string true "WireGuard interface name or ID"
 // @Produce json
 // @Success 200 {object} Response{data=WireGuardInterfaceResponse}
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/wireguard/interface/{name} [get].
+// @Router /api/vpn/wireguard/interface/{nameOrID} [get].
 func HandleGetWireGuardInterface(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
 	}
 
-	nameOrID := c.Param("name")
+	nameOrID := c.Param("nameOrID")
 	if nameOrID == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
 	}
@@ -1399,4 +1397,209 @@ func HandleDeleteWireGuardPeer(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard peer deleted successfully", nil)
+}
+
+// HandleDeleteWireGuardInterface deletes a WireGuard interface along with all its peers and IP addresses.
+// @Summary Delete WireGuard Interface
+// @Description Delete a WireGuard interface by name or ID, including all associated peers and IP addresses
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "WireGuard interface name or ID"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/interface/{nameOrID} [delete].
+func HandleDeleteWireGuardInterface(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
+	}
+
+	err = client.DeleteWireGuardInterface(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard interface", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard interface deleted successfully", nil)
+}
+
+// HandleImportWireGuardConfig imports a WireGuard configuration from a config string.
+// @Summary Import WireGuard Configuration
+// @Description Import a WireGuard interface and peer from a configuration file format
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body ImportWireGuardConfigRequest true "WireGuard configuration"
+// @Produce json
+// @Success 200 {object} Response{data=ImportWireGuardConfigResponse}
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/import-config [post].
+func HandleImportWireGuardConfig(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req ImportWireGuardConfigRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
+	}
+
+	if req.InterfaceName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name is required", nil)
+	}
+
+	// Parse configuration
+	sections, err := ParseWireGuardConfig(req.Config)
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Failed to parse configuration", err)
+	}
+
+	// Get interface section
+	interfaceConfig, err := GetInterfaceConfig(sections)
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid configuration: "+err.Error(), err)
+	}
+
+	// Get peer sections
+	peerConfigs := GetPeerConfigs(sections)
+
+	// Parse interface fields
+	listenPort := 51820
+	if portStr, exists := interfaceConfig["ListenPort"]; exists {
+		fmt.Sscanf(portStr, "%d", &listenPort) //nolint:errcheck // use default port if parsing fails
+	}
+
+	privateKey := ""
+	if pk, exists := interfaceConfig["PrivateKey"]; exists {
+		privateKey = strings.TrimSpace(pk)
+	}
+
+	address := ""
+	if addr, exists := interfaceConfig["Address"]; exists {
+		address = strings.TrimSpace(addr)
+	}
+
+	// dns is currently reserved for future use
+	if d, exists := interfaceConfig["DNS"]; exists {
+		_ = strings.TrimSpace(d)
+	}
+	interfaceName := req.InterfaceName
+	if !strings.HasSuffix(interfaceName, "-client") {
+		interfaceName += "-client"
+	}
+
+	// Create interface
+	interfaceConfig2 := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+		Name:       interfaceName,
+		ListenPort: &listenPort,
+	}
+	if privateKey != "" {
+		interfaceConfig2.PrivateKey = &privateKey
+	}
+
+	wg, err := client.CreateWireGuardInterface(interfaceConfig2) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
+	}
+
+	// Add address to interface if specified
+	if address != "" {
+		ipConfig := routeros.IPAddressConfig{ //nolint:misspell // pkg name is routeros not routers
+			Interface: wg.Name,
+			Address:   address,
+		}
+		if _, err := client.AddIPAddress(ipConfig); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
+		}
+	}
+
+	// Add peers
+	var peerName string
+	if len(peerConfigs) > 0 {
+		peerConfig := peerConfigs[0]
+
+		// Parse peer fields
+		publicKey := ""
+		if pk, exists := peerConfig["PublicKey"]; exists {
+			publicKey = strings.TrimSpace(pk)
+		}
+
+		allowedIPs := ""
+		if ips, exists := peerConfig["AllowedIPs"]; exists {
+			allowedIPs = strings.TrimSpace(ips)
+		}
+
+		endpoint := ""
+		if ep, exists := peerConfig["Endpoint"]; exists {
+			endpoint = strings.TrimSpace(ep)
+		}
+
+		presharedKey := ""
+		if psk, exists := peerConfig["PresharedKey"]; exists {
+			presharedKey = strings.TrimSpace(psk)
+		}
+
+		persistentKeepalive := 0
+		if ka, exists := peerConfig["PersistentKeepalive"]; exists {
+			fmt.Sscanf(ka, "%d", &persistentKeepalive) //nolint:errcheck // use default if parsing fails
+		}
+
+		if publicKey == "" {
+			return ErrorResponse(c, http.StatusBadRequest, "Peer PublicKey is required", nil)
+		}
+
+		// Parse endpoint address and port
+		endpointAddr := ""
+		endpointPort := 51820
+		if endpoint != "" {
+			parts := strings.Split(endpoint, ":")
+			if len(parts) >= 2 {
+				endpointAddr = parts[0]
+				fmt.Sscanf(parts[1], "%d", &endpointPort) //nolint:errcheck // use default if parsing fails
+			}
+		}
+
+		peerName = publicKey[:8]
+
+		config := routeros.WireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
+			InterfaceName:       wg.Name,
+			PeerName:            peerName,
+			PublicKey:           &publicKey,
+			EndpointAddress:     endpointAddr,
+			EndpointPort:        endpointPort,
+			AllowedAddresses:    []string{allowedIPs},
+			PersistentKeepalive: nil,
+		}
+
+		if presharedKey != "" {
+			config.PresharedKey = &presharedKey
+		}
+
+		if persistentKeepalive > 0 {
+			config.PersistentKeepalive = &persistentKeepalive
+		}
+
+		_, err = client.AddWireGuardPeer(config)
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
+		}
+	}
+
+	response := ImportWireGuardConfigResponse{
+		InterfaceName: wg.Name,
+		InterfaceIP:   address,
+		PeerName:      peerName,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
 }
