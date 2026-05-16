@@ -109,6 +109,26 @@ export interface InterfaceResponse {
   mac?: string;
   mtu?: number;
   comment?: string;
+  speed?: string;
+  rxMbps?: number;
+  txMbps?: number;
+}
+
+export interface IpAddressResponse {
+  id: string;
+  address: string;
+  interface: string;
+  dynamic: boolean;
+  disabled: boolean;
+}
+
+export interface RouteResponse {
+  id: string;
+  dstAddress: string;
+  gateway: string;
+  interface?: string;
+  active: boolean;
+  distance: number;
 }
 
 export async function fetchInterfaces(
@@ -116,6 +136,32 @@ export async function fetchInterfaces(
   signal?: AbortSignal,
 ): Promise<InterfaceResponse[]> {
   const list = await apiRequest<InterfaceResponse[] | null>('/api/interfaces', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return list ?? [];
+}
+
+export async function fetchIpAddresses(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<IpAddressResponse[]> {
+  const list = await apiRequest<IpAddressResponse[] | null>('/api/ip/addresses', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return list ?? [];
+}
+
+export async function fetchRoutes(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<RouteResponse[]> {
+  const list = await apiRequest<RouteResponse[] | null>('/api/routes', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',

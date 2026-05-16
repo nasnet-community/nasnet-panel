@@ -22,6 +22,8 @@ export {
   fetchDynamicOverview,
   fetchInterfaceTraffic,
   fetchInterfaces,
+  fetchIpAddresses,
+  fetchRoutes,
   fetchVPNClients,
   rebootSystem,
   shutdownSystem,
@@ -33,6 +35,8 @@ export {
   type DynamicOverview,
   type InterfaceTrafficResponse,
   type InterfaceResponse,
+  type IpAddressResponse,
+  type RouteResponse,
 } from './system';
 export {
   fetchWifiInterfaces,

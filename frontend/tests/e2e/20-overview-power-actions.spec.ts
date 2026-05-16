@@ -26,7 +26,7 @@ test.describe('Overview tab — power actions', () => {
     await page.goto('/router/rtr_pwr');
     await expect(page.getByTestId('overview-uptime')).not.toBeEmpty();
 
-    await page.getByTestId('overview-reboot').click();
+    await page.getByTestId('diagram-reboot').click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole('heading', { name: /reboot router\?/i })).toBeVisible();
@@ -62,7 +62,7 @@ test.describe('Overview tab — power actions', () => {
     await page.goto('/router/rtr_pwr');
     await expect(page.getByTestId('overview-uptime')).not.toBeEmpty();
 
-    await page.getByTestId('overview-shutdown').click();
+    await page.getByTestId('diagram-shutdown').click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole('heading', { name: /shutdown router\?/i })).toBeVisible();
@@ -97,7 +97,7 @@ test.describe('Overview tab — power actions', () => {
     await page.goto('/router/rtr_pwr');
     await expect(page.getByTestId('overview-uptime')).not.toBeEmpty();
 
-    await page.getByTestId('overview-reboot').click();
+    await page.getByTestId('diagram-reboot').click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
     await dialog.getByRole('button', { name: /cancel/i }).click();

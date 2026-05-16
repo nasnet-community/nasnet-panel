@@ -1,5 +1,6 @@
 import { isAbortError } from './abort';
 import { BACKEND_URL } from './config';
+import { devMock } from './dev-mocks';
 
 interface Envelope<T> {
   status: number;
@@ -19,6 +20,9 @@ export class ApiError extends Error {
 }
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const mocked = devMock(path);
+  if (mocked !== undefined) return mocked as T;
+
   const url = path.startsWith('http') ? path : `${BACKEND_URL}${path}`;
   const headers = new Headers(init.headers);
   if (init.body && !headers.has('Content-Type')) {
