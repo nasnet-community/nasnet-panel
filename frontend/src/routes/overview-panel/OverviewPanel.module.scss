@@ -1,0 +1,292 @@
+.panelCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-height: 220px;
+  padding: var(--space-lg);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.cardTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: var(--weight-semibold);
+}
+
+.cardTitleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.chassisScroll {
+  overflow: visible;
+}
+
+.chassis {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface-alt, var(--color-border)) 60%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #ffffff 6%, transparent);
+  min-width: 100%;
+}
+
+.bannerPorts {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-lg);
+
+  > div {
+    margin-left: auto;
+  }
+}
+
+.chassisBare {
+  border: none;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.formRackmount {
+  border-radius: var(--radius-md);
+  padding-block: var(--space-md);
+}
+
+.formTower {
+  border-radius: var(--radius-xl);
+}
+
+.formDesktop {
+  border-radius: var(--radius-lg);
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.row + .row {
+  margin-top: var(--space-sm);
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  width: 48px;
+}
+
+.socket {
+  width: 44px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.interactive {
+  appearance: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.interactive:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.interactive:hover .socket {
+  border-color: color-mix(in srgb, var(--color-primary) 60%, var(--color-border));
+}
+
+.interactive:hover .up,
+.interactive:focus-visible .up {
+  color: color-mix(in srgb, var(--color-success) 55%, #000);
+  border-color: color-mix(in srgb, var(--color-success) 55%, #000);
+}
+
+.actionReboot:hover .socket,
+.actionReboot:focus-visible .socket {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.actionShutdown:hover .socket,
+.actionShutdown:focus-visible .socket {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.up {
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 55%, var(--color-border));
+}
+
+.down,
+.disabled {
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
+.absent {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.sfpBox {
+  width: 56px;
+  height: 38px;
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+}
+
+.slotLabel {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.poe {
+  position: relative;
+}
+
+.uplinkList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.uplinkRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.uplinkName {
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.uplinkIps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.uplinkIp {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.uplinkEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+.hoverWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.hoverCard {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-xs);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+  z-index: 100;
+}
+
+.hoverWrap:hover .hoverCard,
+.hoverWrap:focus-within .hoverCard {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hoverRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    color: var(--color-text-muted);
+  }
+}
+
+.rxRow svg {
+  color: var(--color-success);
+}
+
+.txRow svg {
+  color: var(--color-danger);
+}

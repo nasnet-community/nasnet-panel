@@ -54,6 +54,7 @@ export interface Interface {
   running: boolean;
   disabled?: boolean;
   comment?: string;
+  speed?: string;
   ssid?: string;
   band?: WirelessBand;
   securityTypes?: string[];
