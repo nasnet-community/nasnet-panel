@@ -6,6 +6,8 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = (_env, argv) => {
   const isProduction = argv.mode === 'production';
   const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:8080';
+  const chatwootBaseUrl = process.env.CHATWOOT_BASE_URL ?? 'https://chatwoot.example.com';
+  const chatwootInbox = process.env.CHATWOOT_INBOX_IDENTIFIER ?? 'nasnet-inbox';
   const appVersion = require('../package.json').version;
 
   return {
@@ -71,6 +73,8 @@ module.exports = (_env, argv) => {
     plugins: [
       new webpack.DefinePlugin({
         __BACKEND_URL__: JSON.stringify(backendUrl),
+        __CHATWOOT_BASE_URL__: JSON.stringify(chatwootBaseUrl),
+        __CHATWOOT_INBOX_IDENTIFIER__: JSON.stringify(chatwootInbox),
         __APP_VERSION__: JSON.stringify(appVersion),
       }),
       new HtmlWebpackPlugin({

@@ -38,7 +38,7 @@ const TABS: Array<TabItem & { path: string }> = [
     icon: <Activity size={16} />,
     disabled: true,
   },
-  { id: 'help', label: 'Help', path: 'help', icon: <CircleHelp size={16} />, disabled: true },
+  { id: 'help', label: 'Help', path: 'help', icon: <CircleHelp size={16} /> },
   // { id: 'dhcp', label: 'DHCP', path: 'dhcp', icon: <Network size={16} /> },
   // { id: 'dns', label: 'DNS', path: 'dns', icon: <Globe size={16} /> },
   // { id: 'firewall', label: 'Firewall', path: 'firewall', icon: <Flame size={16} /> },
