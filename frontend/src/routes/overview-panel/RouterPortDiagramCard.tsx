@@ -9,22 +9,36 @@ import styles from './OverviewPanel.module.scss';
 export interface RouterPortDiagramCardProps {
   model: string;
   interfaces: InterfaceResponse[];
-  onPower: (action: PowerAction) => void;
+  onPower?: (action: PowerAction) => void;
+  showPowerControls?: boolean;
+  disabledIfaceNames?: readonly string[];
 }
 
 export const RouterPortDiagramCard: React.FC<RouterPortDiagramCardProps> = React.memo(
-  function RouterPortDiagramCard({ model, interfaces, onPower }) {
+  function RouterPortDiagramCard({
+    model,
+    interfaces,
+    onPower,
+    showPowerControls = true,
+    disabledIfaceNames,
+  }) {
     const { descriptor, slots } = useMemo(() => {
       const resolved = resolveModelStrict(model);
-      return { descriptor: resolved, slots: mapPorts(resolved.slots, interfaces) };
-    }, [model, interfaces]);
+      const disabled = disabledIfaceNames
+        ? new Set(disabledIfaceNames.map((n) => n.toLowerCase()))
+        : undefined;
+      const baseSlots = showPowerControls
+        ? resolved.slots
+        : resolved.slots.filter((s) => s.kind !== 'power' && s.kind !== 'reset');
+      return { descriptor: resolved, slots: mapPorts(baseSlots, interfaces, disabled) };
+    }, [model, interfaces, disabledIfaceNames, showPowerControls]);
 
     const Panel = PANEL_REGISTRY[descriptor.key];
 
     const handleSlot = useCallback(
       (slot: ResolvedSlot) => {
         const action = POWER_ACTION[slot.kind];
-        if (action) onPower(action);
+        if (action) onPower?.(action);
       },
       [onPower],
     );

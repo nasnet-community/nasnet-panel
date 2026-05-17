@@ -39,7 +39,11 @@ const deriveStatus = (iface: InterfaceResponse | undefined): PortStatus => {
   return iface.running ? 'up' : 'down';
 };
 
-export function mapPorts(slots: PortSlot[], interfaces: InterfaceResponse[]): ResolvedSlot[] {
+export function mapPorts(
+  slots: PortSlot[],
+  interfaces: InterfaceResponse[],
+  disabledIfaceNames?: ReadonlySet<string>,
+): ResolvedSlot[] {
   return slots.map((slot) => {
     if (!PORT_KINDS.includes(slot.kind)) {
       const action = POWER_ACTION[slot.kind];
@@ -52,7 +56,9 @@ export function mapPorts(slots: PortSlot[], interfaces: InterfaceResponse[]): Re
       };
     }
     const iface = findIface(interfaces, slot.ifaceName);
-    const status = deriveStatus(iface);
+    const forcedDisabled =
+      !!slot.ifaceName && !!disabledIfaceNames?.has(slot.ifaceName.toLowerCase());
+    const status = forcedDisabled ? 'disabled' : deriveStatus(iface);
     const speedLabel = iface?.speed || slot.nominalSpeed;
     const name = slot.ifaceName ?? slot.id;
     const hasTraffic =
@@ -68,7 +74,7 @@ export function mapPorts(slots: PortSlot[], interfaces: InterfaceResponse[]): Re
       ...slot,
       status,
       speedLabel,
-      interactive: true,
+      interactive: !forcedDisabled,
       tooltip,
       rxMbps: status === 'up' ? iface?.rxMbps : undefined,
       txMbps: status === 'up' ? iface?.txMbps : undefined,
