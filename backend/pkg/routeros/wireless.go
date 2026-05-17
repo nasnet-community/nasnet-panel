@@ -447,6 +447,10 @@ func (c *Client) updateWirelessSettingsImpl(interfaceName string, settings WiFiS
 		args = append(args, "=ssid="+*settings.SSID)
 	}
 
+	if settings.Mode != nil {
+		args = append(args, "=mode="+toWirelessMode(*settings.Mode))
+	}
+
 	// Update security settings if provided
 	if settings.Password != nil || settings.SecurityTypes != nil {
 		// Check if security profile exists
@@ -503,6 +507,18 @@ func (c *Client) updateWirelessSettingsImpl(interfaceName string, settings WiFiS
 	}
 
 	return nil
+}
+
+// toWirelessMode maps the high-level mode ("ap" / "station") to the legacy
+// /interface/wireless mode value ("ap-bridge" / "station"). Other values are
+// passed through verbatim so callers can opt into the underlying RouterOS modes.
+func toWirelessMode(mode string) string {
+	switch mode {
+	case "ap":
+		return "ap-bridge"
+	default:
+		return mode
+	}
 }
 
 func (c *Client) resolveWirelessInterfaceName(nameOrID string) (string, error) {

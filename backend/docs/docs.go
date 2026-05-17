@@ -3130,7 +3130,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Connection details (SSID required; both securityType and password required together, or both empty for open network)",
+                        "description": "Connection details (SSID required; both securityTypes and password required together, or both empty for open network)",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -3622,7 +3622,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Update SSID, password, and security types for a WiFi interface",
+                "description": "Update SSID, password, security types, and mode for a WiFi interface",
                 "consumes": [
                     "application/json"
                 ],
@@ -4562,6 +4562,10 @@ const docTemplate = `{
         "handler.UpdateWiFiSettingsRequest": {
             "type": "object",
             "properties": {
+                "mode": {
+                    "description": "ap | station",
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -4762,8 +4766,8 @@ const docTemplate = `{
                     "description": "empty for open network",
                     "type": "string"
                 },
-                "securityType": {
-                    "description": "e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)",
+                "securityTypes": {
+                    "description": "comma-separated: wpa-psk,wpa2-psk,wpa3-psk (empty for open network)",
                     "type": "string"
                 },
                 "ssid": {

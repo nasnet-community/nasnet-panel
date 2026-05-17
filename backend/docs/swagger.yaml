@@ -573,6 +573,9 @@ definitions:
     type: object
   handler.UpdateWiFiSettingsRequest:
     properties:
+      mode:
+        description: ap | station
+        type: string
       password:
         type: string
       securityTypes:
@@ -713,8 +716,8 @@ definitions:
       password:
         description: empty for open network
         type: string
-      securityType:
-        description: e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)
+      securityTypes:
+        description: 'comma-separated: wpa-psk,wpa2-psk,wpa3-psk (empty for open network)'
         type: string
       ssid:
         type: string
@@ -2947,7 +2950,7 @@ paths:
         name: nameOrID
         required: true
         type: string
-      - description: Connection details (SSID required; both securityType and password
+      - description: Connection details (SSID required; both securityTypes and password
           required together, or both empty for open network)
         in: body
         name: body
@@ -3280,7 +3283,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update SSID, password, and security types for a WiFi interface
+      description: Update SSID, password, security types, and mode for a WiFi interface
       parameters:
       - description: RouterOS host address
         in: header

@@ -439,6 +439,10 @@ func (c *Client) updateWiFiSettingsImpl(interfaceName string, settings WiFiSetti
 		args = append(args, "=configuration.ssid="+*settings.SSID)
 	}
 
+	if settings.Mode != nil {
+		args = append(args, "=configuration.mode="+*settings.Mode)
+	}
+
 	// Update security settings if provided
 	if settings.Password != nil || settings.SecurityTypes != nil {
 		// Check if security profile exists

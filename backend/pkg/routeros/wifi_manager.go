@@ -102,6 +102,7 @@ type WiFiSettings struct {
 	SSID          *string // nil = don't change, empty string = clear, non-empty = set value.
 	Password      *string // nil = don't change, empty string = clear, non-empty = set value.
 	SecurityTypes *string // comma-separated security types (wpa-psk,wpa2-psk,wpa3-psk).
+	Mode          *string // "ap" or "station"; nil = don't change.
 }
 
 func (c *Client) GetWiFiDriverType() (WiFiDriverType, error) {
