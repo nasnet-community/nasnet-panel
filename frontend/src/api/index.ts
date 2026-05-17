@@ -121,5 +121,13 @@ export {
 export { ApiError } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
+export {
+  sendChatMessage,
+  fetchChatMessages,
+  hasChatwootSession,
+  resetChatwootSession,
+  type ChatwootMessage,
+  type ChatRole,
+} from './chatwoot';
 
 export type * from '@nasnet/mocks';
