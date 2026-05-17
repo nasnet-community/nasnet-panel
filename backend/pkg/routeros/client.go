@@ -208,6 +208,20 @@ func (c *Client) Remove(path string, args ...string) (*ros.Reply, error) {
 	return c.Run(sentence)
 }
 
+// Unset removes specific properties from an item at the given path and arguments (e.g. =value-name=property).
+func (c *Client) Unset(path string, args ...string) (*ros.Reply, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.conn == nil {
+		return nil, fmt.Errorf("connection is closed")
+	}
+
+	sentence := []string{path + "/unset"}
+	sentence = append(sentence, args...)
+	return c.Run(sentence)
+}
+
 func (c *Client) Enable(path string, id string) (*ros.Reply, error) {
 	return c.Execute(path+"/enable", "=.id="+id)
 }

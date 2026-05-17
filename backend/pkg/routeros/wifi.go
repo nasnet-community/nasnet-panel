@@ -439,6 +439,10 @@ func (c *Client) updateWiFiSettingsImpl(interfaceName string, settings WiFiSetti
 		args = append(args, "=configuration.ssid="+*settings.SSID)
 	}
 
+	if settings.Mode != nil {
+		args = append(args, "=configuration.mode="+*settings.Mode)
+	}
+
 	// Update security settings if provided
 	if settings.Password != nil || settings.SecurityTypes != nil {
 		// Check if security profile exists
@@ -534,4 +538,103 @@ func (c *Client) scanWiFiAccessPointsByInterface(nameOrID, duration string) ([]W
 	}
 
 	return aps, nil
+}
+
+//nolint:revive // Private implementation of public method
+func (c *Client) connectWiFiToAccessPoint(nameOrID, ssid, securityType, password string) error {
+	interfaceID, err := c.resolveWiFiInterfaceID(nameOrID)
+	if err != nil {
+		return err
+	}
+
+	result, err := c.GetFirst("/interface/wifi", "?name="+nameOrID)
+	if err != nil {
+		return fmt.Errorf("failed to get WiFi interface details: %w", err)
+	}
+
+	securityProfile := result["security"]
+
+	args := []string{
+		"=.id=" + interfaceID,
+		"=configuration.mode=station",
+		"=configuration.ssid=" + ssid,
+	}
+
+	_, err = c.Set("/interface/wifi", args...)
+	if err != nil {
+		return fmt.Errorf("failed to connect WiFi interface to access point: %w", err)
+	}
+
+	if securityProfile != "" {
+		// Clear auth type and password on interface itself when using security profile
+		if err := c.clearWiFiSecurityDirect(interfaceID); err != nil {
+			return err
+		}
+
+		if securityType != "" && password != "" {
+			return c.updateWiFiSecurityProfile(securityProfile, securityType, password)
+		}
+		return c.updateWiFiSecurityProfile(securityProfile, "", "")
+	}
+
+	if securityType != "" && password != "" {
+		return c.setWiFiSecurityDirect(interfaceID, securityType, password)
+	}
+
+	return nil
+}
+
+func (c *Client) updateWiFiSecurityProfile(profileName, securityType, password string) error {
+	profileResult, err := c.GetFirst("/interface/wifi/security", "?name="+profileName)
+	if err != nil {
+		return fmt.Errorf("failed to get WiFi security profile: %w", err)
+	}
+
+	profileID := profileResult[".id"]
+	args := []string{
+		"=.id=" + profileID,
+		"=authentication-types=" + securityType,
+		"=passphrase=" + password,
+	}
+
+	_, err = c.Set("/interface/wifi/security", args...)
+	if err != nil {
+		return fmt.Errorf("failed to update WiFi security profile: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Client) setWiFiSecurityDirect(interfaceID, securityType, password string) error {
+	args := []string{
+		"=.id=" + interfaceID,
+		"=security.authentication-types=" + securityType,
+		"=security.passphrase=" + password,
+	}
+
+	_, err := c.Set("/interface/wifi", args...)
+	if err != nil {
+		return fmt.Errorf("failed to set WiFi security: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Client) clearWiFiSecurityDirect(interfaceID string) error {
+	valueNames := []string{
+		"security.authentication-types",
+		"security.passphrase",
+	}
+
+	for _, valueName := range valueNames {
+		_, err := c.Unset("/interface/wifi",
+			"=.id="+interfaceID,
+			"=value-name="+valueName,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to clear WiFi security property %s: %w", valueName, err)
+		}
+	}
+
+	return nil
 }
