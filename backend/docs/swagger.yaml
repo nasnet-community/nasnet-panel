@@ -33,6 +33,21 @@ definitions:
       passphrase:
         type: string
     type: object
+  handler.ConfigureDHCPClientResponse:
+    properties:
+      addDefaultRoute:
+        type: boolean
+      disabled:
+        type: boolean
+      id:
+        type: string
+      interface:
+        type: string
+      usePeerDns:
+        type: boolean
+      usePeerNtp:
+        type: boolean
+    type: object
   handler.CreateWireGuardInterfaceRequest:
     properties:
       allowedAddress:
@@ -987,6 +1002,60 @@ info:
   title: NASNET-Panel API
   version: "1.0"
 paths:
+  /api/dhcp/client/{nameOrID}:
+    post:
+      consumes:
+      - application/json
+      description: Create or update a DHCP client on the specified interface with
+        use-peer-dns=yes, use-peer-ntp=yes, add-default-route=no, and enabled.
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Interface name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.ConfigureDHCPClientResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Interface not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Configure a DHCP client on an interface
+      tags:
+      - DHCP
   /api/dhcp/clients:
     get:
       consumes:
