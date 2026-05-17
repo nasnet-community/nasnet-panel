@@ -401,7 +401,7 @@ export function OverviewTab() {
                 </div>
                 Default DHCP Server
               </div>
-              <Button variant="secondary" size="sm" onClick={() => navigate(`/router/${id}/dhcp`)}>
+              <Button variant="secondary" size="sm" onClick={() => navigate(`/router/${id}/lan`)}>
                 View
               </Button>
             </div>

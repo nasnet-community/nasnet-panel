@@ -48,6 +48,10 @@ function classify(iface: InterfaceResponse): UplinkMatch {
   return matchUplink(iface) ?? { kind: 'ether', label: iface.name.toUpperCase() };
 }
 
+export function wanInterfaceNames(interfaces: InterfaceResponse[]): string[] {
+  return interfaces.filter((i) => i.type === 'ether' && matchUplink(i) !== null).map((i) => i.name);
+}
+
 function prefixOf(cidr: string): string {
   const ip = cidr.split('/')[0];
   return `${ip.split('.').slice(0, 3).join('.')}.`;
