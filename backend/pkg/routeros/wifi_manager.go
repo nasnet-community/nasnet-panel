@@ -379,3 +379,22 @@ func (c *Client) ScanWiFiAccessPoints(interfaceName, duration string) ([]WiFiAcc
 		return nil, fmt.Errorf("router has no WiFi package installed")
 	}
 }
+
+// ConnectWiFiToAccessPoint configures a WiFi interface to station mode and connects to an access point.
+//
+//nolint:revive // Public method delegates to private implementation
+func (c *Client) ConnectWiFiToAccessPoint(nameOrID, ssid, securityType, password string) error {
+	driverType, err := c.GetWiFiDriverType()
+	if err != nil {
+		return err
+	}
+
+	switch driverType {
+	case WiFiDriverWifiQcom, WiFiDriverWifiQcomAC, WiFiDriverWifiWave2, WiFiDriverWifi:
+		return c.connectWiFiToAccessPoint(nameOrID, ssid, securityType, password)
+	case WiFiDriverWireless:
+		return c.connectWirelessToAccessPoint(nameOrID, ssid, securityType, password)
+	default:
+		return fmt.Errorf("router has no WiFi package installed")
+	}
+}

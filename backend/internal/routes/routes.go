@@ -30,6 +30,7 @@ func RegisterRoutes(e *echo.Echo) {
 	wifiGroup.GET("/interfaces", handler.HandleListWiFiInterfaces)
 	wifiGroup.GET("/interfaces/:name", handler.HandleGetWiFiInterface)
 	wifiGroup.GET("/scan/:nameOrID", handler.HandleScanWiFiAccessPoints)
+	wifiGroup.POST("/connect/:nameOrID", handler.HandleConnectWiFi)
 	wifiGroup.PUT("/interfaces/:name", handler.HandleUpdateWiFiInterface)
 	wifiGroup.PUT("/settings/:name", handler.HandleUpdateWiFiSettings)
 	wifiGroup.GET("/clients", handler.HandleListWiFiConnectedClients)

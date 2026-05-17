@@ -708,6 +708,17 @@ definitions:
           $ref: '#/definitions/handler.ServerStatusItem'
         type: array
     type: object
+  handler.WiFiConnectRequest:
+    properties:
+      password:
+        description: empty for open network
+        type: string
+      securityType:
+        description: e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)
+        type: string
+      ssid:
+        type: string
+    type: object
   handler.WireGuardClientCreateResponse:
     properties:
       allowedAddress:
@@ -2917,6 +2928,63 @@ paths:
       security:
       - BasicAuth: []
       summary: Remove WiFi client
+      tags:
+      - WiFi
+  /api/wifi/connect/{nameOrID}:
+    post:
+      consumes:
+      - application/json
+      description: Configure a WiFi interface to station mode and connect to an access
+        point
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WiFi interface name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      - description: Connection details (SSID required; both securityType and password
+          required together, or both empty for open network)
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.WiFiConnectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Connected to access point
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: WiFi interface not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Connect WiFi interface to an access point
       tags:
       - WiFi
   /api/wifi/interfaces:

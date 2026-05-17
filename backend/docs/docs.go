@@ -3096,6 +3096,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/wifi/connect/{nameOrID}": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Configure a WiFi interface to station mode and connect to an access point",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WiFi"
+                ],
+                "summary": "Connect WiFi interface to an access point",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WiFi interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Connection details (SSID required; both securityType and password required together, or both empty for open network)",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.WiFiConnectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Connected to access point",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "WiFi interface not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/wifi/interfaces": {
             "get": {
                 "security": [
@@ -4670,6 +4752,22 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/handler.ServerStatusItem"
                     }
+                }
+            }
+        },
+        "handler.WiFiConnectRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "description": "empty for open network",
+                    "type": "string"
+                },
+                "securityType": {
+                    "description": "e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)",
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
                 }
             }
         },

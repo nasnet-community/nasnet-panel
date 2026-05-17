@@ -554,3 +554,50 @@ func (c *Client) scanWirelessAccessPointsByInterface(nameOrID, duration string) 
 
 	return aps, nil
 }
+
+//nolint:revive // Private implementation of public method
+func (c *Client) connectWirelessToAccessPoint(nameOrID, ssid, securityType, password string) error {
+	interfaceName, err := c.resolveWirelessInterfaceName(nameOrID)
+	if err != nil {
+		return err
+	}
+
+	results, err := c.GetAll("/interface/wireless")
+	if err != nil {
+		return fmt.Errorf("failed to connect wireless interface to access point: %w", err)
+	}
+
+	var found bool
+	var interfaceID string
+	for _, r := range results {
+		if r["name"] == interfaceName {
+			interfaceID = r[".id"]
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("wireless interface %s not found", interfaceName)
+	}
+
+	args := []string{
+		"=.id=" + interfaceID,
+		"=mode=station",
+		"=ssid=" + ssid,
+	}
+
+	if securityType != "" && password != "" {
+		args = append(args,
+			"=security="+securityType,
+			"=password="+password,
+		)
+	}
+
+	_, err = c.Set("/interface/wireless", args...)
+	if err != nil {
+		return fmt.Errorf("failed to connect wireless interface to access point: %w", err)
+	}
+
+	return nil
+}
