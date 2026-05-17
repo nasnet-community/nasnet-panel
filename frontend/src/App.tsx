@@ -59,7 +59,7 @@ export function App() {
                   <Route path="vpn" element={<VPNPage />} />
                   <Route path="wireless" element={<WirelessPage />} />
                   <Route path="logs" element={<LogsPage />} />
-                  <Route path="dhcp" element={<DHCPPage />} />
+                  <Route path="lan" element={<DHCPPage />} />
                   <Route path="dns" element={<DNSPage />} />
                   <Route path="firewall" element={<FirewallPage />} />
                   <Route path="help" element={<HelpPage />} />

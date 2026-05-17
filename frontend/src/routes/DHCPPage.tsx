@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Cable, Inbox, Pin, Server, Trash2 } from 'lucide-react';
 import {
@@ -20,14 +20,19 @@ import {
   fetchDhcpClients,
   fetchDhcpLeases,
   fetchDhcpServers,
+  fetchInterfaces,
+  fetchSystemOverview,
   makeDhcpLeaseStatic,
   removeDhcpLease,
   type DhcpClient,
   type DhcpLease,
   type DhcpServer,
+  type InterfaceResponse,
 } from '../api';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
+import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
+import { wanInterfaceNames } from './overview-panel/uplinks';
 
 interface SectionState<T> {
   data: T[];
@@ -58,6 +63,8 @@ export function DHCPPage() {
   const [servers, setServers] = useState<SectionState<DhcpServer>>(initial<DhcpServer>());
   const [leases, setLeases] = useState<SectionState<DhcpLease>>(initial<DhcpLease>());
   const [clients, setClients] = useState<SectionState<DhcpClient>>(initial<DhcpClient>());
+  const [model, setModel] = useState<string | null>(null);
+  const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [busyMac, setBusyMac] = useState<string | null>(null);
   const [leaseToRemove, setLeaseToRemove] = useState<DhcpLease | null>(null);
   const inFlightRef = useRef(false);
@@ -83,12 +90,17 @@ export function DHCPPage() {
 
       inFlightRef.current = true;
       const full = { host, ...creds };
-      const [sResult, lResult, cResult] = await Promise.allSettled([
+      const [sResult, lResult, cResult, oResult, iResult] = await Promise.allSettled([
         fetchDhcpServers(full),
         fetchDhcpLeases(full),
         fetchDhcpClients(full),
+        fetchSystemOverview(id, full),
+        fetchInterfaces(full),
       ]);
       inFlightRef.current = false;
+
+      if (oResult.status === 'fulfilled') setModel(oResult.value.model);
+      if (iResult.status === 'fulfilled') setInterfaces(iResult.value);
 
       setServers(
         sResult.status === 'fulfilled'
@@ -183,6 +195,8 @@ export function DHCPPage() {
       setBusyMac(null);
     }
   }, [id, router?.host, getCredentials, leaseToRemove, reload, toast]);
+
+  const wanNames = useMemo(() => wanInterfaceNames(interfaces), [interfaces]);
 
   const serverColumns: DataTableColumn<DhcpServer>[] = [
     { key: 'name', header: 'Name', render: (r) => r.name || '—' },
@@ -365,22 +379,27 @@ export function DHCPPage() {
 
   return (
     <Stack>
-      <Card data-testid="dhcp-servers">
-        <CardHeader>
-          <CardTitle>Servers</CardTitle>
-          <CardDescription>DHCP server instances bound to router interfaces.</CardDescription>
-        </CardHeader>
-        {servers.error ? <div className={styles.errorBanner}>{servers.error}</div> : null}
-        {servers.loading ? (
-          loadingRows(6)
-        ) : servers.data.length === 0 ? (
-          <div className={styles.empty}>
-            <Server size={22} aria-hidden className={styles.emptyIcon} />
-            <p>No DHCP servers configured.</p>
+      <Card data-testid="lan-ports">
+        <div className={styles.lanPortsRow}>
+          <CardHeader>
+            <CardTitle>LAN ports</CardTitle>
+            <CardDescription>
+              Manage LAN-side ports. WAN ports are managed on the Internet tab.
+            </CardDescription>
+          </CardHeader>
+          <div className={styles.lanPortsDiagram}>
+            {model ? (
+              <RouterPortDiagramCard
+                model={model}
+                interfaces={interfaces}
+                showPowerControls={false}
+                disabledIfaceNames={wanNames}
+              />
+            ) : (
+              <Skeleton width={320} height={56} />
+            )}
           </div>
-        ) : (
-          <DataTable columns={serverColumns} rows={servers.data} rowKey={(r) => r.id} />
-        )}
+        </div>
       </Card>
 
       <Card data-testid="dhcp-leases">
@@ -422,6 +441,24 @@ export function DHCPPage() {
           </div>
         ) : (
           <DataTable columns={clientColumns} rows={clients.data} rowKey={(r) => r.id} />
+        )}
+      </Card>
+
+      <Card data-testid="dhcp-servers">
+        <CardHeader>
+          <CardTitle>Servers</CardTitle>
+          <CardDescription>DHCP server instances bound to router interfaces.</CardDescription>
+        </CardHeader>
+        {servers.error ? <div className={styles.errorBanner}>{servers.error}</div> : null}
+        {servers.loading ? (
+          loadingRows(6)
+        ) : servers.data.length === 0 ? (
+          <div className={styles.empty}>
+            <Server size={22} aria-hidden className={styles.emptyIcon} />
+            <p>No DHCP servers configured.</p>
+          </div>
+        ) : (
+          <DataTable columns={serverColumns} rows={servers.data} rowKey={(r) => r.id} />
         )}
       </Card>
 
