@@ -422,9 +422,19 @@ func HandleUpdateWiFiInterface(c echo.Context) error {
 	return SimpleSuccessResponse(c, http.StatusOK, "WiFi interface already "+status)
 }
 
+// validateWiFiMode validates the high-level WiFi mode.
+func validateWiFiMode(mode string) error {
+	switch mode {
+	case "ap", "station":
+		return nil
+	default:
+		return fmt.Errorf("invalid mode: %s. Must be one of: ap, station", mode)
+	}
+}
+
 // HandleUpdateWiFiSettings godoc
 // @Summary Update WiFi interface settings
-// @Description Update SSID, password, and security types for a WiFi interface
+// @Description Update SSID, password, security types, and mode for a WiFi interface
 // @Tags WiFi
 // @Accept json
 // @Produce json
@@ -445,21 +455,32 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 	}
 
 	var req UpdateWiFiSettingsRequest
-	if err := c.Bind(&req); err != nil {
-		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	bindErr := c.Bind(&req)
+	if bindErr != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", bindErr)
 	}
 
 	// Validate password if provided.
 	if req.Password != nil {
-		if err := validatePassword(*req.Password); err != nil {
-			return ErrorResponse(c, http.StatusBadRequest, "Invalid password", err)
+		pwErr := validatePassword(*req.Password)
+		if pwErr != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid password", pwErr)
 		}
 	}
 
 	// Validate security types if provided.
 	if req.SecurityTypes != nil {
-		if err := validateSecurityTypes(*req.SecurityTypes); err != nil {
-			return ErrorResponse(c, http.StatusBadRequest, "Invalid security types", err)
+		vErr := validateSecurityTypes(*req.SecurityTypes)
+		if vErr != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid security types", vErr)
+		}
+	}
+
+	// Validate mode if provided.
+	if req.Mode != nil {
+		modeErr := validateWiFiMode(*req.Mode)
+		if modeErr != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid mode", modeErr)
 		}
 	}
 
@@ -486,6 +507,7 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 		SSID:          req.SSID,
 		Password:      req.Password,
 		SecurityTypes: req.SecurityTypes,
+		Mode:          req.Mode,
 	}
 
 	err = client.UpdateWiFiSettings(name, settings)
@@ -503,9 +525,98 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 			Name:         updated.Name,
 			SSID:         updated.SSID,
 			SecurityType: updated.SecurityType,
+			Mode:         updated.Mode,
 		}
 		return SuccessResponse(c, http.StatusOK, "WiFi settings updated successfully", response)
 	}
 
 	return SimpleSuccessResponse(c, http.StatusOK, "WiFi settings updated successfully")
+}
+
+// HandleConnectWiFi godoc
+// @Summary Connect WiFi interface to an access point
+// @Description Configure a WiFi interface to station mode and connect to an access point
+// @Tags WiFi
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "WiFi interface name or ID"
+// @Param body body WiFiConnectRequest true "Connection details (SSID required; both securityTypes and password required together, or both empty for open network)"
+// @Success 200 {object} map[string]interface{} "Connected to access point"
+// @Failure 400 {object} map[string]interface{} "Bad request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 404 {object} map[string]interface{} "WiFi interface not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/wifi/connect/{nameOrID} [post].
+func HandleConnectWiFi(c echo.Context) error {
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	var req WiFiConnectRequest
+	bindErr := c.Bind(&req)
+	if bindErr != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", bindErr)
+	}
+
+	if req.SSID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "SSID is required", nil)
+	}
+
+	// Both security types and password must be provided together, or both empty (for open network)
+	hasSecurityTypes := req.SecurityTypes != ""
+	hasPassword := req.Password != ""
+
+	if hasSecurityTypes != hasPassword {
+		return ErrorResponse(c, http.StatusBadRequest, "Security types and password must be both provided or both empty (open network)", nil)
+	}
+
+	if hasSecurityTypes {
+		vErr := validateSecurityTypes(req.SecurityTypes)
+		if vErr != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid security types", vErr)
+		}
+
+		pwErr := validatePassword(req.Password)
+		if pwErr != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid password", pwErr)
+		}
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	iface, err := client.GetWifiInterface(nameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusNotFound, "WiFi interface not found", err)
+	}
+
+	if iface == nil {
+		return ErrorResponse(c, http.StatusNotFound, "WiFi interface not found", nil)
+	}
+
+	err = client.ConnectWiFiToAccessPoint(nameOrID, req.SSID, req.SecurityTypes, req.Password)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to access point", err)
+	}
+
+	response := WiFiConnectResponse{
+		InterfaceName: iface.Name,
+		Mode:          "station",
+		SSID:          req.SSID,
+		SecurityType:  req.SecurityTypes,
+		Message:       "WiFi interface configured to connect to access point",
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Connected to access point", response)
 }

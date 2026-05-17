@@ -447,6 +447,10 @@ func (c *Client) updateWirelessSettingsImpl(interfaceName string, settings WiFiS
 		args = append(args, "=ssid="+*settings.SSID)
 	}
 
+	if settings.Mode != nil {
+		args = append(args, "=mode="+toWirelessMode(*settings.Mode))
+	}
+
 	// Update security settings if provided
 	if settings.Password != nil || settings.SecurityTypes != nil {
 		// Check if security profile exists
@@ -505,6 +509,18 @@ func (c *Client) updateWirelessSettingsImpl(interfaceName string, settings WiFiS
 	return nil
 }
 
+// toWirelessMode maps the high-level mode ("ap" / "station") to the legacy
+// /interface/wireless mode value ("ap-bridge" / "station"). Other values are
+// passed through verbatim so callers can opt into the underlying RouterOS modes.
+func toWirelessMode(mode string) string {
+	switch mode {
+	case "ap":
+		return "ap-bridge"
+	default:
+		return mode
+	}
+}
+
 func (c *Client) resolveWirelessInterfaceName(nameOrID string) (string, error) {
 	result, err := c.GetFirst("/interface/wireless", "?=.id="+nameOrID)
 	if err == nil {
@@ -553,4 +569,51 @@ func (c *Client) scanWirelessAccessPointsByInterface(nameOrID, duration string) 
 	}
 
 	return aps, nil
+}
+
+//nolint:revive // Private implementation of public method
+func (c *Client) connectWirelessToAccessPoint(nameOrID, ssid, securityType, password string) error {
+	interfaceName, err := c.resolveWirelessInterfaceName(nameOrID)
+	if err != nil {
+		return err
+	}
+
+	results, err := c.GetAll("/interface/wireless")
+	if err != nil {
+		return fmt.Errorf("failed to connect wireless interface to access point: %w", err)
+	}
+
+	var found bool
+	var interfaceID string
+	for _, r := range results {
+		if r["name"] == interfaceName {
+			interfaceID = r[".id"]
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("wireless interface %s not found", interfaceName)
+	}
+
+	args := []string{
+		"=.id=" + interfaceID,
+		"=mode=station",
+		"=ssid=" + ssid,
+	}
+
+	if securityType != "" && password != "" {
+		args = append(args,
+			"=security="+securityType,
+			"=password="+password,
+		)
+	}
+
+	_, err = c.Set("/interface/wireless", args...)
+	if err != nil {
+		return fmt.Errorf("failed to connect wireless interface to access point: %w", err)
+	}
+
+	return nil
 }

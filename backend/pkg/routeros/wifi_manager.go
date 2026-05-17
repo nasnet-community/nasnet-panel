@@ -102,6 +102,7 @@ type WiFiSettings struct {
 	SSID          *string // nil = don't change, empty string = clear, non-empty = set value.
 	Password      *string // nil = don't change, empty string = clear, non-empty = set value.
 	SecurityTypes *string // comma-separated security types (wpa-psk,wpa2-psk,wpa3-psk).
+	Mode          *string // "ap" or "station"; nil = don't change.
 }
 
 func (c *Client) GetWiFiDriverType() (WiFiDriverType, error) {
@@ -377,5 +378,24 @@ func (c *Client) ScanWiFiAccessPoints(interfaceName, duration string) ([]WiFiAcc
 		return c.scanWirelessAccessPointsByInterface(interfaceName, duration)
 	default:
 		return nil, fmt.Errorf("router has no WiFi package installed")
+	}
+}
+
+// ConnectWiFiToAccessPoint configures a WiFi interface to station mode and connects to an access point.
+//
+//nolint:revive // Public method delegates to private implementation
+func (c *Client) ConnectWiFiToAccessPoint(nameOrID, ssid, securityType, password string) error {
+	driverType, err := c.GetWiFiDriverType()
+	if err != nil {
+		return err
+	}
+
+	switch driverType {
+	case WiFiDriverWifiQcom, WiFiDriverWifiQcomAC, WiFiDriverWifiWave2, WiFiDriverWifi:
+		return c.connectWiFiToAccessPoint(nameOrID, ssid, securityType, password)
+	case WiFiDriverWireless:
+		return c.connectWirelessToAccessPoint(nameOrID, ssid, securityType, password)
+	default:
+		return fmt.Errorf("router has no WiFi package installed")
 	}
 }
