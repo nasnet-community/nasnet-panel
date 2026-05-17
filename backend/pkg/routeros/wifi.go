@@ -616,6 +616,39 @@ func (c *Client) setWiFiSecurityDirect(interfaceID, securityType, password strin
 	return nil
 }
 
+func (c *Client) getWiFiStatusByInterface(nameOrID string) ([]WiFiStatus, error) {
+	interfaceID, err := c.resolveWiFiInterfaceID(nameOrID)
+	if err != nil {
+		return nil, err
+	}
+
+	reply, err := c.Execute("/interface/wifi/monitor",
+		"=.id="+interfaceID,
+		"=once=yes",
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to monitor WiFi interface: %w", err)
+	}
+
+	statuses := make([]WiFiStatus, 0, len(reply.Re))
+	for _, sentence := range reply.Re {
+		statuses = append(statuses, parseWiFiStatusSentence(sentence.Map))
+	}
+
+	return statuses, nil
+}
+
+func parseWiFiStatusSentence(result map[string]string) WiFiStatus {
+	return WiFiStatus{
+		State:           firstNonEmpty(result["state"]),
+		Channel:         firstNonEmpty(result["channel"]),
+		RegisteredPeers: firstNonEmpty(result["registered-peers"]),
+		AuthorizedPeers: firstNonEmpty(result["authorized-peers"]),
+		TxPower:         firstNonEmpty(result["tx-power"]),
+		APAddress:       firstNonEmpty(result["ap-address"], result["bssid"]),
+	}
+}
+
 func (c *Client) clearWiFiSecurityDirect(interfaceID string) error {
 	valueNames := []string{
 		"security.authentication-types",

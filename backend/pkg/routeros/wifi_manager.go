@@ -89,6 +89,17 @@ type WiFiAccessPoint struct {
 	Signal     string
 }
 
+// WiFiStatus represents a single section of the `/interface/wifi/monitor` output.
+// Fields are populated only when present so the API can omit them via omitempty.
+type WiFiStatus struct {
+	State           string
+	Channel         string
+	RegisteredPeers string
+	AuthorizedPeers string
+	TxPower         string
+	APAddress       string
+}
+
 type WifiPassword struct {
 	InterfaceName string
 	SSID          string
@@ -396,5 +407,22 @@ func (c *Client) ConnectWiFiToAccessPoint(nameOrID, ssid, securityType, password
 		return c.connectWirelessToAccessPoint(nameOrID, ssid, securityType, password)
 	default:
 		return fmt.Errorf("router has no WiFi package installed")
+	}
+}
+
+// GetWiFiStatus runs `/interface/.../monitor` for one second and returns the parsed status sections.
+func (c *Client) GetWiFiStatus(nameOrID string) ([]WiFiStatus, error) {
+	driverType, err := c.GetWiFiDriverType()
+	if err != nil {
+		return nil, err
+	}
+
+	switch driverType {
+	case WiFiDriverWifiQcom, WiFiDriverWifiQcomAC, WiFiDriverWifiWave2, WiFiDriverWifi:
+		return c.getWiFiStatusByInterface(nameOrID)
+	case WiFiDriverWireless:
+		return c.getWirelessStatusByInterface(nameOrID)
+	default:
+		return nil, fmt.Errorf("router has no WiFi package installed")
 	}
 }

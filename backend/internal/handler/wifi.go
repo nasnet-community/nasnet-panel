@@ -169,6 +169,47 @@ func HandleScanWiFiAccessPoints(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WiFi access points scanned successfully", response)
 }
 
+// HandleGetWiFiStatus godoc
+// @Summary Get WiFi interface live status
+// @Description Run `/interface/wifi/monitor` (or wireless equivalent) for 1 second and return the parsed status sections.
+// @Tags WiFi
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "WiFi interface name or ID"
+// @Success 200 {object} Response{data=[]WiFiStatusResponse}
+// @Failure 400 {object} map[string]interface{} "Bad request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 404 {object} map[string]interface{} "WiFi interface not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/wifi/status/{nameOrID} [get].
+func HandleGetWiFiStatus(c echo.Context) error {
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	statuses, err := client.GetWiFiStatus(nameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
+			return ErrorResponse(c, http.StatusNotFound, "WiFi interface not found", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get WiFi status", err)
+	}
+
+	response := toWiFiStatusesResponse(statuses)
+	return SuccessResponse(c, http.StatusOK, "WiFi status retrieved successfully", response)
+}
+
 // HandleListWiFiConnectedClients godoc
 // @Summary List connected WiFi clients
 // @Description Get all clients connected to WiFi interfaces

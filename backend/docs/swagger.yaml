@@ -719,6 +719,21 @@ definitions:
       ssid:
         type: string
     type: object
+  handler.WiFiStatusResponse:
+    properties:
+      apAddress:
+        type: string
+      authorizedPeers:
+        type: string
+      channel:
+        type: string
+      registeredPeers:
+        type: string
+      state:
+        type: string
+      txPower:
+        type: string
+    type: object
   handler.WireGuardClientCreateResponse:
     properties:
       allowedAddress:
@@ -3329,6 +3344,62 @@ paths:
       security:
       - BasicAuth: []
       summary: Update WiFi interface settings
+      tags:
+      - WiFi
+  /api/wifi/status/{nameOrID}:
+    get:
+      consumes:
+      - application/json
+      description: Run `/interface/wifi/monitor` (or wireless equivalent) for 1 second
+        and return the parsed status sections.
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WiFi interface name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handler.WiFiStatusResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: WiFi interface not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get WiFi interface live status
       tags:
       - WiFi
   /health:
