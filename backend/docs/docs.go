@@ -593,7 +593,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Get all RouterOS interfaces, optionally filtered by interface type (?type=ether)",
+                "description": "Get all RouterOS interfaces, optionally filtered by interface type (?type=ether,bridge,sfp)",
                 "produces": [
                     "application/json"
                 ],

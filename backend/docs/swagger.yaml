@@ -1395,7 +1395,7 @@ paths:
   /api/interface/interfaces:
     get:
       description: Get all RouterOS interfaces, optionally filtered by interface type
-        (?type=ether)
+        (?type=ether,bridge,sfp)
       parameters:
       - description: RouterOS host address
         in: header
