@@ -27,6 +27,12 @@ type IPRouteInfo struct {
 	Comment     string
 }
 
+type IPPoolConfig struct {
+	Name    string
+	Ranges  string // e.g., "192.168.1.100-192.168.1.200"
+	Comment string
+}
+
 type IPAddressConfig struct {
 	Interface string
 	Address   string // e.g., "192.168.1.10/24"
@@ -255,6 +261,42 @@ func (c *Client) SetDNSConfig(config DNSConfig) error {
 	_, err := c.Set("/ip/dns", args...)
 	if err != nil {
 		return fmt.Errorf("failed to set DNS config: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Client) ListIPPools() ([]map[string]string, error) {
+	results, err := c.GetAll("/ip/pool")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list IP pools: %w", err)
+	}
+
+	return results, nil
+}
+
+func (c *Client) AddIPPool(config IPPoolConfig) (string, error) {
+	args := []string{
+		"=name=" + config.Name,
+		"=ranges=" + config.Ranges,
+	}
+
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	id, err := c.Add("/ip/pool", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add IP pool: %w", err)
+	}
+
+	return id, nil
+}
+
+func (c *Client) RemoveIPPool(name string) error {
+	_, err := c.Remove("/ip/pool", "=.id="+name)
+	if err != nil {
+		return fmt.Errorf("failed to remove IP pool: %w", err)
 	}
 
 	return nil

@@ -2077,6 +2077,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/ovpn/server": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Create an OpenVPN server with client certificate password, username, and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create OpenVPN Server",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "OpenVPN server creation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateOvpnServerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/vpn/ovpn/server/{name}": {
             "get": {
                 "security": [
@@ -3964,6 +4022,28 @@ const docTemplate = `{
                 },
                 "usePeerNtp": {
                     "type": "boolean"
+                }
+            }
+        },
+        "handler.CreateOvpnServerRequest": {
+            "type": "object",
+            "required": [
+                "clientCertificatePassword",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "clientCertificatePassword": {
+                    "type": "string",
+                    "example": "cert-password123"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "userpassword123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "vpnuser"
                 }
             }
         },

@@ -566,6 +566,32 @@ func (c *Client) GetOvpnServer(idOrName string) (*OvpnServerInfo, error) {
 	return parseOvpnServerInfo(result), nil
 }
 
+// AddOvpnServer creates a new OpenVPN server configuration.
+func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificate string, requireClientCert bool, auth, cipher string) (string, error) {
+	args := []string{
+		"=name=" + name,
+		"=port=" + strconv.Itoa(port),
+		"=mode=" + mode,
+		"=protocol=" + protocol,
+		"=certificate=" + certificate,
+		"=auth=" + auth,
+		"=cipher=" + cipher,
+		"=cipher=" + cipher,
+		"=disabled=no",
+	}
+
+	if requireClientCert {
+		args = append(args, "=require-client-certificate=true")
+	}
+
+	id, err := c.Add("/interface/ovpn-server/server", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add OpenVPN server: %w", err)
+	}
+
+	return id, nil
+}
+
 // GetPptpServer returns the PPTP server configuration.
 func (c *Client) GetPptpServer() (*PptpServerInfo, error) {
 	result, err := c.GetFirst("/interface/pptp-server/server")
@@ -1392,6 +1418,39 @@ func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 		DefaultProfile:    result["default-profile"],
 		Comment:           result["comment"],
 	}
+}
+
+// AddVpnProfile creates a new PPP profile for VPN servers.
+func (c *Client) AddVpnProfile(name, localAddress string, ipPool string) (string, error) {
+	args := []string{
+		"=name=" + name,
+		"=local-address=" + localAddress,
+		"=remote-address=" + ipPool,
+	}
+
+	id, err := c.Add("/ppp/profile", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add VPN profile: %w", err)
+	}
+
+	return id, nil
+}
+
+// AddVpnSecret creates a new PPP secret (username/password) for a VPN profile.
+func (c *Client) AddVpnSecret(username, password, profileName, service string) (string, error) {
+	args := []string{
+		"=name=" + username,
+		"=password=" + password,
+		"=profile=" + profileName,
+		"=service=" + service,
+	}
+
+	id, err := c.Add("/ppp/secret", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add VPN secret: %w", err)
+	}
+
+	return id, nil
 }
 
 func parseWireGuardInfo(result map[string]string) *WireGuardInfo {

@@ -48,6 +48,22 @@ definitions:
       usePeerNtp:
         type: boolean
     type: object
+  handler.CreateOvpnServerRequest:
+    properties:
+      clientCertificatePassword:
+        example: cert-password123
+        type: string
+      password:
+        example: userpassword123
+        type: string
+      username:
+        example: vpnuser
+        type: string
+    required:
+    - clientCertificatePassword
+    - password
+    - username
+    type: object
   handler.CreateWireGuardInterfaceRequest:
     properties:
       allowedAddress:
@@ -2336,6 +2352,44 @@ paths:
       security:
       - BasicAuth: []
       summary: Get L2TP Server Details
+      tags:
+      - VPN
+  /api/vpn/ovpn/server:
+    post:
+      consumes:
+      - application/json
+      description: Create an OpenVPN server with client certificate password, username,
+        and password
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: OpenVPN server creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateOvpnServerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Create OpenVPN Server
       tags:
       - VPN
   /api/vpn/ovpn/server/{name}:

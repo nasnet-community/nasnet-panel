@@ -489,30 +489,40 @@ func (c *Client) RemoveCertificate(name string) error {
 	return nil
 }
 
-// ExportCertificate exports a certificate from RouterOS.
-func (c *Client) ExportCertificate(name string) (certPEM, keyPEM string, err error) {
-	cert, err := c.GetCertificate(name)
-	if err != nil {
-		return "", "", fmt.Errorf("failed to get certificate: %w", err)
-	}
-
+// ExportCertificate exports a certificate to file on RouterOS device disk using the export command.
+// The certificate is saved with type=pem and optional passphrase protection for the private key.
+func (c *Client) ExportCertificate(name, passphrase string) error {
+	// Get certificate ID
 	results, err := c.GetAll("/certificate", "?=name="+name)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to query certificate data: %w", err)
+		return fmt.Errorf("failed to find certificate: %w", err)
 	}
 
 	if len(results) == 0 {
-		return "", "", fmt.Errorf("certificate data not found: %s", name)
+		return fmt.Errorf("certificate not found: %s", name)
 	}
 
-	certPEM = results[0]["certificate"]
-	keyPEM = results[0]["key"]
+	certID := results[0][".id"]
 
-	if certPEM == "" {
-		return "", "", fmt.Errorf("certificate %s has no certificate data", cert.Name)
+	// Build export command arguments
+	args := []string{
+		"=.id=" + certID,
+		"=type=pem",
+		"=file-name=" + name,
 	}
 
-	return certPEM, keyPEM, nil
+	// Add passphrase if provided
+	if passphrase != "" {
+		args = append(args, "=export-passphrase="+passphrase)
+	}
+
+	// Execute export command
+	_, err = c.Execute("/certificate/export-certificate", args...)
+	if err != nil {
+		return fmt.Errorf("failed to export certificate: %w", err)
+	}
+
+	return nil
 }
 
 // RenameCertificate renames a certificate in RouterOS.
