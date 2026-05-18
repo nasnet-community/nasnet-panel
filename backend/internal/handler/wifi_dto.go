@@ -87,9 +87,9 @@ type UpdateWiFiSettingsResponse struct {
 
 // WiFiConnectRequest is the request to connect to a WiFi network as a station.
 type WiFiConnectRequest struct {
-	SSID          string `json:"ssid"`
-	SecurityTypes string `json:"securityTypes,omitempty"` // comma-separated: wpa-psk,wpa2-psk,wpa3-psk (empty for open network)
-	Password      string `json:"password,omitempty"`      // empty for open network
+	SSID         string `json:"ssid"`
+	SecurityType string `json:"securityType,omitempty"` // e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)
+	Password     string `json:"password,omitempty"`     // empty for open network
 }
 
 // WiFiConnectResponse is the response for WiFi connection.
@@ -99,13 +99,6 @@ type WiFiConnectResponse struct {
 	SSID          string `json:"ssid"`
 	SecurityType  string `json:"securityType"`
 	Message       string `json:"message"`
-}
-
-// WiFiConnectRequest is the request to connect to a WiFi network as a station.
-type WiFiConnectRequest struct {
-	SSID         string `json:"ssid"`
-	SecurityType string `json:"securityType,omitempty"` // e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)
-	Password     string `json:"password,omitempty"`     // empty for open network
 }
 
 // WiFiStatusResponse is one section of the WiFi monitor output.
@@ -116,15 +109,6 @@ type WiFiStatusResponse struct {
 	AuthorizedPeers string `json:"authorizedPeers,omitempty"`
 	TxPower         string `json:"txPower,omitempty"`
 	APAddress       string `json:"apAddress,omitempty"`
-}
-
-// WiFiConnectResponse is the response for WiFi connection.
-type WiFiConnectResponse struct {
-	InterfaceName string `json:"interfaceName"`
-	Mode          string `json:"mode"`
-	SSID          string `json:"ssid"`
-	SecurityType  string `json:"securityType"`
-	Message       string `json:"message"`
 }
 
 func ToWiFiInterfaceResponse(wi *routeros.WifiInfo) *WiFiInterfaceResponse {

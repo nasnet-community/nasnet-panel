@@ -527,6 +527,7 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 		SSID:          req.SSID,
 		Password:      req.Password,
 		SecurityTypes: req.SecurityTypes,
+		Mode:          req.Mode,
 	}
 
 	err = client.UpdateWiFiSettings(name, settings)
