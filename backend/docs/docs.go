@@ -17,6 +17,90 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/dhcp/client/{nameOrID}": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Create or update a DHCP client on the specified interface with use-peer-dns=yes, use-peer-ntp=yes, add-default-route=no, and enabled.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DHCP"
+                ],
+                "summary": "Configure a DHCP client on an interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.ConfigureDHCPClientResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Interface not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/dhcp/clients": {
             "get": {
                 "security": [
@@ -3860,6 +3944,29 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.ConfigureDHCPClientResponse": {
+            "type": "object",
+            "properties": {
+                "addDefaultRoute": {
+                    "type": "boolean"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "usePeerDns": {
+                    "type": "boolean"
+                },
+                "usePeerNtp": {
+                    "type": "boolean"
+                }
+            }
+        },
         "handler.CreateWireGuardInterfaceRequest": {
             "type": "object",
             "required": [
@@ -4649,6 +4756,10 @@ const docTemplate = `{
         "handler.UpdateWiFiSettingsRequest": {
             "type": "object",
             "properties": {
+                "mode": {
+                    "description": "ap | station",
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },

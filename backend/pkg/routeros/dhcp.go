@@ -333,7 +333,7 @@ func (c *Client) ConfigureDHCPClient(nameOrID string) (interfaceName, clientID s
 		return "", "", err
 	}
 
-	existing, err := c.GetFirst("/ip/dhcp-client", "?=interface="+interfaceName)
+	existing, err := c.GetFirst("/ip/dhcp-client", "?interface="+interfaceName)
 	if err == nil && existing[".id"] != "" {
 		clientID = existing[".id"]
 		_, err = c.Set("/ip/dhcp-client",
