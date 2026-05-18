@@ -54,15 +54,15 @@ func HandleListInterfaces(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Interfaces retrieved successfully", response)
 }
 
-func parseInterfaceTypes(raw string) ([]string, bool, []string) {
+func parseInterfaceTypes(raw string) (interfaceTypes []string, includeSFP bool, invalidTypes []string) {
 	if raw == "" {
 		return nil, false, nil
 	}
 
 	parts := strings.Split(raw, ",")
-	interfaceTypes := make([]string, 0, len(parts))
-	includeSFP := false
-	invalidTypes := make([]string, 0)
+	interfaceTypes = make([]string, 0, len(parts))
+	invalidTypes = make([]string, 0)
+	includeSFP = false
 
 	for _, part := range parts {
 		interfaceType := strings.TrimSpace(part)
