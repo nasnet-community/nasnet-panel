@@ -36,6 +36,16 @@ type DHCPClientResponse struct {
 	Comment      string `json:"comment,omitempty"`
 }
 
+// ConfigureDHCPClientResponse is the response for POST /api/dhcp/client/:nameOrID.
+type ConfigureDHCPClientResponse struct {
+	ID              string `json:"id"`
+	Interface       string `json:"interface"`
+	UsePeerDNS      bool   `json:"usePeerDns"`
+	UsePeerNTP      bool   `json:"usePeerNtp"`
+	AddDefaultRoute bool   `json:"addDefaultRoute"`
+	Disabled        bool   `json:"disabled"`
+}
+
 type DHCPServerResponse struct {
 	ID           string   `json:"id"`
 	Name         string   `json:"name"`
