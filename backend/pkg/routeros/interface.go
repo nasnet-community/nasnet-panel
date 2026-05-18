@@ -191,11 +191,11 @@ type VirtualInterfaceConfig struct {
 }
 
 func (c *Client) ListInterfaces() ([]InterfaceInfo, error) {
-	return c.ListInterfacesByType(nil)
+	return c.ListInterfacesByType(nil, false)
 }
 
 // ListInterfacesByType lists interfaces and optionally filters by RouterOS interface types.
-func (c *Client) ListInterfacesByType(interfaceTypes []string) ([]InterfaceInfo, error) {
+func (c *Client) ListInterfacesByType(interfaceTypes []string, includeSFP bool) ([]InterfaceInfo, error) {
 	results, err := c.GetAll("/interface")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list interfaces: %w", err)
@@ -203,13 +203,30 @@ func (c *Client) ListInterfacesByType(interfaceTypes []string) ([]InterfaceInfo,
 
 	interfaces := make([]InterfaceInfo, 0)
 	for _, result := range results {
-		if len(interfaceTypes) > 0 && !containsInterfaceType(interfaceTypes, result["type"]) {
-			continue
+		if len(interfaceTypes) > 0 || includeSFP {
+			if !matchesInterfaceTypeFilter(interfaceTypes, includeSFP, result) {
+				continue
+			}
 		}
 		interfaces = append(interfaces, parseInterfaceInfo(result))
 	}
 
 	return interfaces, nil
+}
+
+func matchesInterfaceTypeFilter(interfaceTypes []string, includeSFP bool, result map[string]string) bool {
+	if containsInterfaceType(interfaceTypes, result["type"]) {
+		return true
+	}
+
+	if includeSFP && result["type"] == "ether" {
+		defaultName := strings.ToLower(strings.TrimSpace(result["default-name"]))
+		if strings.Contains(defaultName, "sfp") {
+			return true
+		}
+	}
+
+	return false
 }
 
 func containsInterfaceType(interfaceTypes []string, interfaceType string) bool {
