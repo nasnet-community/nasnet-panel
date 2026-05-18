@@ -69,11 +69,12 @@ type UpdateWiFiInterfaceRequest struct {
 	Enabled bool `json:"enabled"`
 }
 
-// UpdateWiFiSettingsRequest updates SSID, password, and security types.
+// UpdateWiFiSettingsRequest updates SSID, password, security types, and mode.
 type UpdateWiFiSettingsRequest struct {
 	SSID          *string `json:"ssid,omitempty"`
 	Password      *string `json:"password,omitempty"`
 	SecurityTypes *string `json:"securityTypes,omitempty"` // comma-separated: wpa-psk,wpa2-psk,wpa3-psk
+	Mode          *string `json:"mode,omitempty"`          // ap | station
 }
 
 // UpdateWiFiSettingsResponse is the response for WiFi settings update.
@@ -81,6 +82,23 @@ type UpdateWiFiSettingsResponse struct {
 	Name         string `json:"name"`
 	SSID         string `json:"ssid"`
 	SecurityType string `json:"securityType"`
+	Mode         string `json:"mode,omitempty"`
+}
+
+// WiFiConnectRequest is the request to connect to a WiFi network as a station.
+type WiFiConnectRequest struct {
+	SSID          string `json:"ssid"`
+	SecurityTypes string `json:"securityTypes,omitempty"` // comma-separated: wpa-psk,wpa2-psk,wpa3-psk (empty for open network)
+	Password      string `json:"password,omitempty"`      // empty for open network
+}
+
+// WiFiConnectResponse is the response for WiFi connection.
+type WiFiConnectResponse struct {
+	InterfaceName string `json:"interfaceName"`
+	Mode          string `json:"mode"`
+	SSID          string `json:"ssid"`
+	SecurityType  string `json:"securityType"`
+	Message       string `json:"message"`
 }
 
 // WiFiConnectRequest is the request to connect to a WiFi network as a station.
