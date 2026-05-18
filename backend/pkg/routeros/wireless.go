@@ -535,6 +535,28 @@ func (c *Client) resolveWirelessInterfaceName(nameOrID string) (string, error) {
 	return result["name"], nil
 }
 
+func (c *Client) getWirelessStatusByInterface(nameOrID string) ([]WiFiStatus, error) {
+	interfaceName, err := c.resolveWirelessInterfaceName(nameOrID)
+	if err != nil {
+		return nil, err
+	}
+
+	reply, err := c.Execute("/interface/wireless/monitor",
+		"=numbers="+interfaceName,
+		"=once=yes",
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to monitor wireless interface: %w", err)
+	}
+
+	statuses := make([]WiFiStatus, 0, len(reply.Re))
+	for _, sentence := range reply.Re {
+		statuses = append(statuses, parseWiFiStatusSentence(sentence.Map))
+	}
+
+	return statuses, nil
+}
+
 func (c *Client) scanWirelessAccessPointsByInterface(nameOrID, duration string) ([]WiFiAccessPoint, error) {
 	interfaceName, err := c.resolveWirelessInterfaceName(nameOrID)
 	if err != nil {
