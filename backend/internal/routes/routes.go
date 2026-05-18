@@ -45,6 +45,7 @@ func RegisterRoutes(e *echo.Echo) {
 	dhcpGroup.POST("/leases/make-static", handler.HandleMakeDHCPLeaseStatic)
 	dhcpGroup.DELETE("/leases/:macAddress", handler.HandleRemoveDHCPLease)
 	dhcpGroup.GET("/clients", handler.HandleListDHCPClients)
+	dhcpGroup.POST("/client/:nameOrID", handler.HandleConfigureDHCPClient)
 	dhcpGroup.GET("/servers", handler.HandleListDHCPServers)
 
 	firewallGroup := e.Group("/api/firewall")
