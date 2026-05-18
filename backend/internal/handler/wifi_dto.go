@@ -87,9 +87,9 @@ type UpdateWiFiSettingsResponse struct {
 
 // WiFiConnectRequest is the request to connect to a WiFi network as a station.
 type WiFiConnectRequest struct {
-	SSID          string `json:"ssid"`
-	SecurityTypes string `json:"securityTypes,omitempty"` // comma-separated: wpa-psk,wpa2-psk,wpa3-psk (empty for open network)
-	Password      string `json:"password,omitempty"`      // empty for open network
+	SSID         string `json:"ssid"`
+	SecurityType string `json:"securityType,omitempty"` // e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)
+	Password     string `json:"password,omitempty"`     // empty for open network
 }
 
 // WiFiConnectResponse is the response for WiFi connection.
@@ -99,6 +99,16 @@ type WiFiConnectResponse struct {
 	SSID          string `json:"ssid"`
 	SecurityType  string `json:"securityType"`
 	Message       string `json:"message"`
+}
+
+// WiFiStatusResponse is one section of the WiFi monitor output.
+type WiFiStatusResponse struct {
+	State           string `json:"state,omitempty"`
+	Channel         string `json:"channel,omitempty"`
+	RegisteredPeers string `json:"registeredPeers,omitempty"`
+	AuthorizedPeers string `json:"authorizedPeers,omitempty"`
+	TxPower         string `json:"txPower,omitempty"`
+	APAddress       string `json:"apAddress,omitempty"`
 }
 
 func ToWiFiInterfaceResponse(wi *routeros.WifiInfo) *WiFiInterfaceResponse {
@@ -184,6 +194,31 @@ func toWiFiAccessPointResponse(ap *routeros.WiFiAccessPoint) *wiFiAccessPointRes
 		Security:   ap.Security,
 		Signal:     ap.Signal,
 	}
+}
+
+func toWiFiStatusResponse(s *routeros.WiFiStatus) *WiFiStatusResponse {
+	if s == nil {
+		return nil
+	}
+
+	return &WiFiStatusResponse{
+		State:           s.State,
+		Channel:         s.Channel,
+		RegisteredPeers: s.RegisteredPeers,
+		AuthorizedPeers: s.AuthorizedPeers,
+		TxPower:         s.TxPower,
+		APAddress:       s.APAddress,
+	}
+}
+
+func toWiFiStatusesResponse(statuses []routeros.WiFiStatus) []WiFiStatusResponse {
+	responses := make([]WiFiStatusResponse, 0, len(statuses))
+	for i := range statuses {
+		if resp := toWiFiStatusResponse(&statuses[i]); resp != nil {
+			responses = append(responses, *resp)
+		}
+	}
+	return responses
 }
 
 func toWiFiAccessPointsResponse(aps []routeros.WiFiAccessPoint) []wiFiAccessPointResponse {
