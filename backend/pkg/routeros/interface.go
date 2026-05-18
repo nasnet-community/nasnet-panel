@@ -191,27 +191,35 @@ type VirtualInterfaceConfig struct {
 }
 
 func (c *Client) ListInterfaces() ([]InterfaceInfo, error) {
-	return c.ListInterfacesByType("")
+	return c.ListInterfacesByType(nil)
 }
 
-// ListInterfacesByType lists interfaces and optionally filters by RouterOS interface type.
-func (c *Client) ListInterfacesByType(interfaceType string) ([]InterfaceInfo, error) {
-	args := []string{}
-	if interfaceType != "" {
-		args = append(args, "?=type="+interfaceType)
-	}
-
-	results, err := c.GetAll("/interface", args...)
+// ListInterfacesByType lists interfaces and optionally filters by RouterOS interface types.
+func (c *Client) ListInterfacesByType(interfaceTypes []string) ([]InterfaceInfo, error) {
+	results, err := c.GetAll("/interface")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list interfaces: %w", err)
 	}
 
 	interfaces := make([]InterfaceInfo, 0)
 	for _, result := range results {
+		if len(interfaceTypes) > 0 && !containsInterfaceType(interfaceTypes, result["type"]) {
+			continue
+		}
 		interfaces = append(interfaces, parseInterfaceInfo(result))
 	}
 
 	return interfaces, nil
+}
+
+func containsInterfaceType(interfaceTypes []string, interfaceType string) bool {
+	for _, t := range interfaceTypes {
+		if t == interfaceType {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (c *Client) GetInterface(name string) (*InterfaceInfo, error) {

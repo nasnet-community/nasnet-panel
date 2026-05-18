@@ -28,19 +28,20 @@ func HandleListInterfaces(c echo.Context) error {
 		return err
 	}
 
-	interfaceType := strings.TrimSpace(c.QueryParam("type"))
-	if interfaceType != "" && !routeros.IsSupportedInterfaceType(interfaceType) {
+	rawTypes := strings.TrimSpace(c.QueryParam("type"))
+	interfaceTypes, invalidTypes := parseInterfaceTypes(rawTypes)
+	if len(invalidTypes) > 0 {
 		return c.JSON(http.StatusBadRequest, Response{
 			Status:  http.StatusBadRequest,
-			Message: "Invalid interface type",
-			Error:   "unsupported interface type: " + interfaceType,
+			Message: "Invalid interface type filter",
+			Error:   "unsupported interface type(s): " + strings.Join(invalidTypes, ", "),
 			Data: map[string]interface{}{
 				"supportedInterfaceTypes": routeros.SupportedInterfaceTypes(),
 			},
 		})
 	}
 
-	interfaces, err := client.ListInterfacesByType(interfaceType)
+	interfaces, err := client.ListInterfacesByType(interfaceTypes)
 	if err != nil {
 		if IsCredentialError(err) {
 			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
@@ -50,4 +51,31 @@ func HandleListInterfaces(c echo.Context) error {
 
 	response := toInterfacesResponse(interfaces)
 	return SuccessResponse(c, http.StatusOK, "Interfaces retrieved successfully", response)
+}
+
+func parseInterfaceTypes(raw string) ([]string, []string) {
+	if raw == "" {
+		return nil, nil
+	}
+
+	parts := strings.Split(raw, ",")
+	interfaceTypes := make([]string, 0, len(parts))
+	invalidTypes := make([]string, 0)
+
+	for _, part := range parts {
+		interfaceType := strings.TrimSpace(part)
+		if interfaceType == "" {
+			invalidTypes = append(invalidTypes, "<empty>")
+			continue
+		}
+
+		if !routeros.IsSupportedInterfaceType(interfaceType) {
+			invalidTypes = append(invalidTypes, interfaceType)
+			continue
+		}
+
+		interfaceTypes = append(interfaceTypes, interfaceType)
+	}
+
+	return interfaceTypes, invalidTypes
 }
