@@ -30,6 +30,7 @@ func RegisterRoutes(e *echo.Echo) {
 	wifiGroup.GET("/interfaces", handler.HandleListWiFiInterfaces)
 	wifiGroup.GET("/interfaces/:name", handler.HandleGetWiFiInterface)
 	wifiGroup.GET("/scan/:nameOrID", handler.HandleScanWiFiAccessPoints)
+	wifiGroup.GET("/status/:nameOrID", handler.HandleGetWiFiStatus)
 	wifiGroup.POST("/connect/:nameOrID", handler.HandleConnectWiFi)
 	wifiGroup.PUT("/interfaces/:name", handler.HandleUpdateWiFiInterface)
 	wifiGroup.PUT("/settings/:name", handler.HandleUpdateWiFiSettings)
@@ -44,7 +45,6 @@ func RegisterRoutes(e *echo.Echo) {
 	dhcpGroup.POST("/leases/make-static", handler.HandleMakeDHCPLeaseStatic)
 	dhcpGroup.DELETE("/leases/:macAddress", handler.HandleRemoveDHCPLease)
 	dhcpGroup.GET("/clients", handler.HandleListDHCPClients)
-	dhcpGroup.POST("/client/:nameOrID", handler.HandleConfigureDHCPClient)
 	dhcpGroup.GET("/servers", handler.HandleListDHCPServers)
 
 	firewallGroup := e.Group("/api/firewall")

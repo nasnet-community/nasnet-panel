@@ -17,90 +17,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/dhcp/client/{nameOrID}": {
-            "post": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Create or update a DHCP client on the specified interface with use-peer-dns=yes, use-peer-ntp=yes, add-default-route=no, and enabled.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DHCP"
-                ],
-                "summary": "Configure a DHCP client on an interface",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "RouterOS host address",
-                        "name": "X-RouterOS-Host",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Interface name or ID",
-                        "name": "nameOrID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/handler.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/handler.ConfigureDHCPClientResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Interface not found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/api/dhcp/clients": {
             "get": {
                 "security": [
@@ -3214,7 +3130,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Connection details (SSID required; both securityTypes and password required together, or both empty for open network)",
+                        "description": "Connection details (SSID required; both securityType and password required together, or both empty for open network)",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -3706,7 +3622,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Update SSID, password, security types, and mode for a WiFi interface",
+                "description": "Update SSID, password, and security types for a WiFi interface",
                 "consumes": [
                     "application/json"
                 ],
@@ -3766,6 +3682,93 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Interface not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/wifi/status/{nameOrID}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Run ` + "`" + `/interface/wifi/monitor` + "`" + ` (or wireless equivalent) for 1 second and return the parsed status sections.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WiFi"
+                ],
+                "summary": "Get WiFi interface live status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WiFi interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.WiFiStatusResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "WiFi interface not found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -3854,29 +3857,6 @@ const docTemplate = `{
             "properties": {
                 "passphrase": {
                     "type": "string"
-                }
-            }
-        },
-        "handler.ConfigureDHCPClientResponse": {
-            "type": "object",
-            "properties": {
-                "addDefaultRoute": {
-                    "type": "boolean"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "interface": {
-                    "type": "string"
-                },
-                "usePeerDns": {
-                    "type": "boolean"
-                },
-                "usePeerNtp": {
-                    "type": "boolean"
                 }
             }
         },
@@ -4669,10 +4649,6 @@ const docTemplate = `{
         "handler.UpdateWiFiSettingsRequest": {
             "type": "object",
             "properties": {
-                "mode": {
-                    "description": "ap | station",
-                    "type": "string"
-                },
                 "password": {
                     "type": "string"
                 },
@@ -4873,11 +4849,34 @@ const docTemplate = `{
                     "description": "empty for open network",
                     "type": "string"
                 },
-                "securityTypes": {
-                    "description": "comma-separated: wpa-psk,wpa2-psk,wpa3-psk (empty for open network)",
+                "securityType": {
+                    "description": "e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)",
                     "type": "string"
                 },
                 "ssid": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.WiFiStatusResponse": {
+            "type": "object",
+            "properties": {
+                "apAddress": {
+                    "type": "string"
+                },
+                "authorizedPeers": {
+                    "type": "string"
+                },
+                "channel": {
+                    "type": "string"
+                },
+                "registeredPeers": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "txPower": {
                     "type": "string"
                 }
             }
