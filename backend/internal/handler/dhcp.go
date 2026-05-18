@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -232,4 +233,53 @@ func HandleRemoveDHCPLease(c echo.Context) error {
 		"id":         lease.ID,
 		"address":    lease.Address,
 	})
+}
+
+// HandleConfigureDHCPClient godoc
+// @Summary Configure a DHCP client on an interface
+// @Description Create or update a DHCP client on the specified interface with use-peer-dns=yes, use-peer-ntp=yes, add-default-route=no, and enabled.
+// @Tags DHCP
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Interface name or ID"
+// @Success 200 {object} Response{data=ConfigureDHCPClientResponse}
+// @Failure 400 {object} map[string]interface{} "Bad request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 404 {object} map[string]interface{} "Interface not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/dhcp/client/{nameOrID} [post].
+func HandleConfigureDHCPClient(c echo.Context) error {
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	interfaceName, clientID, err := client.ConfigureDHCPClient(nameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
+			return ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to configure DHCP client", err)
+	}
+
+	response := ConfigureDHCPClientResponse{
+		ID:              clientID,
+		Interface:       interfaceName,
+		UsePeerDNS:      true,
+		UsePeerNTP:      true,
+		AddDefaultRoute: false,
+		Disabled:        false,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "DHCP client configured successfully", response)
 }

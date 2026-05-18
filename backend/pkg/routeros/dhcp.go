@@ -317,6 +317,72 @@ func (c *Client) ListDHCPClients() ([]DHCPClientInfo, error) {
 	return clients, nil
 }
 
+// ConfigureDHCPClient ensures a DHCP client exists for the given interface and
+// applies the canonical "WAN client" settings:
+//   - use-peer-dns=yes
+//   - use-peer-ntp=yes
+//   - add-default-route=no
+//   - disabled=no (enabled)
+//
+// If a client already exists for the interface it is updated in place; otherwise
+// a new one is created. Returns the resolved interface name and the DHCP client
+// `.id`.
+func (c *Client) ConfigureDHCPClient(nameOrID string) (interfaceName, clientID string, err error) {
+	interfaceName, err = c.resolveInterfaceName(nameOrID)
+	if err != nil {
+		return "", "", err
+	}
+
+	existing, err := c.GetFirst("/ip/dhcp-client", "?interface="+interfaceName)
+	if err == nil && existing[".id"] != "" {
+		clientID = existing[".id"]
+		_, err = c.Set("/ip/dhcp-client",
+			"=.id="+clientID,
+			"=use-peer-dns=yes",
+			"=use-peer-ntp=yes",
+			"=add-default-route=no",
+			"=disabled=no",
+		)
+		if err != nil {
+			return interfaceName, "", fmt.Errorf("failed to update DHCP client for %s: %w", interfaceName, err)
+		}
+		return interfaceName, clientID, nil
+	}
+
+	clientID, err = c.Add("/ip/dhcp-client",
+		"=interface="+interfaceName,
+		"=use-peer-dns=yes",
+		"=use-peer-ntp=yes",
+		"=add-default-route=no",
+		"=disabled=no",
+	)
+	if err != nil {
+		return interfaceName, "", fmt.Errorf("failed to add DHCP client for %s: %w", interfaceName, err)
+	}
+
+	return interfaceName, clientID, nil
+}
+
+// resolveInterfaceName accepts either an interface .id or a name and returns
+// the canonical name as known to RouterOS.
+func (c *Client) resolveInterfaceName(nameOrID string) (string, error) {
+	if nameOrID == "" {
+		return "", fmt.Errorf("interface name or ID is required")
+	}
+
+	result, err := c.GetFirst("/interface", "?=.id="+nameOrID)
+	if err == nil && result["name"] != "" {
+		return result["name"], nil
+	}
+
+	result, err = c.GetFirst("/interface", "?name="+nameOrID)
+	if err != nil || result["name"] == "" {
+		return "", fmt.Errorf("interface %s not found", nameOrID)
+	}
+
+	return result["name"], nil
+}
+
 func (c *Client) AddDHCPClient(interfaceName string, useDHCPv6 bool, comment string) (string, error) {
 	args := []string{
 		"interface=" + interfaceName,
