@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -1650,15 +1649,22 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Password is required", nil)
 	}
 
+	// Check if user already exists for ovpn service
+	userExists, err := client.GetPppSecretByNameAndService(req.Username, "ovpn")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check if user exists", err)
+	}
+	if userExists {
+		return ErrorResponse(c, http.StatusConflict, "User with username '"+req.Username+"' already exists for OpenVPN service", nil)
+	}
+
 	// Generate Unix timestamp for all certificates
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
 
-	// Certificate names
 	caName := "OpenVPN-CA-" + timestamp
 	serverName := "OpenVPN-Server-" + timestamp
 	clientName := "OpenVPN-Client-" + timestamp
 
-	// Create CA certificate (self-signed)
 	caCertParams := routeros.AddCertificateParams{
 		Name:       caName,
 		CommonName: caName,
@@ -1671,7 +1677,6 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create CA certificate", err)
 	}
 
-	// Set key usage for CA certificate before signing
 	if err := client.SetCertificateKeyUsage(caName, []string{
 		routeros.KeyUsageKeyCertSign,
 		routeros.KeyUsageCRLSign,
@@ -1679,12 +1684,10 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to set CA certificate key usage", err)
 	}
 
-	// Sign CA certificate (self-signed)
 	if err := client.SignCertificate(caName); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to sign CA certificate", err)
 	}
 
-	// Create Server certificate
 	serverCertParams := routeros.AddCertificateParams{
 		Name:       serverName,
 		CommonName: serverName,
@@ -1697,7 +1700,6 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create Server certificate", err)
 	}
 
-	// Set key usage for Server certificate before signing
 	if err := client.SetCertificateKeyUsage(serverName, []string{
 		routeros.KeyUsageDigitalSignature,
 		routeros.KeyUsageKeyEncipherment,
@@ -1706,12 +1708,10 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to set Server certificate key usage", err)
 	}
 
-	// Sign Server certificate with CA
 	if err := client.SignCertificate(serverName, caName); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to sign Server certificate", err)
 	}
 
-	// Create Client certificate
 	clientCertParams := routeros.AddCertificateParams{
 		Name:       clientName,
 		CommonName: clientName,
@@ -1724,71 +1724,35 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create Client certificate", err)
 	}
 
-	// Set key usage for Client certificate before signing
 	if err := client.SetCertificateKeyUsage(clientName, []string{
 		routeros.KeyUsageTLSClient,
 	}); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to set Client certificate key usage", err)
 	}
 
-	// Sign Client certificate with CA
 	if err := client.SignCertificate(clientName, caName); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to sign Client certificate", err)
 	}
 
-	// Export CA certificate to file
 	if err := client.ExportCertificate(caName, ""); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to export CA certificate", err)
 	}
 
-	// Export Server certificate to file
 	if err := client.ExportCertificate(serverName, ""); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to export Server certificate", err)
 	}
 
-	// Export Client certificate to file with password protection
 	if err := client.ExportCertificate(clientName, req.ClientCertificatePassword); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to export Client certificate", err)
 	}
 
-	// Get existing IP pools to find first available 120+ range
 	existingPools, err := client.ListIPPools()
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check existing IP pools", err)
 	}
 
-	// Find which 120+ ranges are already in use
-	usedRanges := make(map[int]bool)
-	for _, pool := range existingPools {
-		// Extract pool ranges and check if they use 192.168.12x format
-		if ranges, ok := pool["ranges"]; ok {
-			// Parse ranges like "192.168.120.10-192.168.120.254"
-			if strings.Contains(ranges, "192.168.12") {
-				// Extract the second and third octet from 192.168.12x
-				parts := strings.Split(ranges, ".")
-				if len(parts) >= 3 {
-					thirdOctet := parts[2]
-					if len(thirdOctet) >= 3 && thirdOctet[0:2] == "12" {
-						// Extract the last digit (x in 12x)
-						if digit, err := strconv.Atoi(string(thirdOctet[2])); err == nil {
-							usedRanges[digit] = true
-						}
-					}
-				}
-			}
-		}
-	}
+	availableX := utils.FindFirstAvailableRange(existingPools, "192.168.12")
 
-	// Find first available 12x range (120-129)
-	availableX := 0
-	for x := 0; x <= 9; x++ {
-		if !usedRanges[x] {
-			availableX = x
-			break
-		}
-	}
-
-	// Create IP pool for OpenVPN clients with available range
 	poolName := "OpenVPN-Pool-" + timestamp
 	poolRange := fmt.Sprintf("192.168.12%d.10-192.168.12%d.254", availableX, availableX)
 	poolConfig := routeros.IPPoolConfig{
@@ -1801,7 +1765,6 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create IP pool", err)
 	}
 
-	// Create PPP profile for OpenVPN server
 	profileName := "OpenVPN-Profile-" + timestamp
 	localAddress := fmt.Sprintf("192.168.12%d.1", availableX)
 
@@ -1810,20 +1773,17 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create PPP profile", err)
 	}
 
-	// Add PPP secret (username/password) for the profile
 	_, err = client.AddVpnSecret(req.Username, req.Password, profileName, "ovpn")
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create PPP secret", err)
 	}
 
-	// Create OpenVPN server
 	serverConfigName := "OpenVPN-Server-" + timestamp
 	_, err = client.AddOvpnServer(serverConfigName, 1194, "ip", "tcp", serverName, true, "sha256", "aes256-cbc")
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create OpenVPN server", err)
 	}
 
-	// Return response with certificate information and pool details
 	response := map[string]interface{}{
 		"status": "success",
 		"certificates": map[string]string{

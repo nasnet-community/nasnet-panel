@@ -27,6 +27,7 @@ type IPRouteInfo struct {
 	Comment     string
 }
 
+// IPPoolConfig represents an IP pool configuration.
 type IPPoolConfig struct {
 	Name    string
 	Ranges  string // e.g., "192.168.1.100-192.168.1.200"
@@ -266,6 +267,7 @@ func (c *Client) SetDNSConfig(config DNSConfig) error {
 	return nil
 }
 
+// ListIPPools returns all IP pools.
 func (c *Client) ListIPPools() ([]map[string]string, error) {
 	results, err := c.GetAll("/ip/pool")
 	if err != nil {
@@ -275,6 +277,7 @@ func (c *Client) ListIPPools() ([]map[string]string, error) {
 	return results, nil
 }
 
+// AddIPPool creates a new IP pool.
 func (c *Client) AddIPPool(config IPPoolConfig) (string, error) {
 	args := []string{
 		"=name=" + config.Name,
@@ -293,6 +296,7 @@ func (c *Client) AddIPPool(config IPPoolConfig) (string, error) {
 	return id, nil
 }
 
+// RemoveIPPool deletes an IP pool.
 func (c *Client) RemoveIPPool(name string) error {
 	_, err := c.Remove("/ip/pool", "=.id="+name)
 	if err != nil {

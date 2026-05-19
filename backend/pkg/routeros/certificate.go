@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// Key Usage Constants
+// Key Usage Constants.
 const (
 	KeyUsageCodeSign          = "code-sign"
 	KeyUsageDataEncipherment  = "data-encipherment"

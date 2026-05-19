@@ -770,6 +770,20 @@ func (c *Client) GetL2TPSecretsForProfile(profileName string) ([]L2TPSecret, err
 	return secrets, nil
 }
 
+// GetPppSecretByNameAndService checks if a PPP secret exists by name and service.
+func (c *Client) GetPppSecretByNameAndService(username, service string) (bool, error) {
+	result, err := c.GetFirst("/ppp/secret", "?=name="+username, "?=service="+service)
+	if err != nil {
+		return false, err
+	}
+
+	if result != nil && result["name"] != "" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 // GetL2TPIPPoolsForProfile returns IP pools assigned to an L2TP profile.
 func (c *Client) GetL2TPIPPoolsForProfile(profileName string) ([]L2TPIPPool, error) {
 	results, err := c.GetAll("/ip/pool", "?=name="+profileName)
@@ -1421,7 +1435,7 @@ func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 }
 
 // AddVpnProfile creates a new PPP profile for VPN servers.
-func (c *Client) AddVpnProfile(name, localAddress string, ipPool string) (string, error) {
+func (c *Client) AddVpnProfile(name, localAddress, ipPool string) (string, error) {
 	args := []string{
 		"=name=" + name,
 		"=local-address=" + localAddress,
