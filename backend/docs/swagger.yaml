@@ -2358,8 +2358,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create an OpenVPN server with client certificate password, username,
-        and password
+      description: Start an asynchronous OpenVPN server creation task
       parameters:
       - description: RouterOS host address
         in: header
@@ -2381,6 +2380,10 @@ paths:
             $ref: '#/definitions/handler.Response'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/handler.Response'
         "500":
@@ -2429,6 +2432,42 @@ paths:
       security:
       - BasicAuth: []
       summary: Get OpenVPN Server Details
+      tags:
+      - VPN
+  /api/vpn/ovpn/server/status/{taskId}:
+    get:
+      consumes:
+      - application/json
+      description: Get the status and progress of an OpenVPN server creation task
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Task ID
+        in: path
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get OpenVPN Server Task Status
       tags:
       - VPN
   /api/vpn/pptp/server:

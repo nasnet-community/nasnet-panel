@@ -774,13 +774,14 @@ func (c *Client) GetL2TPSecretsForProfile(profileName string) ([]L2TPSecret, err
 func (c *Client) GetPppSecretByNameAndService(username, service string) (bool, error) {
 	result, err := c.GetFirst("/ppp/secret", "?=name="+username, "?=service="+service)
 	if err != nil {
+		if err.Error() == "no results found" {
+			return false, nil
+		}
 		return false, err
 	}
-
 	if result != nil && result["name"] != "" {
 		return true, nil
 	}
-
 	return false, nil
 }
 
