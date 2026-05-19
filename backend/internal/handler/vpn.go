@@ -5,12 +5,68 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 )
+
+// OvpnServerTask tracks the status and progress of an OpenVPN server creation task.
+type OvpnServerTask struct {
+	ID            string
+	Status        string
+	Progress      int
+	CurrentStep   string
+	StartTime     time.Time
+	CompletedTime time.Time
+	Error         string
+	Result        map[string]interface{}
+	mu            sync.RWMutex
+}
+
+// OvpnServerPool manages in-memory OpenVPN server creation tasks.
+type OvpnServerPool struct {
+	activeTasks      map[string]*OvpnServerTask
+	mu               sync.RWMutex
+	cleanupStarted   bool
+	cleanupStartedMu sync.Mutex
+}
+
+var ovpnServerPool = &OvpnServerPool{
+	activeTasks: make(map[string]*OvpnServerTask),
+}
+
+func startCleanupIfNeeded() {
+	ovpnServerPool.cleanupStartedMu.Lock()
+	defer ovpnServerPool.cleanupStartedMu.Unlock()
+
+	if ovpnServerPool.cleanupStarted {
+		return
+	}
+	ovpnServerPool.cleanupStarted = true
+	go cleanupOvpnServerTasks()
+}
+
+func cleanupOvpnServerTasks() {
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		ovpnServerPool.mu.Lock()
+		now := time.Now()
+		for id, task := range ovpnServerPool.activeTasks {
+			if task.Status == "completed" || task.Status == "error" {
+				if now.Sub(task.CompletedTime) > 30*time.Minute {
+					delete(ovpnServerPool.activeTasks, id)
+				}
+			}
+		}
+		ovpnServerPool.mu.Unlock()
+	}
+}
 
 // HandleListVPNClients lists all VPN clients
 // @Summary List VPN Clients
@@ -1611,4 +1667,343 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
+}
+
+// HandleCreateOvpnServer creates an OpenVPN server asynchronously.
+// @Summary Create OpenVPN Server
+// @Description Start an asynchronous OpenVPN server creation task
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body CreateOvpnServerRequest true "OpenVPN server creation request"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/ovpn/server [post].
+func HandleCreateOvpnServer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	startCleanupIfNeeded()
+
+	var req CreateOvpnServerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if req.ClientCertificatePassword == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Client certificate password is required", nil)
+	}
+	if req.Username == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Username is required", nil)
+	}
+	if req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Password is required", nil)
+	}
+
+	userExists, err := client.GetPppSecretByNameAndService(req.Username, "ovpn")
+	if err != nil {
+		fmt.Printf("------>: %v\n", err)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check if user exists", err)
+	}
+	if userExists {
+		return ErrorResponse(c, http.StatusConflict, "User with username '"+req.Username+"' already exists for OpenVPN service", nil)
+	}
+
+	taskID := fmt.Sprintf("%d", time.Now().Unix())
+	task := &OvpnServerTask{
+		ID:        taskID,
+		Status:    "running",
+		Progress:  0,
+		StartTime: time.Now(),
+		Result:    make(map[string]interface{}),
+	}
+
+	ovpnServerPool.mu.Lock()
+	ovpnServerPool.activeTasks[taskID] = task
+	ovpnServerPool.mu.Unlock()
+
+	go processOvpnServerTask(client, task, req)
+
+	return SuccessResponse(c, http.StatusOK, "OpenVPN server creation task started", map[string]interface{}{
+		"taskId": taskID,
+		"status": "running",
+	})
+}
+
+// HandleGetOvpnServerTaskStatus gets the status of an OpenVPN server creation task.
+// @Summary Get OpenVPN Server Task Status
+// @Description Get the status and progress of an OpenVPN server creation task
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param taskId path string true "Task ID"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Router /api/vpn/ovpn/server/status/{taskId} [get].
+func HandleGetOvpnServerTaskStatus(c echo.Context) error {
+	taskID := c.Param("taskId")
+	if taskID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "taskId parameter is required", nil)
+	}
+
+	ovpnServerPool.mu.RLock()
+	task, exists := ovpnServerPool.activeTasks[taskID]
+	ovpnServerPool.mu.RUnlock()
+
+	if !exists {
+		return ErrorResponse(c, http.StatusNotFound, "Task not found", nil)
+	}
+
+	task.mu.RLock()
+	defer task.mu.RUnlock()
+
+	data := map[string]interface{}{
+		"taskId":      task.ID,
+		"status":      task.Status,
+		"progress":    task.Progress,
+		"currentStep": task.CurrentStep,
+		"startTime":   task.StartTime.Unix(),
+	}
+
+	switch task.Status {
+	case "error":
+		data["error"] = task.Error
+	case "completed":
+		data["result"] = task.Result
+		data["completedTime"] = task.CompletedTime.Unix()
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Task status retrieved", data)
+}
+
+func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req CreateOvpnServerRequest) {
+	defer func() {
+		if r := recover(); r != nil {
+			task.mu.Lock()
+			task.Status = "error"
+			task.Error = fmt.Sprintf("Panic: %v", r)
+			task.CompletedTime = time.Now()
+			task.mu.Unlock()
+		}
+	}()
+
+	timestamp := fmt.Sprintf("%d", time.Now().Unix())
+
+	updateTask := func(progress int, step string) {
+		task.mu.Lock()
+		task.Progress = progress
+		task.CurrentStep = step
+		task.mu.Unlock()
+	}
+
+	setError := func(errMsg string) {
+		task.mu.Lock()
+		task.Status = "error"
+		task.Error = errMsg
+		task.Progress = 0
+		task.CompletedTime = time.Now()
+		task.mu.Unlock()
+	}
+
+	caName := "OpenVPN-CA-" + timestamp
+	serverName := "OpenVPN-Server-" + timestamp
+	clientName := "OpenVPN-Client-" + timestamp
+
+	updateTask(5, "Creating CA certificate")
+	caCertParams := routeros.AddCertificateParams{
+		Name:       caName,
+		CommonName: caName,
+		KeySize:    2048,
+		DaysValid:  3650,
+	}
+
+	_, err := client.AddCertificate(caCertParams)
+	if err != nil {
+		setError("Failed to create CA certificate: " + err.Error())
+		return
+	}
+
+	updateTask(10, "Setting CA certificate key usage")
+	if err := client.SetCertificateKeyUsage(caName, []string{
+		routeros.KeyUsageKeyCertSign,
+		routeros.KeyUsageCRLSign,
+	}); err != nil {
+		setError("Failed to set CA certificate key usage: " + err.Error())
+		return
+	}
+
+	updateTask(15, "Signing CA certificate")
+	if err := client.SignCertificate(caName); err != nil {
+		setError("Failed to sign CA certificate: " + err.Error())
+		return
+	}
+
+	updateTask(20, "Creating Server certificate")
+	serverCertParams := routeros.AddCertificateParams{
+		Name:       serverName,
+		CommonName: serverName,
+		KeySize:    2048,
+		DaysValid:  3650,
+	}
+
+	_, err = client.AddCertificate(serverCertParams)
+	if err != nil {
+		setError("Failed to create Server certificate: " + err.Error())
+		return
+	}
+
+	updateTask(25, "Setting Server certificate key usage")
+	if err := client.SetCertificateKeyUsage(serverName, []string{
+		routeros.KeyUsageDigitalSignature,
+		routeros.KeyUsageKeyEncipherment,
+		routeros.KeyUsageTLSServer,
+	}); err != nil {
+		setError("Failed to set Server certificate key usage: " + err.Error())
+		return
+	}
+
+	updateTask(30, "Signing Server certificate")
+	if err := client.SignCertificate(serverName, caName); err != nil {
+		setError("Failed to sign Server certificate: " + err.Error())
+		return
+	}
+
+	updateTask(35, "Creating Client certificate")
+	clientCertParams := routeros.AddCertificateParams{
+		Name:       clientName,
+		CommonName: clientName,
+		KeySize:    2048,
+		DaysValid:  3650,
+	}
+
+	_, err = client.AddCertificate(clientCertParams)
+	if err != nil {
+		setError("Failed to create Client certificate: " + err.Error())
+		return
+	}
+
+	updateTask(40, "Setting Client certificate key usage")
+	if err := client.SetCertificateKeyUsage(clientName, []string{
+		routeros.KeyUsageTLSClient,
+	}); err != nil {
+		setError("Failed to set Client certificate key usage: " + err.Error())
+		return
+	}
+
+	updateTask(45, "Signing Client certificate")
+	if err := client.SignCertificate(clientName, caName); err != nil {
+		setError("Failed to sign Client certificate: " + err.Error())
+		return
+	}
+
+	updateTask(50, "Exporting certificates")
+	if err := client.ExportCertificate(caName, ""); err != nil {
+		setError("Failed to export CA certificate: " + err.Error())
+		return
+	}
+
+	if err := client.ExportCertificate(serverName, ""); err != nil {
+		setError("Failed to export Server certificate: " + err.Error())
+		return
+	}
+
+	if err := client.ExportCertificate(clientName, req.ClientCertificatePassword); err != nil {
+		setError("Failed to export Client certificate: " + err.Error())
+		return
+	}
+
+	updateTask(60, "Checking IP pools")
+	existingPools, err := client.ListIPPools()
+	if err != nil {
+		setError("Failed to check existing IP pools: " + err.Error())
+		return
+	}
+
+	availableX := utils.FindFirstAvailableRange(existingPools, "192.168.12")
+
+	poolName := "OpenVPN-Pool-" + timestamp
+	poolRange := fmt.Sprintf("192.168.12%d.10-192.168.12%d.254", availableX, availableX)
+	poolConfig := routeros.IPPoolConfig{
+		Name:   poolName,
+		Ranges: poolRange,
+	}
+
+	updateTask(65, "Creating IP pool")
+	_, err = client.AddIPPool(poolConfig)
+	if err != nil {
+		setError("Failed to create IP pool: " + err.Error())
+		return
+	}
+
+	updateTask(70, "Creating PPP profile")
+	profileName := "OpenVPN-Profile-" + timestamp
+	localAddress := fmt.Sprintf("192.168.12%d.1", availableX)
+
+	_, err = client.AddVpnProfile(profileName, localAddress, poolName)
+	if err != nil {
+		setError("Failed to create PPP profile: " + err.Error())
+		return
+	}
+
+	updateTask(75, "Creating PPP secret")
+	_, err = client.AddVpnSecret(req.Username, req.Password, profileName, "ovpn")
+	if err != nil {
+		setError("Failed to create PPP secret: " + err.Error())
+		return
+	}
+
+	updateTask(85, "Creating OpenVPN server")
+	serverConfigName := "OpenVPN-Server-" + timestamp
+	_, err = client.AddOvpnServer(serverConfigName, 1194, "ip", "tcp", serverName, true, "sha256", "aes256-cbc")
+	if err != nil {
+		setError("Failed to create OpenVPN server: " + err.Error())
+		return
+	}
+
+	updateTask(100, "Completed")
+
+	task.mu.Lock()
+	task.Status = "completed"
+	task.CompletedTime = time.Now()
+	task.Result = map[string]interface{}{
+		"certificates": map[string]string{
+			"ca":     caName,
+			"server": serverName,
+			"client": clientName,
+		},
+		"timestamp": timestamp,
+		"pool": map[string]string{
+			"name":   poolName,
+			"ranges": poolRange,
+		},
+		"profile": map[string]string{
+			"name":          profileName,
+			"localAddress":  localAddress,
+			"remoteAddress": poolName,
+		},
+		"secret": map[string]string{
+			"username": req.Username,
+			"service":  "ovpn",
+		},
+		"server": map[string]interface{}{
+			"name":                     serverConfigName,
+			"port":                     1194,
+			"mode":                     "ip",
+			"protocol":                 "tcp",
+			"certificate":              serverName,
+			"requireClientCertificate": true,
+			"auth":                     "sha256",
+			"cipher":                   "aes256",
+		},
+	}
+	task.mu.Unlock()
 }

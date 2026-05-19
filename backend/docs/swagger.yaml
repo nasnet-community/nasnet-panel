@@ -48,6 +48,22 @@ definitions:
       usePeerNtp:
         type: boolean
     type: object
+  handler.CreateOvpnServerRequest:
+    properties:
+      clientCertificatePassword:
+        example: cert-password123
+        type: string
+      password:
+        example: userpassword123
+        type: string
+      username:
+        example: vpnuser
+        type: string
+    required:
+    - clientCertificatePassword
+    - password
+    - username
+    type: object
   handler.CreateWireGuardInterfaceRequest:
     properties:
       allowedAddress:
@@ -2338,6 +2354,47 @@ paths:
       summary: Get L2TP Server Details
       tags:
       - VPN
+  /api/vpn/ovpn/server:
+    post:
+      consumes:
+      - application/json
+      description: Start an asynchronous OpenVPN server creation task
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: OpenVPN server creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateOvpnServerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Create OpenVPN Server
+      tags:
+      - VPN
   /api/vpn/ovpn/server/{name}:
     get:
       description: Get detailed configuration of an OpenVPN server by name
@@ -2375,6 +2432,42 @@ paths:
       security:
       - BasicAuth: []
       summary: Get OpenVPN Server Details
+      tags:
+      - VPN
+  /api/vpn/ovpn/server/status/{taskId}:
+    get:
+      consumes:
+      - application/json
+      description: Get the status and progress of an OpenVPN server creation task
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Task ID
+        in: path
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get OpenVPN Server Task Status
       tags:
       - VPN
   /api/vpn/pptp/server:

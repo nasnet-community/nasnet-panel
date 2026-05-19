@@ -18,12 +18,6 @@ type DHCPServerConfig struct {
 	Comment       string
 }
 
-type DHCPPoolConfig struct {
-	Name    string
-	Ranges  string // e.g., "192.168.1.100-192.168.1.200"
-	Comment string
-}
-
 type DHCPLeaseInfo struct {
 	ID           string
 	Address      string
@@ -172,33 +166,6 @@ func (c *Client) ListDHCPPools() ([]map[string]string, error) {
 	}
 
 	return results, nil
-}
-
-func (c *Client) AddDHCPPool(config DHCPPoolConfig) (string, error) {
-	args := []string{
-		"name=" + config.Name,
-		"ranges=" + config.Ranges,
-	}
-
-	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
-	}
-
-	id, err := c.Add("/ip/pool", args...)
-	if err != nil {
-		return "", fmt.Errorf("failed to add DHCP pool: %w", err)
-	}
-
-	return id, nil
-}
-
-func (c *Client) RemoveDHCPPool(name string) error {
-	_, err := c.Remove("/ip/pool", "=.id="+name)
-	if err != nil {
-		return fmt.Errorf("failed to remove DHCP pool: %w", err)
-	}
-
-	return nil
 }
 
 func (c *Client) ListDHCPLeases() ([]DHCPLeaseInfo, error) {

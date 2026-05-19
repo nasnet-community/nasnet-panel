@@ -13,6 +13,26 @@ import (
 	"time"
 )
 
+// Key Usage Constants.
+const (
+	KeyUsageCodeSign          = "code-sign"
+	KeyUsageDataEncipherment  = "data-encipherment"
+	KeyUsageDVCS              = "dvcs"
+	KeyUsageKeyAgreement      = "key-agreement"
+	KeyUsageOCSPSign          = "ocsp-sign"
+	KeyUsageTLSServer         = "tls-server"
+	KeyUsageContentCommitment = "content-commitment"
+	KeyUsageDecipherOnly      = "decipher-only"
+	KeyUsageEmailProtect      = "email-protect"
+	KeyUsageKeyCertSign       = "key-cert-sign"
+	KeyUsageTimestamp         = "timestamp"
+	KeyUsageCRLSign           = "crl-sign"
+	KeyUsageDigitalSignature  = "digital-signature"
+	KeyUsageEncipherOnly      = "encipher-only"
+	KeyUsageKeyEncipherment   = "key-encipherment"
+	KeyUsageTLSClient         = "tls-client"
+)
+
 // CertificateInfo holds information about a certificate.
 type CertificateInfo struct {
 	Name          string
@@ -231,7 +251,7 @@ func (c *Client) GetCertificates() ([]CertificateInfo, error) {
 
 // GetCertificate retrieves a specific certificate by name.
 func (c *Client) GetCertificate(name string) (*CertificateInfo, error) {
-	results, err := c.GetAll("/certificate", "?name="+name)
+	results, err := c.GetAll("/certificate", "?=name="+name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query certificate: %w", err)
 	}
@@ -292,6 +312,12 @@ func (c *Client) AddCertificate(params AddCertificateParams) (string, error) {
 
 	if params.CommonName == "" {
 		return "", fmt.Errorf("common-name is required")
+	}
+
+	// Check if certificate with this name already exists
+	existingCert, checkErr := c.GetCertificate(params.Name)
+	if checkErr == nil && existingCert != nil {
+		return "", fmt.Errorf("certificate with name '%s' already exists", params.Name)
 	}
 
 	args := []string{
@@ -400,21 +426,21 @@ func (c *Client) ImportCertificate(params ImportCertificateParams) (*ImportCerti
 	}
 
 	if params.KeyPEM != "" {
-		args = append(args, "key="+params.KeyPEM)
+		args = append(args, "=key="+params.KeyPEM)
 	}
 
 	if params.Passphrase != "" {
-		args = append(args, "passphrase="+params.Passphrase)
+		args = append(args, "=passphrase="+params.Passphrase)
 	}
 
 	if params.TrustStore != "" {
-		args = append(args, "trust-store="+params.TrustStore)
+		args = append(args, "=trust-store="+params.TrustStore)
 	}
 
 	if params.Trusted {
-		args = append(args, "trusted=yes")
+		args = append(args, "=trusted=yes")
 	} else {
-		args = append(args, "trusted=no")
+		args = append(args, "=trusted=no")
 	}
 
 	reply, err := c.Execute("/certificate/import", args...)
@@ -445,7 +471,7 @@ func parseMapInt(data map[string]string, key string) int {
 
 // RemoveCertificate removes a certificate from RouterOS by name.
 func (c *Client) RemoveCertificate(name string) error {
-	results, err := c.GetAll("/certificate", "?name="+name)
+	results, err := c.GetAll("/certificate", "?=name="+name)
 	if err != nil {
 		return fmt.Errorf("failed to find certificate: %w", err)
 	}
@@ -463,35 +489,45 @@ func (c *Client) RemoveCertificate(name string) error {
 	return nil
 }
 
-// ExportCertificate exports a certificate from RouterOS.
-func (c *Client) ExportCertificate(name string) (certPEM, keyPEM string, err error) {
-	cert, err := c.GetCertificate(name)
+// ExportCertificate exports a certificate to file on RouterOS device disk using the export command.
+// The certificate is saved with type=pem and optional passphrase protection for the private key.
+func (c *Client) ExportCertificate(name, passphrase string) error {
+	// Get certificate ID
+	results, err := c.GetAll("/certificate", "?=name="+name)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to get certificate: %w", err)
-	}
-
-	results, err := c.GetAll("/certificate", "?name="+name)
-	if err != nil {
-		return "", "", fmt.Errorf("failed to query certificate data: %w", err)
+		return fmt.Errorf("failed to find certificate: %w", err)
 	}
 
 	if len(results) == 0 {
-		return "", "", fmt.Errorf("certificate data not found: %s", name)
+		return fmt.Errorf("certificate not found: %s", name)
 	}
 
-	certPEM = results[0]["certificate"]
-	keyPEM = results[0]["key"]
+	certID := results[0][".id"]
 
-	if certPEM == "" {
-		return "", "", fmt.Errorf("certificate %s has no certificate data", cert.Name)
+	// Build export command arguments
+	args := []string{
+		"=.id=" + certID,
+		"=type=pem",
+		"=file-name=" + name,
 	}
 
-	return certPEM, keyPEM, nil
+	// Add passphrase if provided
+	if passphrase != "" {
+		args = append(args, "=export-passphrase="+passphrase)
+	}
+
+	// Execute export command
+	_, err = c.Execute("/certificate/export-certificate", args...)
+	if err != nil {
+		return fmt.Errorf("failed to export certificate: %w", err)
+	}
+
+	return nil
 }
 
 // RenameCertificate renames a certificate in RouterOS.
 func (c *Client) RenameCertificate(oldName, newName string) error {
-	results, err := c.GetAll("/certificate", "?name="+oldName)
+	results, err := c.GetAll("/certificate", "?=name="+oldName)
 	if err != nil {
 		return fmt.Errorf("failed to find certificate: %w", err)
 	}
@@ -501,7 +537,7 @@ func (c *Client) RenameCertificate(oldName, newName string) error {
 	}
 
 	certID := results[0][".id"]
-	_, err = c.Set("/certificate", "=.id="+certID, "name="+newName)
+	_, err = c.Set("/certificate", "=.id="+certID, "=name="+newName)
 	if err != nil {
 		return fmt.Errorf("failed to rename certificate: %w", err)
 	}
@@ -512,7 +548,7 @@ func (c *Client) RenameCertificate(oldName, newName string) error {
 // SetCertificateTrusted sets the trusted flag for a certificate in RouterOS.
 // According to MikroTik API, certificates can be marked as trusted for host verification.
 func (c *Client) SetCertificateTrusted(name string, trusted bool) error {
-	results, err := c.GetAll("/certificate", "?name="+name)
+	results, err := c.GetAll("/certificate", "?=name="+name)
 	if err != nil {
 		return fmt.Errorf("failed to find certificate: %w", err)
 	}
@@ -527,7 +563,7 @@ func (c *Client) SetCertificateTrusted(name string, trusted bool) error {
 		trustStr = "yes"
 	}
 
-	_, err = c.Set("/certificate", "=.id="+certID, "trusted="+trustStr)
+	_, err = c.Set("/certificate", "=.id="+certID, "=trusted="+trustStr)
 	if err != nil {
 		return fmt.Errorf("failed to set certificate trusted flag: %w", err)
 	}
@@ -539,7 +575,7 @@ func (c *Client) SetCertificateTrusted(name string, trusted bool) error {
 // According to MikroTik API, trust-store specifies which services can use the certificate.
 // Valid values: all, capsman, dns, email, ipsec, mqtt, openflow, radius, sstp, userman, www, api, container, dot1x, fetch, lora, netwatch, ovpn, tr069, wpa-eap.
 func (c *Client) SetCertificateTrustStore(name, trustStore string) error {
-	results, err := c.GetAll("/certificate", "?name="+name)
+	results, err := c.GetAll("/certificate", "?=name="+name)
 	if err != nil {
 		return fmt.Errorf("failed to find certificate: %w", err)
 	}
@@ -607,4 +643,38 @@ func (c *Client) ListCertificates() ([]CertificateInfo, error) {
 	}
 
 	return certs, nil
+}
+
+// SetCertificateKeyUsage sets the key-usage for a certificate in RouterOS.
+// It accepts a slice of key usage values. Valid values include: digital-signature,
+// content-commitment, key-encipherment, data-encipherment, key-agreement,
+// key-cert-sign, crl-sign, encipher-only, decipher-only, server-auth,
+// client-auth, code-signing, email-protection, time-stamping, ocsp-signing.
+func (c *Client) SetCertificateKeyUsage(name string, keyUsages []string) error {
+	if name == "" {
+		return fmt.Errorf("certificate name is required")
+	}
+
+	if len(keyUsages) == 0 {
+		return fmt.Errorf("at least one key usage value is required")
+	}
+
+	results, err := c.GetAll("/certificate", "?=name="+name)
+	if err != nil {
+		return fmt.Errorf("failed to find certificate: %w", err)
+	}
+
+	if len(results) == 0 {
+		return fmt.Errorf("certificate not found: %s", name)
+	}
+
+	certID := results[0][".id"]
+	keyUsageStr := strings.Join(keyUsages, ",")
+
+	_, err = c.Set("/certificate", "=.id="+certID, "=key-usage="+keyUsageStr)
+	if err != nil {
+		return fmt.Errorf("failed to set certificate key usage: %w", err)
+	}
+
+	return nil
 }
