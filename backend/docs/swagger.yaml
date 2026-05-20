@@ -2396,6 +2396,46 @@ paths:
       tags:
       - VPN
   /api/vpn/ovpn/server/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an OpenVPN server and all related items (secrets, profile,
+        IP pool, certificates)
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: OpenVPN server name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Delete OpenVPN Server
+      tags:
+      - VPN
     get:
       description: Get detailed configuration of an OpenVPN server by name
       parameters:

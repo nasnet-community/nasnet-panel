@@ -2013,3 +2013,94 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 	task.mu.Unlock()
 }
+
+// HandleDeleteOvpnServer deletes an OpenVPN server and all related items.
+// @Summary Delete OpenVPN Server
+// @Description Delete an OpenVPN server and all related items (secrets, profile, IP pool, certificates)
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "OpenVPN server name"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/ovpn/server/{name} [delete].
+func HandleDeleteOvpnServer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	serverName := c.Param("name")
+	if serverName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "serverName parameter is required", nil)
+	}
+
+	_, err = client.GetOvpnServer(serverName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
+	}
+
+	extractTimestamp := func(name string) string {
+		parts := strings.Split(name, "-")
+		if len(parts) >= 3 {
+			return parts[len(parts)-1]
+		}
+		return ""
+	}
+
+	timestamp := extractTimestamp(serverName)
+	deleteErrors := []string{}
+
+	if err := client.RemoveOvpnServer(serverName); err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete OpenVPN server: %v", err))
+	}
+
+	if timestamp != "" {
+		profileName := "OpenVPN-Profile-" + timestamp
+		secrets, err := client.GetPppSecretsByProfile(profileName)
+		if err == nil {
+			for _, secret := range secrets {
+				if username, ok := secret["name"]; ok {
+					if err := client.RemovePppSecret(username, "ovpn"); err != nil {
+						deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete PPP secret: %v", err))
+					}
+				}
+			}
+		}
+
+		if err := client.RemovePppProfile(profileName); err != nil {
+			deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete PPP profile: %v", err))
+		}
+
+		poolName := "OpenVPN-Pool-" + timestamp
+		if err := client.RemoveIPPool(poolName); err != nil {
+			deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete IP pool: %v", err))
+		}
+
+		certNames := []string{
+			"OpenVPN-Client-" + timestamp,
+			"OpenVPN-Server-" + timestamp,
+			"OpenVPN-CA-" + timestamp,
+		}
+		for _, certName := range certNames {
+			if err := client.RemoveCertificate(certName); err != nil {
+				deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete certificate %s: %v", certName, err))
+			}
+		}
+	}
+
+	if len(deleteErrors) > 0 {
+		return SuccessResponse(c, http.StatusOK, "OpenVPN server deleted with some errors", map[string]interface{}{
+			"deleted":  true,
+			"warnings": deleteErrors,
+		})
+	}
+
+	return SuccessResponse(c, http.StatusOK, "OpenVPN server and all related items deleted successfully", map[string]interface{}{
+		"deleted": true,
+	})
+}

@@ -815,6 +815,64 @@ func (c *Client) GetPppSecretByNameAndService(username, service string) (bool, e
 	return false, nil
 }
 
+// GetPppSecretsByProfile returns all PPP secrets for a given profile.
+func (c *Client) GetPppSecretsByProfile(profileName string) ([]map[string]string, error) {
+	results, err := c.GetAll("/ppp/secret", "?=profile="+profileName)
+	if err != nil {
+		if err.Error() == "no results found" {
+			return []map[string]string{}, nil
+		}
+		return nil, fmt.Errorf("failed to get PPP secrets for profile %s: %w", profileName, err)
+	}
+	return results, nil
+}
+
+// RemovePppSecret deletes a PPP secret by name and service.
+func (c *Client) RemovePppSecret(username, service string) error {
+	result, err := c.GetFirst("/ppp/secret", "?=name="+username, "?=service="+service)
+	if err != nil {
+		return fmt.Errorf("failed to find PPP secret %s for service %s: %w", username, service, err)
+	}
+	_, err = c.Remove("/ppp/secret", "=.id="+result[".id"])
+	if err != nil {
+		return fmt.Errorf("failed to remove PPP secret %s: %w", username, err)
+	}
+	return nil
+}
+
+// RemovePppProfile deletes a PPP profile by name.
+func (c *Client) RemovePppProfile(name string) error {
+	result, err := c.GetFirst("/ppp/profile", "?=name="+name)
+	if err != nil {
+		return fmt.Errorf("failed to find PPP profile %s: %w", name, err)
+	}
+	_, err = c.Remove("/ppp/profile", "=.id="+result[".id"])
+	if err != nil {
+		return fmt.Errorf("failed to remove PPP profile %s: %w", name, err)
+	}
+	return nil
+}
+
+// RemoveOvpnServer deletes an OpenVPN server by name or ID.
+func (c *Client) RemoveOvpnServer(nameOrID string) error {
+	var id string
+	result, err := c.GetFirst("/interface/ovpn-server/server", "?=name="+nameOrID)
+	if err == nil {
+		id = result[".id"]
+	} else {
+		result, err = c.GetFirst("/interface/ovpn-server/server", "?=.id="+nameOrID)
+		if err != nil {
+			return fmt.Errorf("failed to find OpenVPN server %s: %w", nameOrID, err)
+		}
+		id = result[".id"]
+	}
+	_, err = c.Remove("/interface/ovpn-server/server", "=.id="+id)
+	if err != nil {
+		return fmt.Errorf("failed to remove OpenVPN server %s: %w", nameOrID, err)
+	}
+	return nil
+}
+
 // GetL2TPIPPoolsForProfile returns IP pools assigned to an L2TP profile.
 func (c *Client) GetL2TPIPPoolsForProfile(profileName string) ([]L2TPIPPool, error) {
 	results, err := c.GetAll("/ip/pool", "?=name="+profileName)
