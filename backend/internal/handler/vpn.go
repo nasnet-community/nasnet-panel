@@ -1805,7 +1805,33 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		task.mu.Unlock()
 	}
 
-	setError := func(errMsg string) {
+	rollback := func(serverConfigName, poolName, profileName string, certs []string) {
+		if serverConfigName != "" {
+			_ = client.RemoveOvpnServer(serverConfigName)
+			if profileName != "" {
+				secrets, err := client.GetPppSecretsByProfile(profileName)
+				if err == nil {
+					for _, secret := range secrets {
+						if username, ok := secret["name"]; ok {
+							_ = client.RemovePppSecret(username, "ovpn")
+						}
+					}
+				}
+			}
+		}
+		if profileName != "" {
+			_ = client.RemovePppProfile(profileName)
+		}
+		if poolName != "" {
+			_ = client.RemoveIPPool(poolName)
+		}
+		for _, certName := range certs {
+			_ = client.RemoveCertificate(certName)
+		}
+	}
+
+	setError := func(errMsg string, serverConfigName, poolName, profileName string, certs []string) {
+		rollback(serverConfigName, poolName, profileName, certs)
 		task.mu.Lock()
 		task.Status = "error"
 		task.Error = errMsg
@@ -1828,7 +1854,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 	_, err := client.AddCertificate(caCertParams)
 	if err != nil {
-		setError("Failed to create CA certificate: " + err.Error())
+		setError("Failed to create CA certificate: "+err.Error(), "", "", "", []string{})
 		return
 	}
 
@@ -1837,13 +1863,13 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		routeros.KeyUsageKeyCertSign,
 		routeros.KeyUsageCRLSign,
 	}); err != nil {
-		setError("Failed to set CA certificate key usage: " + err.Error())
+		setError("Failed to set CA certificate key usage: "+err.Error(), "", "", "", []string{caName})
 		return
 	}
 
 	updateTask(15, "Signing CA certificate")
 	if err := client.SignCertificate(caName); err != nil {
-		setError("Failed to sign CA certificate: " + err.Error())
+		setError("Failed to sign CA certificate: "+err.Error(), "", "", "", []string{caName})
 		return
 	}
 
@@ -1857,7 +1883,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 	_, err = client.AddCertificate(serverCertParams)
 	if err != nil {
-		setError("Failed to create Server certificate: " + err.Error())
+		setError("Failed to create Server certificate: "+err.Error(), "", "", "", []string{caName})
 		return
 	}
 
@@ -1867,13 +1893,13 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		routeros.KeyUsageKeyEncipherment,
 		routeros.KeyUsageTLSServer,
 	}); err != nil {
-		setError("Failed to set Server certificate key usage: " + err.Error())
+		setError("Failed to set Server certificate key usage: "+err.Error(), "", "", "", []string{caName, serverName})
 		return
 	}
 
 	updateTask(30, "Signing Server certificate")
 	if err := client.SignCertificate(serverName, caName); err != nil {
-		setError("Failed to sign Server certificate: " + err.Error())
+		setError("Failed to sign Server certificate: "+err.Error(), "", "", "", []string{caName, serverName})
 		return
 	}
 
@@ -1887,7 +1913,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 	_, err = client.AddCertificate(clientCertParams)
 	if err != nil {
-		setError("Failed to create Client certificate: " + err.Error())
+		setError("Failed to create Client certificate: "+err.Error(), "", "", "", []string{caName, serverName})
 		return
 	}
 
@@ -1895,36 +1921,36 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	if err := client.SetCertificateKeyUsage(clientName, []string{
 		routeros.KeyUsageTLSClient,
 	}); err != nil {
-		setError("Failed to set Client certificate key usage: " + err.Error())
+		setError("Failed to set Client certificate key usage: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
 
 	updateTask(45, "Signing Client certificate")
 	if err := client.SignCertificate(clientName, caName); err != nil {
-		setError("Failed to sign Client certificate: " + err.Error())
+		setError("Failed to sign Client certificate: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
 
 	updateTask(50, "Exporting certificates")
 	if err := client.ExportCertificate(caName, ""); err != nil {
-		setError("Failed to export CA certificate: " + err.Error())
+		setError("Failed to export CA certificate: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
 
 	if err := client.ExportCertificate(serverName, ""); err != nil {
-		setError("Failed to export Server certificate: " + err.Error())
+		setError("Failed to export Server certificate: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
 
 	if err := client.ExportCertificate(clientName, req.ClientCertificatePassword); err != nil {
-		setError("Failed to export Client certificate: " + err.Error())
+		setError("Failed to export Client certificate: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
 
 	updateTask(60, "Checking IP pools")
 	existingPools, err := client.ListIPPools()
 	if err != nil {
-		setError("Failed to check existing IP pools: " + err.Error())
+		setError("Failed to check existing IP pools: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
 
@@ -1940,7 +1966,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	updateTask(65, "Creating IP pool")
 	_, err = client.AddIPPool(poolConfig)
 	if err != nil {
-		setError("Failed to create IP pool: " + err.Error())
+		setError("Failed to create IP pool: "+err.Error(), "", poolName, "", []string{caName, serverName, clientName})
 		return
 	}
 
@@ -1950,14 +1976,14 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 	_, err = client.AddVpnProfile(profileName, localAddress, poolName)
 	if err != nil {
-		setError("Failed to create PPP profile: " + err.Error())
+		setError("Failed to create PPP profile: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
 		return
 	}
 
 	updateTask(75, "Creating PPP secret")
 	_, err = client.AddVpnSecret(req.Username, req.Password, profileName, "ovpn")
 	if err != nil {
-		setError("Failed to create PPP secret: " + err.Error())
+		setError("Failed to create PPP secret: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -1965,13 +1991,13 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	serverConfigName := "OpenVPN-Server-" + timestamp
 	port, err := client.FindNextAvailableOvpnPort(1194, "tcp")
 	if err != nil {
-		setError("Failed to find available port: " + err.Error())
+		setError("Failed to find available port: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
 		return
 	}
 
 	_, err = client.AddOvpnServer(serverConfigName, port, "ip", "tcp", serverName, true, "sha256", "aes256-cbc")
 	if err != nil {
-		setError("Failed to create OpenVPN server: " + err.Error())
+		setError("Failed to create OpenVPN server: "+err.Error(), serverConfigName, poolName, profileName, []string{caName, serverName, clientName})
 		return
 	}
 
