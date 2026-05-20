@@ -3,6 +3,7 @@ package routeros
 import (
 	"fmt"
 	"net"
+	"regexp"
 	"strconv"
 
 	"nasnet-panel/pkg/utils"
@@ -1572,4 +1573,50 @@ func parseWireGuardInfo(result map[string]string) *WireGuardInfo {
 		ListenPort: listenPort,
 		Comment:    result["comment"],
 	}
+}
+
+// ExportOvpnClientConfiguration exports OpenVPN client configuration using RouterOS command.
+func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCertName, clientCertName string) (string, error) {
+	args := []string{
+		"=server=" + serverName,
+		"=server-address=" + serverAddress,
+		"=ca-certificate=" + fmt.Sprintf("%s.crt", caCertName),
+		"=client-certificate=" + fmt.Sprintf("%s.crt", clientCertName),
+		"=client-cert-key=" + fmt.Sprintf("%s.key", clientCertName),
+	}
+
+	reply, err := c.Execute("/interface/ovpn-server/server/export-client-configuration", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to export client configuration: %w", err)
+	}
+
+	if reply == nil || len(reply.Re) == 0 {
+		return "", fmt.Errorf("export returned empty response")
+	}
+
+	// Extract filename from progress message using regex
+	// Response format: "ovpn client configuration 'filename.ovpn' file exported"
+	var fileName string
+	for _, sentence := range reply.Re {
+		if progressMsg, ok := sentence.Map["progress"]; ok && progressMsg != "" {
+			// Use regex to extract filename from progress message
+			re := regexp.MustCompile(`'([^']+\.ovpn)'`)
+			matches := re.FindStringSubmatch(progressMsg)
+			if len(matches) > 1 {
+				fileName = matches[1]
+				break
+			}
+		}
+	}
+
+	if fileName == "" {
+		return "", fmt.Errorf("failed to extract filename from export response")
+	}
+
+	config, err := c.GetCertificateFileContent(fileName)
+	if err != nil {
+		return "", fmt.Errorf("failed to read exported configuration: %w", err)
+	}
+
+	return config, nil
 }

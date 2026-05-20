@@ -86,6 +86,7 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.POST("/ovpn/server", handler.HandleCreateOvpnServer)
 	vpnGroup.GET("/ovpn/server/status/:taskId", handler.HandleGetOvpnServerTaskStatus)
 	vpnGroup.DELETE("/ovpn/server/:name", handler.HandleDeleteOvpnServer)
+	vpnGroup.GET("/ovpn/server/export", handler.HandleExportOvpnClient)
 	vpnGroup.GET("/pptp/server", handler.HandleGetPptpServerDetails)
 	vpnGroup.GET("/l2tp/server", handler.HandleGetL2tpServerDetails)
 	vpnGroup.GET("/sstp/server", handler.HandleGetSstpServerDetails)
