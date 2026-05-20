@@ -2191,7 +2191,14 @@ func HandleExportOvpnClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "failed to export client configuration", err)
 	}
 
-	c.Response().Header().Set(echo.HeaderContentType, "text/plain; charset=UTF-8")
-	c.Response().Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.ovpn"`, serverName))
-	return c.String(http.StatusOK, config)
+	c.Response().Header().Set(
+		echo.HeaderContentDisposition,
+		fmt.Sprintf(`attachment; filename="%s.ovpn"`, serverName),
+	)
+
+	return c.Blob(
+		http.StatusOK,
+		"application/x-openvpn-profile",
+		[]byte(config),
+	)
 }
