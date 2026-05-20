@@ -1963,7 +1963,13 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 	updateTask(85, "Creating OpenVPN server")
 	serverConfigName := "OpenVPN-Server-" + timestamp
-	_, err = client.AddOvpnServer(serverConfigName, 1194, "ip", "tcp", serverName, true, "sha256", "aes256-cbc")
+	port, err := client.FindNextAvailableOvpnPort(1194, "tcp")
+	if err != nil {
+		setError("Failed to find available port: " + err.Error())
+		return
+	}
+
+	_, err = client.AddOvpnServer(serverConfigName, port, "ip", "tcp", serverName, true, "sha256", "aes256-cbc")
 	if err != nil {
 		setError("Failed to create OpenVPN server: " + err.Error())
 		return
@@ -1996,7 +2002,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		},
 		"server": map[string]interface{}{
 			"name":                     serverConfigName,
-			"port":                     1194,
+			"port":                     port,
 			"mode":                     "ip",
 			"protocol":                 "tcp",
 			"certificate":              serverName,

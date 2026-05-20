@@ -592,6 +592,36 @@ func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificat
 	return id, nil
 }
 
+// FindNextAvailableOvpnPort finds the next available port for OpenVPN server with the specified protocol.
+func (c *Client) FindNextAvailableOvpnPort(startPort int, protocol string) (int, error) {
+	if protocol != "tcp" && protocol != "udp" {
+		return 0, fmt.Errorf("invalid protocol: must be 'tcp' or 'udp'")
+	}
+
+	servers, err := c.ListOvpnServers()
+	if err != nil {
+		return 0, fmt.Errorf("failed to list OpenVPN servers: %w", err)
+	}
+
+	port := startPort
+	for {
+		occupied := false
+		for i := range servers {
+			if servers[i].Port == port && servers[i].ProtocolVersion == protocol {
+				occupied = true
+				break
+			}
+		}
+		if !occupied {
+			return port, nil
+		}
+		port++
+		if port > 65535 {
+			return 0, fmt.Errorf("no available ports found")
+		}
+	}
+}
+
 // GetPptpServer returns the PPTP server configuration.
 func (c *Client) GetPptpServer() (*PptpServerInfo, error) {
 	result, err := c.GetFirst("/interface/pptp-server/server")
