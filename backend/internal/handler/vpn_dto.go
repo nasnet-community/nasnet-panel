@@ -544,3 +544,9 @@ type CreateOvpnServerRequest struct {
 	Username                  string `json:"username" binding:"required" example:"vpnuser"`
 	Password                  string `json:"password" binding:"required" example:"userpassword123"`
 }
+
+// ExportOvpnClientRequest represents a request to export OVPN client configuration.
+type ExportOvpnClientRequest struct {
+	ServerName    string `query:"serverName" binding:"required" example:"OpenVPN-Server-1779215157"`
+	PublicAddress string `query:"publicAddress" binding:"required" example:"192.168.1.100"`
+}

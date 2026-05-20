@@ -2134,3 +2134,71 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		"deleted": true,
 	})
 }
+
+// HandleExportOvpnClient exports OpenVPN client configuration.
+// @Summary Export OpenVPN Client Configuration
+// @Description Generates and returns OVPN client configuration file using RouterOS export command
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name query string true "OpenVPN server name"
+// @Param publicAddress query string true "Server public IP address"
+// @Produce text/plain
+// @Success 200 {string} string "OVPN configuration file"
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/ovpn/server/export [get].
+func HandleExportOvpnClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	serverName := c.QueryParam("name")
+	if serverName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "name parameter is required", nil)
+	}
+
+	publicAddress := c.QueryParam("publicAddress")
+	if publicAddress == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "publicAddress parameter is required", nil)
+	}
+
+	_, err = client.GetOvpnServer(serverName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
+	}
+
+	extractTimestamp := func(name string) string {
+		parts := strings.Split(name, "-")
+		if len(parts) >= 3 {
+			return parts[len(parts)-1]
+		}
+		return ""
+	}
+
+	timestamp := extractTimestamp(serverName)
+	if timestamp == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "could not extract timestamp from server name", nil)
+	}
+
+	caName := "OpenVPN-CA-" + timestamp
+	clientCertName := "OpenVPN-Client-" + timestamp
+
+	config, err := client.ExportOvpnClientConfiguration(serverName, publicAddress, caName, clientCertName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "failed to export client configuration", err)
+	}
+
+	c.Response().Header().Set(
+		echo.HeaderContentDisposition,
+		fmt.Sprintf(`attachment; filename="%s.ovpn"`, serverName),
+	)
+
+	return c.Blob(
+		http.StatusOK,
+		"application/x-openvpn-profile",
+		[]byte(config),
+	)
+}

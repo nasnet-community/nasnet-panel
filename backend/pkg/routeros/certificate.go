@@ -702,3 +702,21 @@ func (c *Client) RemoveCertificateFiles(name string) error {
 
 	return nil
 }
+
+// GetCertificateFileContent retrieves the content of a certificate file from RouterOS storage.
+func (c *Client) GetCertificateFileContent(filename string) (string, error) {
+	result, err := c.Execute("/file/read", "=file="+filename, "=offset=0", "=chunk-size=10240")
+	if err != nil {
+		return "", fmt.Errorf("failed to find file %s: %w", filename, err)
+	}
+	if len(result.Re) == 0 {
+		return "", fmt.Errorf("file not found: %s", filename)
+	}
+
+	content, ok := result.Re[0].Map["data"]
+	if !ok || content == "" {
+		return "", fmt.Errorf("file content is empty: %s", filename)
+	}
+
+	return content, nil
+}

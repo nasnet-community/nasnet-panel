@@ -2478,6 +2478,50 @@ paths:
       summary: Get OpenVPN Server Details
       tags:
       - VPN
+  /api/vpn/ovpn/server/export:
+    get:
+      description: Generates and returns OVPN client configuration file using RouterOS
+        export command
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: OpenVPN server name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: Server public IP address
+        in: query
+        name: publicAddress
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OVPN configuration file
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Export OpenVPN Client Configuration
+      tags:
+      - VPN
   /api/vpn/ovpn/server/status/{taskId}:
     get:
       consumes:
