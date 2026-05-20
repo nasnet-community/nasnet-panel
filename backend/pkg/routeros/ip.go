@@ -298,10 +298,13 @@ func (c *Client) AddIPPool(config IPPoolConfig) (string, error) {
 
 // RemoveIPPool deletes an IP pool.
 func (c *Client) RemoveIPPool(name string) error {
-	_, err := c.Remove("/ip/pool", "=.id="+name)
+	result, err := c.GetFirst("/ip/pool", "?=name="+name)
 	if err != nil {
-		return fmt.Errorf("failed to remove IP pool: %w", err)
+		return fmt.Errorf("failed to find IP pool %s: %w", name, err)
 	}
-
+	_, err = c.Remove("/ip/pool", "=.id="+result[".id"])
+	if err != nil {
+		return fmt.Errorf("failed to remove IP pool %s: %w", name, err)
+	}
 	return nil
 }
