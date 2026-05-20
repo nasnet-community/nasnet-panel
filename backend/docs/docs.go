@@ -2292,6 +2292,12 @@ const docTemplate = `{
                         "name": "name",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Delete certificate files from storage (default: false)",
+                        "name": "deleteCertificateFiles",
+                        "in": "query"
                     }
                 ],
                 "responses": {

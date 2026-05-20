@@ -2412,6 +2412,10 @@ paths:
         name: name
         required: true
         type: string
+      - description: 'Delete certificate files from storage (default: false)'
+        in: query
+        name: deleteCertificateFiles
+        type: boolean
       produces:
       - application/json
       responses:
