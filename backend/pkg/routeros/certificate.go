@@ -678,3 +678,27 @@ func (c *Client) SetCertificateKeyUsage(name string, keyUsages []string) error {
 
 	return nil
 }
+
+// RemoveCertificateFiles deletes the certificate files from RouterOS storage.
+func (c *Client) RemoveCertificateFiles(name string) error {
+	filesToDelete := []string{
+		name + ".pem",
+		name + ".key",
+		name + ".crt",
+	}
+
+	for _, filename := range filesToDelete {
+		results, err := c.GetAll("/file", "?=name="+filename)
+		if err != nil || len(results) == 0 {
+			continue
+		}
+
+		fileID := results[0][".id"]
+		_, err = c.Remove("/file", "=.id="+fileID)
+		if err != nil {
+			continue
+		}
+	}
+
+	return nil
+}

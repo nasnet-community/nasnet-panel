@@ -2021,6 +2021,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param name path string true "OpenVPN server name"
+// @Param deleteCertificateFiles query boolean false "Delete certificate files from storage (default: false)"
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
@@ -2055,6 +2056,7 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 	timestamp := extractTimestamp(serverName)
 	deleteErrors := []string{}
 
+	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
 	if err := client.RemoveOvpnServer(serverName); err != nil {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete OpenVPN server: %v", err))
 	}
@@ -2089,6 +2091,8 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		for _, certName := range certNames {
 			if err := client.RemoveCertificate(certName); err != nil {
 				deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete certificate %s: %v", certName, err))
+			} else if deleteCertFiles {
+				_ = client.RemoveCertificateFiles(certName)
 			}
 		}
 	}
