@@ -540,9 +540,14 @@ type ImportWireGuardConfigResponse struct {
 
 // CreateOvpnServerRequest represents a request to create an OpenVPN server with client certificate.
 type CreateOvpnServerRequest struct {
-	ClientCertificatePassword string `json:"clientCertificatePassword" binding:"required" example:"cert-password123"`
-	Username                  string `json:"username" binding:"required" example:"vpnuser"`
-	Password                  string `json:"password" binding:"required" example:"userpassword123"`
+	ClientCertificatePassword string           `json:"clientCertificatePassword" binding:"required" example:"cert-password123"`
+	Users                     []OvpnServerUser `json:"users" binding:"required"`
+}
+
+// OvpnServerUser represents a user to be created on the OpenVPN server.
+type OvpnServerUser struct {
+	Username string `json:"username" binding:"required" example:"vpnuser"`
+	Password string `json:"password" binding:"required" example:"userpassword123"`
 }
 
 // ExportOvpnClientRequest represents a request to export OVPN client configuration.

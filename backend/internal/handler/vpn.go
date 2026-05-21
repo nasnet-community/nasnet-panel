@@ -1669,13 +1669,13 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
 }
 
-// HandleCreateOvpnServer creates an OpenVPN server asynchronously.
-// @Summary Create OpenVPN Server
-// @Description Start an asynchronous OpenVPN server creation task
+// HandleCreateOvpnServer creates an OpenVPN server asynchronously with multiple users.
+// @Summary Create OpenVPN Server with Users
+// @Description Start an asynchronous OpenVPN server creation task with an array of users
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param request body CreateOvpnServerRequest true "OpenVPN server creation request"
+// @Param request body CreateOvpnServerRequest true "OpenVPN server creation request with users array"
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
@@ -1699,20 +1699,24 @@ func HandleCreateOvpnServer(c echo.Context) error {
 	if req.ClientCertificatePassword == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "Client certificate password is required", nil)
 	}
-	if req.Username == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "Username is required", nil)
-	}
-	if req.Password == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "Password is required", nil)
+	if len(req.Users) == 0 {
+		return ErrorResponse(c, http.StatusBadRequest, "At least one user is required", nil)
 	}
 
-	userExists, err := client.GetPppSecretByNameAndService(req.Username, "ovpn")
-	if err != nil {
-		fmt.Printf("------>: %v\n", err)
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check if user exists", err)
-	}
-	if userExists {
-		return ErrorResponse(c, http.StatusConflict, "User with username '"+req.Username+"' already exists for OpenVPN service", nil)
+	for _, user := range req.Users {
+		if user.Username == "" {
+			return ErrorResponse(c, http.StatusBadRequest, "Username is required for all users", nil)
+		}
+		if user.Password == "" {
+			return ErrorResponse(c, http.StatusBadRequest, "Password is required for all users", nil)
+		}
+		userExists, err := client.GetPppSecretByNameAndService(user.Username, "ovpn")
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to check if user exists", err)
+		}
+		if userExists {
+			return ErrorResponse(c, http.StatusConflict, "User with username '"+user.Username+"' already exists for OpenVPN service", nil)
+		}
 	}
 
 	taskID := fmt.Sprintf("%d", time.Now().Unix())
@@ -1980,11 +1984,18 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	updateTask(75, "Creating PPP secret")
-	_, err = client.AddVpnSecret(req.Username, req.Password, profileName, "ovpn")
-	if err != nil {
-		setError("Failed to create PPP secret: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
-		return
+	updateTask(75, "Creating PPP secrets")
+	createdUsers := make([]map[string]string, 0)
+	for _, user := range req.Users {
+		_, err = client.AddVpnSecret(user.Username, user.Password, profileName, "ovpn")
+		if err != nil {
+			setError("Failed to create PPP secret for user '"+user.Username+"': "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
+			return
+		}
+		createdUsers = append(createdUsers, map[string]string{
+			"username": user.Username,
+			"service":  "ovpn",
+		})
 	}
 
 	updateTask(85, "Creating OpenVPN server")
@@ -2022,10 +2033,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 			"localAddress":  localAddress,
 			"remoteAddress": poolName,
 		},
-		"secret": map[string]string{
-			"username": req.Username,
-			"service":  "ovpn",
-		},
+		"secrets": createdUsers,
 		"server": map[string]interface{}{
 			"name":                     serverConfigName,
 			"port":                     port,
@@ -2034,7 +2042,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 			"certificate":              serverName,
 			"requireClientCertificate": true,
 			"auth":                     "sha256",
-			"cipher":                   "aes256",
+			"cipher":                   "aes256-cbc",
 		},
 	}
 	task.mu.Unlock()

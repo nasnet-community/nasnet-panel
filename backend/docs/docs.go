@@ -2084,7 +2084,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Start an asynchronous OpenVPN server creation task",
+                "description": "Start an asynchronous OpenVPN server creation task with an array of users",
                 "consumes": [
                     "application/json"
                 ],
@@ -2094,7 +2094,7 @@ const docTemplate = `{
                 "tags": [
                     "VPN"
                 ],
-                "summary": "Create OpenVPN Server",
+                "summary": "Create OpenVPN Server with Users",
                 "parameters": [
                     {
                         "type": "string",
@@ -2104,7 +2104,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "OpenVPN server creation request",
+                        "description": "OpenVPN server creation request with users array",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -4223,21 +4223,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "clientCertificatePassword",
-                "password",
-                "username"
+                "users"
             ],
             "properties": {
                 "clientCertificatePassword": {
                     "type": "string",
                     "example": "cert-password123"
                 },
-                "password": {
-                    "type": "string",
-                    "example": "userpassword123"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "vpnuser"
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.OvpnServerUser"
+                    }
                 }
             }
         },
@@ -4727,6 +4724,23 @@ const docTemplate = `{
                 },
                 "userAuthMethod": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.OvpnServerUser": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "userpassword123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "vpnuser"
                 }
             }
         },
