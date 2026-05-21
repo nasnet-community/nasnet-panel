@@ -4233,7 +4233,7 @@ const docTemplate = `{
                 "users": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.OvpnServerUser"
+                        "$ref": "#/definitions/handler.VpnUser"
                     }
                 }
             }
@@ -4727,7 +4727,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.OvpnServerUser": {
+        "handler.VpnUser": {
             "type": "object",
             "required": [
                 "password",

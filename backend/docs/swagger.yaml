@@ -55,7 +55,7 @@ definitions:
         type: string
       users:
         items:
-          $ref: '#/definitions/handler.OvpnServerUser'
+          $ref: '#/definitions/handler.VpnUser'
         type: array
     required:
     - clientCertificatePassword
@@ -403,7 +403,7 @@ definitions:
       userAuthMethod:
         type: string
     type: object
-  handler.OvpnServerUser:
+  handler.VpnUser:
     properties:
       password:
         example: userpassword123
