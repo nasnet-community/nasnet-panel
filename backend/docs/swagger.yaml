@@ -53,16 +53,13 @@ definitions:
       clientCertificatePassword:
         example: cert-password123
         type: string
-      password:
-        example: userpassword123
-        type: string
-      username:
-        example: vpnuser
-        type: string
+      users:
+        items:
+          $ref: '#/definitions/handler.VpnUser'
+        type: array
     required:
     - clientCertificatePassword
-    - password
-    - username
+    - users
     type: object
   handler.CreateWireGuardInterfaceRequest:
     properties:
@@ -405,6 +402,18 @@ definitions:
         type: boolean
       userAuthMethod:
         type: string
+    type: object
+  handler.VpnUser:
+    properties:
+      password:
+        example: userpassword123
+        type: string
+      username:
+        example: vpnuser
+        type: string
+    required:
+    - password
+    - username
     type: object
   handler.PptpServerDetailsResponse:
     properties:
@@ -2358,14 +2367,15 @@ paths:
     post:
       consumes:
       - application/json
-      description: Start an asynchronous OpenVPN server creation task
+      description: Start an asynchronous OpenVPN server creation task with an array
+        of users
       parameters:
       - description: RouterOS host address
         in: header
         name: X-RouterOS-Host
         required: true
         type: string
-      - description: OpenVPN server creation request
+      - description: OpenVPN server creation request with users array
         in: body
         name: request
         required: true
@@ -2392,7 +2402,7 @@ paths:
             $ref: '#/definitions/handler.Response'
       security:
       - BasicAuth: []
-      summary: Create OpenVPN Server
+      summary: Create OpenVPN Server with Users
       tags:
       - VPN
   /api/vpn/ovpn/server/{name}:
