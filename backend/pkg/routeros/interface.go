@@ -240,7 +240,7 @@ func containsInterfaceType(interfaceTypes []string, interfaceType string) bool {
 }
 
 func (c *Client) GetInterface(name string) (*InterfaceInfo, error) {
-	result, err := c.GetFirst("/interface", "?=.id="+name)
+	result, err := c.GetFirst("/interface", "?=name="+name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get interface %s: %w", name, err)
 	}
@@ -487,6 +487,18 @@ func (c *Client) SetInterfaceMTU(name string, mtu int) error {
 	_, err := c.Set("/interface", "=.id="+name, "mtu="+strconv.Itoa(mtu))
 	if err != nil {
 		return fmt.Errorf("failed to set interface MTU: %w", err)
+	}
+
+	return nil
+}
+
+// SetInterfaceComment updates the comment of an interface.
+//
+//nolint:gocritic // false positive on parameter shadowing
+func (c *Client) SetInterfaceComment(id string, comment string) error {
+	_, err := c.Set("/interface", "=.id="+id, "=comment="+comment)
+	if err != nil {
+		return fmt.Errorf("failed to set interface comment: %w", err)
 	}
 
 	return nil

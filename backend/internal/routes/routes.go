@@ -66,6 +66,7 @@ func RegisterRoutes(e *echo.Echo) {
 	interfaceGroup := e.Group("/api/interface")
 	interfaceGroup.Use(middleware.RouterOSAuth)
 	interfaceGroup.GET("/interfaces", handler.HandleListInterfaces)
+	interfaceGroup.PUT("/wan/:name", handler.HandleUpdateWANInterface)
 
 	dnsGroup := e.Group("/api/dns")
 	dnsGroup.Use(middleware.RouterOSAuth)

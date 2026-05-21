@@ -110,3 +110,8 @@ func formatBytesPtr(value *int64) *string {
 	formatted := utils.BytesToSizeString(*value)
 	return &formatted
 }
+
+// UpdateWANInterfaceRequest represents a request to configure a WAN interface.
+type UpdateWANInterfaceRequest struct {
+	Type string `json:"type" binding:"required,oneof=foreign domestic" example:"foreign"`
+}
