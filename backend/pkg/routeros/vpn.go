@@ -578,6 +578,7 @@ func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificat
 		"=auth=" + auth,
 		"=cipher=" + cipher,
 		"=cipher=" + cipher,
+		"=redirect-gateway=def1",
 		"=disabled=no",
 	}
 
