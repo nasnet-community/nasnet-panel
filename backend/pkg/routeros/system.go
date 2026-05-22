@@ -364,6 +364,26 @@ func (c *Client) GetLicenseInfo() (*LicenseInfo, error) {
 	}, nil
 }
 
+// GetSystemID retrieves the system ID or software ID from the license information.
+// Returns the system-id if available, otherwise returns the software-id.
+// Returns an error if neither system-id nor software-id is available.
+func (c *Client) GetSystemID() (string, error) {
+	license, err := c.GetLicenseInfo()
+	if err != nil {
+		return "", fmt.Errorf("failed to get license info: %w", err)
+	}
+
+	if license.SystemID != "" {
+		return license.SystemID, nil
+	}
+
+	if license.SoftwareID != "" {
+		return license.SoftwareID, nil
+	}
+
+	return "", fmt.Errorf("neither system-id nor software-id is available in license info")
+}
+
 func (c *Client) ListLogSettings() ([]LogSetting, error) {
 	results, err := c.GetAll("/system/logging")
 	if err != nil {

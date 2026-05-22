@@ -102,4 +102,8 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/wireguard/detailed/:name", handler.HandleGetWireGuardDetailed)
 	vpnGroup.GET("/wireguard/interface/:nameOrID", handler.HandleGetWireGuardInterface)
 	vpnGroup.GET("/wireguard/peers/:name", handler.HandleGetWireGuardPeers)
+
+	wizardGroup := e.Group("/api/wizard")
+	wizardGroup.Use(middleware.RouterOSAuth)
+	wizardGroup.POST("/vpn", handler.HandleGetVPNCredentials)
 }
