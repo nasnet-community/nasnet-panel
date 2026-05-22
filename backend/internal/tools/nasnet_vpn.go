@@ -84,6 +84,9 @@ func GetNasNetVPNCredentials(systemID string) (*L2TPCredentials, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to send HTTP request: %w", err)
 	}
+	if resp == nil {
+		return nil, fmt.Errorf("HTTP response is nil")
+	}
 	defer func() {
 		_ = resp.Body.Close()
 	}()
