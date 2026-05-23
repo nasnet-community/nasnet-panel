@@ -2,6 +2,14 @@ import { Plus } from 'lucide-react';
 import { Badge, Button, CardDescription, CardHeader, CardTitle, Input } from '@nasnet/ui';
 import styles from '../../VPNPage.module.scss';
 
+interface Action {
+  label: string;
+  disabled?: boolean;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
+  showPlus?: boolean;
+}
+
 interface Props {
   title: string;
   count?: number;
@@ -12,14 +20,12 @@ interface Props {
     ariaLabel: string;
     onChange: (value: string) => void;
   };
-  action?: {
-    label: string;
-    disabled?: boolean;
-    onClick: () => void;
-  };
+  action?: Action;
+  extraActions?: Action[];
 }
 
-export function SectionHeader({ title, count, description, search, action }: Props) {
+export function SectionHeader({ title, count, description, search, action, extraActions }: Props) {
+  const actions = [...(extraActions ?? []), ...(action ? [action] : [])];
   return (
     <CardHeader className={styles.sectionHeader}>
       <div>
@@ -44,11 +50,16 @@ export function SectionHeader({ title, count, description, search, action }: Pro
             aria-label={search.ariaLabel}
           />
         ) : null}
-        {action ? (
-          <Button variant="success" onClick={action.onClick} disabled={action.disabled}>
-            <Plus size={14} aria-hidden /> {action.label}
+        {actions.map((a, i) => (
+          <Button
+            key={`${a.label}-${i}`}
+            variant={a.variant ?? (a === action ? 'success' : 'secondary')}
+            onClick={a.onClick}
+            disabled={a.disabled}
+          >
+            {a.showPlus !== false && a === action ? <Plus size={14} aria-hidden /> : null} {a.label}
           </Button>
-        ) : null}
+        ))}
       </div>
     </CardHeader>
   );

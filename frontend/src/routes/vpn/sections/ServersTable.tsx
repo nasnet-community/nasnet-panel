@@ -1,14 +1,27 @@
-import { Badge, DataTable } from '@nasnet/ui';
-import { Server as ServerIcon } from 'lucide-react';
+import { Badge, Button, DataTable } from '@nasnet/ui';
+import { Pencil, Server as ServerIcon, Trash2 } from 'lucide-react';
 import type { VPNServer } from '../../../api';
 
 interface Props {
   rows: VPNServer[];
   totalRows: number;
   onRowClick?: (server: VPNServer) => void;
+  onEdit?: (server: VPNServer) => void;
+  onDelete?: (server: VPNServer) => void;
+  canMutate?: boolean;
 }
 
-export function ServersTable({ rows, totalRows, onRowClick }: Props) {
+const isDeletable = (s: VPNServer) => s.protocol === 'openvpn' || s.protocol === 'wireguard';
+const isEditable = (s: VPNServer) => s.protocol === 'wireguard';
+
+export function ServersTable({
+  rows,
+  totalRows,
+  onRowClick,
+  onEdit,
+  onDelete,
+  canMutate = false,
+}: Props) {
   return (
     <DataTable
       columns={[
@@ -46,6 +59,50 @@ export function ServersTable({ rows, totalRows, onRowClick }: Props) {
             if (s.remoteIp && s.ipPool) return `${s.remoteIp} (${s.ipPool})`;
             return s.remoteIp || s.ipPool;
           },
+        },
+        {
+          key: 'actions',
+          header: 'Actions',
+          render: (s: VPNServer) => {
+            const editable = isEditable(s);
+            const deletable = isDeletable(s);
+            if (!editable && !deletable) return null;
+            return (
+              <span style={{ display: 'inline-flex', gap: 8 }}>
+                {editable && onEdit ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={!canMutate}
+                    title={`Edit ${s.name}`}
+                    aria-label={`Edit ${s.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(s);
+                    }}
+                  >
+                    <Pencil size={14} aria-hidden />
+                  </Button>
+                ) : null}
+                {deletable && onDelete ? (
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={!canMutate}
+                    title={`Delete ${s.name}`}
+                    aria-label={`Delete ${s.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(s);
+                    }}
+                  >
+                    <Trash2 size={14} aria-hidden />
+                  </Button>
+                ) : null}
+              </span>
+            );
+          },
+          width: '120px',
         },
       ]}
       rows={rows}

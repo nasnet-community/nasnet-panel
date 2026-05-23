@@ -82,7 +82,7 @@ export function VPNPage() {
         loading={!loaded}
       />
       <ClientsSection creds={creds} clients={clients} onChanged={reload} />
-      <ServersSection creds={creds} servers={servers} />
+      <ServersSection creds={creds} servers={servers} onChanged={reload} />
       {/* <PeersSection routerId={id} peers={peers} servers={servers} onChanged={reload} /> */}
     </Stack>
   );

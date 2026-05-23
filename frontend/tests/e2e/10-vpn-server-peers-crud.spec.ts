@@ -58,7 +58,7 @@ test.describe('VPN servers tab', () => {
       });
     });
 
-    await context.route('**/api/vpn/pptp-server', async (route) => {
+    await context.route('**/api/vpn/pptp/server', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
