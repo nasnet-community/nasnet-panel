@@ -97,7 +97,6 @@ type PptpServerInfo struct {
 	Authentication   string
 	KeepaliveTimeout int
 	DefaultProfile   string
-	Comment          string
 }
 
 // L2tpServerInfo represents the L2TP server configuration (single instance).
@@ -121,7 +120,6 @@ type L2tpServerInfo struct {
 	L2TPv3DigestHash     string
 	AcceptPseudowireType string
 	AcceptProtoVersion   string
-	Comment              string
 }
 
 // SstpServerInfo represents the SSTP server configuration (single instance).
@@ -140,7 +138,6 @@ type SstpServerInfo struct {
 	PFS                     string
 	TLSVersion              string
 	Ciphers                 string
-	Comment                 string
 }
 
 // WireGuardInfo represents a WireGuard interface configuration.
@@ -173,12 +170,14 @@ type L2TPProfileInfo struct {
 	OnlyOne         string
 	ChangeTCPMSS    string
 	IPPool          string
+	Comment         string
 }
 
 // L2TPSecret represents an L2TP user secret (username/password).
 type L2TPSecret struct {
 	Name     string
 	Password string
+	Comment  string
 }
 
 // L2TPIPPool represents an L2TP IP pool.
@@ -264,6 +263,7 @@ type WireGuardPeerInfo struct {
 	TxBytes                int64
 	Dynamic                bool
 	Disabled               bool
+	Comment                string
 }
 
 // PingResult represents the result of a ping operation.
@@ -577,7 +577,6 @@ func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificat
 		"=certificate=" + certificate,
 		"=auth=" + auth,
 		"=cipher=" + cipher,
-		"=cipher=" + cipher,
 		"=redirect-gateway=def1",
 		"=disabled=no",
 	}
@@ -644,7 +643,6 @@ func (c *Client) GetPptpServer() (*PptpServerInfo, error) {
 		Authentication:   result["authentication"],
 		KeepaliveTimeout: keepaliveTimeout,
 		DefaultProfile:   result["default-profile"],
-		Comment:          result["comment"],
 	}, nil
 }
 
@@ -680,7 +678,6 @@ func (c *Client) GetL2tpServer() (*L2tpServerInfo, error) {
 		L2TPv3DigestHash:     result["l2tpv3-digest-hash"],
 		AcceptPseudowireType: result["accept-pseudowire-type"],
 		AcceptProtoVersion:   result["accept-proto-version"],
-		Comment:              result["comment"],
 	}, nil
 }
 
@@ -711,7 +708,6 @@ func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 		PFS:                     result["pfs"],
 		TLSVersion:              result["tls-version"],
 		Ciphers:                 result["ciphers"],
-		Comment:                 result["comment"],
 	}, nil
 }
 
@@ -781,6 +777,7 @@ func (c *Client) GetL2TPProfile(profileName string) (*L2TPProfileInfo, error) {
 		OnlyOne:         result["only-one"],
 		ChangeTCPMSS:    result["change-tcp-mss"],
 		IPPool:          result["pool"],
+		Comment:         result["comment"],
 	}, nil
 }
 
@@ -796,6 +793,7 @@ func (c *Client) GetL2TPSecretsForProfile(profileName string) ([]L2TPSecret, err
 		secrets = append(secrets, L2TPSecret{
 			Name:     result["name"],
 			Password: result["password"],
+			Comment:  result["comment"],
 		})
 	}
 
@@ -945,7 +943,7 @@ func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ips
 		args = append(args, "=ipsec-secret="+ipsecSecret)
 	}
 
-	_, err := c.Add("/interface/l2tp/client", args...)
+	_, err := c.Add("/interface/l2tp-client", args...)
 	if err != nil {
 		return fmt.Errorf("failed to add L2TP client %s: %w", name, err)
 	}
@@ -992,7 +990,7 @@ func (c *Client) UpdateL2TPClient(nameOrID string, connectTo, user, password *st
 		return nil
 	}
 
-	_, err = c.Set("/interface/l2tp/client", args...)
+	_, err = c.Set("/interface/l2tp-client", args...)
 	if err != nil {
 		return fmt.Errorf("failed to update L2TP client %s: %w", nameOrID, err)
 	}
@@ -1008,7 +1006,7 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 		return fmt.Errorf("L2TP client not found: %w", err)
 	}
 
-	_, err = c.Remove("/interface/l2tp/client", "=.id="+vpnClient.ID)
+	_, err = c.Remove("/interface/l2tp-client", "=.id="+vpnClient.ID)
 	if err != nil {
 		return fmt.Errorf("failed to remove L2TP client %s: %w", nameOrID, err)
 	}
@@ -1018,7 +1016,7 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 
 // GetL2TPClientInfo retrieves detailed information about an L2TP client.
 func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
-	result, err := c.GetFirst("/interface/l2tp/client", "?=name="+name)
+	result, err := c.GetFirst("/interface/l2tp-client", "?=name="+name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get L2TP client %s: %w", name, err)
 	}
@@ -1055,7 +1053,7 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 	}
 
 	// Get monitor data
-	monitorReply, err := c.Execute("/interface/l2tp/client/monitor", "=once=yes", "=.id="+result[".id"])
+	monitorReply, err := c.Execute("/interface/l2tp-client/monitor", "=once=yes", "=.id="+result[".id"])
 	if err == nil && monitorReply != nil && len(monitorReply.Re) > 0 {
 		monitor := monitorReply.Re[0].Map
 		mtu, _ := strconv.Atoi(monitor["mtu"])
@@ -1221,6 +1219,7 @@ func (c *Client) GetWireGuardPeers(interfaceName string) ([]WireGuardPeerInfo, e
 			TxBytes:                txBytes,
 			Dynamic:                dynamic,
 			Disabled:               disabled,
+			Comment:                result["comment"],
 		})
 	}
 
