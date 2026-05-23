@@ -106,4 +106,5 @@ func RegisterRoutes(e *echo.Echo) {
 	wizardGroup := e.Group("/api/wizard")
 	wizardGroup.Use(middleware.RouterOSAuth)
 	wizardGroup.POST("/vpn", handler.HandleGetVPNCredentials)
+	wizardGroup.PUT("/status", handler.HandleUpdateWizardStatus)
 }

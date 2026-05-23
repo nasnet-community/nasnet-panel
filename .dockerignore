@@ -16,6 +16,7 @@ backend/internal/web/dist/*
 !backend/internal/web/dist/index.html
 backend/bin
 backend/tmp
+backend/docs/*
 backend/nasnet-panel
 
 apps

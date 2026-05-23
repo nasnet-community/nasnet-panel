@@ -1,4 +1,5 @@
-import { apiRequest } from './http';
+import { BACKEND_URL } from './config';
+import { ApiError, apiRequest } from './http';
 
 export interface VPNCredentials {
   host: string;
@@ -191,6 +192,200 @@ export interface WireguardServerDetailsResponse {
   enabled: boolean;
 }
 
+export interface VpnUser {
+  username: string;
+  password: string;
+}
+
+export interface CreateOvpnServerRequest {
+  clientCertificatePassword: string;
+  users: VpnUser[];
+}
+
+export interface CreateOvpnServerResponse {
+  taskId: string;
+  status: string;
+}
+
+export interface OvpnServerTaskStatus {
+  taskId: string;
+  status: 'running' | 'completed' | 'error';
+  progress: number;
+  currentStep: string;
+  startTime: number;
+  completedTime?: number;
+  error?: string;
+  result?: Record<string, unknown>;
+}
+
+export interface CreateWireguardServerRequest {
+  name: string;
+  localAddress?: string;
+  mtu?: number;
+  listenPort?: number;
+  privateKey?: string;
+  disabled?: boolean;
+  comment?: string;
+}
+
+export interface CreateWireguardServerResponse {
+  id: string;
+  name: string;
+  localAddress: string;
+  mtu: number;
+  listenPort: number;
+  publicKey: string;
+  privateKey: string;
+  disabled: boolean;
+  comment: string;
+}
+
+export interface UpdateWireguardInterfaceRequest {
+  disabled?: boolean;
+  comment?: string;
+  mtu?: number;
+  listenPort?: number;
+  privateKey?: string;
+}
+
+export interface WireguardPeerResponse {
+  id: string;
+  name: string;
+  interfaceName: string;
+  publicKey: string;
+  privateKey?: string;
+  endpointAddress: string;
+  endpointPort: number;
+  currentEndpointAddress: string;
+  currentEndpointPort: number;
+  allowedAddresses: string;
+  preSharedKey?: string;
+  persistentKeepalive: string;
+  clientEndpoint?: string;
+  clientAllowedAddress?: string;
+  lastHandshake: string;
+  rxBytes: number;
+  txBytes: number;
+  rx: string;
+  tx: string;
+  dynamic: boolean;
+  disabled: boolean;
+}
+
+export interface WireguardDetailedResponse {
+  id: string;
+  name: string;
+  running: boolean;
+  disabled: boolean;
+  mtu: number;
+  macAddress: string;
+  publicKey: string;
+  privateKey: string;
+  listenPort: number;
+  comment: string;
+  peers: WireguardPeerResponse[];
+}
+
+export interface CreateWireguardPeerRequest {
+  interfaceName: string;
+  name?: string;
+  endpointAddress: string;
+  endpointPort: number;
+  allowedAddresses: string;
+  privateKey?: string;
+  publicKey?: string;
+  preSharedKey?: string;
+  persistentKeepalive?: number;
+  savePrivateKey?: boolean;
+  disabled?: boolean;
+  clientEndpoint?: string;
+  clientAddress?: string;
+  clientKeepalive?: number;
+  clientAllowedAddress?: string;
+  clientListenPort?: number;
+  clientDNS?: string;
+  comment?: string;
+  responder?: boolean;
+}
+
+export interface CreateWireguardPeerResponse {
+  name: string;
+  interfaceName: string;
+  publicKey: string;
+  privateKey: string;
+  preSharedKey: string;
+  endpointAddress: string;
+  endpointPort: number;
+  allowedAddresses: string;
+  persistentKeepalive: number;
+  disabled: boolean;
+}
+
+export interface UpdateWireguardPeerRequest {
+  name?: string;
+  endpointAddress?: string;
+  endpointPort?: number;
+  allowedAddresses?: string;
+  privateKey?: string;
+  publicKey?: string;
+  preSharedKey?: string;
+  persistentKeepalive?: number;
+  disabled?: boolean;
+  clientEndpoint?: string;
+  clientAddress?: string;
+  clientKeepalive?: number;
+  clientAllowedAddress?: string;
+  clientListenPort?: number;
+  clientDNS?: string;
+  comment?: string;
+  responder?: boolean;
+}
+
+export interface CreateWireguardClientRequest {
+  name: string;
+  interfaceLocalAddress: string;
+  endpointIP: string;
+  endpointPort: number;
+  allowedAddress: string;
+  mtu?: number;
+  listenPort?: number;
+  interfacePrivateKey?: string;
+  disabled?: boolean;
+  comment?: string;
+  peerPublicKey?: string;
+  peerPrivateKey?: string;
+  presharedKey?: string;
+  persistentKeepalive?: number;
+}
+
+export interface CreateWireguardClientResponse {
+  id: string;
+  name: string;
+  mtu: number;
+  listenPort: number;
+  interfacePrivateKey: string;
+  interfacePublicKey: string;
+  interfaceLocalAddress: string;
+  disabled: boolean;
+  peerName: string;
+  peerPublicKey: string;
+  peerPrivateKey: string;
+  endpointIP: string;
+  endpointPort: number;
+  allowedAddress: string;
+}
+
+export interface ImportWireguardConfigRequest {
+  interfaceName: string;
+  config: string;
+}
+
+export interface ImportWireguardConfigResponse {
+  interfaceName: string;
+  interfaceIP: string;
+  peerName: string;
+}
+
 function authHeaders({ host, username, password }: VPNCredentials): Record<string, string> {
   return {
     Authorization: `Basic ${btoa(`${username}:${password}`)}`,
@@ -230,7 +425,7 @@ export async function addL2TPClient(
   body: AddL2TPClientRequest,
   signal?: AbortSignal,
 ): Promise<VPNClientResponse> {
-  return apiRequest<VPNClientResponse>('/api/vpn/l2tp-client', {
+  return apiRequest<VPNClientResponse>('/api/vpn/l2tp/client', {
     method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
@@ -243,7 +438,7 @@ export async function fetchL2TPClientDetails(
   name: string,
   signal?: AbortSignal,
 ): Promise<L2TPClientDetailsResponse> {
-  return apiRequest<L2TPClientDetailsResponse>(`/api/vpn/l2tp-client/${encodeURIComponent(name)}`, {
+  return apiRequest<L2TPClientDetailsResponse>(`/api/vpn/l2tp/client/${encodeURIComponent(name)}`, {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
@@ -257,7 +452,7 @@ export async function updateL2TPClient(
   body: UpdateL2TPClientRequest,
   signal?: AbortSignal,
 ): Promise<VPNClientResponse> {
-  return apiRequest<VPNClientResponse>(`/api/vpn/l2tp-client/${encodeURIComponent(nameOrID)}`, {
+  return apiRequest<VPNClientResponse>(`/api/vpn/l2tp/client/${encodeURIComponent(nameOrID)}`, {
     method: 'PUT',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
@@ -270,7 +465,7 @@ export async function deleteL2TPClient(
   nameOrID: string,
   signal?: AbortSignal,
 ): Promise<void> {
-  await apiRequest<void>(`/api/vpn/l2tp-client/${encodeURIComponent(nameOrID)}`, {
+  await apiRequest<void>(`/api/vpn/l2tp/client/${encodeURIComponent(nameOrID)}`, {
     method: 'DELETE',
     headers: authHeaders(creds),
     cache: 'no-store',
@@ -304,7 +499,7 @@ export async function fetchOvpnServerDetails(
   name: string,
   signal?: AbortSignal,
 ): Promise<OvpnServerDetailsResponse> {
-  return apiRequest<OvpnServerDetailsResponse>(`/api/vpn/ovpn-server/${encodeURIComponent(name)}`, {
+  return apiRequest<OvpnServerDetailsResponse>(`/api/vpn/ovpn/server/${encodeURIComponent(name)}`, {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
@@ -316,7 +511,7 @@ export async function fetchPptpServerDetails(
   creds: VPNCredentials,
   signal?: AbortSignal,
 ): Promise<PptpServerDetailsResponse> {
-  return apiRequest<PptpServerDetailsResponse>('/api/vpn/pptp-server', {
+  return apiRequest<PptpServerDetailsResponse>('/api/vpn/pptp/server', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
@@ -328,7 +523,7 @@ export async function fetchL2tpServerDetails(
   creds: VPNCredentials,
   signal?: AbortSignal,
 ): Promise<L2tpServerDetailsResponse> {
-  return apiRequest<L2tpServerDetailsResponse>('/api/vpn/l2tp-server', {
+  return apiRequest<L2tpServerDetailsResponse>('/api/vpn/l2tp/server', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
@@ -340,7 +535,7 @@ export async function fetchSstpServerDetails(
   creds: VPNCredentials,
   signal?: AbortSignal,
 ): Promise<SstpServerDetailsResponse> {
-  return apiRequest<SstpServerDetailsResponse>('/api/vpn/sstp-server', {
+  return apiRequest<SstpServerDetailsResponse>('/api/vpn/sstp/server', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
@@ -354,7 +549,7 @@ export async function fetchWireguardServerDetails(
   signal?: AbortSignal,
 ): Promise<WireguardServerDetailsResponse> {
   return apiRequest<WireguardServerDetailsResponse>(
-    `/api/vpn/wireguard-server/${encodeURIComponent(name)}`,
+    `/api/vpn/wireguard/interface/${encodeURIComponent(name)}`,
     {
       method: 'GET',
       headers: authHeaders(creds),
@@ -362,4 +557,226 @@ export async function fetchWireguardServerDetails(
       signal,
     },
   );
+}
+
+export async function createOvpnServer(
+  creds: VPNCredentials,
+  body: CreateOvpnServerRequest,
+  signal?: AbortSignal,
+): Promise<CreateOvpnServerResponse> {
+  return apiRequest<CreateOvpnServerResponse>('/api/vpn/ovpn/server', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function fetchOvpnServerTaskStatus(
+  creds: VPNCredentials,
+  taskId: string,
+  signal?: AbortSignal,
+): Promise<OvpnServerTaskStatus> {
+  return apiRequest<OvpnServerTaskStatus>(
+    `/api/vpn/ovpn/server/status/${encodeURIComponent(taskId)}`,
+    {
+      method: 'GET',
+      headers: authHeaders(creds),
+      cache: 'no-store',
+      signal,
+    },
+  );
+}
+
+export async function deleteOvpnServer(
+  creds: VPNCredentials,
+  name: string,
+  deleteCertificateFiles = false,
+  signal?: AbortSignal,
+): Promise<void> {
+  const query = deleteCertificateFiles ? '?deleteCertificateFiles=true' : '';
+  await apiRequest<void>(`/api/vpn/ovpn/server/${encodeURIComponent(name)}${query}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
+
+export async function createWireguardServer(
+  creds: VPNCredentials,
+  body: CreateWireguardServerRequest,
+  signal?: AbortSignal,
+): Promise<CreateWireguardServerResponse> {
+  return apiRequest<CreateWireguardServerResponse>('/api/vpn/wireguard/server', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function updateWireguardInterface(
+  creds: VPNCredentials,
+  nameOrID: string,
+  body: UpdateWireguardInterfaceRequest,
+  signal?: AbortSignal,
+): Promise<WireguardServerDetailsResponse> {
+  return apiRequest<WireguardServerDetailsResponse>(
+    `/api/vpn/wireguard/interface/${encodeURIComponent(nameOrID)}`,
+    {
+      method: 'PUT',
+      headers: authHeaders(creds),
+      body: JSON.stringify(body),
+      signal,
+    },
+  );
+}
+
+export async function deleteWireguardInterface(
+  creds: VPNCredentials,
+  nameOrID: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest<void>(`/api/vpn/wireguard/interface/${encodeURIComponent(nameOrID)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
+
+export async function fetchWireguardDetailed(
+  creds: VPNCredentials,
+  nameOrID: string,
+  signal?: AbortSignal,
+): Promise<WireguardDetailedResponse> {
+  return apiRequest<WireguardDetailedResponse>(
+    `/api/vpn/wireguard/detailed/${encodeURIComponent(nameOrID)}`,
+    {
+      method: 'GET',
+      headers: authHeaders(creds),
+      cache: 'no-store',
+      signal,
+    },
+  );
+}
+
+export async function fetchWireguardPeers(
+  creds: VPNCredentials,
+  interfaceName: string,
+  signal?: AbortSignal,
+): Promise<WireguardPeerResponse[]> {
+  const data = await apiRequest<WireguardPeerResponse[] | null>(
+    `/api/vpn/wireguard/peers/${encodeURIComponent(interfaceName)}`,
+    {
+      method: 'GET',
+      headers: authHeaders(creds),
+      cache: 'no-store',
+      signal,
+    },
+  );
+  return data ?? [];
+}
+
+export async function createWireguardPeer(
+  creds: VPNCredentials,
+  body: CreateWireguardPeerRequest,
+  signal?: AbortSignal,
+): Promise<CreateWireguardPeerResponse> {
+  return apiRequest<CreateWireguardPeerResponse>('/api/vpn/wireguard/peer', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function updateWireguardPeer(
+  creds: VPNCredentials,
+  nameOrID: string,
+  body: UpdateWireguardPeerRequest,
+  signal?: AbortSignal,
+): Promise<WireguardPeerResponse | null> {
+  return apiRequest<WireguardPeerResponse | null>(
+    `/api/vpn/wireguard/peer/${encodeURIComponent(nameOrID)}`,
+    {
+      method: 'PUT',
+      headers: authHeaders(creds),
+      body: JSON.stringify(body),
+      signal,
+    },
+  );
+}
+
+export async function deleteWireguardPeer(
+  creds: VPNCredentials,
+  nameOrID: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest<void>(`/api/vpn/wireguard/peer/${encodeURIComponent(nameOrID)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
+
+export async function createWireguardClient(
+  creds: VPNCredentials,
+  body: CreateWireguardClientRequest,
+  signal?: AbortSignal,
+): Promise<CreateWireguardClientResponse> {
+  return apiRequest<CreateWireguardClientResponse>('/api/vpn/wireguard/client', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function importWireguardConfig(
+  creds: VPNCredentials,
+  body: ImportWireguardConfigRequest,
+  signal?: AbortSignal,
+): Promise<ImportWireguardConfigResponse> {
+  return apiRequest<ImportWireguardConfigResponse>('/api/vpn/wireguard/import-config', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function exportOvpnClient(
+  creds: VPNCredentials,
+  serverName: string,
+  publicAddress: string,
+  signal?: AbortSignal,
+): Promise<{ filename: string; content: string }> {
+  const params = new URLSearchParams({ name: serverName, publicAddress });
+  const url = `${BACKEND_URL}/api/vpn/ovpn/server/export?${params.toString()}`;
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: { ...authHeaders(creds), Accept: 'application/x-openvpn-profile, text/plain' },
+    cache: 'no-store',
+    signal,
+  });
+  if (!response.ok) {
+    let message = `Request failed (${response.status})`;
+    try {
+      const body = (await response.json()) as { error?: string; message?: string };
+      message = body.error || body.message || message;
+    } catch {
+      // body wasn't JSON; keep default message
+    }
+    throw new ApiError(message, response.status);
+  }
+  const content = await response.text();
+  const filename =
+    parseFilename(response.headers.get('Content-Disposition')) ?? `${serverName}.ovpn`;
+  return { filename, content };
+}
+
+function parseFilename(disposition: string | null): string | null {
+  if (!disposition) return null;
+  const match = disposition.match(/filename\s*=\s*"?([^";]+)"?/i);
+  return match ? match[1] : null;
 }

@@ -79,7 +79,7 @@ type L2TPClientResponse struct {
 	L2TPProtoVersion string `json:"l2tpProtoVersion"`
 	L2TPv3DigestHash string `json:"l2tpv3DigestHash"`
 	AddRoutes        bool   `json:"addRoutes"`
-	Comment          string `json:"comment"`
+	Comment          string `json:"comment,omitempty"`
 	// Monitor data
 	Status            string `json:"status"`
 	Uptime            string `json:"uptime"`
@@ -136,6 +136,7 @@ type OvpnServerDetailsResponse struct {
 	Cipher                   string `json:"cipher"`
 	UserAuthMethod           string `json:"userAuthMethod"`
 	Enabled                  bool   `json:"enabled"`
+	Comment                  string `json:"comment,omitempty"`
 }
 
 // PptpServerDetailsResponse represents PPTP server configuration details.
@@ -283,7 +284,7 @@ type CreateWireGuardServerRequest struct {
 	ListenPort   *int    `json:"listenPort" example:"51820"`
 	PrivateKey   *string `json:"privateKey" example:"KIEp..."`
 	Disabled     *bool   `json:"disabled" example:"false"`
-	Comment      *string `json:"comment" example:"Office VPN server"`
+	Comment      *string `json:"comment,omitempty" example:"Office VPN server"`
 }
 
 // WireGuardServerCreateResponse represents the response after creating a WireGuard server.
@@ -296,7 +297,7 @@ type WireGuardServerCreateResponse struct {
 	PublicKey    string `json:"publicKey"`
 	PrivateKey   string `json:"privateKey"`
 	Disabled     bool   `json:"disabled"`
-	Comment      string `json:"comment"`
+	Comment      string `json:"comment,omitempty"`
 }
 
 // UpdateWireGuardInterfaceRequest represents a request to update a WireGuard interface.
@@ -365,7 +366,7 @@ type WireGuardDetailedResponse struct {
 	PublicKey  string                  `json:"publicKey"`
 	PrivateKey string                  `json:"privateKey"`
 	ListenPort int                     `json:"listenPort"`
-	Comment    string                  `json:"comment"`
+	Comment    string                  `json:"comment,omitempty"`
 	Peers      []WireGuardPeerResponse `json:"peers"`
 }
 

@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { Card, Stack } from '@nasnet/ui';
-import type { VPNCredentials, VPNServer } from '../../../api';
-// import { useToast } from '@nasnet/ui';
-// import { api, type VPNProtocol } from '../../../api';
-// import { ServerFormDialog } from '../dialogs/ServerFormDialog';
+import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
+import {
+  ApiError,
+  deleteOvpnServer,
+  deleteWireguardInterface,
+  type VPNCredentials,
+  type VPNServer,
+} from '../../../api';
+import { AddVpnServerDialog } from '../dialogs/AddVpnServerDialog';
+import { EditWgInterfaceDialog } from '../dialogs/EditWgInterfaceDialog';
 import { ServerDetailsDialog } from '../dialogs/ServerDetailsDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
@@ -21,29 +26,54 @@ const matches = (s: VPNServer, q: string) =>
 interface Props {
   creds: VPNCredentials | null;
   servers: VPNServer[];
+  onChanged: () => void;
 }
 
-export function ServersSection({ creds, servers }: Props) {
+export function ServersSection({ creds, servers, onChanged }: Props) {
   const paged = usePagedFilter(servers, matches);
+  const toast = useToast();
   const [selected, setSelected] = useState<VPNServer | null>(null);
-  // Add server is hidden until the backend exposes a server-create endpoint.
-  // const [editing, setEditing] = useState<Partial<VPNServer> | null>(null);
-  // const toast = useToast();
+  const [adding, setAdding] = useState(false);
+  const [editingWg, setEditingWg] = useState<VPNServer | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<VPNServer | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
-  // const save = async (draft: Partial<VPNServer>) => {
-  //   await api.vpn.createServer({
-  //     routerId,
-  //     name: draft.name ?? 'new-server',
-  //     protocol: (draft.protocol ?? 'wireguard') as VPNProtocol,
-  //     listenPort: draft.listenPort ?? 51820,
-  //     ipPool: draft.ipPool ?? '10.8.0.0/24',
-  //     dns: draft.dns,
-  //     running: true,
-  //   });
-  //   setEditing(null);
-  //   onChanged();
-  //   toast.notify({ title: 'Server created', tone: 'success' });
-  // };
+  const onCreated = () => {
+    toast.notify({ title: 'VPN server created', tone: 'success' });
+    setAdding(false);
+    onChanged();
+  };
+
+  const onConfirmDelete = async () => {
+    if (!creds || !pendingDelete) return;
+    const target = pendingDelete;
+    setDeleteSubmitting(true);
+    try {
+      if (target.protocol === 'openvpn') {
+        await deleteOvpnServer(creds, target.name);
+      } else if (target.protocol === 'wireguard') {
+        await deleteWireguardInterface(creds, target.name);
+      }
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to delete VPN server.';
+      toast.notify({
+        title: 'Failed to delete server',
+        description: message,
+        tone: 'danger',
+      });
+      setDeleteSubmitting(false);
+      return;
+    }
+    setDeleteSubmitting(false);
+    setPendingDelete(null);
+    toast.notify({ title: `Server "${target.name}" deleted`, tone: 'info' });
+    onChanged();
+  };
 
   return (
     <Stack>
@@ -58,16 +88,20 @@ export function ServersSection({ creds, servers }: Props) {
             ariaLabel: 'Search servers',
             onChange: paged.setSearch,
           }}
-          // action={{
-          //   label: 'Add server',
-          //   onClick: () => setEditing({ protocol: 'wireguard', listenPort: 51820 }),
-          // }}
+          action={{
+            label: 'Add server',
+            disabled: !creds,
+            onClick: () => setAdding(true),
+          }}
         />
         <div style={{ marginTop: 16 }}>
           <ServersTable
             rows={paged.pagedRows}
             totalRows={servers.length}
             onRowClick={setSelected}
+            onEdit={(s) => setEditingWg(s)}
+            onDelete={(s) => setPendingDelete(s)}
+            canMutate={!!creds}
           />
           <PaginationControls
             page={paged.page}
@@ -79,10 +113,39 @@ export function ServersSection({ creds, servers }: Props) {
           />
         </div>
       </Card>
-      {/* {editing ? (
-        <ServerFormDialog value={editing} onCancel={() => setEditing(null)} onSave={save} />
-      ) : null} */}
+      {adding ? (
+        <AddVpnServerDialog creds={creds} onCancel={() => setAdding(false)} onCreated={onCreated} />
+      ) : null}
+      {editingWg && editingWg.protocol === 'wireguard' ? (
+        <EditWgInterfaceDialog
+          creds={creds}
+          server={editingWg}
+          onCancel={() => setEditingWg(null)}
+          onSaved={() => {
+            setEditingWg(null);
+            toast.notify({ title: 'WireGuard server updated', tone: 'success' });
+            onChanged();
+          }}
+        />
+      ) : null}
       <ServerDetailsDialog server={selected} creds={creds} onClose={() => setSelected(null)} />
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete VPN server"
+        description={
+          pendingDelete
+            ? `Remove "${pendingDelete.name}" from this router? ${
+                pendingDelete.protocol === 'openvpn'
+                  ? 'Associated users, IP pool, profile and certificates will also be removed.'
+                  : 'Associated peers and IP address will also be removed.'
+              } This cannot be undone.`
+            : undefined
+        }
+        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
+        destructive
+        onConfirm={onConfirmDelete}
+        onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+      />
     </Stack>
   );
 }
