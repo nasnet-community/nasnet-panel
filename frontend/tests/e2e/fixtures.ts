@@ -20,8 +20,10 @@ export interface OverviewBackendInterface {
   type?: string;
   running?: boolean;
   disabled?: boolean;
-  speed?: string;
   comment?: string;
+  rx?: string;
+  tx?: string;
+  actualMtu?: number;
 }
 
 export interface OverviewBackendIpAddress {
@@ -220,14 +222,17 @@ export const test = base.extend<TestFixtures>({
       const defaultInterfaces: OverviewBackendInterface[] = [
         ...Array.from({ length: ethCount }, (_, i) => {
           const n = i + 1;
+          const isUp = n !== 5 && n !== 3;
           return {
             id: `*${n}`,
             name: `ether${n}`,
             type: 'ether',
             running: n !== 5,
             disabled: n === 3,
-            speed: n === 8 ? '2.5Gbps' : '1Gbps',
             comment: n === 1 ? 'WAN uplink' : undefined,
+            rx: isUp ? '100 MB' : undefined,
+            tx: isUp ? '50 MB' : undefined,
+            actualMtu: 1500,
           } as OverviewBackendInterface;
         }),
         ...(hasSfp
@@ -238,7 +243,9 @@ export const test = base.extend<TestFixtures>({
                 type: 'ether',
                 running: true,
                 disabled: false,
-                speed: '10Gbps',
+                rx: '1 GB',
+                tx: '500 MB',
+                actualMtu: 1500,
               } as OverviewBackendInterface,
             ]
           : []),
@@ -250,8 +257,10 @@ export const test = base.extend<TestFixtures>({
         type: i.type ?? 'ether',
         running: i.running ?? true,
         disabled: i.disabled ?? false,
-        speed: i.speed,
         comment: i.comment,
+        rx: i.rx,
+        tx: i.tx,
+        actualMtu: i.actualMtu,
       }));
       const addresses = router.addresses ?? [
         { id: '*1', address: '100.64.0.2/24', interface: 'ether1', dynamic: true, disabled: false },
@@ -328,7 +337,7 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
-      await context.route('**/api/interfaces', async (route) => {
+      await context.route('**/api/interface/interfaces', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -336,11 +345,21 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
-      await context.route('**/api/ip/addresses', async (route) => {
+      const dhcpClients = addresses.map((a) => ({
+        id: a.id ?? `*${a.interface}`,
+        interface: a.interface,
+        status: 'bound',
+        address: a.address,
+        usePeerDns: true,
+        usePeerNtp: false,
+        disabled: a.disabled ?? false,
+      }));
+
+      await context.route('**/api/dhcp/clients', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope(addresses),
+          body: envelope(dhcpClients),
         });
       });
 
