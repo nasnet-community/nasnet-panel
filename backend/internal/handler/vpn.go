@@ -612,6 +612,7 @@ func HandleGetOvpnServerDetails(c echo.Context) error {
 		Cipher:                   ovpnServer.CipherName,
 		UserAuthMethod:           ovpnServer.UserAuthMethod,
 		Enabled:                  !ovpnServer.Disabled,
+		Comment:                  ovpnServer.Comment,
 	}
 
 	return SuccessResponse(c, http.StatusOK, "OpenVPN server details retrieved successfully", response)
