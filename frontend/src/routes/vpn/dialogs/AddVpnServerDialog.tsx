@@ -112,7 +112,9 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
         if (cancelled) return;
         setProgress(status);
         if (status.status === 'running') {
-          timeoutId = window.setTimeout(() => void tick(), POLL_INTERVAL_MS);
+          timeoutId = window.setTimeout(() => {
+            tick().catch(() => undefined);
+          }, POLL_INTERVAL_MS);
         } else if (status.status === 'completed') {
           onCreatedRef.current();
         } else if (status.status === 'error') {
@@ -126,7 +128,7 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
       }
     };
 
-    void tick();
+    tick().catch(() => undefined);
     return () => {
       cancelled = true;
       if (timeoutId !== null) window.clearTimeout(timeoutId);
