@@ -164,7 +164,7 @@ export function ClientsTable({
           key: 'actions',
           header: 'Actions',
           render: (c: VPNClient) => {
-            if (c.protocol !== 'l2tp') return null;
+            if (c.protocol !== 'l2tp' && c.protocol !== 'wireguard') return null;
             return (
               <span style={{ display: 'inline-flex', gap: 8 }}>
                 <Button

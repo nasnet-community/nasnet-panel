@@ -238,7 +238,7 @@ test.describe('VPN clients tab', () => {
       ipsecSecret?: string;
       disabled?: boolean;
     } | null = null;
-    await context.route('**/api/vpn/l2tp-client', async (route) => {
+    await context.route('**/api/vpn/l2tp/client', async (route) => {
       if (route.request().method() !== 'POST') return route.fallback();
       lastPostBody = route.request().postDataJSON() as typeof lastPostBody;
       await route.fulfill({
@@ -323,7 +323,7 @@ test.describe('VPN clients tab', () => {
       });
     });
 
-    await context.route('**/api/vpn/l2tp-client/home-l2tp', async (route) => {
+    await context.route('**/api/vpn/l2tp/client/home-l2tp', async (route) => {
       if (route.request().method() === 'GET') {
         await route.fulfill({
           status: 200,
@@ -354,7 +354,7 @@ test.describe('VPN clients tab', () => {
       disabled?: boolean;
       ipsecSecret?: string;
     } | null = null;
-    await context.route('**/api/vpn/l2tp-client/*1', async (route) => {
+    await context.route('**/api/vpn/l2tp/client/*1', async (route) => {
       if (route.request().method() === 'PUT') {
         lastPutBody = route.request().postDataJSON() as typeof lastPutBody;
         await route.fulfill({
@@ -433,7 +433,7 @@ test.describe('VPN clients tab', () => {
         }),
       });
     });
-    await context.route('**/api/vpn/l2tp-client/home-l2tp', async (route) => {
+    await context.route('**/api/vpn/l2tp/client/home-l2tp', async (route) => {
       if (route.request().method() === 'GET') {
         await route.fulfill({
           status: 200,
@@ -458,7 +458,7 @@ test.describe('VPN clients tab', () => {
     });
 
     let lastPutBody: { ipsecSecret?: string } | null = null;
-    await context.route('**/api/vpn/l2tp-client/*1', async (route) => {
+    await context.route('**/api/vpn/l2tp/client/*1', async (route) => {
       if (route.request().method() === 'PUT') {
         lastPutBody = route.request().postDataJSON() as typeof lastPutBody;
         await route.fulfill({
@@ -536,7 +536,7 @@ test.describe('VPN clients tab', () => {
     });
 
     let deleteCalls = 0;
-    await context.route('**/api/vpn/l2tp-client/*1', async (route) => {
+    await context.route('**/api/vpn/l2tp/client/*1', async (route) => {
       if (route.request().method() === 'DELETE') {
         deleteCalls += 1;
         await route.fulfill({ status: 204, body: '' });
@@ -604,7 +604,7 @@ test.describe('VPN clients tab', () => {
     });
 
     let getCalls = 0;
-    await context.route('**/api/vpn/l2tp-client/home-l2tp', async (route) => {
+    await context.route('**/api/vpn/l2tp/client/home-l2tp', async (route) => {
       if (route.request().method() === 'GET') {
         getCalls += 1;
         await route.fulfill({
