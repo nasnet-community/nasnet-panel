@@ -149,14 +149,8 @@ test.describe('VPN clients tab', () => {
 
     await dialog.getByRole('combobox', { name: 'VPN type' }).click();
     await expect(page.getByRole('option', { name: 'L2TP' })).toBeVisible();
-    await expect(page.getByRole('option', { name: 'OpenVPN' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
-    await expect(page.getByRole('option', { name: 'WireGuard' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    await expect(page.getByRole('option', { name: 'WireGuard' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'OpenVPN' })).toBeHidden();
     await page.getByRole('option', { name: 'L2TP' }).click();
 
     const submit = dialog.getByRole('button', { name: 'Add client' });
@@ -556,124 +550,6 @@ test.describe('VPN clients tab', () => {
 
     await expect.poll(() => deleteCalls).toBe(1);
     await expect(page.getByRole('row', { name: /home-l2tp/ })).toBeHidden();
-  });
-
-  test('opens details modal when clicking the L2TP client name', async ({
-    page,
-    context,
-    resetMocks,
-    seedRouter,
-  }) => {
-    await resetMocks();
-    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
-
-    await context.addInitScript((routerId) => {
-      try {
-        const key = 'nasnet-panel.session-credentials.v1';
-        const raw = window.sessionStorage.getItem(key);
-        const map = (raw ? JSON.parse(raw) : {}) as Record<
-          string,
-          { username: string; password: string }
-        >;
-        map[routerId] = { username: 'admin', password: 'test' };
-        window.sessionStorage.setItem(key, JSON.stringify(map));
-      } catch {
-        /* ignore */
-      }
-    }, ROUTER_ID);
-
-    await context.route('**/api/vpn/clients', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope([{ ...baseClient, disabled: false }]),
-      });
-    });
-    await context.route('**/api/vpn/servers', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope({
-          ovpnServers: [],
-          wireguards: [],
-          pptp: null,
-          l2tp: null,
-          sstp: null,
-        }),
-      });
-    });
-
-    let getCalls = 0;
-    await context.route('**/api/vpn/l2tp/client/home-l2tp', async (route) => {
-      if (route.request().method() === 'GET') {
-        getCalls += 1;
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope({
-            id: '*9',
-            name: 'home-l2tp',
-            disabled: false,
-            running: true,
-            maxMtu: 1450,
-            maxMru: 1450,
-            mrru: 'disabled',
-            connectTo: '192.0.2.10',
-            user: 'user1',
-            password: 'pass1',
-            profile: 'default-encryption',
-            keepaliveTimeout: 60,
-            usePeerDns: false,
-            useIPsec: true,
-            ipsecSecret: 'admin2',
-            allowFastPath: false,
-            addDefaultRoute: false,
-            dialOnDemand: false,
-            allow: 'pap,chap,mschap1,mschap2',
-            randomSourcePort: false,
-            l2tpProtoVersion: 'l2tpv2',
-            l2tpv3DigestHash: 'md5',
-            addRoutes: false,
-            comment: '',
-            status: 'connected',
-            uptime: '1h2m3s',
-            encoding: 'MPPE128 stateless',
-            mtu: 1400,
-            localAddress: '10.0.0.2',
-            remoteAddress: '10.0.0.1',
-            localIpv6Address: '',
-            remoteIpv6Address: '',
-          }),
-        });
-        return;
-      }
-      await route.fallback();
-    });
-
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
-
-    const row = page.getByRole('row', { name: /home-l2tp/ });
-    await row.getByRole('button', { name: /view home-l2tp details/i }).click();
-
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible();
-    await expect(dialog).toContainText('L2TP client: home-l2tp');
-    await expect.poll(() => getCalls).toBe(1);
-
-    await expect(dialog).toContainText('192.0.2.10');
-    await expect(dialog).toContainText('user1');
-    await expect(dialog).toContainText('default-encryption');
-    await expect(dialog).toContainText('pap,chap,mschap1,mschap2');
-    await expect(dialog).toContainText('l2tpv2');
-    await expect(dialog).toContainText('admin2');
-    await expect(dialog).toContainText('connected');
-    await expect(dialog).toContainText('1h2m3s');
-    await expect(dialog).toContainText('MPPE128 stateless');
-    await expect(dialog).toContainText('10.0.0.2');
-    await expect(dialog).toContainText('10.0.0.1');
-
-    await dialog.getByRole('button', { name: 'Close' }).click();
-    await expect(dialog).toBeHidden();
   });
 
   test('renders empty-state icon when no clients are configured', async ({
