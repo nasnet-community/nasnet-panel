@@ -2,6 +2,14 @@
   width: 100%;
 }
 
+.chatFrame {
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
 .chat {
   display: flex;
   flex-direction: column;
@@ -258,12 +266,12 @@
   }
 }
 
-.telegram .linkIcon {
-  background: #229ed9;
+.knowledgeBase .linkIcon {
+  background: #0ea5e9;
 }
 
-.youtube .linkIcon {
-  background: #ff0000;
+.telegram .linkIcon {
+  background: #229ed9;
 }
 
 .github .linkIcon {
