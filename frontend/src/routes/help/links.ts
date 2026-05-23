@@ -2,4 +2,4 @@ export const GITHUB_ISSUES_URL = 'https://github.com/nasnet-community/nasnet-pan
 
 export const TELEGRAM_SUPPORT_URL = 'https://t.me/joinNASNETGroup';
 
-export const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@JoinNASNET';
+export const KNOWLEDGE_BASE_URL = 'https://docs.s4i.co/hc/nasnet/fa';
