@@ -1,14 +1,13 @@
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { store } from './api';
-import type { Router, RoutingTopology } from '@nasnet/mocks';
+import type { Router } from '@nasnet/mocks';
 
 declare global {
   interface Window {
     __MOCKS__?: typeof store;
     __SEED_EMPTY__?: boolean;
     __PENDING_SEEDS__?: Array<Partial<Router> & { id: string }>;
-    __PENDING_TOPOLOGIES__?: RoutingTopology[];
   }
 }
 
@@ -30,11 +29,6 @@ if (typeof window !== 'undefined') {
     if (Array.isArray(window.__PENDING_SEEDS__)) {
       for (const seed of window.__PENDING_SEEDS__) {
         store.seedRouter(seed);
-      }
-    }
-    if (Array.isArray(window.__PENDING_TOPOLOGIES__)) {
-      for (const topology of window.__PENDING_TOPOLOGIES__) {
-        store.seedRoutingTopology(topology);
       }
     }
   }

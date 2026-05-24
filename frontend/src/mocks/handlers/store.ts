@@ -18,7 +18,6 @@ import type {
   LogLevel,
   Router,
   RouterUser,
-  RoutingTopology,
   StarlinkUplink,
   VPNClient,
   VPNPeer,
@@ -40,7 +39,6 @@ export interface Store {
   appUpdate: AppUpdateInfo;
   firmware: Record<string, FirmwareUpdateInfo>;
   logs: LogEntry[];
-  routingTopologies: Record<string, RoutingTopology>;
   idCounter: number;
 }
 
@@ -61,7 +59,6 @@ const createStore = (): Store => ({
   appUpdate: seededAppUpdate(),
   firmware: seededFirmwareUpdates(),
   logs: seededLogs(),
-  routingTopologies: {},
   idCounter: 1,
 });
 
@@ -81,9 +78,6 @@ const loadStore = (): Store => {
     }
     if (!raw) return createStore();
     const parsed = JSON.parse(raw) as Store;
-    if (!parsed.routingTopologies) {
-      parsed.routingTopologies = {};
-    }
     if (!parsed.starlinkUplinks) parsed.starlinkUplinks = seededStarlinkUplinks();
     if (!parsed.domesticUplinks) parsed.domesticUplinks = seededDomesticUplinks();
     if (!parsed.maskingVpnClients) parsed.maskingVpnClients = seededMaskingVpnClients();
@@ -144,12 +138,6 @@ export const mockStore = {
     state.current.domesticUplinks = [];
     state.current.maskingVpnClients = [];
     state.current.domesticVpnInterfaces = [];
-    state.current.routingTopologies = {};
-    commit();
-  },
-  seedRoutingTopology(topology: RoutingTopology): void {
-    const store = state.current;
-    store.routingTopologies = { ...store.routingTopologies, [topology.routerId]: topology };
     commit();
   },
   seedRouter(router: Partial<Router> & Pick<Router, 'id'>): Router {
