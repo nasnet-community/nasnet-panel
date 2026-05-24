@@ -103,7 +103,7 @@ test.describe('Internet routing page', () => {
     await expect(page.getByRole('heading', { name: /internet routing/i })).toBeVisible();
     await expect(page.getByText('Clients', { exact: true }).first()).toBeVisible();
     await expect(page.getByText('Starlink', { exact: true })).toBeVisible();
-    await expect(page.getByText('Irancell mobile', { exact: true })).toBeVisible();
+    await expect(page.getByText('Irancell', { exact: true })).toBeVisible();
     await expect(page.getByText('wg-mask', { exact: true })).toBeVisible();
 
     const svg = page.getByRole('img', { name: 'Routing topology' });
