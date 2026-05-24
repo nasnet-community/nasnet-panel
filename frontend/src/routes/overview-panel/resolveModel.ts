@@ -1,10 +1,15 @@
 import { MODELS } from './models';
 import type { RouterModelDescriptor } from './types';
 
-const normalize = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+const normalize = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/²/g, '2')
+    .replace(/³/g, '3')
+    .replace(/[^a-z0-9]/g, '');
 
 export const DEFAULT_MODEL: RouterModelDescriptor =
-  MODELS.find((m) => m.key === 'hap-ax3') ?? MODELS[0];
+  MODELS.find((m) => m.key === 'hap-ax2') ?? MODELS[0];
 
 export function resolveModelStrict(model: string | undefined | null): RouterModelDescriptor {
   const norm = normalize(model ?? '');

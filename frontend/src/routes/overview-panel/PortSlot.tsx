@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Tooltip } from '@nasnet/ui';
 import type { ResolvedSlot, SlotKind } from './types';
-import { POWER_ACTION, STATUS_LABEL, formatMbps } from './mapPorts';
+import { POWER_ACTION, STATUS_LABEL } from './mapPorts';
 import { cx } from './utils';
 import styles from './OverviewPanel.module.scss';
 
@@ -83,18 +83,19 @@ export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
           </span>
           <span className={styles.hoverRow}>
             <Gauge size={13} aria-hidden />
-            {slot.speedLabel ?? '—'} · {STATUS_LABEL[slot.status]}
+            {STATUS_LABEL[slot.status]}
+            {slot.mtu ? ` · ${slot.mtu} MTU` : ''}
           </span>
-          {slot.rxMbps !== undefined ? (
+          {slot.rxLabel ? (
             <span className={cx(styles.hoverRow, styles.rxRow)}>
               <ArrowDown size={13} aria-hidden />
-              {formatMbps(slot.rxMbps)}
+              {slot.rxLabel}
             </span>
           ) : null}
-          {slot.txMbps !== undefined ? (
+          {slot.txLabel ? (
             <span className={cx(styles.hoverRow, styles.txRow)}>
               <ArrowUp size={13} aria-hidden />
-              {formatMbps(slot.txMbps)}
+              {slot.txLabel}
             </span>
           ) : null}
         </span>

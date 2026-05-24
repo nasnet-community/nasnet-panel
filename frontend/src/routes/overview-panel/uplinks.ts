@@ -52,6 +52,12 @@ export function wanInterfaceNames(interfaces: InterfaceResponse[]): string[] {
   return interfaces.filter((i) => i.type === 'ether' && matchUplink(i) !== null).map((i) => i.name);
 }
 
+export function wanInterfaces(interfaces: InterfaceResponse[]): InterfaceResponse[] {
+  const ether = interfaces.filter((i) => i.type === 'ether' && !i.disabled);
+  const hinted = ether.filter((i) => matchUplink(i) !== null);
+  return hinted.length > 0 ? hinted : ether;
+}
+
 function prefixOf(cidr: string): string {
   const ip = cidr.split('/')[0];
   return `${ip.split('.').slice(0, 3).join('.')}.`;

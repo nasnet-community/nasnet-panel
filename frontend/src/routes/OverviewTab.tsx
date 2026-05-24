@@ -4,6 +4,7 @@ import {
   Activity,
   Cpu,
   Network as NetworkIcon,
+  Pencil,
   Router as RouterIcon,
   Shield,
   Timer,
@@ -16,6 +17,8 @@ import {
   CardTitle,
   CircularProgress,
   ConfirmDialog,
+  Dialog,
+  Input,
   SectionGrid,
   SectionHeading,
   Select,
@@ -27,15 +30,17 @@ import {
 } from '@nasnet/ui';
 import {
   fetchDHCPLeases,
+  fetchDhcpClients,
   fetchDynamicOverview,
   fetchInterfaceTraffic,
   fetchInterfaces,
-  fetchIpAddresses,
   fetchRoutes,
   fetchSystemOverview,
   fetchVPNClients,
   rebootSystem,
+  setSystemIdentity,
   shutdownSystem,
+  type DhcpClient,
   type DHCPLeaseResponse,
   type InterfaceResponse,
   type IpAddressResponse,
@@ -44,12 +49,13 @@ import {
   type TrafficSample,
   type VPNActiveClient,
 } from '../api';
-import { useRouter } from '../state/RouterStoreContext';
+import { useRouter, useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useThemeColors } from '../utils/theme-colors';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
 import { UplinkIpCard } from './overview-panel/UplinkIpCard';
 import { resolveModelStrict } from './overview-panel/resolveModel';
+import { wanInterfaces } from './overview-panel/uplinks';
 import styles from './OverviewTab.module.scss';
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
@@ -61,15 +67,6 @@ const statusBadgeTone = (pct: number): 'success' | 'warning' | 'danger' => toneF
 
 const statusBadgeLabel = (pct: number): string =>
   pct >= 85 ? 'Critical' : pct >= 65 ? 'High' : 'Normal';
-
-const statusChipClass = (status: 'online' | 'offline' | 'degraded' | 'unknown'): string =>
-  status === 'online'
-    ? styles.statusOnline
-    : status === 'offline'
-      ? styles.statusOffline
-      : status === 'degraded'
-        ? styles.statusDegraded
-        : '';
 
 const toneVar = (tone: 'success' | 'warning' | 'danger'): string =>
   tone === 'danger'
@@ -100,13 +97,48 @@ export function OverviewTab() {
   const [vpnClients, setVpnClients] = useState<VPNActiveClient[]>([]);
   const [dhcpLeaseList, setDhcpLeaseList] = useState<DHCPLeaseResponse[]>([]);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
-  const [ipAddresses, setIpAddresses] = useState<IpAddressResponse[]>([]);
   const [routes, setRoutes] = useState<RouteResponse[]>([]);
+  const [dhcpClients, setDhcpClients] = useState<DhcpClient[]>([]);
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
   const selectedIfaceRef = useRef(selectedIface);
   const [powerAction, setPowerAction] = useState<'reboot' | 'shutdown' | null>(null);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameInput, setRenameInput] = useState('');
+  const [renaming, setRenaming] = useState(false);
   const colors = useThemeColors();
   const toast = useToast();
+  const { upsertRouter } = useRouterStore();
+
+  const openRename = () => {
+    setRenameInput(router?.name ?? '');
+    setRenameOpen(true);
+  };
+
+  const saveRename = async () => {
+    if (!id || !router) return;
+    const newName = renameInput.trim();
+    if (!newName || newName === router.name) {
+      setRenameOpen(false);
+      return;
+    }
+    const creds = getCredentials(id);
+    if (!creds) return;
+    setRenaming(true);
+    try {
+      await setSystemIdentity({ host: router.host, ...creds }, newName);
+      upsertRouter({ ...router, name: newName, hostname: newName });
+      toast.notify({ title: 'Router renamed', tone: 'success' });
+      setRenameOpen(false);
+    } catch (err) {
+      toast.notify({
+        title: 'Rename failed',
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+    } finally {
+      setRenaming(false);
+    }
+  };
 
   const runPowerAction = async (action: 'reboot' | 'shutdown') => {
     setPowerAction(null);
@@ -141,17 +173,17 @@ export function OverviewTab() {
 
     const loadInitial = async () => {
       try {
-        const [ov, list, addrs, routeList] = await Promise.all([
+        const [ov, list, routeList, clients] = await Promise.all([
           fetchSystemOverview(id, { host, ...creds }),
           fetchInterfaces({ host, ...creds }).catch(() => [] as InterfaceResponse[]),
-          fetchIpAddresses({ host, ...creds }).catch(() => [] as IpAddressResponse[]),
           fetchRoutes({ host, ...creds }).catch(() => [] as RouteResponse[]),
+          fetchDhcpClients({ host, ...creds }).catch(() => [] as DhcpClient[]),
         ]);
         if (cancelled) return;
         setOverview(ov);
         setInterfaces(list);
-        setIpAddresses(addrs);
         setRoutes(routeList);
+        setDhcpClients(clients);
         if (list.length > 0 && !list.some((i) => i.name === selectedIfaceRef.current)) {
           const preferred = list.find((i) => i.running && i.type === 'ether') ?? list[0];
           setSelectedIface(preferred.name);
@@ -207,6 +239,25 @@ export function OverviewTab() {
     setTraffic([]);
   }, [selectedIface]);
 
+  const ipAddresses = useMemo<IpAddressResponse[]>(
+    () =>
+      dhcpClients
+        .filter((c) => c.address)
+        .map((c) => ({
+          id: c.id,
+          address: c.address,
+          interface: c.interface,
+          dynamic: true,
+          disabled: c.disabled,
+        })),
+    [dhcpClients],
+  );
+
+  const runningInterfaces = useMemo(
+    () => wanInterfaces(interfaces).filter((i) => i.running),
+    [interfaces],
+  );
+
   const memoryPct = useMemo(() => {
     if (!overview || !overview.memoryTotalBytes) return 0;
     return Math.round((overview.memoryUsedBytes / overview.memoryTotalBytes) * 100);
@@ -232,11 +283,16 @@ export function OverviewTab() {
           <div className={styles.bannerLeft}>
             <h1 className={styles.routerTitleRow}>
               <RouterIcon size={18} aria-hidden />
-              {router?.name ?? 'Router'}{' '}
-              <span
-                className={cx(styles.statusChip, statusChipClass(router?.status ?? 'unknown'))}
-                aria-hidden
-              />
+              {router?.name ?? 'Router'}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={openRename}
+                aria-label="Rename router"
+                data-testid="rename-router"
+              >
+                <Pencil size={14} aria-hidden />
+              </Button>
             </h1>
             <span className={styles.bannerHost} data-testid="banner-model">
               <Cpu size={14} aria-hidden /> {resolveModelStrict(overview.model).displayName}
@@ -270,16 +326,15 @@ export function OverviewTab() {
             </div>
             Network Traffic
           </div>
-          {interfaces.length > 0 ? (
+          {runningInterfaces.length > 0 ? (
             <Select
               className={styles.ifaceSelect}
               aria-label="Select interface for traffic"
               value={selectedIface}
               onChange={setSelectedIface}
-              options={interfaces.map((i) => ({
+              options={runningInterfaces.map((i) => ({
                 value: i.name,
-                label: i.running ? i.name : `${i.name} (down)`,
-                disabled: i.disabled,
+                label: i.name,
               }))}
             />
           ) : null}
@@ -534,6 +589,44 @@ export function OverviewTab() {
           </Card>
         </SectionGrid>
       </div>
+
+      <Dialog
+        open={renameOpen}
+        onClose={() => {
+          if (!renaming) setRenameOpen(false);
+        }}
+        title="Rename router"
+        description="Updates the router's system identity."
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setRenameOpen(false)} disabled={renaming}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                void saveRename();
+              }}
+              disabled={renaming || !renameInput.trim()}
+            >
+              Save
+            </Button>
+          </>
+        }
+      >
+        <Input
+          value={renameInput}
+          onChange={(e) => setRenameInput(e.target.value)}
+          placeholder="Router name"
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !renaming) {
+              e.preventDefault();
+              void saveRename();
+            }
+          }}
+        />
+      </Dialog>
 
       <ConfirmDialog
         open={powerAction !== null}
