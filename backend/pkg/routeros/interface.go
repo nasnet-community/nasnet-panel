@@ -15,6 +15,7 @@ const (
 	InterfaceTypeBonding   InterfaceType = "bonding"
 	InterfaceTypeBridge    InterfaceType = "bridge"
 	InterfaceTypeVLAN      InterfaceType = "vlan"
+	InterfaceTypeMacvlan   InterfaceType = "macvlan"
 	InterfaceTypeVRRP      InterfaceType = "vrrp"
 	InterfaceTypeVeth      InterfaceType = "veth"
 	InterfaceTypeEOIP      InterfaceType = "eoip"
@@ -50,6 +51,7 @@ var AllInterfaceTypes = []InterfaceType{
 	InterfaceTypeBonding,
 	InterfaceTypeBridge,
 	InterfaceTypeVLAN,
+	InterfaceTypeMacvlan,
 	InterfaceTypeVRRP,
 	InterfaceTypeVeth,
 	InterfaceTypeEOIP,
@@ -188,6 +190,38 @@ type VirtualInterfaceConfig struct {
 	Link     string
 	Disabled bool
 	Comment  string
+}
+
+// MacvlanConfig represents configuration for creating or updating a MACVLAN interface.
+type MacvlanConfig struct {
+	Name                    string
+	Interface               string // parent interface (required)
+	MacAddress              string // optional MAC address, randomly generated if not specified
+	MTU                     int    // default 1500
+	Disabled                bool
+	Comment                 string
+	ARP                     string // disabled, enabled, local-proxy-arp, proxy-arp, reply-only
+	Mode                    string // private or bridge (default: bridge)
+	LoopProtect             string // on, off, default
+	LoopProtectDisableTime  string // time interval or 0
+	LoopProtectSendInterval string // time interval
+}
+
+// MacvlanInfo represents a MACVLAN interface.
+type MacvlanInfo struct {
+	ID                      string
+	Name                    string
+	Interface               string
+	MacAddress              *string
+	MTU                     *int64
+	Running                 *bool
+	Disabled                *bool
+	Comment                 *string
+	ARP                     *string
+	Mode                    *string
+	LoopProtect             *string
+	LoopProtectDisableTime  *string
+	LoopProtectSendInterval *string
 }
 
 func (c *Client) ListInterfaces() ([]InterfaceInfo, error) {
@@ -334,16 +368,16 @@ func (c *Client) AddEthernetInterface(config EthernetConfig) (string, error) {
 	}
 
 	if config.MTU > 0 {
-		args = append(args, "mtu="+strconv.Itoa(config.MTU))
+		args = append(args, "=mtu="+strconv.Itoa(config.MTU))
 	}
 	if config.L2MTU > 0 {
-		args = append(args, "l2mtu="+strconv.Itoa(config.L2MTU))
+		args = append(args, "=l2mtu="+strconv.Itoa(config.L2MTU))
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/interface/ethernet", args...)
@@ -360,40 +394,40 @@ func (c *Client) AddBridgeInterface(config BridgeConfig) (string, error) {
 	}
 
 	if config.MacAddress != "" {
-		args = append(args, "mac-address="+config.MacAddress)
+		args = append(args, "=mac-address="+config.MacAddress)
 	}
 	if config.Priority > 0 {
-		args = append(args, "priority="+strconv.Itoa(config.Priority))
+		args = append(args, "=priority="+strconv.Itoa(config.Priority))
 	}
 	if config.PathCost > 0 {
-		args = append(args, "path-cost="+strconv.Itoa(config.PathCost))
+		args = append(args, "=path-cost="+strconv.Itoa(config.PathCost))
 	}
 	if config.HelloTime > 0 {
-		args = append(args, "hello-time="+strconv.Itoa(config.HelloTime))
+		args = append(args, "=hello-time="+strconv.Itoa(config.HelloTime))
 	}
 	if config.MaxMessageAge > 0 {
-		args = append(args, "max-message-age="+strconv.Itoa(config.MaxMessageAge))
+		args = append(args, "=max-message-age="+strconv.Itoa(config.MaxMessageAge))
 	}
 	if config.ForwardDelay > 0 {
-		args = append(args, "forward-delay="+strconv.Itoa(config.ForwardDelay))
+		args = append(args, "=forward-delay="+strconv.Itoa(config.ForwardDelay))
 	}
 	if config.TransmitHoldCount > 0 {
-		args = append(args, "transmit-hold-count="+strconv.Itoa(config.TransmitHoldCount))
+		args = append(args, "=transmit-hold-count="+strconv.Itoa(config.TransmitHoldCount))
 	}
 	if config.AgingTime > 0 {
-		args = append(args, "aging-time="+strconv.Itoa(config.AgingTime))
+		args = append(args, "=aging-time="+strconv.Itoa(config.AgingTime))
 	}
 	if config.ProtocolMode != "" {
-		args = append(args, "protocol-mode="+config.ProtocolMode)
+		args = append(args, "=protocol-mode="+config.ProtocolMode)
 	}
 	if config.FailureDetection {
-		args = append(args, "failure-detection=yes")
+		args = append(args, "=failure-detection=yes")
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/interface/bridge", args...)
@@ -415,13 +449,13 @@ func (c *Client) AddVLANInterface(config VLANConfig) (string, error) {
 		args = append(args, "mtu="+strconv.Itoa(config.MTU))
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
 	}
 	if config.LoopProtect {
-		args = append(args, "loop-protect=yes")
+		args = append(args, "=loop-protect=yes")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/interface/vlan", args...)
@@ -439,7 +473,7 @@ func (c *Client) AddBridgeMember(bridge string, member string, comment string) e
 	}
 
 	if comment != "" {
-		args = append(args, "comment="+comment)
+		args = append(args, "=comment="+comment)
 	}
 
 	_, err := c.Add("/interface/bridge/port", args...)
@@ -511,4 +545,152 @@ func (c *Client) RemoveInterface(name string) error {
 	}
 
 	return nil
+}
+
+// ListMacvlanInterfaces lists all MACVLAN interfaces.
+func (c *Client) ListMacvlanInterfaces() ([]MacvlanInfo, error) {
+	results, err := c.GetAll("/interface/macvlan")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list MACVLAN interfaces: %w", err)
+	}
+
+	macvlans := make([]MacvlanInfo, 0, len(results))
+	for _, result := range results {
+		macvlans = append(macvlans, parseMacvlanInfo(result))
+	}
+
+	return macvlans, nil
+}
+
+// GetMacvlanInterface retrieves a specific MACVLAN interface by name.
+func (c *Client) GetMacvlanInterface(name string) (*MacvlanInfo, error) {
+	result, err := c.GetFirst("/interface/macvlan", "?=name="+name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get MACVLAN interface %s: %w", name, err)
+	}
+
+	parsed := parseMacvlanInfo(result)
+	return &parsed, nil
+}
+
+// AddMacvlanInterface creates a new MACVLAN interface.
+func (c *Client) AddMacvlanInterface(config MacvlanConfig) (string, error) {
+	args := []string{
+		"=name=" + config.Name,
+		"=interface=" + config.Interface,
+	}
+
+	if config.MacAddress != "" {
+		args = append(args, "=mac-address="+config.MacAddress)
+	}
+	if config.MTU > 0 {
+		args = append(args, "=mtu="+strconv.Itoa(config.MTU))
+	}
+	if config.Disabled {
+		args = append(args, "=disabled=yes")
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+	if config.ARP != "" {
+		args = append(args, "=arp="+config.ARP)
+	}
+	if config.Mode != "" {
+		args = append(args, "=mode="+config.Mode)
+	}
+	if config.LoopProtect != "" {
+		args = append(args, "=loop-protect="+config.LoopProtect)
+	}
+	if config.LoopProtectDisableTime != "" {
+		args = append(args, "=loop-protect-disable-time="+config.LoopProtectDisableTime)
+	}
+	if config.LoopProtectSendInterval != "" {
+		args = append(args, "=loop-protect-send-interval="+config.LoopProtectSendInterval)
+	}
+
+	id, err := c.Add("/interface/macvlan", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add MACVLAN interface: %w", err)
+	}
+
+	return id, nil
+}
+
+// UpdateMacvlanInterface updates an existing MACVLAN interface.
+func (c *Client) UpdateMacvlanInterface(id string, config MacvlanConfig) error {
+	args := []string{
+		"=.id=" + id,
+	}
+
+	if config.Name != "" {
+		args = append(args, "=name="+config.Name)
+	}
+	if config.Interface != "" {
+		args = append(args, "=interface="+config.Interface)
+	}
+	if config.MacAddress != "" {
+		args = append(args, "=mac-address="+config.MacAddress)
+	}
+	if config.MTU > 0 {
+		args = append(args, "=mtu="+strconv.Itoa(config.MTU))
+	}
+	args = append(args, "=disabled="+func() string {
+		if config.Disabled {
+			return "yes"
+		}
+		return "no"
+	}())
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+	if config.ARP != "" {
+		args = append(args, "=arp="+config.ARP)
+	}
+	if config.Mode != "" {
+		args = append(args, "=mode="+config.Mode)
+	}
+	if config.LoopProtect != "" {
+		args = append(args, "=loop-protect="+config.LoopProtect)
+	}
+	if config.LoopProtectDisableTime != "" {
+		args = append(args, "=loop-protect-disable-time="+config.LoopProtectDisableTime)
+	}
+	if config.LoopProtectSendInterval != "" {
+		args = append(args, "=loop-protect-send-interval="+config.LoopProtectSendInterval)
+	}
+
+	_, err := c.Set("/interface/macvlan", args...)
+	if err != nil {
+		return fmt.Errorf("failed to update MACVLAN interface: %w", err)
+	}
+
+	return nil
+}
+
+// RemoveMacvlanInterface deletes a MACVLAN interface.
+func (c *Client) RemoveMacvlanInterface(id string) error {
+	_, err := c.Remove("/interface/macvlan", "=.id="+id)
+	if err != nil {
+		return fmt.Errorf("failed to remove MACVLAN interface: %w", err)
+	}
+
+	return nil
+}
+
+func parseMacvlanInfo(result map[string]string) MacvlanInfo {
+	return MacvlanInfo{
+		ID:                      result[".id"],
+		Name:                    result["name"],
+		Interface:               result["interface"],
+		MacAddress:              getStringPtr(result, "mac-address"),
+		MTU:                     getInt64Ptr(result, "mtu"),
+		Running:                 getBoolPtr(result, "running"),
+		Disabled:                getBoolPtr(result, "disabled"),
+		Comment:                 getStringPtr(result, "comment"),
+		ARP:                     getStringPtr(result, "arp"),
+		Mode:                    getStringPtr(result, "mode"),
+		LoopProtect:             getStringPtr(result, "loop-protect"),
+		LoopProtectDisableTime:  getStringPtr(result, "loop-protect-disable-time"),
+		LoopProtectSendInterval: getStringPtr(result, "loop-protect-send-interval"),
+	}
 }
