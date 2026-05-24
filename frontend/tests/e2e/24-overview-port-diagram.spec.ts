@@ -23,7 +23,7 @@ test.describe('Overview tab — router port diagram + uplink IP', () => {
 
     await expect(page.getByTestId('port-ether1')).toHaveAttribute(
       'aria-label',
-      /ether1.*1Gbps.*up/i,
+      /ether1.*up.*100 MB.*50 MB/i,
     );
   });
 
@@ -81,8 +81,8 @@ test.describe('Overview tab — router port diagram + uplink IP', () => {
     await page.goto('/router/rtr_ccr');
     await expect(page.getByTestId('overview-uptime')).not.toBeEmpty();
 
-    await expect(page.getByTestId('panel-model')).toHaveText('MikroTik hAP ax3');
-    await expect(page.getByTestId('banner-model')).toHaveText('MikroTik hAP ax3');
+    await expect(page.getByTestId('panel-model')).toHaveText('MikroTik hAP ax2');
+    await expect(page.getByTestId('banner-model')).toHaveText('MikroTik hAP ax2');
     await expect(page.getByTestId('port-ether1')).toBeVisible();
   });
 
