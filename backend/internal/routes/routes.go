@@ -108,4 +108,5 @@ func RegisterRoutes(e *echo.Echo) {
 	wizardGroup.POST("/vpn", handler.HandleGetVPNCredentials)
 	wizardGroup.GET("/status", handler.HandleGetWizardStatus)
 	wizardGroup.PUT("/status", handler.HandleUpdateWizardStatus)
+	wizardGroup.POST("/finalize", handler.HandleFinalizeWizard)
 }
