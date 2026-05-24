@@ -1,9 +1,15 @@
 import { test, expect } from './fixtures';
 
 test.describe('Easy-Mode wizard — Starlink-only', () => {
-  test('step through all five steps and apply', async ({ page, resetMocks, seedRouter }) => {
+  test('step through all five steps and apply', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockEasyConfigBackend,
+  }) => {
     await resetMocks();
     await seedRouter({ id: 'rtr_easy', name: 'Easy Router' });
+    await mockEasyConfigBackend({ id: 'rtr_easy' });
     await page.goto('/router/rtr_easy/config');
 
     // Step 1 — Choose

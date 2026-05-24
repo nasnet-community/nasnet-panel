@@ -14,9 +14,18 @@ interface Props {
   ssidField: SsidField;
   passwordField: PasswordField;
   label: string;
+  interfaceName: string;
 }
 
-export function WanWirelessFields({ state, dispatch, ssidField, passwordField, label }: Props) {
+export function WanWirelessFields({
+  state,
+  dispatch,
+  ssidField,
+  passwordField,
+  label,
+  interfaceName,
+}: Props) {
+  const interfaceSelected = Boolean(interfaceName);
   const [open, setOpen] = useState(false);
   const ssid = state[ssidField];
 
@@ -38,11 +47,21 @@ export function WanWirelessFields({ state, dispatch, ssidField, passwordField, l
           </Button>
         </div>
       ) : (
-        <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => setOpen(true)}
+          disabled={!interfaceSelected}
+        >
           <ScanSearch size={14} strokeWidth={2} /> Choose wireless network
         </Button>
       )}
-      <WirelessScanDialog open={open} onClose={() => setOpen(false)} onConnected={onConnected} />
+      <WirelessScanDialog
+        open={open}
+        interfaceName={interfaceName}
+        onClose={() => setOpen(false)}
+        onConnected={onConnected}
+      />
       <span hidden aria-hidden="true">
         {label}
       </span>

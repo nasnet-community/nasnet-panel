@@ -5,9 +5,18 @@ test.describe('Easy-Mode wizard — multi-band WiFi', () => {
     page,
     resetMocks,
     seedRouter,
+    mockEasyConfigBackend,
   }) => {
     await resetMocks();
     await seedRouter({ id: 'rtr_mband', name: 'Multi-band Router' });
+    await mockEasyConfigBackend({
+      id: 'rtr_mband',
+      wifiInterfaces: [
+        { id: '*100', name: 'wifi1', band: '2ghz-ax' },
+        { id: '*101', name: 'wifi2', band: '5ghz-ax' },
+        { id: '*102', name: 'wifi3', band: '6ghz-ax' },
+      ],
+    });
     await page.goto('/router/rtr_mband/config');
 
     // Step 1 — Starlink-only

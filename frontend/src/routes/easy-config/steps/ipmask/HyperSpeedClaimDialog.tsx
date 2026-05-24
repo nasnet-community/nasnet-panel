@@ -1,27 +1,12 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Check, Lock, Sparkles } from 'lucide-react';
 import { Button, Dialog, useToast } from '@nasnet/ui';
+import { fetchNasnetVpnCredentials } from '../../../../api';
+import { useSession } from '../../../../state/SessionContext';
+import { useRouter } from '../../../../state/RouterStoreContext';
 import type { Action } from '../../state';
 import styles from './HyperSpeedClaimDialog.module.scss';
-
-const ENDPOINT = 'https://qhgkwmfqfehctenggfvp.supabase.co/functions/v1/l2tp-credentials';
-
-// Supabase anon JWT for project qhgkwmfqfehctenggfvp.
-// Header + payload are deterministic; signature is generated against the project's JWT secret.
-// Replace the trailing segment if Supabase rotates the anon key.
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoZ2t3bWZxZmVoY3RlbmdnZnZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzNjg0ODcsImV4cCI6MjA2MTk0NDQ4N30.REPLACE_ME_WITH_REAL_SIGNATURE';
-
-interface CredentialsResponse {
-  success: boolean;
-  credentials?: {
-    username: string;
-    password: string;
-    server: string;
-    expiry_date?: string;
-  };
-  message?: string;
-}
 
 interface Props {
   open: boolean;
@@ -30,50 +15,45 @@ interface Props {
 }
 
 export function HyperSpeedClaimDialog({ open, onClose, dispatch }: Props) {
+  const { id: routerId } = useParams<{ id: string }>();
+  const { getCredentials } = useSession();
+  const router = useRouter(routerId);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
   const claim = async () => {
-    setLoading(true);
-    let succeeded = false;
-    try {
-      const res = await fetch(ENDPOINT, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          apikey: SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: '{}',
+    const creds = routerId ? getCredentials(routerId) : undefined;
+    const host = router?.host;
+    if (!creds || !host) {
+      toast.notify({
+        title: 'Missing router credentials',
+        description: 'Connect to the router before claiming a VPN.',
+        tone: 'danger',
       });
-      if (!res.ok) throw new Error(`Request failed (${res.status})`);
-      const data: CredentialsResponse = await res.json();
-      if (!data.success || !data.credentials) {
-        throw new Error(data.message || 'Claim failed');
-      }
-      dispatch({ type: 'setField', field: 'l2tpServer', value: data.credentials.server });
-      dispatch({ type: 'setField', field: 'l2tpUsername', value: data.credentials.username });
-      dispatch({ type: 'setField', field: 'l2tpPassword', value: data.credentials.password });
-      succeeded = true;
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await fetchNasnetVpnCredentials({ host, ...creds });
+      dispatch({ type: 'setField', field: 'l2tpServer', value: data.server });
+      dispatch({ type: 'setField', field: 'l2tpUsername', value: data.username });
+      dispatch({ type: 'setField', field: 'l2tpPassword', value: data.password });
       toast.notify({
         title: 'Free VPN credentials applied',
-        description: data.message,
+        description: data.expiryDate ? `Valid until ${data.expiryDate}.` : undefined,
         tone: 'success',
       });
+      onClose();
     } catch (err) {
       const message = (err as Error).message || 'Something went wrong';
-      const isNetwork =
-        err instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(message);
       toast.notify({
-        title: isNetwork ? "Couldn't reach the VPN service" : 'Claim failed',
-        description: isNetwork ? 'Check your connection or try again in a moment.' : message,
+        title: 'Claim failed',
+        description: message,
         tone: 'danger',
       });
     } finally {
       setLoading(false);
-      if (succeeded) onClose();
-      else onClose();
     }
   };
 
