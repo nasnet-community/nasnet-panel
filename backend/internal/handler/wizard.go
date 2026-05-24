@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -46,6 +47,39 @@ func HandleGetVPNCredentials(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", response)
 }
 
+// HandleGetWizardStatus retrieves the wizard status from environment variable.
+// @Summary Get Wizard Status
+// @Description Retrieve the current wizard configuration status
+// @Tags Wizard
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=WizardStatus}
+// @Failure 500 {object} Response
+// @Router /api/wizard/status [get].
+func HandleGetWizardStatus(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	status := &WizardStatus{
+		Completed:   false,
+		CompletedAt: nil,
+		CurrentStep: "step1",
+	}
+
+	envVal, err := client.GetEnvironmentVariable("WizardStatus")
+	if err == nil && envVal != "" {
+		if err := json.Unmarshal([]byte(envVal), status); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to parse wizard status", err)
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Wizard status retrieved successfully", status)
+}
+
 // HandleUpdateWizardStatus updates the wizard status in environment variable.
 // @Summary Update Wizard Status
 // @Description Update wizard configuration status, only supplied fields are updated
@@ -85,11 +119,13 @@ func HandleUpdateWizardStatus(c echo.Context) error {
 
 	if req.Completed != nil {
 		currentStatus.Completed = *req.Completed
+		if *req.Completed {
+			now := time.Now()
+			currentStatus.CompletedAt = &now
+		} else {
+			currentStatus.CompletedAt = nil
+		}
 	}
-	if req.CompletedAt != nil {
-		currentStatus.CompletedAt = req.CompletedAt
-	}
-
 	if req.CurrentStep != nil {
 		currentStatus.CurrentStep = *req.CurrentStep
 	}

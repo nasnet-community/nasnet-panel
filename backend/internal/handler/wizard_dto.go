@@ -1,6 +1,8 @@
 package handler
 
-import "time"
+import (
+	"time"
+)
 
 // VPNCredentialsResponse represents VPN credentials in the API response.
 type VPNCredentialsResponse struct {
@@ -19,8 +21,6 @@ type WizardStatus struct {
 
 // UpdateWizardStatusRequest represents a request to update wizard status fields.
 type UpdateWizardStatusRequest struct {
-	Completed   *bool      `json:"completed" example:"false"`
-	CompletedAt *time.Time `json:"completedAt" example:"null"`
-	Version     *int       `json:"version" example:"1"`
-	CurrentStep *string    `json:"currentStep" example:"step2"`
+	Completed   *bool   `json:"completed" example:"false"`
+	CurrentStep *string `json:"currentStep" example:"step2"`
 }
