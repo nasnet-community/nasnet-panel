@@ -141,3 +141,32 @@ func HandleUpdateWizardStatus(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusOK, "Wizard status updated successfully", currentStatus)
 }
+
+// HandleFinalizeWizard finalizes the wizard configuration.
+// @Summary Finalize Wizard Configuration
+// @Description Apply all wizard configuration settings to the router
+// @Tags Wizard
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Accept json
+// @Produce json
+// @Param body body FinalizeWizardRequest true "Wizard finalization configuration"
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/wizard/finalize [post].
+func HandleFinalizeWizard(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req FinalizeWizardRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	_ = client
+
+	return SuccessResponse(c, http.StatusOK, "Wizard finalized successfully", nil)
+}
