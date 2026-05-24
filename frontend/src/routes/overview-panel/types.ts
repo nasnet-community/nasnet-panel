@@ -27,11 +27,11 @@ export interface RouterModelDescriptor {
 
 export interface ResolvedSlot extends PortSlot {
   status: PortStatus;
-  speedLabel?: string;
   tooltip: string;
   interactive: boolean;
-  rxMbps?: number;
-  txMbps?: number;
+  rxLabel?: string;
+  txLabel?: string;
+  mtu?: number;
 }
 
 export interface PanelProps {

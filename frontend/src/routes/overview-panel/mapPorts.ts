@@ -22,8 +22,6 @@ const ACTION_TOOLTIP: Record<PowerAction, string> = {
   shutdown: 'Shutdown router',
 };
 
-export const formatMbps = (n: number): string => `${n.toFixed(2)} Mb/s`;
-
 const findIface = (
   interfaces: InterfaceResponse[],
   name: string | undefined,
@@ -59,25 +57,28 @@ export function mapPorts(
     const forcedDisabled =
       !!slot.ifaceName && !!disabledIfaceNames?.has(slot.ifaceName.toLowerCase());
     const status = forcedDisabled ? 'disabled' : deriveStatus(iface);
-    const speedLabel = iface?.speed || slot.nominalSpeed;
     const name = slot.ifaceName ?? slot.id;
-    const hasTraffic =
-      status === 'up' && (iface?.rxMbps !== undefined || iface?.txMbps !== undefined);
-    const traffic = hasTraffic
-      ? ` · ↓ ${formatMbps(iface?.rxMbps ?? 0)} ↑ ${formatMbps(iface?.txMbps ?? 0)}`
-      : '';
-    const tooltip =
-      status === 'absent'
-        ? `${name} · not detected`
-        : `${name} · ${speedLabel ?? '—'} · ${STATUS_LABEL[status]}${traffic}`;
+    const rxLabel = iface?.rx;
+    const txLabel = iface?.tx;
+    const mtu = iface?.actualMtu;
+    let tooltip: string;
+    if (status === 'absent') {
+      tooltip = `${name} · not detected`;
+    } else {
+      const parts = [name, STATUS_LABEL[status]];
+      if (rxLabel) parts.push(`↓ ${rxLabel}`);
+      if (txLabel) parts.push(`↑ ${txLabel}`);
+      if (mtu) parts.push(`${mtu} MTU`);
+      tooltip = parts.join(' · ');
+    }
     return {
       ...slot,
       status,
-      speedLabel,
       interactive: !forcedDisabled,
       tooltip,
-      rxMbps: status === 'up' ? iface?.rxMbps : undefined,
-      txMbps: status === 'up' ? iface?.txMbps : undefined,
+      rxLabel,
+      txLabel,
+      mtu,
     };
   });
 }

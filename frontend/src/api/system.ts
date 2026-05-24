@@ -109,9 +109,9 @@ export interface InterfaceResponse {
   mac?: string;
   mtu?: number;
   comment?: string;
-  speed?: string;
-  rxMbps?: number;
-  txMbps?: number;
+  rx?: string;
+  tx?: string;
+  actualMtu?: number;
 }
 
 export interface IpAddressResponse {
@@ -135,20 +135,7 @@ export async function fetchInterfaces(
   creds: SystemCredentials,
   signal?: AbortSignal,
 ): Promise<InterfaceResponse[]> {
-  const list = await apiRequest<InterfaceResponse[] | null>('/api/interfaces', {
-    method: 'GET',
-    headers: authHeaders(creds),
-    cache: 'no-store',
-    signal,
-  });
-  return list ?? [];
-}
-
-export async function fetchIpAddresses(
-  creds: SystemCredentials,
-  signal?: AbortSignal,
-): Promise<IpAddressResponse[]> {
-  const list = await apiRequest<IpAddressResponse[] | null>('/api/ip/addresses', {
+  const list = await apiRequest<InterfaceResponse[] | null>('/api/interface/interfaces', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
@@ -181,6 +168,17 @@ export async function fetchVPNClients(
     signal,
   });
   return clients ?? [];
+}
+
+export async function setSystemIdentity(creds: SystemCredentials, name: string): Promise<void> {
+  await apiRequest<void>('/api/system/identity', {
+    method: 'PUT',
+    headers: {
+      ...authHeaders(creds),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name }),
+  });
 }
 
 export async function rebootSystem(creds: SystemCredentials): Promise<void> {
