@@ -1,553 +1,317 @@
 <div align="center">
 
-<img src="apps/connect/public/favicon.png" alt="NasNetConnect Logo" width="200" />
+<img src="frontend/public/favicon.png" alt="Nasnet Panel" width="160" />
 
-# NasNetConnect
+# Nasnet Panel
 
-### Enterprise-Grade MikroTik Router Management Platform
+**A modern web panel for managing MikroTik RouterOS devices.**
+React SPA + Go API, shipped as a single small container that runs anywhere, including directly on the router itself.
 
-[![PR Check](https://github.com/stargazer5361/nasnet/actions/workflows/pr-check.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/pr-check.yml)
-[![Main](https://github.com/stargazer5361/nasnet/actions/workflows/main.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/main.yml)
-[![Release](https://github.com/stargazer5361/nasnet/actions/workflows/release.yml/badge.svg)](https://github.com/stargazer5361/nasnet/actions/workflows/release.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)](https://golang.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
-[![Docker Image Size](https://img.shields.io/badge/Docker%20Image-~5MB-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/stargazer5361/nnc)
+[![PR Check](https://github.com/nasnet-community/nasnet-panel/actions/workflows/pr-check.yml/badge.svg)](https://github.com/nasnet-community/nasnet-panel/actions/workflows/pr-check.yml)
+[![Release](https://github.com/nasnet-community/nasnet-panel/actions/workflows/release.yml/badge.svg)](https://github.com/nasnet-community/nasnet-panel/actions/workflows/release.yml)
+[![Latest Release](https://img.shields.io/github/v/release/nasnet-community/nasnet-panel?display_name=tag&sort=semver)](https://github.com/nasnet-community/nasnet-panel/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/Node-20%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Go](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://golang.org/)
+[![RouterOS](https://img.shields.io/badge/RouterOS-v7%2B-blue)](https://mikrotik.com/)
+[![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20arm64%20%7C%20arm%2Fv7-2496ED?logo=docker&logoColor=white)](https://github.com/nasnet-community/nasnet-panel/pkgs/container/nasnet-panel)
 
-<br />
-
-**A modern, powerful web interface for managing MikroTik RouterOS devices.**  
-**Built with React + Go, deployable anywhere — including directly on your MikroTik router.**
-
-[Features](#-features) • [Quick Start](#-quick-start) • [Docker](#-docker-deployment) •
-[RouterOS Install](#-mikrotik-routeros-deployment) • [API Docs](#-api-reference) •
-[Contributing](#-contributing)
+[Features](#features) - [Architecture](#architecture) - [Install](#installation) - [Configuration](#configuration) - [Development](#development) - [Contributing](#contributing)
 
 </div>
 
 ---
 
-## ✨ Features
+## Status
+
+Active development, pre-1.0. Public APIs, configuration, and on-disk layout may change between releases. Pin to a tagged release in production.
+
+## About
+
+Nasnet Panel (binary name `nasnet-panel`) is a self-hosted web UI for administering MikroTik RouterOS routers. It speaks to RouterOS over its REST API, native RouterOS API (8728/8729), SSH, and Telnet, with automatic protocol fallback. The frontend is a React SPA; the backend is a small Go service that proxies router calls, scans subnets for MikroTik devices, and orchestrates batch commands with optional rollback.
+
+## Screenshots
+
+<div align="center">
+
+![Dashboard](docs/screenshots/dashboard.png)
+![Firewall](docs/screenshots/firewall.png)
+![Wireless](docs/screenshots/wireless.png)
+
+_Drop PNGs at `docs/screenshots/` to populate._
+
+</div>
+
+## Features
 
 <table>
 <tr>
 <td width="50%">
 
-### 📊 Real-time Dashboard
+### Real-time dashboard
 
-Live system metrics, CPU/memory usage, traffic monitoring, and interface status at a glance.
+Live system metrics, CPU and memory usage, traffic monitoring, and interface status at a glance.
 
-### 🌐 Network Management
+### Network management
 
-Complete interface configuration, ARP tables, IP addressing, routing, and DHCP management.
+Interface configuration, ARP tables, IP addressing, routing, and DHCP server administration.
 
-### 🔐 VPN Control Center
+### VPN control center
 
-Full management of IPsec, L2TP, PPTP, WireGuard, OpenVPN, and SSTP tunnels with client monitoring.
+IPsec, L2TP, PPTP, WireGuard, OpenVPN, and SSTP tunnels with peer and client monitoring.
 
-### 📡 Wireless Management
+### Wireless management
 
-WiFi interface control, security profiles, connected clients, and signal monitoring.
+WiFi interface control, security profiles, connected client list, and signal monitoring.
 
 </td>
 <td width="50%">
 
-### 🛡️ Firewall Configuration
+### Firewall configuration
 
-Filter rules, NAT configuration, mangle rules, and connection tracking with visual rule editor.
+Filter, NAT, and mangle rules with a visual editor and live connection tracking.
 
-### 🔍 Router Discovery
+### Router discovery
 
-Network scanning to auto-detect MikroTik devices across subnets with service identification.
+Subnet scanning to auto-detect MikroTik devices, with service identification on common ports.
 
-### ⚡ Batch Operations
+### Batch operations
 
-Execute bulk commands with progress tracking, dry-run mode, and automatic rollback on failure.
+Bulk command execution with progress tracking, dry-run mode, and automatic rollback on failure.
 
-### 🔌 Multi-Protocol Support
+### Multi-protocol support
 
-Connect via REST API, RouterOS API (8728/8729), SSH, or Telnet with automatic fallback.
+REST API, RouterOS API (8728/8729), SSH, and Telnet with automatic fallback.
 
 </td>
 </tr>
 </table>
 
----
+## Architecture
 
-## 🚀 Quick Start
+```mermaid
+flowchart LR
+    subgraph Browser["Operator's browser"]
+        SPA["React SPA<br/>(Webpack, RR6, SCSS)"]
+    end
 
-### Option 1: DevContainer (Recommended)
+    subgraph Panel["Nasnet Panel (single Go binary)"]
+        API["Go API<br/>(Echo v4)"]
+        EMBED["Embedded static assets<br/>(go:embed)"]
+        SCAN["Subnet scanner"]
+        BATCH["Batch executor<br/>(with rollback)"]
+        API --- EMBED
+        API --- SCAN
+        API --- BATCH
+    end
 
-The fastest way to get started is using the pre-configured DevContainer. It includes all
-dependencies and tools ready to go.
+    subgraph Fleet["RouterOS fleet"]
+        R1["Router 1"]
+        R2["Router 2"]
+        RN["..."]
+    end
 
-**Requirements:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) +
-[VS Code](https://code.visualstudio.com/) with
-[Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+    SPA -- "HTTPS / JSON" --> API
+    API -- "REST API" --> R1
+    API -- "RouterOS API<br/>(8728/8729)" --> R2
+    API -- "SSH / Telnet" --> RN
+
+    classDef panel fill:#1f2937,stroke:#60a5fa,color:#f9fafb;
+    classDef edge fill:#0f172a,stroke:#94a3b8,color:#f9fafb;
+    class API,EMBED,SCAN,BATCH panel;
+    class SPA,R1,R2,RN edge;
+```
+
+The backend speaks multiple protocols to RouterOS and falls back automatically: REST API first, then native RouterOS API, then SSH/Telnet. The SPA is served by the same Go binary that exposes the JSON API, so there is only one process to run and one port to expose.
+
+## Installation
+
+Three supported paths, in order of expected use.
+
+### 1. Docker (recommended)
+
+The release CI publishes a multi-arch image to GitHub Container Registry on every tag.
 
 ```bash
-# Clone the repository
-git clone https://github.com/nasnet-community/nasnet-panel.git
-cd nasnet-panel
-
-# Open in VS Code
-code .
-
-# When prompted, click "Reopen in Container"
-# Or: Ctrl+Shift+P → "Dev Containers: Reopen in Container"
+docker run -d \
+  --name nasnet \
+  -p 8080:80 \
+  --restart unless-stopped \
+  ghcr.io/nasnet-community/nasnet-panel:latest
 ```
 
-The DevContainer automatically:
+Open `http://localhost:8080`.
 
-- Installs Node.js 20, Go 1.24+, and all dependencies
-- Configures VS Code extensions (ESLint, Prettier, Go, GraphQL)
-- Sets up Docker-in-Docker for RouterOS testing
-- Starts in under 60 seconds with pre-built image
-
-Once inside the container:
+For host networking (so the container can reach routers on your LAN directly):
 
 ```bash
-npm run dev:all    # Start frontend (5173) + backend (8080)
+docker run -d --name nasnet --network=host --restart unless-stopped \
+  ghcr.io/nasnet-community/nasnet-panel:latest
 ```
 
-> **Troubleshooting:** See [.devcontainer/TROUBLESHOOTING.md](.devcontainer/TROUBLESHOOTING.md) for
-> platform-specific issues.
-
-### Option 2: Manual Setup
-
-#### Prerequisites
-
-- **Node.js 20+** and npm
-- **Go 1.24+** (for backend development)
-- **Git**
-
-#### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/nasnet-community/nasnet-panel.git
-cd nasnet-panel
-
-# Install dependencies
-npm install
-
-# Start development servers
-npm run dev
-```
-
-The application will start at `http://localhost:5173` and automatically open in your browser.
-
-### Development with Backend
-
-```bash
-# Start both frontend and backend
-npm run dev:all
-```
-
-> **Note:** The backend (ROSProxy) runs at `localhost:8080` with the frontend automatically proxying
-> API requests.
-
----
-
-## 📁 Project Structure
-
-This is an **Nx monorepo** with strict library boundaries enforced via ESLint.
-
-### Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         APPLICATIONS                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
-│  │   connect   │  │  backend   │  │   star-setup-*          │ │
-│  │   (React)   │  │    (Go)     │  │   (Setup Wizards)       │ │
-│  └──────┬──────┘  └─────────────┘  └─────────────────────────┘ │
-├─────────┼───────────────────────────────────────────────────────┤
-│         │                    LIBRARIES                           │
-│  ┌──────▼──────────────────────────────────────────────────────┐│
-│  │ features/  - Feature modules (dashboard, firewall, logs...)  ││
-│  └──────┬───────────────────────────────────────────────────────┘│
-│  ┌──────▼────────┐ ┌────────────┐ ┌──────────────┐              │
-│  │     ui/       │ │ api-client/│ │   state/     │              │
-│  │ (primitives,  │ │ (core,     │ │  (stores)    │              │
-│  │  patterns,    │ │  queries)  │ │              │              │
-│  │  layouts)     │ └─────┬──────┘ └──────┬───────┘              │
-│  └───────┬───────┘       │               │                      │
-│  ┌───────▼───────────────▼───────────────▼───────┐              │
-│  │              core/ (types, utils, constants)   │              │
-│  └───────────────────────┬───────────────────────┘              │
-│  ┌───────────────────────▼───────────────────────┐              │
-│  │                    shared/                     │              │
-│  └───────────────────────────────────────────────┘              │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Library Dependency Rules (per ADR-003)
-
-| Layer         | Can Import From                                          |
-| ------------- | -------------------------------------------------------- |
-| `apps/`       | features, ui, core, api-client, state, shared            |
-| `features/`   | ui, core, api-client, state, shared (NOT other features) |
-| `ui/`         | core, shared                                             |
-| `api-client/` | core, shared                                             |
-| `state/`      | core, api-client, shared                                 |
-| `core/`       | shared only                                              |
-| `shared/`     | nothing (base layer)                                     |
-
-<details>
-<summary><b>Click to expand full directory structure</b></summary>
-
-```
-nasnet/
-├── apps/
-│   ├── connect/              # Main React frontend (Vite)
-│   │   ├── src/
-│   │   │   ├── app/          # Pages, routes, providers
-│   │   │   └── lib/          # App-specific utilities
-│   │   └── vite.config.ts
-│   ├── backend/             # Go backend (REST proxy, scanner)
-│   │   ├── *.go              # API handlers, clients
-│   │   └── Dockerfile        # Multi-arch container build
-│   ├── star-setup-web/       # Setup wizard (web)
-│   └── star-setup-docker/    # Setup wizard (container)
-│
-├── libs/
-│   ├── api-client/
-│   │   ├── core/             # Axios HTTP client, interceptors
-│   │   └── queries/          # TanStack Query hooks per domain
-│   ├── core/
-│   │   ├── types/            # Shared TypeScript interfaces
-│   │   ├── utils/            # Pure utility functions
-│   │   └── constants/        # App constants
-│   ├── features/             # Feature modules
-│   │   ├── dashboard/        # Dashboard widgets
-│   │   ├── firewall/         # Firewall rule management
-│   │   ├── logs/             # System log viewer
-│   │   ├── wireless/         # WiFi interface management
-│   │   ├── router-discovery/ # Network scanner UI
-│   │   └── configuration-import/ # Config import wizard
-│   ├── state/
-│   │   └── stores/           # Zustand stores (theme, connection, router)
-│   └── ui/
-│       ├── primitives/       # shadcn/ui base components (~40)
-│       ├── patterns/         # Composite reusable components (~56)
-│       └── layouts/          # Page layouts and shells
-│
-├── shared/                   # Cross-cutting shared code
-├── .github/workflows/        # CI/CD pipelines
-├── nx.json                   # Nx workspace configuration
-└── package.json              # Root package with workspaces
-```
-
-</details>
-
-### Import Aliases
-
-| Alias                  | Maps To                 |
-| ---------------------- | ----------------------- |
-| `@nasnet/core/*`       | `libs/core/*/src`       |
-| `@nasnet/ui/*`         | `libs/ui/*/src`         |
-| `@nasnet/features/*`   | `libs/features/*/src`   |
-| `@nasnet/api-client/*` | `libs/api-client/*/src` |
-| `@nasnet/state/*`      | `libs/state/*/src`      |
-
-### Code Generators
-
-Custom Nx generators are available for scaffolding code following project conventions:
-
-```bash
-# Generate a React component with tests and barrel export
-nx g @nasnet/tools:component MyComponent --project=connect
-
-# Generate a new library with proper scope tags
-nx g @nasnet/tools:library my-lib --directory=libs/features
-
-# Generate a Go GraphQL resolver
-nx g @nasnet/tools:resolver Interface
-```
-
-All generators support `--dry-run` for previewing changes. See
-[tools/generators/README.md](tools/generators/README.md) for full documentation.
-
----
-
-## 🐳 Docker Deployment
-
-<div align="center">
-
-[![Docker Pulls](https://img.shields.io/docker/pulls/stargazer5361/nnc?logo=docker)](https://hub.docker.com/r/stargazer5361/nnc)
-![Architectures](https://img.shields.io/badge/arch-amd64%20|%20arm64%20|%20arm%2Fv7-blue)
-![Image Size](https://img.shields.io/badge/size-~5MB-green)
-
-</div>
-
-### Quick Run
-
-```bash
-# Pull and run (host network for router access)
-docker run -d --name nasnet --network=host stargazer5361/nnc:latest
-
-# Or with Docker Compose
-docker compose up -d
-```
-
-### Docker Compose
+#### docker compose
 
 ```yaml
-version: '3.8'
 services:
   nasnet:
-    image: stargazer5361/nnc:latest
+    image: ghcr.io/nasnet-community/nasnet-panel:latest
     container_name: nasnet
     network_mode: host
     environment:
-      - PORT=80
+      PORT: 80
     restart: unless-stopped
 ```
 
-### Build Locally
+Supported platforms: `linux/amd64`, `linux/arm64`, `linux/arm/v7`. Image is built on busybox+musl with a UPX-compressed Go binary, optimised to stay small enough to run inside a RouterOS container. A `/health` endpoint backs the built-in `HEALTHCHECK`.
+
+### 2. MikroTik RouterOS via `scripts/install.sh`
+
+`scripts/install.sh` deploys Nasnet Panel inside a RouterOS v7 container end-to-end: checks, networking, image upload, container start, and health verification.
+
+**Prerequisites**
+
+- RouterOS v7.x with the `container` package installed and enabled.
+- Container `device-mode` enabled (requires physical confirmation on first activation: reset button or cold reboot).
+- External storage (the script defaults to `disk1/`).
+- ≥ 128 MB free RAM on the router.
+- Local tools: `bash`, `curl`, `ssh`, `scp`, `sha256sum` (or `shasum`).
+
+**Run it**
 
 ```bash
-# Build multi-arch image
-npm run docker:local
+# Interactive: prompts for router IP, user, password
+bash scripts/install.sh
 
-# Build and export as tarball (for RouterOS)
-npm run docker:export
+# Non-interactive: pass an env-style config
+cat > router.env <<'EOF'
+ROUTER_IP=192.168.88.1
+ROUTER_USER=admin
+ROUTER_PASS=secret
+EOF
+bash scripts/install.sh --config router.env
+
+# Or via env var
+SSHPASS=secret bash scripts/install.sh --config router.env
 ```
 
----
+When it finishes, the panel is reachable at `http://<router-ip>:8080` (or whatever `--lan-port` you passed).
 
-## 📦 MikroTik RouterOS Deployment
+**Flags**
 
-Deploy NasNetConnect directly on your MikroTik router using RouterOS containers.
+| Flag                 | Purpose                                                            |
+| -------------------- | ------------------------------------------------------------------ |
+| `--dry-run`          | Print every action the script would take, change nothing.          |
+| `--uninstall`        | Remove the container, networking, NAT rules, and uploaded tarball. |
+| `--config <file>`    | Env-style file with `ROUTER_IP=`, `ROUTER_USER=`, `ROUTER_PASS=`.  |
+| `--version <tag>`    | Release tag to install. Defaults to the latest release.            |
+| `--image-tar <path>` | Use a local tarball instead of downloading a release asset.        |
+| `--lan-port <port>`  | LAN-facing port for the dst-nat rule (default `8080`).             |
+| `--no-rollback`      | Do not undo partial state on failure (useful for debugging).       |
+| `-v`, `--verbose`    | Verbose output.                                                    |
+| `-h`, `--help`       | Show usage.                                                        |
 
-> **Requirements:** RouterOS v7.x with Container package, external storage recommended
+**What the installer does, step by step**
 
-### Step 1: Enable Container Mode
+1. Probes Winbox (8291) and SSH (22) on the router; collects credentials.
+2. Checks RouterOS version, architecture (`arm` / `arm64` / `x86_64`), free RAM, `container` package, and `device-mode container`.
+3. Downloads `nasnet-panel-<version>-<arch>.tar` and `.sha256` from the latest GitHub release (or the tag passed to `--version`) and verifies the checksum.
+4. Configures container networking: `veth1` at `192.168.50.2/24`, `containers` bridge at `192.168.50.1/24`, `srcnat` masquerade for `192.168.50.0/24`, and `dstnat` from `--lan-port` to the veth.
+5. SCPs the tarball to `disk1/`, adds the container with `start-on-boot=yes`, and starts it.
+6. Polls `http://<router>:<lan-port>/health` for up to 120 s; dumps container logs on failure.
 
-```routeros
-/system/device-mode/update container=yes
-```
+To remove everything: `bash scripts/install.sh --uninstall --config router.env`.
 
-_Confirm on device (reset button or cold reboot on x86)_
-
-### Step 2: Setup Container Networking
-
-```routeros
-# Create virtual interface
-/interface veth add name=veth1 address=192.168.50.2/24 gateway=192.168.50.1
-
-# Create container bridge
-/interface bridge add name=containers
-/ip address add address=192.168.50.1/24 interface=containers
-/interface bridge port add bridge=containers interface=veth1
-
-# Enable NAT
-/ip firewall nat add chain=srcnat action=masquerade src-address=192.168.50.0/24
-```
-
-### Step 3: Configure Registry
-
-```routeros
-/container/config set registry-url=https://ghcr.io tmpdir=disk1/tmp
-```
-
-### Step 4: Deploy Container
-
-```routeros
-# Add container
-/container/add remote-image=ghcr.io/nasnet-community/nasnet-panel:latest interface=veth1 \
-  root-dir=disk1/images/nnc name=nnc start-on-boot=yes logging=yes
-
-# Wait for download, then start
-/container/start nnc
-```
-
-Access NasNetConnect at `http://192.168.50.2` (or your configured veth address).
-
-<details>
-<summary><b>Additional RouterOS Tips</b></summary>
-
-```routeros
-# Limit container RAM
-/container/config/set memory-high=200M
-
-# Open shell in container
-/container/shell nnc
-
-# View container logs
-/container/set [find where name=nnc] logging=yes
-```
-
-</details>
-
----
-
-## 📡 API Reference
-
-ROSProxy provides a REST API for all router management operations.
-
-| Endpoint               | Method | Description                   |
-| ---------------------- | ------ | ----------------------------- |
-| `/health`              | GET    | Server health, memory, uptime |
-| `/api/router/proxy`    | POST   | Proxy requests to RouterOS    |
-| `/api/scan`            | POST   | Start subnet scan             |
-| `/api/scan/auto`       | POST   | Auto-scan gateway addresses   |
-| `/api/scan/status`     | GET    | Get scan progress/results     |
-| `/api/batch/jobs`      | POST   | Create batch command job      |
-| `/api/batch/jobs/{id}` | GET    | Get job status                |
-
-<details>
-<summary><b>Example: Proxy Request to Router</b></summary>
+### 3. From source (development)
 
 ```bash
-curl -X POST http://localhost:8080/api/router/proxy \
-  -H "Content-Type: application/json" \
-  -d '{
-    "router_ip": "192.168.88.1",
-    "endpoint": "/system/resource",
-    "method": "GET",
-    "headers": {
-      "Authorization": "Basic YWRtaW46cGFzc3dvcmQ="
-    }
-  }'
+git clone https://github.com/nasnet-community/nasnet-panel.git
+cd nasnet-panel
+npm install
+npm run dev:all
 ```
 
-</details>
+Frontend: `http://localhost:3000`. Backend: `http://localhost:8080`. The dev server proxies API calls to the backend automatically.
 
-<details>
-<summary><b>Example: Batch Command Execution</b></summary>
+Requires Node.js 20+ and Go 1.26+.
+
+## Configuration
+
+The backend reads its configuration from environment variables. See `backend/.env.example`.
+
+| Variable      | Default                        | Purpose                                                                                                        |
+| ------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `PORT`        | `8080` (dev), `80` (container) | TCP port the API and embedded SPA listen on.                                                                   |
+| `HOST`        | `0.0.0.0`                      | Bind address.                                                                                                  |
+| `ENVIRONMENT` | `development`                  | `production` disables dev-only routes (notably Swagger UI).                                                    |
+| `BACKEND_URL` | _empty_                        | Build-time. Empty means the SPA uses relative URLs to its own origin (the common case for the embedded build). |
+
+## Development
+
+### npm scripts
+
+| Script                         | What it does                                   |
+| ------------------------------ | ---------------------------------------------- |
+| `npm run dev`                  | Frontend only (Webpack Dev Server, port 3000). |
+| `npm run dev:backend`          | Backend only (`air` hot-reload, port 8080).    |
+| `npm run dev:all`              | Both, with shared interrupt handling.          |
+| `npm run build`                | Production frontend bundle to `frontend/dist`. |
+| `npm run build:backend`        | `go build` to `backend/bin/api`.               |
+| `npm run typecheck`            | `tsc -b`.                                      |
+| `npm run lint` / `lint:fix`    | ESLint over `.ts` / `.tsx`.                    |
+| `npm run format`               | Prettier write.                                |
+| `npm run format:check`         | Prettier check (CI uses this).                 |
+| `npm run e2e`                  | Playwright, headless.                          |
+| `npm run e2e:headed`           | Playwright, headed.                            |
+| `npm run e2e:install-browsers` | First-time Playwright browser install.         |
+
+## Building from source
 
 ```bash
-curl -X POST http://localhost:8080/api/batch/jobs \
-  -H "Content-Type: application/json" \
-  -d '{
-    "router_ip": "192.168.88.1",
-    "username": "admin",
-    "password": "secret",
-    "protocol": "api",
-    "commands": [
-      "/interface bridge add name=bridge1",
-      "/interface bridge port add bridge=bridge1 interface=ether2"
-    ],
-    "dry_run": false,
-    "rollback_enabled": true
-  }'
+# Frontend bundle (output: frontend/dist/)
+npm run build
+
+# Backend binary with embedded SPA (output: backend/bin/api)
+npm run build:backend
+
+# Multi-arch container image
+docker buildx build \
+  --platform=linux/amd64,linux/arm64,linux/arm/v7 \
+  -t nasnet-panel:local .
 ```
 
-</details>
+## Releases
 
-> 📖 **Full API Documentation:** [apps/backend/README.md](apps/backend/README.md)
+Tagged releases are cut from `main`. Each release publishes:
 
----
+- Multi-arch container images at `ghcr.io/nasnet-community/nasnet-panel:<tag>` and `:latest`.
+- Per-architecture tarballs `nasnet-panel-<version>-<arch>.tar` plus matching `.sha256`, consumed by `scripts/install.sh`.
 
-## 🛠️ Development
+See the [Releases page](https://github.com/nasnet-community/nasnet-panel/releases).
 
-### Available Scripts
+## Contributing
 
-| Script                     | Description                                      |
-| -------------------------- | ------------------------------------------------ |
-| `npm run dev`              | Start frontend dev server (Vite)                 |
-| `npm run dev:with-backend` | Start frontend + backend                         |
-| `npm run build`            | Build production bundle                          |
-| `npm run ci`               | Run all CI checks (lint, test, build, typecheck) |
-| `npm run lint`             | Lint all projects                                |
-| `npm run typecheck`        | TypeScript type checking                         |
-| `npm run docker:local`     | Build Docker image locally                       |
-| `npm run docker:export`    | Export Docker image as tarball                   |
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, branch and PR conventions, and what reviewers look for.
 
-### Environment Configuration
+## Security
 
-Create `apps/connect/.env.development`:
+If you find a vulnerability, please **do not** open a public issue. See [SECURITY.md](SECURITY.md) for the private reporting process.
 
-```env
-VITE_API_URL=http://localhost:8080
-VITE_WS_URL=ws://localhost:8080
-```
+## Code of conduct
 
-### Running Tests
+By participating in this project you agree to abide by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-```bash
-# Run all tests
-npx nx run-many -t test
+## Changelog
 
-# Run specific project tests
-npx nx test connect
-npx nx test backend
+Notable changes are tracked in [CHANGELOG.md](CHANGELOG.md), following the Keep a Changelog format.
 
-# E2E tests
-npx nx e2e connect-e2e
-```
+## License
 
----
-
-## 🔧 Tech Stack
-
-<div align="center">
-
-### Frontend
-
-[![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-7.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-
-### Backend
-
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org/)
-
-### State Management
-
-[![React Query](https://img.shields.io/badge/React_Query-5.x-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com/query)
-[![Zustand](https://img.shields.io/badge/Zustand-4.x-000000?style=for-the-badge)](https://zustand-demo.pmnd.rs/)
-[![XState](https://img.shields.io/badge/XState-5.x-2C3E50?style=for-the-badge)](https://xstate.js.org/)
-
-### Infrastructure
-
-[![Nx](https://img.shields.io/badge/Nx-22.x-143055?style=for-the-badge&logo=nx&logoColor=white)](https://nx.dev/)
-[![Docker](https://img.shields.io/badge/Docker-Multi--Arch-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
-
-### Testing
-
-[![Vitest](https://img.shields.io/badge/Vitest-1.x-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
-[![Playwright](https://img.shields.io/badge/Playwright-E2E-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev/)
-
-</div>
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow the existing code style (Prettier + ESLint)
-- Write tests for new features
-- Update documentation as needed
-- Use conventional commit messages
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+MIT. See [LICENSE](LICENSE).
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for the MikroTik community**
-
-[![Star on GitHub](https://img.shields.io/github/stars/stargazer5361/nasnet?style=social)](https://github.com/stargazer5361/nasnet)
+Built for the MikroTik community. Issues, ideas, and PRs welcome on [GitHub](https://github.com/nasnet-community/nasnet-panel).
 
 </div>
