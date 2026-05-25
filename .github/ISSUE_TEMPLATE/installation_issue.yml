@@ -1,0 +1,85 @@
+name: Installation issue
+description: The installer or container deployment failed on your router or host.
+title: "[Install]: "
+labels: ["install", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template if `scripts/install.sh` failed, or if the container does not start on your host or router. For bugs in the running panel after a successful install, please use the **Bug report** template instead.
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Installation method
+      options:
+        - MikroTik RouterOS via scripts/install.sh
+        - MikroTik RouterOS manual (/container/add)
+        - Docker (ghcr.io image)
+        - Docker (locally built)
+        - From source
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Release tag, container digest, or commit SHA.
+      placeholder: v0.1.3
+    validations:
+      required: true
+
+  - type: input
+    id: routeros_version
+    attributes:
+      label: RouterOS version
+      description: For router-side installs. Output of `/system resource print`.
+      placeholder: 7.14.3 (stable)
+
+  - type: input
+    id: arch
+    attributes:
+      label: Architecture
+      placeholder: arm64 / arm / x86_64
+
+  - type: dropdown
+    id: device_mode
+    attributes:
+      label: RouterOS device-mode container
+      description: Only relevant for router-side installs.
+      options:
+        - Not applicable (not installing on a router)
+        - Enabled
+        - Disabled (did not complete physical confirmation)
+        - Unsure
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command you ran
+      description: Exact invocation, with credentials redacted.
+      placeholder: bash scripts/install.sh --config router.env --version v0.1.3
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Installer or container output
+      description: Full output of the installer, or `docker logs nasnet`, or RouterOS container logs (`/log/print where topics~"container"`). Redact credentials and public IPs.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: state
+    attributes:
+      label: Router or host state at the time of failure
+      description: Free RAM, free disk, presence of conflicting bridges/veth, existing dst-nat rules, anything that might collide.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
