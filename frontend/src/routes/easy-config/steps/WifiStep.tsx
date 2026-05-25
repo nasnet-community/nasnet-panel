@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   Card,
   CardDescription,
@@ -13,6 +13,7 @@ import {
   Switch,
 } from '@nasnet/ui';
 import wizardStyles from '../../EasyConfigWizard.module.scss';
+import type { WifiInterfaceResponse } from '../../../api';
 import type { Action, State } from '../state';
 import { generatePassword, generateSsid } from './wifi/generate';
 import { GenerateButton } from './wifi/GenerateButton';
@@ -22,10 +23,25 @@ import { Collapsible } from './components/Collapsible';
 interface Props {
   state: State;
   dispatch: React.Dispatch<Action>;
+  wifiInterfaces: WifiInterfaceResponse[];
   footer?: React.ReactNode;
 }
 
 type BandKey = '24' | '5' | '6';
+
+function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
+  const b = (wi.band ?? '').toLowerCase();
+  if (b.startsWith('2')) return '24';
+  if (b.startsWith('5')) return '5';
+  if (b.startsWith('6')) return '6';
+  const f = Number(wi.frequency);
+  if (Number.isFinite(f)) {
+    if (f >= 2400 && f < 2500) return '24';
+    if (f >= 5000 && f < 5925) return '5';
+    if (f >= 5925) return '6';
+  }
+  return null;
+}
 interface BandSpec {
   key: BandKey;
   label: string;
@@ -58,14 +74,37 @@ const BANDS: BandSpec[] = [
   },
 ];
 
-export function WifiStep({ state, dispatch, footer }: Props) {
+export function WifiStep({ state, dispatch, wifiInterfaces, footer }: Props) {
   const setText = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: 'setField', field, value: e.target.value });
-  const anyEnabled = BANDS.some((b) => state[b.enabledField]);
-  const previewBands = BANDS.filter((b) => state[b.enabledField]).map((b) => ({
-    ssid: state[b.ssidField] as string,
-    band: b.label,
-  }));
+
+  const availableBands = useMemo<BandKey[]>(() => {
+    const set = new Set<BandKey>();
+    for (const wi of wifiInterfaces) {
+      const key = bandKeyFor(wi);
+      if (key) set.add(key);
+    }
+    const order: BandKey[] = ['24', '5', '6'];
+    return order.filter((k) => set.has(k));
+  }, [wifiInterfaces]);
+
+  const visibleBands = BANDS.filter((b) => availableBands.includes(b.key));
+
+  useEffect(() => {
+    for (const band of BANDS) {
+      if (!availableBands.includes(band.key) && state[band.enabledField]) {
+        dispatch({ type: 'setField', field: band.enabledField, value: false });
+      }
+    }
+  }, [availableBands, state, dispatch]);
+
+  const anyEnabled = visibleBands.some((b) => state[b.enabledField]);
+  const previewBands = visibleBands
+    .filter((b) => state[b.enabledField])
+    .map((b) => ({
+      ssid: state[b.ssidField] as string,
+      band: b.label,
+    }));
 
   return (
     <Card>
@@ -78,7 +117,7 @@ export function WifiStep({ state, dispatch, footer }: Props) {
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack>
-          {BANDS.map((band) => {
+          {visibleBands.map((band) => {
             const isOn = state[band.enabledField];
             return (
               <Stack key={band.key}>

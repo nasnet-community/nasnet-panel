@@ -1,6 +1,7 @@
 import { Button, Dialog, Inline } from '@nasnet/ui';
 import styles from '../../../EasyConfigWizard.module.scss';
 import { SuccessCheck } from './SuccessCheck';
+import { ErrorCross } from './ErrorCross';
 
 interface Props {
   open: boolean;
@@ -42,15 +43,18 @@ export function ApplyDialog({ open, applying, applied, error, onClose, onRetry, 
           </>
         ) : showError ? (
           <>
+            <ErrorCross />
             <h2 id="apply-dialog-title" className={styles.applyTitle}>
               Apply failed
             </h2>
             <p className={styles.applySubtitle}>{error}</p>
             <Inline>
-              <Button variant="ghost" onClick={onClose}>
-                Close
+              <Button variant="ghost" onClick={onRetry}>
+                Retry
               </Button>
-              <Button onClick={onRetry}>Retry</Button>
+              <Button variant="success" onClick={onDone}>
+                Ok
+              </Button>
             </Inline>
           </>
         ) : null}

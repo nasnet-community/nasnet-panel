@@ -103,6 +103,7 @@ export interface InterfaceTrafficResponse {
 export interface InterfaceResponse {
   id: string;
   name: string;
+  defaultName?: string;
   type: string;
   running: boolean;
   disabled: boolean;

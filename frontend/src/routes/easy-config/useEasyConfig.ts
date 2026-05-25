@@ -1,10 +1,90 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { api, fetchInterfaces, type InterfaceResponse } from '../../api';
+import {
+  fetchInterfaces,
+  fetchWifiInterfaces,
+  finalizeWizard,
+  type FinalizeWizardRequest,
+  type FinalizeWizardWifiInterface,
+  type InterfaceResponse,
+  type WifiInterfaceResponse,
+} from '../../api';
 import { useSession } from '../../state/SessionContext';
 import { useRouter } from '../../state/RouterStoreContext';
 import { buildEasyConfigScript, type EasyConfigInput } from '../../utils/rsc-builder';
 import { canAdvance } from './validation';
 import { initial, reducer, stepOrder, type State } from './state';
+
+function bandKeyForWifi(wi: WifiInterfaceResponse): '24' | '5' | '6' | null {
+  const b = (wi.band ?? '').toLowerCase();
+  if (b.startsWith('2')) return '24';
+  if (b.startsWith('5')) return '5';
+  if (b.startsWith('6')) return '6';
+  const f = Number(wi.frequency);
+  if (Number.isFinite(f)) {
+    if (f >= 2400 && f < 2500) return '24';
+    if (f >= 5000 && f < 5925) return '5';
+    if (f >= 5925) return '6';
+  }
+  return null;
+}
+
+function buildFinalizePayload(
+  state: State,
+  wifiInterfaces: WifiInterfaceResponse[],
+): FinalizeWizardRequest {
+  const wifi: FinalizeWizardWifiInterface[] = [];
+  const bandToFields: Record<
+    '24' | '5' | '6',
+    { enabled: boolean; ssid: string; password: string }
+  > = {
+    '24': { enabled: state.wifi24Enabled, ssid: state.ssid, password: state.wifiPassword },
+    '5': { enabled: state.wifi5Enabled, ssid: state.ssid5, password: state.wifiPassword5 },
+    '6': { enabled: state.wifi6Enabled, ssid: state.ssid6, password: state.wifiPassword6 },
+  };
+  for (const wi of wifiInterfaces) {
+    const key = bandKeyForWifi(wi);
+    if (!key) continue;
+    const fields = bandToFields[key];
+    if (!fields?.enabled) continue;
+    wifi.push({ id: wi.id, ssid: fields.ssid, password: fields.password });
+  }
+
+  let maskingL2tp: FinalizeWizardRequest['maskingL2tp'] = null;
+  let maskingWireGuard: FinalizeWizardRequest['maskingWireGuard'] = null;
+  if (state.ipMaskEnabled) {
+    if (state.ipMaskKind === 'l2tp') {
+      maskingL2tp = {
+        connectTo: state.l2tpServer,
+        disabled: false,
+        ipsecSecret: state.l2tpUseIpsec ? state.l2tpIpsecSecret : '',
+        name: 'wan-mask-l2tp',
+        password: state.l2tpPassword,
+        user: state.l2tpUsername,
+      };
+    } else if (state.ipMaskKind === 'wireguard') {
+      maskingWireGuard = { config: state.wgConfig };
+    }
+  }
+
+  const ovpnServer = state.vpnServerEnabled
+    ? {
+        clientCertificatePassword: state.vpnServerCertPassphrase,
+        users:
+          state.firstUserName && state.firstUserKey
+            ? [{ username: state.firstUserName, password: state.firstUserKey }]
+            : [],
+      }
+    : null;
+
+  return {
+    foreignInterface: state.starlinkInterface,
+    domesticInterface: state.mode === 'dual-link' ? state.domesticInterface : '',
+    maskingL2tp,
+    maskingWireGuard,
+    wifiInterfaces: wifi,
+    ovpnServer,
+  };
+}
 
 function buildScript(state: State): string {
   if (!state.mode) return '';
@@ -76,6 +156,8 @@ export function useEasyConfig(routerId: string | undefined) {
   const router = useRouter(routerId);
   const [state, dispatch] = useReducer(reducer, initial);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
+  const [interfacesLoading, setInterfacesLoading] = useState<boolean>(false);
+  const [wifiInterfaces, setWifiInterfaces] = useState<WifiInterfaceResponse[]>([]);
 
   useEffect(() => {
     if (!routerId) return;
@@ -83,34 +165,38 @@ export function useEasyConfig(routerId: string | undefined) {
     const host = router?.host;
     const controller = new AbortController();
 
-    const loadFromApi = async () => {
-      if (!creds || !host) return null;
-      try {
-        return await fetchInterfaces({ host, ...creds }, controller.signal);
-      } catch {
-        return null;
-      }
-    };
+    if (!creds || !host) {
+      setInterfaces([]);
+      setWifiInterfaces([]);
+      setInterfacesLoading(false);
+      return;
+    }
 
-    const loadFromMock = async () => {
-      const list = await api.system.listInterfaces(routerId);
-      return list.map((i) => ({
-        id: i.name,
-        name: i.name,
-        type: i.type,
-        running: i.running,
-        disabled: i.disabled ?? false,
-        mac: i.mac,
-        comment: i.comment,
-      })) satisfies InterfaceResponse[];
-    };
+    setInterfacesLoading(true);
+    void (async () => {
+      try {
+        const list = await fetchInterfaces({ host, ...creds }, controller.signal);
+        if (controller.signal.aborted) return;
+        setInterfaces(
+          list.filter((i) => ['ether', 'wireless', 'wifi', 'wlan', 'w60g', 'lte'].includes(i.type)),
+        );
+      } catch {
+        if (controller.signal.aborted) return;
+        setInterfaces([]);
+      } finally {
+        if (!controller.signal.aborted) setInterfacesLoading(false);
+      }
+    })();
 
     void (async () => {
-      const fromApi = await loadFromApi();
-      if (controller.signal.aborted) return;
-      const list = fromApi ?? (await loadFromMock());
-      if (controller.signal.aborted) return;
-      setInterfaces(list.filter((i) => i.type === 'ether' || i.type === 'wireless'));
+      try {
+        const list = await fetchWifiInterfaces({ host, ...creds }, controller.signal);
+        if (controller.signal.aborted) return;
+        setWifiInterfaces(list);
+      } catch {
+        if (controller.signal.aborted) return;
+        setWifiInterfaces([]);
+      }
     })();
 
     return () => {
@@ -121,23 +207,25 @@ export function useEasyConfig(routerId: string | undefined) {
   const script = useMemo(() => buildScript(state), [state]);
   const advanceProblem = useMemo(() => canAdvance(state), [state]);
 
-  const onApply = useCallback(
-    async (override?: string) => {
-      dispatch({ type: 'applying', value: true });
-      dispatch({ type: 'error', message: null });
-      try {
-        const result = await api.batch.applyConfig(override ?? script);
-        if (result.status !== 'ok') {
-          throw new Error(result.errors?.[0]?.message ?? 'Apply failed');
-        }
-        dispatch({ type: 'applied' });
-      } catch (err) {
-        dispatch({ type: 'error', message: (err as Error).message ?? 'Apply failed' });
-        dispatch({ type: 'applying', value: false });
-      }
-    },
-    [script],
-  );
+  const onApply = useCallback(async () => {
+    const creds = routerId ? getCredentials(routerId) : undefined;
+    const host = router?.host;
+    if (!creds || !host) {
+      dispatch({ type: 'error', message: 'Missing router credentials.' });
+      return;
+    }
+
+    dispatch({ type: 'applying', value: true });
+    dispatch({ type: 'error', message: null });
+    try {
+      const payload = buildFinalizePayload(state, wifiInterfaces);
+      await finalizeWizard({ host, ...creds }, payload);
+      dispatch({ type: 'applied' });
+    } catch (err) {
+      dispatch({ type: 'error', message: (err as Error).message ?? 'Apply failed' });
+      dispatch({ type: 'applying', value: false });
+    }
+  }, [routerId, router?.host, getCredentials, state, wifiInterfaces]);
 
   const goNext = () => {
     if (advanceProblem) {
@@ -155,5 +243,16 @@ export function useEasyConfig(routerId: string | undefined) {
     if (prev) dispatch({ type: 'step', step: prev });
   };
 
-  return { state, dispatch, interfaces, script, onApply, goNext, goPrev, advanceProblem };
+  return {
+    state,
+    dispatch,
+    interfaces,
+    interfacesLoading,
+    wifiInterfaces,
+    script,
+    onApply,
+    goNext,
+    goPrev,
+    advanceProblem,
+  };
 }

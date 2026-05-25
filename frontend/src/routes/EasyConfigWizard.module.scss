@@ -203,17 +203,47 @@
   }
 }
 
+.errorCheck {
+  animation: popIn 320ms cubic-bezier(0.2, 0.8, 0.2, 1.2);
+}
+
+.errorCircle {
+  stroke: #ef4444;
+  stroke-dasharray: 201;
+  stroke-dashoffset: 201;
+  animation: drawCircle 520ms ease-out forwards;
+}
+
+.errorCross,
+.errorCrossAlt {
+  stroke: #ef4444;
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: drawTick 220ms ease-out 440ms forwards;
+}
+
+.errorCrossAlt {
+  animation-delay: 600ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spinner {
     animation: none;
   }
   .successCheck,
   .successCircle,
-  .successTick {
+  .successTick,
+  .errorCheck,
+  .errorCircle,
+  .errorCross,
+  .errorCrossAlt {
     animation: none;
   }
   .successCircle,
-  .successTick {
+  .successTick,
+  .errorCircle,
+  .errorCross,
+  .errorCrossAlt {
     stroke-dashoffset: 0;
   }
 }
