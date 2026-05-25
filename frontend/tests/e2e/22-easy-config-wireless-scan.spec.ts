@@ -5,9 +5,17 @@ test.describe('Easy-Mode wizard — wireless WAN scan', () => {
     page,
     resetMocks,
     seedRouter,
+    mockEasyConfigBackend,
   }) => {
     await resetMocks();
     await seedRouter({ id: 'rtr_wscan', name: 'Wireless WAN Router' });
+    await mockEasyConfigBackend({
+      id: 'rtr_wscan',
+      scanNetworks: [
+        { ssid: 'NasNet-Home', security: 'wpa2-psk', signal: '-45' },
+        { ssid: 'Neighbor-WiFi', security: 'wpa2-psk', signal: '-70' },
+      ],
+    });
     await page.goto('/router/rtr_wscan/config');
 
     // Step 1 — Starlink-only

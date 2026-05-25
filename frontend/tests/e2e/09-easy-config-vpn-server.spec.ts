@@ -1,9 +1,15 @@
 import { test, expect } from './fixtures';
 
 test.describe('Easy-Mode wizard — VPN server step', () => {
-  test('configures WireGuard server with first user', async ({ page, resetMocks, seedRouter }) => {
+  test('configures WireGuard server with first user', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockEasyConfigBackend,
+  }) => {
     await resetMocks();
     await seedRouter({ id: 'rtr_vpn', name: 'VPN Router' });
+    await mockEasyConfigBackend({ id: 'rtr_vpn' });
     await page.goto('/router/rtr_vpn/config');
 
     // Step 1 — Choose

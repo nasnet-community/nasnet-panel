@@ -1,9 +1,15 @@
 import { test, expect } from './fixtures';
 
 test.describe('Easy-Mode wizard — Dual-link', () => {
-  test('DHCP domestic + L2TP IP-mask applies', async ({ page, resetMocks, seedRouter }) => {
+  test('DHCP domestic + L2TP IP-mask applies', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockEasyConfigBackend,
+  }) => {
     await resetMocks();
     await seedRouter({ id: 'rtr_dual', name: 'Dual Router' });
+    await mockEasyConfigBackend({ id: 'rtr_dual' });
     await page.goto('/router/rtr_dual/config');
 
     // Step 1 — Choose

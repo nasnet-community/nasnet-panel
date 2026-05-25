@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Laptop, SatelliteDish, Server, Wifi } from 'lucide-react';
 import {
   Card,
@@ -12,12 +12,17 @@ import {
 import wizardStyles from '../../EasyConfigWizard.module.scss';
 import type { InterfaceResponse } from '../../../api';
 import type { Action, InterfaceType, State } from '../state';
-import { WanInterfaceSelect, interfaceIcon } from './wan/WanInterfaceSelect';
+import {
+  WanInterfaceSelect,
+  availableInterfaceTypes,
+  interfaceIcon,
+} from './wan/WanInterfaceSelect';
 
 interface Props {
   state: State;
   dispatch: React.Dispatch<Action>;
   interfaces: InterfaceResponse[];
+  interfacesLoading?: boolean;
   footer?: React.ReactNode;
 }
 
@@ -37,9 +42,10 @@ function starlinkFlowNodes(starlinkInterface: string | undefined, type: Interfac
   ];
 }
 
-export function WanStep({ state, dispatch, interfaces, footer }: Props) {
+export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer }: Props) {
   const [focus, setFocus] = useState<'starlink' | 'domestic' | undefined>(undefined);
   const isDual = state.mode === 'dual-link';
+  const availableTypes = useMemo(() => availableInterfaceTypes(interfaces), [interfaces]);
 
   return (
     <Card>
@@ -56,6 +62,8 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
               state={state}
               dispatch={dispatch}
               interfaces={interfaces}
+              availableTypes={availableTypes}
+              loading={interfacesLoading}
               heading="Starlink WAN"
               ariaLabel="Starlink WAN"
               typeField="starlinkInterfaceType"
@@ -73,6 +81,8 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
                 state={state}
                 dispatch={dispatch}
                 interfaces={interfaces}
+                availableTypes={availableTypes}
+                loading={interfacesLoading}
                 heading="Domestic WAN"
                 ariaLabel="Domestic WAN"
                 typeField="domesticInterfaceType"

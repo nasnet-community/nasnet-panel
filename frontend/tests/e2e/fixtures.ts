@@ -77,6 +77,36 @@ export interface DhcpBackendOptions {
   id?: string;
 }
 
+export interface EasyConfigBackendInterface {
+  id?: string;
+  name: string;
+  type?: string;
+  running?: boolean;
+  disabled?: boolean;
+  defaultName?: string;
+}
+
+export interface EasyConfigBackendWifiInterface {
+  id?: string;
+  name?: string;
+  band: string;
+  ssid?: string;
+}
+
+export interface EasyConfigBackendScanNetwork {
+  ssid: string;
+  security?: string;
+  signal?: string;
+  channel?: string;
+}
+
+export interface EasyConfigBackendOptions {
+  id: string;
+  interfaces?: EasyConfigBackendInterface[];
+  wifiInterfaces?: EasyConfigBackendWifiInterface[];
+  scanNetworks?: EasyConfigBackendScanNetwork[];
+}
+
 export interface TestFixtures {
   resetMocks: () => Promise<void>;
   seedRouter: (input: SeedInput) => Promise<void>;
@@ -85,6 +115,7 @@ export interface TestFixtures {
   mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
   mockLogsBackend: (options?: LogsBackendOptions) => Promise<void>;
   mockDhcpBackend: (options?: DhcpBackendOptions) => Promise<void>;
+  mockEasyConfigBackend: (options: EasyConfigBackendOptions) => Promise<void>;
 }
 
 export const test = base.extend<TestFixtures>({
@@ -553,6 +584,100 @@ export const test = base.extend<TestFixtures>({
             availableTopics: ['system', 'info', 'pppoe', 'error', 'dhcp', 'warning'],
             availableLevels: ['debug', 'info', 'warning', 'error', 'critical'],
           }),
+        });
+      });
+    });
+  },
+  mockEasyConfigBackend: async ({ context }, use) => {
+    await use(async ({ id, interfaces, wifiInterfaces, scanNetworks }) => {
+      await context.addInitScript((routerId) => {
+        try {
+          const key = 'nasnet-panel.session-credentials.v1';
+          const raw = window.sessionStorage.getItem(key);
+          const map = (raw ? JSON.parse(raw) : {}) as Record<
+            string,
+            { username: string; password: string }
+          >;
+          map[routerId] = { username: 'admin', password: 'test' };
+          window.sessionStorage.setItem(key, JSON.stringify(map));
+        } catch {
+          /* ignore */
+        }
+      }, id);
+
+      const envelope = <T>(data: T, status = 200) =>
+        JSON.stringify({ status, message: 'OK', data });
+
+      const ifaces = (
+        interfaces ?? [
+          { id: '*1', name: 'ether1', type: 'ether', running: true, disabled: false },
+          { id: '*2', name: 'ether2', type: 'ether', running: true, disabled: false },
+          { id: '*3', name: 'Wifi2.4', type: 'wireless', running: true, disabled: false },
+        ]
+      ).map((i, idx) => ({
+        id: i.id ?? `*${idx + 1}`,
+        name: i.name,
+        type: i.type ?? 'ether',
+        running: i.running ?? true,
+        disabled: i.disabled ?? false,
+        defaultName: i.defaultName,
+      }));
+
+      const wifiIfaces = (
+        wifiInterfaces ?? [{ id: '*100', name: 'wifi1', band: '2ghz-ax', ssid: 'TestNet' }]
+      ).map((w, idx) => ({
+        id: w.id ?? `*${100 + idx}`,
+        name: w.name ?? `wifi${idx + 1}`,
+        interface: w.name ?? `wifi${idx + 1}`,
+        ssid: w.ssid ?? '',
+        frequency: '',
+        channelWidth: '',
+        macAddress: `AA:BB:CC:DD:EE:${(idx + 1).toString().padStart(2, '0')}`,
+        disabled: false,
+        running: true,
+        inactive: false,
+        mode: 'ap',
+        band: w.band,
+        securityType: 'wpa2-psk',
+      }));
+
+      const networks = (scanNetworks ?? []).map((n, idx) => ({
+        macAddress: `AA:BB:CC:DD:EE:${(idx + 1).toString().padStart(2, '0')}`,
+        ssid: n.ssid,
+        channel: n.channel ?? '36',
+        security: n.security ?? 'wpa2-psk',
+        signal: n.signal ?? '-50',
+      }));
+
+      await context.route('**/api/interface/interfaces', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(ifaces),
+        });
+      });
+
+      await context.route('**/api/wifi/interfaces', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(wifiIfaces),
+        });
+      });
+
+      await context.route('**/api/wifi/scan/**', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(networks),
+        });
+      });
+
+      await context.route('**/api/wizard/finalize', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(null),
         });
       });
     });

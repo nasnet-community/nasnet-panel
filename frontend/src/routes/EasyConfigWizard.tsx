@@ -14,8 +14,17 @@ import { useApplyDialog } from './easy-config/steps/show/useApplyDialog';
 
 export function EasyConfigWizard() {
   const { id } = useParams<{ id: string }>();
-  const { state, dispatch, interfaces, onApply, goNext, goPrev, advanceProblem } =
-    useEasyConfig(id);
+  const {
+    state,
+    dispatch,
+    interfaces,
+    interfacesLoading,
+    wifiInterfaces,
+    onApply,
+    goNext,
+    goPrev,
+    advanceProblem,
+  } = useEasyConfig(id);
   const activeIndex = stepOrder.indexOf(state.currentStep);
   const canSave = advanceProblem === null;
   const isLastStep = activeIndex === stepOrder.length - 1;
@@ -82,12 +91,25 @@ export function EasyConfigWizard() {
         return <ModeStep state={state} dispatch={dispatch} footer={footer} />;
       case 'wan':
         return (
-          <WanStep state={state} dispatch={dispatch} interfaces={interfaces} footer={footer} />
+          <WanStep
+            state={state}
+            dispatch={dispatch}
+            interfaces={interfaces}
+            interfacesLoading={interfacesLoading}
+            footer={footer}
+          />
         );
       case 'ipmask':
         return <IpMaskStep state={state} dispatch={dispatch} footer={footer} />;
       case 'wifi':
-        return <WifiStep state={state} dispatch={dispatch} footer={footer} />;
+        return (
+          <WifiStep
+            state={state}
+            dispatch={dispatch}
+            wifiInterfaces={wifiInterfaces}
+            footer={footer}
+          />
+        );
       case 'vpnsrv':
         return <VpnServerStep state={state} dispatch={dispatch} footer={footer} />;
       default:
