@@ -50,6 +50,33 @@ export interface WifiPassphraseResponse {
   passphrase: string;
 }
 
+export interface WifiAccessPointResponse {
+  macAddress?: string;
+  ssid?: string;
+  channel?: string;
+  security?: string;
+  signal?: string;
+}
+
+export async function scanWifiAccessPoints(
+  creds: WifiCredentials,
+  interfaceName: string,
+  signal?: AbortSignal,
+  durationSeconds?: number,
+): Promise<WifiAccessPointResponse[]> {
+  const query = durationSeconds ? `?duration=${durationSeconds}` : '';
+  const list = await apiRequest<WifiAccessPointResponse[] | null>(
+    `/api/wifi/scan/${encodeURIComponent(interfaceName)}${query}`,
+    {
+      method: 'GET',
+      headers: authHeaders(creds),
+      cache: 'no-store',
+      signal,
+    },
+  );
+  return list ?? [];
+}
+
 function authHeaders({ host, username, password }: WifiCredentials): Record<string, string> {
   return {
     Authorization: `Basic ${btoa(`${username}:${password}`)}`,

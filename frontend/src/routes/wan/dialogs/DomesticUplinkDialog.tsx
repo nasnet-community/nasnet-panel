@@ -1,8 +1,11 @@
-import { useReducer, useState } from 'react';
+import { useMemo, useReducer, useState } from 'react';
 import { Button, Dialog, FieldStack, FormError, Input, Label } from '@nasnet/ui';
 import type { DomesticUplink, InterfaceResponse } from '../../../api';
 import { reducer } from '../../easy-config/state';
-import { WanInterfaceSelect } from '../../easy-config/steps/wan/WanInterfaceSelect';
+import {
+  WanInterfaceSelect,
+  availableInterfaceTypes,
+} from '../../easy-config/steps/wan/WanInterfaceSelect';
 import { seedDomestic, domesticFromState } from '../mappers';
 
 interface Props {
@@ -21,6 +24,7 @@ export function DomesticUplinkDialog({ entity, interfaces, routerId, onCancel, o
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit = name.trim() !== '' && state.domesticInterface !== '' && !submitting;
+  const availableTypes = useMemo(() => availableInterfaceTypes(interfaces), [interfaces]);
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -62,6 +66,7 @@ export function DomesticUplinkDialog({ entity, interfaces, routerId, onCancel, o
           state={state}
           dispatch={dispatch}
           interfaces={interfaces}
+          availableTypes={availableTypes}
           heading="Domestic WAN"
           ariaLabel="Domestic WAN"
           typeField="domesticInterfaceType"
