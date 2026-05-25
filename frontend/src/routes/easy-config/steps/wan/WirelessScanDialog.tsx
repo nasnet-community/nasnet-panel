@@ -30,7 +30,7 @@ function securityLabel(security?: string): string {
 }
 
 function signalNumber(signal?: string): number {
-  const n = Number((signal ?? '').replace(/[^\d.\-]/g, ''));
+  const n = Number((signal ?? '').replace(/[^\d.-]/g, ''));
   return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY;
 }
 
