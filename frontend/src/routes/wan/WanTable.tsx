@@ -12,9 +12,10 @@ interface Props<T> {
   enabled: (row: T) => boolean;
   emptyIcon: React.ReactNode;
   emptyMessage: string;
-  onToggle: (row: T, enabled: boolean) => void;
-  onEdit: (row: T) => void;
-  onDelete: (row: T) => void;
+  onToggle?: (row: T, enabled: boolean) => void;
+  onEdit?: (row: T) => void;
+  editLabel?: (row: T) => string;
+  onDelete?: (row: T) => void;
 }
 
 export function WanTable<T>({
@@ -28,8 +29,10 @@ export function WanTable<T>({
   emptyMessage,
   onToggle,
   onEdit,
+  editLabel,
   onDelete,
 }: Props<T>) {
+  const showActions = !!onEdit || !!onDelete;
   return (
     <DataTable<T>
       rows={rows}
@@ -47,42 +50,55 @@ export function WanTable<T>({
         {
           key: 'status',
           header: 'Enabled',
-          render: (r) => (
-            <Switch
-              checked={enabled(r)}
-              onChange={(e) => onToggle(r, e.target.checked)}
-              aria-label={`toggle ${name(r)}`}
-            />
-          ),
+          render: (r) =>
+            onToggle ? (
+              <Switch
+                checked={enabled(r)}
+                onChange={(e) => onToggle(r, e.target.checked)}
+                aria-label={`toggle ${name(r)}`}
+              />
+            ) : (
+              <Badge tone={enabled(r) ? 'success' : 'neutral'}>
+                {enabled(r) ? 'enabled' : 'disabled'}
+              </Badge>
+            ),
         },
-        {
-          key: 'actions',
-          header: '',
-          render: (r) => (
-            <span className={styles.rowActions}>
-              <Button
-                size="sm"
-                variant="secondary"
-                className={styles.iconBtn}
-                title={`Edit ${name(r)}`}
-                aria-label={`edit ${name(r)}`}
-                onClick={() => onEdit(r)}
-              >
-                <Pencil size={14} aria-hidden />
-              </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                className={styles.iconBtn}
-                title={`Delete ${name(r)}`}
-                aria-label={`delete ${name(r)}`}
-                onClick={() => onDelete(r)}
-              >
-                <Trash2 size={14} aria-hidden />
-              </Button>
-            </span>
-          ),
-        },
+        ...(showActions
+          ? [
+              {
+                key: 'actions',
+                header: '',
+                render: (r: T) => (
+                  <span className={styles.rowActions}>
+                    {onEdit ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className={styles.iconBtn}
+                        title={editLabel ? editLabel(r) : `Edit ${name(r)}`}
+                        aria-label={editLabel ? editLabel(r) : `edit ${name(r)}`}
+                        onClick={() => onEdit(r)}
+                      >
+                        <Pencil size={14} aria-hidden />
+                      </Button>
+                    ) : null}
+                    {onDelete ? (
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        className={styles.iconBtn}
+                        title={`Delete ${name(r)}`}
+                        aria-label={`delete ${name(r)}`}
+                        onClick={() => onDelete(r)}
+                      >
+                        <Trash2 size={14} aria-hidden />
+                      </Button>
+                    ) : null}
+                  </span>
+                ),
+              },
+            ]
+          : []),
       ]}
     />
   );

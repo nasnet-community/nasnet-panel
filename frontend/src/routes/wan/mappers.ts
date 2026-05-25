@@ -1,67 +1,7 @@
-import type { DomesticUplink, StarlinkUplink, WanVpnClient } from '../../api';
 import { initial, type State } from '../easy-config/state';
+import type { WanVpnFormPayload } from './types';
 
-export function seedStarlink(entity?: StarlinkUplink): State {
-  if (!entity) return { ...initial };
-  return {
-    ...initial,
-    starlinkInterfaceType: entity.interfaceType,
-    starlinkInterface: entity.interfaceName,
-    starlinkWanSsid: entity.wirelessSsid ?? '',
-    starlinkWanPassword: entity.wirelessPassword ?? '',
-  };
-}
-
-export function starlinkFromState(
-  s: State,
-  routerId: string,
-  name: string,
-  enabled: boolean,
-): Omit<StarlinkUplink, 'id'> {
-  const wireless = s.starlinkInterfaceType === 'wireless';
-  return {
-    routerId,
-    name,
-    enabled,
-    interfaceType: s.starlinkInterfaceType,
-    interfaceName: s.starlinkInterface,
-    wirelessSsid: wireless ? s.starlinkWanSsid : undefined,
-    wirelessPassword: wireless ? s.starlinkWanPassword : undefined,
-  };
-}
-
-export function seedDomestic(entity?: DomesticUplink): State {
-  if (!entity) return { ...initial };
-  return {
-    ...initial,
-    domesticInterfaceType: entity.interfaceType,
-    domesticInterface: entity.interfaceName,
-    domesticWanSsid: entity.wirelessSsid ?? '',
-    domesticWanPassword: entity.wirelessPassword ?? '',
-    domesticMode: entity.mode,
-  };
-}
-
-export function domesticFromState(
-  s: State,
-  routerId: string,
-  name: string,
-  enabled: boolean,
-): Omit<DomesticUplink, 'id'> {
-  const wireless = s.domesticInterfaceType === 'wireless';
-  return {
-    routerId,
-    name,
-    enabled,
-    interfaceType: s.domesticInterfaceType,
-    interfaceName: s.domesticInterface,
-    wirelessSsid: wireless ? s.domesticWanSsid : undefined,
-    wirelessPassword: wireless ? s.domesticWanPassword : undefined,
-    mode: s.domesticMode,
-  };
-}
-
-export function seedVpn(entity?: WanVpnClient): State {
+export function seedVpn(entity?: WanVpnFormPayload): State {
   if (!entity) return { ...initial };
   return {
     ...initial,
@@ -83,13 +23,8 @@ export function seedVpn(entity?: WanVpnClient): State {
   };
 }
 
-export function vpnFromState(
-  s: State,
-  routerId: string,
-  name: string,
-  enabled: boolean,
-): Omit<WanVpnClient, 'id'> {
-  const base = { routerId, name, kind: s.ipMaskKind, enabled };
+export function vpnFromState(s: State, name: string, enabled: boolean): WanVpnFormPayload {
+  const base: WanVpnFormPayload = { name, kind: s.ipMaskKind, enabled };
   if (s.ipMaskKind === 'wireguard') {
     return {
       ...base,

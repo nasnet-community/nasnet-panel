@@ -22,6 +22,8 @@ export {
   fetchDynamicOverview,
   fetchInterfaceTraffic,
   fetchInterfaces,
+  updateWanInterface,
+  type WanInterfaceType,
   fetchRoutes,
   fetchVPNClients,
   rebootSystem,

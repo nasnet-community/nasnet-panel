@@ -1,81 +1,110 @@
 import { useState } from 'react';
 import { SatelliteDish } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
-import { api, type InterfaceResponse, type StarlinkUplink } from '../../../api';
+import {
+  ApiError,
+  updateWanInterface,
+  type InterfaceResponse,
+  type SystemCredentials,
+} from '../../../api';
+import { useSession } from '../../../state/SessionContext';
+import { useRouter } from '../../../state/RouterStoreContext';
 import { SectionHeader } from '../../vpn/sections/SectionHeader';
 import { WanTable } from '../WanTable';
-import { StarlinkUplinkDialog } from '../dialogs/StarlinkUplinkDialog';
+import { WanUplinkDialog } from '../dialogs/WanUplinkDialog';
 
 interface Props {
   routerId: string;
-  items: StarlinkUplink[];
+  items: InterfaceResponse[];
   interfaces: InterfaceResponse[];
+  excludeNames?: string[];
+  interfacesLoading?: boolean;
   onChanged: () => void;
 }
 
-export function StarlinkSection({ routerId, items, interfaces, onChanged }: Props) {
+export function StarlinkSection({
+  routerId,
+  items,
+  interfaces,
+  excludeNames,
+  interfacesLoading,
+  onChanged,
+}: Props) {
   const toast = useToast();
+  const { getCredentials } = useSession();
+  const router = useRouter(routerId);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<StarlinkUplink | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<StarlinkUplink | null>(null);
-  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [pendingMove, setPendingMove] = useState<InterfaceResponse | null>(null);
+  const [moveSubmitting, setMoveSubmitting] = useState(false);
 
-  const openAdd = () => {
-    setEditing(null);
-    setDialogOpen(true);
-  };
-  const openEdit = (u: StarlinkUplink) => {
-    setEditing(u);
-    setDialogOpen(true);
-  };
-  const closeDialog = () => {
-    setDialogOpen(false);
-    setEditing(null);
+  const resolveCreds = (): SystemCredentials | null => {
+    const creds = getCredentials(routerId);
+    const host = router?.host;
+    if (!creds || !host) return null;
+    return { host, ...creds };
   };
 
-  const onSubmit = async (payload: Omit<StarlinkUplink, 'id'>) => {
-    if (editing) await api.wan.updateStarlink(editing.id, payload);
-    else await api.wan.createStarlink(payload);
+  const openAdd = () => setDialogOpen(true);
+  const closeDialog = () => setDialogOpen(false);
+
+  const onSubmit = async (interfaceName: string) => {
+    const creds = resolveCreds();
+    if (!creds) {
+      toast.notify({
+        title: 'Missing router credentials',
+        description: 'Reconnect to the router and try again.',
+        tone: 'danger',
+      });
+      return;
+    }
+    try {
+      await updateWanInterface(creds, interfaceName, 'foreign');
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to assign interface.';
+      toast.notify({
+        title: 'Failed to add Starlink uplink',
+        description: message,
+        tone: 'danger',
+      });
+      return;
+    }
     closeDialog();
-    toast.notify({
-      title: editing ? 'Starlink uplink updated' : 'Starlink uplink added',
-      tone: 'success',
-    });
+    toast.notify({ title: 'Starlink uplink added', tone: 'success' });
     onChanged();
   };
 
-  const onConfirmDelete = async () => {
-    if (!pendingDelete) return;
-    const target = pendingDelete;
-    setDeleteSubmitting(true);
-    try {
-      await api.wan.deleteStarlink(target.id);
-    } catch (err) {
+  const onConfirmMove = async () => {
+    if (!pendingMove) return;
+    const target = pendingMove;
+    const creds = resolveCreds();
+    if (!creds) {
       toast.notify({
-        title: 'Failed to delete uplink',
-        description: err instanceof Error ? err.message : undefined,
-        tone: 'danger',
-      });
-      setDeleteSubmitting(false);
-      return;
-    }
-    setDeleteSubmitting(false);
-    setPendingDelete(null);
-    toast.notify({ title: `Uplink "${target.name}" deleted`, tone: 'info' });
-    onChanged();
-  };
-
-  const onToggle = async (u: StarlinkUplink, enabled: boolean) => {
-    try {
-      await api.wan.updateStarlink(u.id, { enabled });
-    } catch (err) {
-      toast.notify({
-        title: 'Failed to update uplink',
-        description: err instanceof Error ? err.message : undefined,
+        title: 'Missing router credentials',
+        description: 'Reconnect to the router and try again.',
         tone: 'danger',
       });
       return;
     }
+    setMoveSubmitting(true);
+    try {
+      await updateWanInterface(creds, target.name, 'domestic');
+    } catch (err) {
+      toast.notify({
+        title: 'Failed to move uplink',
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+      setMoveSubmitting(false);
+      return;
+    }
+    setMoveSubmitting(false);
+    setPendingMove(null);
+    toast.notify({ title: `Moved "${target.name}" to Domestic`, tone: 'info' });
     onChanged();
   };
 
@@ -84,42 +113,44 @@ export function StarlinkSection({ routerId, items, interfaces, onChanged }: Prop
       <Card>
         <SectionHeader
           title="Foreign / Starlink"
-          description="Starlink uplink interfaces."
+          description="Interfaces tagged as the foreign (Starlink) uplink."
           action={{ label: 'New', onClick: openAdd }}
         />
         <WanTable
           rows={items}
-          rowKey={(u) => u.id}
-          name={(u) => u.name}
-          tag={(u) => u.interfaceType}
-          detail={(u) => u.interfaceName || 'no interface'}
-          enabled={(u) => u.enabled}
+          rowKey={(i) => i.id}
+          name={(i) => i.name}
+          tag={(i) => i.type}
+          detail={(i) => i.comment || '—'}
+          enabled={(i) => !i.disabled}
           emptyIcon={<SatelliteDish size={20} aria-hidden />}
           emptyMessage="No Starlink uplinks yet"
-          onToggle={onToggle}
-          onEdit={(u) => openEdit(u)}
-          onDelete={(u) => setPendingDelete(u)}
+          editLabel={(i) => `Move ${i.name} to Domestic`}
+          onEdit={(i) => setPendingMove(i)}
         />
       </Card>
       {dialogOpen ? (
-        <StarlinkUplinkDialog
-          entity={editing ?? undefined}
+        <WanUplinkDialog
+          variant="foreign"
+          title="Add Starlink uplink"
           interfaces={interfaces}
-          routerId={routerId}
+          excludeNames={excludeNames}
+          interfacesLoading={interfacesLoading}
           onCancel={closeDialog}
           onSubmit={onSubmit}
         />
       ) : null}
       <ConfirmDialog
-        open={!!pendingDelete}
-        title="Delete Starlink uplink"
+        open={!!pendingMove}
+        title="Move to Domestic"
         description={
-          pendingDelete ? `Remove "${pendingDelete.name}"? This cannot be undone.` : undefined
+          pendingMove
+            ? `Re-tag "${pendingMove.name}" as the Domestic uplink? It will move to that section.`
+            : undefined
         }
-        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
-        destructive
-        onConfirm={onConfirmDelete}
-        onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+        confirmLabel={moveSubmitting ? 'Moving…' : 'Move'}
+        onConfirm={onConfirmMove}
+        onCancel={() => (moveSubmitting ? undefined : setPendingMove(null))}
       />
     </Stack>
   );
