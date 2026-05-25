@@ -1,7 +1,7 @@
 name: Installation issue
 description: The installer or container deployment failed on your router or host.
-title: "[Install]: "
-labels: ["install", "needs-triage"]
+title: '[Install]: '
+labels: ['install', 'needs-triage']
 body:
   - type: markdown
     attributes:

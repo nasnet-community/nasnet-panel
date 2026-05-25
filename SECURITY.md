@@ -4,10 +4,10 @@
 
 Nasnet Panel is pre-1.0; only the latest released `0.x.y` is supported with security fixes. Older tags will not receive backports.
 
-| Version       | Supported          |
-| ------------- | ------------------ |
-| Latest `0.x`  | Yes                |
-| Anything else | No                 |
+| Version       | Supported |
+| ------------- | --------- |
+| Latest `0.x`  | Yes       |
+| Anything else | No        |
 
 ## Reporting a vulnerability
 

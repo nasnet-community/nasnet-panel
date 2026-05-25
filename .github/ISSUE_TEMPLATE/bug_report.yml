@@ -1,7 +1,7 @@
 name: Bug report
 description: Report something that is broken or behaves incorrectly.
-title: "[Bug]: "
-labels: ["bug", "needs-triage"]
+title: '[Bug]: '
+labels: ['bug', 'needs-triage']
 body:
   - type: markdown
     attributes:
@@ -58,7 +58,7 @@ body:
     attributes:
       label: Actual behaviour
       description: What actually happens. Include error messages, stack traces, or screenshots.
-      placeholder: The page shows a blank screen and the console logs `TypeError: Cannot read properties of undefined (reading 'toISOString')`.
+      placeholder: "The page shows a blank screen and the console logs `TypeError: Cannot read properties of undefined (reading 'toISOString')`."
     validations:
       required: true
 

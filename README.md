@@ -198,17 +198,17 @@ When it finishes, the panel is reachable at `http://<router-ip>:8080` (or whatev
 
 **Flags**
 
-| Flag                  | Purpose                                                            |
-| --------------------- | ------------------------------------------------------------------ |
-| `--dry-run`           | Print every action the script would take, change nothing.          |
-| `--uninstall`         | Remove the container, networking, NAT rules, and uploaded tarball. |
-| `--config <file>`     | Env-style file with `ROUTER_IP=`, `ROUTER_USER=`, `ROUTER_PASS=`.  |
-| `--version <tag>`     | Release tag to install. Defaults to the latest release.            |
-| `--image-tar <path>`  | Use a local tarball instead of downloading a release asset.        |
-| `--lan-port <port>`   | LAN-facing port for the dst-nat rule (default `8080`).             |
-| `--no-rollback`       | Do not undo partial state on failure (useful for debugging).       |
-| `-v`, `--verbose`     | Verbose output.                                                    |
-| `-h`, `--help`        | Show usage.                                                        |
+| Flag                 | Purpose                                                            |
+| -------------------- | ------------------------------------------------------------------ |
+| `--dry-run`          | Print every action the script would take, change nothing.          |
+| `--uninstall`        | Remove the container, networking, NAT rules, and uploaded tarball. |
+| `--config <file>`    | Env-style file with `ROUTER_IP=`, `ROUTER_USER=`, `ROUTER_PASS=`.  |
+| `--version <tag>`    | Release tag to install. Defaults to the latest release.            |
+| `--image-tar <path>` | Use a local tarball instead of downloading a release asset.        |
+| `--lan-port <port>`  | LAN-facing port for the dst-nat rule (default `8080`).             |
+| `--no-rollback`      | Do not undo partial state on failure (useful for debugging).       |
+| `-v`, `--verbose`    | Verbose output.                                                    |
+| `-h`, `--help`       | Show usage.                                                        |
 
 **What the installer does, step by step**
 
@@ -238,31 +238,31 @@ Requires Node.js 20+ and Go 1.26+.
 
 The backend reads its configuration from environment variables. See `backend/.env.example`.
 
-| Variable      | Default            | Purpose                                                         |
-| ------------- | ------------------ | --------------------------------------------------------------- |
-| `PORT`        | `8080` (dev), `80` (container) | TCP port the API and embedded SPA listen on.        |
-| `HOST`        | `0.0.0.0`          | Bind address.                                                   |
-| `ENVIRONMENT` | `development`      | `production` disables dev-only routes (notably Swagger UI).     |
-| `BACKEND_URL` | _empty_            | Build-time. Empty means the SPA uses relative URLs to its own origin (the common case for the embedded build). |
+| Variable      | Default                        | Purpose                                                                                                        |
+| ------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `PORT`        | `8080` (dev), `80` (container) | TCP port the API and embedded SPA listen on.                                                                   |
+| `HOST`        | `0.0.0.0`                      | Bind address.                                                                                                  |
+| `ENVIRONMENT` | `development`                  | `production` disables dev-only routes (notably Swagger UI).                                                    |
+| `BACKEND_URL` | _empty_                        | Build-time. Empty means the SPA uses relative URLs to its own origin (the common case for the embedded build). |
 
 ## Development
 
 ### npm scripts
 
-| Script                       | What it does                                                |
-| ---------------------------- | ----------------------------------------------------------- |
-| `npm run dev`                | Frontend only (Webpack Dev Server, port 3000).              |
-| `npm run dev:backend`        | Backend only (`air` hot-reload, port 8080).                 |
-| `npm run dev:all`            | Both, with shared interrupt handling.                       |
-| `npm run build`              | Production frontend bundle to `frontend/dist`.              |
-| `npm run build:backend`      | `go build` to `backend/bin/api`.                            |
-| `npm run typecheck`          | `tsc -b`.                                                   |
-| `npm run lint` / `lint:fix`  | ESLint over `.ts` / `.tsx`.                                 |
-| `npm run format`             | Prettier write.                                             |
-| `npm run format:check`       | Prettier check (CI uses this).                              |
-| `npm run e2e`                | Playwright, headless.                                       |
-| `npm run e2e:headed`         | Playwright, headed.                                         |
-| `npm run e2e:install-browsers` | First-time Playwright browser install.                    |
+| Script                         | What it does                                   |
+| ------------------------------ | ---------------------------------------------- |
+| `npm run dev`                  | Frontend only (Webpack Dev Server, port 3000). |
+| `npm run dev:backend`          | Backend only (`air` hot-reload, port 8080).    |
+| `npm run dev:all`              | Both, with shared interrupt handling.          |
+| `npm run build`                | Production frontend bundle to `frontend/dist`. |
+| `npm run build:backend`        | `go build` to `backend/bin/api`.               |
+| `npm run typecheck`            | `tsc -b`.                                      |
+| `npm run lint` / `lint:fix`    | ESLint over `.ts` / `.tsx`.                    |
+| `npm run format`               | Prettier write.                                |
+| `npm run format:check`         | Prettier check (CI uses this).                 |
+| `npm run e2e`                  | Playwright, headless.                          |
+| `npm run e2e:headed`           | Playwright, headed.                            |
+| `npm run e2e:install-browsers` | First-time Playwright browser install.         |
 
 ## Building from source
 
