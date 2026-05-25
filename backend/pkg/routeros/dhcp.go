@@ -305,8 +305,8 @@ func (c *Client) ConfigureDHCPClient(nameOrID string) (interfaceName, clientID s
 		clientID = existing[".id"]
 		_, err = c.Set("/ip/dhcp-client",
 			"=.id="+clientID,
-			"=use-peer-dns=yes",
-			"=use-peer-ntp=yes",
+			"=use-peer-dns=no",
+			"=use-peer-ntp=no",
 			"=add-default-route=no",
 			"=disabled=no",
 		)
@@ -318,8 +318,8 @@ func (c *Client) ConfigureDHCPClient(nameOrID string) (interfaceName, clientID s
 
 	clientID, err = c.Add("/ip/dhcp-client",
 		"=interface="+interfaceName,
-		"=use-peer-dns=yes",
-		"=use-peer-ntp=yes",
+		"=use-peer-dns=no",
+		"=use-peer-ntp=no",
 		"=add-default-route=no",
 		"=disabled=no",
 	)

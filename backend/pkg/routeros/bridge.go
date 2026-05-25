@@ -49,3 +49,23 @@ func (c *Client) GetBridgePortByMAC(macAddress string) (string, error) {
 
 	return onInterface, nil
 }
+
+// RemoveBridgeMemberByName removes an interface from any bridge it's a member of by interface name.
+func (c *Client) RemoveBridgeMemberByName(ifName string) error {
+	results, err := c.GetAll("/interface/bridge/port")
+	if err != nil {
+		return fmt.Errorf("failed to list bridge members: %w", err)
+	}
+
+	for _, result := range results {
+		if result["interface"] == ifName {
+			_, err := c.Remove("/interface/bridge/port", "=.id="+result[".id"])
+			if err != nil {
+				return fmt.Errorf("failed to remove bridge member %s: %w", ifName, err)
+			}
+			return nil
+		}
+	}
+
+	return nil
+}

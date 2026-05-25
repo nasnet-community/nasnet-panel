@@ -109,4 +109,5 @@ func RegisterRoutes(e *echo.Echo) {
 	wizardGroup.GET("/status", handler.HandleGetWizardStatus)
 	wizardGroup.PUT("/status", handler.HandleUpdateWizardStatus)
 	wizardGroup.POST("/finalize", handler.HandleFinalizeWizard)
+	wizardGroup.GET("/finalize/:taskId", handler.HandleGetWizardFinalizeTaskStatus)
 }
