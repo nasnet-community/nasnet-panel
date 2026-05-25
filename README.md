@@ -28,19 +28,13 @@ Active development, pre-1.0. Public APIs, configuration, and on-disk layout may 
 
 ## About
 
-Nasnet Panel (binary name `nasnet-panel`) is a self-hosted web UI for administering MikroTik RouterOS routers. It speaks to RouterOS over its REST API, native RouterOS API (8728/8729), SSH, and Telnet, with automatic protocol fallback. The frontend is a React SPA; the backend is a small Go service that proxies router calls, scans subnets for MikroTik devices, and orchestrates batch commands with optional rollback.
-
-## Screenshots
-
 <div align="center">
 
-![Dashboard](docs/screenshots/dashboard.png)
-![Firewall](docs/screenshots/firewall.png)
-![Wireless](docs/screenshots/wireless.png)
-
-_Drop PNGs at `docs/screenshots/` to populate._
+<img src="docs/screenshots/wizard.png" alt="Wizard" />
 
 </div>
+
+Nasnet Panel (binary name `nasnet-panel`) is a self-hosted web UI for administering MikroTik RouterOS routers. It speaks to RouterOS over its REST API, native RouterOS API (8728/8729), SSH, and Telnet, with automatic protocol fallback. The frontend is a React SPA; the backend is a small Go service that proxies router calls, scans subnets for MikroTik devices, and orchestrates batch commands with optional rollback.
 
 ## Features
 
