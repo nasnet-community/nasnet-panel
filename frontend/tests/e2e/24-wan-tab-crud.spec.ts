@@ -245,7 +245,7 @@ test.describe('WAN tab', () => {
     await expect.poll(() => state.wanPuts.length).toBe(1);
     expect(state.wanPuts[0]).toMatchObject({ name: 'ether1', body: { type: 'foreign' } });
 
-    await expect(page.getByRole('cell', { name: 'ether1' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'ether1', exact: true })).toBeVisible();
 
     // Move to Domestic via the pencil button on the row.
     await page.getByRole('button', { name: /move ether1 to domestic/i }).click();
@@ -302,7 +302,7 @@ test.describe('WAN tab', () => {
     await dialog.getByRole('radio', { name: 'L2TP' }).click();
     await dialog.getByLabel('Server').fill('vpn.example.com');
     await dialog.getByLabel('Username').fill('user');
-    await dialog.getByLabel('Password').fill('secret');
+    await dialog.getByRole('textbox', { name: 'Password' }).fill('secret');
     await dialog.getByRole('button', { name: /^save$/i }).click();
 
     await expect.poll(() => state.l2tpPosts.length).toBe(1);
@@ -319,7 +319,7 @@ test.describe('WAN tab', () => {
     });
     // After the comment patch, the client should be classified as masking (foreign).
     state.vpnClients[0].comment = 'WAN - Foreign Link(Foreign)';
-    await expect(page.getByRole('cell', { name: 'mask-one' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'mask-one', exact: true })).toBeVisible();
   });
 
   test('delete a domestic VPN client via real BE', async ({
@@ -352,7 +352,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await expect(page.getByRole('cell', { name: 'dom-l2tp' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'dom-l2tp', exact: true })).toBeVisible();
     await page.getByRole('button', { name: /delete dom-l2tp/i }).click();
     await page
       .getByRole('dialog')
