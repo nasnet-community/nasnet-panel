@@ -893,6 +893,26 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 		return
 	}
 
+	currentStatus := &WizardStatus{
+		Completed:   false,
+		CompletedAt: nil,
+		CurrentStep: "step1",
+	}
+
+	envVal, err := client.GetEnvironmentVariable("WizardStatus")
+	if err == nil && envVal != "" {
+		_ = json.Unmarshal([]byte(envVal), currentStatus)
+	}
+
+	currentStatus.Completed = true
+	now := time.Now()
+	currentStatus.CompletedAt = &now
+
+	statusJSON, err := json.Marshal(currentStatus)
+	if err == nil {
+		_ = client.SetEnvironmentVariable("WizardStatus", string(statusJSON))
+	}
+
 	task.mu.Lock()
 	task.Status = "completed"
 	task.Progress = 100
