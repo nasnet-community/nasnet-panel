@@ -1,6 +1,8 @@
 package handler
 
-import "time"
+import (
+	"time"
+)
 
 // VPNCredentialsResponse represents VPN credentials in the API response.
 type VPNCredentialsResponse struct {
@@ -19,8 +21,50 @@ type WizardStatus struct {
 
 // UpdateWizardStatusRequest represents a request to update wizard status fields.
 type UpdateWizardStatusRequest struct {
-	Completed   *bool      `json:"completed" example:"false"`
-	CompletedAt *time.Time `json:"completedAt" example:"null"`
-	Version     *int       `json:"version" example:"1"`
-	CurrentStep *string    `json:"currentStep" example:"step2"`
+	Completed   *bool   `json:"completed" example:"false"`
+	CurrentStep *string `json:"currentStep" example:"step2"`
+}
+
+// MaskingL2tpConfig represents L2TP masking configuration.
+type MaskingL2tpConfig struct {
+	ConnectTo   string `json:"connectTo" example:"192.168.1.1"`
+	Disabled    bool   `json:"disabled" example:"false"`
+	IPsecSecret string `json:"ipsecSecret" example:"secretpassphrase123"`
+	Name        string `json:"name" example:"my-l2tp/client"`
+	Password    string `json:"password" example:"password123"`
+	User        string `json:"user" example:"username"`
+}
+
+// MaskingWireGuardConfig represents WireGuard masking configuration.
+type MaskingWireGuardConfig struct {
+	Config string `json:"config" example:"[Interface]\nListenPort = 51820\n..."`
+}
+
+// WiFiInterfaceConfig represents WiFi interface configuration.
+type WiFiInterfaceConfig struct {
+	ID       string `json:"id" example:"*1D"`
+	SSID     string `json:"ssid" example:"MyWiFiNetwork-2.4Ghz"`
+	Password string `json:"password" example:"wifiPassword123"`
+}
+
+// OvpnUser represents an OpenVPN user.
+type OvpnUser struct {
+	Username string `json:"username" example:"vpnuser"`
+	Password string `json:"password" example:"userpassword123"`
+}
+
+// OvpnServerConfig represents OpenVPN server configuration.
+type OvpnServerConfig struct {
+	ClientCertificatePassword string     `json:"clientCertificatePassword" example:"cert-password123"`
+	Users                     []OvpnUser `json:"users"`
+}
+
+// FinalizeWizardRequest represents the complete wizard finalization request.
+type FinalizeWizardRequest struct {
+	ForeignInterface  string                  `json:"foreignInterface" example:"ether1"`
+	DomesticInterface string                  `json:"domesticInterface" example:"ether2"`
+	MaskingL2tp       *MaskingL2tpConfig      `json:"maskingL2tp"`
+	MaskingWireGuard  *MaskingWireGuardConfig `json:"maskingWireGuard"`
+	WiFiInterfaces    []WiFiInterfaceConfig   `json:"wifiInterfaces"`
+	OvpnServer        *OvpnServerConfig       `json:"ovpnServer"`
 }

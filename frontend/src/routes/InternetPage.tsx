@@ -2,8 +2,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardDescription, CardHeader, CardTitle, Stack, useToast } from '@nasnet/ui';
 import type { RoutingTopology } from '@nasnet/mocks';
-import { api } from '../api';
+import { ApiError, updateVPNClient } from '../api';
+import { useRouter } from '../state/RouterStoreContext';
+import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
+import { buildTopology } from './internet/buildTopology';
 import { Edge } from './internet/Edge';
 import { HopEditDialog } from './internet/HopEditDialog';
 import { NodeBubble } from './internet/NodeBubble';
@@ -22,42 +25,74 @@ import styles from './InternetPage.module.scss';
 
 export function InternetPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter(id);
+  const { getCredentials } = useSession();
   const toast = useToast();
   const [topology, setTopology] = useState<RoutingTopology | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [editingHopId, setEditingHopId] = useState<string | null>(null);
 
+  const creds = useMemo(() => {
+    if (!id) return null;
+    const c = getCredentials(id);
+    const host = router?.host;
+    if (!c || !host) return null;
+    return { host, username: c.username, password: c.password };
+  }, [id, router?.host, getCredentials]);
+
   const reload = useCallback(async () => {
-    if (!id) return;
+    if (!id || !creds) return;
     try {
-      const t = await api.routing.getTopology(id);
+      const t = await buildTopology(id, creds);
       setTopology(t);
       setLoaded(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load routing topology.';
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to load routing topology.';
       toast.notify({
         title: 'Failed to load Internet topology',
         description: message,
         tone: 'danger',
       });
     }
-  }, [id, toast]);
+  }, [id, creds, toast]);
 
-  usePolling(reload, 5000, !!id && editingHopId === null);
+  usePolling(reload, 5000, !!creds && editingHopId === null);
 
   const handleSaveHop = useCallback(
-    async ({ hopId, isActive, fromId }: { hopId: string; isActive: boolean; fromId?: string }) => {
-      if (!id) return;
+    async ({ hopId, isActive }: { hopId: string; isActive: boolean }) => {
+      if (!creds || !topology) return;
+      const hop = topology.hops.find((h) => h.id === hopId);
+      const target = hop ? topology.nodes.find((n) => n.id === hop.toId) : undefined;
+      if (!hop || !target) return;
+      if (target.kind !== 'vpn') {
+        toast.notify({
+          title: 'Not supported yet',
+          description: 'Only VPN tunnels can be toggled from this view.',
+          tone: 'warning',
+        });
+        return;
+      }
+      const vpnName = target.id.replace(/^vpn_/, '');
       try {
-        const next = await api.routing.updateHop(id, hopId, { isActive, fromId });
-        setTopology(next);
-        toast.notify({ title: 'Routing updated', tone: 'success' });
+        await updateVPNClient(creds, vpnName, { disabled: !isActive });
+        await reload();
+        toast.notify({ title: 'VPN tunnel updated', tone: 'success' });
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to update hop.';
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : 'Failed to update VPN tunnel.';
         toast.notify({ title: 'Update failed', description: message, tone: 'danger' });
       }
     },
-    [id, toast],
+    [creds, topology, toast, reload],
   );
 
   const reachable = useMemo(
@@ -84,8 +119,8 @@ export function InternetPage() {
         <CardHeader>
           <CardTitle>Internet routing</CardTitle>
           <CardDescription>
-            Live view of how clients reach the internet via WAN uplinks and VPN tunnels. Click a WAN
-            or VPN icon to toggle its link or reroute through a different upstream.
+            Live view of how clients reach the internet via WAN uplinks and VPN tunnels. Click a VPN
+            tunnel to enable or disable it.
           </CardDescription>
         </CardHeader>
         <div className={styles.wrap} aria-busy={!loaded}>
@@ -146,8 +181,7 @@ export function InternetPage() {
                   />
                 ))}
                 {positioned.map((node) => {
-                  const editable =
-                    node.kind === 'wan' || node.kind === 'vpn' || node.kind === 'router';
+                  const editable = node.kind === 'vpn';
                   return (
                     <NodeBubble
                       key={node.id}
@@ -185,7 +219,7 @@ export function InternetPage() {
               <span className={styles.legendDot} />
               Live traffic
             </span>
-            <span className={styles.legendItem}>Click a node to configure</span>
+            <span className={styles.legendItem}>Click a VPN tunnel to toggle</span>
           </div>
         </div>
       </Card>

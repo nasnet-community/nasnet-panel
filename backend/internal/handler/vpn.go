@@ -1677,6 +1677,42 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param request body CreateOvpnServerRequest true "OpenVPN server creation request with users array"
+// LaunchOpenVpnServerCreation launches an async OpenVPN server creation task and returns the task ID.
+// This is used internally by handlers to create OpenVPN servers asynchronously.
+func LaunchOpenVpnServerCreation(client *routeros.Client, req CreateOvpnServerRequest) string {
+	startCleanupIfNeeded()
+
+	taskID := fmt.Sprintf("%d", time.Now().Unix())
+	task := &OvpnServerTask{
+		ID:        taskID,
+		Status:    "running",
+		Progress:  0,
+		StartTime: time.Now(),
+	}
+
+	ovpnServerPool.mu.Lock()
+	ovpnServerPool.activeTasks[taskID] = task
+	ovpnServerPool.mu.Unlock()
+
+	go processOvpnServerTask(client, task, req)
+
+	return taskID
+}
+
+// GetOpenVpnServerTaskStatus retrieves the status of an OpenVPN server creation task.
+// Returns nil if the task is not found.
+func GetOpenVpnServerTaskStatus(taskID string) *OvpnServerTask {
+	ovpnServerPool.mu.RLock()
+	task, exists := ovpnServerPool.activeTasks[taskID]
+	ovpnServerPool.mu.RUnlock()
+
+	if !exists {
+		return nil
+	}
+
+	return task
+}
+
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
@@ -1689,8 +1725,6 @@ func HandleCreateOvpnServer(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-
-	startCleanupIfNeeded()
 
 	var req CreateOvpnServerRequest
 	if err := c.Bind(&req); err != nil {
@@ -1720,20 +1754,7 @@ func HandleCreateOvpnServer(c echo.Context) error {
 		}
 	}
 
-	taskID := fmt.Sprintf("%d", time.Now().Unix())
-	task := &OvpnServerTask{
-		ID:        taskID,
-		Status:    "running",
-		Progress:  0,
-		StartTime: time.Now(),
-		Result:    make(map[string]interface{}),
-	}
-
-	ovpnServerPool.mu.Lock()
-	ovpnServerPool.activeTasks[taskID] = task
-	ovpnServerPool.mu.Unlock()
-
-	go processOvpnServerTask(client, task, req)
+	taskID := LaunchOpenVpnServerCreation(client, req)
 
 	return SuccessResponse(c, http.StatusOK, "OpenVPN server creation task started", map[string]interface{}{
 		"taskId": taskID,
