@@ -1,7 +1,6 @@
 import { useReducer, useState } from 'react';
 import { Globe, Shield } from 'lucide-react';
 import { Button, Dialog, FieldStack, FormError, Input, Label } from '@nasnet/ui';
-import type { WanVpnClient } from '../../../api';
 import { reducer, type State } from '../../easy-config/state';
 import {
   ProtocolTilePicker,
@@ -10,6 +9,7 @@ import {
 import { IpMaskWireguardConfig } from '../../easy-config/steps/ipmask/IpMaskWireguardConfig';
 import { IpMaskL2tpFields } from '../../easy-config/steps/ipmask/IpMaskL2tpFields';
 import { seedVpn, vpnFromState } from '../mappers';
+import type { WanVpnFormPayload } from '../types';
 
 type Kind = State['ipMaskKind'];
 
@@ -30,14 +30,13 @@ const TILES: Array<ProtocolTile<Kind>> = [
 ];
 
 interface Props {
-  entity?: WanVpnClient;
-  routerId: string;
+  entity?: WanVpnFormPayload;
   addTitle: string;
   onCancel: () => void;
-  onSubmit: (payload: Omit<WanVpnClient, 'id'>) => Promise<void>;
+  onSubmit: (payload: WanVpnFormPayload) => Promise<void>;
 }
 
-export function WanVpnDialog({ entity, routerId, addTitle, onCancel, onSubmit }: Props) {
+export function WanVpnDialog({ entity, addTitle, onCancel, onSubmit }: Props) {
   const [state, dispatch] = useReducer(reducer, undefined, () => seedVpn(entity));
   const [name, setName] = useState(entity?.name ?? '');
   const enabled = entity?.enabled ?? true;
@@ -51,7 +50,7 @@ export function WanVpnDialog({ entity, routerId, addTitle, onCancel, onSubmit }:
     setError(null);
     setSubmitting(true);
     try {
-      await onSubmit(vpnFromState(state, routerId, name.trim(), enabled));
+      await onSubmit(vpnFromState(state, name.trim(), enabled));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save VPN client.');
       setSubmitting(false);

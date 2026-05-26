@@ -145,6 +145,23 @@ export async function fetchInterfaces(
   return list ?? [];
 }
 
+export type WanInterfaceType = 'foreign' | 'domestic';
+
+export async function updateWanInterface(
+  creds: SystemCredentials,
+  name: string,
+  type: WanInterfaceType,
+): Promise<void> {
+  await apiRequest<unknown>(`/api/interface/wan/${encodeURIComponent(name)}`, {
+    method: 'PUT',
+    headers: {
+      ...authHeaders(creds),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ type }),
+  });
+}
+
 export async function fetchRoutes(
   creds: SystemCredentials,
   signal?: AbortSignal,

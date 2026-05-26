@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import type { Router } from '../../packages/mocks/src/types';
+import type { Router } from '../../src/mocks/types';
 
 export interface SeedInput extends Partial<Router> {
   id: string;
@@ -797,17 +797,5 @@ export const test = base.extend<TestFixtures>({
     });
   },
 });
-
-declare global {
-  interface Window {
-    __MOCKS__?: {
-      reset: () => void;
-      seedEmpty: () => void;
-      seedRouter: (input: SeedInput) => Router;
-    };
-    __SEED_EMPTY__?: boolean;
-    __PENDING_SEEDS__?: SeedInput[];
-  }
-}
 
 export const expect = test.expect;

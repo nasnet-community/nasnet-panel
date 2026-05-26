@@ -1,75 +1,125 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from '@nasnet/ui';
 import {
-  api,
   ApiError,
-  type DomesticUplink,
+  fetchInterfaces,
   type InterfaceResponse,
-  type StarlinkUplink,
-  type WanVpnClient,
+  type SystemCredentials,
+  type VPNClientResponse,
 } from '../api';
+import { useSession } from '../state/SessionContext';
+import { useRouter } from '../state/RouterStoreContext';
 import { usePolling } from '../utils/usePolling';
 import styles from './wan/WanPage.module.scss';
-import { toInterfaceResponses } from './wan/adapters';
 import { StarlinkSection } from './wan/sections/StarlinkSection';
 import { DomesticUplinkSection } from './wan/sections/DomesticUplinkSection';
 import { MaskingVpnSection } from './wan/sections/MaskingVpnSection';
 import { DomesticVpnSection } from './wan/sections/DomesticVpnSection';
+import { matchesWanCategory } from './wan/types';
+import { listWanVpnClients } from './wan/wanVpn';
+
+const WAN_INTERFACE_TYPES = ['ether', 'wireless', 'wifi', 'wlan', 'w60g', 'lte'];
 
 export function WanPage() {
   const { id } = useParams<{ id: string }>();
   const toast = useToast();
+  const { getCredentials } = useSession();
+  const router = useRouter(id);
 
-  const [starlink, setStarlink] = useState<StarlinkUplink[]>([]);
-  const [domestic, setDomestic] = useState<DomesticUplink[]>([]);
-  const [maskingVpn, setMaskingVpn] = useState<WanVpnClient[]>([]);
-  const [domesticVpn, setDomesticVpn] = useState<WanVpnClient[]>([]);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
-  const [, setLoaded] = useState(false);
+  const [interfacesLoading, setInterfacesLoading] = useState(false);
+  const [vpnClients, setVpnClients] = useState<VPNClientResponse[]>([]);
 
-  const reload = useCallback(async () => {
-    if (!id) return;
+  const resolveCreds = useCallback((): SystemCredentials | null => {
+    if (!id) return null;
+    const creds = getCredentials(id);
+    const host = router?.host;
+    if (!creds || !host) return null;
+    return { host, ...creds };
+  }, [id, router?.host, getCredentials]);
+
+  const loadInterfaces = useCallback(async () => {
+    const creds = resolveCreds();
+    if (!creds) {
+      setInterfaces([]);
+      return;
+    }
+    setInterfacesLoading(true);
     try {
-      const [sl, dom, mvpn, dvpn, ifaces] = await Promise.all([
-        api.wan.listStarlink(id),
-        api.wan.listDomestic(id),
-        api.wan.listMaskingVpn(id),
-        api.wan.listDomesticVpn(id),
-        api.system.listInterfaces(id),
-      ]);
-      setStarlink(sl);
-      setDomestic(dom);
-      setMaskingVpn(mvpn);
-      setDomesticVpn(dvpn);
-      setInterfaces(toInterfaceResponses(ifaces));
-      setLoaded(true);
+      const list = await fetchInterfaces(creds);
+      setInterfaces(list.filter((i) => WAN_INTERFACE_TYPES.includes(i.type)));
     } catch (err) {
       const message =
         err instanceof ApiError
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to load WAN data.';
-      toast.notify({ title: 'Failed to load WAN', description: message, tone: 'danger' });
+            : 'Failed to load interfaces.';
+      toast.notify({ title: 'Failed to load interfaces', description: message, tone: 'danger' });
+    } finally {
+      setInterfacesLoading(false);
     }
-  }, [id, toast]);
+  }, [resolveCreds, toast]);
 
-  usePolling(reload, 5000, !!id);
+  const loadVpn = useCallback(async () => {
+    const creds = resolveCreds();
+    if (!creds) {
+      setVpnClients([]);
+      return;
+    }
+    try {
+      const list = await listWanVpnClients(creds);
+      setVpnClients(list);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to load VPN clients.';
+      toast.notify({ title: 'Failed to load VPN', description: message, tone: 'danger' });
+    }
+  }, [resolveCreds, toast]);
+
+  const reload = useCallback(async () => {
+    await Promise.all([loadInterfaces(), loadVpn()]);
+  }, [loadInterfaces, loadVpn]);
+
+  useEffect(() => {
+    void loadInterfaces();
+  }, [loadInterfaces]);
+
+  usePolling(loadVpn, 5000, !!id);
 
   if (!id) return null;
 
+  const foreign = interfaces.filter((i) => matchesWanCategory(i.comment, 'foreign'));
+  const domestic = interfaces.filter((i) => matchesWanCategory(i.comment, 'domestic'));
+  const assignedNames = [...foreign, ...domestic].map((i) => i.name);
+  const maskingVpn = vpnClients.filter((c) => matchesWanCategory(c.comment, 'foreign'));
+  const domesticVpn = vpnClients.filter((c) => matchesWanCategory(c.comment, 'domestic'));
+
   return (
     <div className={styles.sectionGrid}>
-      <StarlinkSection routerId={id} items={starlink} interfaces={interfaces} onChanged={reload} />
+      <StarlinkSection
+        routerId={id}
+        items={foreign}
+        interfaces={interfaces}
+        excludeNames={assignedNames}
+        interfacesLoading={interfacesLoading}
+        onChanged={reload}
+      />
       <DomesticUplinkSection
         routerId={id}
         items={domestic}
         interfaces={interfaces}
+        excludeNames={assignedNames}
+        interfacesLoading={interfacesLoading}
         onChanged={reload}
       />
-      <MaskingVpnSection routerId={id} items={maskingVpn} onChanged={reload} />
-      <DomesticVpnSection routerId={id} items={domesticVpn} onChanged={reload} />
+      <MaskingVpnSection routerId={id} items={maskingVpn} onChanged={loadVpn} />
+      <DomesticVpnSection routerId={id} items={domesticVpn} onChanged={loadVpn} />
     </div>
   );
 }

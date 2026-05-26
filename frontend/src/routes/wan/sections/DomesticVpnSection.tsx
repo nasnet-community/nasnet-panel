@@ -1,55 +1,80 @@
 import { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
-import { api, type WanVpnClient } from '../../../api';
+import { ApiError, type SystemCredentials, type VPNClientResponse } from '../../../api';
+import { useSession } from '../../../state/SessionContext';
+import { useRouter } from '../../../state/RouterStoreContext';
 import { SectionHeader } from '../../vpn/sections/SectionHeader';
 import { WanTable } from '../WanTable';
 import { WanVpnDialog } from '../dialogs/WanVpnDialog';
 import { vpnMeta } from '../vpnMeta';
+import { createWanVpn, deleteWanVpn, toggleWanVpn } from '../wanVpn';
+import type { WanVpnFormPayload } from '../types';
 
 interface Props {
   routerId: string;
-  items: WanVpnClient[];
+  items: VPNClientResponse[];
   onChanged: () => void;
 }
 
 export function DomesticVpnSection({ routerId, items, onChanged }: Props) {
   const toast = useToast();
+  const { getCredentials } = useSession();
+  const router = useRouter(routerId);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<WanVpnClient | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<WanVpnClient | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<VPNClientResponse | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
-  const openAdd = () => {
-    setEditing(null);
-    setDialogOpen(true);
-  };
-  const openEdit = (c: WanVpnClient) => {
-    setEditing(c);
-    setDialogOpen(true);
-  };
-  const closeDialog = () => {
-    setDialogOpen(false);
-    setEditing(null);
+  const resolveCreds = (): SystemCredentials | null => {
+    const creds = getCredentials(routerId);
+    const host = router?.host;
+    if (!creds || !host) return null;
+    return { host, ...creds };
   };
 
-  const onSubmit = async (payload: Omit<WanVpnClient, 'id'>) => {
-    if (editing) await api.wan.updateDomesticVpn(editing.id, payload);
-    else await api.wan.createDomesticVpn(payload);
+  const requireCreds = (): SystemCredentials | null => {
+    const creds = resolveCreds();
+    if (!creds) {
+      toast.notify({
+        title: 'Missing router credentials',
+        description: 'Reconnect to the router and try again.',
+        tone: 'danger',
+      });
+    }
+    return creds;
+  };
+
+  const openAdd = () => setDialogOpen(true);
+  const closeDialog = () => setDialogOpen(false);
+
+  const onSubmit = async (payload: WanVpnFormPayload) => {
+    const creds = requireCreds();
+    if (!creds) return;
+    try {
+      await createWanVpn(creds, 'domestic', payload);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to add VPN interface.';
+      toast.notify({ title: 'Failed to add domestic VPN', description: message, tone: 'danger' });
+      return;
+    }
     closeDialog();
-    toast.notify({
-      title: editing ? 'Domestic VPN interface updated' : 'Domestic VPN interface added',
-      tone: 'success',
-    });
+    toast.notify({ title: 'Domestic VPN interface added', tone: 'success' });
     onChanged();
   };
 
   const onConfirmDelete = async () => {
     if (!pendingDelete) return;
+    const creds = requireCreds();
+    if (!creds) return;
     const target = pendingDelete;
     setDeleteSubmitting(true);
     try {
-      await api.wan.deleteDomesticVpn(target.id);
+      await deleteWanVpn(creds, target);
     } catch (err) {
       toast.notify({
         title: 'Failed to delete VPN interface',
@@ -65,9 +90,11 @@ export function DomesticVpnSection({ routerId, items, onChanged }: Props) {
     onChanged();
   };
 
-  const onToggle = async (c: WanVpnClient, enabled: boolean) => {
+  const onToggle = async (c: VPNClientResponse, enabled: boolean) => {
+    const creds = requireCreds();
+    if (!creds) return;
     try {
-      await api.wan.updateDomesticVpn(c.id, { enabled });
+      await toggleWanVpn(creds, c.name, enabled);
     } catch (err) {
       toast.notify({
         title: 'Failed to update VPN interface',
@@ -93,18 +120,15 @@ export function DomesticVpnSection({ routerId, items, onChanged }: Props) {
           name={(c) => c.name}
           tag={(c) => vpnMeta(c).tag}
           detail={(c) => vpnMeta(c).detail}
-          enabled={(c) => c.enabled}
+          enabled={(c) => !c.disabled}
           emptyIcon={<Shield size={20} aria-hidden />}
           emptyMessage="No domestic VPN interfaces yet"
           onToggle={onToggle}
-          onEdit={(c) => openEdit(c)}
           onDelete={(c) => setPendingDelete(c)}
         />
       </Card>
       {dialogOpen ? (
         <WanVpnDialog
-          entity={editing ?? undefined}
-          routerId={routerId}
           addTitle="Add domestic VPN interface"
           onCancel={closeDialog}
           onSubmit={onSubmit}

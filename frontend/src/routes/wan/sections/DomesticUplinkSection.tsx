@@ -1,81 +1,110 @@
 import { useState } from 'react';
 import { Cable } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
-import { api, type DomesticUplink, type InterfaceResponse } from '../../../api';
+import {
+  ApiError,
+  updateWanInterface,
+  type InterfaceResponse,
+  type SystemCredentials,
+} from '../../../api';
+import { useSession } from '../../../state/SessionContext';
+import { useRouter } from '../../../state/RouterStoreContext';
 import { SectionHeader } from '../../vpn/sections/SectionHeader';
 import { WanTable } from '../WanTable';
-import { DomesticUplinkDialog } from '../dialogs/DomesticUplinkDialog';
+import { WanUplinkDialog } from '../dialogs/WanUplinkDialog';
 
 interface Props {
   routerId: string;
-  items: DomesticUplink[];
+  items: InterfaceResponse[];
   interfaces: InterfaceResponse[];
+  excludeNames?: string[];
+  interfacesLoading?: boolean;
   onChanged: () => void;
 }
 
-export function DomesticUplinkSection({ routerId, items, interfaces, onChanged }: Props) {
+export function DomesticUplinkSection({
+  routerId,
+  items,
+  interfaces,
+  excludeNames,
+  interfacesLoading,
+  onChanged,
+}: Props) {
   const toast = useToast();
+  const { getCredentials } = useSession();
+  const router = useRouter(routerId);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<DomesticUplink | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<DomesticUplink | null>(null);
-  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [pendingMove, setPendingMove] = useState<InterfaceResponse | null>(null);
+  const [moveSubmitting, setMoveSubmitting] = useState(false);
 
-  const openAdd = () => {
-    setEditing(null);
-    setDialogOpen(true);
-  };
-  const openEdit = (u: DomesticUplink) => {
-    setEditing(u);
-    setDialogOpen(true);
-  };
-  const closeDialog = () => {
-    setDialogOpen(false);
-    setEditing(null);
+  const resolveCreds = (): SystemCredentials | null => {
+    const creds = getCredentials(routerId);
+    const host = router?.host;
+    if (!creds || !host) return null;
+    return { host, ...creds };
   };
 
-  const onSubmit = async (payload: Omit<DomesticUplink, 'id'>) => {
-    if (editing) await api.wan.updateDomestic(editing.id, payload);
-    else await api.wan.createDomestic(payload);
+  const openAdd = () => setDialogOpen(true);
+  const closeDialog = () => setDialogOpen(false);
+
+  const onSubmit = async (interfaceName: string) => {
+    const creds = resolveCreds();
+    if (!creds) {
+      toast.notify({
+        title: 'Missing router credentials',
+        description: 'Reconnect to the router and try again.',
+        tone: 'danger',
+      });
+      return;
+    }
+    try {
+      await updateWanInterface(creds, interfaceName, 'domestic');
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to assign interface.';
+      toast.notify({
+        title: 'Failed to add domestic uplink',
+        description: message,
+        tone: 'danger',
+      });
+      return;
+    }
     closeDialog();
-    toast.notify({
-      title: editing ? 'Domestic uplink updated' : 'Domestic uplink added',
-      tone: 'success',
-    });
+    toast.notify({ title: 'Domestic uplink added', tone: 'success' });
     onChanged();
   };
 
-  const onConfirmDelete = async () => {
-    if (!pendingDelete) return;
-    const target = pendingDelete;
-    setDeleteSubmitting(true);
-    try {
-      await api.wan.deleteDomestic(target.id);
-    } catch (err) {
+  const onConfirmMove = async () => {
+    if (!pendingMove) return;
+    const target = pendingMove;
+    const creds = resolveCreds();
+    if (!creds) {
       toast.notify({
-        title: 'Failed to delete uplink',
-        description: err instanceof Error ? err.message : undefined,
-        tone: 'danger',
-      });
-      setDeleteSubmitting(false);
-      return;
-    }
-    setDeleteSubmitting(false);
-    setPendingDelete(null);
-    toast.notify({ title: `Uplink "${target.name}" deleted`, tone: 'info' });
-    onChanged();
-  };
-
-  const onToggle = async (u: DomesticUplink, enabled: boolean) => {
-    try {
-      await api.wan.updateDomestic(u.id, { enabled });
-    } catch (err) {
-      toast.notify({
-        title: 'Failed to update uplink',
-        description: err instanceof Error ? err.message : undefined,
+        title: 'Missing router credentials',
+        description: 'Reconnect to the router and try again.',
         tone: 'danger',
       });
       return;
     }
+    setMoveSubmitting(true);
+    try {
+      await updateWanInterface(creds, target.name, 'foreign');
+    } catch (err) {
+      toast.notify({
+        title: 'Failed to move uplink',
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+      setMoveSubmitting(false);
+      return;
+    }
+    setMoveSubmitting(false);
+    setPendingMove(null);
+    toast.notify({ title: `Moved "${target.name}" to Foreign`, tone: 'info' });
     onChanged();
   };
 
@@ -84,42 +113,44 @@ export function DomesticUplinkSection({ routerId, items, interfaces, onChanged }
       <Card>
         <SectionHeader
           title="Domestic"
-          description="Domestic uplink interfaces and connection type."
+          description="Interfaces tagged as the domestic uplink."
           action={{ label: 'New', onClick: openAdd }}
         />
         <WanTable
           rows={items}
-          rowKey={(u) => u.id}
-          name={(u) => u.name}
-          tag={(u) => u.mode}
-          detail={(u) => u.interfaceName || 'no interface'}
-          enabled={(u) => u.enabled}
+          rowKey={(i) => i.id}
+          name={(i) => i.name}
+          tag={(i) => i.type}
+          detail={(i) => i.comment || '—'}
+          enabled={(i) => !i.disabled}
           emptyIcon={<Cable size={20} aria-hidden />}
           emptyMessage="No domestic uplinks yet"
-          onToggle={onToggle}
-          onEdit={(u) => openEdit(u)}
-          onDelete={(u) => setPendingDelete(u)}
+          editLabel={(i) => `Move ${i.name} to Foreign`}
+          onEdit={(i) => setPendingMove(i)}
         />
       </Card>
       {dialogOpen ? (
-        <DomesticUplinkDialog
-          entity={editing ?? undefined}
+        <WanUplinkDialog
+          variant="domestic"
+          title="Add domestic uplink"
           interfaces={interfaces}
-          routerId={routerId}
+          excludeNames={excludeNames}
+          interfacesLoading={interfacesLoading}
           onCancel={closeDialog}
           onSubmit={onSubmit}
         />
       ) : null}
       <ConfirmDialog
-        open={!!pendingDelete}
-        title="Delete domestic uplink"
+        open={!!pendingMove}
+        title="Move to Foreign"
         description={
-          pendingDelete ? `Remove "${pendingDelete.name}"? This cannot be undone.` : undefined
+          pendingMove
+            ? `Re-tag "${pendingMove.name}" as the Foreign uplink? It will move to that section.`
+            : undefined
         }
-        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
-        destructive
-        onConfirm={onConfirmDelete}
-        onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+        confirmLabel={moveSubmitting ? 'Moving…' : 'Move'}
+        onConfirm={onConfirmMove}
+        onCancel={() => (moveSubmitting ? undefined : setPendingMove(null))}
       />
     </Stack>
   );

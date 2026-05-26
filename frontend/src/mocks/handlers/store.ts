@@ -1,28 +1,20 @@
 import { seededInterfaces } from '../fixtures/interfaces';
 import { seededVPNClients, seededVPNServers, seededVPNPeers } from '../fixtures/vpn';
-import {
-  seededStarlinkUplinks,
-  seededDomesticUplinks,
-  seededMaskingVpnClients,
-  seededDomesticVpnInterfaces,
-} from '../fixtures/wan';
 import { seededRouterUsers } from '../fixtures/router-users';
 import { seededAppUpdate, seededFirmwareUpdates } from '../fixtures/update-info';
 import { seededLogs } from '../fixtures/logs';
 import type {
   AppUpdateInfo,
-  DomesticUplink,
   FirmwareUpdateInfo,
   Interface,
   LogEntry,
   LogLevel,
   Router,
   RouterUser,
-  StarlinkUplink,
+  RoutingTopology,
   VPNClient,
   VPNPeer,
   VPNServer,
-  WanVpnClient,
 } from '../types';
 
 export interface Store {
@@ -31,19 +23,22 @@ export interface Store {
   vpnClients: VPNClient[];
   vpnServers: VPNServer[];
   vpnPeers: VPNPeer[];
-  starlinkUplinks: StarlinkUplink[];
-  domesticUplinks: DomesticUplink[];
-  maskingVpnClients: WanVpnClient[];
-  domesticVpnInterfaces: WanVpnClient[];
   routerUsers: RouterUser[];
   appUpdate: AppUpdateInfo;
   firmware: Record<string, FirmwareUpdateInfo>;
   logs: LogEntry[];
+  routingTopologies: Record<string, RoutingTopology>;
   idCounter: number;
 }
 
-const STORAGE_KEY = 'nasnet-panel.mock-store.v10';
-const LEGACY_KEYS = ['nasnet-panel.mock-store.v9', 'nasnet-panel.mock-store.v8'];
+const STORAGE_KEY = 'nasnet-panel.mock-store.v13';
+const LEGACY_KEYS = [
+  'nasnet-panel.mock-store.v12',
+  'nasnet-panel.mock-store.v11',
+  'nasnet-panel.mock-store.v10',
+  'nasnet-panel.mock-store.v9',
+  'nasnet-panel.mock-store.v8',
+];
 
 const createStore = (): Store => ({
   routers: [],
@@ -51,14 +46,11 @@ const createStore = (): Store => ({
   vpnClients: seededVPNClients(),
   vpnServers: seededVPNServers(),
   vpnPeers: seededVPNPeers(),
-  starlinkUplinks: seededStarlinkUplinks(),
-  domesticUplinks: seededDomesticUplinks(),
-  maskingVpnClients: seededMaskingVpnClients(),
-  domesticVpnInterfaces: seededDomesticVpnInterfaces(),
   routerUsers: seededRouterUsers(),
   appUpdate: seededAppUpdate(),
   firmware: seededFirmwareUpdates(),
   logs: seededLogs(),
+  routingTopologies: {},
   idCounter: 1,
 });
 
@@ -78,11 +70,8 @@ const loadStore = (): Store => {
     }
     if (!raw) return createStore();
     const parsed = JSON.parse(raw) as Store;
-    if (!parsed.starlinkUplinks) parsed.starlinkUplinks = seededStarlinkUplinks();
-    if (!parsed.domesticUplinks) parsed.domesticUplinks = seededDomesticUplinks();
-    if (!parsed.maskingVpnClients) parsed.maskingVpnClients = seededMaskingVpnClients();
-    if (!parsed.domesticVpnInterfaces) {
-      parsed.domesticVpnInterfaces = seededDomesticVpnInterfaces();
+    if (!parsed.routingTopologies) {
+      parsed.routingTopologies = {};
     }
     return parsed;
   } catch {
@@ -134,10 +123,12 @@ export const mockStore = {
     state.current.vpnClients = [];
     state.current.vpnServers = [];
     state.current.vpnPeers = [];
-    state.current.starlinkUplinks = [];
-    state.current.domesticUplinks = [];
-    state.current.maskingVpnClients = [];
-    state.current.domesticVpnInterfaces = [];
+    state.current.routingTopologies = {};
+    commit();
+  },
+  seedRoutingTopology(topology: RoutingTopology): void {
+    const store = state.current;
+    store.routingTopologies = { ...store.routingTopologies, [topology.routerId]: topology };
     commit();
   },
   seedRouter(router: Partial<Router> & Pick<Router, 'id'>): Router {
