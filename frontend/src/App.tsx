@@ -15,6 +15,7 @@ import { VPNPage } from './routes/VPNPage';
 import { WirelessPage } from './routes/WirelessPage';
 import { LogsPage } from './routes/LogsPage';
 import { UpdatesPage } from './routes/UpdatesPage';
+import { PluginsPage } from './routes/PluginsPage';
 import { DHCPPage } from './routes/DHCPPage';
 import { DNSPage } from './routes/DNSPage';
 import { FirewallPage } from './routes/FirewallPage';
@@ -62,6 +63,7 @@ export function App() {
                   <Route path="lan" element={<DHCPPage />} />
                   <Route path="dns" element={<DNSPage />} />
                   <Route path="firewall" element={<FirewallPage />} />
+                  <Route path="plugins" element={<PluginsPage />} />
                   <Route path="help" element={<HelpPage />} />
                 </Route>
                 <Route
