@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   Activity,
+  Blocks,
   Cable,
   CircleHelp,
   Cpu,
@@ -31,6 +32,7 @@ const TABS: Array<TabItem & { path: string }> = [
   { id: 'vpn', label: 'VPN Server', path: 'vpn', icon: <Shield size={16} /> },
   { id: 'system', label: 'System', path: 'system', icon: <Cpu size={16} />, disabled: true },
   { id: 'wizard', label: 'Wizard', path: 'config', icon: <Wand2 size={16} /> },
+  { id: 'plugins', label: 'Plugins', path: 'plugins', icon: <Blocks size={16} /> },
   {
     id: 'diagnostics',
     label: 'Diagnostics',
