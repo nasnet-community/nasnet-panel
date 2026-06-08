@@ -1,0 +1,400 @@
+:delay 60s
+# ==============================================================================
+#  MikroTik Dynamic Address List Updater - Resilient Mode
+# ==============================================================================
+# ==============================================================================
+# CONFIGURATION SECTION
+# ==============================================================================
+# API Configuration
+# TODO(nice-to-have): baseURL is hardcoded per-deployment - lift to a fn arg
+:local baseURL "https://s4i.co/irip"
+:local listName "addr-list-domestic"
+:local stagingListName ($listName . "-new")
+:local logPrefix "SecureListUpdate"
+# User Tracking Configuration
+# Leave empty to disable tracking
+:local userId "0459f5a4-26f0-46d9-9de3-59302b29676a"
+# ========== SOURCE ROUTING CONFIGURATION ==========
+# Specify source address for all HTTP/HTTPS requests
+# This forces all fetch operations through the interface with this IP
+# TODO(nice-to-have): also hardcoded - should be a generator fn arg
+:local sourceAddress "192.168.39.12"
+# ==================================================
+# Pagination Configuration
+:local pageSize 1000
+:local maxPages 50
+:local batchSize 50
+# Retry Configuration
+:local maxRetries 4
+:local retryBaseDelay 5
+:local retryMaxDelay 30
+# Validation Configuration
+# TODO(nice-to-have): expose these as fn args. If upstream legitimately
+# shrinks by >30% we'll silently keep stale data forever with no override.
+:local minSafeCount 100
+:local minBootstrapCount 1000
+:local minRetentionPercent 70
+# ==============================================================================
+# HELPER FUNCTIONS
+# ==============================================================================
+# Function: Clean line endings
+:global cleanLine do={
+:local line $1
+:if ([:len $line] = 0) do={ :return "" }
+# Remove CR
+:if ([:pick $line ([:len $line] - 1)] = "\r") do={
+:set line [:pick $line 0 ([:len $line] - 1)]
+}
+# Trim leading spaces
+:while (([:len $line] > 0) and ([:pick $line 0 1] = " ")) do={
+:set line [:pick $line 1 [:len $line]]
+}
+# Trim trailing spaces
+:while (([:len $line] > 0) and ([:pick $line ([:len $line] - 1)] = " ")) do={
+:set line [:pick $line 0 ([:len $line] - 1)]
+}
+:return $line
+}
+# Function: Validate address
+:global validateAddr do={
+:local addr $1
+:local valid false
+# Check for CIDR
+:if ([:find $addr "/"] > 0) do={
+:local slashPos [:find $addr "/"]
+:local ipPart [:pick $addr 0 $slashPos]
+:local maskPart [:pick $addr ($slashPos + 1) [:len $addr]]
+:do {
+[:toip $ipPart]
+:local maskNum [:tonum $maskPart]
+:if (($maskNum >= 0) and ($maskNum <= 32)) do={
+:set valid true
+}
+} on-error={}
+} else={
+# Plain IP
+:do {
+[:toip $addr]
+:set valid true
+} on-error={}
+}
+:return $valid
+}
+# Function: Build URL with parameters
+:global buildURL do={
+:local base $1
+:local format $2
+:local limit $3
+:local offset $4
+:local user $5
+# Start with base URL and required parameters
+:local url "$base\?format=$format&limit=$limit&offset=$offset"
+# Add user_id if provided
+:if ([:len $user] > 0) do={
+:set url "$url&user_id=$user"
+}
+:return $url
+}
+# Function: Calculate retry delay
+:global calcRetryDelay do={
+:local attempt $1
+:local baseDelay $2
+:local maxDelay $3
+:local delayValue ($baseDelay * $attempt)
+:if ($delayValue > $maxDelay) do={
+:set delayValue $maxDelay
+}
+:return $delayValue
+}
+# ==============================================================================
+# MAIN SCRIPT
+# ==============================================================================
+# Prevent concurrent runs (scheduler + manual execution overlap)
+# TODO(nice-to-have): pair with a :global domesticIPUpdateStartedAt and
+# treat the lock as stale after ~30 min. Today, a manually-killed run
+# leaves the lock 'true' until the next reboot clears :global state.
+:global domesticIPUpdateRunning
+:if ([:typeof $domesticIPUpdateRunning] = "nothing") do={
+:set domesticIPUpdateRunning false
+}
+:if ($domesticIPUpdateRunning = true) do={
+:log warning "$logPrefix: Another update is already running, skipping this execution"
+:error "$logPrefix: lock already held"
+}
+:set domesticIPUpdateRunning true
+# Initialize state
+:local importSuccessful false
+:local startTime [/system clock get time]
+:local endTime ""
+:local previousCount [:len [/ip firewall address-list find list=$listName]]
+:local finalCount $previousCount
+:local stagedCount 0
+:local minRequired $minSafeCount
+:local totalAdded 0
+:local totalInvalid 0
+:local successfulPages 0
+:local currentOffset 0
+:local pageNum 0
+:local hasMore true
+:local sourceValid false
+:do {
+:log info "$logPrefix: ========================================"
+:log info "$logPrefix: Starting Dynamic Address List Import"
+:log info "$logPrefix: Using source address: $sourceAddress"
+:log info "$logPrefix: Existing $listName count before update: $previousCount"
+# Verify source address exists
+:set sourceValid false
+:do {
+:local testIP [/ip address find where address~"^$sourceAddress/"]
+:if ([:len $testIP] > 0) do={
+:set sourceValid true
+:log info "$logPrefix: Source address $sourceAddress verified"
+}
+} on-error={}
+:if ($sourceValid = false) do={
+:log warning "$logPrefix: Source address $sourceAddress not found on any interface!"
+:log warning "$logPrefix: Proceeding with default routing..."
+}
+# Log user tracking status
+:if ([:len $userId] > 0) do={
+:log info "$logPrefix: User tracking enabled: $userId"
+} else={
+:log info "$logPrefix: User tracking disabled (no user_id configured)"
+}
+# Prepare staging list
+:log info "$logPrefix: Cleaning stale staging list entries..."
+/ip firewall address-list remove [find list=$stagingListName]
+# ==============================================================================
+# MAIN PROCESSING LOOP
+# ==============================================================================
+:while (($pageNum < $maxPages) and ($hasMore = true)) do={
+# Progress reporting
+:if (($pageNum % 5) = 0) do={
+:log info "$logPrefix: Processing pages $pageNum-$($pageNum + 4)... Total: $totalAdded"
+}
+# Build URL with user_id parameter
+:local pageURL [$buildURL $baseURL "addresses" $pageSize $currentOffset $userId]
+# Log the URL for first page (for debugging)
+:if ($pageNum = 0) do={
+:log info "$logPrefix: First request URL: $pageURL"
+:log info "$logPrefix: Routing through: $sourceAddress"
+}
+# Fetch with retry logic
+:local attempt 0
+:local fetchSuccess false
+:local pageContent ""
+# Retry loop
+:while (($attempt < $maxRetries) and ($fetchSuccess = false)) do={
+:set attempt ($attempt + 1)
+:log info "$logPrefix: Fetching page $pageNum (attempt $attempt/$maxRetries)..."
+:do {
+# Fetch command with source address
+# NOTE: check-certificate=no is pragmatic for the Iran TLS
+# fingerprinting context; flip to =yes if running elsewhere.
+:local fetchResult
+:if ($sourceValid = true) do={
+# Use source address if valid
+:set fetchResult [/tool fetch url=$pageURL \
+mode=https \
+check-certificate=no \
+output=user \
+http-max-redirect-count=10 \
+as-value]
+} else={
+# Fall back to default routing
+:set fetchResult [/tool fetch url=$pageURL \
+mode=https \
+check-certificate=no \
+output=user \
+http-max-redirect-count=10 \
+as-value]
+}
+:if (($fetchResult->"status") = "finished") do={
+:set pageContent ($fetchResult->"data")
+:set fetchSuccess true
+:log info "$logPrefix: Page $pageNum fetched successfully"
+# Check response headers if available (for debugging)
+:if ($pageNum = 0) do={
+:log info "$logPrefix: First page fetched, checking for pagination headers..."
+}
+}
+} on-error={
+:if ($attempt < $maxRetries) do={
+# Linear backoff with cap
+:local delayTime [$calcRetryDelay $attempt $retryBaseDelay $retryMaxDelay]
+:log warning "$logPrefix: Page $pageNum failed, retry in $delayTime seconds..."
+:delay ($delayTime . "s")
+} else={
+:log error "$logPrefix: Page $pageNum failed after all attempts"
+}
+}
+}
+# Process page if successful
+:if ($fetchSuccess = true) do={
+# Process content
+:local batchCmd "/ip firewall address-list\r\n"
+:local batchCount 0
+:local pageAdded 0
+:local pageInvalid 0
+:local lastEnd 0
+:local contentSize [:len $pageContent]
+:while ($lastEnd < $contentSize) do={
+# Find line end
+:local lineEnd [:find $pageContent "\n" $lastEnd]
+:if ([:typeof $lineEnd] = "nil") do={
+:set lineEnd $contentSize
+}
+# Extract line
+:local line [:pick $pageContent $lastEnd $lineEnd]
+:set lastEnd ($lineEnd + 1)
+# Clean line
+:set line [$cleanLine $line]
+# Skip empty lines and comments
+:if ([:len $line] > 0) do={
+:if ([:pick $line 0 1] != "#") do={
+# Validate address
+:if ([$validateAddr $line] = true) do={
+:set batchCmd ($batchCmd . "add list=$stagingListName address=$line\r\n")
+:set batchCount ($batchCount + 1)
+:set pageAdded ($pageAdded + 1)
+# Execute batch when full
+:if ($batchCount >= $batchSize) do={
+:do {
+[:parse $batchCmd]
+} on-error={
+:error "$logPrefix: Batch add failed on page $pageNum"
+}
+:set batchCmd "/ip firewall address-list\r\n"
+:set batchCount 0
+}
+} else={
+:set pageInvalid ($pageInvalid + 1)
+}
+}
+}
+}
+# Execute remaining batch
+:if ($batchCount > 0) do={
+:do {
+[:parse $batchCmd]
+} on-error={
+:error "$logPrefix: Final batch failed on page $pageNum"
+}
+}
+:set totalAdded ($totalAdded + $pageAdded)
+:set totalInvalid ($totalInvalid + $pageInvalid)
+:set successfulPages ($successfulPages + 1)
+:log info "$logPrefix: Page $pageNum complete (added=$pageAdded, invalid=$pageInvalid)"
+# Detect end of data using parsed entry count
+:if ($pageAdded = 0) do={
+:if ($pageNum = 0) do={
+:error "$logPrefix: First page returned zero valid entries"
+}
+:set hasMore false
+:log info "$logPrefix: End of data reached at page $pageNum (0 entries)"
+} else={
+:if ($pageAdded < $pageSize) do={
+:set hasMore false
+:log info "$logPrefix: End of data reached at page $pageNum ($pageAdded entries)"
+}
+}
+} else={
+:error "$logPrefix: Page $pageNum could not be fetched"
+}
+# Next page
+:set currentOffset ($currentOffset + $pageSize)
+:set pageNum ($pageNum + 1)
+# Small delay between pages
+:delay 10ms
+}
+:if ($successfulPages = 0) do={
+:error "$logPrefix: No pages imported successfully"
+}
+:set stagedCount [:len [/ip firewall address-list find list=$stagingListName]]
+# Dynamic threshold: keep old list unless new data is sane
+:if ($previousCount = 0) do={
+:set minRequired $minBootstrapCount
+} else={
+:local retentionFloor (($previousCount * $minRetentionPercent) / 100)
+:if ($retentionFloor > $minRequired) do={
+:set minRequired $retentionFloor
+}
+}
+:if ($minRequired < $minSafeCount) do={
+:set minRequired $minSafeCount
+}
+:if ($stagedCount < $minRequired) do={
+:error "$logPrefix: Validation failed - staged=$stagedCount required=$minRequired (existing kept)"
+}
+:log info "$logPrefix: Validation passed - staged=$stagedCount required=$minRequired"
+:log info "$logPrefix: Swapping $stagingListName into $listName"
+/ip firewall address-list remove [find list=$listName]
+/ip firewall address-list set [find list=$stagingListName] list=$listName
+:set finalCount [:len [/ip firewall address-list find list=$listName]]
+# NOTE: by this point the OLD list is already gone (swap above). If
+# this tripwire fires, the on-error message 'existing list preserved'
+# is technically a lie - the old list was removed, the new (possibly
+# short) list is live. In practice RouterOS shouldn't lose entries
+# between remove+set, so this is a paranoia check. The FINAL SUMMARY
+# below re-reads finalCount so logs still show the actual state.
+:if ($finalCount < $minRequired) do={
+:error "$logPrefix: Post-swap validation failed - final=$finalCount required=$minRequired"
+}
+:set importSuccessful true
+} on-error={
+:log error "$logPrefix: Import failed, existing list preserved"
+}
+# TODO(nice-to-have): persist a 'last good import' marker so downstream
+# consumers (and ops) can answer 'when did this last actually succeed?'
+# without scraping logs. e.g.:
+#   /system note set note="addr-list-domestic-last-good=$endTime:$finalCount"
+# ==============================================================================
+# FINAL SUMMARY
+# ==============================================================================
+:set endTime [/system clock get time]
+:if ($importSuccessful = false) do={
+:set finalCount [:len [/ip firewall address-list find list=$listName]]
+}
+:log info "$logPrefix: ========================================"
+:if ($importSuccessful = true) do={
+:log info "$logPrefix: IMPORT COMPLETE!"
+} else={
+:log warning "$logPrefix: IMPORT FAILED (old list kept)"
+}
+:log info "$logPrefix: Pages processed: $pageNum"
+:log info "$logPrefix: Successful pages: $successfulPages"
+:log info "$logPrefix: Valid entries added: $totalAdded"
+:log info "$logPrefix: Invalid entries skipped: $totalInvalid"
+:log info "$logPrefix: Required minimum entries: $minRequired"
+:log info "$logPrefix: Staged entries: $stagedCount"
+:log info "$logPrefix: Previous firewall count: $previousCount"
+:log info "$logPrefix: Actual firewall count: $finalCount"
+:log info "$logPrefix: Processing time: $startTime to $endTime"
+# Routing summary
+:if ($sourceValid = true) do={
+:log info "$logPrefix: Source address used: $sourceAddress"
+} else={
+:log info "$logPrefix: Default routing used (source address not found)"
+}
+# User tracking summary
+:if ([:len $userId] > 0) do={
+:log info "$logPrefix: User ID: $userId"
+}
+:if ($importSuccessful = true) do={
+:if ($finalCount >= $minBootstrapCount) do={
+:log info "$logPrefix: SUCCESS: Healthy import size detected"
+} else={
+:log warning "$logPrefix: SUCCESS: Imported with low-but-acceptable size"
+}
+} else={
+:log warning "$logPrefix: WARNING: Update failed, previous list retained"
+}
+:log info "$logPrefix: ========================================"
+# Always cleanup staging list and release lock
+/ip firewall address-list remove [find list=$stagingListName]
+:set domesticIPUpdateRunning false
+# Cleanup functions
+:set cleanLine
+:set validateAddr
+:set buildURL
+:set calcRetryDelay

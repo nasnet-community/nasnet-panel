@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// HandleListFirewallRules godoc
+// HandleListFirewallFilterRules godoc
 // @Summary List firewall rules
 // @Description Get all firewall filter rules
 // @Tags Firewall
@@ -21,8 +21,8 @@ import (
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
-// @Router /api/firewall/rules [get]
-func HandleListFirewallRules(c echo.Context) error {
+// @Router /api/firewall/filter [get].
+func HandleListFirewallFilterRules(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
@@ -30,11 +30,11 @@ func HandleListFirewallRules(c echo.Context) error {
 
 	chain := c.QueryParam("chain")
 
-	var rules []routeros.FirewallRule
+	var rules []routeros.FirewallFilterRule
 	if chain != "" {
 		rules, err = client.GetFirewallRulesByChain(chain)
 	} else {
-		rules, err = client.ListFirewallRules()
+		rules, err = client.ListFirewallFilterRules()
 	}
 	if err != nil {
 		if IsCredentialError(err) {

@@ -311,8 +311,8 @@ func preWizardFinalize(client *routeros.Client, task *WizardFinalizeTask, startP
 		return err
 	}
 
-	domesticComment := "WAN - Domestic Link(Domestic)"
-	foreignComment := "WAN - Foreign Link(Foreign)"
+	domesticComment := "wan-domestic"
+	foreignComment := "wan-foreign"
 
 	var interfacesToRemoveFromBridge []string
 
@@ -350,8 +350,8 @@ func preWizardFinalize(client *routeros.Client, task *WizardFinalizeTask, startP
 
 	for i := range macvlans {
 		name := macvlans[i].Name
-		isForeignLink := len(name) > len("-Foreign Link") && name[len(name)-len("-Foreign Link"):] == "-Foreign Link"
-		isDomesticLink := len(name) > len("-Domestic Link") && name[len(name)-len("-Domestic Link"):] == "-Domestic Link"
+		isForeignLink := strings.HasSuffix(name, "-wan-foreign")
+		isDomesticLink := strings.HasSuffix(name, "-wan-domestic")
 
 		if isForeignLink || isDomesticLink {
 			for j := range dhcpClients {
@@ -372,13 +372,12 @@ func preWizardFinalize(client *routeros.Client, task *WizardFinalizeTask, startP
 	updateProgress(currentProgress, "Setting up routing tables")
 
 	requiredTables := []string{
-		"to-Domestic",
-		"to-Domestic-Domestic Link",
-		"to-Foreign",
-		"to-Foreign-Foreign Link",
-		"to-Split",
-		"to-VPN",
-		"to-VPN-L2TP-Client",
+		"table-domestic",
+		"table-domestic-link",
+		"table-foreign",
+		"table-foreign-link",
+		"table-split",
+		"table-vpn",
 	}
 
 	existingTables, err := client.ListRoutingTables()
@@ -408,6 +407,267 @@ func preWizardFinalize(client *routeros.Client, task *WizardFinalizeTask, startP
 				FIB:  true,
 			}
 			if _, err := client.AddRoutingTable(config); err != nil {
+				return err
+			}
+		}
+	}
+
+	requiredBridges := []string{
+		"bridge-ftah",
+		"bridge-domestic",
+		"bridge-domestic-link",
+		"bridge-foreign",
+		"bridge-foreign-link",
+		"bridge-split",
+		"bridge-vpn",
+	}
+
+	existingInterfaces, err := client.ListInterfaces()
+	if err != nil {
+		return err
+	}
+
+	existingBridgeMap := make(map[string]bool)
+	for i := range existingInterfaces {
+		if existingInterfaces[i].Type == "bridge" {
+			existingBridgeMap[existingInterfaces[i].Name] = true
+		}
+	}
+
+	for _, bridgeName := range requiredBridges {
+		if !existingBridgeMap[bridgeName] {
+			config := routeros.BridgeConfig{
+				Name: bridgeName,
+			}
+			if _, err := client.AddBridgeInterface(config); err != nil {
+				return err
+			}
+		}
+	}
+
+	bridgeIPs := map[string]string{
+		"bridge-split":         "192.168.10.1/24",
+		"bridge-domestic":      "192.168.20.1/24",
+		"bridge-domestic-link": "192.168.21.1/24",
+		"bridge-foreign":       "192.168.30.1/24",
+		"bridge-foreign-link":  "192.168.31.1/24",
+		"bridge-ftah":          "192.168.39.12",
+		"bridge-vpn":           "192.168.40.1/24",
+	}
+
+	existingIPs, err := client.ListIPAddresses()
+	if err != nil {
+		existingIPs = nil
+	}
+
+	existingIPMap := make(map[string]map[string]bool)
+	for i := range existingIPs {
+		if existingIPMap[existingIPs[i].Interface] == nil {
+			existingIPMap[existingIPs[i].Interface] = make(map[string]bool)
+		}
+		if existingIPs[i].Address != "" {
+			existingIPMap[existingIPs[i].Interface][existingIPs[i].Address] = true
+		}
+	}
+
+	for bridgeName, ip := range bridgeIPs {
+		ipExists := false
+		for existingIP := range existingIPMap[bridgeName] {
+			if strings.HasPrefix(existingIP, strings.Split(ip, "/")[0]) {
+				ipExists = true
+				break
+			}
+		}
+
+		if !ipExists {
+			ipConfig := routeros.IPAddressConfig{
+				Interface: bridgeName,
+				Address:   ip,
+			}
+			if _, err := client.AddIPAddress(ipConfig); err != nil {
+				return err
+			}
+		}
+	}
+
+	poolRanges := map[string]string{
+		"pool-split":         "192.168.10.2-192.168.10.254",
+		"pool-domestic":      "192.168.20.2-192.168.20.254",
+		"pool-domestic-link": "192.168.21.2-192.168.21.254",
+		"pool-foreign":       "192.168.30.2-192.168.30.254",
+		"pool-foreign-link":  "192.168.31.2-192.168.31.254",
+		"pool-vpn":           "192.168.40.2-192.168.40.254",
+	}
+
+	existingPools, err := client.ListIPPools()
+	if err != nil {
+		existingPools = nil
+	}
+
+	existingPoolMap := make(map[string]bool)
+	for i := range existingPools {
+		if name, ok := existingPools[i]["name"]; ok {
+			existingPoolMap[name] = true
+		}
+	}
+
+	for poolName, poolRange := range poolRanges {
+		if !existingPoolMap[poolName] {
+			poolConfig := routeros.IPPoolConfig{
+				Name:   poolName,
+				Ranges: poolRange,
+			}
+			if _, err := client.AddIPPool(poolConfig); err != nil {
+				return err
+			}
+		}
+	}
+
+	dhcpServers := map[string]string{
+		"dhcp-split":         "bridge-split",
+		"dhcp-domestic":      "bridge-domestic",
+		"dhcp-domestic-link": "bridge-domestic-link",
+		"dhcp-foreign":       "bridge-foreign",
+		"dhcp-foreign-link":  "bridge-foreign-link",
+		"dhcp-vpn":           "bridge-vpn",
+	}
+
+	dhcpNetworks := map[string]map[string]string{
+		"bridge-split": {
+			"network": "192.168.10.0/24",
+			"gateway": "192.168.10.1",
+			"pool":    "pool-split",
+		},
+		"bridge-domestic": {
+			"network": "192.168.20.0/24",
+			"gateway": "192.168.20.1",
+			"pool":    "pool-domestic",
+		},
+		"bridge-domestic-link": {
+			"network": "192.168.21.0/24",
+			"gateway": "192.168.21.1",
+			"pool":    "pool-domestic-link",
+		},
+		"bridge-foreign": {
+			"network": "192.168.30.0/24",
+			"gateway": "192.168.30.1",
+			"pool":    "pool-foreign",
+		},
+		"bridge-foreign-link": {
+			"network": "192.168.31.0/24",
+			"gateway": "192.168.31.1",
+			"pool":    "pool-foreign-link",
+		},
+		"bridge-vpn": {
+			"network": "192.168.40.0/24",
+			"gateway": "192.168.40.1",
+			"pool":    "pool-vpn",
+		},
+	}
+
+	existingDHCPServers, err := client.ListDHCPServers()
+	if err != nil {
+		existingDHCPServers = nil
+	}
+
+	existingDHCPMap := make(map[string]bool)
+	for i := range existingDHCPServers {
+		if name, ok := existingDHCPServers[i]["name"]; ok {
+			existingDHCPMap[name] = true
+		}
+	}
+
+	for dhcpName, bridgeName := range dhcpServers {
+		if existingDHCPMap[dhcpName] {
+			continue
+		}
+
+		networkInfo := dhcpNetworks[bridgeName]
+		poolName := networkInfo["pool"]
+
+		verifyPools, err := client.ListIPPools()
+		if err != nil {
+			verifyPools = nil
+		}
+
+		poolExists := false
+		for i := range verifyPools {
+			if name, ok := verifyPools[i]["name"]; ok && name == poolName {
+				poolExists = true
+				break
+			}
+		}
+
+		if poolExists {
+			dhcpConfig := routeros.DHCPServerConfig{
+				Name:              dhcpName,
+				Interface:         bridgeName,
+				PoolName:          poolName,
+				LeaseTime:         "600",
+				Authoritative:     true,
+				AddArp:            true,
+				ConflictDetection: true,
+			}
+			if _, err := client.AddDHCPServer(dhcpConfig); err != nil {
+				return err
+			}
+		}
+	}
+
+	dhcpNetworkConfigs := map[string]map[string]string{
+		"bridge-split": {
+			"address": "192.168.10.0/24",
+			"gateway": "192.168.10.1",
+			"dns":     "192.168.10.1",
+		},
+		"bridge-domestic": {
+			"address": "192.168.20.0/24",
+			"gateway": "192.168.20.1",
+			"dns":     "192.168.20.1",
+		},
+		"bridge-domestic-link": {
+			"address": "192.168.21.0/24",
+			"gateway": "192.168.21.1",
+			"dns":     "192.168.21.1",
+		},
+		"bridge-foreign": {
+			"address": "192.168.30.0/24",
+			"gateway": "192.168.30.1",
+			"dns":     "192.168.30.1",
+		},
+		"bridge-foreign-link": {
+			"address": "192.168.31.0/24",
+			"gateway": "192.168.31.1",
+			"dns":     "192.168.31.1",
+		},
+		"bridge-vpn": {
+			"address": "192.168.40.0/24",
+			"gateway": "192.168.40.1",
+			"dns":     "192.168.40.1",
+		},
+	}
+
+	existingDHCPNetworks, err2 := client.ListDHCPServerNetworks()
+	if err2 != nil {
+		existingDHCPNetworks = nil
+	}
+
+	existingDHCPNetworkMap := make(map[string]bool)
+	for i := range existingDHCPNetworks {
+		if address, ok := existingDHCPNetworks[i]["address"]; ok {
+			existingDHCPNetworkMap[address] = true
+		}
+	}
+
+	for bridgeName, networkInfo := range dhcpNetworkConfigs {
+		if !existingDHCPNetworkMap[networkInfo["address"]] {
+			dhcpNetConfig := routeros.DHCPServerNetworkConfig{
+				Address:    networkInfo["address"],
+				Gateway:    networkInfo["gateway"],
+				DNSServers: networkInfo["dns"],
+				Comment:    "dhcp-" + strings.TrimPrefix(bridgeName, "bridge-"),
+			}
+			if _, err := client.AddDHCPServerNetwork(dhcpNetConfig); err != nil {
 				return err
 			}
 		}
@@ -460,7 +720,7 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 	if req.DomesticInterface != "" {
 		updateTask(20, "Configuring domestic interface")
 
-		if err := client.SetInterfaceComment(req.DomesticInterface, "WAN - Domestic Link(Domestic)"); err != nil {
+		if err := client.SetInterfaceComment(req.DomesticInterface, "wan-domestic"); err != nil {
 			task.mu.Lock()
 			task.Status = "error"
 			task.Error = fmt.Sprintf("Failed to set domestic interface comment: %v", err)
@@ -471,12 +731,11 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 
 		updateTask(35, "Creating domestic MACVLAN interface")
 
-		macvlanName := "MacVLAN-" + req.DomesticInterface + "-Domestic Link"
+		macvlanName := "macvlan-" + req.DomesticInterface + "-wan-domestic"
 		macvlanConfig := routeros.MacvlanConfig{
 			Name:      macvlanName,
 			Interface: req.DomesticInterface,
 			Mode:      "private",
-			Comment:   "Domestic Link MACVLAN on " + req.DomesticInterface,
 		}
 
 		_, err := client.AddMacvlanInterface(macvlanConfig)
@@ -505,7 +764,7 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 	if req.ForeignInterface != "" {
 		updateTask(55, "Configuring foreign interface")
 
-		if err := client.SetInterfaceComment(req.ForeignInterface, "WAN - Foreign Link(Foreign)"); err != nil {
+		if err := client.SetInterfaceComment(req.ForeignInterface, "wan-foreign"); err != nil {
 			task.mu.Lock()
 			task.Status = "error"
 			task.Error = fmt.Sprintf("Failed to set foreign interface comment: %v", err)
@@ -516,12 +775,11 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 
 		updateTask(65, "Creating foreign MACVLAN interface")
 
-		macvlanName := "MacVLAN-" + req.ForeignInterface + "-Foreign Link"
+		macvlanName := "macvlan-" + req.ForeignInterface + "-wan-foreign"
 		macvlanConfig := routeros.MacvlanConfig{
 			Name:      macvlanName,
 			Interface: req.ForeignInterface,
 			Mode:      "private",
-			Comment:   "Foreign Link MACVLAN on " + req.ForeignInterface,
 		}
 
 		_, err := client.AddMacvlanInterface(macvlanConfig)
@@ -559,7 +817,8 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 			return
 		}
 
-		l2tpName := "l2tp-client-L2TP-Client"
+		timestamp := fmt.Sprintf("%d", time.Now().Unix())
+		l2tpName := "l2tp-client-" + timestamp
 
 		_, err := client.GetVPNClient(l2tpName)
 		if err == nil {
@@ -578,7 +837,7 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 			ipsecSecret = req.MaskingL2tp.IPsecSecret
 		}
 
-		profileName := l2tpName + "-client-profile"
+		profileName := "profile-" + l2tpName
 
 		exists, err := client.ProfileExists(profileName)
 		if err != nil {

@@ -390,7 +390,7 @@ func (c *Client) AddEthernetInterface(config EthernetConfig) (string, error) {
 
 func (c *Client) AddBridgeInterface(config BridgeConfig) (string, error) {
 	args := []string{
-		"name=" + config.Name,
+		"=name=" + config.Name,
 	}
 
 	if config.MacAddress != "" {
@@ -693,4 +693,120 @@ func parseMacvlanInfo(result map[string]string) MacvlanInfo {
 		LoopProtectDisableTime:  getStringPtr(result, "loop-protect-disable-time"),
 		LoopProtectSendInterval: getStringPtr(result, "loop-protect-send-interval"),
 	}
+}
+
+// InterfaceListConfig represents configuration for creating or updating an interface list.
+type InterfaceListConfig struct {
+	Name    string
+	Include string // comma-separated list names to include
+	Exclude string // comma-separated list names to exclude
+	Comment string
+}
+
+// InterfaceList represents an interface list.
+type InterfaceList struct {
+	ID      string
+	Name    string
+	Include *string
+	Exclude *string
+	Comment *string
+}
+
+// ListInterfaceLists retrieves all interface lists.
+func (c *Client) ListInterfaceLists() ([]InterfaceList, error) {
+	results, err := c.GetAll("/interface/list")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list interface lists: %w", err)
+	}
+
+	lists := make([]InterfaceList, 0, len(results))
+	for _, result := range results {
+		lists = append(lists, InterfaceList{
+			ID:      result[".id"],
+			Name:    result["name"],
+			Include: getStringPtr(result, "include"),
+			Exclude: getStringPtr(result, "exclude"),
+			Comment: getStringPtr(result, "comment"),
+		})
+	}
+
+	return lists, nil
+}
+
+// GetInterfaceList retrieves a specific interface list by name.
+func (c *Client) GetInterfaceList(name string) (*InterfaceList, error) {
+	result, err := c.GetFirst("/interface/list", "?=name="+name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get interface list %s: %w", name, err)
+	}
+
+	list := &InterfaceList{
+		ID:      result[".id"],
+		Name:    result["name"],
+		Include: getStringPtr(result, "include"),
+		Exclude: getStringPtr(result, "exclude"),
+		Comment: getStringPtr(result, "comment"),
+	}
+	return list, nil
+}
+
+// AddInterfaceList creates a new interface list.
+func (c *Client) AddInterfaceList(config InterfaceListConfig) (string, error) {
+	args := []string{
+		"=name=" + config.Name,
+	}
+
+	if config.Include != "" {
+		args = append(args, "=include="+config.Include)
+	}
+	if config.Exclude != "" {
+		args = append(args, "=exclude="+config.Exclude)
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	id, err := c.Add("/interface/list", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add interface list: %w", err)
+	}
+
+	return id, nil
+}
+
+// UpdateInterfaceList updates an existing interface list.
+func (c *Client) UpdateInterfaceList(id string, config InterfaceListConfig) error {
+	args := []string{
+		"=.id=" + id,
+	}
+
+	if config.Name != "" {
+		args = append(args, "=name="+config.Name)
+	}
+	if config.Include != "" {
+		args = append(args, "=include="+config.Include)
+	}
+	if config.Exclude != "" {
+		args = append(args, "=exclude="+config.Exclude)
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	_, err := c.Set("/interface/list", args...)
+	if err != nil {
+		return fmt.Errorf("failed to update interface list: %w", err)
+	}
+
+	return nil
+}
+
+// RemoveInterfaceList deletes an interface list.
+func (c *Client) RemoveInterfaceList(id string) error {
+	_, err := c.Remove("/interface/list", "=.id="+id)
+	if err != nil {
+		return fmt.Errorf("failed to remove interface list: %w", err)
+	}
+
+	return nil
 }

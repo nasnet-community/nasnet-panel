@@ -4,7 +4,8 @@ import (
 	"fmt"
 )
 
-type FirewallRule struct {
+// FirewallFilterRule represents a firewall filter rule configuration.
+type FirewallFilterRule struct {
 	ID       string
 	Action   string
 	Chain    string
@@ -106,15 +107,16 @@ type MangleRuleConfig struct {
 	Comment     string
 }
 
-func (c *Client) ListFirewallRules() ([]FirewallRule, error) {
+// ListFirewallFilterRules retrieves all firewall filter rules.
+func (c *Client) ListFirewallFilterRules() ([]FirewallFilterRule, error) {
 	results, err := c.GetAll("/ip/firewall/filter")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list firewall rules: %w", err)
 	}
 
-	rules := make([]FirewallRule, 0)
+	rules := make([]FirewallFilterRule, 0)
 	for _, result := range results {
-		rules = append(rules, FirewallRule{
+		rules = append(rules, FirewallFilterRule{
 			ID:       result[".id"],
 			Action:   result["action"],
 			Chain:    result["chain"],
@@ -136,15 +138,16 @@ func (c *Client) ListFirewallRules() ([]FirewallRule, error) {
 	return rules, nil
 }
 
-func (c *Client) GetFirewallRulesByChain(chain string) ([]FirewallRule, error) {
+// GetFirewallRulesByChain retrieves firewall filter rules for a specific chain.
+func (c *Client) GetFirewallRulesByChain(chain string) ([]FirewallFilterRule, error) {
 	results, err := c.GetAll("/ip/firewall/filter", "chain="+chain)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get firewall rules for chain %s: %w", chain, err)
 	}
 
-	rules := make([]FirewallRule, 0)
+	rules := make([]FirewallFilterRule, 0)
 	for _, result := range results {
-		rules = append(rules, FirewallRule{
+		rules = append(rules, FirewallFilterRule{
 			ID:       result[".id"],
 			Action:   result["action"],
 			Chain:    result["chain"],
@@ -168,42 +171,42 @@ func (c *Client) GetFirewallRulesByChain(chain string) ([]FirewallRule, error) {
 
 func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 	args := []string{
-		"chain=" + config.Chain,
-		"action=" + config.Action,
+		"=chain=" + config.Chain,
+		"=action=" + config.Action,
 	}
 
 	if config.Protocol != "" {
-		args = append(args, "protocol="+config.Protocol)
+		args = append(args, "=protocol="+config.Protocol)
 	}
 	if config.SrcAddr != "" {
-		args = append(args, "src-address="+config.SrcAddr)
+		args = append(args, "=src-address="+config.SrcAddr)
 	}
 	if config.DstAddr != "" {
-		args = append(args, "dst-address="+config.DstAddr)
+		args = append(args, "=dst-address="+config.DstAddr)
 	}
 	if config.SrcPort != "" {
-		args = append(args, "src-port="+config.SrcPort)
+		args = append(args, "=src-port="+config.SrcPort)
 	}
 	if config.DstPort != "" {
-		args = append(args, "dst-port="+config.DstPort)
+		args = append(args, "=dst-port="+config.DstPort)
 	}
 	if config.InIface != "" {
-		args = append(args, "in-interface="+config.InIface)
+		args = append(args, "=in-interface="+config.InIface)
 	}
 	if config.OutIface != "" {
-		args = append(args, "out-interface="+config.OutIface)
+		args = append(args, "=out-interface="+config.OutIface)
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
 	}
 	if config.Log {
-		args = append(args, "log=yes")
+		args = append(args, "=log=yes")
 	}
 	if config.LogPrefix != "" {
-		args = append(args, "log-prefix="+config.LogPrefix)
+		args = append(args, "=log-prefix="+config.LogPrefix)
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/ip/firewall/filter", args...)
@@ -255,45 +258,45 @@ func (c *Client) ListNATRules() ([]NATRule, error) {
 
 func (c *Client) AddNATRule(config NATRuleConfig) (string, error) {
 	args := []string{
-		"chain=" + config.Chain,
-		"action=" + config.Action,
+		"=chain=" + config.Chain,
+		"=action=" + config.Action,
 	}
 
 	if config.Protocol != "" {
-		args = append(args, "protocol="+config.Protocol)
+		args = append(args, "=protocol="+config.Protocol)
 	}
 	if config.SrcAddr != "" {
-		args = append(args, "src-address="+config.SrcAddr)
+		args = append(args, "=src-address="+config.SrcAddr)
 	}
 	if config.DstAddr != "" {
-		args = append(args, "dst-address="+config.DstAddr)
+		args = append(args, "=dst-address="+config.DstAddr)
 	}
 	if config.SrcPort != "" {
-		args = append(args, "src-port="+config.SrcPort)
+		args = append(args, "=src-port="+config.SrcPort)
 	}
 	if config.DstPort != "" {
-		args = append(args, "dst-port="+config.DstPort)
+		args = append(args, "=dst-port="+config.DstPort)
 	}
 	if config.ToAddresses != "" {
-		args = append(args, "to-addresses="+config.ToAddresses)
+		args = append(args, "=to-addresses="+config.ToAddresses)
 	}
 	if config.ToPorts != "" {
-		args = append(args, "to-ports="+config.ToPorts)
+		args = append(args, "=to-ports="+config.ToPorts)
 	}
 	if config.InIface != "" {
-		args = append(args, "in-interface="+config.InIface)
+		args = append(args, "=in-interface="+config.InIface)
 	}
 	if config.OutIface != "" {
-		args = append(args, "out-interface="+config.OutIface)
+		args = append(args, "=out-interface="+config.OutIface)
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
 	}
 	if config.Log {
-		args = append(args, "log=yes")
+		args = append(args, "=log=yes")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/ip/firewall/nat", args...)
@@ -343,39 +346,39 @@ func (c *Client) ListMangleRules() ([]MangleRule, error) {
 
 func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 	args := []string{
-		"chain=" + config.Chain,
-		"action=" + config.Action,
+		"=chain=" + config.Chain,
+		"=action=" + config.Action,
 	}
 
 	if config.Protocol != "" {
-		args = append(args, "protocol="+config.Protocol)
+		args = append(args, "=protocol="+config.Protocol)
 	}
 	if config.SrcAddr != "" {
-		args = append(args, "src-address="+config.SrcAddr)
+		args = append(args, "=src-address="+config.SrcAddr)
 	}
 	if config.DstAddr != "" {
-		args = append(args, "dst-address="+config.DstAddr)
+		args = append(args, "=dst-address="+config.DstAddr)
 	}
 	if config.SrcPort != "" {
-		args = append(args, "src-port="+config.SrcPort)
+		args = append(args, "=src-port="+config.SrcPort)
 	}
 	if config.DstPort != "" {
-		args = append(args, "dst-port="+config.DstPort)
+		args = append(args, "=dst-port="+config.DstPort)
 	}
 	if config.InIface != "" {
-		args = append(args, "in-interface="+config.InIface)
+		args = append(args, "=in-interface="+config.InIface)
 	}
 	if config.OutIface != "" {
-		args = append(args, "out-interface="+config.OutIface)
+		args = append(args, "=out-interface="+config.OutIface)
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
 	}
 	if config.Log {
-		args = append(args, "log=yes")
+		args = append(args, "=log=yes")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/ip/firewall/mangle", args...)

@@ -50,7 +50,7 @@ func RegisterRoutes(e *echo.Echo) {
 
 	firewallGroup := e.Group("/api/firewall")
 	firewallGroup.Use(middleware.RouterOSAuth)
-	firewallGroup.GET("/rules", handler.HandleListFirewallRules)
+	firewallGroup.GET("/filter", handler.HandleListFirewallFilterRules)
 
 	scanGroup := e.Group("/api/scan")
 	scanGroup.POST("", handler.HandleStartScan)

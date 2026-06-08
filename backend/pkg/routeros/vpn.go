@@ -568,7 +568,7 @@ func (c *Client) GetOvpnServer(idOrName string) (*OvpnServerInfo, error) {
 }
 
 // AddOvpnServer creates a new OpenVPN server configuration.
-func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificate string, requireClientCert bool, auth, cipher string) (string, error) {
+func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificate string, requireClientCert bool, auth, cipher, profile string) (string, error) {
 	args := []string{
 		"=name=" + name,
 		"=port=" + strconv.Itoa(port),
@@ -579,6 +579,10 @@ func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificat
 		"=cipher=" + cipher,
 		"=redirect-gateway=def1",
 		"=disabled=no",
+	}
+
+	if profile != "" {
+		args = append(args, "=default-profile="+profile)
 	}
 
 	if requireClientCert {

@@ -55,7 +55,8 @@ type MangleRuleResponse struct {
 	Comment     string `json:"comment,omitempty"`
 }
 
-func ToFirewallRuleResponse(fr *routeros.FirewallRule) *FirewallRuleResponse {
+// ToFirewallRuleResponse converts a FirewallFilterRule to a FirewallRuleResponse.
+func ToFirewallRuleResponse(fr *routeros.FirewallFilterRule) *FirewallRuleResponse {
 	if fr == nil {
 		return nil
 	}
@@ -79,7 +80,8 @@ func ToFirewallRuleResponse(fr *routeros.FirewallRule) *FirewallRuleResponse {
 	}
 }
 
-func ToFirewallRulesResponse(rules []routeros.FirewallRule) []FirewallRuleResponse {
+// ToFirewallRulesResponse converts a slice of FirewallFilterRule to a slice of FirewallRuleResponse.
+func ToFirewallRulesResponse(rules []routeros.FirewallFilterRule) []FirewallRuleResponse {
 	var responses []FirewallRuleResponse
 	for i := range rules {
 		if resp := ToFirewallRuleResponse(&rules[i]); resp != nil {
