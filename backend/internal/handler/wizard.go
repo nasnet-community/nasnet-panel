@@ -345,72 +345,6 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 		task.mu.Unlock()
 		return
 	}
-	if req.MaskingL2tp != nil {
-		updateTask(76, "Configuring L2TP client")
-
-		if req.MaskingL2tp.ConnectTo == "" || req.MaskingL2tp.User == "" || req.MaskingL2tp.Password == "" {
-			task.mu.Lock()
-			task.Status = "error"
-			task.Error = "L2TP client configuration requires connectTo, user, and password"
-			task.CompletedTime = time.Now()
-			task.mu.Unlock()
-			return
-		}
-
-		timestamp := fmt.Sprintf("%d", time.Now().Unix())
-		l2tpName := "l2tp-client-" + timestamp
-
-		_, err := client.GetVPNClient(l2tpName)
-		if err == nil {
-			task.mu.Lock()
-			task.Status = "error"
-			task.Error = "L2TP client with this name already exists"
-			task.CompletedTime = time.Now()
-			task.mu.Unlock()
-			return
-		}
-
-		useIPsec := false
-		ipsecSecret := ""
-		if req.MaskingL2tp.IPsecSecret != "" {
-			useIPsec = true
-			ipsecSecret = req.MaskingL2tp.IPsecSecret
-		}
-
-		profileName := "profile-" + l2tpName
-
-		exists, err := client.ProfileExists(profileName)
-		if err != nil {
-			task.mu.Lock()
-			task.Status = "error"
-			task.Error = fmt.Sprintf("Failed to check profile existence: %v", err)
-			task.CompletedTime = time.Now()
-			task.mu.Unlock()
-			return
-		}
-
-		if !exists {
-			if err := client.CreateVPNProfile(profileName); err != nil {
-				task.mu.Lock()
-				task.Status = "error"
-				task.Error = fmt.Sprintf("Failed to create VPN profile: %v", err)
-				task.CompletedTime = time.Now()
-				task.mu.Unlock()
-				return
-			}
-		}
-
-		if err := client.AddL2TPClient(l2tpName, req.MaskingL2tp.ConnectTo, req.MaskingL2tp.User, req.MaskingL2tp.Password, profileName, ipsecSecret, useIPsec, req.MaskingL2tp.Disabled); err != nil {
-			task.mu.Lock()
-			task.Status = "error"
-			task.Error = fmt.Sprintf("Failed to add L2TP client: %v", err)
-			task.CompletedTime = time.Now()
-			task.mu.Unlock()
-			return
-		}
-
-		updateTask(79, "L2TP client configured")
-	}
 
 	if req.MaskingWireGuard != nil && req.MaskingWireGuard.Config != "" {
 		updateTask(80, "Configuring WireGuard")
@@ -683,7 +617,85 @@ func processWizardFinalizeTask(client *routeros.Client, task *WizardFinalizeTask
 		updateTask(99, "OpenVPN server created")
 	}
 
-	if err := postWizardFinalize(client, task, 99, 100); err != nil {
+	// Render and upload wizard configuration files from templates
+	updateTask(80, "Rendering wizard configuration templates")
+
+	wifiSSID := ""
+	wifiPassword := ""
+	if len(req.WiFiInterfaces) > 0 {
+		wifiSSID = req.WiFiInterfaces[0].SSID
+		wifiPassword = req.WiFiInterfaces[0].Password
+	}
+
+	ovpnUser := ""
+	if req.OvpnServer != nil && len(req.OvpnServer.Users) > 0 {
+		ovpnUser = req.OvpnServer.Users[0].Username
+	}
+
+	templateData := map[string]any{
+		"wifi_ssid":            wifiSSID,
+		"wifi_password":        wifiPassword,
+		"masking_openvpn_user": ovpnUser,
+		"foreign_interface":    req.ForeignInterface,
+		"domestic_interface":   req.DomesticInterface,
+	}
+
+	templateFiles := []struct {
+		path   string
+		remote string
+	}{
+		{"internal/templates/01-system-scripts-vpne-routing.gohtml", "01-wizard.rsc"},
+		{"internal/templates/02-certificate-update-scripts.gohtml", "02-wizard.rsc"},
+		{"internal/templates/03-domestic-ip-configuration.gohtml", "03-wizard.rsc"},
+	}
+
+	for i, tf := range templateFiles {
+		progress := 80 + (i * 5)
+		updateTask(progress, fmt.Sprintf("Rendering template %d/3", i+1))
+
+		rendered, err := utils.RenderTemplate(tf.path, templateData)
+		if err != nil {
+			task.mu.Lock()
+			task.Status = "error"
+			task.Error = fmt.Sprintf("Failed to render template %s: %v", tf.path, err)
+			task.CompletedTime = time.Now()
+			task.mu.Unlock()
+			return
+		}
+
+		updateTask(progress+2, fmt.Sprintf("Uploading %s", tf.remote))
+
+		if err := client.AddFile(tf.remote, rendered); err != nil {
+			task.mu.Lock()
+			task.Status = "error"
+			task.Error = fmt.Sprintf("Failed to upload %s: %v", tf.remote, err)
+			task.CompletedTime = time.Now()
+			task.mu.Unlock()
+			return
+		}
+	}
+
+	// Create and upload master wizard.rsc file
+	updateTask(95, "Creating master wizard configuration")
+
+	masterContent := `:delay 30
+/import 01-wizard.rsc
+/import 02-wizard.rsc
+/import 03-wizard.rsc
+`
+
+	if err := client.AddFile("wizard.rsc", masterContent); err != nil {
+		task.mu.Lock()
+		task.Status = "error"
+		task.Error = fmt.Sprintf("Failed to upload master wizard.rsc: %v", err)
+		task.CompletedTime = time.Now()
+		task.mu.Unlock()
+		return
+	}
+
+	updateTask(96, "Master wizard configuration uploaded")
+
+	if err := postWizardFinalize(client, task, 96, 100); err != nil {
 		task.mu.Lock()
 		task.Status = "error"
 		task.Error = fmt.Sprintf("Failed to finalize wizard post-configuration: %v", err)
