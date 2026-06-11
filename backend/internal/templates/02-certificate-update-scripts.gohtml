@@ -31,8 +31,8 @@ add name="LANBridgeDomestic-Domestic Link" comment="Domestic-Domestic Link"
 add name="LANBridgeVPN-L2TP-Client" comment="VPN-L2TP-Client"
 add comment="Foreign Table Address Holder" name="FTAH"
 /interface l2tp-client
-add name="l2tp-client-L2TP-Client" connect-to="8v4rp.vpn.s4i.co" comment="L2TP-Client L2TP" \
-random-source-port=yes user="NNC_STFlqXEY" password="ZRxvAhqd" \
+add name="l2tp-client-L2TP-Client" connect-to="{{.masking_l2tp_host}}" comment="L2TP-Client L2TP" \
+random-source-port=yes user="{{.masking_l2tp_username}}" password="{{.masking_l2tp_password}}" \
 use-ipsec=no allow-fast-path=yes allow=mschap2,mschap1 \
 l2tp-proto-version=l2tpv2 dial-on-demand=no disabled=no
 /interface ethernet
@@ -208,7 +208,7 @@ add name=time.google.com type=FWD forward-to=General match-subdomain=no comment=
 add comment="LOCAL-IP" address="192.168.0.0/16" list="LOCAL-IP"
 add comment="LOCAL-IP" address="172.16.0.0/12" list="LOCAL-IP"
 add comment="LOCAL-IP" address="10.0.0.0/8" list="LOCAL-IP"
-add address="8v4rp.vpn.s4i.co" list=VPNE comment="VPN-L2TP-Client Interface:l2tp-client-L2TP-Client WanInterface:Foreign-Foreign Link Endpoint:8v4rp.vpn.s4i.co - Endpoint for routing"
+add address="{{.masking_l2tp_host}}" list=VPNE comment="VPN-L2TP-Client Interface:l2tp-client-L2TP-Client WanInterface:Foreign-Foreign Link Endpoint:{{.masking_l2tp_host}} - Endpoint for routing"
 add address="192.168.10.0/24" list="Split-LAN" comment="Split"
 add address="192.168.20.0/24" list="Domestic-LAN" comment="Domestic"
 add address="192.168.30.0/24" list="Foreign-LAN" comment="Foreign"
