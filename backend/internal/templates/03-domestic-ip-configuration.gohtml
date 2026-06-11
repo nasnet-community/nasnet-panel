@@ -1,0 +1,29 @@
+add interval=00:00:00 name=Public-Cert-Update on-event="/system script\r\nrun Public-Cert-Update" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+add interval=00:00:00 name=CRL-Download-Startup on-event=":delay 120s\r\n/certificate crl download" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+add interval=00:00:00 name=DomesticIPUpdate-OneTime on-event="/system script\r\nrun DomesticIPUpdate-OneTime" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+add interval=1d name=DomesticIPUpdate on-event="/system script\r\nrun DomesticIPUpdate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=03:00:00
+add interval=00:00:00 name=DomesticIPUpdate-BootCheck on-event=":delay 5m; :local currentCount [:len [/ip firewall address-list find list=DOMAddList]]; :if ($currentCount < 100) do={ :log warning \"SecureListUpdate: Boot guard detected only $currentCount entries, running DomesticIPUpdate\"; /system script run DomesticIPUpdate } else={ :log info \"SecureListUpdate: Boot guard healthy ($currentCount entries)\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/tool graphing interface
+add
+/tool graphing queue
+add
+/tool graphing resource
+add
+/tool romon
+set enabled=yes
+/tool netwatch
+add host="4.2.2.2" interval=5s timeout=500ms \
+ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-L2TP-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-L2TP-Client\"]; " comment="Failover Netwatch - L2TP-Client"
+add host="217.218.127.127" interval=5s timeout=500ms \
+ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " comment="Failover Netwatch - Domestic Link"
+add host="4.2.2.1" interval=5s timeout=500ms \
+ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
+# No VPN servers configured
+# Enable at least one VPN server in your configuration
+
+:delay 20
+
+/system reboot
