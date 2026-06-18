@@ -180,7 +180,7 @@ func (c *Client) UploadFileAs(localPath, remoteFilename string) error {
 		return fmt.Errorf("remote filename is required")
 	}
 
-	content, err := os.ReadFile(localPath)
+	content, err := os.ReadFile(localPath) //nolint:gosec // File path is from internal wizard configuration
 	if err != nil {
 		return fmt.Errorf("failed to read local file %s: %w", localPath, err)
 	}
