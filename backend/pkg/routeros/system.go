@@ -350,7 +350,7 @@ func (c *Client) ShutdownSystem() error {
 
 // ResetConfiguration resets the RouterOS configuration.
 // If noDefaults is true, configuration is reset without loading defaults.
-// runAfterReset specifies a script file to run after reset (e.g., "wizard.rsc").
+// RunAfterReset specifies a script file to run after reset (e.g., "wizard.rsc").
 func (c *Client) ResetConfiguration(noDefaults bool, runAfterReset string) error {
 	args := []string{}
 

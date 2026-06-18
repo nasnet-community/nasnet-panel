@@ -117,7 +117,7 @@ func (c *Client) UploadFromFile(localPath, remotePath string) error {
 		return fmt.Errorf("remote path is required")
 	}
 
-	localFile, err := os.Open(localPath)
+	localFile, err := os.Open(localPath) //nolint:gosec // File path is from internal wizard configuration
 	if err != nil {
 		return fmt.Errorf("failed to open local file %s: %w", localPath, err)
 	}
@@ -203,11 +203,11 @@ func (c *Client) Download(remotePath, localPath string) error {
 
 	// Create parent directories if needed
 	localDir := filepath.Dir(localPath)
-	if err := os.MkdirAll(localDir, 0750); err != nil {
+	if err := os.MkdirAll(localDir, 0o750); err != nil {
 		return fmt.Errorf("failed to create local directory %s: %w", localDir, err)
 	}
 
-	localFile, err := os.Create(localPath)
+	localFile, err := os.Create(localPath) //nolint:gosec // File path is from internal wizard configuration
 	if err != nil {
 		return fmt.Errorf("failed to create local file %s: %w", localPath, err)
 	}

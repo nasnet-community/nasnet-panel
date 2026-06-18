@@ -19,7 +19,7 @@ func templateFuncs() template.FuncMap {
 
 // RenderTemplate reads a template file, parses it along with other templates in the same directory,
 // and renders it with the provided data. Returns the rendered template as a string.
-func RenderTemplate(templatePath string, data interface{}) (string, error) {
+func RenderTemplate(templatePath string, data any) (string, error) {
 	if templatePath == "" {
 		return "", fmt.Errorf("template path is required")
 	}
@@ -44,7 +44,7 @@ func RenderTemplate(templatePath string, data interface{}) (string, error) {
 
 // RenderTemplateToFile reads a template file, renders it with the provided data,
 // and writes the output to the specified file.
-func RenderTemplateToFile(templatePath, outputPath string, data interface{}) error {
+func RenderTemplateToFile(templatePath, outputPath string, data any) error {
 	if templatePath == "" {
 		return fmt.Errorf("template path is required")
 	}
@@ -57,7 +57,7 @@ func RenderTemplateToFile(templatePath, outputPath string, data interface{}) err
 		return err
 	}
 
-	err = os.WriteFile(outputPath, []byte(rendered), 0600)
+	err = os.WriteFile(outputPath, []byte(rendered), 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to write to output file %s: %w", outputPath, err)
 	}

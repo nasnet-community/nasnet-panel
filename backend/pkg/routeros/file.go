@@ -156,14 +156,10 @@ func (c *Client) UploadFile(localPath string) (string, error) {
 		return "", fmt.Errorf("local file path is required")
 	}
 
-	content, err := os.ReadFile(localPath)
+	content, err := os.ReadFile(localPath) //nolint:gosec // File path is from internal wizard configuration
 	if err != nil {
 		return "", fmt.Errorf("failed to read local file %s: %w", localPath, err)
 	}
-
-	/*	if len(content) > 61440 {
-		return "", fmt.Errorf("file size exceeds 60KB limit: %d bytes", len(content))
-	}*/
 
 	filename := filepath.Base(localPath)
 	err = c.AddFile(filename, string(content))

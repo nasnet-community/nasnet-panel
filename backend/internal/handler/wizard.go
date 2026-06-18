@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -237,7 +236,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 	// Add L2TP client configuration if provided
 	if req.L2tpClient != nil {
 		templateData["L2tpClient"] = req.L2tpClient
-		fmt.Print("Adding L2TP client configuration to template data: ", req.L2tpClient, "\n")
 	}
 
 	// Parse and add WireGuard client configuration if provided
