@@ -521,7 +521,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/firewall/rules": {
+        "/api/firewall/filter": {
             "get": {
                 "security": [
                     {
@@ -4211,7 +4211,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Start an asynchronous wizard finalization task",
+                "description": "Validate wizard finalization configuration",
                 "consumes": [
                     "application/json"
                 ],
@@ -4249,68 +4249,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/wizard/finalize/{taskId}": {
-            "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Get the status and progress of a wizard finalization task",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Wizard"
-                ],
-                "summary": "Get Wizard Finalize Task Status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "RouterOS host address",
-                        "name": "X-RouterOS-Host",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Task ID",
-                        "name": "taskId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -4430,6 +4368,35 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/wizard/test-render": {
+            "get": {
+                "description": "Render wizard.tmpl with hardcoded test data and return as plain text",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Wizard"
+                ],
+                "summary": "Test Render Template",
+                "responses": {
+                    "200": {
+                        "description": "Rendered template content",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -4816,20 +4783,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ether1"
                 },
-                "maskingL2tp": {
+                "l2tpClient": {
                     "$ref": "#/definitions/handler.MaskingL2tpConfig"
-                },
-                "maskingWireGuard": {
-                    "$ref": "#/definitions/handler.MaskingWireGuardConfig"
                 },
                 "ovpnServer": {
                     "$ref": "#/definitions/handler.OvpnServerConfig"
                 },
-                "wifiInterfaces": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.WiFiInterfaceConfig"
-                    }
+                "wifiAP": {
+                    "$ref": "#/definitions/handler.WiFiAPConfig"
+                },
+                "wireGuardClient": {
+                    "$ref": "#/definitions/handler.MaskingWireGuardConfig"
                 }
             }
         },
@@ -5764,6 +5728,19 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.WiFiAPConfig": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "wifiPassword123"
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "MyWiFiNetwork"
+                }
+            }
+        },
         "handler.WiFiConnectRequest": {
             "type": "object",
             "properties": {
@@ -5777,23 +5754,6 @@ const docTemplate = `{
                 },
                 "ssid": {
                     "type": "string"
-                }
-            }
-        },
-        "handler.WiFiInterfaceConfig": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "*1D"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "wifiPassword123"
-                },
-                "ssid": {
-                    "type": "string",
-                    "example": "MyWiFiNetwork-2.4Ghz"
                 }
             }
         },

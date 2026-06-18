@@ -12,6 +12,7 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
+	github.com/docker/docker v28.5.2+incompatible // indirect
 	github.com/go-openapi/jsonpointer v0.23.1 // indirect
 	github.com/go-openapi/jsonreference v0.21.5 // indirect
 	github.com/go-openapi/spec v0.22.4 // indirect
@@ -22,9 +23,11 @@ require (
 	github.com/go-openapi/swag/stringutils v0.26.0 // indirect
 	github.com/go-openapi/swag/typeutils v0.26.0 // indirect
 	github.com/go-openapi/swag/yamlutils v0.26.0 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/labstack/gommon v0.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
+	github.com/pkg/sftp v1.13.10 // indirect
 	github.com/sv-tools/openapi v0.4.0 // indirect
 	github.com/swaggo/files/v2 v2.0.2 // indirect
 	github.com/swaggo/swag/v2 v2.0.0-rc5 // indirect

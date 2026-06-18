@@ -1,0 +1,90 @@
+/interface bridge
+add name="LANBridgeVPN-wg-client" comment="VPN-wg-client"
+
+/interface wireguard
+add name="wireguard-client-wg-client" private-key="{{ .WireGuardClient.InterfacePrivateKey }}" comment="wg-client-wg-client"
+add name=wg-server-wireguard-server listen-port=51820 mtu=1420 comment="VPN Server: wireguard-server on VPN Network"
+/interface wireguard peers
+add interface=wg-server-wireguard-server name="wireguard-server" allowed-address=0.0.0.0/0 \
+client-address=192.168.110.2/32 \ client-dns=192.168.110.0 client-endpoint="" \
+client-keepalive=25s client-listen-port=51820 persistent-keepalive=25s preshared-key=auto private-key=auto \
+responder=yes comment="Wireguard Server: ovpn1 on wireguard-server Server"
+add interface="wireguard-client-wg-client" public-key="{{ .WireGuardClient.PeerPublicKey }}" \
+endpoint-address="{{ .WireGuardClient.EndpointAddress }}" endpoint-port={{ .WireGuardClient.EndpointPort }} \
+allowed-address="{{ .WireGuardClient.AllowedAddress }}" comment="wg-client-peer-wg-client" preshared-key="{{ .WireGuardClient.PreSharedKey }}" \
+persistent-keepalive={{ .WireGuardClient.PersistentKeepalive }}
+
+/interface list
+add name="VPN-wg-client-WAN" comment="VPN-wg-client"
+add name="VPN-wg-client-LAN" comment="VPN-wg-client"
+
+/ip pool
+add name="DHCP-pool-VPN-wg-client" ranges="192.168.42.2-192.168.42.254" comment="VPN-wg-client"
+
+/ip dhcp-server
+add address-pool="DHCP-pool-VPN-wg-client" interface="LANBridgeVPN-wg-client" name="DHCP-VPN-wg-client" comment="VPN-wg-client"
+
+/ip dhcp-server network
+add address="192.168.42.0/24" dns-server="192.168.42.1" gateway="192.168.42.1" comment="VPN-wg-client"
+
+/routing table
+add fib name="to-VPN-wg-client" comment="VPN-wg-client"
+
+/routing rule
+add action=lookup-only-in-table comment="Routing the VPN-wg-client SRC Address" disabled=no src-address="192.168.42.0/24" table="to-VPN-wg-client"
+add action=lookup-only-in-table comment="Routing the VPN-wg-client Routing Mark" disabled=no routing-mark="to-VPN-wg-client" table="to-VPN-wg-client"
+
+/interface list member
+add interface="wireguard-client-wg-client" list="WAN" comment="VPN-wireguard-client-wg-client"
+add interface="wireguard-client-wg-client" list="VPN-WAN" comment="VPN-wireguard-client-wg-client"
+add interface="wg-server-wireguard-server" list="LAN" comment="wg-server-wireguard-server interface"
+add interface="wg-server-wireguard-server" list="VPN-LAN" comment="wg-server-wireguard-server interface"
+add interface="LANBridgeVPN-wg-client" list="LAN" comment="VPN-wg-client"
+add interface="LANBridgeVPN-wg-client" list="VPN-wg-client-LAN" comment="VPN-wg-client"
+
+/ip address
+add address="{{ .WireGuardClient.InterfaceAddress }}" interface="wireguard-client-wg-client" comment="VPN-client-wg-client"
+add address="192.168.110.0/24" interface="wg-server-wireguard-server" comment="wg-server-wireguard-server Wireguard Server" \
+network="192.168.110.0"
+add address="192.168.42.1/24" interface="LANBridgeVPN-wg-client" network="192.168.42.0" comment="VPN-wg-client"
+
+/ip firewall address-list
+add address="{{ .WireGuardClient.EndpointAddress }}" list=VPNE comment="VPN-wg-client Interface:wireguard-client-wg-client"
+add address="192.168.110.0/24" list="VPN-LAN" comment="wg-server-wireguard-server subnet"
+add address="192.168.42.0/24" list="VPN-wg-client-LAN" comment="VPN-wg-client"
+
+/ip firewall filter
+add action=accept chain=input comment="WireGuard Handshake of wg-server-wireguard-server Server" dst-port="51820" \
+in-interface-list="Domestic-WAN" protocol="udp"
+
+/ip firewall mangle
+add action=mark-routing chain=prerouting comment="VPN-wg-client Routing" new-routing-mark="to-VPN-wg-client" passthrough=no src-address-list="VPN-wg-client-LAN"
+add action=mark-connection chain=input comment="Mark Inbound WireGuard Connections (wg-server-wireguard-server)" \
+connection-state=new \ in-interface-list="Domestic-WAN" protocol="udp" dst-port="51820" \
+new-connection-mark="conn-vpn-server" passthrough=yes
+
+/ip firewall nat
+add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-wg-client-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-wg-client-LAN" to-addresses=4.2.2.2
+
+/ip nat-pmp interfaces
+add interface="LANBridgeVPN-wg-client" type=internal
+
+/ip route
+add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" scope=30 target-scope=10  comment="Route-to-VPN-wg-client"
+add check-gateway=ping dst-address="4.2.2.2" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" \
+distance=1 target-scope="11" comment="Route-to-VPN-wg-client"
+add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-wg-client"
+add check-gateway=ping dst-address="4.2.2.2" gateway="wireguard-client-wg-client" routing-table="to-VPN" \
+distance=1 target-scope="11" comment="Route-to-VPN-wg-client"
+add dst-address="4.2.2.2" gateway="wireguard-client-wg-client" \
+routing-table="main" scope="10" comment="Route-to-VPN-wg-client"
+add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.2" routing-table="main" \
+distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-wg-client"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-wg-client"
+add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN-wg-client"
+
+/tool netwatch
+add host="4.2.2.2" interval=5s timeout=500ms \
+ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-wg-client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-wg-client\"]; " comment="Failover Netwatch - wg-client"
