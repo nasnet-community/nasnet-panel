@@ -391,7 +391,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 
 {{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 
-{{ template "ovpn_server.tmpl" . }}
+{{if .OvpnServer}}{{ template "ovpn_server.tmpl" . }}{{end}}
 
 :delay 1s
 /user set {{ .RouterUsername }} password={{ .RouterPassword }}

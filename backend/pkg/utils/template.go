@@ -57,7 +57,7 @@ func RenderTemplateToFile(templatePath, outputPath string, data interface{}) err
 		return err
 	}
 
-	err = os.WriteFile(outputPath, []byte(rendered), 0644)
+	err = os.WriteFile(outputPath, []byte(rendered), 0600)
 	if err != nil {
 		return fmt.Errorf("failed to write to output file %s: %w", outputPath, err)
 	}

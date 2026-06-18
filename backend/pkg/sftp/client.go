@@ -1,3 +1,4 @@
+// Package sftp provides SFTP client functionality for file transfer.
 package sftp
 
 import (
@@ -79,7 +80,7 @@ func (c *Client) Connect() error {
 
 	sftpClient, err := sftp.NewClient(sshClient)
 	if err != nil {
-		sshClient.Close()
+		_ = sshClient.Close()
 		return fmt.Errorf("failed to create SFTP client: %w", err)
 	}
 
@@ -103,7 +104,7 @@ func (c *Client) Close() error {
 }
 
 // UploadFromFile uploads a local file to the remote server.
-// remotePath can be a full path or just a filename.
+// RemotePath can be a full path or just a filename.
 func (c *Client) UploadFromFile(localPath, remotePath string) error {
 	if c.sftpClient == nil {
 		return fmt.Errorf("SFTP client not connected")
@@ -120,13 +121,13 @@ func (c *Client) UploadFromFile(localPath, remotePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open local file %s: %w", localPath, err)
 	}
-	defer localFile.Close()
+	defer func() { _ = localFile.Close() }()
 
 	remoteFile, err := c.sftpClient.Create(remotePath)
 	if err != nil {
 		return fmt.Errorf("failed to create remote file %s: %w", remotePath, err)
 	}
-	defer remoteFile.Close()
+	defer func() { _ = remoteFile.Close() }()
 
 	if _, err := io.Copy(remoteFile, localFile); err != nil {
 		return fmt.Errorf("failed to upload file to %s: %w", remotePath, err)
@@ -136,7 +137,7 @@ func (c *Client) UploadFromFile(localPath, remotePath string) error {
 }
 
 // UploadFromString uploads content from a string to the remote server.
-// remotePath can be a full path or just a filename.
+// RemotePath can be a full path or just a filename.
 func (c *Client) UploadFromString(content, remotePath string) error {
 	if c.sftpClient == nil {
 		return fmt.Errorf("SFTP client not connected")
@@ -150,7 +151,7 @@ func (c *Client) UploadFromString(content, remotePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create remote file %s: %w", remotePath, err)
 	}
-	defer remoteFile.Close()
+	defer func() { _ = remoteFile.Close() }()
 	if _, err := io.WriteString(remoteFile, content); err != nil {
 		return fmt.Errorf("failed to write to remote file %s: %w", remotePath, err)
 	}
@@ -172,7 +173,7 @@ func (c *Client) UploadFromReader(reader io.Reader, remotePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create remote file %s: %w", remotePath, err)
 	}
-	defer remoteFile.Close()
+	defer func() { _ = remoteFile.Close() }()
 
 	if _, err := io.Copy(remoteFile, reader); err != nil {
 		return fmt.Errorf("failed to upload to remote file %s: %w", remotePath, err)
@@ -198,11 +199,11 @@ func (c *Client) Download(remotePath, localPath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open remote file %s: %w", remotePath, err)
 	}
-	defer remoteFile.Close()
+	defer func() { _ = remoteFile.Close() }()
 
 	// Create parent directories if needed
 	localDir := filepath.Dir(localPath)
-	if err := os.MkdirAll(localDir, 0755); err != nil {
+	if err := os.MkdirAll(localDir, 0750); err != nil {
 		return fmt.Errorf("failed to create local directory %s: %w", localDir, err)
 	}
 
@@ -210,7 +211,7 @@ func (c *Client) Download(remotePath, localPath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create local file %s: %w", localPath, err)
 	}
-	defer localFile.Close()
+	defer func() { _ = localFile.Close() }()
 
 	if _, err := io.Copy(localFile, remoteFile); err != nil {
 		return fmt.Errorf("failed to download file from %s: %w", remotePath, err)

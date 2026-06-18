@@ -179,9 +179,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 	radios, err := client.GetWiFiRadios()
 	if err == nil && len(radios) > 0 {
 		bandMap := make(map[string]bool)
-		for _, radio := range radios {
-			if radio.Band != "" {
-				bandMap[radio.Band] = true
+		for i := range radios {
+			if radios[i].Band != "" {
+				bandMap[radios[i].Band] = true
 			}
 		}
 
@@ -202,9 +202,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 	// Get ethernet interfaces and filter out the ones used for foreign/domestic
 	otherEthernets := []string{}
 	if ethernets, err := client.GetEthernetInterfaces(); err == nil {
-		for _, eth := range ethernets {
-			if eth.Name != req.ForeignInterface && eth.Name != req.DomesticInterface {
-				otherEthernets = append(otherEthernets, eth.Name)
+		for i := range ethernets {
+			if ethernets[i].Name != req.ForeignInterface && ethernets[i].Name != req.DomesticInterface {
+				otherEthernets = append(otherEthernets, ethernets[i].Name)
 			}
 		}
 	}
@@ -247,12 +247,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["WireGuardClient"] = wgConfig
 	}
 
-	/*	// Render template
-		err = utils.RenderTemplateToFile("internal/template/wizard.tmpl", "internal/template/output.rsc", templateData)
-		if err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template to file", err)
-		}*/
-
 	rendered, err := utils.RenderTemplate("internal/template/wizard.tmpl", templateData)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
@@ -286,6 +280,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 	})
 }
 
+// L2tpClientConfig represents L2TP client configuration.
 type L2tpClientConfig struct {
 	Host              string
 	Username          string

@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	mathrand "math/rand"
 
 	"golang.org/x/crypto/curve25519"
 )
@@ -60,10 +59,14 @@ func GenerateRandomString(minLen, maxLen int) (string, error) {
 		maxLen = 16
 	}
 
-	// Determine the actual length
+	// Determine the actual length using crypto/rand
 	length := minLen
 	if maxLen > minLen {
-		length = minLen + mathrand.Intn(maxLen-minLen+1)
+		randByte := make([]byte, 1)
+		if _, err := rand.Read(randByte); err != nil {
+			return "", fmt.Errorf("failed to generate random bytes: %w", err)
+		}
+		length = minLen + int(randByte[0])%(maxLen-minLen+1)
 	}
 
 	// Character set: alphanumeric + _ and -
