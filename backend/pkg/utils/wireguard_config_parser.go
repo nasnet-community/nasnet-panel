@@ -91,6 +91,10 @@ func ParseWireGuardConfig(configStr string) (map[string]map[string]string, error
 		if parts := strings.SplitN(line, "=", 2); len(parts) == 2 && currentSection != "" {
 			key := strings.TrimSpace(parts[0])
 			value := strings.TrimSpace(parts[1])
+			// Initialize section if it doesn't exist
+			if _, exists := sections[currentSection]; !exists {
+				sections[currentSection] = make(map[string]string)
+			}
 			sections[currentSection][key] = value
 		}
 	}
