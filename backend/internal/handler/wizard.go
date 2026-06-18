@@ -3,9 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"nasnet-panel/pkg/sftp"
 	"net/http"
 	"time"
+
+	"nasnet-panel/pkg/sftp"
 
 	"github.com/labstack/echo/v4"
 
