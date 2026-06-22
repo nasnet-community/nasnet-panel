@@ -7,7 +7,7 @@ add name=Client common-name=Client key-size=2048 days-valid=3650 trusted=yes key
 sign Client ca=CA
 export-certificate CA file-name=CA type=pem
 export-certificate Server file-name=Server type=pem
-export-certificate Client file-name=Client type=pem export-passphrase=1234567890
+export-certificate Client file-name=Client type=pem export-passphrase={{ .OvpnServer.ClientCertificatePassword }}
 
 /ip pool
 add name="ovpn-tcp-pool" ranges=192.168.120.2-192.168.120.254 comment="OpenVPN ovpn-tcp client pool"
@@ -30,8 +30,9 @@ mode="ip" certificate="Server" require-client-certificate=yes auth=sha1,md5,sha2
 redirect-gateway=def1 keepalive-timeout=60
 
 /ppp secret
-add name="ovpn1-ovpn-tcp" password="ovpnpassword1" profile=ovpn-tcp-profile service=ovpn
-add name="ovpn1-ovpn-udp" password="ovpnpassword1" profile=ovpn-udp-profile service=ovpn
+{{range .OvpnServer.Users}}add name="{{ .Username }}-ovpn-tcp" password="{{ .Password }}" profile=ovpn-tcp-profile service=ovpn
+add name="{{ .Username }}-ovpn-udp" password="{{ .Password }}" profile=ovpn-udp-profile service=ovpn
+{{end}}
 
 /ip firewall address-list
 add address="192.168.120.0/24" list="VPN-LAN" comment="ovpn-tcp OpenVPN subnet"
