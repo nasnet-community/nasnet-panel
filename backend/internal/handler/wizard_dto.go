@@ -40,10 +40,9 @@ type MaskingWireGuardConfig struct {
 	Config string `json:"config" example:"[Interface]\nListenPort = 51820\n..."`
 }
 
-// WiFiInterfaceConfig represents WiFi interface configuration.
-type WiFiInterfaceConfig struct {
-	ID       string `json:"id" example:"*1D"`
-	SSID     string `json:"ssid" example:"MyWiFiNetwork-2.4Ghz"`
+// WiFiAPConfig represents WiFi AP configuration.
+type WiFiAPConfig struct {
+	SSID     string `json:"ssid" example:"MyWiFiNetwork"`
 	Password string `json:"password" example:"wifiPassword123"`
 }
 
@@ -63,8 +62,8 @@ type OvpnServerConfig struct {
 type FinalizeWizardRequest struct {
 	ForeignInterface  string                  `json:"foreignInterface" example:"ether1"`
 	DomesticInterface string                  `json:"domesticInterface" example:"ether2"`
-	MaskingL2tp       *MaskingL2tpConfig      `json:"maskingL2tp"`
-	MaskingWireGuard  *MaskingWireGuardConfig `json:"maskingWireGuard"`
-	WiFiInterfaces    []WiFiInterfaceConfig   `json:"wifiInterfaces"`
+	L2tpClient        *MaskingL2tpConfig      `json:"l2tpClient"`
+	WireGuardClient   *MaskingWireGuardConfig `json:"wireGuardClient"`
+	WiFiAP            *WiFiAPConfig           `json:"wifiAP"`
 	OvpnServer        *OvpnServerConfig       `json:"ovpnServer"`
 }

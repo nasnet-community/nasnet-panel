@@ -348,6 +348,28 @@ func (c *Client) ShutdownSystem() error {
 	return nil
 }
 
+// ResetConfiguration resets the RouterOS configuration.
+// If noDefaults is true, configuration is reset without loading defaults.
+// RunAfterReset specifies a script file to run after reset (e.g., "wizard.rsc").
+func (c *Client) ResetConfiguration(noDefaults bool, runAfterReset string) error {
+	args := []string{}
+
+	if noDefaults {
+		args = append(args, "=no-defaults=yes")
+	}
+
+	if runAfterReset != "" {
+		args = append(args, "=run-after-reset="+runAfterReset)
+	}
+
+	_, err := c.Execute("/system/reset-configuration", args...)
+	if err != nil {
+		return fmt.Errorf("failed to reset configuration: %w", err)
+	}
+
+	return nil
+}
+
 func (c *Client) GetLicenseInfo() (*LicenseInfo, error) {
 	result, err := c.GetFirst("/system/license")
 	if err != nil {

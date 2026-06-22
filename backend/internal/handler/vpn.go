@@ -1670,13 +1670,6 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
 }
 
-// HandleCreateOvpnServer creates an OpenVPN server asynchronously with multiple users.
-// @Summary Create OpenVPN Server with Users
-// @Description Start an asynchronous OpenVPN server creation task with an array of users
-// @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param request body CreateOvpnServerRequest true "OpenVPN server creation request with users array"
 // LaunchOpenVpnServerCreation launches an async OpenVPN server creation task and returns the task ID.
 // This is used internally by handlers to create OpenVPN servers asynchronously.
 func LaunchOpenVpnServerCreation(client *routeros.Client, req CreateOvpnServerRequest) string {
@@ -1713,6 +1706,13 @@ func GetOpenVpnServerTaskStatus(taskID string) *OvpnServerTask {
 	return task
 }
 
+// HandleCreateOvpnServer creates an OpenVPN server asynchronously with multiple users.
+// @Summary Create OpenVPN Server
+// @Description Start an asynchronous OpenVPN server creation task with an array of users
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body CreateOvpnServerRequest true "OpenVPN server creation request with users array"
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
@@ -1866,9 +1866,10 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		task.mu.Unlock()
 	}
 
-	caName := "OpenVPN-CA-" + timestamp
-	serverName := "OpenVPN-Server-" + timestamp
-	clientName := "OpenVPN-Client-" + timestamp
+	ovpnServerName := "ovpn-server-" + timestamp
+	caName := "cert-ca-" + ovpnServerName
+	serverName := "cert-server-" + ovpnServerName
+	clientName := "cert-client-" + ovpnServerName
 
 	updateTask(5, "Creating CA certificate")
 	caCertParams := routeros.AddCertificateParams{
@@ -1982,8 +1983,8 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 	availableX := utils.FindFirstAvailableRange(existingPools, "192.168.12")
 
-	poolName := "OpenVPN-Pool-" + timestamp
-	poolRange := fmt.Sprintf("192.168.12%d.10-192.168.12%d.254", availableX, availableX)
+	poolName := "pool-" + ovpnServerName
+	poolRange := fmt.Sprintf("192.168.12%d.2-192.168.12%d.254", availableX, availableX)
 	poolConfig := routeros.IPPoolConfig{
 		Name:   poolName,
 		Ranges: poolRange,
@@ -1997,7 +1998,8 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 
 	updateTask(70, "Creating PPP profile")
-	profileName := "OpenVPN-Profile-" + timestamp
+	serverConfigName := "ovpn-server-" + timestamp
+	profileName := "profile-" + serverConfigName
 	localAddress := fmt.Sprintf("192.168.12%d.1", availableX)
 
 	_, err = client.AddVpnProfile(profileName, localAddress, poolName)
@@ -2020,17 +2022,30 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		})
 	}
 
-	updateTask(85, "Creating OpenVPN server")
-	serverConfigName := "OpenVPN-Server-" + timestamp
-	port, err := client.FindNextAvailableOvpnPort(1194, "tcp")
+	updateTask(85, "Creating OpenVPN servers")
+	tcpPort, err := client.FindNextAvailableOvpnPort(1194, "tcp")
 	if err != nil {
-		setError("Failed to find available port: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to find available TCP port: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
 		return
 	}
 
-	_, err = client.AddOvpnServer(serverConfigName, port, "ip", "tcp", serverName, true, "sha256", "aes256-cbc")
+	udpPort, err := client.FindNextAvailableOvpnPort(1194, "udp")
 	if err != nil {
-		setError("Failed to create OpenVPN server: "+err.Error(), serverConfigName, poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to find available UDP port: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
+		return
+	}
+
+	serverConfigNameTCP := serverConfigName + "-tcp"
+	_, err = client.AddOvpnServer(serverConfigNameTCP, tcpPort, "ip", "tcp", serverName, true, "sha256", "aes256-cbc", profileName)
+	if err != nil {
+		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigNameTCP, poolName, profileName, []string{caName, serverName, clientName})
+		return
+	}
+
+	serverConfigNameUDP := serverConfigName + "-udp"
+	_, err = client.AddOvpnServer(serverConfigNameUDP, udpPort, "ip", "udp", serverName, true, "sha256", "aes256-cbc", profileName)
+	if err != nil {
+		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigNameUDP, poolName, profileName, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2056,15 +2071,27 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 			"remoteAddress": poolName,
 		},
 		"secrets": createdUsers,
-		"server": map[string]interface{}{
-			"name":                     serverConfigName,
-			"port":                     port,
-			"mode":                     "ip",
-			"protocol":                 "tcp",
-			"certificate":              serverName,
-			"requireClientCertificate": true,
-			"auth":                     "sha256",
-			"cipher":                   "aes256-cbc",
+		"servers": []map[string]interface{}{
+			{
+				"name":                     serverConfigNameTCP,
+				"port":                     tcpPort,
+				"mode":                     "ip",
+				"protocol":                 "tcp",
+				"certificate":              serverName,
+				"requireClientCertificate": true,
+				"auth":                     "sha256",
+				"cipher":                   "aes256-cbc",
+			},
+			{
+				"name":                     serverConfigNameUDP,
+				"port":                     udpPort,
+				"mode":                     "ip",
+				"protocol":                 "udp",
+				"certificate":              serverName,
+				"requireClientCertificate": true,
+				"auth":                     "sha256",
+				"cipher":                   "aes256-cbc",
+			},
 		},
 	}
 	task.mu.Unlock()
@@ -2101,6 +2128,13 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
 	}
 
+	baseName := serverName
+	if strings.HasSuffix(baseName, "-tcp") {
+		baseName = strings.TrimSuffix(baseName, "-tcp")
+	} else if strings.HasSuffix(baseName, "-udp") {
+		baseName = strings.TrimSuffix(baseName, "-udp")
+	}
+
 	extractTimestamp := func(name string) string {
 		parts := strings.Split(name, "-")
 		if len(parts) >= 3 {
@@ -2109,7 +2143,7 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		return ""
 	}
 
-	timestamp := extractTimestamp(serverName)
+	timestamp := extractTimestamp(baseName)
 	deleteErrors := []string{}
 
 	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
@@ -2117,8 +2151,20 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete OpenVPN server: %v", err))
 	}
 
+	ovpnServerName := "ovpn-server-" + timestamp
+	otherServer := ""
+	if strings.HasSuffix(serverName, "-tcp") {
+		otherServer = strings.TrimSuffix(serverName, "-tcp") + "-udp"
+	} else if strings.HasSuffix(serverName, "-udp") {
+		otherServer = strings.TrimSuffix(serverName, "-udp") + "-tcp"
+	}
+
+	if otherServer != "" {
+		_ = client.RemoveOvpnServer(otherServer)
+	}
+
 	if timestamp != "" {
-		profileName := "OpenVPN-Profile-" + timestamp
+		profileName := "profile-ovpn-server-" + timestamp
 		secrets, err := client.GetPppSecretsByProfile(profileName)
 		if err == nil {
 			for _, secret := range secrets {
@@ -2134,15 +2180,15 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 			deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete PPP profile: %v", err))
 		}
 
-		poolName := "OpenVPN-Pool-" + timestamp
+		poolName := "pool-" + ovpnServerName
 		if err := client.RemoveIPPool(poolName); err != nil {
 			deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete IP pool: %v", err))
 		}
 
 		certNames := []string{
-			"OpenVPN-Client-" + timestamp,
-			"OpenVPN-Server-" + timestamp,
-			"OpenVPN-CA-" + timestamp,
+			"cert-client-" + ovpnServerName,
+			"cert-server-" + ovpnServerName,
+			"cert-ca-" + ovpnServerName,
 		}
 		for _, certName := range certNames {
 			if err := client.RemoveCertificate(certName); err != nil {
@@ -2200,6 +2246,13 @@ func HandleExportOvpnClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
 	}
 
+	baseName := serverName
+	if strings.HasSuffix(baseName, "-tcp") {
+		baseName = strings.TrimSuffix(baseName, "-tcp")
+	} else if strings.HasSuffix(baseName, "-udp") {
+		baseName = strings.TrimSuffix(baseName, "-udp")
+	}
+
 	extractTimestamp := func(name string) string {
 		parts := strings.Split(name, "-")
 		if len(parts) >= 3 {
@@ -2208,13 +2261,14 @@ func HandleExportOvpnClient(c echo.Context) error {
 		return ""
 	}
 
-	timestamp := extractTimestamp(serverName)
+	timestamp := extractTimestamp(baseName)
 	if timestamp == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "could not extract timestamp from server name", nil)
 	}
 
-	caName := "OpenVPN-CA-" + timestamp
-	clientCertName := "OpenVPN-Client-" + timestamp
+	ovpnServerName := "ovpn-server-" + timestamp
+	caName := ovpnServerName + "-ca"
+	clientCertName := ovpnServerName + "-client"
 
 	config, err := client.ExportOvpnClientConfiguration(serverName, publicAddress, caName, clientCertName)
 	if err != nil {

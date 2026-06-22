@@ -5,17 +5,25 @@ import (
 )
 
 type DHCPServerConfig struct {
-	Name          string
-	Interface     string
-	Address       string
-	Network       string
-	Gateway       string
-	DNSServers    []string
-	PoolName      string
-	LeaseTime     string
-	Disabled      bool
-	Authoritative bool
-	Comment       string
+	Name              string
+	Interface         string
+	PoolName          string
+	LeaseTime         string
+	Disabled          bool
+	Authoritative     bool
+	AddArp            bool
+	ConflictDetection bool
+	ServerAddress     string
+	AlwaysBroadcast   bool
+	Comment           string
+}
+
+// DHCPServerNetworkConfig represents a DHCP server network configuration.
+type DHCPServerNetworkConfig struct {
+	Address    string
+	Gateway    string
+	DNSServers string
+	Comment    string
 }
 
 type DHCPLeaseInfo struct {
@@ -96,35 +104,42 @@ func (c *Client) GetPoolRanges(poolName string) ([]string, error) {
 
 func (c *Client) AddDHCPServer(config DHCPServerConfig) (string, error) {
 	args := []string{
-		"name=" + config.Name,
-		"interface=" + config.Interface,
-		"address-pool=" + config.PoolName,
+		"=name=" + config.Name,
+		"=interface=" + config.Interface,
+		"=address-pool=" + config.PoolName,
 	}
 
-	if config.Gateway != "" {
-		args = append(args, "gateway="+config.Gateway)
-	}
-	if len(config.DNSServers) > 0 {
-		dnsServers := ""
-		for i, dns := range config.DNSServers {
-			if i > 0 {
-				dnsServers += ","
-			}
-			dnsServers += dns
-		}
-		args = append(args, "dns-servers="+dnsServers)
-	}
 	if config.LeaseTime != "" {
-		args = append(args, "lease-time="+config.LeaseTime)
+		args = append(args, "=lease-time="+config.LeaseTime)
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
+	} else {
+		args = append(args, "=disabled=no")
 	}
 	if config.Authoritative {
-		args = append(args, "authoritative=yes")
+		args = append(args, "=authoritative=yes")
+	} else {
+		args = append(args, "=authoritative=no")
+	}
+	if config.AddArp {
+		args = append(args, "=add-arp=yes")
+	} else {
+		args = append(args, "=add-arp=no")
+	}
+	if config.ConflictDetection {
+		args = append(args, "=conflict-detection=yes")
+	} else {
+		args = append(args, "=conflict-detection=no")
+	}
+	if config.AlwaysBroadcast {
+		args = append(args, "=always-broadcast=yes")
+	}
+	if config.ServerAddress != "" {
+		args = append(args, "=server-address="+config.ServerAddress)
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/ip/dhcp-server", args...)
@@ -142,6 +157,40 @@ func (c *Client) RemoveDHCPServer(name string) error {
 	}
 
 	return nil
+}
+
+// ListDHCPServerNetworks retrieves all DHCP server network configurations.
+func (c *Client) ListDHCPServerNetworks() ([]map[string]string, error) {
+	results, err := c.GetAll("/ip/dhcp-server/network")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list DHCP server networks: %w", err)
+	}
+
+	return results, nil
+}
+
+// AddDHCPServerNetwork creates a new DHCP server network configuration.
+func (c *Client) AddDHCPServerNetwork(config DHCPServerNetworkConfig) (string, error) {
+	args := []string{
+		"=address=" + config.Address,
+	}
+
+	if config.Gateway != "" {
+		args = append(args, "=gateway="+config.Gateway)
+	}
+	if config.DNSServers != "" {
+		args = append(args, "=dns-server="+config.DNSServers)
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	id, err := c.Add("/ip/dhcp-server/network", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add DHCP server network: %w", err)
+	}
+
+	return id, nil
 }
 
 func (c *Client) SetDHCPServer(name string, updates map[string]string) error {

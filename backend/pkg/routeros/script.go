@@ -16,6 +16,16 @@ type ScriptInfo struct {
 	Comment  string
 }
 
+// ScriptConfig represents configuration for adding a new script.
+type ScriptConfig struct {
+	Name     string
+	Source   string
+	Owner    string
+	Policy   string
+	Comment  string
+	Disabled bool
+}
+
 // GetEnvironmentVariable retrieves an environment variable value from RouterOS by name.
 func (c *Client) GetEnvironmentVariable(name string) (string, error) {
 	if name == "" {
@@ -142,7 +152,7 @@ func (c *Client) ExecuteScript(script string) (string, error) {
 		return "", fmt.Errorf("script content is required")
 	}
 
-	reply, err := c.Execute("/execute", fmt.Sprintf("=script={%s}", script))
+	reply, err := c.Execute("/system/script/run", fmt.Sprintf("=script={%s}", script))
 	if err != nil {
 		return "", fmt.Errorf("failed to execute script: %w", err)
 	}
@@ -157,6 +167,80 @@ func (c *Client) ExecuteScript(script string) (string, error) {
 	}
 
 	return result, nil
+}
+
+// AddScript adds a new script to RouterOS.
+func (c *Client) AddScript(config ScriptConfig) (string, error) {
+	if config.Name == "" {
+		return "", fmt.Errorf("script name is required")
+	}
+	if config.Source == "" {
+		return "", fmt.Errorf("script source is required")
+	}
+
+	args := []string{
+		"=name=" + config.Name,
+		"=source=" + config.Source,
+	}
+
+	if config.Owner != "" {
+		args = append(args, "=owner="+config.Owner)
+	}
+	if config.Policy != "" {
+		args = append(args, "=policy="+config.Policy)
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+	if config.Disabled {
+		args = append(args, "=disabled=yes")
+	}
+
+	id, err := c.Add("/system/script", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add script %s: %w", config.Name, err)
+	}
+
+	return id, nil
+}
+
+// RemoveScript removes a script from RouterOS by name.
+func (c *Client) RemoveScript(name string) error {
+	if name == "" {
+		return fmt.Errorf("script name is required")
+	}
+
+	results, err := c.GetAll("/system/script", "?=name="+name)
+	if err != nil {
+		return fmt.Errorf("failed to find script %s: %w", name, err)
+	}
+
+	if len(results) == 0 {
+		return fmt.Errorf("script %s not found", name)
+	}
+
+	scriptID := results[0][".id"]
+	_, err = c.Remove("/system/script", "=.id="+scriptID)
+	if err != nil {
+		return fmt.Errorf("failed to remove script %s: %w", name, err)
+	}
+
+	return nil
+}
+
+// ImportFile imports and executes a RouterOS script file by name.
+// The filename parameter should be the name of a file stored in RouterOS (e.g., "wizard.rsc").
+func (c *Client) ImportFile(filename string) error {
+	if filename == "" {
+		return fmt.Errorf("filename is required")
+	}
+
+	_, err := c.Execute("/import", "=file-name="+filename)
+	if err != nil {
+		return fmt.Errorf("failed to import file %s: %w", filename, err)
+	}
+
+	return nil
 }
 
 // parseScriptInfo converts a RouterOS script map to ScriptInfo struct.

@@ -50,3 +50,47 @@ func GenerateWireGuardPublicKey(privateKeyB64 string) (string, error) {
 func RandString(length int) string {
 	return rand.Text()[:length]
 }
+
+// GenerateRandomString generates a random string with length between minLen and maxLen (inclusive).
+// The string uses alphanumeric characters (a-z, A-Z, 0-9) plus _ and - but not at start or end.
+func GenerateRandomString(minLen, maxLen int) (string, error) {
+	if minLen < 0 || maxLen < 0 || minLen > maxLen {
+		minLen = 8
+		maxLen = 16
+	}
+
+	// Determine the actual length using crypto/rand
+	length := minLen
+	if maxLen > minLen {
+		randByte := make([]byte, 1)
+		if _, err := rand.Read(randByte); err != nil {
+			return "", fmt.Errorf("failed to generate random bytes: %w", err)
+		}
+		length = minLen + int(randByte[0])%(maxLen-minLen+1)
+	}
+
+	// Character set: alphanumeric + _ and -
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+	// Character set for start and end: alphanumeric only
+	alphanumericCharset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	charsetLen := len(charset)
+	alphanumericLen := len(alphanumericCharset)
+
+	result := make([]byte, length)
+	randomBytes := make([]byte, length)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate random bytes: %w", err)
+	}
+
+	for i, b := range randomBytes {
+		// Use alphanumeric charset for first and last character
+		if i == 0 || i == length-1 {
+			result[i] = alphanumericCharset[int(b)%alphanumericLen]
+		} else {
+			result[i] = charset[int(b)%charsetLen]
+		}
+	}
+
+	return string(result), nil
+}

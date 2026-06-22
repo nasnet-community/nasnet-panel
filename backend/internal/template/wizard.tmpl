@@ -1,0 +1,399 @@
+:delay 30s
+
+:local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
+/ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
+
+{{ if .ManagementWifiSSID}}
+/interface wifi
+set [ find default-name=wifi1 ] disabled=no
+add name=wifi-virtual master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \
+security.authentication-types=wpa2-psk,wpa3-psk security.passphrase={{ .wifiPassword }} disabled=no
+/ip address add address="192.168.210.1/24" interface=wifi-virtual network="192.168.210.0" comment="WiFi Static Management Port"
+/ip pool
+add name="DHCP-pool-management-wifi" ranges="192.168.210.2-192.168.210.254" comment="Management Wifi"
+/ip dhcp-server
+add address-pool="DHCP-pool-management-wifi" interface="wifi-virtual" name="DHCP-Management-wifi" comment="Management"
+/ip dhcp-server network
+add address="192.168.210.0/24" dns-server="192.168.210.1" gateway="192.168.210.1" comment="Management"
+{{ end }}
+/system script
+add dont-require-permissions=no name="VPNE-Routing-Manager" owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# ============================================================================\r\n# Script: VPNE Address List to Routing Rules Manager v7.0\r\n# Description: Links domain entries with their dynamic IP entries and creates\r\n#              routing rules using WanInterface from the parent domain entry\r\n# Version: 7.0 - Uses format validation instead of :toip for IP detection\r\n# ============================================================================\r\n# Configuration variables\r\n:local addressListName \"VPNE\"\r\n:local scriptName \"VPNE-Route-Manager\"\r\n:local debugMode false\r\n:local quietMode false\r\n:local tablePrefix \"to-\"\r\n# Statistics counters\r\n:local totalProcessed 0\r\n:local rulesCreated 0\r\n:local rulesUpdated 0\r\n:local skipped 0\r\n:local dynamicProcessed 0\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] ===== Starting VPNE routing rules update v7.0 =====\"\r\n:log debug \"[\$scriptName] Using format-based IP validation to avoid domain resolution\"\r\n}\r\n# ============================================================================\r\n# Function to check if string is IP format (contains only digits and dots)\r\n# ============================================================================\r\n:local isIPFormat do={\r\n:local addr \$1\r\n:local isIP true\r\n# Check if it contains any letters (domains have letters, IPs don't)\r\n:local letters \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\r\n:for i from=0 to=([:len \$addr] - 1) do={\r\n:local char [:pick \$addr \$i (\$i + 1)]\r\n:if ([:find \$letters \$char] >= 0) do={\r\n:set isIP false\r\n}\r\n}\r\n# Additional check: must have at least one dot and start with a digit\r\n:if (\$isIP && [:find \$addr \".\"] < 0) do={\r\n:set isIP false\r\n}\r\n:return \$isIP\r\n}\r\n# ============================================================================\r\n# Step 1: First pass - collect domain entries with WanInterface\r\n# ============================================================================\r\n:local domainMap [:toarray \"\"]\r\n:foreach entry in=[/ip firewall address-list find list=\$addressListName dynamic=no] do={\r\n# Get entry properties\r\n:local addr [/ip firewall address-list get \$entry address]\r\n:local comment [/ip firewall address-list get \$entry comment]\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Checking domain entry: \$addr\"\r\n}\r\n# Extract WanInterface from comment\r\n:local wanInterface \"\"\r\n:local wanStartPos [:find \$comment \"WanInterface:\"]\r\n:if ([:typeof \$wanStartPos] != \"nil\") do={\r\n:local wanValueStart (\$wanStartPos + 13)\r\n:local endpointMarkerPos [:find \$comment \" Endpoint:\" \$wanValueStart]\r\n:if ([:typeof \$endpointMarkerPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$endpointMarkerPos]\r\n} else={\r\n:local dashPos [:find \$comment \" -\" \$wanValueStart]\r\n:if ([:typeof \$dashPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$dashPos]\r\n} else={\r\n:set wanInterface [:pick \$comment \$wanValueStart]\r\n}\r\n}\r\n:if ([:len \$wanInterface] > 0) do={\r\n# Store domain with its WanInterface\r\n:set (\$domainMap->\$addr) \$wanInterface\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Found domain \$addr with WanInterface: \$wanInterface\"\r\n}\r\n}\r\n}\r\n}\r\n# ============================================================================\r\n# Step 2: Process all entries (both static and dynamic)\r\n# ============================================================================\r\n:foreach entry in=[/ip firewall address-list find list=\$addressListName] do={\r\n:set totalProcessed (\$totalProcessed + 1)\r\n# Get entry properties\r\n:local addr [/ip firewall address-list get \$entry address]\r\n:local comment [/ip firewall address-list get \$entry comment]\r\n:local dynamic [/ip firewall address-list get \$entry dynamic]\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Processing entry: \$addr (dynamic=\$dynamic, comment=\$comment)\"\r\n}\r\n# ========== NEW IP FORMAT VALIDATION ==========\r\n:local isValidIP [\$isIPFormat \$addr]\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Format check for \$addr: isIP=\$isValidIP\"\r\n}\r\n# If NOT a valid IP format, skip immediately\r\n:if (!\$isValidIP) do={\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] >>> SKIPPING DOMAIN ENTRY: \$addr (contains letters, not an IP)\"\r\n}\r\n:set skipped (\$skipped + 1)\r\n} else={\r\n# ===== ONLY PROCESS VALID IP ADDRESSES =====\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] >>> VALID IP FORMAT: \$addr - proceeding with processing\"\r\n}\r\n:local wanInterface \"\"\r\n:local endpoint \"\"\r\n:if (\$dynamic = true) do={\r\n# For dynamic entries, the comment is usually the domain name\r\n:if ([:typeof (\$domainMap->\$comment)] != \"nil\") do={\r\n:set wanInterface (\$domainMap->\$comment)\r\n:set endpoint \$comment\r\n:set dynamicProcessed (\$dynamicProcessed + 1)\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Dynamic entry \$addr linked to domain \$comment with WanInterface: \$wanInterface\"\r\n}\r\n} else={\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Dynamic entry \$addr has no matching domain entry, skipping\"\r\n}\r\n:set skipped (\$skipped + 1)\r\n}\r\n} else={\r\n# For static IP entries, extract WanInterface from comment\r\n:local wanStartPos [:find \$comment \"WanInterface:\"]\r\n:if ([:typeof \$wanStartPos] != \"nil\") do={\r\n:local wanValueStart (\$wanStartPos + 13)\r\n:local endpointMarkerPos [:find \$comment \" Endpoint:\" \$wanValueStart]\r\n:if ([:typeof \$endpointMarkerPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$endpointMarkerPos]\r\n} else={\r\n:local dashPos [:find \$comment \" -\" \$wanValueStart]\r\n:if ([:typeof \$dashPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$dashPos]\r\n} else={\r\n:set wanInterface [:pick \$comment \$wanValueStart]\r\n}\r\n}\r\n# Extract endpoint\r\n:local endpointStartPos [:find \$comment \"Endpoint:\"]\r\n:if ([:typeof \$endpointStartPos] != \"nil\") do={\r\n:local endpointValueStart (\$endpointStartPos + 9)\r\n:local dashMarkerPos [:find \$comment \" -\" \$endpointValueStart]\r\n:if ([:typeof \$dashMarkerPos] != \"nil\") do={\r\n:set endpoint [:pick \$comment \$endpointValueStart \$dashMarkerPos]\r\n} else={\r\n:set endpoint [:pick \$comment \$endpointValueStart]\r\n}\r\n} else={\r\n:set endpoint \$addr\r\n}\r\n}\r\n}\r\n# Create/Update routing rules only if we have a WanInterface\r\n:if ([:len \$wanInterface] > 0) do={\r\n# Build routing table name\r\n:local routingTable (\$tablePrefix . \$wanInterface)\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Using routing table: \$routingTable for IP: \$addr\"\r\n}\r\n# Check if routing table exists\r\n:local tableExists false\r\n:do {\r\n:local testTable [/routing table find name=\$routingTable]\r\n:if ([:len \$testTable] > 0) do={\r\n:set tableExists true\r\n}\r\n} on-error={\r\n:set tableExists false\r\n}\r\n:if (!\$tableExists) do={\r\n:if (!\$quietMode) do={\r\n:log error \"[\$scriptName] Routing table '\$routingTable' does not exist, skipping \$addr\"\r\n}\r\n:set skipped (\$skipped + 1)\r\n} else={\r\n:local dstAddress \$addr\r\n:local ruleComment \"VPNE-Resolved: \$endpoint\"\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Preparing rule: dst=\$dstAddress table=\$routingTable\"\r\n}\r\n# Check if routing rule already exists\r\n:local existingRule [/routing rule find dst-address=\$dstAddress table=\$routingTable]\r\n:if ([:len \$existingRule] > 0) do={\r\n# Rule exists - verify configuration\r\n:local ruleID [:pick \$existingRule 0]\r\n:local currentAction [/routing rule get \$ruleID action]\r\n:local currentDisabled [/routing rule get \$ruleID disabled]\r\n:local currentComment [/routing rule get \$ruleID comment]\r\n:local needsUpdate false\r\n:if (\$currentAction != \"lookup-only-in-table\") do={\r\n:set needsUpdate true\r\n}\r\n:if (\$currentDisabled = true) do={\r\n:set needsUpdate true\r\n}\r\n:if (\$currentComment != \$ruleComment) do={\r\n:set needsUpdate true\r\n}\r\n:if (\$needsUpdate) do={\r\n:do {\r\n/routing rule set \$ruleID \\\r\naction=lookup-only-in-table \\\r\ndisabled=no \\\r\ncomment=\$ruleComment\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Updated routing rule for \$dstAddress in table \$routingTable\"\r\n}\r\n:set rulesUpdated (\$rulesUpdated + 1)\r\n} on-error={\r\n:if (!\$quietMode) do={\r\n:log error \"[\$scriptName] Failed to update routing rule for \$dstAddress\"\r\n}\r\n}\r\n} else={\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Routing rule for \$dstAddress in table \$routingTable already correct\"\r\n}\r\n}\r\n} else={\r\n# Rule doesn't exist - create new one\r\n:do {\r\n/routing rule add \\\r\ndst-address=\$dstAddress \\\r\naction=lookup-only-in-table \\\r\ntable=\$routingTable \\\r\ndisabled=no \\\r\ncomment=\$ruleComment\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Created routing rule: dst=\$dstAddress table=\$routingTable\"\r\n}\r\n:set rulesCreated (\$rulesCreated + 1)\r\n} on-error={\r\n:if (!\$quietMode) do={\r\n:log error \"[\$scriptName] Failed to create routing rule for \$dstAddress in table \$routingTable\"\r\n}\r\n}\r\n}\r\n}\r\n}\r\n}\r\n}\r\n# ============================================================================\r\n# Step 4: Clean up orphaned routing rules\r\n# ============================================================================\r\n:local orphansRemoved 0\r\n:foreach rule in=[/routing rule find comment~\"VPNE-Resolved:\"] do={\r\n:local ruleDst [/routing rule get \$rule dst-address]\r\n:local ruleComment [/routing rule get \$rule comment]\r\n# The IP is now stored without /32\r\n:local ruleIP \$ruleDst\r\n# Check if this IP exists in current address list\r\n:local found false\r\n:foreach entry in=[/ip firewall address-list find list=\$addressListName] do={\r\n:local entryAddr [/ip firewall address-list get \$entry address]\r\n:if (\$entryAddr = \$ruleIP) do={\r\n:set found true\r\n}\r\n}\r\n:if (!\$found) do={\r\n:do {\r\n/routing rule remove \$rule\r\n:set orphansRemoved (\$orphansRemoved + 1)\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Removed orphaned routing rule for \$ruleDst\"\r\n}\r\n} on-error={\r\n:if (!\$quietMode) do={\r\n:log warning \"[\$scriptName] Failed to remove orphaned rule for \$ruleDst\"\r\n}\r\n}\r\n}\r\n}\r\n# ============================================================================\r\n# Final Statistics and Logging\r\n# ============================================================================\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] ===== VPNE routing rules update completed =====\"\r\n:log debug \"[\$scriptName] Statistics: Total=\$totalProcessed Created=\$rulesCreated Updated=\$rulesUpdated\"\r\n:log debug \"[\$scriptName] Dynamic entries processed: \$dynamicProcessed\"\r\n:log debug \"[\$scriptName] Orphans removed: \$orphansRemoved Skipped=\$skipped\"\r\n}\r\n# End of script"
+add dont-require-permissions=no name="DomesticIPUpdate-OneTime" owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":delay 120s\r\n# ==============================================================================\r\n#  MikroTik Dynamic Address List Updater - Resilient Mode\r\n# ==============================================================================\r\n# ==============================================================================\r\n# CONFIGURATION SECTION\r\n# ==============================================================================\r\n# API Configuration\r\n# TODO(nice-to-have): baseURL is hardcoded per-deployment - lift to a fn arg\r\n:local baseURL \"https://s4i.co/irip\"\r\n:local listName \"DOMAddList\"\r\n:local stagingListName (\$listName . \"-new\")\r\n:local logPrefix \"SecureListUpdate\"\r\n# User Tracking Configuration\r\n# Leave empty to disable tracking\r\n:local userId \"0459f5a4-26f0-46d9-9de3-59302b29676a\"\r\n# ========== SOURCE ROUTING CONFIGURATION ==========\r\n# Specify source address for all HTTP/HTTPS requests\r\n# This forces all fetch operations through the interface with this IP\r\n# TODO(nice-to-have): also hardcoded - should be a generator fn arg\r\n:local sourceAddress \"192.168.39.12\"\r\n# ==================================================\r\n# Pagination Configuration\r\n:local pageSize 1000\r\n:local maxPages 50\r\n:local batchSize 50\r\n# Retry Configuration\r\n:local maxRetries 4\r\n:local retryBaseDelay 5\r\n:local retryMaxDelay 30\r\n# Validation Configuration\r\n# TODO(nice-to-have): expose these as fn args. If upstream legitimately\r\n# shrinks by >30% we'll silently keep stale data forever with no override.\r\n:local minSafeCount 100\r\n:local minBootstrapCount 1000\r\n:local minRetentionPercent 70\r\n# ==============================================================================\r\n# HELPER FUNCTIONS\r\n# ==============================================================================\r\n# Function: Clean line endings\r\n:global cleanLine do={\r\n:local line \$1\r\n:if ([:len \$line] = 0) do={ :return \"\" }\r\n# Remove CR\r\n:if ([:pick \$line ([:len \$line] - 1)] = \"\\r\") do={\r\n:set line [:pick \$line 0 ([:len \$line] - 1)]\r\n}\r\n# Trim leading spaces\r\n:while (([:len \$line] > 0) and ([:pick \$line 0 1] = \" \")) do={\r\n:set line [:pick \$line 1 [:len \$line]]\r\n}\r\n# Trim trailing spaces\r\n:while (([:len \$line] > 0) and ([:pick \$line ([:len \$line] - 1)] = \" \")) do={\r\n:set line [:pick \$line 0 ([:len \$line] - 1)]\r\n}\r\n:return \$line\r\n}\r\n# Function: Validate address\r\n:global validateAddr do={\r\n:local addr \$1\r\n:local valid false\r\n# Check for CIDR\r\n:if ([:find \$addr \"/\"] > 0) do={\r\n:local slashPos [:find \$addr \"/\"]\r\n:local ipPart [:pick \$addr 0 \$slashPos]\r\n:local maskPart [:pick \$addr (\$slashPos + 1) [:len \$addr]]\r\n:do {\r\n[:toip \$ipPart]\r\n:local maskNum [:tonum \$maskPart]\r\n:if ((\$maskNum >= 0) and (\$maskNum <= 32)) do={\r\n:set valid true\r\n}\r\n} on-error={}\r\n} else={\r\n# Plain IP\r\n:do {\r\n[:toip \$addr]\r\n:set valid true\r\n} on-error={}\r\n}\r\n:return \$valid\r\n}\r\n# Function: Build URL with parameters\r\n:global buildURL do={\r\n:local base \$1\r\n:local format \$2\r\n:local limit \$3\r\n:local offset \$4\r\n:local user \$5\r\n# Start with base URL and required parameters\r\n:local url \"\$base\\?format=\$format&limit=\$limit&offset=\$offset\"\r\n# Add user_id if provided\r\n:if ([:len \$user] > 0) do={\r\n:set url \"\$url&user_id=\$user\"\r\n}\r\n:return \$url\r\n}\r\n# Function: Calculate retry delay\r\n:global calcRetryDelay do={\r\n:local attempt \$1\r\n:local baseDelay \$2\r\n:local maxDelay \$3\r\n:local delayValue (\$baseDelay * \$attempt)\r\n:if (\$delayValue > \$maxDelay) do={\r\n:set delayValue \$maxDelay\r\n}\r\n:return \$delayValue\r\n}\r\n# ==============================================================================\r\n# MAIN SCRIPT\r\n# ==============================================================================\r\n# Prevent concurrent runs (scheduler + manual execution overlap)\r\n# TODO(nice-to-have): pair with a :global domesticIPUpdateStartedAt and\r\n# treat the lock as stale after ~30 min. Today, a manually-killed run\r\n# leaves the lock 'true' until the next reboot clears :global state.\r\n:global domesticIPUpdateRunning\r\n:if ([:typeof \$domesticIPUpdateRunning] = \"nothing\") do={\r\n:set domesticIPUpdateRunning false\r\n}\r\n:if (\$domesticIPUpdateRunning = true) do={\r\n:log warning \"\$logPrefix: Another update is already running, skipping this execution\"\r\n:error \"\$logPrefix: lock already held\"\r\n}\r\n:set domesticIPUpdateRunning true\r\n# Initialize state\r\n:local importSuccessful false\r\n:local startTime [/system clock get time]\r\n:local endTime \"\"\r\n:local previousCount [:len [/ip firewall address-list find list=\$listName]]\r\n:local finalCount \$previousCount\r\n:local stagedCount 0\r\n:local minRequired \$minSafeCount\r\n:local totalAdded 0\r\n:local totalInvalid 0\r\n:local successfulPages 0\r\n:local currentOffset 0\r\n:local pageNum 0\r\n:local hasMore true\r\n:local sourceValid false\r\n:do {\r\n:log info \"\$logPrefix: ========================================\"\r\n:log info \"\$logPrefix: Starting Dynamic Address List Import\"\r\n:log info \"\$logPrefix: Using source address: \$sourceAddress\"\r\n:log info \"\$logPrefix: Existing \$listName count before update: \$previousCount\"\r\n# Verify source address exists\r\n:set sourceValid false\r\n:do {\r\n:local testIP [/ip address find where address~\"^\$sourceAddress/\"]\r\n:if ([:len \$testIP] > 0) do={\r\n:set sourceValid true\r\n:log info \"\$logPrefix: Source address \$sourceAddress verified\"\r\n}\r\n} on-error={}\r\n:if (\$sourceValid = false) do={\r\n:log warning \"\$logPrefix: Source address \$sourceAddress not found on any interface!\"\r\n:log warning \"\$logPrefix: Proceeding with default routing...\"\r\n}\r\n# Log user tracking status\r\n:if ([:len \$userId] > 0) do={\r\n:log info \"\$logPrefix: User tracking enabled: \$userId\"\r\n} else={\r\n:log info \"\$logPrefix: User tracking disabled (no user_id configured)\"\r\n}\r\n# Prepare staging list\r\n:log info \"\$logPrefix: Cleaning stale staging list entries...\"\r\n/ip firewall address-list remove [find list=\$stagingListName]\r\n# ==============================================================================\r\n# MAIN PROCESSING LOOP\r\n# ==============================================================================\r\n:while ((\$pageNum < \$maxPages) and (\$hasMore = true)) do={\r\n# Progress reporting\r\n:if ((\$pageNum % 5) = 0) do={\r\n:log info \"\$logPrefix: Processing pages \$pageNum-\$(\$pageNum + 4)... Total: \$totalAdded\"\r\n}\r\n# Build URL with user_id parameter\r\n:local pageURL [\$buildURL \$baseURL \"addresses\" \$pageSize \$currentOffset \$userId]\r\n# Log the URL for first page (for debugging)\r\n:if (\$pageNum = 0) do={\r\n:log info \"\$logPrefix: First request URL: \$pageURL\"\r\n:log info \"\$logPrefix: Routing through: \$sourceAddress\"\r\n}\r\n# Fetch with retry logic\r\n:local attempt 0\r\n:local fetchSuccess false\r\n:local pageContent \"\"\r\n# Retry loop\r\n:while ((\$attempt < \$maxRetries) and (\$fetchSuccess = false)) do={\r\n:set attempt (\$attempt + 1)\r\n:log info \"\$logPrefix: Fetching page \$pageNum (attempt \$attempt/\$maxRetries)...\"\r\n:do {\r\n# Fetch command with source address\r\n# NOTE: check-certificate=no is pragmatic for the Iran TLS\r\n# fingerprinting context; flip to =yes if running elsewhere.\r\n:local fetchResult\r\n:if (\$sourceValid = true) do={\r\n# Use source address if valid\r\n:set fetchResult [/tool fetch url=\$pageURL \\\r\nmode=https \\\r\ncheck-certificate=no \\\r\noutput=user \\\r\nsrc-address=\$sourceAddress \\\r\nhttp-max-redirect-count=10 \\\r\nas-value]\r\n} else={\r\n# Fall back to default routing\r\n:set fetchResult [/tool fetch url=\$pageURL \\\r\nmode=https \\\r\ncheck-certificate=no \\\r\noutput=user \\\r\nhttp-max-redirect-count=10 \\\r\nas-value]\r\n}\r\n:if ((\$fetchResult->\"status\") = \"finished\") do={\r\n:set pageContent (\$fetchResult->\"data\")\r\n:set fetchSuccess true\r\n:log info \"\$logPrefix: Page \$pageNum fetched successfully\"\r\n# Check response headers if available (for debugging)\r\n:if (\$pageNum = 0) do={\r\n:log info \"\$logPrefix: First page fetched, checking for pagination headers...\"\r\n}\r\n}\r\n} on-error={\r\n:if (\$attempt < \$maxRetries) do={\r\n# Linear backoff with cap\r\n:local delayTime [\$calcRetryDelay \$attempt \$retryBaseDelay \$retryMaxDelay]\r\n:log warning \"\$logPrefix: Page \$pageNum failed, retry in \$delayTime seconds...\"\r\n:delay (\$delayTime . \"s\")\r\n} else={\r\n:log error \"\$logPrefix: Page \$pageNum failed after all attempts\"\r\n}\r\n}\r\n}\r\n# Process page if successful\r\n:if (\$fetchSuccess = true) do={\r\n# Process content\r\n:local batchCmd \"/ip firewall address-list\\r\\n\"\r\n:local batchCount 0\r\n:local pageAdded 0\r\n:local pageInvalid 0\r\n:local lastEnd 0\r\n:local contentSize [:len \$pageContent]\r\n:while (\$lastEnd < \$contentSize) do={\r\n# Find line end\r\n:local lineEnd [:find \$pageContent \"\\n\" \$lastEnd]\r\n:if ([:typeof \$lineEnd] = \"nil\") do={\r\n:set lineEnd \$contentSize\r\n}\r\n# Extract line\r\n:local line [:pick \$pageContent \$lastEnd \$lineEnd]\r\n:set lastEnd (\$lineEnd + 1)\r\n# Clean line\r\n:set line [\$cleanLine \$line]\r\n# Skip empty lines and comments\r\n:if ([:len \$line] > 0) do={\r\n:if ([:pick \$line 0 1] != \"#\") do={\r\n# Validate address\r\n:if ([\$validateAddr \$line] = true) do={\r\n:set batchCmd (\$batchCmd . \"add list=\$stagingListName address=\$line comment=\\\"\$logPrefix-p\$pageNum\\\"\\r\\n\")\r\n:set batchCount (\$batchCount + 1)\r\n:set pageAdded (\$pageAdded + 1)\r\n# Execute batch when full\r\n:if (\$batchCount >= \$batchSize) do={\r\n:do {\r\n[:parse \$batchCmd]\r\n} on-error={\r\n:error \"\$logPrefix: Batch add failed on page \$pageNum\"\r\n}\r\n:set batchCmd \"/ip firewall address-list\\r\\n\"\r\n:set batchCount 0\r\n}\r\n} else={\r\n:set pageInvalid (\$pageInvalid + 1)\r\n}\r\n}\r\n}\r\n}\r\n# Execute remaining batch\r\n:if (\$batchCount > 0) do={\r\n:do {\r\n[:parse \$batchCmd]\r\n} on-error={\r\n:error \"\$logPrefix: Final batch failed on page \$pageNum\"\r\n}\r\n}\r\n:set totalAdded (\$totalAdded + \$pageAdded)\r\n:set totalInvalid (\$totalInvalid + \$pageInvalid)\r\n:set successfulPages (\$successfulPages + 1)\r\n:log info \"\$logPrefix: Page \$pageNum complete (added=\$pageAdded, invalid=\$pageInvalid)\"\r\n# Detect end of data using parsed entry count\r\n:if (\$pageAdded = 0) do={\r\n:if (\$pageNum = 0) do={\r\n:error \"\$logPrefix: First page returned zero valid entries\"\r\n}\r\n:set hasMore false\r\n:log info \"\$logPrefix: End of data reached at page \$pageNum (0 entries)\"\r\n} else={\r\n:if (\$pageAdded < \$pageSize) do={\r\n:set hasMore false\r\n:log info \"\$logPrefix: End of data reached at page \$pageNum (\$pageAdded entries)\"\r\n}\r\n}\r\n} else={\r\n:error \"\$logPrefix: Page \$pageNum could not be fetched\"\r\n}\r\n# Next page\r\n:set currentOffset (\$currentOffset + \$pageSize)\r\n:set pageNum (\$pageNum + 1)\r\n# Small delay between pages\r\n:delay 10ms\r\n}\r\n:if (\$successfulPages = 0) do={\r\n:error \"\$logPrefix: No pages imported successfully\"\r\n}\r\n:set stagedCount [:len [/ip firewall address-list find list=\$stagingListName]]\r\n# Dynamic threshold: keep old list unless new data is sane\r\n:if (\$previousCount = 0) do={\r\n:set minRequired \$minBootstrapCount\r\n} else={\r\n:local retentionFloor ((\$previousCount * \$minRetentionPercent) / 100)\r\n:if (\$retentionFloor > \$minRequired) do={\r\n:set minRequired \$retentionFloor\r\n}\r\n}\r\n:if (\$minRequired < \$minSafeCount) do={\r\n:set minRequired \$minSafeCount\r\n}\r\n:if (\$stagedCount < \$minRequired) do={\r\n:error \"\$logPrefix: Validation failed - staged=\$stagedCount required=\$minRequired (existing kept)\"\r\n}\r\n:log info \"\$logPrefix: Validation passed - staged=\$stagedCount required=\$minRequired\"\r\n:log info \"\$logPrefix: Swapping \$stagingListName into \$listName\"\r\n/ip firewall address-list remove [find list=\$listName]\r\n/ip firewall address-list set [find list=\$stagingListName] list=\$listName\r\n:set finalCount [:len [/ip firewall address-list find list=\$listName]]\r\n# NOTE: by this point the OLD list is already gone (swap above). If\r\n# this tripwire fires, the on-error message 'existing list preserved'\r\n# is technically a lie - the old list was removed, the new (possibly\r\n# short) list is live. In practice RouterOS shouldn't lose entries\r\n# between remove+set, so this is a paranoia check. The FINAL SUMMARY\r\n# below re-reads finalCount so logs still show the actual state.\r\n:if (\$finalCount < \$minRequired) do={\r\n:error \"\$logPrefix: Post-swap validation failed - final=\$finalCount required=\$minRequired\"\r\n}\r\n:set importSuccessful true\r\n} on-error={\r\n:log error \"\$logPrefix: Import failed, existing list preserved\"\r\n}\r\n# TODO(nice-to-have): persist a 'last good import' marker so downstream\r\n# consumers (and ops) can answer 'when did this last actually succeed?'\r\n# without scraping logs. e.g.:\r\n#   /system note set note=\"DOMAddList-last-good=\$endTime:\$finalCount\"\r\n# ==============================================================================\r\n# FINAL SUMMARY\r\n# ==============================================================================\r\n:set endTime [/system clock get time]\r\n:if (\$importSuccessful = false) do={\r\n:set finalCount [:len [/ip firewall address-list find list=\$listName]]\r\n}\r\n:log info \"\$logPrefix: ========================================\"\r\n:if (\$importSuccessful = true) do={\r\n:log info \"\$logPrefix: IMPORT COMPLETE!\"\r\n} else={\r\n:log warning \"\$logPrefix: IMPORT FAILED (old list kept)\"\r\n}\r\n:log info \"\$logPrefix: Pages processed: \$pageNum\"\r\n:log info \"\$logPrefix: Successful pages: \$successfulPages\"\r\n:log info \"\$logPrefix: Valid entries added: \$totalAdded\"\r\n:log info \"\$logPrefix: Invalid entries skipped: \$totalInvalid\"\r\n:log info \"\$logPrefix: Required minimum entries: \$minRequired\"\r\n:log info \"\$logPrefix: Staged entries: \$stagedCount\"\r\n:log info \"\$logPrefix: Previous firewall count: \$previousCount\"\r\n:log info \"\$logPrefix: Actual firewall count: \$finalCount\"\r\n:log info \"\$logPrefix: Processing time: \$startTime to \$endTime\"\r\n# Routing summary\r\n:if (\$sourceValid = true) do={\r\n:log info \"\$logPrefix: Source address used: \$sourceAddress\"\r\n} else={\r\n:log info \"\$logPrefix: Default routing used (source address not found)\"\r\n}\r\n# User tracking summary\r\n:if ([:len \$userId] > 0) do={\r\n:log info \"\$logPrefix: User ID: \$userId\"\r\n}\r\n:if (\$importSuccessful = true) do={\r\n:if (\$finalCount >= \$minBootstrapCount) do={\r\n:log info \"\$logPrefix: SUCCESS: Healthy import size detected\"\r\n} else={\r\n:log warning \"\$logPrefix: SUCCESS: Imported with low-but-acceptable size\"\r\n}\r\n} else={\r\n:log warning \"\$logPrefix: WARNING: Update failed, previous list retained\"\r\n}\r\n:log info \"\$logPrefix: ========================================\"\r\n# Always cleanup staging list and release lock\r\n/ip firewall address-list remove [find list=\$stagingListName]\r\n:set domesticIPUpdateRunning false\r\n# Cleanup functions\r\n:set cleanLine\r\n:set validateAddr\r\n:set buildURL\r\n:set calcRetryDelay\r\n\r\n/system scheduler\r\nremove [find name=DomesticIPUpdate-OneTime];"
+add dont-require-permissions=no name="DomesticIPUpdate" owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# ==============================================================================\r\n#  MikroTik Dynamic Address List Updater - Resilient Mode\r\n# ==============================================================================\r\n# ==============================================================================\r\n# CONFIGURATION SECTION\r\n# ==============================================================================\r\n# API Configuration\r\n# TODO(nice-to-have): baseURL is hardcoded per-deployment - lift to a fn arg\r\n:local baseURL \"https://s4i.co/irip\"\r\n:local listName \"DOMAddList\"\r\n:local stagingListName (\$listName . \"-new\")\r\n:local logPrefix \"SecureListUpdate\"\r\n# User Tracking Configuration\r\n# Leave empty to disable tracking\r\n:local userId \"69193f04-f335-4477-9c64-498d7c4c9a4d\"\r\n# ========== SOURCE ROUTING CONFIGURATION ==========\r\n# Specify source address for all HTTP/HTTPS requests\r\n# This forces all fetch operations through the interface with this IP\r\n# TODO(nice-to-have): also hardcoded - should be a generator fn arg\r\n:local sourceAddress \"192.168.39.12\"\r\n# ==================================================\r\n# Pagination Configuration\r\n:local pageSize 1000\r\n:local maxPages 50\r\n:local batchSize 50\r\n# Retry Configuration\r\n:local maxRetries 4\r\n:local retryBaseDelay 5\r\n:local retryMaxDelay 30\r\n# Validation Configuration\r\n# TODO(nice-to-have): expose these as fn args. If upstream legitimately\r\n# shrinks by >30% we'll silently keep stale data forever with no override.\r\n:local minSafeCount 100\r\n:local minBootstrapCount 1000\r\n:local minRetentionPercent 70\r\n# ==============================================================================\r\n# HELPER FUNCTIONS\r\n# ==============================================================================\r\n# Function: Clean line endings\r\n:global cleanLine do={\r\n:local line \$1\r\n:if ([:len \$line] = 0) do={ :return \"\" }\r\n# Remove CR\r\n:if ([:pick \$line ([:len \$line] - 1)] = \"\\r\") do={\r\n:set line [:pick \$line 0 ([:len \$line] - 1)]\r\n}\r\n# Trim leading spaces\r\n:while (([:len \$line] > 0) and ([:pick \$line 0 1] = \" \")) do={\r\n:set line [:pick \$line 1 [:len \$line]]\r\n}\r\n# Trim trailing spaces\r\n:while (([:len \$line] > 0) and ([:pick \$line ([:len \$line] - 1)] = \" \")) do={\r\n:set line [:pick \$line 0 ([:len \$line] - 1)]\r\n}\r\n:return \$line\r\n}\r\n# Function: Validate address\r\n:global validateAddr do={\r\n:local addr \$1\r\n:local valid false\r\n# Check for CIDR\r\n:if ([:find \$addr \"/\"] > 0) do={\r\n:local slashPos [:find \$addr \"/\"]\r\n:local ipPart [:pick \$addr 0 \$slashPos]\r\n:local maskPart [:pick \$addr (\$slashPos + 1) [:len \$addr]]\r\n:do {\r\n[:toip \$ipPart]\r\n:local maskNum [:tonum \$maskPart]\r\n:if ((\$maskNum >= 0) and (\$maskNum <= 32)) do={\r\n:set valid true\r\n}\r\n} on-error={}\r\n} else={\r\n# Plain IP\r\n:do {\r\n[:toip \$addr]\r\n:set valid true\r\n} on-error={}\r\n}\r\n:return \$valid\r\n}\r\n# Function: Build URL with parameters\r\n:global buildURL do={\r\n:local base \$1\r\n:local format \$2\r\n:local limit \$3\r\n:local offset \$4\r\n:local user \$5\r\n# Start with base URL and required parameters\r\n:local url \"\$base\\?format=\$format&limit=\$limit&offset=\$offset\"\r\n# Add user_id if provided\r\n:if ([:len \$user] > 0) do={\r\n:set url \"\$url&user_id=\$user\"\r\n}\r\n:return \$url\r\n}\r\n# Function: Calculate retry delay\r\n:global calcRetryDelay do={\r\n:local attempt \$1\r\n:local baseDelay \$2\r\n:local maxDelay \$3\r\n:local delayValue (\$baseDelay * \$attempt)\r\n:if (\$delayValue > \$maxDelay) do={\r\n:set delayValue \$maxDelay\r\n}\r\n:return \$delayValue\r\n}\r\n# ==============================================================================\r\n# MAIN SCRIPT\r\n# ==============================================================================\r\n# Prevent concurrent runs (scheduler + manual execution overlap)\r\n# TODO(nice-to-have): pair with a :global domesticIPUpdateStartedAt and\r\n# treat the lock as stale after ~30 min. Today, a manually-killed run\r\n# leaves the lock 'true' until the next reboot clears :global state.\r\n:global domesticIPUpdateRunning\r\n:if ([:typeof \$domesticIPUpdateRunning] = \"nothing\") do={\r\n:set domesticIPUpdateRunning false\r\n}\r\n:if (\$domesticIPUpdateRunning = true) do={\r\n:log warning \"\$logPrefix: Another update is already running, skipping this execution\"\r\n:error \"\$logPrefix: lock already held\"\r\n}\r\n:set domesticIPUpdateRunning true\r\n# Initialize state\r\n:local importSuccessful false\r\n:local startTime [/system clock get time]\r\n:local endTime \"\"\r\n:local previousCount [:len [/ip firewall address-list find list=\$listName]]\r\n:local finalCount \$previousCount\r\n:local stagedCount 0\r\n:local minRequired \$minSafeCount\r\n:local totalAdded 0\r\n:local totalInvalid 0\r\n:local successfulPages 0\r\n:local currentOffset 0\r\n:local pageNum 0\r\n:local hasMore true\r\n:local sourceValid false\r\n:do {\r\n:log info \"\$logPrefix: ========================================\"\r\n:log info \"\$logPrefix: Starting Dynamic Address List Import\"\r\n:log info \"\$logPrefix: Using source address: \$sourceAddress\"\r\n:log info \"\$logPrefix: Existing \$listName count before update: \$previousCount\"\r\n# Verify source address exists\r\n:set sourceValid false\r\n:do {\r\n:local testIP [/ip address find where address~\"^\$sourceAddress/\"]\r\n:if ([:len \$testIP] > 0) do={\r\n:set sourceValid true\r\n:log info \"\$logPrefix: Source address \$sourceAddress verified\"\r\n}\r\n} on-error={}\r\n:if (\$sourceValid = false) do={\r\n:log warning \"\$logPrefix: Source address \$sourceAddress not found on any interface!\"\r\n:log warning \"\$logPrefix: Proceeding with default routing...\"\r\n}\r\n# Log user tracking status\r\n:if ([:len \$userId] > 0) do={\r\n:log info \"\$logPrefix: User tracking enabled: \$userId\"\r\n} else={\r\n:log info \"\$logPrefix: User tracking disabled (no user_id configured)\"\r\n}\r\n# Prepare staging list\r\n:log info \"\$logPrefix: Cleaning stale staging list entries...\"\r\n/ip firewall address-list remove [find list=\$stagingListName]\r\n# ==============================================================================\r\n# MAIN PROCESSING LOOP\r\n# ==============================================================================\r\n:while ((\$pageNum < \$maxPages) and (\$hasMore = true)) do={\r\n# Progress reporting\r\n:if ((\$pageNum % 5) = 0) do={\r\n:log info \"\$logPrefix: Processing pages \$pageNum-\$(\$pageNum + 4)... Total: \$totalAdded\"\r\n}\r\n# Build URL with user_id parameter\r\n:local pageURL [\$buildURL \$baseURL \"addresses\" \$pageSize \$currentOffset \$userId]\r\n# Log the URL for first page (for debugging)\r\n:if (\$pageNum = 0) do={\r\n:log info \"\$logPrefix: First request URL: \$pageURL\"\r\n:log info \"\$logPrefix: Routing through: \$sourceAddress\"\r\n}\r\n# Fetch with retry logic\r\n:local attempt 0\r\n:local fetchSuccess false\r\n:local pageContent \"\"\r\n# Retry loop\r\n:while ((\$attempt < \$maxRetries) and (\$fetchSuccess = false)) do={\r\n:set attempt (\$attempt + 1)\r\n:log info \"\$logPrefix: Fetching page \$pageNum (attempt \$attempt/\$maxRetries)...\"\r\n:do {\r\n# Fetch command with source address\r\n# NOTE: check-certificate=no is pragmatic for the Iran TLS\r\n# fingerprinting context; flip to =yes if running elsewhere.\r\n:local fetchResult\r\n:if (\$sourceValid = true) do={\r\n# Use source address if valid\r\n:set fetchResult [/tool fetch url=\$pageURL \\\r\nmode=https \\\r\ncheck-certificate=no \\\r\noutput=user \\\r\nsrc-address=\$sourceAddress \\\r\nhttp-max-redirect-count=10 \\\r\nas-value]\r\n} else={\r\n# Fall back to default routing\r\n:set fetchResult [/tool fetch url=\$pageURL \\\r\nmode=https \\\r\ncheck-certificate=no \\\r\noutput=user \\\r\nhttp-max-redirect-count=10 \\\r\nas-value]\r\n}\r\n:if ((\$fetchResult->\"status\") = \"finished\") do={\r\n:set pageContent (\$fetchResult->\"data\")\r\n:set fetchSuccess true\r\n:log info \"\$logPrefix: Page \$pageNum fetched successfully\"\r\n# Check response headers if available (for debugging)\r\n:if (\$pageNum = 0) do={\r\n:log info \"\$logPrefix: First page fetched, checking for pagination headers...\"\r\n}\r\n}\r\n} on-error={\r\n:if (\$attempt < \$maxRetries) do={\r\n# Linear backoff with cap\r\n:local delayTime [\$calcRetryDelay \$attempt \$retryBaseDelay \$retryMaxDelay]\r\n:log warning \"\$logPrefix: Page \$pageNum failed, retry in \$delayTime seconds...\"\r\n:delay (\$delayTime . \"s\")\r\n} else={\r\n:log error \"\$logPrefix: Page \$pageNum failed after all attempts\"\r\n}\r\n}\r\n}\r\n# Process page if successful\r\n:if (\$fetchSuccess = true) do={\r\n# Process content\r\n:local batchCmd \"/ip firewall address-list\\r\\n\"\r\n:local batchCount 0\r\n:local pageAdded 0\r\n:local pageInvalid 0\r\n:local lastEnd 0\r\n:local contentSize [:len \$pageContent]\r\n:while (\$lastEnd < \$contentSize) do={\r\n# Find line end\r\n:local lineEnd [:find \$pageContent \"\\n\" \$lastEnd]\r\n:if ([:typeof \$lineEnd] = \"nil\") do={\r\n:set lineEnd \$contentSize\r\n}\r\n# Extract line\r\n:local line [:pick \$pageContent \$lastEnd \$lineEnd]\r\n:set lastEnd (\$lineEnd + 1)\r\n# Clean line\r\n:set line [\$cleanLine \$line]\r\n# Skip empty lines and comments\r\n:if ([:len \$line] > 0) do={\r\n:if ([:pick \$line 0 1] != \"#\") do={\r\n# Validate address\r\n:if ([\$validateAddr \$line] = true) do={\r\n:set batchCmd (\$batchCmd . \"add list=\$stagingListName address=\$line comment=\\\"\$logPrefix-p\$pageNum\\\"\\r\\n\")\r\n:set batchCount (\$batchCount + 1)\r\n:set pageAdded (\$pageAdded + 1)\r\n# Execute batch when full\r\n:if (\$batchCount >= \$batchSize) do={\r\n:do {\r\n[:parse \$batchCmd]\r\n} on-error={\r\n:error \"\$logPrefix: Batch add failed on page \$pageNum\"\r\n}\r\n:set batchCmd \"/ip firewall address-list\\r\\n\"\r\n:set batchCount 0\r\n}\r\n} else={\r\n:set pageInvalid (\$pageInvalid + 1)\r\n}\r\n}\r\n}\r\n}\r\n# Execute remaining batch\r\n:if (\$batchCount > 0) do={\r\n:do {\r\n[:parse \$batchCmd]\r\n} on-error={\r\n:error \"\$logPrefix: Final batch failed on page \$pageNum\"\r\n}\r\n}\r\n:set totalAdded (\$totalAdded + \$pageAdded)\r\n:set totalInvalid (\$totalInvalid + \$pageInvalid)\r\n:set successfulPages (\$successfulPages + 1)\r\n:log info \"\$logPrefix: Page \$pageNum complete (added=\$pageAdded, invalid=\$pageInvalid)\"\r\n# Detect end of data using parsed entry count\r\n:if (\$pageAdded = 0) do={\r\n:if (\$pageNum = 0) do={\r\n:error \"\$logPrefix: First page returned zero valid entries\"\r\n}\r\n:set hasMore false\r\n:log info \"\$logPrefix: End of data reached at page \$pageNum (0 entries)\"\r\n} else={\r\n:if (\$pageAdded < \$pageSize) do={\r\n:set hasMore false\r\n:log info \"\$logPrefix: End of data reached at page \$pageNum (\$pageAdded entries)\"\r\n}\r\n}\r\n} else={\r\n:error \"\$logPrefix: Page \$pageNum could not be fetched\"\r\n}\r\n# Next page\r\n:set currentOffset (\$currentOffset + \$pageSize)\r\n:set pageNum (\$pageNum + 1)\r\n# Small delay between pages\r\n:delay 10ms\r\n}\r\n:if (\$successfulPages = 0) do={\r\n:error \"\$logPrefix: No pages imported successfully\"\r\n}\r\n:set stagedCount [:len [/ip firewall address-list find list=\$stagingListName]]\r\n# Dynamic threshold: keep old list unless new data is sane\r\n:if (\$previousCount = 0) do={\r\n:set minRequired \$minBootstrapCount\r\n} else={\r\n:local retentionFloor ((\$previousCount * \$minRetentionPercent) / 100)\r\n:if (\$retentionFloor > \$minRequired) do={\r\n:set minRequired \$retentionFloor\r\n}\r\n}\r\n:if (\$minRequired < \$minSafeCount) do={\r\n:set minRequired \$minSafeCount\r\n}\r\n:if (\$stagedCount < \$minRequired) do={\r\n:error \"\$logPrefix: Validation failed - staged=\$stagedCount required=\$minRequired (existing kept)\"\r\n}\r\n:log info \"\$logPrefix: Validation passed - staged=\$stagedCount required=\$minRequired\"\r\n:log info \"\$logPrefix: Swapping \$stagingListName into \$listName\"\r\n/ip firewall address-list remove [find list=\$listName]\r\n/ip firewall address-list set [find list=\$stagingListName] list=\$listName\r\n:set finalCount [:len [/ip firewall address-list find list=\$listName]]\r\n# NOTE: by this point the OLD list is already gone (swap above). If\r\n# this tripwire fires, the on-error message 'existing list preserved'\r\n# is technically a lie - the old list was removed, the new (possibly\r\n# short) list is live. In practice RouterOS shouldn't lose entries\r\n# between remove+set, so this is a paranoia check. The FINAL SUMMARY\r\n# below re-reads finalCount so logs still show the actual state.\r\n:if (\$finalCount < \$minRequired) do={\r\n:error \"\$logPrefix: Post-swap validation failed - final=\$finalCount required=\$minRequired\"\r\n}\r\n:set importSuccessful true\r\n} on-error={\r\n:log error \"\$logPrefix: Import failed, existing list preserved\"\r\n}\r\n# TODO(nice-to-have): persist a 'last good import' marker so downstream\r\n# consumers (and ops) can answer 'when did this last actually succeed?'\r\n# without scraping logs. e.g.:\r\n#   /system note set note=\"DOMAddList-last-good=\$endTime:\$finalCount\"\r\n# ==============================================================================\r\n# FINAL SUMMARY\r\n# ==============================================================================\r\n:set endTime [/system clock get time]\r\n:if (\$importSuccessful = false) do={\r\n:set finalCount [:len [/ip firewall address-list find list=\$listName]]\r\n}\r\n:log info \"\$logPrefix: ========================================\"\r\n:if (\$importSuccessful = true) do={\r\n:log info \"\$logPrefix: IMPORT COMPLETE!\"\r\n} else={\r\n:log warning \"\$logPrefix: IMPORT FAILED (old list kept)\"\r\n}\r\n:log info \"\$logPrefix: Pages processed: \$pageNum\"\r\n:log info \"\$logPrefix: Successful pages: \$successfulPages\"\r\n:log info \"\$logPrefix: Valid entries added: \$totalAdded\"\r\n:log info \"\$logPrefix: Invalid entries skipped: \$totalInvalid\"\r\n:log info \"\$logPrefix: Required minimum entries: \$minRequired\"\r\n:log info \"\$logPrefix: Staged entries: \$stagedCount\"\r\n:log info \"\$logPrefix: Previous firewall count: \$previousCount\"\r\n:log info \"\$logPrefix: Actual firewall count: \$finalCount\"\r\n:log info \"\$logPrefix: Processing time: \$startTime to \$endTime\"\r\n# Routing summary\r\n:if (\$sourceValid = true) do={\r\n:log info \"\$logPrefix: Source address used: \$sourceAddress\"\r\n} else={\r\n:log info \"\$logPrefix: Default routing used (source address not found)\"\r\n}\r\n# User tracking summary\r\n:if ([:len \$userId] > 0) do={\r\n:log info \"\$logPrefix: User ID: \$userId\"\r\n}\r\n:if (\$importSuccessful = true) do={\r\n:if (\$finalCount >= \$minBootstrapCount) do={\r\n:log info \"\$logPrefix: SUCCESS: Healthy import size detected\"\r\n} else={\r\n:log warning \"\$logPrefix: SUCCESS: Imported with low-but-acceptable size\"\r\n}\r\n} else={\r\n:log warning \"\$logPrefix: WARNING: Update failed, previous list retained\"\r\n}\r\n:log info \"\$logPrefix: ========================================\"\r\n# Always cleanup staging list and release lock\r\n/ip firewall address-list remove [find list=\$stagingListName]\r\n:set domesticIPUpdateRunning false\r\n# Cleanup functions\r\n:set cleanLine\r\n:set validateAddr\r\n:set buildURL\r\n:set calcRetryDelay"
+/certificate settings
+set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
+
+{{if .EnableWifiAP }}
+/interface wifi{{range $index, $band := .WifiBands}}{{$wifiNum := add $index 1}}
+set [ find default-name=wifi{{$wifiNum}} ] disabled=no configuration.country=Japan \
+.mode=ap .ssid="{{ $.wifiSSID }}" .installation=indoor \
+name="wifi{{$band}}-SplitLAN" comment="SplitLAN" \
+configuration.hide-ssid=no security.authentication-types=wpa2-psk,wpa3-psk \
+.passphrase="{{ $.wifiPassword }}" security.ft=yes \
+.ft-over-ds=yes{{end}}
+{{if gt (len .WifiBands) 1}}
+steering add comment="Split" disabled=no \
+name="Split" neighbor-group="{{range $index, $band := .WifiBands}}{{if gt $index 0}},{{end}}wifi{{$band}}-SplitLAN{{end}}" rrm=yes wnm=yes{{range .WifiBands}}
+set [ find name="wifi{{.}}-SplitLAN" ] steering="Split"{{end}}
+{{end}}
+{{ else }}
+#seperate AP
+{{ end }}
+/interface bridge
+add name="LANBridgeSplit" comment="Split"
+add name="LANBridgeDomestic" comment="Domestic"
+add name="LANBridgeForeign" comment="Foreign"
+add name="LANBridgeVPN" comment="VPN"
+add name="LANBridgeForeign-Foreign Link" comment="Foreign-Foreign Link"
+add name="LANBridgeDomestic-Domestic Link" comment="Domestic-Domestic Link"
+add name="FTAH" comment="Foreign Table Address Holder"
+
+/interface ethernet
+set [ find default-name={{ .ForeignInterface }} ] comment="WAN - Foreign Link"
+set [ find default-name={{ .DomesticInterface }} ] comment="WAN - Domestic Link"
+set [find default-name=ether3] comment="Split Network"
+set [find default-name=ether4] comment="Split Network"
+set [find default-name=ether5] comment="Split Network"
+/interface list
+add name="WAN"
+add name="LAN"
+add name="Split-WAN" comment="Split"
+add name="Split-LAN" comment="Split"
+add name="Domestic-WAN" comment="Domestic"
+add name="Domestic-LAN" comment="Domestic"
+add name="Foreign-WAN" comment="Foreign"
+add name="Foreign-LAN" comment="Foreign"
+add name="VPN-WAN" comment="VPN"
+add name="VPN-LAN" comment="VPN"
+add name="Foreign-Foreign Link-WAN" comment="Foreign-Foreign Link"
+add name="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
+add name="Domestic-Domestic Link-WAN" comment="Domestic-Domestic Link"
+add name="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
+
+/interface macvlan
+add name="MacVLAN-{{ .ForeignInterface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface }}" interface={{ .ForeignInterface }} mode=private
+add name="MacVLAN-{{ .DomesticInterface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface }}" interface={{ .DomesticInterface }} mode=private
+
+/ip pool
+add name="DHCP-pool-Split" ranges="192.168.10.2-192.168.10.254" comment="Split"
+add name="DHCP-pool-Domestic" ranges="192.168.20.2-192.168.20.254" comment="Domestic"
+add name="DHCP-pool-Foreign" ranges="192.168.30.2-192.168.30.254" comment="Foreign"
+add name="DHCP-pool-VPN" ranges="192.168.40.2-192.168.40.254" comment="VPN"
+add name="DHCP-pool-Foreign-Foreign Link" ranges="192.168.31.2-192.168.31.254" comment="Foreign-Foreign Link"
+add name="DHCP-pool-Domestic-Domestic Link" ranges="192.168.21.2-192.168.21.254" comment="Domestic-Domestic Link"
+
+/ip dhcp-server
+add address-pool="DHCP-pool-Split" interface="LANBridgeSplit" name="DHCP-Split" comment="Split"
+add address-pool="DHCP-pool-Domestic" interface="LANBridgeDomestic" name="DHCP-Domestic" comment="Domestic"
+add address-pool="DHCP-pool-Foreign" interface="LANBridgeForeign" name="DHCP-Foreign" comment="Foreign"
+add address-pool="DHCP-pool-VPN" interface="LANBridgeVPN" name="DHCP-VPN" comment="VPN"
+add address-pool="DHCP-pool-Foreign-Foreign Link" interface="LANBridgeForeign-Foreign Link" name="DHCP-Foreign-Foreign Link" comment="Foreign-Foreign Link"
+add address-pool="DHCP-pool-Domestic-Domestic Link" interface="LANBridgeDomestic-Domestic Link" name="DHCP-Domestic-Domestic Link" comment="Domestic-Domestic Link"
+
+/ip dhcp-server network
+add address="192.168.10.0/24" dns-server="192.168.10.1" gateway="192.168.10.1" comment="Split"
+add address="192.168.20.0/24" dns-server="192.168.20.1" gateway="192.168.20.1" comment="Domestic"
+add address="192.168.30.0/24" dns-server="192.168.30.1" gateway="192.168.30.1" comment="Foreign"
+add address="192.168.40.0/24" dns-server="192.168.40.1" gateway="192.168.40.1" comment="VPN"
+add address="192.168.31.0/24" dns-server="192.168.31.1" gateway="192.168.31.1" comment="Foreign-Foreign Link"
+add address="192.168.21.0/24" dns-server="192.168.21.1" gateway="192.168.21.1" comment="Domestic-Domestic Link"
+
+/routing table
+add fib name="to-Split" comment="Split"
+add fib name="to-Domestic" comment="Domestic"
+add fib name="to-Foreign" comment="Foreign"
+add fib name="to-VPN" comment="VPN"
+add fib name="to-Foreign-Foreign Link" comment="Foreign-Foreign Link"
+add fib name="to-Domestic-Domestic Link" comment="Domestic-Domestic Link"
+
+/routing rule
+add action=lookup-only-in-table comment="Routing the Domestic SRC Address" disabled=no src-address="192.168.20.0/24" table="to-Domestic"
+add action=lookup-only-in-table comment="Routing the Domestic Routing Mark" disabled=no routing-mark="to-Domestic" table="to-Domestic"
+add action=lookup-only-in-table comment="Routing the Foreign SRC Address" disabled=no src-address="192.168.30.0/24" table="to-Foreign"
+add action=lookup-only-in-table comment="Routing the Foreign Routing Mark" disabled=no routing-mark="to-Foreign" table="to-Foreign"
+add action=lookup-only-in-table comment="Routing the VPN SRC Address" disabled=no src-address="192.168.40.0/24" table="to-VPN"
+add action=lookup-only-in-table comment="Routing the VPN Routing Mark" disabled=no routing-mark="to-VPN" table="to-VPN"
+add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link SRC Address" disabled=no src-address="192.168.31.0/24" table="to-Foreign-Foreign Link"
+add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link Routing Mark" disabled=no routing-mark="to-Foreign-Foreign Link" table="to-Foreign-Foreign Link"
+add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link SRC Address" disabled=no src-address="192.168.21.0/24" table="to-Domestic-Domestic Link"
+add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link Routing Mark" disabled=no routing-mark="to-Domestic-Domestic Link" table="to-Domestic-Domestic Link"
+
+/interface bridge port
+{{range .WifiBands}}add bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN" comment="Split"
+{{end}}{{range .OtherEthernets}}add bridge="LANBridgeSplit" interface="{{.}}" comment="Split"
+{{end}}
+
+/ipv6 settings
+set disable-ipv6=yes
+
+/interface list member
+add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="WAN" comment="Foreign WAN"
+add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="Foreign-WAN" comment="Foreign WAN"
+add interface="MacVLAN-{{ .DomesticInterface }}-Domestic Link" list="WAN" comment="Domestic WAN"
+{{range .WifiBands}}add interface="wifi{{.}}-SplitLAN" list="Split-LAN" comment="SplitLAN"
+add interface="wifi{{.}}-SplitLAN" list="LAN" comment="SplitLAN"
+{{end}}
+add interface="LANBridgeSplit" list="LAN" comment="Split"
+add interface="LANBridgeSplit" list="Split-LAN" comment="Split"
+add interface="LANBridgeDomestic" list="LAN" comment="Domestic"
+add interface="LANBridgeDomestic" list="Domestic-LAN" comment="Domestic"
+add interface="LANBridgeForeign" list="LAN" comment="Foreign"
+add interface="LANBridgeForeign" list="Foreign-LAN" comment="Foreign"
+add interface="LANBridgeVPN" list="LAN" comment="VPN"
+add interface="LANBridgeVPN" list="VPN-LAN" comment="VPN"
+add interface="LANBridgeForeign-Foreign Link" list="LAN" comment="Foreign-Foreign Link"
+add interface="LANBridgeForeign-Foreign Link" list="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
+add interface="LANBridgeDomestic-Domestic Link" list="LAN" comment="Domestic-Domestic Link"
+add interface="LANBridgeDomestic-Domestic Link" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
+
+/ip address
+add address="192.168.10.1/24" interface="LANBridgeSplit" network="192.168.10.0" comment="Split"
+add address="192.168.20.1/24" interface="LANBridgeDomestic" network="192.168.20.0" comment="Domestic"
+add address="192.168.30.1/24" interface="LANBridgeForeign" network="192.168.30.0" comment="Foreign"
+add address="192.168.40.1/24" interface="LANBridgeVPN" network="192.168.40.0" comment="VPN"
+add address="192.168.31.1/24" interface="LANBridgeForeign-Foreign Link" network="192.168.31.0" comment="Foreign-Foreign Link"
+add address="192.168.21.1/24" interface="LANBridgeDomestic-Domestic Link" network="192.168.21.0" comment="Domestic-Domestic Link"
+add address="192.168.39.12/32" interface="FTAH" network="192.168.39.12" comment="Foreign Table Address Holder"
+
+/ip cloud
+set ddns-enabled=yes ddns-update-interval=1m
+
+/ip dhcp-client
+add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" script=":if (\$bound=1) do={\r\
+\n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
+\n:local routeCount [/ip route print count-only where comment=\"Route-to-Foreign-Foreign Link\"]\r\
+\n:if (\$routeCount > 0) do={\r\
+\n    /ip route set [ find comment=\"Route-to-Foreign-Foreign Link\" gateway!=\$gw ] gateway=\$gw\r\
+\n}\r\
+\n}" use-peer-dns=no use-peer-ntp=no
+add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface }}-Domestic Link" script=":if (\$bound=1) do={\r\
+\n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
+\n:local routeCount [/ip route print count-only where comment=\"Route-to-Domestic-Domestic Link\"]\r\
+\n:if (\$routeCount > 0) do={\r\
+\n    /ip route set [ find comment=\"Route-to-Domestic-Domestic Link\" gateway!=\$gw ] gateway=\$gw\r\
+\n}\r\
+\n}" use-peer-dns=no use-peer-ntp=no
+
+
+/ip dns
+set allow-remote-requests=yes  max-concurrent-queries=500 max-concurrent-tcp-sessions=50 cache-size=20480KiB cache-max-ttl=7d
+set servers=4.2.2.2,217.218.127.127,4.2.2.1
+set use-doh-server="https://8.8.8.8/dns-query" verify-doh-cert=no doh-max-concurrent-queries=500 doh-max-server-connections=50
+
+/ip dns forwarders
+add name=VPN dns-servers=4.2.2.2 verify-doh-cert=no
+add name=Domestic dns-servers=217.218.127.127 verify-doh-cert=no
+add name=Foreign dns-servers=4.2.2.1 verify-doh-cert=no
+add name=General dns-servers=4.2.2.2,217.218.127.127,4.2.2.1 verify-doh-cert=no
+
+/ip dns static
+add type=FWD regexp="\\.ir" forward-to=Domestic comment="Forward .ir TLD queries via domestic DNS"
+add address="8.8.8.8" name="dns.google" comment="DOH-Domain-Static-Entry"
+add address="8.8.4.4" name="dns.google" comment="DOH-Domain-Static-Entry"
+add address="2001:4860:4860::8888" name="dns.google" comment="DOH-Domain-Static-Entry"
+add address="2001:4860:4860::8844" name="dns.google" comment="DOH-Domain-Static-Entry"
+add address="1.1.1.1" name="cloudflare-dns.com" comment="DOH-Domain-Static-Entry"
+add address="1.0.0.1" name="cloudflare-dns.com" comment="DOH-Domain-Static-Entry"
+add address="2606:4700:4700::1111" name="cloudflare-dns.com" comment="DOH-Domain-Static-Entry"
+add address="2606:4700:4700::1001" name="cloudflare-dns.com" comment="DOH-Domain-Static-Entry"
+add address="45.90.28.140" name="dns.nextdns.io" comment="DOH-Domain-Static-Entry"
+add address="45.90.30.140" name="dns.nextdns.io" comment="DOH-Domain-Static-Entry"
+add address="2a07:a8c0::9d:4621" name="dns.nextdns.io" comment="DOH-Domain-Static-Entry"
+add address="2a07:a8c1::9d:4621" name="dns.nextdns.io" comment="DOH-Domain-Static-Entry"
+add name=s4i.co type=FWD forward-to=Foreign match-subdomain=yes comment="Forward s4i.co via Foreign DNS"
+add name=starlink4iran.com type=FWD forward-to=Foreign match-subdomain=yes comment="Forward starlink4iran.com via Foreign DNS"
+add name=curl.se type=FWD forward-to=General match-subdomain=no comment="Forward curl.se via General DNS"
+add name=pki.goog type=FWD forward-to=General match-subdomain=no comment="Forward pki.goog via General DNS"
+add name=cacerts.digicert.com type=FWD forward-to=General match-subdomain=no comment="Forward cacerts.digicert.com via General DNS"
+add name=crl.d-trust.net type=FWD forward-to=General match-subdomain=no comment="Forward crl.d-trust.net via General DNS"
+add name=d-trust.net type=FWD forward-to=General match-subdomain=no comment="Forward d-trust.net via General DNS"
+add name=accv.es type=FWD forward-to=General match-subdomain=no comment="Forward accv.es via General DNS"
+add name=crl.certigna.fr type=FWD forward-to=General match-subdomain=no comment="Forward crl.certigna.fr via General DNS"
+add name=crl.dhimyotis.com type=FWD forward-to=General match-subdomain=no comment="Forward crl.dhimyotis.com via General DNS"
+add name=crl.securetrust.com type=FWD forward-to=General match-subdomain=no comment="Forward crl.securetrust.com via General DNS"
+add name=crl.comodoca.com type=FWD forward-to=General match-subdomain=no comment="Forward crl.comodoca.com via General DNS"
+add name=pool.ntp.org type=FWD forward-to=General match-subdomain=no comment="Forward pool.ntp.org via General DNS for NTP"
+add name=time.cloudflare.com type=FWD forward-to=General match-subdomain=no comment="Forward time.cloudflare.com via General DNS for NTP"
+add name=time.google.com type=FWD forward-to=General match-subdomain=no comment="Forward time.google.com via General DNS for NTP"
+
+/ip firewall address-list
+add comment="LOCAL-IP" address="192.168.0.0/16" list="LOCAL-IP"
+add comment="LOCAL-IP" address="172.16.0.0/12" list="LOCAL-IP"
+add comment="LOCAL-IP" address="10.0.0.0/8" list="LOCAL-IP"
+add address="192.168.10.0/24" list="Split-LAN" comment="Split"
+add address="192.168.20.0/24" list="Domestic-LAN" comment="Domestic"
+add address="192.168.30.0/24" list="Foreign-LAN" comment="Foreign"
+add address="192.168.40.0/24" list="VPN-LAN" comment="VPN"
+add address="192.168.31.0/24" list="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
+add address="192.168.21.0/24" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
+add list="MikroTik-Cloud-Services" address="cloud2.mikrotik.com" comment="Dynamic list for MikroTik Cloud DDNS"
+add list="MikroTik-Cloud-Services" address="cloud.mikrotik.com" comment="Legacy endpoint for completeness"
+
+/ip firewall filter
+add chain=input dst-port="53" in-interface-list="WAN" protocol="tcp" action=drop comment="Block Open Recursive DNS"
+add chain=input dst-port="53" in-interface-list="WAN" protocol="udp" action=drop comment="Block Open Recursive DNS"
+
+/ip firewall mangle
+add action=accept chain=prerouting comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
+add action=accept chain=postrouting comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
+add action=accept chain=output comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
+add action=accept chain=input comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
+add action=accept chain=forward comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
+add action=mark-connection chain=output comment="VPN Endpoint" \
+dst-address-list="VPNE" new-connection-mark="conn-VPNE" passthrough=yes
+add action=mark-routing chain=output comment="VPN Endpoint" \
+connection-mark="conn-VPNE" dst-address-list="VPNE" new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output comment="VPN Endpoint" \
+dst-address-list="VPNE" new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output comment="S4I Route" content="s4i.co" new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output comment="S4I Route" src-address=192.168.39.12 new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \
+new-routing-mark="to-Domestic" passthrough=no \
+comment="Force IP/Cloud DDNS traffic via Domestic WAN"
+add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \
+protocol="udp" dst-port="15252" new-routing-mark="to-Domestic" passthrough=no \
+comment="Force IP/Cloud DDNS traffic via Domestic WAN"
+add action=mark-routing chain=prerouting comment="Split-VPN" dst-address-list="SplitVPNAddList" \
+new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
+new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="Split-DOM" dst-address-list="SplitDOMAddList" \
+new-routing-mark="to-Domestic" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="Split-DOM" \
+dst-address-list="DOMAddList" new-routing-mark="to-Domestic" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="Split-!DOM"\
+dst-address-list="!DOMAddList" new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
+add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
+add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"
+add action=mark-routing chain=prerouting comment="Domestic Routing" new-routing-mark="to-Domestic" passthrough=no src-address-list="Domestic-LAN"
+add action=mark-routing chain=prerouting comment="Domestic-Domestic Link Routing" new-routing-mark="to-Domestic-Domestic Link" passthrough=no src-address-list="Domestic-Domestic Link-LAN"
+
+/ip firewall nat
+add action=masquerade chain=srcnat out-interface-list="WAN" comment="MASQUERADE the traffic go to WAN Interfaces"
+add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=udp src-address-list="Split-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=tcp src-address-list="Split-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS Domestic" disabled=yes dst-port=53 protocol=udp src-address-list="Domestic-LAN" to-addresses=217.218.127.127
+add action=dst-nat chain=dstnat comment="DNS Domestic" disabled=yes dst-port=53 protocol=tcp src-address-list="Domestic-LAN" to-addresses=217.218.127.127
+add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-LAN" to-addresses=4.2.2.1
+add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-LAN" to-addresses=4.2.2.1
+add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=udp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
+add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
+add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-Foreign Link-LAN" to-addresses=4.2.2.1
+add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-Foreign Link-LAN" to-addresses=4.2.2.1
+add chain=dstnat action=redirect protocol=tcp dst-port=53 comment="Redirect DNS"
+add chain=dstnat action=redirect protocol=udp dst-port=53 comment="Redirect DNS"
+
+/ip nat-pmp set enabled=yes
+
+/ip nat-pmp interfaces
+add interface="LANBridgeSplit" type=internal
+add interface="LANBridgeDomestic" type=internal
+add interface="LANBridgeForeign" type=internal
+add interface="LANBridgeVPN" type=internal
+add interface="LANBridgeForeign-Foreign Link" type=internal
+add interface="LANBridgeDomestic-Domestic Link" type=internal
+
+/ip route
+add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+comment="Route-to-Foreign-Foreign Link"
+add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
+add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
+add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign" \
+distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
+add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+comment="Route-to-Domestic-Domestic Link"
+add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
+add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic" comment="Route-to-Domestic-Domestic Link"
+add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic" \
+distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
+add dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" \
+routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
+add dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" \
+routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
+add check-gateway=ping dst-address="0.0.0.0/0" gateway="217.218.127.127" routing-table="main" \
+distance="5" target-scope="11" comment="CheckIP-Route-to-Domestic-Domestic Link"
+add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.1" routing-table="main" \
+distance="10" target-scope="11" comment="CheckIP-Route-to-Foreign-Foreign Link"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Split"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN"
+add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign-Foreign Link"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic-Domestic Link"
+
+/ip service
+set api address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8728
+set api-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8729
+set ftp address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=21
+set ssh address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=22
+set telnet address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=23
+set winbox address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8291
+set www address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=80
+set www-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=443
+
+/ip upnp set enabled=yes
+
+/ipv6 firewall filter
+add chain=input action=drop
+add chain=forward action=drop
+
+/system clock
+set date={{ .CurrentDate }}
+set time-zone-autodetect=no time-zone-name=Asia/Tehran
+/system identity
+set name="{{ .wifiSSID }}"
+/system logging action
+add disk-file-count=10 disk-file-name=ConnectLog disk-lines-per-file=100 disk-stop-on-full=yes name=DiskC target=disk
+/system logging
+set 0 topics=info,!netwatch
+add action=DiskC disabled=no prefix="" regex="" topics=critical,error,info,warning
+/system ntp client
+set enabled=yes
+/system ntp server
+set broadcast=yes enabled=yes manycast=yes multicast=yes
+/system ntp client servers
+add address="pool.ntp.org"
+add address="time.cloudflare.com"
+add address="time.google.com"
+/system package update
+set channel=stable
+/system routerboard settings
+set auto-upgrade=yes
+/system scheduler
+add interval=1m name=VPNE-Routing-Manager on-event="/system script\r\nrun VPNE-Routing-Manager" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+add interval=00:00:00 name=VPNE-Routing-Manager-Startup on-event=":delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+add interval=00:00:00 name=CRL-Download-Startup on-event=":delay 120s\r\n/certificate crl download" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+add interval=00:00:00 name=DomesticIPUpdate-OneTime on-event="/system script\r\nrun DomesticIPUpdate-OneTime" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+add interval=1d name=DomesticIPUpdate on-event="/system script\r\nrun DomesticIPUpdate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=03:00:00
+add interval=00:00:00 name=DomesticIPUpdate-BootCheck on-event=":delay 5m; :local currentCount [:len [/ip firewall address-list find list=DOMAddList]]; :if ($currentCount < 100) do={ :log warning \"SecureListUpdate: Boot guard detected only $currentCount entries, running DomesticIPUpdate\"; /system script run DomesticIPUpdate } else={ :log info \"SecureListUpdate: Boot guard healthy ($currentCount entries)\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/tool graphing interface
+add
+/tool graphing queue
+add
+/tool graphing resource
+add
+/tool romon
+set enabled=yes
+/tool netwatch
+add host="217.218.127.127" interval=5s timeout=500ms \
+ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " comment="Failover Netwatch - Domestic Link"
+add host="4.2.2.1" interval=5s timeout=500ms \
+ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
+
+{{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
+
+{{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
+
+{{if .OvpnServer}}{{ template "ovpn_server.tmpl" . }}{{end}}
+
+:delay 1s
+/user set {{ .RouterUsername }} password={{ .RouterPassword }}
+/system reboot

@@ -1,0 +1,66 @@
+/interface bridge
+add name="LANBridgeVPN-L2TP-Client" comment="VPN-L2TP-Client"
+
+/interface l2tp-client
+add name="l2tp-client-L2TP-Client" connect-to="{{ .L2tpClient.ConnectTo }}" comment="L2TP-Client L2TP" \
+random-source-port=yes user="{{ .L2tpClient.User }}" password="{{ .L2tpClient.Password }}" \
+use-ipsec={{ if .L2tpClient.IPsecSecret }}yes{{ else }}no{{ end }} allow-fast-path=yes allow=mschap2,mschap1 \
+l2tp-proto-version=l2tpv2 dial-on-demand=no disabled=no
+
+/interface list
+add name="VPN-L2TP-Client-WAN" comment="VPN-L2TP-Client"
+add name="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Client"
+
+/ip pool
+add name="DHCP-pool-VPN-L2TP-Client" ranges="192.168.41.2-192.168.41.254" comment="VPN-L2TP-Client"
+
+/ip dhcp-server
+add address-pool="DHCP-pool-VPN-L2TP-Client" interface="LANBridgeVPN-L2TP-Client" name="DHCP-VPN-L2TP-Client" comment="VPN-L2TP-Client"
+
+/ip dhcp-server network
+add address="192.168.41.0/24" dns-server="192.168.41.1" gateway="192.168.41.1" comment="VPN-L2TP-Client"
+
+/routing table
+add fib name="to-VPN-L2TP-Client" comment="VPN-L2TP-Client"
+
+/routing rule
+add action=lookup-only-in-table comment="Routing the VPN-L2TP-Client SRC Address" disabled=no src-address="192.168.41.0/24" table="to-VPN-L2TP-Client"
+add action=lookup-only-in-table comment="Routing the VPN-L2TP-Client Routing Mark" disabled=no routing-mark="to-VPN-L2TP-Client" table="to-VPN-L2TP-Client"
+
+/interface list member
+add interface="l2tp-client-L2TP-Client" list="WAN" comment="VPN-l2tp-client-L2TP-Client"
+add interface="l2tp-client-L2TP-Client" list="VPN-WAN" comment="VPN-l2tp-client-L2TP-Client"
+add interface="LANBridgeVPN-L2TP-Client" list="LAN" comment="VPN-L2TP-Client"
+add interface="LANBridgeVPN-L2TP-Client" list="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Client"
+
+/ip address
+add address="192.168.41.1/24" interface="LANBridgeVPN-L2TP-Client" network="192.168.41.0" comment="VPN-L2TP-Client"
+
+/ip firewall address-list
+add address="{{ .L2tpClient.ConnectTo }}" list=VPNE comment="VPN-L2TP-Client Interface:l2tp-client-L2TP-Client WanInterface:Foreign-Foreign Link Endpoint:{{ .L2tpClient.ConnectTo }} - Endpoint for routing"
+add address="192.168.41.0/24" list="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Client"
+
+/ip firewall mangle
+add action=mark-routing chain=prerouting comment="VPN-L2TP-Client Routing" new-routing-mark="to-VPN-L2TP-Client" passthrough=no src-address-list="VPN-L2TP-Client-LAN"
+
+/ip firewall nat
+add action=dst-nat chain=dstnat comment="DNS VPN-L2TP-Client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-L2TP-Client-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS VPN-L2TP-Client" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-L2TP-Client-LAN" to-addresses=4.2.2.2
+
+/ip nat-pmp interfaces
+add interface="LANBridgeVPN-L2TP-Client" type=internal
+
+/ip route
+add dst-address="0.0.0.0/0" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN-L2TP-Client" scope=30 target-scope=10  comment="Route-to-VPN-L2TP-Client"
+add check-gateway=ping dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN-L2TP-Client" \
+distance=1 target-scope="11" comment="Route-to-VPN-L2TP-Client"
+add dst-address="0.0.0.0/0" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-L2TP-Client"
+add check-gateway=ping dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" \
+distance=1 target-scope="11" comment="Route-to-VPN-L2TP-Client"
+add dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="main" scope="10" comment="Route-to-VPN-L2TP-Client"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-L2TP-Client"
+add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN-L2TP-Client"
+
+/tool netwatch
+add host="4.2.2.2" interval=5s timeout=500ms ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-L2TP-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-L2TP-Client\"]; " comment="Failover Netwatch - L2TP-Client"

@@ -5,6 +5,7 @@ go 1.26.2
 require (
 	github.com/go-routeros/routeros/v3 v3.0.1
 	github.com/labstack/echo/v4 v4.15.2
+	github.com/pkg/sftp v1.13.10
 	github.com/swaggo/echo-swagger v1.5.2
 	github.com/swaggo/swag v1.16.6
 	golang.org/x/crypto v0.50.0
@@ -22,6 +23,7 @@ require (
 	github.com/go-openapi/swag/stringutils v0.26.0 // indirect
 	github.com/go-openapi/swag/typeutils v0.26.0 // indirect
 	github.com/go-openapi/swag/yamlutils v0.26.0 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/labstack/gommon v0.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
