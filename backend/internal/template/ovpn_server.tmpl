@@ -1,13 +1,16 @@
+:local ts [:tonsec [:timestamp]]
+:local timestamp ($ts / 1000000000)
+
 /certificate
-add name=CA common-name=CA key-size=2048 days-valid=3650 trusted=yes key-usage=crl-sign,key-cert-sign
-sign CA
-add name=Server common-name=Server key-size=2048 days-valid=3650 trusted=yes key-usage=digital-signature,key-encipherment,tls-server
-sign Server ca=CA
-add name=Client common-name=Client key-size=2048 days-valid=3650 trusted=yes key-usage=tls-client
-sign Client ca=CA
-export-certificate CA file-name=CA type=pem
-export-certificate Server file-name=Server type=pem
-export-certificate Client file-name=Client type=pem export-passphrase={{ .OvpnServer.ClientCertificatePassword }}
+add name="CA-$timestamp" common-name=CA key-size=2048 days-valid=3650 trusted=yes key-usage=crl-sign,key-cert-sign
+sign "CA-$timestamp"
+add name="Server-$timestamp" common-name=Server key-size=2048 days-valid=3650 trusted=yes key-usage=digital-signature,key-encipherment,tls-server
+sign "Server-$timestamp" ca="CA-$timestamp"
+add name="Client-$timestamp" common-name=Client key-size=2048 days-valid=3650 trusted=yes key-usage=tls-client
+sign "Client-$timestamp" ca="CA-$timestamp"
+export-certificate "CA-$timestamp" file-name="CA-$timestamp" type=pem
+export-certificate "Server-$timestamp" file-name="Server-$timestamp" type=pem
+export-certificate "Client-$timestamp" file-name="Client-$timestamp" type=pem export-passphrase={{ .OvpnServer.ClientCertificatePassword }}
 
 /ip pool
 add name="ovpn-tcp-pool" ranges=192.168.120.2-192.168.120.254 comment="OpenVPN ovpn-tcp client pool"
@@ -22,11 +25,11 @@ local-address="192.168.121.1" \ name="ovpn-udp-profile" remote-address="ovpn-udp
 use-encryption=yes use-ipv6=no use-upnp=yes
 /interface ovpn-server server
 add name="ovpn-tcp" default-profile="ovpn-tcp-profile" disabled=no \
-port="1194" protocol="tcp" mode="ip" certificate="Server" \
+port="1194" protocol="tcp" mode="ip" certificate="Server-$timestamp" \
 require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
 redirect-gateway=def1 keepalive-timeout=60
 add name="ovpn-udp" default-profile="ovpn-udp-profile" disabled=no port="1195" protocol="udp" \
-mode="ip" certificate="Server" require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
+mode="ip" certificate="Server-$timestamp" require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
 redirect-gateway=def1 keepalive-timeout=60
 
 /ppp secret
