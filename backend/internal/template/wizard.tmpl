@@ -90,6 +90,14 @@ add address-pool="DHCP-pool-VPN" interface="LANBridgeVPN" name="DHCP-VPN" commen
 add address-pool="DHCP-pool-Foreign-Foreign Link" interface="LANBridgeForeign-Foreign Link" name="DHCP-Foreign-Foreign Link" comment="Foreign-Foreign Link"
 add address-pool="DHCP-pool-Domestic-Domestic Link" interface="LANBridgeDomestic-Domestic Link" name="DHCP-Domestic-Domestic Link" comment="Domestic-Domestic Link"
 
+/ip dhcp-server network
+add address="192.168.10.0/24" dns-server="192.168.10.1" gateway="192.168.10.1" comment="Split"
+add address="192.168.20.0/24" dns-server="192.168.20.1" gateway="192.168.20.1" comment="Domestic"
+add address="192.168.30.0/24" dns-server="192.168.30.1" gateway="192.168.30.1" comment="Foreign"
+add address="192.168.40.0/24" dns-server="192.168.40.1" gateway="192.168.40.1" comment="VPN"
+add address="192.168.31.0/24" dns-server="192.168.31.1" gateway="192.168.31.1" comment="Foreign-Foreign Link"
+add address="192.168.21.0/24" dns-server="192.168.21.1" gateway="192.168.21.1" comment="Domestic-Domestic Link"
+
 /routing table
 add fib name="to-Split" comment="Split"
 add fib name="to-Domestic" comment="Domestic"
@@ -166,13 +174,6 @@ add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-
 \n}\r\
 \n}" use-peer-dns=no use-peer-ntp=no
 
-/ip dhcp-server network
-add address="192.168.10.0/24" dns-server="192.168.10.1" gateway="192.168.10.1" comment="Split"
-add address="192.168.20.0/24" dns-server="192.168.20.1" gateway="192.168.20.1" comment="Domestic"
-add address="192.168.30.0/24" dns-server="192.168.30.1" gateway="192.168.30.1" comment="Foreign"
-add address="192.168.40.0/24" dns-server="192.168.40.1" gateway="192.168.40.1" comment="VPN"
-add address="192.168.31.0/24" dns-server="192.168.31.1" gateway="192.168.31.1" comment="Foreign-Foreign Link"
-add address="192.168.21.0/24" dns-server="192.168.21.1" gateway="192.168.21.1" comment="Domestic-Domestic Link"
 
 /ip dns
 set allow-remote-requests=yes  max-concurrent-queries=500 max-concurrent-tcp-sessions=50 cache-size=20480KiB cache-max-ttl=7d
