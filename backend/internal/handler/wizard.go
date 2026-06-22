@@ -245,6 +245,11 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["WireGuardClient"] = wgConfig
 	}
 
+	// Add OpenVPN server configuration if provided
+	if req.OvpnServer != nil {
+		templateData["OvpnServer"] = req.OvpnServer
+	}
+
 	rendered, err := utils.RenderTemplate("internal/template/wizard.tmpl", templateData)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
