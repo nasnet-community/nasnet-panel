@@ -1,9 +1,10 @@
-:delay 30s
+{{ template "cleanup.tmpl" . }}
 
 :local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
 
 {{ if .ManagementWifiSSID}}
+:if ([:len [/interface find name="wifi-virtual"]] = 0) do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
 add name=wifi-virtual master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \
@@ -15,6 +16,7 @@ add name="DHCP-pool-management-wifi" ranges="192.168.210.2-192.168.210.254" comm
 add address-pool="DHCP-pool-management-wifi" interface="wifi-virtual" name="DHCP-Management-wifi" comment="Management"
 /ip dhcp-server network
 add address="192.168.210.0/24" dns-server="192.168.210.1" gateway="192.168.210.1" comment="Management"
+}
 {{ end }}
 /system script
 add dont-require-permissions=no name="VPNE-Routing-Manager" owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# ============================================================================\r\n# Script: VPNE Address List to Routing Rules Manager v7.0\r\n# Description: Links domain entries with their dynamic IP entries and creates\r\n#              routing rules using WanInterface from the parent domain entry\r\n# Version: 7.0 - Uses format validation instead of :toip for IP detection\r\n# ============================================================================\r\n# Configuration variables\r\n:local addressListName \"VPNE\"\r\n:local scriptName \"VPNE-Route-Manager\"\r\n:local debugMode false\r\n:local quietMode false\r\n:local tablePrefix \"to-\"\r\n# Statistics counters\r\n:local totalProcessed 0\r\n:local rulesCreated 0\r\n:local rulesUpdated 0\r\n:local skipped 0\r\n:local dynamicProcessed 0\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] ===== Starting VPNE routing rules update v7.0 =====\"\r\n:log debug \"[\$scriptName] Using format-based IP validation to avoid domain resolution\"\r\n}\r\n# ============================================================================\r\n# Function to check if string is IP format (contains only digits and dots)\r\n# ============================================================================\r\n:local isIPFormat do={\r\n:local addr \$1\r\n:local isIP true\r\n# Check if it contains any letters (domains have letters, IPs don't)\r\n:local letters \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\r\n:for i from=0 to=([:len \$addr] - 1) do={\r\n:local char [:pick \$addr \$i (\$i + 1)]\r\n:if ([:find \$letters \$char] >= 0) do={\r\n:set isIP false\r\n}\r\n}\r\n# Additional check: must have at least one dot and start with a digit\r\n:if (\$isIP && [:find \$addr \".\"] < 0) do={\r\n:set isIP false\r\n}\r\n:return \$isIP\r\n}\r\n# ============================================================================\r\n# Step 1: First pass - collect domain entries with WanInterface\r\n# ============================================================================\r\n:local domainMap [:toarray \"\"]\r\n:foreach entry in=[/ip firewall address-list find list=\$addressListName dynamic=no] do={\r\n# Get entry properties\r\n:local addr [/ip firewall address-list get \$entry address]\r\n:local comment [/ip firewall address-list get \$entry comment]\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Checking domain entry: \$addr\"\r\n}\r\n# Extract WanInterface from comment\r\n:local wanInterface \"\"\r\n:local wanStartPos [:find \$comment \"WanInterface:\"]\r\n:if ([:typeof \$wanStartPos] != \"nil\") do={\r\n:local wanValueStart (\$wanStartPos + 13)\r\n:local endpointMarkerPos [:find \$comment \" Endpoint:\" \$wanValueStart]\r\n:if ([:typeof \$endpointMarkerPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$endpointMarkerPos]\r\n} else={\r\n:local dashPos [:find \$comment \" -\" \$wanValueStart]\r\n:if ([:typeof \$dashPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$dashPos]\r\n} else={\r\n:set wanInterface [:pick \$comment \$wanValueStart]\r\n}\r\n}\r\n:if ([:len \$wanInterface] > 0) do={\r\n# Store domain with its WanInterface\r\n:set (\$domainMap->\$addr) \$wanInterface\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Found domain \$addr with WanInterface: \$wanInterface\"\r\n}\r\n}\r\n}\r\n}\r\n# ============================================================================\r\n# Step 2: Process all entries (both static and dynamic)\r\n# ============================================================================\r\n:foreach entry in=[/ip firewall address-list find list=\$addressListName] do={\r\n:set totalProcessed (\$totalProcessed + 1)\r\n# Get entry properties\r\n:local addr [/ip firewall address-list get \$entry address]\r\n:local comment [/ip firewall address-list get \$entry comment]\r\n:local dynamic [/ip firewall address-list get \$entry dynamic]\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Processing entry: \$addr (dynamic=\$dynamic, comment=\$comment)\"\r\n}\r\n# ========== NEW IP FORMAT VALIDATION ==========\r\n:local isValidIP [\$isIPFormat \$addr]\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Format check for \$addr: isIP=\$isValidIP\"\r\n}\r\n# If NOT a valid IP format, skip immediately\r\n:if (!\$isValidIP) do={\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] >>> SKIPPING DOMAIN ENTRY: \$addr (contains letters, not an IP)\"\r\n}\r\n:set skipped (\$skipped + 1)\r\n} else={\r\n# ===== ONLY PROCESS VALID IP ADDRESSES =====\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] >>> VALID IP FORMAT: \$addr - proceeding with processing\"\r\n}\r\n:local wanInterface \"\"\r\n:local endpoint \"\"\r\n:if (\$dynamic = true) do={\r\n# For dynamic entries, the comment is usually the domain name\r\n:if ([:typeof (\$domainMap->\$comment)] != \"nil\") do={\r\n:set wanInterface (\$domainMap->\$comment)\r\n:set endpoint \$comment\r\n:set dynamicProcessed (\$dynamicProcessed + 1)\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Dynamic entry \$addr linked to domain \$comment with WanInterface: \$wanInterface\"\r\n}\r\n} else={\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Dynamic entry \$addr has no matching domain entry, skipping\"\r\n}\r\n:set skipped (\$skipped + 1)\r\n}\r\n} else={\r\n# For static IP entries, extract WanInterface from comment\r\n:local wanStartPos [:find \$comment \"WanInterface:\"]\r\n:if ([:typeof \$wanStartPos] != \"nil\") do={\r\n:local wanValueStart (\$wanStartPos + 13)\r\n:local endpointMarkerPos [:find \$comment \" Endpoint:\" \$wanValueStart]\r\n:if ([:typeof \$endpointMarkerPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$endpointMarkerPos]\r\n} else={\r\n:local dashPos [:find \$comment \" -\" \$wanValueStart]\r\n:if ([:typeof \$dashPos] != \"nil\") do={\r\n:set wanInterface [:pick \$comment \$wanValueStart \$dashPos]\r\n} else={\r\n:set wanInterface [:pick \$comment \$wanValueStart]\r\n}\r\n}\r\n# Extract endpoint\r\n:local endpointStartPos [:find \$comment \"Endpoint:\"]\r\n:if ([:typeof \$endpointStartPos] != \"nil\") do={\r\n:local endpointValueStart (\$endpointStartPos + 9)\r\n:local dashMarkerPos [:find \$comment \" -\" \$endpointValueStart]\r\n:if ([:typeof \$dashMarkerPos] != \"nil\") do={\r\n:set endpoint [:pick \$comment \$endpointValueStart \$dashMarkerPos]\r\n} else={\r\n:set endpoint [:pick \$comment \$endpointValueStart]\r\n}\r\n} else={\r\n:set endpoint \$addr\r\n}\r\n}\r\n}\r\n# Create/Update routing rules only if we have a WanInterface\r\n:if ([:len \$wanInterface] > 0) do={\r\n# Build routing table name\r\n:local routingTable (\$tablePrefix . \$wanInterface)\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Using routing table: \$routingTable for IP: \$addr\"\r\n}\r\n# Check if routing table exists\r\n:local tableExists false\r\n:do {\r\n:local testTable [/routing table find name=\$routingTable]\r\n:if ([:len \$testTable] > 0) do={\r\n:set tableExists true\r\n}\r\n} on-error={\r\n:set tableExists false\r\n}\r\n:if (!\$tableExists) do={\r\n:if (!\$quietMode) do={\r\n:log error \"[\$scriptName] Routing table '\$routingTable' does not exist, skipping \$addr\"\r\n}\r\n:set skipped (\$skipped + 1)\r\n} else={\r\n:local dstAddress \$addr\r\n:local ruleComment \"VPNE-Resolved: \$endpoint\"\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Preparing rule: dst=\$dstAddress table=\$routingTable\"\r\n}\r\n# Check if routing rule already exists\r\n:local existingRule [/routing rule find dst-address=\$dstAddress table=\$routingTable]\r\n:if ([:len \$existingRule] > 0) do={\r\n# Rule exists - verify configuration\r\n:local ruleID [:pick \$existingRule 0]\r\n:local currentAction [/routing rule get \$ruleID action]\r\n:local currentDisabled [/routing rule get \$ruleID disabled]\r\n:local currentComment [/routing rule get \$ruleID comment]\r\n:local needsUpdate false\r\n:if (\$currentAction != \"lookup-only-in-table\") do={\r\n:set needsUpdate true\r\n}\r\n:if (\$currentDisabled = true) do={\r\n:set needsUpdate true\r\n}\r\n:if (\$currentComment != \$ruleComment) do={\r\n:set needsUpdate true\r\n}\r\n:if (\$needsUpdate) do={\r\n:do {\r\n/routing rule set \$ruleID \\\r\naction=lookup-only-in-table \\\r\ndisabled=no \\\r\ncomment=\$ruleComment\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Updated routing rule for \$dstAddress in table \$routingTable\"\r\n}\r\n:set rulesUpdated (\$rulesUpdated + 1)\r\n} on-error={\r\n:if (!\$quietMode) do={\r\n:log error \"[\$scriptName] Failed to update routing rule for \$dstAddress\"\r\n}\r\n}\r\n} else={\r\n:if (\$debugMode && !\$quietMode) do={\r\n:log debug \"[\$scriptName] Routing rule for \$dstAddress in table \$routingTable already correct\"\r\n}\r\n}\r\n} else={\r\n# Rule doesn't exist - create new one\r\n:do {\r\n/routing rule add \\\r\ndst-address=\$dstAddress \\\r\naction=lookup-only-in-table \\\r\ntable=\$routingTable \\\r\ndisabled=no \\\r\ncomment=\$ruleComment\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Created routing rule: dst=\$dstAddress table=\$routingTable\"\r\n}\r\n:set rulesCreated (\$rulesCreated + 1)\r\n} on-error={\r\n:if (!\$quietMode) do={\r\n:log error \"[\$scriptName] Failed to create routing rule for \$dstAddress in table \$routingTable\"\r\n}\r\n}\r\n}\r\n}\r\n}\r\n}\r\n}\r\n# ============================================================================\r\n# Step 4: Clean up orphaned routing rules\r\n# ============================================================================\r\n:local orphansRemoved 0\r\n:foreach rule in=[/routing rule find comment~\"VPNE-Resolved:\"] do={\r\n:local ruleDst [/routing rule get \$rule dst-address]\r\n:local ruleComment [/routing rule get \$rule comment]\r\n# The IP is now stored without /32\r\n:local ruleIP \$ruleDst\r\n# Check if this IP exists in current address list\r\n:local found false\r\n:foreach entry in=[/ip firewall address-list find list=\$addressListName] do={\r\n:local entryAddr [/ip firewall address-list get \$entry address]\r\n:if (\$entryAddr = \$ruleIP) do={\r\n:set found true\r\n}\r\n}\r\n:if (!\$found) do={\r\n:do {\r\n/routing rule remove \$rule\r\n:set orphansRemoved (\$orphansRemoved + 1)\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] Removed orphaned routing rule for \$ruleDst\"\r\n}\r\n} on-error={\r\n:if (!\$quietMode) do={\r\n:log warning \"[\$scriptName] Failed to remove orphaned rule for \$ruleDst\"\r\n}\r\n}\r\n}\r\n}\r\n# ============================================================================\r\n# Final Statistics and Logging\r\n# ============================================================================\r\n:if (!\$quietMode) do={\r\n:log debug \"[\$scriptName] ===== VPNE routing rules update completed =====\"\r\n:log debug \"[\$scriptName] Statistics: Total=\$totalProcessed Created=\$rulesCreated Updated=\$rulesUpdated\"\r\n:log debug \"[\$scriptName] Dynamic entries processed: \$dynamicProcessed\"\r\n:log debug \"[\$scriptName] Orphans removed: \$orphansRemoved Skipped=\$skipped\"\r\n}\r\n# End of script"
@@ -40,7 +42,9 @@ set [ find name="wifi{{.}}-SplitLAN" ] steering="Split"{{end}}
 #seperate AP
 {{ end }}
 /interface bridge
+:if ([:len [/interface/bridge find name="LANBridgeSplit"]] = 0) do={
 add name="LANBridgeSplit" comment="Split"
+}
 add name="LANBridgeDomestic" comment="Domestic"
 add name="LANBridgeForeign" comment="Foreign"
 add name="LANBridgeVPN" comment="VPN"
@@ -75,7 +79,9 @@ add name="MacVLAN-{{ .ForeignInterface }}-Foreign Link" comment="Foreign Link MA
 add name="MacVLAN-{{ .DomesticInterface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface }}" interface={{ .DomesticInterface }} mode=private
 
 /ip pool
+:if ([:len [/ip/pool find name="DHCP-pool-Split"]] = 0) do={
 add name="DHCP-pool-Split" ranges="192.168.10.2-192.168.10.254" comment="Split"
+}
 add name="DHCP-pool-Domestic" ranges="192.168.20.2-192.168.20.254" comment="Domestic"
 add name="DHCP-pool-Foreign" ranges="192.168.30.2-192.168.30.254" comment="Foreign"
 add name="DHCP-pool-VPN" ranges="192.168.40.2-192.168.40.254" comment="VPN"
@@ -83,7 +89,9 @@ add name="DHCP-pool-Foreign-Foreign Link" ranges="192.168.31.2-192.168.31.254" c
 add name="DHCP-pool-Domestic-Domestic Link" ranges="192.168.21.2-192.168.21.254" comment="Domestic-Domestic Link"
 
 /ip dhcp-server
+:if ([:len [/ip/dhcp-server find name="DHCP-Split"]] = 0) do={
 add address-pool="DHCP-pool-Split" interface="LANBridgeSplit" name="DHCP-Split" comment="Split"
+}
 add address-pool="DHCP-pool-Domestic" interface="LANBridgeDomestic" name="DHCP-Domestic" comment="Domestic"
 add address-pool="DHCP-pool-Foreign" interface="LANBridgeForeign" name="DHCP-Foreign" comment="Foreign"
 add address-pool="DHCP-pool-VPN" interface="LANBridgeVPN" name="DHCP-VPN" comment="VPN"
@@ -91,7 +99,9 @@ add address-pool="DHCP-pool-Foreign-Foreign Link" interface="LANBridgeForeign-Fo
 add address-pool="DHCP-pool-Domestic-Domestic Link" interface="LANBridgeDomestic-Domestic Link" name="DHCP-Domestic-Domestic Link" comment="Domestic-Domestic Link"
 
 /ip dhcp-server network
+:if ([:len [/ip/dhcp-server/network find comment="Split"]] = 0) do={
 add address="192.168.10.0/24" dns-server="192.168.10.1" gateway="192.168.10.1" comment="Split"
+}
 add address="192.168.20.0/24" dns-server="192.168.20.1" gateway="192.168.20.1" comment="Domestic"
 add address="192.168.30.0/24" dns-server="192.168.30.1" gateway="192.168.30.1" comment="Foreign"
 add address="192.168.40.0/24" dns-server="192.168.40.1" gateway="192.168.40.1" comment="VPN"
@@ -119,8 +129,12 @@ add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link SRC 
 add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link Routing Mark" disabled=no routing-mark="to-Domestic-Domestic Link" table="to-Domestic-Domestic Link"
 
 /interface bridge port
-{{range .WifiBands}}add bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN" comment="Split"
-{{end}}{{range .OtherEthernets}}add bridge="LANBridgeSplit" interface="{{.}}" comment="Split"
+{{range .WifiBands}}:if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN"]] = 0) do={
+add bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN" comment="Split"
+}
+{{end}}{{range .OtherEthernets}}:if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface="{{.}}"]] = 0) do={
+add bridge="LANBridgeSplit" interface="{{.}}" comment="Split"
+}
 {{end}}
 
 /ipv6 settings
@@ -147,7 +161,9 @@ add interface="LANBridgeDomestic-Domestic Link" list="LAN" comment="Domestic-Dom
 add interface="LANBridgeDomestic-Domestic Link" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
 
 /ip address
+:if ([:len [/ip/address find interface="LANBridgeSplit"]] = 0) do={
 add address="192.168.10.1/24" interface="LANBridgeSplit" network="192.168.10.0" comment="Split"
+}
 add address="192.168.20.1/24" interface="LANBridgeDomestic" network="192.168.20.0" comment="Domestic"
 add address="192.168.30.1/24" interface="LANBridgeForeign" network="192.168.30.0" comment="Foreign"
 add address="192.168.40.1/24" interface="LANBridgeVPN" network="192.168.40.0" comment="VPN"
@@ -289,7 +305,9 @@ add chain=dstnat action=redirect protocol=udp dst-port=53 comment="Redirect DNS"
 /ip nat-pmp set enabled=yes
 
 /ip nat-pmp interfaces
+:if ([:len [/ip/nat-pmp/interfaces find interface="LANBridgeSplit"]] = 0) do={
 add interface="LANBridgeSplit" type=internal
+}
 add interface="LANBridgeDomestic" type=internal
 add interface="LANBridgeForeign" type=internal
 add interface="LANBridgeVPN" type=internal
@@ -396,4 +414,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 
 :delay 1s
 /user set {{ .RouterUsername }} password={{ .RouterPassword }}
-/system reboot
+
+#/system script run DomesticIPUpdate-OneTime
+:execute script={/system script run DomesticIPUpdate}
+#/system reboot

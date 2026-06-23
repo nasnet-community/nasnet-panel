@@ -79,7 +79,7 @@ func (c *Client) SetEnvironmentVariable(name, value string) error {
 	}
 
 	script := fmt.Sprintf(":global %s %q", name, value)
-	_, err := c.ExecuteScript(script)
+	_, err := c.Execute("/system/script/run", fmt.Sprintf("=script={%s}", script))
 	if err != nil {
 		return fmt.Errorf("failed to set environment variable %s: %w", name, err)
 	}
@@ -144,29 +144,19 @@ func (c *Client) ListScripts() ([]ScriptInfo, error) {
 	return scripts, nil
 }
 
-// ExecuteScript executes an inline script block on RouterOS.
-// The script parameter should contain valid RouterOS script syntax, including :global, :local, and other commands.
-// Example: `:global myVar "value"; :put "Result: " . $myVar`.
-func (c *Client) ExecuteScript(script string) (string, error) {
-	if script == "" {
-		return "", fmt.Errorf("script content is required")
+// ExecuteScript executes a named script on RouterOS.
+// The scriptName parameter should be the name of an existing script in RouterOS.
+func (c *Client) ExecuteScript(scriptName string) error {
+	if scriptName == "" {
+		return fmt.Errorf("script name is required")
 	}
 
-	reply, err := c.Execute("/system/script/run", fmt.Sprintf("=script={%s}", script))
+	_, err := c.Execute("/system/script/run", "=number="+scriptName)
 	if err != nil {
-		return "", fmt.Errorf("failed to execute script: %w", err)
+		return fmt.Errorf("failed to execute script %s: %w", scriptName, err)
 	}
 
-	if reply == nil || reply.Done == nil {
-		return "", fmt.Errorf("unexpected response format from script execution")
-	}
-
-	result, ok := reply.Done.Map["after"]
-	if !ok {
-		result = ""
-	}
-
-	return result, nil
+	return nil
 }
 
 // AddScript adds a new script to RouterOS.
