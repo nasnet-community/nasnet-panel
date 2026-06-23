@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/sftp"
 
 	"github.com/labstack/echo/v4"
@@ -272,10 +273,23 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to upload wizard script", err)
 	}
 
-	// Reset configuration and run wizard.rsc
-	err = client.ResetConfiguration(true, "wizard.rsc")
+	// Check if wizard script exists and remove it
+	_ = client.RemoveScript("wizard")
+
+	// Create wizard script with import command
+	scriptConfig := routeros.ScriptConfig{
+		Name:   "wizard",
+		Source: ":execute script={import wizard.rsc}",
+	}
+	_, err = client.AddScript(scriptConfig)
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to reset configuration", err)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create wizard script", err)
+	}
+
+	// Execute the wizard script by name
+	err = client.ExecuteScript("wizard")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{

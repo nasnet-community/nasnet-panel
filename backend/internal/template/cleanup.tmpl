@@ -1,0 +1,286 @@
+# Cleanup script - Reset network interfaces to default names and clear comments
+
+/interface wifi
+:foreach i in=[/interface/wifi find] do={
+  :local defaultName [/interface/wifi get $i default-name]
+  :if ([:len $defaultName] = 0) do={
+    :continue
+  }
+  :local currentName [/interface/wifi get $i name]
+  :if ($currentName != $defaultName) do={
+    /interface/wifi set $i name=$defaultName
+  }
+  /interface/wifi set $i comment=""
+}
+
+/interface ethernet
+:foreach i in=[/interface/ethernet find] do={
+  :local defaultName [/interface/ethernet get $i default-name]
+  :if ([:len $defaultName] = 0) do={
+    :continue
+  }
+  :local currentName [/interface/ethernet get $i name]
+  :if ($currentName != $defaultName) do={
+    /interface/ethernet set $i name=$defaultName
+  }
+  /interface/ethernet set $i comment=""
+}
+
+/interface vlan
+:foreach i in=[/interface/vlan find] do={
+  /interface/vlan set $i comment=""
+}
+
+/interface bridge
+:foreach i in=[/interface/bridge find] do={
+  :local bridgeName [/interface/bridge get $i name]
+  :if ($bridgeName = "LANBridgeSplit" || $bridgeName = "containers") do={
+    :continue
+  }
+  /interface/bridge/port remove [find bridge=$bridgeName]
+  /interface/bridge remove $i
+}
+
+/interface bonding
+:foreach i in=[/interface/bonding find] do={
+  /interface/bonding set $i comment=""
+}
+
+/interface macvlan
+:foreach i in=[/interface/macvlan find] do={
+  /interface/macvlan remove $i
+}
+
+/interface list
+:foreach i in=[/interface/list find dynamic=no] do={
+  :local listName [/interface/list get $i name]
+  :local isBuiltin [/interface/list get $i builtin]
+  :if ($isBuiltin = true) do={
+    :continue
+  }
+  /interface/list/member remove [find list=$listName]
+  /interface/list remove $i
+}
+
+/ip pool
+:foreach i in=[/ip/pool find] do={
+  :local poolName [/ip/pool get $i name]
+  :if ($poolName = "DHCP-pool-Split") do={
+    :continue
+  }
+  /ip/pool remove $i
+}
+
+/ip dhcp-server
+:foreach i in=[/ip/dhcp-server find] do={
+  :local poolName [/ip/dhcp-server get $i address-pool]
+  :if ($poolName = "DHCP-pool-Split") do={
+    :continue
+  }
+  /ip/dhcp-server remove $i
+}
+
+/ip dhcp-server network
+:foreach i in=[/ip/dhcp-server/network find] do={
+  :local comment [/ip/dhcp-server/network get $i comment]
+  :if ($comment = "Split") do={
+    :continue
+  }
+  /ip/dhcp-server/network remove $i
+}
+
+/ip dhcp-client
+:foreach i in=[/ip/dhcp-client find] do={
+  /ip/dhcp-client remove $i
+}
+
+/ip firewall filter
+:foreach i in=[/ip/firewall/filter find] do={
+  /ip/firewall/filter remove $i
+}
+
+/ip firewall nat
+:foreach i in=[/ip/firewall/nat find] do={
+  /ip/firewall/nat remove $i
+}
+
+/ip firewall mangle
+:foreach i in=[/ip/firewall/mangle find] do={
+  /ip/firewall/mangle remove $i
+}
+
+/ipv6 firewall filter
+:foreach i in=[/ipv6/firewall/filter find] do={
+  /ipv6/firewall/filter remove $i
+}
+
+/ip firewall address-list
+:foreach i in=[/ip/firewall/address-list find dynamic=no] do={
+  /ip/firewall/address-list remove $i
+}
+
+/ip dns forwarder
+:foreach i in=[/ip/dns/forwarder find] do={
+  /ip/dns/forwarder remove $i
+}
+
+/ip dns static
+:foreach i in=[/ip/dns/static find] do={
+  /ip/dns/static remove $i
+}
+
+/ip nat-pmp interfaces
+:foreach i in=[/ip/nat-pmp/interfaces find] do={
+  :local interface [/ip/nat-pmp/interfaces get $i interface]
+  :if ($interface = "LANBridgeSplit") do={
+    :continue
+  }
+  /ip/nat-pmp/interfaces remove $i
+}
+
+/ip route
+:foreach i in=[/ip/route find] do={
+  :local isDynamic [/ip/route get $i dynamic]
+  :if ($isDynamic = true) do={
+    :continue
+  }
+  /ip/route remove $i
+}
+
+/ip address
+:foreach i in=[/ip/address find] do={
+  :local comment [/ip/address get $i comment]
+  :local interface [/ip/address get $i interface]
+  :if ($comment = "Split" || $interface = "Split" || $interface = "containers") do={
+    :continue
+  }
+  /ip/address remove $i
+}
+
+/routing table
+:foreach i in=[/routing/table find] do={
+  :local isDynamic [/routing/table get $i dynamic]
+  :if ($isDynamic = true) do={
+    :continue
+  }
+  /routing/table remove $i
+}
+
+/routing rule
+:foreach i in=[/routing/rule find] do={
+  :local isDefault [/routing/rule get $i default]
+  :if ($isDefault = true) do={
+    :continue
+  }
+  /routing/rule remove $i
+}
+
+/system script
+:foreach i in=[/system/script find] do={
+  :local scriptName [/system/script get $i name]
+  :if ([:typeof [:find $scriptName "wizard"]] = "nil") do={
+    /system/script remove $i
+  }
+}
+
+/system script environment
+:foreach i in=[/system/script/environment find] do={
+  /system/script/environment remove $i
+}
+
+/system scheduler
+:foreach i in=[/system/scheduler find] do={
+  /system/scheduler remove $i
+}
+
+/system logging
+:foreach i in=[/system/logging find] do={
+  :local isDefault [/system/logging get $i default]
+  :if ($isDefault = true) do={
+    :continue
+  }
+  /system/logging remove $i
+}
+
+/system logging action
+:foreach i in=[/system/logging/action find] do={
+  :local isDefault [/system/logging/action get $i default]
+  :if ($isDefault = true) do={
+    :continue
+  }
+  /system/logging/action remove $i
+}
+
+/system ntp client servers
+:foreach i in=[/system/ntp/client/servers find] do={
+  :local isDynamic [/system/ntp/client/servers get $i dynamic]
+  :if ($isDynamic = true) do={
+    :continue
+  }
+  /system/ntp/client/servers remove $i
+}
+
+/tool graphing interface
+:foreach i in=[/tool/graphing/interface find] do={
+  /tool/graphing/interface remove $i
+}
+
+/tool graphing queue
+:foreach i in=[/tool/graphing/queue find] do={
+  /tool/graphing/queue remove $i
+}
+
+/tool graphing resource
+:foreach i in=[/tool/graphing/resource find] do={
+  /tool/graphing/resource remove $i
+}
+
+/tool netwatch
+:foreach i in=[/tool/netwatch find] do={
+  /tool/netwatch remove $i
+}
+
+/interface l2tp-client
+:foreach i in=[/interface/l2tp-client find] do={
+  /interface/l2tp-client remove $i
+}
+
+/interface wireguard
+:foreach i in=[/interface/wireguard find] do={
+  /interface/wireguard remove $i
+}
+
+/interface wireguard peers
+:foreach i in=[/interface/wireguard/peers find] do={
+  /interface/wireguard/peers remove $i
+}
+
+/ppp profile
+:foreach i in=[/ppp/profile find] do={
+  :local isDefault [/ppp/profile get $i default]
+  :if ($isDefault = true) do={
+    :continue
+  }
+  /ppp/profile remove $i
+}
+
+/ppp secret
+:foreach i in=[/ppp/secret find] do={
+  /ppp/secret remove $i
+}
+
+/interface ovpn-server server
+:foreach i in=[/interface/ovpn-server/server find] do={
+  /interface/ovpn-server/server remove $i
+}
+
+/interface wifi steering
+:foreach i in=[/interface/wifi/steering find] do={
+  /interface/wifi/steering remove $i
+}
+
+/certificate
+:foreach i in=[/certificate find] do={
+  /certificate remove $i
+}
+
