@@ -173,7 +173,7 @@ func (c *Client) ListIPRoutes() ([]IPRouteInfo, error) {
 }
 
 // ListIPRoutesWithFilters lists IP routes with optional filtering.
-// Supported filter keys: dst-address, gateway, distance, disabled, dynamic, check-gateway, scope, target-scope, routing-table, comment
+// Supported filter keys: dst-address, gateway, distance, disabled, dynamic, check-gateway, scope, target-scope, routing-table, comment.
 func (c *Client) ListIPRoutesWithFilters(filters map[string]string) ([]IPRouteInfo, error) {
 	args := []string{}
 
@@ -275,6 +275,7 @@ func (c *Client) RemoveIPRoute(id string) error {
 	return nil
 }
 
+// UpdateIPRoute updates an existing IP route with new configuration.
 func (c *Client) UpdateIPRoute(id string, config IPRouteConfig) error {
 	args := []string{"=.id=" + id}
 
