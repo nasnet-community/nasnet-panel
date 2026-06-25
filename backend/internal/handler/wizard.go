@@ -176,9 +176,10 @@ func HandleFinalizeWizard(c echo.Context) error {
 
 	// Get WiFi radios and extract bands
 	wifiBands := []string{}
-	radios, err := client.GetWiFiRadios()
-	for _, radio := range radios {
-		wifiBands = append(wifiBands, radio.Band)
+	if radios, err := client.GetWiFiRadios(); err == nil {
+		for i := range radios {
+			wifiBands = append(wifiBands, radios[i].Band)
+		}
 	}
 
 	// Get ethernet interfaces and filter out the ones used for foreign/domestic
@@ -233,7 +234,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
 
-	err = utils.RenderTemplateToFile("internal/template/wizard.tmpl", "internal/template/wizard.rsc", templateData)
 	rendered, err := utils.RenderTemplate("internal/template/wizard.tmpl", templateData)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
