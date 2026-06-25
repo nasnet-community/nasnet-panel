@@ -77,7 +77,11 @@
 /ppp profile remove [find default=no]
 /ppp secret remove [find]
 /interface ovpn-server server remove [find]
+<<<<<<< HEAD
+#/certificate remove [find dynamic!=yes]
+=======
 /certificate remove [find dynamic!=yes]
+>>>>>>> dev
 /interface wifi steering remove [find]
 
 :foreach i in=[/ip/nat-pmp/interfaces find] do={
