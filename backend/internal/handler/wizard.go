@@ -176,27 +176,10 @@ func HandleFinalizeWizard(c echo.Context) error {
 
 	// Get WiFi radios and extract bands
 	wifiBands := []string{}
-	radios, err := client.GetWiFiRadios()
-	if err == nil && len(radios) > 0 {
-		bandMap := make(map[string]bool)
+	if radios, err := client.GetWiFiRadios(); err == nil {
 		for i := range radios {
-			if radios[i].Band != "" {
-				bandMap[radios[i].Band] = true
-			}
+			wifiBands = append(wifiBands, radios[i].Band)
 		}
-
-		// Sort bands from bigger to smaller: 6, 5, 2.4
-		bandOrder := []string{"6", "5", "2.4"}
-		for _, band := range bandOrder {
-			if bandMap[band] {
-				wifiBands = append(wifiBands, band)
-			}
-		}
-	}
-
-	// Use default bands if retrieval failed or no radios found
-	if len(wifiBands) == 0 {
-		wifiBands = []string{"2.4", "5"}
 	}
 
 	// Get ethernet interfaces and filter out the ones used for foreign/domestic
@@ -212,9 +195,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 	// Generate random management WiFi SSID
 	randName, _ := utils.GenerateRandomString(8, 20)
 
-	// Format current date in RouterOS format (MMM/DD/YYYY)
-	currentDate := time.Now().Format("Jan/02/2006")
-
 	// Build template data from request
 	templateData := map[string]any{
 		"ManagementWifiSSID": randName,
@@ -223,7 +203,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"EnableWifiAP":       req.WiFiAP != nil,
 		"WifiBands":          wifiBands,
 		"OtherEthernets":     otherEthernets,
-		"CurrentDate":        currentDate,
+		"CurrentDate":        time.Now().Format("Jan/02/2006"),
+		"CurrentTimestamp":   time.Now().Unix(),
+		"BackupTime":         time.Now().Format("2006-01-02_15-04-05"),
 		"RouterUsername":     creds.Username,
 		"RouterPassword":     creds.Password,
 	}
