@@ -90,7 +90,7 @@
 :foreach i in=[/ip/address find] do={
   :local comment [/ip/address get $i comment]
   :local interface [/ip/address get $i interface]
-  :if ($comment = "Split" || $interface = "Split" || $interface = "containers") do={
+  :if ($comment = "Split" || $interface = "LANBridgeSplit" || $interface = "containers") do={
     :continue
   }
   /ip/address remove $i

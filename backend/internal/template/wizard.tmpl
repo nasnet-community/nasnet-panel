@@ -3,8 +3,6 @@
 
 {{ template "cleanup.tmpl" . }}
 
-{{/*{{ template "basic_networking.tmpl" . }}*/}}
-
 :local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
 
@@ -419,6 +417,5 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :delay 1s
 /user set {{ .RouterUsername }} password={{ .RouterPassword }}
 
-#/system script run DomesticIPUpdate-OneTime
 :execute script={/system script run DomesticIPUpdate}
-#/system reboot
+/system script remove [find name=wizard]
