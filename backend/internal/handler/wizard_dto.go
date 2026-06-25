@@ -17,12 +17,14 @@ type WizardStatus struct {
 	Completed   bool       `json:"completed" example:"false"`
 	CompletedAt *time.Time `json:"completedAt" example:"null"`
 	CurrentStep string     `json:"currentStep" example:"step1"`
+	Progress    int        `json:"progress" example:"0"`
 }
 
 // UpdateWizardStatusRequest represents a request to update wizard status fields.
 type UpdateWizardStatusRequest struct {
 	Completed   *bool   `json:"completed" example:"false"`
 	CurrentStep *string `json:"currentStep" example:"step2"`
+	Progress    *int    `json:"progress" example:"50"`
 }
 
 // MaskingL2tpConfig represents L2TP masking configuration.

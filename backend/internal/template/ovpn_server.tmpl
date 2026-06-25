@@ -10,6 +10,9 @@ export-certificate cert-ca-{{ .CurrentTimestamp }} file-name=cert-ca-{{ .Current
 export-certificate cert-server-{{ .CurrentTimestamp }} file-name=cert-server-{{ .CurrentTimestamp }} type=pem
 export-certificate cert-client-{{ .CurrentTimestamp }} file-name=cert-client-{{ .CurrentTimestamp }} type=pem export-passphrase={{ .OvpnServer.ClientCertificatePassword }}
 
+:global WizardProgress "80"
+
+
 /ip pool
 add name="ovpn-tcp-pool" ranges=192.168.120.2-192.168.120.254 comment="OpenVPN ovpn-tcp client pool"
 add name="ovpn-udp-pool" ranges=192.168.121.2-192.168.121.254 comment="OpenVPN ovpn-udp client pool"
@@ -34,6 +37,9 @@ redirect-gateway=def1 keepalive-timeout=60
 {{range .OvpnServer.Users}}add name="{{ .Username }}-ovpn-tcp" password="{{ .Password }}" profile=ovpn-tcp-profile service=ovpn
 add name="{{ .Username }}-ovpn-udp" password="{{ .Password }}" profile=ovpn-udp-profile service=ovpn
 {{end}}
+
+:global WizardProgress "85"
+
 
 /ip firewall address-list
 add address="192.168.120.0/24" list="VPN-LAN" comment="ovpn-tcp OpenVPN subnet"
