@@ -1,23 +1,17 @@
-name: Release Docker image
+name: Snapshot Docker image
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Image tag (e.g. dev-snapshot, v1.2.3-test)'
-        required: true
-        default: 'manual'
+    branches:
+      - dev
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
+  group: snapshot-dev
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
@@ -49,15 +43,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ env.IMAGE }}
-          tags: |
-            type=semver,pattern={{version}},suffix=-${{ matrix.suffix }}
-            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.suffix }}
-            type=raw,value=${{ inputs.tag }}-${{ matrix.suffix }},enable=${{ github.event_name == 'workflow_dispatch' }}
-
       - id: build
         uses: docker/build-push-action@v7
         with:
@@ -67,14 +52,14 @@ jobs:
           push: true
           provenance: false
           sbom: false
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ env.IMAGE }}:dev-${{ matrix.suffix }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
 
-      - name: Enforce 15MB image size budget
+      - name: Enforce 15MB image size
         run: |
           set -euo pipefail
-          FIRST_TAG=$(printf '%s\n' '${{ steps.meta.outputs.tags }}' | head -n1)
+          FIRST_TAG="${{ env.IMAGE }}:dev-${{ matrix.suffix }}"
           SIZE_BYTES=$(docker buildx imagetools inspect "$FIRST_TAG" --raw \
             | jq '[.layers[].size] | add')
           SIZE_MB=$(awk "BEGIN { printf \"%.2f\", $SIZE_BYTES / 1048576 }")
@@ -98,29 +83,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ env.IMAGE }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
-
       - name: Create multi-arch manifests
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BASE="${{ inputs.tag }}"
-          else
-            BASE="${GITHUB_REF_NAME#v}"
-          fi
-          echo "Combining per-arch images for base: $BASE"
-          while IFS= read -r TAG; do
-            [ -z "$TAG" ] && continue
-            echo "  -> $TAG"
-            docker buildx imagetools create --tag "$TAG" \
-              "${{ env.IMAGE }}:${BASE}-amd64" \
-              "${{ env.IMAGE }}:${BASE}-arm64" \
-              "${{ env.IMAGE }}:${BASE}-armv7"
-          done <<< "${{ steps.meta.outputs.tags }}"
+          SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          for TAG in dev "dev-${SHA}" latest; do
+            echo "-> ${IMAGE}:${TAG}"
+            docker buildx imagetools create --tag "${IMAGE}:${TAG}" \
+              "${IMAGE}:dev-amd64" \
+              "${IMAGE}:dev-arm64" \
+              "${IMAGE}:dev-armv7"
+          done
