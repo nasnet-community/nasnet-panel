@@ -1,9 +1,14 @@
+:global WizardCompleted "false"
+:global WizardProgress "0"
+:global WizardCompletedAt ""
+
 /system backup save name={{ .BackupTime }}
 /export file={{ .BackupTime }}
+:global WizardProgress "1"
 
 {{ template "cleanup.tmpl" . }}
 
-{{/*{{ template "basic_networking.tmpl" . }}*/}}
+:global WizardProgress "5"
 
 :local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
@@ -30,6 +35,8 @@ add dont-require-permissions=no name="DomesticIPUpdate" owner=admin policy=ftp,r
 /certificate settings
 set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 
+:global WizardProgress "10"
+
 {{if .EnableWifiAP }}
 /interface wifi{{range $index, $band := .WifiBands}}{{$wifiNum := add $index 1}}
 set [ find default-name=wifi{{$wifiNum}} ] disabled=no configuration.country=Japan \
@@ -46,6 +53,8 @@ set [ find name="wifi{{.}}-SplitLAN" ] steering="Split"{{end}}
 {{ else }}
 #seperate AP
 {{ end }}
+:global WizardProgress "15"
+
 /interface bridge
 :if ([:len [/interface/bridge find name="LANBridgeSplit"]] = 0) do={
 add name="LANBridgeSplit" comment="Split"
@@ -62,6 +71,9 @@ set [ find default-name={{ .ForeignInterface }} ] comment="WAN - Foreign Link"
 set [ find default-name={{ .DomesticInterface }} ] comment="WAN - Domestic Link"
 {{range .OtherEthernets}}set [ find default-name={{ . }} ] comment="Split Network"
 {{end}}
+
+:global WizardProgress "20"
+
 /interface list
 add name="WAN"
 add name="LAN"
@@ -144,6 +156,8 @@ add bridge="LANBridgeSplit" interface="{{.}}" comment="Split"
 /ipv6 settings
 set disable-ipv6=yes
 
+:global WizardProgress "25"
+
 /interface list member
 add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="WAN" comment="Foreign WAN"
 add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="Foreign-WAN" comment="Foreign WAN"
@@ -174,6 +188,8 @@ add address="192.168.40.1/24" interface="LANBridgeVPN" network="192.168.40.0" co
 add address="192.168.31.1/24" interface="LANBridgeForeign-Foreign Link" network="192.168.31.0" comment="Foreign-Foreign Link"
 add address="192.168.21.1/24" interface="LANBridgeDomestic-Domestic Link" network="192.168.21.0" comment="Domestic-Domestic Link"
 add address="192.168.39.12/32" interface="FTAH" network="192.168.39.12" comment="Foreign Table Address Holder"
+
+:global WizardProgress "30"
 
 /ip cloud
 set ddns-enabled=yes ddns-update-interval=1m
@@ -235,6 +251,8 @@ add name=crl.comodoca.com type=FWD forward-to=General match-subdomain=no comment
 add name=pool.ntp.org type=FWD forward-to=General match-subdomain=no comment="Forward pool.ntp.org via General DNS for NTP"
 add name=time.cloudflare.com type=FWD forward-to=General match-subdomain=no comment="Forward time.cloudflare.com via General DNS for NTP"
 add name=time.google.com type=FWD forward-to=General match-subdomain=no comment="Forward time.google.com via General DNS for NTP"
+
+:global WizardProgress "35"
 
 /ip firewall address-list
 add comment="LOCAL-IP" address="192.168.0.0/16" list="LOCAL-IP"
@@ -306,6 +324,9 @@ add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes 
 add chain=dstnat action=redirect protocol=tcp dst-port=53 comment="Redirect DNS"
 add chain=dstnat action=redirect protocol=udp dst-port=53 comment="Redirect DNS"
 
+:global WizardProgress "40"
+
+
 /ip nat-pmp set enabled=yes
 
 /ip nat-pmp interfaces
@@ -349,6 +370,9 @@ add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign-Foreign Link"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic-Domestic Link"
 
+:global WizardProgress "45"
+
+
 /ip service
 set api address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8728
 set api-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8729
@@ -364,6 +388,9 @@ set www-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=443
 /ipv6 firewall filter
 add chain=input action=drop
 add chain=forward action=drop
+
+:global WizardProgress "50"
+
 
 /system clock
 set date={{ .CurrentDate }}
@@ -410,15 +437,29 @@ add host="4.2.2.1" interval=5s timeout=500ms \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
 
+:global WizardProgress "55"
+
 {{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
+
+:global WizardProgress "60"
 
 {{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 
+:global WizardProgress "65"
+
 {{if .OvpnServer}}{{ template "ovpn_server.tmpl" . }}{{end}}
+
+:global WizardProgress "90"
 
 :delay 1s
 /user set {{ .RouterUsername }} password={{ .RouterPassword }}
 
-#/system script run DomesticIPUpdate-OneTime
+:global WizardProgress "95"
+
 :execute script={/system script run DomesticIPUpdate}
-#/system reboot
+
+:global WizardCompleted "true"
+:global WizardProgress "100"
+:global WizardCompletedAt (([/system clock get date] . "T" . [/system clock get time] . "Z"))
+
+/system script remove [find name=wizard]

@@ -51,7 +51,7 @@ func (c *Client) GetEnvironmentVariable(name string) (string, error) {
 
 // GetEnvironmentVariables retrieves all environment variables from RouterOS.
 func (c *Client) GetEnvironmentVariables() (map[string]string, error) {
-	results, err := c.GetAll("/environment")
+	results, err := c.GetAll("/system/script/environment")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list environment variables: %w", err)
 	}
@@ -79,7 +79,7 @@ func (c *Client) SetEnvironmentVariable(name, value string) error {
 	}
 
 	script := fmt.Sprintf(":global %s %q", name, value)
-	_, err := c.Execute("/system/script/run", fmt.Sprintf("=script={%s}", script))
+	_, err := c.Execute("/execute", fmt.Sprintf("=script={%s}", script))
 	if err != nil {
 		return fmt.Errorf("failed to set environment variable %s: %w", name, err)
 	}
