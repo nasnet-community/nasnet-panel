@@ -1,10 +1,12 @@
 {{ template "cleanup.tmpl" . }}
 
+{{/*{{ template "basic_networking.tmpl" . }}*/}}
+
 :local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
 
 {{ if .ManagementWifiSSID}}
-:if ([:len [/interface find name="wifi-virtual"]] = 0) do={
+:if ([:len [/interface wifi find]] > 0 && [:len [/interface find name="wifi-virtual"]] = 0) do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
 add name=wifi-virtual master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \
@@ -55,9 +57,8 @@ add name="FTAH" comment="Foreign Table Address Holder"
 /interface ethernet
 set [ find default-name={{ .ForeignInterface }} ] comment="WAN - Foreign Link"
 set [ find default-name={{ .DomesticInterface }} ] comment="WAN - Domestic Link"
-set [find default-name=ether3] comment="Split Network"
-set [find default-name=ether4] comment="Split Network"
-set [find default-name=ether5] comment="Split Network"
+{{range .OtherEthernets}}set [ find default-name={{ . }} ] comment="Split Network"
+{{end}}
 /interface list
 add name="WAN"
 add name="LAN"
@@ -381,8 +382,8 @@ add address="time.cloudflare.com"
 add address="time.google.com"
 /system package update
 set channel=stable
-/system routerboard settings
-set auto-upgrade=yes
+#/system routerboard settings
+#set auto-upgrade=yes
 /system scheduler
 add interval=1m name=VPNE-Routing-Manager on-event="/system script\r\nrun VPNE-Routing-Manager" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 add interval=00:00:00 name=VPNE-Routing-Manager-Startup on-event=":delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager\r\n:delay 10s\r\n/system script\r\nrun VPNE-Routing-Manager" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
