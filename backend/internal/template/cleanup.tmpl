@@ -61,7 +61,7 @@
 /ip route remove [find dynamic=no]
 /routing table remove [find dynamic!=yes]
 /routing rule remove [find default!=yes]
-/system script environment remove [find]
+/system script environment remove [/system script environment find name !=WizardProgress && name !=WizardCurrentStep]
 /system script remove [find name!="wizard"]
 /system scheduler remove [find]
 /system logging remove [find default=no]

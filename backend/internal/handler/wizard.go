@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"nasnet-panel/pkg/routeros"
@@ -51,7 +51,7 @@ func HandleGetVPNCredentials(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", response)
 }
 
-// HandleGetWizardStatus retrieves the wizard status from environment variable.
+// HandleGetWizardStatus retrieves the wizard status from environment variables.
 // @Summary Get Wizard Status
 // @Description Retrieve the current wizard configuration status
 // @Tags Wizard
@@ -72,19 +72,37 @@ func HandleGetWizardStatus(c echo.Context) error {
 		Completed:   false,
 		CompletedAt: nil,
 		CurrentStep: "step1",
+		Progress:    0,
 	}
 
-	envVal, err := client.GetEnvironmentVariable("WizardStatus")
-	if err == nil && envVal != "" {
-		if err := json.Unmarshal([]byte(envVal), status); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to parse wizard status", err)
+	if completed, err := client.GetEnvironmentVariable("WizardCompleted"); err == nil && completed != "" {
+		status.Completed = completed == "true"
+	}
+
+	if currentStep, err := client.GetEnvironmentVariable("WizardCurrentStep"); err == nil && currentStep != "" {
+		status.CurrentStep = currentStep
+	}
+
+	if progress, err := client.GetEnvironmentVariable("WizardProgress"); err == nil && progress != "" {
+		if p, err := strconv.Atoi(progress); err == nil {
+			status.Progress = p
+		}
+	}
+
+	if completedAt, err := client.GetEnvironmentVariable("WizardCompletedAt"); err == nil && completedAt != "" {
+		if t, err := time.Parse(time.RFC3339, completedAt); err != nil {
+			if t, err := time.Parse("2006-01-02 15:04:05", completedAt); err == nil {
+				status.CompletedAt = &t
+			}
+		} else {
+			status.CompletedAt = &t
 		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard status retrieved successfully", status)
 }
 
-// HandleUpdateWizardStatus updates the wizard status in environment variable.
+// HandleUpdateWizardStatus updates the wizard status in environment variables.
 // @Summary Update Wizard Status
 // @Description Update wizard configuration status, only supplied fields are updated
 // @Tags Wizard
@@ -112,12 +130,26 @@ func HandleUpdateWizardStatus(c echo.Context) error {
 		Completed:   false,
 		CompletedAt: nil,
 		CurrentStep: "step1",
+		Progress:    0,
 	}
 
-	envVal, err := client.GetEnvironmentVariable("WizardStatus")
-	if err == nil && envVal != "" {
-		if err := json.Unmarshal([]byte(envVal), currentStatus); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to parse current wizard status", err)
+	if completed, err := client.GetEnvironmentVariable("WizardCompleted"); err == nil && completed != "" {
+		currentStatus.Completed = completed == "true"
+	}
+
+	if currentStep, err := client.GetEnvironmentVariable("WizardCurrentStep"); err == nil && currentStep != "" {
+		currentStatus.CurrentStep = currentStep
+	}
+
+	if progress, err := client.GetEnvironmentVariable("WizardProgress"); err == nil && progress != "" {
+		if p, err := strconv.Atoi(progress); err == nil {
+			currentStatus.Progress = p
+		}
+	}
+
+	if completedAt, err := client.GetEnvironmentVariable("WizardCompletedAt"); err == nil && completedAt != "" {
+		if t, err := time.Parse(time.RFC3339, completedAt); err == nil {
+			currentStatus.CompletedAt = &t
 		}
 	}
 
@@ -133,14 +165,28 @@ func HandleUpdateWizardStatus(c echo.Context) error {
 	if req.CurrentStep != nil {
 		currentStatus.CurrentStep = *req.CurrentStep
 	}
-
-	statusJSON, err := json.Marshal(currentStatus)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to marshal wizard status", err)
+	if req.Progress != nil {
+		currentStatus.Progress = *req.Progress
 	}
 
-	if err := client.SetEnvironmentVariable("WizardStatus", string(statusJSON)); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save wizard status", err)
+	if err := client.SetEnvironmentVariable("WizardCompleted", strconv.FormatBool(currentStatus.Completed)); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardCompleted", err)
+	}
+
+	if err := client.SetEnvironmentVariable("WizardCurrentStep", currentStatus.CurrentStep); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardCurrentStep", err)
+	}
+
+	if err := client.SetEnvironmentVariable("WizardProgress", strconv.Itoa(currentStatus.Progress)); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardProgress", err)
+	}
+
+	completedAtStr := ""
+	if currentStatus.CompletedAt != nil {
+		completedAtStr = currentStatus.CompletedAt.Format(time.RFC3339)
+	}
+	if err := client.SetEnvironmentVariable("WizardCompletedAt", completedAtStr); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardCompletedAt", err)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard status updated successfully", currentStatus)
@@ -172,6 +218,14 @@ func HandleFinalizeWizard(c echo.Context) error {
 	creds, err := GetRouterOSCredentials(c)
 	if err != nil {
 		return err
+	}
+
+	if err := client.SetEnvironmentVariable("WizardCurrentStep", "5"); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard step", err)
+	}
+
+	if err := client.SetEnvironmentVariable("WizardProgress", "0"); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
 	}
 
 	// Get WiFi radios and extract bands
