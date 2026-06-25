@@ -109,4 +109,9 @@ func RegisterRoutes(e *echo.Echo) {
 	wizardGroup.GET("/status", handler.HandleGetWizardStatus)
 	wizardGroup.PUT("/status", handler.HandleUpdateWizardStatus)
 	wizardGroup.POST("/finalize", handler.HandleFinalizeWizard)
+
+	routeGroup := e.Group("/api/route")
+	routeGroup.Use(middleware.RouterOSAuth)
+	routeGroup.GET("/foreign-gateway", handler.HandleGetForeignGateway)
+	routeGroup.PUT("/foreign-gateway", handler.HandleUpdateForeignGateway)
 }

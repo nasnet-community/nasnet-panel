@@ -172,6 +172,67 @@ func (c *Client) ListIPRoutes() ([]IPRouteInfo, error) {
 	return routes, nil
 }
 
+// ListIPRoutesWithFilters lists IP routes with optional filtering.
+// Supported filter keys: dst-address, gateway, distance, disabled, dynamic, check-gateway, scope, target-scope, routing-table, comment.
+func (c *Client) ListIPRoutesWithFilters(filters map[string]string) ([]IPRouteInfo, error) {
+	args := []string{}
+
+	// Build filter arguments based on provided filters
+	if dstAddr, ok := filters["dst-address"]; ok && dstAddr != "" {
+		args = append(args, "?=dst-address="+dstAddr)
+	}
+	if gateway, ok := filters["gateway"]; ok && gateway != "" {
+		args = append(args, "?=gateway="+gateway)
+	}
+	if distance, ok := filters["distance"]; ok && distance != "" {
+		args = append(args, "?=distance="+distance)
+	}
+	if disabled, ok := filters["disabled"]; ok && disabled != "" {
+		args = append(args, "?=disabled="+disabled)
+	}
+	if dynamic, ok := filters["dynamic"]; ok && dynamic != "" {
+		args = append(args, "?=dynamic="+dynamic)
+	}
+	if checkGateway, ok := filters["check-gateway"]; ok && checkGateway != "" {
+		args = append(args, "?=check-gateway="+checkGateway)
+	}
+	if scope, ok := filters["scope"]; ok && scope != "" {
+		args = append(args, "?=scope="+scope)
+	}
+	if targetScope, ok := filters["target-scope"]; ok && targetScope != "" {
+		args = append(args, "?=target-scope="+targetScope)
+	}
+	if routingTable, ok := filters["routing-table"]; ok && routingTable != "" {
+		args = append(args, "?=routing-table="+routingTable)
+	}
+	if comment, ok := filters["comment"]; ok && comment != "" {
+		args = append(args, "?=comment="+comment)
+	}
+
+	results, err := c.GetAll("/ip/route", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list IP routes with filters: %w", err)
+	}
+
+	routes := make([]IPRouteInfo, 0)
+	for _, result := range results {
+		distance, _ := strconv.Atoi(result["distance"])
+		routes = append(routes, IPRouteInfo{
+			ID:          result[".id"],
+			DstAddress:  result["dst-address"],
+			Gateway:     result["gateway"],
+			Distance:    distance,
+			Scope:       result["scope"],
+			TargetScope: result["target-scope"],
+			Disabled:    result["disabled"] == "true",
+			Dynamic:     result["dynamic"] == "true",
+			Comment:     result["comment"],
+		})
+	}
+
+	return routes, nil
+}
+
 func (c *Client) AddIPRoute(config IPRouteConfig) (string, error) {
 	args := []string{
 		"dst-address=" + config.DstAddress,
@@ -209,6 +270,45 @@ func (c *Client) RemoveIPRoute(id string) error {
 	_, err := c.Remove("/ip/route", "=.id="+id)
 	if err != nil {
 		return fmt.Errorf("failed to remove IP route: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateIPRoute updates an existing IP route with new configuration.
+func (c *Client) UpdateIPRoute(id string, config IPRouteConfig) error {
+	args := []string{"=.id=" + id}
+
+	if config.DstAddress != "" {
+		args = append(args, "=dst-address="+config.DstAddress)
+	}
+	if config.Gateway != "" {
+		args = append(args, "=gateway="+config.Gateway)
+	}
+	if config.Distance > 0 {
+		args = append(args, "=distance="+strconv.Itoa(config.Distance))
+	}
+	if config.Scope > 0 {
+		args = append(args, "=scope="+strconv.Itoa(config.Scope))
+	}
+	if config.TargetScope > 0 {
+		args = append(args, "=target-scope="+strconv.Itoa(config.TargetScope))
+	}
+	if config.Table != "" {
+		args = append(args, "=table="+config.Table)
+	}
+	if config.Disabled {
+		args = append(args, "=disabled=yes")
+	} else {
+		args = append(args, "=disabled=no")
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	_, err := c.Set("/ip/route", args...)
+	if err != nil {
+		return fmt.Errorf("failed to update IP route: %w", err)
 	}
 
 	return nil
