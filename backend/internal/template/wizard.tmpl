@@ -1,3 +1,6 @@
+/system backup save name={{ .BackupTime }}
+/export file={{ .BackupTime }}
+
 {{ template "cleanup.tmpl" . }}
 
 {{/*{{ template "basic_networking.tmpl" . }}*/}}
