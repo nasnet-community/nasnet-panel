@@ -826,6 +826,117 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/route/foreign-gateway": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve the current foreign gateway route for VPN",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Route"
+                ],
+                "summary": "Get Foreign Gateway Route",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Update the foreign gateway route for VPN",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Route"
+                ],
+                "summary": "Update Foreign Gateway Route",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Foreign gateway route configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateForeignGatewayRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.ForeignGatewayResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/scan": {
             "post": {
                 "description": "Start scanning a subnet for RouterOS devices",
@@ -4211,7 +4322,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Validate wizard finalization configuration",
+                "description": "Render wizard template with provided configuration and apply to router",
                 "consumes": [
                     "application/json"
                 ],
@@ -4249,6 +4360,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -4368,35 +4485,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/wizard/test-render": {
-            "get": {
-                "description": "Render wizard.tmpl with hardcoded test data and return as plain text",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "Wizard"
-                ],
-                "summary": "Test Render Template",
-                "responses": {
-                    "200": {
-                        "description": "Rendered template content",
-                        "schema": {
-                            "type": "string"
                         }
                     },
                     "500": {
@@ -4794,6 +4882,17 @@ const docTemplate = `{
                 },
                 "wireGuardClient": {
                     "$ref": "#/definitions/handler.MaskingWireGuardConfig"
+                }
+            }
+        },
+        "handler.ForeignGatewayResponse": {
+            "type": "object",
+            "properties": {
+                "gateway": {
+                    "type": "string"
+                },
+                "routesUpdated": {
+                    "type": "integer"
                 }
             }
         },
@@ -5381,6 +5480,14 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateForeignGatewayRequest": {
+            "type": "object",
+            "properties": {
+                "gateway": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.UpdateInfoResponse": {
             "type": "object",
             "properties": {
@@ -5604,6 +5711,10 @@ const docTemplate = `{
                 "currentStep": {
                     "type": "string",
                     "example": "step2"
+                },
+                "progress": {
+                    "type": "integer",
+                    "example": 50
                 }
             }
         },
@@ -6045,6 +6156,10 @@ const docTemplate = `{
                 "currentStep": {
                     "type": "string",
                     "example": "step1"
+                },
+                "progress": {
+                    "type": "integer",
+                    "example": 0
                 }
             }
         },
