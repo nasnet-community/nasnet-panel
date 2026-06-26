@@ -24,6 +24,7 @@ type SystemInfo struct {
 	HDDTotal      int64
 	HDDFree       int64
 	BadBlocks     string
+	SystemID      string
 }
 
 type ResourceInfo struct {
@@ -193,6 +194,11 @@ func (c *Client) GetSystemInfo() (*SystemInfo, error) {
 		updateChannel = update["channel"]
 	}
 
+	systemId, err := c.GetSystemID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get system ID: %w", err)
+	}
+
 	cpuCount, _ := strconv.Atoi(resource["cpu-count"])
 	cpuLoad, _ := strconv.Atoi(resource["cpu-load"])
 	memTotal, _ := strconv.ParseInt(resource["total-memory"], 10, 64)
@@ -223,6 +229,7 @@ func (c *Client) GetSystemInfo() (*SystemInfo, error) {
 		HDDTotal:      hddTotal,
 		HDDFree:       hddFree,
 		BadBlocks:     resource["bad-blocks"],
+		SystemID:      systemId,
 	}, nil
 }
 
