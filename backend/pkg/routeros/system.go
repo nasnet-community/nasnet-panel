@@ -194,7 +194,7 @@ func (c *Client) GetSystemInfo() (*SystemInfo, error) {
 		updateChannel = update["channel"]
 	}
 
-	systemId, err := c.GetSystemID()
+	systemID, err := c.GetSystemID()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get system ID: %w", err)
 	}
@@ -229,7 +229,7 @@ func (c *Client) GetSystemInfo() (*SystemInfo, error) {
 		HDDTotal:      hddTotal,
 		HDDFree:       hddFree,
 		BadBlocks:     resource["bad-blocks"],
-		SystemID:      systemId,
+		SystemID:      systemID,
 	}, nil
 }
 
