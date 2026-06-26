@@ -37,7 +37,7 @@ type SystemInfoResponse struct {
 	HDDTotalBytes    int64  `json:"hddTotalBytes"`
 	HDDFreeBytes     int64  `json:"hddFreeBytes"`
 	BadBlocks        string `json:"badBlocks"`
-	SystemID         string `json:"SystemId"`
+	SystemID         string `json:"systemId"`
 }
 
 type SystemIdentityResponse struct {
