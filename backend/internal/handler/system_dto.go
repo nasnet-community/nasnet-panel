@@ -37,6 +37,7 @@ type SystemInfoResponse struct {
 	HDDTotalBytes    int64  `json:"hddTotalBytes"`
 	HDDFreeBytes     int64  `json:"hddFreeBytes"`
 	BadBlocks        string `json:"badBlocks"`
+	SystemID         string `json:"systemId"`
 }
 
 type SystemIdentityResponse struct {
@@ -127,6 +128,7 @@ func ToSystemInfoResponse(si *routeros.SystemInfo) *SystemInfoResponse {
 		HDDTotalBytes:    si.HDDTotal,
 		HDDFreeBytes:     si.HDDFree,
 		BadBlocks:        si.BadBlocks,
+		SystemID:         si.SystemID,
 	}
 }
 
