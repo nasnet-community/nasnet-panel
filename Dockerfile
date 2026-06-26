@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.23
+# syntax=docker/dockerfile:1.25
 
 # Build the React frontend (Webpack)
 FROM --platform=$BUILDPLATFORM node:20-alpine AS frontend
