@@ -26,7 +26,7 @@ func HandleGetForeignGateway(c echo.Context) error {
 	}
 
 	filters := map[string]string{
-		"comment":       "Route-to-VPN-L2TP-Client",
+		"comment":       "Route-to-VPN-Client",
 		"routing-table": "main",
 	}
 
@@ -75,7 +75,7 @@ func HandleUpdateForeignGateway(c echo.Context) error {
 	}
 
 	filters := map[string]string{
-		"comment": "Route-to-VPN-L2TP-Client",
+		"comment": "Route-to-VPN-Client",
 	}
 
 	routes, err := client.ListIPRoutesWithFilters(filters)
