@@ -7,6 +7,8 @@ set -euo pipefail
 GH_OWNER="nasnet-community"
 GH_REPO="nasnet-panel"
 ASSET_PREFIX="nasnet-panel"
+SNAPSHOT_RELEASE="snapshot"
+SNAPSHOT_CHANNEL="dev"
 
 BRIDGE_NAME="containers"
 BRIDGE_IP_CIDR="192.168.50.1/24"
@@ -22,7 +24,7 @@ CONTAINER_ROOT_DIR="disk1/images/nnc"
 TAR_REMOTE_DIR="disk1"
 
 COMMENT_TAG="nasnet-panel-installer"
-MIN_FREE_MB=128
+MIN_FREE_MB=30
 DEVICE_MODE_TIMEOUT=120
 START_TIMEOUT=120
 
@@ -49,7 +51,7 @@ Usage: install.sh [options]
   --dry-run            Print actions, change nothing.
   --uninstall          Stop+remove container, networking, uploaded tar.
   --config <file>      env-style file: ROUTER_IP=, ROUTER_USER=, ROUTER_PASS=
-  --version <tag>      Release tag to install (default: latest).
+  --version <tag>      Release tag to install (default: snapshot).
   --image-tar <path>   Use a local tar instead of downloading a release asset.
   --lan-port <port>    LAN port for dstnat to panel (default: 8080).
   --no-rollback        Do not undo partial state on failure.
@@ -526,27 +528,32 @@ ensure_device_mode() {
   exit 1
 }
 
-# ---- release download ------------------------------------------------------
-resolve_version() {
-  if [[ -n "$VERSION" ]]; then
-    printf '%s' "$VERSION"; return
-  fi
-  local tag
-  tag="$(curl -fsSL "https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/releases/latest" \
-            | grep -m1 '"tag_name"' | awk -F'"' '{print $4}')"
-  [[ -n "$tag" ]] || { err "could not resolve latest release"; exit 1; }
-  printf '%s' "$tag"
+# ---- image download --------------------------------------------------------
+# RouterOS reports arm/arm64/x86_64; release assets use the image build suffix.
+asset_suffix() {
+  case "$1" in
+    x86_64) printf 'amd64' ;;
+    arm64)  printf 'arm64' ;;
+    arm)    printf 'armv7' ;;
+    *) err "unsupported architecture: $1"; exit 1 ;;
+  esac
 }
 
 download_asset() {
-  local version="$1" arch="$2"
-  local asset="${ASSET_PREFIX}-${version}-${arch}.tar"
-  local url="https://github.com/${GH_OWNER}/${GH_REPO}/releases/download/${version}/${asset}"
-  local sha_url="${url}.sha256"
-  local out_dir="${TMPDIR:-/tmp}/nasnet-panel-installer"
+  local arch="$1" release channel suffix asset url sha_url out_dir out sha
+  if [[ -n "$VERSION" ]]; then
+    release="$VERSION"; channel="${VERSION#v}"
+  else
+    release="$SNAPSHOT_RELEASE"; channel="$SNAPSHOT_CHANNEL"
+  fi
+  suffix="$(asset_suffix "$arch")"
+  asset="${ASSET_PREFIX}-${channel}-${suffix}.tar"
+  url="https://github.com/${GH_OWNER}/${GH_REPO}/releases/download/${release}/${asset}"
+  sha_url="${url}.sha256"
+  out_dir="${TMPDIR:-/tmp}/nasnet-panel-installer"
   mkdir -p "$out_dir"
-  local out="${out_dir}/${asset}"
-  local sha="${out}.sha256"
+  out="${out_dir}/${asset}"
+  sha="${out}.sha256"
 
   log "Downloading ${asset} ..."
   curl -fL --progress-bar "$url"     -o "$out" || { err "download failed: $url"; exit 1; }
@@ -805,9 +812,12 @@ main() {
     log "Using local tar: ${LOCAL_TAR}"
   else
     log ""
-    local tag; tag="$(resolve_version)"
-    log "Release: ${tag}  arch: ${ROUTEROS_ARCH}"
-    download_asset "$tag" "$ROUTEROS_ARCH"
+    if [[ -n "$VERSION" ]]; then
+      log "Release: ${VERSION}  arch: ${ROUTEROS_ARCH}"
+    else
+      log "Snapshot release: ${SNAPSHOT_RELEASE}  arch: ${ROUTEROS_ARCH}"
+    fi
+    download_asset "$ROUTEROS_ARCH"
   fi
 
   upload_tar "$LOCAL_TAR"
