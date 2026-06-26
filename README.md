@@ -167,7 +167,7 @@ Supported platforms: `linux/amd64`, `linux/arm64`, `linux/arm/v7`. Image is buil
 - RouterOS v7.x with the `container` package installed and enabled.
 - Container `device-mode` enabled (requires physical confirmation on first activation: reset button or cold reboot).
 - External storage (the script defaults to `disk1/`).
-- ≥ 128 MB free RAM on the router.
+- ≥ 30 MB free RAM on the router.
 - Local tools: `bash`, `curl`, `ssh`, `scp`, `sha256sum` (or `shasum`).
 
 **Run it**
@@ -197,8 +197,8 @@ When it finishes, the panel is reachable at `http://<router-ip>:8080` (or whatev
 | `--dry-run`          | Print every action the script would take, change nothing.          |
 | `--uninstall`        | Remove the container, networking, NAT rules, and uploaded tarball. |
 | `--config <file>`    | Env-style file with `ROUTER_IP=`, `ROUTER_USER=`, `ROUTER_PASS=`.  |
-| `--version <tag>`    | Release tag to install. Defaults to the latest release.            |
-| `--image-tar <path>` | Use a local tarball instead of downloading a release asset.        |
+| `--version <tag>`    | Release tag to install (default `snapshot`).                       |
+| `--image-tar <path>` | Use a local tar instead of downloading a release asset.            |
 | `--lan-port <port>`  | LAN-facing port for the dst-nat rule (default `8080`).             |
 | `--no-rollback`      | Do not undo partial state on failure (useful for debugging).       |
 | `-v`, `--verbose`    | Verbose output.                                                    |
@@ -208,12 +208,16 @@ When it finishes, the panel is reachable at `http://<router-ip>:8080` (or whatev
 
 1. Probes Winbox (8291) and SSH (22) on the router; collects credentials.
 2. Checks RouterOS version, architecture (`arm` / `arm64` / `x86_64`), free RAM, `container` package, and `device-mode container`.
-3. Downloads `nasnet-panel-<version>-<arch>.tar` and `.sha256` from the latest GitHub release (or the tag passed to `--version`) and verifies the checksum.
+3. Downloads the prebuilt container tar for the detected arch (`amd64` / `arm64` / `armv7`) from the rolling `snapshot` release (or the tag passed to `--version`) and verifies its checksum.
 4. Configures container networking: `veth1` at `192.168.50.2/24`, `containers` bridge at `192.168.50.1/24`, `srcnat` masquerade for `192.168.50.0/24`, and `dstnat` from `--lan-port` to the veth.
 5. SCPs the tarball to `disk1/`, adds the container with `start-on-boot=yes`, and starts it.
 6. Polls `http://<router>:<lan-port>/health` for up to 120 s; dumps container logs on failure.
 
 To remove everything: `bash scripts/install.sh --uninstall --config router.env`.
+
+**Prefer to install by hand?**
+
+See [`scripts/INSTALL.md`](scripts/INSTALL.md) for the full installation guide. It walks through both the automated script and a manual route via Winbox or the RouterOS terminal, reproducing every networking, firewall, and container command the installer runs.
 
 ### 3. From source (development)
 

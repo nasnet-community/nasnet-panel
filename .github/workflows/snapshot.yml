@@ -94,3 +94,48 @@ jobs:
               "${IMAGE}:dev-arm64" \
               "${IMAGE}:dev-armv7"
           done
+
+  package:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - name: Install skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Log in to ${{ env.REGISTRY }}
+        run: skopeo login "${{ env.REGISTRY }}" -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Package per-arch RouterOS container tars
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for SUFFIX in amd64 arm64 armv7; do
+            REF="${IMAGE}:dev-${SUFFIX}"
+            OUT="nasnet-panel-dev-${SUFFIX}.tar"
+            echo "-> ${REF} => dist/${OUT}"
+            skopeo copy "docker://${REF}" "docker-archive:dist/${OUT}:nasnet-panel:dev-${SUFFIX}"
+            ( cd dist && sha256sum "${OUT}" > "${OUT}.sha256" )
+          done
+
+      - name: Publish to rolling snapshot release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: snapshot
+          name: Dev snapshot
+          prerelease: true
+          body: |
+            Rolling development snapshot, rebuilt on every push to `dev`.
+            Commit ${{ github.sha }}.
+
+            RouterOS container image tars consumed by `scripts/install.sh`:
+            - `nasnet-panel-dev-amd64.tar` (RouterOS x86_64)
+            - `nasnet-panel-dev-arm64.tar` (RouterOS arm64)
+            - `nasnet-panel-dev-armv7.tar` (RouterOS arm)
+          files: |
+            dist/*.tar
+            dist/*.tar.sha256
