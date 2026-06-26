@@ -8,10 +8,10 @@ add name=wg-server-wireguard-server listen-port=51820 mtu=1420 comment="VPN Serv
 add interface=wg-server-wireguard-server name="wireguard-server" allowed-address=0.0.0.0/0 \
 client-address=192.168.110.2/32 \ client-dns=192.168.110.0 client-endpoint="" \
 client-keepalive=25s client-listen-port=51820 persistent-keepalive=25s preshared-key=auto private-key=auto \
-responder=yes comment="Wireguard Server: ovpn1 on wireguard-server Server"
+responder=yes comment="Wireguard Server:wireguard-server Server"
 add interface="wireguard-client-wg-client" public-key="{{ .WireGuardClient.PeerPublicKey }}" \
 endpoint-address="{{ .WireGuardClient.EndpointAddress }}" endpoint-port={{ .WireGuardClient.EndpointPort }} \
-allowed-address="{{ .WireGuardClient.AllowedAddress }}" comment="wg-client-peer-wg-client" preshared-key="{{ .WireGuardClient.PreSharedKey }}" \
+allowed-address="{{ .WireGuardClient.AllowedAddress }}" comment="wg-client-peer-wg-client"{{ if .WireGuardClient.PreSharedKey }} preshared-key="{{ .WireGuardClient.PreSharedKey }}"{{ end }} \
 persistent-keepalive={{ .WireGuardClient.PersistentKeepalive }}
 
 /interface list
@@ -71,20 +71,20 @@ add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-por
 add interface="LANBridgeVPN-wg-client" type=internal
 
 /ip route
-add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" scope=30 target-scope=10  comment="Route-to-VPN-wg-client"
+add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" scope=30 target-scope=10  comment="Route-to-VPN-Client"
 add check-gateway=ping dst-address="4.2.2.2" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" \
-distance=1 target-scope="11" comment="Route-to-VPN-wg-client"
-add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-wg-client"
+distance=1 target-scope="11" comment="Route-to-VPN-Client"
+add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-Client"
 add check-gateway=ping dst-address="4.2.2.2" gateway="wireguard-client-wg-client" routing-table="to-VPN" \
-distance=1 target-scope="11" comment="Route-to-VPN-wg-client"
+distance=1 target-scope="11" comment="Route-to-VPN-Client"
 add dst-address="4.2.2.2" gateway="wireguard-client-wg-client" \
-routing-table="main" scope="10" comment="Route-to-VPN-wg-client"
+routing-table="main" scope="10" comment="Route-to-VPN-Client"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.2" routing-table="main" \
-distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-wg-client"
+distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-Client"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-wg-client"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN-wg-client"
 
 /tool netwatch
 add host="4.2.2.2" interval=5s timeout=500ms \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
-up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-wg-client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-wg-client\"]; " comment="Failover Netwatch - wg-client"
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - wg-client"
