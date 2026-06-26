@@ -71,16 +71,11 @@ func HandleGetWizardStatus(c echo.Context) error {
 	status := &WizardStatus{
 		Completed:   false,
 		CompletedAt: nil,
-		CurrentStep: "step1",
 		Progress:    0,
 	}
 
 	if completed, err := client.GetEnvironmentVariable("WizardCompleted"); err == nil && completed != "" {
 		status.Completed = completed == "true"
-	}
-
-	if currentStep, err := client.GetEnvironmentVariable("WizardCurrentStep"); err == nil && currentStep != "" {
-		status.CurrentStep = currentStep
 	}
 
 	if progress, err := client.GetEnvironmentVariable("WizardProgress"); err == nil && progress != "" {
@@ -129,16 +124,11 @@ func HandleUpdateWizardStatus(c echo.Context) error {
 	currentStatus := &WizardStatus{
 		Completed:   false,
 		CompletedAt: nil,
-		CurrentStep: "step1",
 		Progress:    0,
 	}
 
 	if completed, err := client.GetEnvironmentVariable("WizardCompleted"); err == nil && completed != "" {
 		currentStatus.Completed = completed == "true"
-	}
-
-	if currentStep, err := client.GetEnvironmentVariable("WizardCurrentStep"); err == nil && currentStep != "" {
-		currentStatus.CurrentStep = currentStep
 	}
 
 	if progress, err := client.GetEnvironmentVariable("WizardProgress"); err == nil && progress != "" {
@@ -162,19 +152,12 @@ func HandleUpdateWizardStatus(c echo.Context) error {
 			currentStatus.CompletedAt = nil
 		}
 	}
-	if req.CurrentStep != nil {
-		currentStatus.CurrentStep = *req.CurrentStep
-	}
 	if req.Progress != nil {
 		currentStatus.Progress = *req.Progress
 	}
 
 	if err := client.SetEnvironmentVariable("WizardCompleted", strconv.FormatBool(currentStatus.Completed)); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardCompleted", err)
-	}
-
-	if err := client.SetEnvironmentVariable("WizardCurrentStep", currentStatus.CurrentStep); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardCurrentStep", err)
 	}
 
 	if err := client.SetEnvironmentVariable("WizardProgress", strconv.Itoa(currentStatus.Progress)); err != nil {
@@ -218,10 +201,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 	creds, err := GetRouterOSCredentials(c)
 	if err != nil {
 		return err
-	}
-
-	if err := client.SetEnvironmentVariable("WizardCurrentStep", "5"); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard step", err)
 	}
 
 	if err := client.SetEnvironmentVariable("WizardProgress", "0"); err != nil {
