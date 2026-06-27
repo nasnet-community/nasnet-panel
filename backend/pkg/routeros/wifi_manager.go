@@ -78,6 +78,8 @@ type ConnectedClient struct {
 	TxBitsPerSecond string
 	RxBitsPerSecond string
 	Authorized      bool
+	IPAddress       string
+	Hostname        string
 }
 
 // WiFiAccessPoint represents a discovered nearby access point during scan.
