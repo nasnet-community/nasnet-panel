@@ -218,11 +218,27 @@ func (c *Client) listWirelessConnectedClients(interfaceName string) ([]Connected
 			}
 		}
 
+		ipAddress := "-"
+		hostname := "-"
+		macAddress := result["mac-address"]
+		if macAddress != "" {
+			if arpEntry, err := c.FindARPEntryByMAC(macAddress); err == nil && arpEntry != nil {
+				if arpEntry.Address != "" {
+					ipAddress = arpEntry.Address
+				}
+			}
+			if lease, err := c.FindDHCPLeaseByMAC(macAddress); err == nil && lease != nil {
+				if lease.HostName != "" {
+					hostname = lease.HostName
+				}
+			}
+		}
+
 		clients = append(clients, ConnectedClient{
 			ID:              result[".id"],
 			Interface:       result["interface"],
 			SSID:            result["ssid"],
-			MACAddress:      result["mac-address"],
+			MACAddress:      macAddress,
 			Uptime:          result["uptime"],
 			LastActivity:    result["last-activity"],
 			Signal:          result["signal-strength"],
@@ -237,6 +253,8 @@ func (c *Client) listWirelessConnectedClients(interfaceName string) ([]Connected
 			TxBitsPerSecond: result["tx-bits-per-second"],
 			RxBitsPerSecond: result["rx-bits-per-second"],
 			Authorized:      parseRouterOSBool(result["authorized"]),
+			IPAddress:       ipAddress,
+			Hostname:        hostname,
 		})
 	}
 

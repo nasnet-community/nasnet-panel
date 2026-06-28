@@ -42,6 +42,8 @@ type WiFiConnectedClientResponse struct {
 	TxBitsPerSecond string `json:"txBitsPerSecond"`
 	RxBitsPerSecond string `json:"rxBitsPerSecond"`
 	Authorized      bool   `json:"authorized"`
+	IPAddress       string `json:"ipAddress"`
+	Hostname        string `json:"hostname"`
 }
 
 type wiFiAccessPointResponse struct {
@@ -169,6 +171,8 @@ func ToWiFiConnectedClientResponse(cc *routeros.ConnectedClient) *WiFiConnectedC
 		TxBitsPerSecond: cc.TxBitsPerSecond,
 		RxBitsPerSecond: cc.RxBitsPerSecond,
 		Authorized:      cc.Authorized,
+		IPAddress:       cc.IPAddress,
+		Hostname:        cc.Hostname,
 	}
 }
 
