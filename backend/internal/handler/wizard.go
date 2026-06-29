@@ -302,7 +302,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 	}
 
 	// Execute the wizard script by name
-	err = client.ExecuteScript("wizard")
+	err = client.RunScript("wizard")
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
 	}
