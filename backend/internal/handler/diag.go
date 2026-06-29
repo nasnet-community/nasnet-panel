@@ -93,6 +93,18 @@ func HandleDownloadDiag(c echo.Context) error {
 		return err
 	}
 
+	progress := 0
+	progressStr, err := client.GetEnvironmentVariable("DiagProgress")
+	if err == nil {
+		if p, err := strconv.Atoi(progressStr); err == nil {
+			progress = p
+		}
+	}
+
+	if progress != 100 {
+		return ErrorResponse(c, http.StatusConflict, "Diagnostic report not ready", fmt.Errorf("diagnostic is still running (progress: %d%%)", progress))
+	}
+
 	const diagFilename = "nasnet-diagnostic-report.txt"
 	fileContents, err := client.GetFileContents(diagFilename, 0)
 	if err != nil {
