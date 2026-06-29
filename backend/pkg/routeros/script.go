@@ -144,9 +144,9 @@ func (c *Client) ListScripts() ([]ScriptInfo, error) {
 	return scripts, nil
 }
 
-// ExecuteScript executes a named script on RouterOS.
+// RunScript executes a named script on RouterOS.
 // The scriptName parameter should be the name of an existing script in RouterOS.
-func (c *Client) ExecuteScript(scriptName string) error {
+func (c *Client) RunScript(scriptName string) error {
 	if scriptName == "" {
 		return fmt.Errorf("script name is required")
 	}
@@ -213,6 +213,21 @@ func (c *Client) RemoveScript(name string) error {
 	_, err = c.Remove("/system/script", "=.id="+scriptID)
 	if err != nil {
 		return fmt.Errorf("failed to remove script %s: %w", name, err)
+	}
+
+	return nil
+}
+
+// ExecuteScriptString executes a RouterOS script string directly without storing it.
+// The script parameter should contain valid RouterOS script code.
+func (c *Client) ExecuteScriptString(script string) error {
+	if script == "" {
+		return fmt.Errorf("script content is required")
+	}
+
+	_, err := c.Execute("/execute", fmt.Sprintf("=script={%s}", script))
+	if err != nil {
+		return fmt.Errorf("failed to execute script: %w", err)
 	}
 
 	return nil

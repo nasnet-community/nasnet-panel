@@ -114,4 +114,10 @@ func RegisterRoutes(e *echo.Echo) {
 	routeGroup.Use(middleware.RouterOSAuth)
 	routeGroup.GET("/foreign-gateway", handler.HandleGetForeignGateway)
 	routeGroup.PUT("/foreign-gateway", handler.HandleUpdateForeignGateway)
+
+	diagGroup := e.Group("/api/diag")
+	diagGroup.Use(middleware.RouterOSAuth)
+	diagGroup.POST("/generate", handler.HandleGenerateDiag)
+	diagGroup.GET("/status", handler.HandleGetDiagStatus)
+	diagGroup.GET("/download", handler.HandleDownloadDiag)
 }
