@@ -1005,6 +1005,7 @@ func (c *Client) GetEthernetInterfacesDetailed() ([]EthernetInfo, error) {
 	return interfaces, nil
 }
 
+// GetEthernetMonitor retrieves real-time monitoring data for an ethernet interface.
 func (c *Client) GetEthernetMonitor(interfaceName string) (*EthernetMonitor, error) {
 	if interfaceName == "" {
 		return nil, fmt.Errorf("interface name is required")
