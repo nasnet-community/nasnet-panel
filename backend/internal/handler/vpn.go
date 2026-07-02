@@ -2398,7 +2398,7 @@ func HandleGetOvpnServerUsers(c echo.Context) error {
 // @Failure 401 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/ovpn/server/users/{ovpnNameOrID} [post].
+// @Router /api/vpn/ovpn/server/user/{ovpnNameOrID} [post].
 func HandleAddOvpnServerUser(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
