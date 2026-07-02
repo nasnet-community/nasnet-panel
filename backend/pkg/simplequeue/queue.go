@@ -1,3 +1,4 @@
+// Package simplequeue provides a generic thread-safe FIFO queue with fixed capacity.
 package simplequeue
 
 import (

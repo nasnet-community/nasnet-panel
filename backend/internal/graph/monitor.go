@@ -1,3 +1,4 @@
+// Package graph provides traffic monitoring for RouterOS interfaces.
 package graph
 
 import (
@@ -7,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/routeros" //nolint:misspell // routeros is a valid package name
 	"nasnet-panel/pkg/simplequeue"
 	"nasnet-panel/pkg/utils"
 )
@@ -30,7 +31,7 @@ type InterfaceStats struct {
 // RouterMonitor tracks interface traffic for a single RouterOS device.
 type RouterMonitor struct {
 	credentials        RouterCredentials
-	client             *routeros.Client
+	client             *routeros.Client //nolint:misspell // routeros is a valid package name
 	queues             map[string]*simplequeue.Queue[TrafficData]
 	previousStats      map[string]InterfaceStats
 	previousInterfaces []string
@@ -49,7 +50,7 @@ var (
 // StartMonitoring creates and starts a monitoring goroutine for a RouterOS device.
 // The function runs in a separate goroutine and periodically fetches interface statistics.
 // If a monitor already exists for the given IP, it is reused and not recreated.
-// queueSize specifies the capacity for each interface's traffic data queue.
+// QueueSize specifies the capacity for each interface's traffic data queue.
 func StartMonitoring(credentials RouterCredentials, interval time.Duration, queueSize int) error {
 	monitorsMu.Lock()
 	defer monitorsMu.Unlock()
@@ -60,6 +61,7 @@ func StartMonitoring(credentials RouterCredentials, interval time.Duration, queu
 		return nil
 	}
 
+	//nolint:misspell // routeros is a valid package name
 	client, err := routeros.NewClient(routeros.ConnectionConfig{
 		Address:  credentials.IP,
 		Username: credentials.Username,
@@ -122,7 +124,7 @@ func (m *RouterMonitor) Stop() {
 		close(m.done)
 		m.ticker.Stop()
 		if m.client != nil {
-			m.client.Close()
+			_ = m.client.Close()
 		}
 	})
 }
@@ -174,7 +176,8 @@ func (m *RouterMonitor) fetchAndUpdateStats() {
 
 	now := time.Now()
 
-	for _, iface := range interfaces {
+	for i := range interfaces {
+		iface := &interfaces[i]
 		ifName := iface.Name
 		currentInterfaces = append(currentInterfaces, ifName)
 
