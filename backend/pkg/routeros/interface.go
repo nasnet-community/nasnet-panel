@@ -138,6 +138,50 @@ type InterfaceInfo struct {
 	Comment          *string
 }
 
+// EthernetMonitor represents real-time monitoring data from /interface/ethernet/monitor.
+type EthernetMonitor struct {
+	Status          *string
+	AutoNegotiation *string
+	Rate            *string
+	FullDuplex      *bool
+	TxFlowControl   *bool
+	RxFlowControl   *bool
+	Supported       []string
+	Advertising     []string
+	LinkPartnerAdv  []string
+}
+
+// EthernetInfo represents detailed information about an ethernet interface from /interface/ethernet and monitor.
+type EthernetInfo struct {
+	ID                      string
+	Name                    string
+	DefaultName             *string
+	MTU                     *int64
+	L2MTU                   *int64
+	MACAddress              *string
+	OrigMACAddress          *string
+	ARP                     *string
+	ARPTimeout              *string
+	LoopProtect             *string
+	LoopProtectStatus       *string
+	LoopProtectSendInterval *string
+	LoopProtectDisableTime  *string
+	AutoNegotiation         *bool
+	Advertise               *string
+	TxFlowControl           *string
+	RxFlowControl           *string
+	Bandwidth               *string
+	Switch                  *string
+	PoEOut                  *string
+	PoEPriority             *int64
+	PowerCyclePingEnabled   *bool
+	PowerCycleInterval      *string
+	Disabled                *bool
+	Running                 *bool
+	Comment                 *string
+	Monitor                 *EthernetMonitor
+}
+
 type EthernetConfig struct {
 	Name     string
 	Disabled bool
@@ -244,9 +288,19 @@ func (c *Client) ListInterfaces() ([]InterfaceInfo, error) {
 	return c.ListInterfacesByType(nil, false)
 }
 
-// GetEthernetInterfaces retrieves all ethernet interfaces.
+// GetEthernetInterfaces retrieves all ethernet interfaces from RouterOS /interface/ethernet.
 func (c *Client) GetEthernetInterfaces() ([]InterfaceInfo, error) {
-	return c.ListInterfacesByType([]string{"ether"}, false)
+	results, err := c.GetAll("/interface/ethernet")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list ethernet interfaces: %w", err)
+	}
+
+	interfaces := make([]InterfaceInfo, 0, len(results))
+	for _, result := range results {
+		interfaces = append(interfaces, parseInterfaceInfo(result))
+	}
+
+	return interfaces, nil
 }
 
 // ListInterfacesByType lists interfaces and optionally filters by RouterOS interface types.
@@ -900,4 +954,130 @@ func (c *Client) GetWiFiRadios() ([]WiFiRadio, error) {
 	}
 
 	return radios, nil
+}
+
+// GetEthernetInterfaceDetailed retrieves detailed information for a single ethernet interface from /interface/ethernet and monitor.
+// Supports lookup by interface name or by ID (IDs start with "*").
+func (c *Client) GetEthernetInterfaceDetailed(nameOrID string) (*EthernetInfo, error) {
+	if nameOrID == "" {
+		return nil, fmt.Errorf("interface name or ID is required")
+	}
+
+	var result map[string]string
+	var err error
+
+	if strings.HasPrefix(nameOrID, "*") {
+		result, err = c.GetFirst("/interface/ethernet", "?=.id="+nameOrID)
+	} else {
+		result, err = c.GetFirst("/interface/ethernet", "?=name="+nameOrID)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get ethernet interface %s: %w", nameOrID, err)
+	}
+
+	ethInfo := parseEthernetInfo(result)
+	monitor, err := c.GetEthernetMonitor(ethInfo.Name)
+	if err == nil && monitor != nil {
+		ethInfo.Monitor = monitor
+	}
+
+	return &ethInfo, nil
+}
+
+// GetEthernetInterfacesDetailed retrieves detailed information for all ethernet interfaces from /interface/ethernet and monitor.
+func (c *Client) GetEthernetInterfacesDetailed() ([]EthernetInfo, error) {
+	results, err := c.GetAll("/interface/ethernet")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list ethernet interfaces: %w", err)
+	}
+
+	interfaces := make([]EthernetInfo, 0, len(results))
+	for _, result := range results {
+		ethInfo := parseEthernetInfo(result)
+		monitor, err := c.GetEthernetMonitor(ethInfo.Name)
+		if err == nil && monitor != nil {
+			ethInfo.Monitor = monitor
+		}
+		interfaces = append(interfaces, ethInfo)
+	}
+
+	return interfaces, nil
+}
+
+func (c *Client) GetEthernetMonitor(interfaceName string) (*EthernetMonitor, error) {
+	if interfaceName == "" {
+		return nil, fmt.Errorf("interface name is required")
+	}
+
+	reply, err := c.Execute("/interface/ethernet/monitor", "=numbers="+interfaceName, "=once=yes")
+	if err != nil {
+		return nil, fmt.Errorf("failed to monitor ethernet interface %s: %w", interfaceName, err)
+	}
+
+	if len(reply.Re) == 0 {
+		return nil, fmt.Errorf("no monitor data returned for interface %s", interfaceName)
+	}
+
+	return parseEthernetMonitor(reply.Re[0].Map), nil
+}
+
+func parseEthernetMonitor(result map[string]string) *EthernetMonitor {
+	return &EthernetMonitor{
+		Status:          getStringPtr(result, "status"),
+		AutoNegotiation: getStringPtr(result, "auto-negotiation"),
+		Rate:            getStringPtr(result, "rate"),
+		FullDuplex:      getBoolPtr(result, "full-duplex"),
+		TxFlowControl:   getBoolPtr(result, "tx-flow-control"),
+		RxFlowControl:   getBoolPtr(result, "rx-flow-control"),
+		Supported:       parseSpeedList(result["supported"]),
+		Advertising:     parseSpeedList(result["advertising"]),
+		LinkPartnerAdv:  parseSpeedList(result["link-partner-advertising"]),
+	}
+}
+
+func parseSpeedList(speedStr string) []string {
+	if speedStr == "" {
+		return nil
+	}
+	speeds := strings.Split(speedStr, ",")
+	result := make([]string, 0, len(speeds))
+	for _, s := range speeds {
+		trimmed := strings.TrimSpace(s)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	return result
+}
+
+func parseEthernetInfo(result map[string]string) EthernetInfo {
+	return EthernetInfo{
+		ID:                      result[".id"],
+		Name:                    result["name"],
+		DefaultName:             getStringPtr(result, "default-name"),
+		MTU:                     getInt64Ptr(result, "mtu"),
+		L2MTU:                   getInt64Ptr(result, "l2mtu"),
+		MACAddress:              getStringPtr(result, "mac-address"),
+		OrigMACAddress:          getStringPtr(result, "orig-mac-address"),
+		ARP:                     getStringPtr(result, "arp"),
+		ARPTimeout:              getStringPtr(result, "arp-timeout"),
+		LoopProtect:             getStringPtr(result, "loop-protect"),
+		LoopProtectStatus:       getStringPtr(result, "loop-protect-status"),
+		LoopProtectSendInterval: getStringPtr(result, "loop-protect-send-interval"),
+		LoopProtectDisableTime:  getStringPtr(result, "loop-protect-disable-time"),
+		AutoNegotiation:         getBoolPtr(result, "auto-negotiation"),
+		Advertise:               getStringPtr(result, "advertise"),
+		TxFlowControl:           getStringPtr(result, "tx-flow-control"),
+		RxFlowControl:           getStringPtr(result, "rx-flow-control"),
+		Bandwidth:               getStringPtr(result, "bandwidth"),
+		Switch:                  getStringPtr(result, "switch"),
+		PoEOut:                  getStringPtr(result, "poe-out"),
+		PoEPriority:             getInt64Ptr(result, "poe-priority"),
+		PowerCyclePingEnabled:   getBoolPtr(result, "power-cycle-ping-enabled"),
+		PowerCycleInterval:      getStringPtr(result, "power-cycle-interval"),
+		Disabled:                getBoolPtr(result, "disabled"),
+		Running:                 getBoolPtr(result, "running"),
+		Comment:                 getStringPtr(result, "comment"),
+	}
 }
