@@ -567,7 +567,7 @@ export function OverviewTab() {
               <CardTitle>Hardware Details</CardTitle>
             </CardHeader>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Platform</span>
+              <span className={styles.infoKey}>Identity</span>
               <span className={styles.infoVal}>{overview.identity || '—'}</span>
             </div>
             <div className={styles.infoRow}>
@@ -584,7 +584,7 @@ export function OverviewTab() {
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoKey}>Serial</span>
-              <span className={styles.infoVal}>{overview.serial}</span>
+              <span className={styles.infoVal}>{overview.serial || '—'}</span>
             </div>
           </Card>
         </SectionGrid>
