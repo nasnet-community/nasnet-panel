@@ -16,6 +16,7 @@ export interface SystemInfoResponse {
   buildTime: string;
   license: string;
   updateChannel: string;
+  systemId: string;
 }
 
 export interface ResourceInfoResponse {
@@ -305,7 +306,7 @@ export async function fetchSystemOverview(
     buildTime: info.buildTime || '',
     updateChannel: info.updateChannel || '',
     license: info.license || '',
-    serial: `NN-${routerId.slice(-4).toUpperCase()}`,
+    serial: info.systemId || '',
     temperatureC: 0,
     interfaceCount: 0,
     ...dynamic,
