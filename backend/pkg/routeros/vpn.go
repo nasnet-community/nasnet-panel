@@ -87,6 +87,20 @@ type OvpnServerInfo struct {
 	Comment           string
 }
 
+// CreatePppSecretParams represents parameters for creating a PPP secret.
+type CreatePppSecretParams struct {
+	Name          string
+	Password      string
+	Service       string
+	Profile       string
+	Disabled      *bool
+	LimitBytesIn  *int64
+	LimitBytesOut *int64
+	Comment       *string
+	CallerID      *string
+	Routes        *string
+}
+
 // PptpServerInfo represents the PPTP server configuration (single instance).
 type PptpServerInfo struct {
 	ID               string
@@ -842,6 +856,46 @@ func (c *Client) RemovePppSecret(username, service string) error {
 		return fmt.Errorf("failed to remove PPP secret %s: %w", username, err)
 	}
 	return nil
+}
+
+// CreatePppSecret creates a new PPP secret with the given parameters.
+func (c *Client) CreatePppSecret(params CreatePppSecretParams) (map[string]string, error) {
+	args := make([]string, 0, 10)
+	args = append(args, "=name="+params.Name)
+	args = append(args, "=password="+params.Password)
+	args = append(args, "=service="+params.Service)
+	args = append(args, "=profile="+params.Profile)
+
+	if params.Disabled != nil {
+		args = append(args, "=disabled="+fmt.Sprintf("%v", *params.Disabled))
+	}
+	if params.LimitBytesIn != nil {
+		args = append(args, "=limit-bytes-in="+fmt.Sprintf("%d", *params.LimitBytesIn))
+	}
+	if params.LimitBytesOut != nil {
+		args = append(args, "=limit-bytes-out="+fmt.Sprintf("%d", *params.LimitBytesOut))
+	}
+	if params.Comment != nil && *params.Comment != "" {
+		args = append(args, "=comment="+*params.Comment)
+	}
+	if params.CallerID != nil && *params.CallerID != "" {
+		args = append(args, "=caller-id="+*params.CallerID)
+	}
+	if params.Routes != nil && *params.Routes != "" {
+		args = append(args, "=routes="+*params.Routes)
+	}
+
+	id, err := c.Add("/ppp/secret", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create PPP secret: %w", err)
+	}
+
+	result, err := c.GetByID("/ppp/secret", id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve created PPP secret: %w", err)
+	}
+
+	return result, nil
 }
 
 // RemovePppProfile deletes a PPP profile by name.

@@ -556,3 +556,34 @@ type ExportOvpnClientRequest struct {
 	ServerName    string `query:"serverName" binding:"required" example:"OpenVPN-Server-1779215157"`
 	PublicAddress string `query:"publicAddress" binding:"required" example:"192.168.1.100"`
 }
+
+// PPPSecret represents a PPP secret (user) for VPN authentication.
+type PPPSecret struct {
+	ID            string `json:".id"`
+	Name          string `json:"name"`
+	Service       string `json:"service"`
+	Profile       string `json:"profile"`
+	Password      string `json:"password"`
+	Disabled      bool   `json:"disabled"`
+	LimitBytesIn  int64  `json:"limit-bytes-in"`
+	LimitBytesOut int64  `json:"limit-bytes-out"`
+	Comment       string `json:"comment,omitempty"`
+	CallerID      string `json:"caller-id,omitempty"`
+	Routes        string `json:"routes,omitempty"`
+	DialerName    string `json:"dialer-name,omitempty"`
+	AddressPool   string `json:"address-pool,omitempty"`
+	PoolName      string `json:"pool-name,omitempty"`
+	PoolNumber    string `json:"pool-number,omitempty"`
+}
+
+// AddOvpnServerUserRequest represents a request to add a user to an OVPN server.
+type AddOvpnServerUserRequest struct {
+	Name          string  `json:"name" binding:"required" example:"vpnuser"`
+	Password      string  `json:"password" binding:"required" example:"securepassword123"`
+	Disabled      *bool   `json:"disabled,omitempty" example:"false"`
+	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty" example:"1000000"`
+	LimitBytesOut *int64  `json:"limitBytesOut,omitempty" example:"1000000"`
+	Comment       *string `json:"comment,omitempty" example:"Office VPN user"`
+	CallerID      *string `json:"callerId,omitempty" example:"caller123"`
+	Routes        *string `json:"routes,omitempty" example:"192.168.1.0/24"`
+}

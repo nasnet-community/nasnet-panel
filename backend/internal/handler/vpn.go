@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -2285,4 +2286,214 @@ func HandleExportOvpnClient(c echo.Context) error {
 		"application/x-openvpn-profile",
 		[]byte(config),
 	)
+}
+
+// HandleGetOvpnServerUsers returns users associated with an OVPN server's profile.
+// @Summary Get OVPN server users
+// @Description Returns a list of users (PPP secrets) associated with the profile used by an OVPN server
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param ovpnNameOrID path string true "OVPN server name or ID"
+// @Produce json
+// @Success 200 {object} Response{data=[]PPPSecret}
+// @Failure 401 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/ovpn/server/users/{ovpnNameOrID} [get].
+func HandleGetOvpnServerUsers(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	ovpnNameOrID := c.Param("ovpnNameOrID")
+	if ovpnNameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "OVPN server name or ID is required", nil)
+	}
+
+	// Get OVPN server details
+	server, err := client.GetOvpnServer(ovpnNameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusNotFound, "OVPN server not found", err)
+	}
+
+	// Get users from the server's profile
+	if server.DefaultProfile == "" {
+		return SuccessResponse(c, http.StatusOK, "No profile assigned to this OVPN server", []map[string]interface{}{})
+	}
+
+	users, err := client.GetPppSecretsByProfile(server.DefaultProfile)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get users for profile", err)
+	}
+
+	// Convert map responses to PPPSecret structs with proper type conversions
+	response := make([]PPPSecret, len(users))
+	for i, user := range users {
+		secret := PPPSecret{
+			ID:          user[".id"],
+			Name:        user["name"],
+			Service:     user["service"],
+			Profile:     user["profile"],
+			Password:    user["password"],
+			Comment:     user["comment"],
+			CallerID:    user["caller-id"],
+			Routes:      user["routes"],
+			DialerName:  user["dialer-name"],
+			AddressPool: user["address-pool"],
+			PoolName:    user["pool-name"],
+			PoolNumber:  user["pool-number"],
+		}
+
+		// Convert disabled field to boolean
+		if disabledStr, ok := user["disabled"]; ok && disabledStr != "" {
+			secret.Disabled = disabledStr == "true"
+		} else {
+			secret.Disabled = false
+		}
+
+		// Convert limit-bytes-in to int64
+		if limitBytesIn, ok := user["limit-bytes-in"]; ok && limitBytesIn != "" {
+			if val, err := strconv.ParseInt(limitBytesIn, 10, 64); err == nil {
+				secret.LimitBytesIn = val
+			} else {
+				secret.LimitBytesIn = 0
+			}
+		} else {
+			secret.LimitBytesIn = 0
+		}
+
+		// Convert limit-bytes-out to int64
+		if limitBytesOut, ok := user["limit-bytes-out"]; ok && limitBytesOut != "" {
+			if val, err := strconv.ParseInt(limitBytesOut, 10, 64); err == nil {
+				secret.LimitBytesOut = val
+			} else {
+				secret.LimitBytesOut = 0
+			}
+		} else {
+			secret.LimitBytesOut = 0
+		}
+
+		response[i] = secret
+	}
+
+	return SuccessResponse(c, http.StatusOK, "OVPN server users retrieved successfully", response)
+}
+
+// HandleAddOvpnServerUser adds a new user to an OVPN server
+// @Summary Add User to OVPN Server
+// @Description Create a new PPP secret for an OVPN server with the server's configured profile
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param ovpnNameOrID path string true "OVPN server name or ID"
+// @Param request body AddOvpnServerUserRequest true "User details"
+// @Produce json
+// @Success 201 {object} Response{data=PPPSecret}
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/ovpn/server/users/{ovpnNameOrID} [post].
+func HandleAddOvpnServerUser(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	ovpnNameOrID := c.Param("ovpnNameOrID")
+	if ovpnNameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "OVPN server name or ID is required", nil)
+	}
+
+	var req AddOvpnServerUserRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	// Validate required fields
+	if req.Name == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Username is required", nil)
+	}
+	if req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Password is required", nil)
+	}
+
+	// Get OVPN server details to retrieve its profile
+	server, err := client.GetOvpnServer(ovpnNameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusNotFound, "OVPN server not found", err)
+	}
+
+	if server.DefaultProfile == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "OVPN server does not have a profile configured", nil)
+	}
+
+	// Create the PPP secret
+	params := routeros.CreatePppSecretParams{
+		Name:          req.Name,
+		Password:      req.Password,
+		Service:       "ovpn",
+		Profile:       server.DefaultProfile,
+		Disabled:      req.Disabled,
+		LimitBytesIn:  req.LimitBytesIn,
+		LimitBytesOut: req.LimitBytesOut,
+		Comment:       req.Comment,
+		CallerID:      req.CallerID,
+		Routes:        req.Routes,
+	}
+
+	createdUser, err := client.CreatePppSecret(params)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create user", err)
+	}
+
+	// Convert the response to PPPSecret struct
+	secret := PPPSecret{
+		ID:          createdUser[".id"],
+		Name:        createdUser["name"],
+		Service:     createdUser["service"],
+		Profile:     createdUser["profile"],
+		Password:    createdUser["password"],
+		Comment:     createdUser["comment"],
+		CallerID:    createdUser["caller-id"],
+		Routes:      createdUser["routes"],
+		DialerName:  createdUser["dialer-name"],
+		AddressPool: createdUser["address-pool"],
+		PoolName:    createdUser["pool-name"],
+		PoolNumber:  createdUser["pool-number"],
+	}
+
+	// Convert disabled field to boolean
+	if disabledStr, ok := createdUser["disabled"]; ok && disabledStr != "" {
+		secret.Disabled = disabledStr == "true"
+	} else {
+		secret.Disabled = false
+	}
+
+	// Convert limit-bytes-in to int64
+	if limitBytesIn, ok := createdUser["limit-bytes-in"]; ok && limitBytesIn != "" {
+		if val, err := strconv.ParseInt(limitBytesIn, 10, 64); err == nil {
+			secret.LimitBytesIn = val
+		}
+	}
+
+	// Convert limit-bytes-out to int64
+	if limitBytesOut, ok := createdUser["limit-bytes-out"]; ok && limitBytesOut != "" {
+		if val, err := strconv.ParseInt(limitBytesOut, 10, 64); err == nil {
+			secret.LimitBytesOut = val
+		}
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "User added to OVPN server successfully", secret)
 }
