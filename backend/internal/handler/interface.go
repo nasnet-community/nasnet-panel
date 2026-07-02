@@ -9,6 +9,71 @@ import (
 	"nasnet-panel/pkg/routeros"
 )
 
+// HandleGetEthernetInterface retrieves a specific ethernet interface with detailed information including monitor data.
+// @Summary Get ethernet interface details
+// @Description Get detailed information for a specific ethernet interface including monitor data (link status, speed, etc.)
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Interface name or ID"
+// @Produce json
+// @Success 200 {object} Response{data=ethernetResponse}
+// @Failure 401 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/interface/ethernet/{nameOrID} [get].
+func HandleGetEthernetInterface(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	iface, err := client.GetEthernetInterfaceDetailed(nameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusNotFound, "Ethernet interface not found", err)
+	}
+
+	response := toEthernetResponse(iface)
+	return SuccessResponse(c, http.StatusOK, "Ethernet interface retrieved successfully", response)
+}
+
+// HandleGetEthernetInterfaces retrieves all ethernet interfaces with detailed information including monitor data.
+// @Summary Get all ethernet interfaces
+// @Description Get detailed information for all ethernet interfaces including monitor data (link status, speed, etc.)
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=[]ethernetResponse}
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/interface/ethernets [get].
+func HandleGetEthernetInterfaces(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	interfaces, err := client.GetEthernetInterfacesDetailed()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get ethernet interfaces", err)
+	}
+
+	response := toEthernetResponses(interfaces)
+	return SuccessResponse(c, http.StatusOK, "Ethernet interfaces retrieved successfully", response)
+}
+
 // HandleListInterfaces lists RouterOS interfaces, optionally filtered by interface type.
 // @Summary List interfaces
 // @Description Get all RouterOS interfaces, optionally filtered by interface type (?type=ether,bridge,sfp)
