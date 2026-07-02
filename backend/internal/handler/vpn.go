@@ -2497,3 +2497,199 @@ func HandleAddOvpnServerUser(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusCreated, "User added to OVPN server successfully", secret)
 }
+
+// HandleGetL2tpServerUsers lists all users configured for the L2TP server
+// @Summary List L2TP Server Users
+// @Description Get a list of all PPP secrets configured for the L2TP server's profile
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=[]PPPSecret}
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp/server/users [get].
+func HandleGetL2tpServerUsers(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	// Get L2TP server details
+	server, err := client.GetL2tpServer()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get L2TP server", err)
+	}
+
+	// Get users from the server's profile
+	if server.DefaultProfile == "" {
+		return SuccessResponse(c, http.StatusOK, "No profile assigned to this L2TP server", []map[string]interface{}{})
+	}
+
+	users, err := client.GetPppSecretsByProfile(server.DefaultProfile)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get users for profile", err)
+	}
+
+	// Convert map responses to PPPSecret structs with proper type conversions
+	response := make([]PPPSecret, len(users))
+	for i, user := range users {
+		secret := PPPSecret{
+			ID:          user[".id"],
+			Name:        user["name"],
+			Service:     user["service"],
+			Profile:     user["profile"],
+			Password:    user["password"],
+			Comment:     user["comment"],
+			CallerID:    user["caller-id"],
+			Routes:      user["routes"],
+			DialerName:  user["dialer-name"],
+			AddressPool: user["address-pool"],
+			PoolName:    user["pool-name"],
+			PoolNumber:  user["pool-number"],
+		}
+
+		// Convert disabled field to boolean
+		if disabledStr, ok := user["disabled"]; ok && disabledStr != "" {
+			secret.Disabled = disabledStr == "true"
+		} else {
+			secret.Disabled = false
+		}
+
+		// Convert limit-bytes-in to int64
+		if limitBytesIn, ok := user["limit-bytes-in"]; ok && limitBytesIn != "" {
+			if val, err := strconv.ParseInt(limitBytesIn, 10, 64); err == nil {
+				secret.LimitBytesIn = val
+			} else {
+				secret.LimitBytesIn = 0
+			}
+		} else {
+			secret.LimitBytesIn = 0
+		}
+
+		// Convert limit-bytes-out to int64
+		if limitBytesOut, ok := user["limit-bytes-out"]; ok && limitBytesOut != "" {
+			if val, err := strconv.ParseInt(limitBytesOut, 10, 64); err == nil {
+				secret.LimitBytesOut = val
+			} else {
+				secret.LimitBytesOut = 0
+			}
+		} else {
+			secret.LimitBytesOut = 0
+		}
+
+		response[i] = secret
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP server users retrieved successfully", response)
+}
+
+// HandleAddL2tpServerUser adds a new user to the L2TP server
+// @Summary Add User to L2TP Server
+// @Description Create a new PPP secret for the L2TP server with the server's configured profile
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body AddL2tpServerUserRequest true "User details"
+// @Produce json
+// @Success 201 {object} Response{data=PPPSecret}
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp/server/user [post].
+func HandleAddL2tpServerUser(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req AddL2tpServerUserRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	// Validate required fields
+	if req.Name == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Username is required", nil)
+	}
+	if req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Password is required", nil)
+	}
+
+	// Get L2TP server details to retrieve its profile
+	server, err := client.GetL2tpServer()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get L2TP server", err)
+	}
+
+	if server.DefaultProfile == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "L2TP server does not have a profile configured", nil)
+	}
+
+	// Create the PPP secret
+	params := routeros.CreatePppSecretParams{
+		Name:          req.Name,
+		Password:      req.Password,
+		Service:       "l2tp",
+		Profile:       server.DefaultProfile,
+		Disabled:      req.Disabled,
+		LimitBytesIn:  req.LimitBytesIn,
+		LimitBytesOut: req.LimitBytesOut,
+		Comment:       req.Comment,
+		CallerID:      req.CallerID,
+		Routes:        req.Routes,
+	}
+
+	createdUser, err := client.CreatePppSecret(params)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create user", err)
+	}
+
+	// Convert the response to PPPSecret struct
+	secret := PPPSecret{
+		ID:          createdUser[".id"],
+		Name:        createdUser["name"],
+		Service:     createdUser["service"],
+		Profile:     createdUser["profile"],
+		Password:    createdUser["password"],
+		Comment:     createdUser["comment"],
+		CallerID:    createdUser["caller-id"],
+		Routes:      createdUser["routes"],
+		DialerName:  createdUser["dialer-name"],
+		AddressPool: createdUser["address-pool"],
+		PoolName:    createdUser["pool-name"],
+		PoolNumber:  createdUser["pool-number"],
+	}
+
+	// Convert disabled field to boolean
+	if disabledStr, ok := createdUser["disabled"]; ok && disabledStr != "" {
+		secret.Disabled = disabledStr == "true"
+	} else {
+		secret.Disabled = false
+	}
+
+	// Convert limit-bytes-in to int64
+	if limitBytesIn, ok := createdUser["limit-bytes-in"]; ok && limitBytesIn != "" {
+		if val, err := strconv.ParseInt(limitBytesIn, 10, 64); err == nil {
+			secret.LimitBytesIn = val
+		}
+	}
+
+	// Convert limit-bytes-out to int64
+	if limitBytesOut, ok := createdUser["limit-bytes-out"]; ok && limitBytesOut != "" {
+		if val, err := strconv.ParseInt(limitBytesOut, 10, 64); err == nil {
+			secret.LimitBytesOut = val
+		}
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "User added to L2TP server successfully", secret)
+}

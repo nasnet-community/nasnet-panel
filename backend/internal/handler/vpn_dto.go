@@ -587,3 +587,15 @@ type AddOvpnServerUserRequest struct {
 	CallerID      *string `json:"callerId,omitempty" example:"caller123"`
 	Routes        *string `json:"routes,omitempty" example:"192.168.1.0/24"`
 }
+
+// AddL2tpServerUserRequest represents a request to add a user to the L2TP server.
+type AddL2tpServerUserRequest struct {
+	Name          string  `json:"name" binding:"required" example:"vpnuser"`
+	Password      string  `json:"password" binding:"required" example:"securepassword123"`
+	Disabled      *bool   `json:"disabled,omitempty" example:"false"`
+	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty" example:"1000000"`
+	LimitBytesOut *int64  `json:"limitBytesOut,omitempty" example:"1000000"`
+	Comment       *string `json:"comment,omitempty" example:"Office VPN user"`
+	CallerID      *string `json:"callerId,omitempty" example:"caller123"`
+	Routes        *string `json:"routes,omitempty" example:"192.168.1.0/24"`
+}
