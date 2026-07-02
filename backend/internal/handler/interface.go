@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"nasnet-panel/internal/graph"
 	"nasnet-panel/pkg/routeros"
 )
 
@@ -210,5 +211,44 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		"name":    name,
 		"type":    req.Type,
 		"comment": comment,
+	})
+}
+
+// HandleGetInterfaceGraph returns traffic statistics for a specific interface.
+// @Summary Get interface traffic graph
+// @Description Returns historical traffic data (send/receive rates) for a specific interface
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Interface name or ID"
+// @Produce json
+// @Success 200 {object} Response{data=map[string]interface{}}
+// @Failure 401 {object} Response
+// @Failure 404 {object} Response
+// @Router /api/interface/graph/{nameOrID} [get].
+func HandleGetInterfaceGraph(c echo.Context) error {
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	monitor := graph.GetMonitor(creds.RouterOSHost)
+	if monitor == nil {
+		return ErrorResponse(c, http.StatusNotFound, "Router is not being monitored", nil)
+	}
+
+	stats := monitor.GetInterfaceStats(nameOrID)
+	if stats == nil {
+		return ErrorResponse(c, http.StatusNotFound, "Interface not found or has no traffic data", nil)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Interface traffic statistics retrieved successfully", map[string]interface{}{
+		"interfaceName": nameOrID,
+		"trafficData":   stats,
 	})
 }

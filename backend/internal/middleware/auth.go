@@ -1,8 +1,12 @@
 package middleware
 
 import (
+	"log"
+	"time"
+
 	"nasnet-panel/internal/auth"
 	ctxpkg "nasnet-panel/internal/context"
+	"nasnet-panel/internal/graph"
 
 	"github.com/labstack/echo/v4"
 )
@@ -33,6 +37,21 @@ func RouterOSAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		credentials.RouterOSHost = routerOSHost
 
 		ctxpkg.SetCredentials(c, credentials)
+
+		// Start monitoring traffic for this router in the background
+		go func() {
+			routerCreds := graph.RouterCredentials{
+				IP:       routerOSHost,
+				Username: credentials.Username,
+				Password: credentials.Password,
+				Port:     8728,
+			}
+
+			err := graph.StartMonitoring(routerCreds, 10*time.Second, 30)
+			if err != nil {
+				log.Printf("Failed to start monitoring for router %s: %v", routerOSHost, err)
+			}
+		}()
 
 		return next(c)
 	}
