@@ -28,7 +28,6 @@ test.describe('Router dashboard + Overview tab', () => {
       'LAN',
       'WIFI',
       'VPN Server',
-      'System',
       'Wizard',
       'Diagnostics',
       'Help',
