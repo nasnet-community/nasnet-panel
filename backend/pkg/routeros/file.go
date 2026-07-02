@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -38,8 +39,8 @@ func (c *Client) GetFile(name string) (*FileInfo, error) {
 }
 
 // GetFileContents retrieves the contents of a file by name or ID from RouterOS.
-// The chunkSize parameter should be the size of the file, or 0 to use default chunk size.
-// Returns the file contents as a string.
+// The chunkSize parameter should be the chunk size in bytes, or 0 to use default chunk size of 10240.
+// Reads the entire file in chunks and returns the complete file contents as a string.
 // Includes retry logic to handle cases where file write is still in progress.
 func (c *Client) GetFileContents(nameOrID string, chunkSize int64) (string, error) {
 	if nameOrID == "" {
@@ -50,41 +51,53 @@ func (c *Client) GetFileContents(nameOrID string, chunkSize int64) (string, erro
 		chunkSize = 10240
 	}
 
+	fileInfo, err := c.GetFile(nameOrID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get file info for %s: %w", nameOrID, err)
+	}
+
 	const maxRetries = 5
 	const initialDelay = 50 * time.Millisecond
 
-	var lastErr error
-	for attempt := 0; attempt < maxRetries; attempt++ {
-		reply, err := c.Execute("/file/read", "=file="+nameOrID, "=offset=0", "=chunk-size="+fmt.Sprintf("%d", chunkSize))
-		if err != nil {
-			lastErr = err
-			if attempt < maxRetries-1 {
-				time.Sleep(initialDelay * time.Duration(1<<uint(attempt)))
-			}
-			continue
+	var b strings.Builder
+	for off := int64(0); off < fileInfo.Size; off += chunkSize {
+		chunk := chunkSize
+		if off+chunk > fileInfo.Size {
+			chunk = fileInfo.Size - off
 		}
 
-		if reply == nil || len(reply.Re) == 0 {
-			lastErr = fmt.Errorf("unexpected response format for file %s", nameOrID)
-			if attempt < maxRetries-1 {
-				time.Sleep(initialDelay * time.Duration(1<<uint(attempt)))
+		var lastErr error
+		var success bool
+
+		for attempt := 0; attempt < maxRetries; attempt++ {
+			rr, err := c.Run([]string{"/file/read",
+				"=file=" + nameOrID,
+				"=offset=" + fmt.Sprintf("%d", off),
+				"=chunk-size=" + fmt.Sprintf("%d", chunk),
+			})
+			if err != nil {
+				lastErr = err
+				if attempt < maxRetries-1 {
+					time.Sleep(initialDelay * time.Duration(1<<uint(attempt)))
+				}
+				continue
 			}
-			continue
+
+			if len(rr.Re) == 0 {
+				break
+			}
+
+			b.WriteString(rr.Re[0].Map["data"])
+			success = true
+			break
 		}
 
-		contents, ok := reply.Re[0].Map["data"]
-		if !ok || contents == "" {
-			lastErr = fmt.Errorf("no contents returned for file %s", nameOrID)
-			if attempt < maxRetries-1 {
-				time.Sleep(initialDelay * time.Duration(1<<uint(attempt)))
-			}
-			continue
+		if !success && lastErr != nil {
+			return "", fmt.Errorf("failed to read chunk at offset %d for file %s: %w", off, nameOrID, lastErr)
 		}
-
-		return contents, nil
 	}
 
-	return "", fmt.Errorf("failed to read file %s after %d attempts: %w", nameOrID, maxRetries, lastErr)
+	return b.String(), nil
 }
 
 // ListFiles retrieves all files from RouterOS /file path.

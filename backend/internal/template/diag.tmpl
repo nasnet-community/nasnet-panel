@@ -1,0 +1,297 @@
+# NasNet Panel Diagnostic Collector - RouterOS 7.23+
+# Compatible with the standard NasNet Panel.
+#
+# Creates: nasnet-diagnostic-report.txt
+# Run:
+#   /import NasNet-Panel-Diagnostic.rsc
+#
+# Required permissions for the user running this file: read, write, test.
+# This collector does not run /export, does not create a backup, and does not
+# use show-sensitive. Passwords, private keys and certificate private material
+# are not included in the report.
+
+:local reportFile "nasnet-diagnostic-report.txt"
+
+:do { /file remove [find where name=$reportFile] } on-error={}
+
+:log info "NasNet diagnostics started"
+
+:local jobId [:execute {
+
+    :local reportFile "nasnet-diagnostic-report.txt"
+    :local internetTestIP "1.1.1.1"
+    :local dnsTestDomain "one.one.one.one"
+    :local iranProbeIP1 "217.218.127.127"
+    :local iranProbeIP2 "217.218.155.155"
+
+    :global DiagProgress 0
+
+    :put "============================================================"
+    :put "NasNet Panel Diagnostic Report"
+    :put "============================================================"
+    :put ("Report date/time: " . [/system clock get date] . " " . [/system clock get time])
+    :put ("Router identity: " . [/system identity get name])
+    :put ""
+
+    :put "---------------- SUMMARY ----------------"
+    :put "Standard NasNet routing tables expected:"
+    :put "  Foreign / Starlink: to-Foreign"
+    :put "  Domestic: to-Domestic"
+    :put "  VPN: to-VPN"
+    :put "  VPN L2TP Client: to-VPN-L2TP-Client"
+    :put ""
+
+    :set DiagProgress 5
+
+    :put "---------------- SYSTEM INFORMATION ----------------"
+    :do { /system resource print } on-error={ :put ("ERROR: system resource: " . $e) }
+    :do { /system package print detail } on-error={ :put ("ERROR: package list: " . $e) }
+    :do { /system routerboard print } on-error={ :put ("INFO: routerboard data unavailable: " . $e) }
+    :do { /system device-mode print } on-error={ :put ("INFO: device-mode unavailable: " . $e) }
+    :do { /system clock print } on-error={ :put ("ERROR: system clock: " . $e) }
+    :put ""
+
+    :set DiagProgress 10
+
+    :put "---------------- NASNET PANEL INSTALLATION CHECK ----------------"
+    :put "Script environment entry: successfulCerts"
+    :do { /system script environment print detail where name="successfulCerts" } on-error={ :put ("INFO: cannot read script environment: " . $e) }
+
+    :local successfulCertsValue "NOT FOUND"
+    :do {
+        :global successfulCerts
+        :if ([:typeof $successfulCerts] != "nothing") do={
+            :set successfulCertsValue $successfulCerts
+        }
+    } on-error={
+        :set successfulCertsValue "NOT FOUND"
+    }
+
+    :if ($successfulCertsValue = 1) do={
+        :put "NasNet Panel installation status: SUCCESS"
+        :put "Reason: successfulCerts is exactly 1."
+    } else={
+        :put "NasNet Panel installation status: NOT CONFIRMED"
+        :put ("Reason: successfulCerts value is " . $successfulCertsValue . "; expected value is 1.")
+    }
+
+    :put "Installed RouterOS scripts (names and runtime information only):"
+    :do { /system script print detail proplist=name,owner,last-started,run-count,policy } on-error={ :put ("INFO: script list unavailable: " . $e) }
+    :put "Active script jobs:"
+    :do { /system script job print detail } on-error={ :put ("INFO: script jobs unavailable: " . $e) }
+    :put ""
+
+    :set DiagProgress 15
+
+    :put "---------------- INTERFACES ----------------"
+    :put "Full interface list:"
+    :do { /interface print detail proplist=comment,name,type,last-link-up-time,link-downs,disabled,inactive,running } on-error={ :put ("ERROR: interface list: " . $e) }
+
+    :put "Ethernet link status and negotiated speed:"
+    :do {
+        :foreach eth in=[/interface ethernet find] do={
+            :put ("--- " . [/interface ethernet get $eth name] . " ---")
+            /interface ethernet monitor $eth once proplist=name,rate,status,full-duplex,auto-negotiation
+        }
+    } on-error={ :put ("INFO: ethernet monitor unavailable: " . $e) }
+
+    :put "IP addresses:"
+    :do { /ip address print } on-error={ :put ("ERROR: IP address list: " . $e) }
+
+    :put "Bridge configuration:"
+    :do { /interface bridge print brief proplist=name,disabled,running } on-error={ :put ("INFO: bridge list unavailable: " . $e) }
+    :do { /interface bridge port print brief proplist=interface,bridge,inactive } on-error={ :put ("INFO: bridge ports unavailable: " . $e) }
+
+    :put "DHCP clients:"
+    :do { /ip dhcp-client print proplist=address,disabled,gateway,interface,dhcp-server,add-default-route } on-error={ :put ("INFO: DHCP client list unavailable: " . $e) }
+    :put ""
+
+    :set DiagProgress 25
+
+    :put "---------------- WIFI ----------------"
+    :put "WiFi interfaces:"
+    :do { /interface wifi print proplist=default-name,name,configuration.country,configuration.ssid,configuration.installation,security.authentication-types } on-error={ :put ("INFO: /interface wifi unavailable: " . $e) }
+    :put "Legacy wireless interfaces:"
+    :do { /interface wireless print proplist=default-name,name,configuration.country,configuration.ssid,configuration.installation,security.authentication-types } on-error={ :put ("INFO: /interface wireless unavailable: " . $e) }
+    :put ""
+
+    :set DiagProgress 35
+
+    :put "---------------- SERVICES AND ROUTING ----------------"
+    :put "Configured management service ports:"
+    :do { /ip service print proplist=name,port,proto,address } on-error={ :put ("ERROR: service port list: " . $e) }
+
+    :put "Routing tables:"
+    :do { /routing table print detail } on-error={ :put ("INFO: routing tables unavailable: " . $e) }
+    :put "Routing rules:"
+    :do { /routing rule print detail } on-error={ :put ("INFO: routing rules unavailable: " . $e) }
+    :put "Default routes:"
+    :do { /ip route print detail } on-error={ :put ("INFO: default route list unavailable: " . $e) }
+    :put ""
+
+    :set DiagProgress 45
+
+    :put "---------------- DNS ----------------"
+    :put "DNS configuration:"
+    :do { /ip dns print } on-error={ :put ("ERROR: DNS configuration: " . $e) }
+    :put "forwarders DNS entries:"
+    :do { /ip dns forwarders print } on-error={ :put ("INFO: static DNS entries unavailable: " . $e) }
+
+    :put ("DNS resolution test: " . $dnsTestDomain)
+    :do {
+        :local resolvedIP [:resolve $dnsTestDomain]
+        :put ($dnsTestDomain . " resolved to " . $resolvedIP)
+        :put ("Ping resolved IP " . $resolvedIP . ":")
+        /tool ping address=$resolvedIP count=5 interval=500ms
+    } on-error={ :put ("FAIL: DNS resolution or resolved-IP ping: " . $e) }
+
+    :put "Configured DNS server reachability:"
+    :do {
+        :local configuredDNSServers [/ip dns get servers]
+        :if ([:len $configuredDNSServers] = 0) do={
+            :put "INFO: no static DNS servers configured."
+        } else={
+            :foreach dnsServer in=$configuredDNSServers do={
+                :put ("Ping DNS server " . $dnsServer . ":")
+                :do { /tool ping address=$dnsServer count=3 interval=500ms } on-error={ :put ("FAIL: " . $dnsServer . " - " . $e) }
+            }
+        }
+    } on-error={ :put ("INFO: DNS reachability check unavailable: " . $e) }
+    :put ""
+
+    :set DiagProgress 60
+
+    :put "---------------- VPN ----------------"
+    :put "WireGuard interfaces:"
+    :do { /interface wireguard print detail } on-error={ :put ("INFO: WireGuard unavailable: " . $e) }
+    :put "WireGuard peer status:"
+    :do {
+        /interface wireguard peers print detail proplist=interface,disabled,endpoint-address,endpoint-port,current-endpoint-address,current-endpoint-port,last-handshake,rx,tx,allowed-address,comment
+    } on-error={ :put ("INFO: WireGuard peer list unavailable: " . $e) }
+
+    :put "PPP active sessions:"
+    :do { /ppp active print detail } on-error={ :put ("INFO: PPP active list unavailable: " . $e) }
+
+    :put "L2TP client status:"
+    :do { /interface l2tp-client print detail proplist=name,max-mtu,connect-to,user,use-ipsec,allow-fast-path,random-source-port } on-error={ :put ("INFO: L2TP client list unavailable: " . $e) }
+    :put "SSTP client status:"
+    :do { /interface sstp-client print detail } on-error={ :put ("INFO: SSTP client list unavailable: " . $e) }
+    :put "OpenVPN client status:"
+    :do { /interface ovpn-client print detail } on-error={ :put ("INFO: OpenVPN client list unavailable: " . $e) }
+    :put "PPTP client status:"
+    :do { /interface pptp-client print detail } on-error={ :put ("INFO: PPTP client list unavailable: " . $e) }
+    :put "IPsec active peers:"
+    :do { /ip ipsec active-peers print detail } on-error={ :put ("INFO: IPsec active peers unavailable: " . $e) }
+
+    :put "VPN server settings:"
+    :do { /interface l2tp-server server print } on-error={ :put ("INFO: L2TP server unavailable: " . $e) }
+    :do { /interface sstp-server server print } on-error={ :put ("INFO: SSTP server unavailable: " . $e) }
+    :do { /interface ovpn-server server print proplist=name,port,mode,protocol,default-profile,certificate } on-error={ :put ("INFO: OpenVPN server unavailable: " . $e) }
+    :do { /interface pptp-server server print } on-error={ :put ("INFO: PPTP server unavailable: " . $e) }
+    :put ""
+
+    :set DiagProgress 75
+
+    :put "---------------- CONNECTIVITY TESTS ----------------"
+    :put ("General internet ping to " . $internetTestIP . ":")
+    :do { /tool ping address=$internetTestIP count=5 interval=500ms } on-error={ :put "FAIL: General internet ping could not run." }
+
+    :put "Foreign / Starlink WAN test (interface name ends with -Foreign Link):"
+    :local foreignLinkFound 0
+    :foreach foreignId in=[/interface find] do={
+        :local foreignName [/interface get $foreignId name]
+        :local foreignNameLength [:len $foreignName]
+        :if (($foreignNameLength >= 13) && ([:pick $foreignName ($foreignNameLength - 13) $foreignNameLength] = "-Foreign Link")) do={
+            :set foreignLinkFound 1
+            :put ("Foreign / Starlink interface: " . $foreignName)
+            :do {
+                /tool ping address=4.2.2.1 count=5 interval=500ms interface=$foreignName
+            } on-error={
+                :put ("FAIL: Could not ping 4.2.2.1 via " . $foreignName)
+            }
+        }
+    }
+    :if ($foreignLinkFound = 0) do={
+        :put "FAIL: No interface ending with -Foreign Link was found."
+    }
+    :set DiagProgress 80
+    :put "Domestic WAN test (interface name ends with -Domestic Link):"
+    :local domesticLinkFound 0
+    :foreach domesticId in=[/interface find] do={
+        :local domesticName [/interface get $domesticId name]
+        :local domesticNameLength [:len $domesticName]
+        :if (($domesticNameLength >= 14) && ([:pick $domesticName ($domesticNameLength - 14) $domesticNameLength] = "-Domestic Link")) do={
+            :set domesticLinkFound 1
+            :put ("Domestic interface: " . $domesticName)
+            :do {
+                /tool ping address=217.218.127.127 count=5 interval=500ms interface=$domesticName
+            } on-error={
+                :put ("FAIL: Could not ping 217.218.127.127 via " . $domesticName)
+            }
+        }
+    }
+    :if ($domesticLinkFound = 0) do={
+        :put "FAIL: No interface ending with -Domestic Link was found."
+    }
+    :set DiagProgress 85
+    :put "VPN client test (L2TP and WireGuard):"
+    :local vpnClientFound 0
+    :foreach l2tpId in=[/interface l2tp-client find where disabled=no] do={
+        :local l2tpName [/interface l2tp-client get $l2tpId name]
+        :set vpnClientFound 1
+        :put ("L2TP client interface: " . $l2tpName)
+        :do {
+            /tool ping address=4.2.2.2 count=5 interval=500ms interface=$l2tpName
+        } on-error={
+            :put ("FAIL: Could not ping 4.2.2.2 via L2TP client " . $l2tpName)
+        }
+    }
+    :foreach wgId in=[/interface wireguard find where disabled=no] do={
+        :local wgName [/interface wireguard get $wgId name]
+        :set vpnClientFound 1
+        :put ("WireGuard interface: " . $wgName)
+        :do {
+            /tool ping address=4.2.2.2 count=5 interval=500ms interface=$wgName
+        } on-error={
+            :put ("FAIL: Could not ping 4.2.2.2 via WireGuard interface " . $wgName)
+        }
+    }
+    :if ($vpnClientFound = 0) do={
+        :put "INFO: No enabled L2TP or WireGuard interface was found."
+    }
+
+    :put "Iran IP reachability tests:"
+    :foreach iranTarget in={$iranProbeIP1;$iranProbeIP2} do={
+        :put ("Ping Iran target " . $iranTarget . ":")
+        :do { /tool ping address=$iranTarget count=5 interval=500ms } on-error={ :put ("FAIL: Iran target " . $iranTarget . ": " . $e) }
+    }
+    :put ""
+
+    :set DiagProgress 90
+
+    :put "---------------- LOGS ----------------"
+    :put "Critical logs:"
+    :do { /log print detail where topics~"critical" } on-error={ :put ("INFO: critical log filter failed: " . $e) }
+    :put "Error logs:"
+    :do { /log print detail where topics~"error" } on-error={ :put ("INFO: error log filter failed: " . $e) }
+    :put "Warning logs:"
+    :do { /log print detail where topics~"warning" } on-error={ :put ("INFO: warning log filter failed: " . $e) }
+    :put "VPN-related logs:"
+    :do { /log print detail where message~"wireguard|l2tp|sstp|ovpn|pptp|ipsec|vpn" } on-error={ :put ("INFO: VPN log filter failed: " . $e) }
+    :put "WAN, DHCP and DNS-related logs:"
+    :do { /log print detail where message~"dhcp|dns|route|gateway|ether|link|wan" } on-error={ :put ("INFO: WAN/DHCP/DNS log filter failed: " . $e) }
+    :put "NasNet-related logs:"
+    :do { /log print detail where message~"nasnet|nclink|successfulcerts" } on-error={ :put ("INFO: NasNet log filter failed: " . $e) }
+
+    :set DiagProgress 95
+
+    :put ""
+    :put "============================================================"
+    :put "End of NasNet Panel Diagnostic Report"
+    :put "============================================================"
+    :log info "NasNet diagnostics finished"
+    :set DiagProgress 100
+} file=$reportFile]
+
+:log info ("NasNet diagnostics are running in the background. Job ID: " . $jobId . ". Report: " . $reportFile)
+:put ("NasNet diagnostics started. Download this file when the job has finished: " . $reportFile)
