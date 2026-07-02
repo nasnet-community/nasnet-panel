@@ -97,6 +97,8 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/l2tp/server", handler.HandleGetL2tpServerDetails)
 	vpnGroup.GET("/l2tp/server/users", handler.HandleGetL2tpServerUsers)
 	vpnGroup.POST("/l2tp/server/user", handler.HandleAddL2tpServerUser)
+	vpnGroup.DELETE("/user/:usernameOrID", handler.HandleDeleteVPNUser)
+	vpnGroup.PUT("/user/:usernameOrID", handler.HandleUpdateVPNUser)
 	vpnGroup.GET("/sstp/server", handler.HandleGetSstpServerDetails)
 	vpnGroup.POST("/wireguard/client", handler.HandleCreateWireGuardClient)
 	vpnGroup.POST("/wireguard/server", handler.HandleCreateWireGuardServer)

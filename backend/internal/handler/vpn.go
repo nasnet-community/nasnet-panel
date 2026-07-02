@@ -2693,3 +2693,140 @@ func HandleAddL2tpServerUser(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusCreated, "User added to L2TP server successfully", secret)
 }
+
+// HandleDeleteVPNUser deletes a VPN user (PPP secret) by username or ID
+// @Summary Delete VPN User
+// @Description Delete a PPP secret (VPN user) of any VPN type by username or ID
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param usernameOrID path string true "VPN user username or ID (ID format: *123)"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/user/{usernameOrID} [delete].
+func HandleDeleteVPNUser(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	usernameOrID := c.Param("usernameOrID")
+	if usernameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Username or ID is required", nil)
+	}
+
+	// Delete the PPP secret
+	err = client.RemovePppSecretByNameOrID(usernameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		if strings.Contains(err.Error(), "failed to find") {
+			return ErrorResponse(c, http.StatusNotFound, "VPN user not found", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete VPN user", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "VPN user deleted successfully", map[string]interface{}{
+		"deleted": true,
+	})
+}
+
+// HandleUpdateVPNUser updates a VPN user (PPP secret) of any VPN type
+// @Summary Update VPN User
+// @Description Update a PPP secret (VPN user) of any VPN type by username or ID
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param usernameOrID path string true "VPN user username or ID (ID format: *123)"
+// @Param request body UpdateVPNUserRequest true "Fields to update"
+// @Produce json
+// @Success 200 {object} Response{data=PPPSecret}
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/user/{usernameOrID} [put].
+func HandleUpdateVPNUser(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	usernameOrID := c.Param("usernameOrID")
+	if usernameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Username or ID is required", nil)
+	}
+
+	var req UpdateVPNUserRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	// Build update parameters
+	params := routeros.UpdatePppSecretParams{
+		Name:          req.Name,
+		Password:      req.Password,
+		Disabled:      req.Disabled,
+		LimitBytesIn:  req.LimitBytesIn,
+		LimitBytesOut: req.LimitBytesOut,
+		Comment:       req.Comment,
+		CallerID:      req.CallerID,
+		Routes:        req.Routes,
+	}
+
+	// Update the PPP secret
+	updatedUser, err := client.UpdatePppSecret(usernameOrID, params)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		if strings.Contains(err.Error(), "failed to find") {
+			return ErrorResponse(c, http.StatusNotFound, "VPN user not found", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update VPN user", err)
+	}
+
+	// Convert the response to PPPSecret struct
+	secret := PPPSecret{
+		ID:          updatedUser[".id"],
+		Name:        updatedUser["name"],
+		Service:     updatedUser["service"],
+		Profile:     updatedUser["profile"],
+		Password:    updatedUser["password"],
+		Comment:     updatedUser["comment"],
+		CallerID:    updatedUser["caller-id"],
+		Routes:      updatedUser["routes"],
+		DialerName:  updatedUser["dialer-name"],
+		AddressPool: updatedUser["address-pool"],
+		PoolName:    updatedUser["pool-name"],
+		PoolNumber:  updatedUser["pool-number"],
+	}
+
+	// Convert disabled field to boolean
+	if disabledStr, ok := updatedUser["disabled"]; ok && disabledStr != "" {
+		secret.Disabled = disabledStr == "true"
+	} else {
+		secret.Disabled = false
+	}
+
+	// Convert limit-bytes-in to int64
+	if limitBytesIn, ok := updatedUser["limit-bytes-in"]; ok && limitBytesIn != "" {
+		if val, err := strconv.ParseInt(limitBytesIn, 10, 64); err == nil {
+			secret.LimitBytesIn = val
+		}
+	}
+
+	// Convert limit-bytes-out to int64
+	if limitBytesOut, ok := updatedUser["limit-bytes-out"]; ok && limitBytesOut != "" {
+		if val, err := strconv.ParseInt(limitBytesOut, 10, 64); err == nil {
+			secret.LimitBytesOut = val
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "VPN user updated successfully", secret)
+}
