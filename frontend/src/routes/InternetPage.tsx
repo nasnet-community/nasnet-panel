@@ -7,21 +7,20 @@ import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
 import { buildTopology } from './internet/buildTopology';
+import { computeColumnLayout } from './internet/columnLayout';
 import { Edge } from './internet/Edge';
 import { HopEditDialog } from './internet/HopEditDialog';
 import { NodeBubble } from './internet/NodeBubble';
 import {
   COLUMN_LABELS,
   COLUMN_ORDER,
-  COLUMN_X,
-  VIEWBOX_H,
-  VIEWBOX_W,
   computeReachable,
   hopForNode,
-  layoutNodes,
   type Positioned,
 } from './internet/layout';
 import styles from './InternetPage.module.scss';
+
+const HEADER_BAND = 44;
 
 export function InternetPage() {
   const { id } = useParams<{ id: string }>();
@@ -99,19 +98,29 @@ export function InternetPage() {
     () => (topology ? computeReachable(topology) : new Set<string>()),
     [topology],
   );
-  const positioned = useMemo(
-    () => (topology ? layoutNodes(topology, reachable) : []),
-    [topology, reachable],
-  );
-  const nodeById = useMemo(() => {
-    const map = new Map<string, Positioned>();
-    positioned.forEach((p) => map.set(p.id, p));
-    return map;
-  }, [positioned]);
+
+  const layout = useMemo(() => (topology ? computeColumnLayout(topology) : null), [topology]);
+
+  const positioned = useMemo(() => {
+    if (!topology || !layout) return [];
+    return topology.nodes.reduce<Positioned[]>((acc, node) => {
+      const pos = layout.positions.get(node.id);
+      if (pos) acc.push({ ...node, x: pos.x, y: pos.y, isActive: reachable.has(node.id) });
+      return acc;
+    }, []);
+  }, [topology, layout, reachable]);
+
+  const columns = useMemo(() => {
+    if (!layout) return [];
+    return COLUMN_ORDER.filter((kind) => layout.columnX.has(kind)).map((kind) => ({
+      kind,
+      x: layout.columnX.get(kind) ?? 0,
+    }));
+  }, [layout]);
 
   if (!id) return null;
 
-  const hasContent = !!topology && positioned.length > 0;
+  const hasContent = !!topology && !!layout && positioned.length > 0;
 
   return (
     <Stack>
@@ -124,11 +133,18 @@ export function InternetPage() {
           </CardDescription>
         </CardHeader>
         <div className={styles.wrap} aria-busy={!loaded}>
-          <div className={styles.canvas}>
+          <div
+            className={styles.canvas}
+            style={
+              layout && layout.height > 0
+                ? { aspectRatio: `${layout.width} / ${layout.height + HEADER_BAND}` }
+                : undefined
+            }
+          >
             {hasContent ? (
               <svg
                 className={styles.svg}
-                viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+                viewBox={`0 ${-HEADER_BAND} ${layout.width} ${layout.height + HEADER_BAND}`}
                 preserveAspectRatio="xMidYMid meet"
                 role="img"
                 aria-label="Routing topology"
@@ -157,29 +173,31 @@ export function InternetPage() {
                     <path d="M0,0 L10,5 L0,10 z" className={styles.arrowActive} />
                   </marker>
                 </defs>
-                {COLUMN_ORDER.map((kind) => {
-                  if (!positioned.some((p) => p.kind === kind)) return null;
-                  return (
-                    <foreignObject
-                      key={`col-${kind}`}
-                      x={COLUMN_X[kind] - 80}
-                      y={10}
-                      width={160}
-                      height={30}
-                    >
-                      <div className={styles.columnHeader}>{COLUMN_LABELS[kind]}</div>
-                    </foreignObject>
-                  );
-                })}
-                {topology?.hops.map((hop) => (
-                  <Edge
-                    key={hop.id}
-                    effectiveActive={hop.isActive && reachable.has(hop.fromId)}
-                    from={nodeById.get(hop.fromId)}
-                    to={nodeById.get(hop.toId)}
-                    pathId={`edge-${hop.id}`}
-                  />
+                {columns.map((col) => (
+                  <foreignObject
+                    key={`col-${col.kind}`}
+                    x={col.x - 80}
+                    y={-HEADER_BAND + 6}
+                    width={160}
+                    height={30}
+                  >
+                    <div className={styles.columnHeader}>{COLUMN_LABELS[col.kind]}</div>
+                  </foreignObject>
                 ))}
+                {topology?.hops
+                  .map((hop) => ({
+                    hop,
+                    effectiveActive: hop.isActive && reachable.has(hop.fromId),
+                  }))
+                  .sort((a, b) => Number(a.effectiveActive) - Number(b.effectiveActive))
+                  .map(({ hop, effectiveActive }) => (
+                    <Edge
+                      key={hop.id}
+                      effectiveActive={effectiveActive}
+                      d={layout.edges.get(hop.id)}
+                      pathId={`edge-${hop.id}`}
+                    />
+                  ))}
                 {positioned.map((node) => {
                   const editable = node.kind === 'vpn';
                   return (
@@ -200,7 +218,7 @@ export function InternetPage() {
               </svg>
             ) : (
               <div className={styles.empty}>
-                {loaded
+                {loaded && (!topology || topology.nodes.length === 0)
                   ? 'No routing topology configured for this router yet.'
                   : 'Loading topology…'}
               </div>
