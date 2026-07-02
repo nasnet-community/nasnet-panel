@@ -151,9 +151,9 @@ test.describe('Internet routing page', () => {
 
     const svg = page.getByRole('img', { name: 'Routing topology' });
     await expect(svg).toBeVisible();
-    await expect(page.getByText('WAN', { exact: true })).toBeVisible();
-    await expect(page.getByText('VPN', { exact: true })).toBeVisible();
-    await expect(page.getByText('Router', { exact: true }).first()).toBeVisible();
+    await expect(svg.getByText('WAN', { exact: true })).toBeVisible();
+    await expect(svg.getByText('VPN', { exact: true })).toBeVisible();
+    await expect(svg.getByText('Router', { exact: true }).first()).toBeVisible();
   });
 
   test('styles active and idle edges differently', async ({
