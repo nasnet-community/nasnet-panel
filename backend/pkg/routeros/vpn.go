@@ -956,11 +956,12 @@ func (c *Client) UpdatePppSecret(usernameOrID string, params UpdatePppSecretPara
 
 // CreatePppSecret creates a new PPP secret with the given parameters.
 func (c *Client) CreatePppSecret(params CreatePppSecretParams) (map[string]string, error) {
-	args := make([]string, 0, 10)
-	args = append(args, "=name="+params.Name)
-	args = append(args, "=password="+params.Password)
-	args = append(args, "=service="+params.Service)
-	args = append(args, "=profile="+params.Profile)
+	args := []string{
+		"=name=" + params.Name,
+		"=password=" + params.Password,
+		"=service=" + params.Service,
+		"=profile=" + params.Profile,
+	}
 
 	if params.Disabled != nil {
 		args = append(args, "=disabled="+fmt.Sprintf("%v", *params.Disabled))
