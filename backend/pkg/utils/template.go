@@ -5,8 +5,18 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
+
+// EscapeScriptString escapes special characters in a script string for safe RouterOS execution.
+// Escapes newlines, quotes, and dollar signs.
+func EscapeScriptString(s string) string {
+	s = strings.ReplaceAll(s, "\n", "\\n")
+	s = strings.ReplaceAll(s, "\"", "\\\"")
+	s = strings.ReplaceAll(s, "$", "\\$")
+	return s
+}
 
 // templateFuncs returns custom template functions.
 func templateFuncs() template.FuncMap {
