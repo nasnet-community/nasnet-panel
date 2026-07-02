@@ -599,3 +599,15 @@ type AddL2tpServerUserRequest struct {
 	CallerID      *string `json:"callerId,omitempty" example:"caller123"`
 	Routes        *string `json:"routes,omitempty" example:"192.168.1.0/24"`
 }
+
+// UpdateVPNUserRequest represents a request to update a VPN user of any type.
+type UpdateVPNUserRequest struct {
+	Name          *string `json:"name,omitempty" example:"newusername"`
+	Password      *string `json:"password,omitempty" example:"newpassword123"`
+	Disabled      *bool   `json:"disabled,omitempty" example:"false"`
+	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty" example:"2000000"`
+	LimitBytesOut *int64  `json:"limitBytesOut,omitempty" example:"2000000"`
+	Comment       *string `json:"comment,omitempty" example:"Updated comment"`
+	CallerID      *string `json:"callerId,omitempty" example:"newcaller123"`
+	Routes        *string `json:"routes,omitempty" example:"192.168.2.0/24"`
+}
