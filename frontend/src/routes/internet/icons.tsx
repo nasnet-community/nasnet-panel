@@ -26,6 +26,7 @@ export function nodeIcon(node: RoutingNode) {
   if (node.kind === 'group') return <Laptop size={26} strokeWidth={1.75} />;
   if (node.kind === 'router') return <RouterIcon size={26} strokeWidth={1.75} />;
   if (node.kind === 'wan') return wanIcon(node.wanKind);
+  if (node.kind === 'internet') return <Globe size={26} strokeWidth={1.75} />;
   return <Shield size={26} strokeWidth={1.75} />;
 }
 

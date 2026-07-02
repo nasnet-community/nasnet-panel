@@ -1,24 +1,16 @@
 import styles from '../InternetPage.module.scss';
-import { NODE_RADIUS, type Positioned } from './layout';
 
 const DOT_DURATION = 2.4;
 const DOT_DELAYS = [0, 0.8, 1.6];
 
 interface EdgeProps {
   effectiveActive: boolean;
-  from: Positioned | undefined;
-  to: Positioned | undefined;
+  d: string | undefined;
   pathId: string;
 }
 
-export function Edge({ effectiveActive, from, to, pathId }: EdgeProps) {
-  if (!from || !to) return null;
-  const startX = from.x + NODE_RADIUS;
-  const endX = to.x - NODE_RADIUS - 6;
-  const startY = from.y;
-  const endY = to.y;
-  const midX = (startX + endX) / 2;
-  const d = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
+export function Edge({ effectiveActive, d, pathId }: EdgeProps) {
+  if (!d) return null;
   return (
     <>
       <path
@@ -36,7 +28,7 @@ function FlowDots({ pathId, prefix }: { pathId: string; prefix: string }) {
   return (
     <>
       {DOT_DELAYS.map((d) => (
-        <circle key={`${prefix}-${d}`} r="6" opacity="0" className={styles.dotGreen}>
+        <circle key={`${prefix}-${d}`} r="2.5" opacity="0" className={styles.dotGreen}>
           <animate
             attributeName="opacity"
             values="0;1;1;0"

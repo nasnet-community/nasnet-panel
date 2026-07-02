@@ -13,6 +13,7 @@ import type {
   RoutingWanKind,
   VPNProtocol,
 } from '@nasnet/mocks';
+import { matchesWanCategory } from '../wan/types';
 
 interface Creds {
   host: string;
@@ -133,6 +134,9 @@ export async function buildTopology(
   hops.push({ id: 'h_clients_rtr', fromId: GROUP_ID, toId: ROUTER_ID, isActive: true });
   nodes.push({ id: ROUTER_ID, kind: 'router', label: 'Router' });
 
+  const INTERNET_ID = 'internet';
+  const domesticWans: InterfaceResponse[] = [];
+
   const wans = pickWanInterfaces(ifaces, routes);
   const wanByName = new Map<string, InterfaceResponse>();
   wans.forEach((wan) => {
@@ -146,6 +150,7 @@ export async function buildTopology(
       toId: id,
       isActive: !!wan.running,
     });
+    if (matchesWanCategory(wan.comment, 'domestic')) domesticWans.push(wan);
   });
 
   const fallbackWan = wans.find((w) => w.running) ?? wans[0];
@@ -170,6 +175,26 @@ export async function buildTopology(
       });
     }
   });
+
+  if (vpnTunnels.length > 0 || domesticWans.length > 0) {
+    nodes.push({ id: INTERNET_ID, kind: 'internet', label: 'Internet' });
+    vpnTunnels.forEach((vpn) => {
+      hops.push({
+        id: `h_internet_vpn_${vpn.name}`,
+        fromId: `vpn_${vpn.name}`,
+        toId: INTERNET_ID,
+        isActive: !!vpn.running,
+      });
+    });
+    domesticWans.forEach((wan) => {
+      hops.push({
+        id: `h_internet_wan_${wan.name}`,
+        fromId: `wan_${wan.name}`,
+        toId: INTERNET_ID,
+        isActive: !!wan.running,
+      });
+    });
+  }
 
   return { routerId, nodes, hops };
 }

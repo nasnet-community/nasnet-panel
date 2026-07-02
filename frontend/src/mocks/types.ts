@@ -226,7 +226,7 @@ export interface BatchJobResult {
   errors?: Array<{ line: number; message: string }>;
 }
 
-export type RoutingNodeKind = 'group' | 'router' | 'wan' | 'vpn';
+export type RoutingNodeKind = 'group' | 'router' | 'wan' | 'vpn' | 'internet';
 export type RoutingWanKind = 'starlink' | 'mobile' | 'fiber' | 'ether' | 'other';
 
 export interface RoutingNode {
