@@ -131,7 +131,7 @@ test.describe('WAN VPN clients section', () => {
 
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await page.getByRole('button', { name: 'Add client' }).click();
+    await page.getByRole('button', { name: 'New' }).nth(2).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
@@ -226,7 +226,7 @@ test.describe('WAN VPN clients section', () => {
 
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await page.getByRole('button', { name: 'Add client' }).click();
+    await page.getByRole('button', { name: 'New' }).nth(2).click();
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Name').fill('home-l2tp');
     await dialog.getByLabel('Connect to').fill('vpn.example.com');

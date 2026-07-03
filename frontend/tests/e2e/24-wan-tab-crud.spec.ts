@@ -3,8 +3,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// "New" button order in WanPage: 0 Starlink, 1 Domestic.
-// The Starlink Masking VPN Client section uses "Add client" instead.
+// "New" button order in WanPage: 0 Starlink, 1 Domestic, 2 Starlink Masking VPN Client.
 const newButton = (page: Page, index: number) =>
   page.getByRole('button', { name: 'New' }).nth(index);
 
@@ -295,7 +294,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await page.getByRole('button', { name: 'Add client' }).click();
+    await newButton(page, 2).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 

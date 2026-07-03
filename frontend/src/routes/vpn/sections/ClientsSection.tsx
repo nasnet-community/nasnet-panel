@@ -177,10 +177,9 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
       <Card>
         <SectionHeader
           title="Starlink Masking VPN Client"
-          count={clients.length}
           description="VPN clients that conceal the Starlink IP."
           action={{
-            label: 'Add client',
+            label: 'New',
             disabled: !creds,
             onClick: () => setAdding(true),
           }}
