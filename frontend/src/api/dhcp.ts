@@ -37,20 +37,6 @@ export interface DhcpClient {
   comment?: string;
 }
 
-export interface DhcpServer {
-  id: string;
-  name: string;
-  interface: string;
-  addressPool: string;
-  ranges: string[];
-  gateway?: string;
-  dnsServers?: string;
-  leaseTime?: string;
-  disabled: boolean;
-  comment?: string;
-  localAddress?: string;
-}
-
 export interface DhcpLeaseAction {
   macAddress: string;
   id: string;
@@ -88,19 +74,6 @@ export async function fetchDhcpClients(
     signal,
   });
   return clients ?? [];
-}
-
-export async function fetchDhcpServers(
-  creds: DhcpCredentials,
-  signal?: AbortSignal,
-): Promise<DhcpServer[]> {
-  const servers = await apiRequest<DhcpServer[] | null>('/api/dhcp/servers', {
-    method: 'GET',
-    headers: authHeaders(creds),
-    cache: 'no-store',
-    signal,
-  });
-  return servers ?? [];
 }
 
 export async function makeDhcpLeaseStatic(
