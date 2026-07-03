@@ -8,7 +8,6 @@ import {
   type InterfaceResponse,
   type SystemCredentials,
   type VPNClient,
-  type VPNClientResponse,
 } from '../api';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
@@ -16,9 +15,7 @@ import { usePolling } from '../utils/usePolling';
 import styles from './wan/WanPage.module.scss';
 import { StarlinkSection } from './wan/sections/StarlinkSection';
 import { DomesticUplinkSection } from './wan/sections/DomesticUplinkSection';
-import { MaskingVpnSection } from './wan/sections/MaskingVpnSection';
 import { matchesWanCategory } from './wan/types';
-import { filterWanVpnClients } from './wan/wanVpn';
 import { mapClientFromBE } from './vpn/adapters';
 import { ClientsSection } from './vpn/sections/ClientsSection';
 
@@ -32,8 +29,7 @@ export function WanPage() {
 
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState(false);
-  const [vpnClients, setVpnClients] = useState<VPNClientResponse[]>([]);
-  const [allVpnClients, setAllVpnClients] = useState<VPNClient[]>([]);
+  const [vpnClients, setVpnClients] = useState<VPNClient[]>([]);
 
   const resolveCreds = useCallback((): SystemCredentials | null => {
     if (!id) return null;
@@ -70,13 +66,11 @@ export function WanPage() {
     const creds = resolveCreds();
     if (!id || !creds) {
       setVpnClients([]);
-      setAllVpnClients([]);
       return;
     }
     try {
       const list = await listVPNClients(creds);
-      setVpnClients(filterWanVpnClients(list));
-      setAllVpnClients(list.map((c) => mapClientFromBE(c, id)));
+      setVpnClients(list.map((c) => mapClientFromBE(c, id)));
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -103,7 +97,6 @@ export function WanPage() {
   const foreign = interfaces.filter((i) => matchesWanCategory(i.comment, 'foreign'));
   const domestic = interfaces.filter((i) => matchesWanCategory(i.comment, 'domestic'));
   const assignedNames = [...foreign, ...domestic].map((i) => i.name);
-  const maskingVpn = vpnClients.filter((c) => matchesWanCategory(c.comment, 'foreign'));
 
   return (
     <div className={styles.sectionGrid}>
@@ -123,8 +116,7 @@ export function WanPage() {
         interfacesLoading={interfacesLoading}
         onChanged={reload}
       />
-      <MaskingVpnSection routerId={id} items={maskingVpn} onChanged={loadVpn} />
-      <ClientsSection creds={resolveCreds()} clients={allVpnClients} onChanged={loadVpn} />
+      <ClientsSection creds={resolveCreds()} clients={vpnClients} onChanged={loadVpn} />
     </div>
   );
 }

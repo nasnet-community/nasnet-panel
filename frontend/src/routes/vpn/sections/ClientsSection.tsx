@@ -176,15 +176,9 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
     <Stack>
       <Card>
         <SectionHeader
-          title="VPN Clients"
+          title="Starlink Masking VPN Client"
           count={clients.length}
-          description="Outbound VPN interfaces (WireGuard, L2TP, OpenVPN, PPTP, SSTP, IKEv2)."
-          search={{
-            value: paged.search,
-            placeholder: 'Search clients…',
-            ariaLabel: 'Search clients',
-            onChange: paged.setSearch,
-          }}
+          description="VPN clients that conceal the Starlink IP."
           action={{
             label: 'Add client',
             disabled: !creds,
