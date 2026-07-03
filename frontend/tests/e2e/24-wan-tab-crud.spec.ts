@@ -3,7 +3,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// Section order in WanPage: 0 Starlink, 1 Domestic, 2 Masking VPN (Domestic VPN is hidden).
+// Section order in WanPage: 0 Starlink, 1 Domestic, 2 Masking VPN.
 const newButton = (page: Page, index: number) =>
   page.getByRole('button', { name: 'New' }).nth(index);
 
@@ -320,45 +320,5 @@ test.describe('WAN tab', () => {
     // After the comment patch, the client should be classified as masking (foreign).
     state.vpnClients[0].comment = 'WAN - Foreign Link(Foreign)';
     await expect(page.getByRole('cell', { name: 'mask-one', exact: true })).toBeVisible();
-  });
-
-  test.skip('delete a domestic VPN client via real BE', async ({
-    page,
-    context,
-    resetMocks,
-    seedRouter,
-  }) => {
-    await resetMocks();
-    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
-    await setSessionCreds(context, ROUTER_ID);
-    const state = blankState();
-    state.vpnClients.push({
-      id: '*l2tp-1',
-      name: 'dom-l2tp',
-      type: 'l2tp-out',
-      running: false,
-      disabled: false,
-      mtu: 1500,
-      macAddress: '',
-      rxByte: 0,
-      txByte: 0,
-      rxPacket: 0,
-      txPacket: 0,
-      lastLinkUp: '',
-      lastLinkDown: '',
-      linkDowns: 0,
-      comment: 'WAN - Domestic Link(Domestic)',
-    });
-    await setupWanRoutes(context, state);
-    await page.goto(`/router/${ROUTER_ID}/wan`);
-
-    await expect(page.getByRole('cell', { name: 'dom-l2tp', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: /delete dom-l2tp/i }).click();
-    await page
-      .getByRole('dialog')
-      .getByRole('button', { name: /^delete$/i })
-      .click();
-
-    await expect.poll(() => state.l2tpDeletes).toEqual(['dom-l2tp']);
   });
 });
