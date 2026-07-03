@@ -426,7 +426,7 @@ export function DHCPPage() {
 
       <Card data-testid="dhcp-clients">
         <CardHeader>
-          <CardTitle>Clients</CardTitle>
+          <CardTitle>DHCP Clients</CardTitle>
           <CardDescription>
             Interfaces on which this router acts as a DHCP client (WAN).
           </CardDescription>
