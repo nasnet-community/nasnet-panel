@@ -356,6 +356,26 @@ export function DHCPPage() {
         </div>
       </Card>
 
+      <Card data-testid="dhcp-clients">
+        <CardHeader>
+          <CardTitle>DHCP Clients</CardTitle>
+          <CardDescription>
+            Interfaces on which this router acts as a DHCP client (WAN).
+          </CardDescription>
+        </CardHeader>
+        {clients.error ? <div className={styles.errorBanner}>{clients.error}</div> : null}
+        {clients.loading ? (
+          loadingRows(6)
+        ) : clients.data.length === 0 ? (
+          <div className={styles.empty}>
+            <Cable size={22} aria-hidden className={styles.emptyIcon} />
+            <p>This router is not a DHCP client on any interface.</p>
+          </div>
+        ) : (
+          <DataTable columns={clientColumns} rows={clients.data} rowKey={(r) => r.id} />
+        )}
+      </Card>
+
       <Card data-testid="dhcp-leases">
         <CardHeader>
           <CardTitle>Leases</CardTitle>
@@ -375,26 +395,6 @@ export function DHCPPage() {
             rows={leases.data}
             rowKey={(r) => r.id || r.macAddress}
           />
-        )}
-      </Card>
-
-      <Card data-testid="dhcp-clients">
-        <CardHeader>
-          <CardTitle>DHCP Clients</CardTitle>
-          <CardDescription>
-            Interfaces on which this router acts as a DHCP client (WAN).
-          </CardDescription>
-        </CardHeader>
-        {clients.error ? <div className={styles.errorBanner}>{clients.error}</div> : null}
-        {clients.loading ? (
-          loadingRows(6)
-        ) : clients.data.length === 0 ? (
-          <div className={styles.empty}>
-            <Cable size={22} aria-hidden className={styles.emptyIcon} />
-            <p>This router is not a DHCP client on any interface.</p>
-          </div>
-        ) : (
-          <DataTable columns={clientColumns} rows={clients.data} rowKey={(r) => r.id} />
         )}
       </Card>
 
