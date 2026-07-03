@@ -5,6 +5,7 @@ import (
 	"net"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"nasnet-panel/pkg/utils"
 )
@@ -85,6 +86,20 @@ type OvpnServerInfo struct {
 	MacAddress        string
 	DefaultProfile    string
 	Comment           string
+}
+
+// CreatePppSecretParams represents parameters for creating a PPP secret.
+type CreatePppSecretParams struct {
+	Name          string
+	Password      string
+	Service       string
+	Profile       string
+	Disabled      *bool
+	LimitBytesIn  *int64
+	LimitBytesOut *int64
+	Comment       *string
+	CallerID      *string
+	Routes        *string
 }
 
 // PptpServerInfo represents the PPTP server configuration (single instance).
@@ -842,6 +857,142 @@ func (c *Client) RemovePppSecret(username, service string) error {
 		return fmt.Errorf("failed to remove PPP secret %s: %w", username, err)
 	}
 	return nil
+}
+
+// RemovePppSecretByNameOrID deletes a PPP secret by username or ID, regardless of service type.
+func (c *Client) RemovePppSecretByNameOrID(usernameOrID string) error {
+	var result map[string]string
+	var err error
+
+	// If it looks like an ID (starts with *), try by ID first
+	if strings.HasPrefix(usernameOrID, "*") {
+		result, err = c.GetByID("/ppp/secret", usernameOrID)
+	} else {
+		// Otherwise try by name
+		result, err = c.GetFirst("/ppp/secret", "?=name="+usernameOrID)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to find PPP secret %s: %w", usernameOrID, err)
+	}
+
+	_, err = c.Remove("/ppp/secret", "=.id="+result[".id"])
+	if err != nil {
+		return fmt.Errorf("failed to remove PPP secret %s: %w", usernameOrID, err)
+	}
+	return nil
+}
+
+// UpdatePppSecretParams represents parameters for updating a PPP secret.
+type UpdatePppSecretParams struct {
+	Name          *string
+	Password      *string
+	Disabled      *bool
+	LimitBytesIn  *int64
+	LimitBytesOut *int64
+	Comment       *string
+	CallerID      *string
+	Routes        *string
+}
+
+// UpdatePppSecret updates a PPP secret by username or ID with the given parameters.
+func (c *Client) UpdatePppSecret(usernameOrID string, params UpdatePppSecretParams) (map[string]string, error) {
+	var result map[string]string
+	var err error
+
+	// If it looks like an ID (starts with *), try by ID first
+	if strings.HasPrefix(usernameOrID, "*") {
+		result, err = c.GetByID("/ppp/secret", usernameOrID)
+	} else {
+		// Otherwise try by name
+		result, err = c.GetFirst("/ppp/secret", "?=name="+usernameOrID)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to find PPP secret %s: %w", usernameOrID, err)
+	}
+
+	id := result[".id"]
+	args := make([]string, 0, 8)
+	args = append(args, "=.id="+id)
+
+	if params.Name != nil {
+		args = append(args, "=name="+*params.Name)
+	}
+	if params.Password != nil {
+		args = append(args, "=password="+*params.Password)
+	}
+	if params.Disabled != nil {
+		args = append(args, "=disabled="+fmt.Sprintf("%v", *params.Disabled))
+	}
+	if params.LimitBytesIn != nil {
+		args = append(args, "=limit-bytes-in="+fmt.Sprintf("%d", *params.LimitBytesIn))
+	}
+	if params.LimitBytesOut != nil {
+		args = append(args, "=limit-bytes-out="+fmt.Sprintf("%d", *params.LimitBytesOut))
+	}
+	if params.Comment != nil {
+		args = append(args, "=comment="+*params.Comment)
+	}
+	if params.CallerID != nil {
+		args = append(args, "=caller-id="+*params.CallerID)
+	}
+	if params.Routes != nil {
+		args = append(args, "=routes="+*params.Routes)
+	}
+
+	_, err = c.Set("/ppp/secret", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update PPP secret %s: %w", usernameOrID, err)
+	}
+
+	result, err = c.GetByID("/ppp/secret", id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve updated PPP secret: %w", err)
+	}
+
+	return result, nil
+}
+
+// CreatePppSecret creates a new PPP secret with the given parameters.
+func (c *Client) CreatePppSecret(params CreatePppSecretParams) (map[string]string, error) {
+	args := []string{
+		"=name=" + params.Name,
+		"=password=" + params.Password,
+		"=service=" + params.Service,
+		"=profile=" + params.Profile,
+	}
+
+	if params.Disabled != nil {
+		args = append(args, "=disabled="+fmt.Sprintf("%v", *params.Disabled))
+	}
+	if params.LimitBytesIn != nil {
+		args = append(args, "=limit-bytes-in="+fmt.Sprintf("%d", *params.LimitBytesIn))
+	}
+	if params.LimitBytesOut != nil {
+		args = append(args, "=limit-bytes-out="+fmt.Sprintf("%d", *params.LimitBytesOut))
+	}
+	if params.Comment != nil && *params.Comment != "" {
+		args = append(args, "=comment="+*params.Comment)
+	}
+	if params.CallerID != nil && *params.CallerID != "" {
+		args = append(args, "=caller-id="+*params.CallerID)
+	}
+	if params.Routes != nil && *params.Routes != "" {
+		args = append(args, "=routes="+*params.Routes)
+	}
+
+	id, err := c.Add("/ppp/secret", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create PPP secret: %w", err)
+	}
+
+	result, err := c.GetByID("/ppp/secret", id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve created PPP secret: %w", err)
+	}
+
+	return result, nil
 }
 
 // RemovePppProfile deletes a PPP profile by name.

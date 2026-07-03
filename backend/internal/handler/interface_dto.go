@@ -111,6 +111,104 @@ func formatBytesPtr(value *int64) *string {
 	return &formatted
 }
 
+// ethernetResponse represents detailed information about an ethernet interface.
+type ethernetResponse struct {
+	ID                      string   `json:"id,omitempty"`
+	Name                    string   `json:"name,omitempty"`
+	DefaultName             *string  `json:"defaultName,omitempty"`
+	MTU                     *int64   `json:"mtu,omitempty"`
+	L2MTU                   *int64   `json:"l2Mtu,omitempty"`
+	MACAddress              *string  `json:"macAddress,omitempty"`
+	OrigMACAddress          *string  `json:"origMacAddress,omitempty"`
+	ARP                     *string  `json:"arp,omitempty"`
+	ARPTimeout              *string  `json:"arpTimeout,omitempty"`
+	LoopProtect             *string  `json:"loopProtect,omitempty"`
+	LoopProtectStatus       *string  `json:"loopProtectStatus,omitempty"`
+	LoopProtectSendInterval *string  `json:"loopProtectSendInterval,omitempty"`
+	LoopProtectDisableTime  *string  `json:"loopProtectDisableTime,omitempty"`
+	AutoNegotiation         *bool    `json:"autoNegotiation,omitempty"`
+	Advertise               *string  `json:"advertise,omitempty"`
+	TxFlowControl           *string  `json:"txFlowControl,omitempty"`
+	RxFlowControl           *string  `json:"rxFlowControl,omitempty"`
+	Bandwidth               *string  `json:"bandwidth,omitempty"`
+	Switch                  *string  `json:"switch,omitempty"`
+	PoEOut                  *string  `json:"poeOut,omitempty"`
+	PoEPriority             *int64   `json:"poePriority,omitempty"`
+	PowerCyclePingEnabled   *bool    `json:"powerCyclePingEnabled,omitempty"`
+	PowerCycleInterval      *string  `json:"powerCycleInterval,omitempty"`
+	Disabled                *bool    `json:"disabled,omitempty"`
+	Running                 *bool    `json:"running,omitempty"`
+	Comment                 *string  `json:"comment,omitempty"`
+	MonitorStatus           *string  `json:"status,omitempty"`
+	MonitorAutoNegotiation  *string  `json:"monitorAutoNegotiation,omitempty"`
+	MonitorRate             *string  `json:"rate,omitempty"`
+	MonitorFullDuplex       *bool    `json:"fullDuplex,omitempty"`
+	MonitorTxFlowControl    *bool    `json:"monitorTxFlowControl,omitempty"`
+	MonitorRxFlowControl    *bool    `json:"monitorRxFlowControl,omitempty"`
+	MonitorSupported        []string `json:"supported,omitempty"`
+	MonitorAdvertising      []string `json:"advertising,omitempty"`
+	MonitorLinkPartnerAdv   []string `json:"linkPartnerAdvertising,omitempty"`
+}
+
+func toEthernetResponse(iface *routeros.EthernetInfo) *ethernetResponse {
+	if iface == nil {
+		return nil
+	}
+
+	resp := &ethernetResponse{
+		ID:                      iface.ID,
+		Name:                    iface.Name,
+		DefaultName:             iface.DefaultName,
+		MTU:                     iface.MTU,
+		L2MTU:                   iface.L2MTU,
+		MACAddress:              iface.MACAddress,
+		OrigMACAddress:          iface.OrigMACAddress,
+		ARP:                     iface.ARP,
+		ARPTimeout:              iface.ARPTimeout,
+		LoopProtect:             iface.LoopProtect,
+		LoopProtectStatus:       iface.LoopProtectStatus,
+		LoopProtectSendInterval: iface.LoopProtectSendInterval,
+		LoopProtectDisableTime:  iface.LoopProtectDisableTime,
+		AutoNegotiation:         iface.AutoNegotiation,
+		Advertise:               iface.Advertise,
+		TxFlowControl:           iface.TxFlowControl,
+		RxFlowControl:           iface.RxFlowControl,
+		Bandwidth:               iface.Bandwidth,
+		Switch:                  iface.Switch,
+		PoEOut:                  iface.PoEOut,
+		PoEPriority:             iface.PoEPriority,
+		PowerCyclePingEnabled:   iface.PowerCyclePingEnabled,
+		PowerCycleInterval:      iface.PowerCycleInterval,
+		Disabled:                iface.Disabled,
+		Running:                 iface.Running,
+		Comment:                 iface.Comment,
+	}
+
+	if iface.Monitor != nil {
+		resp.MonitorStatus = iface.Monitor.Status
+		resp.MonitorAutoNegotiation = iface.Monitor.AutoNegotiation
+		resp.MonitorRate = iface.Monitor.Rate
+		resp.MonitorFullDuplex = iface.Monitor.FullDuplex
+		resp.MonitorTxFlowControl = iface.Monitor.TxFlowControl
+		resp.MonitorRxFlowControl = iface.Monitor.RxFlowControl
+		resp.MonitorSupported = iface.Monitor.Supported
+		resp.MonitorAdvertising = iface.Monitor.Advertising
+		resp.MonitorLinkPartnerAdv = iface.Monitor.LinkPartnerAdv
+	}
+
+	return resp
+}
+
+func toEthernetResponses(interfaces []routeros.EthernetInfo) []ethernetResponse {
+	response := make([]ethernetResponse, 0, len(interfaces))
+	for i := range interfaces {
+		if converted := toEthernetResponse(&interfaces[i]); converted != nil {
+			response = append(response, *converted)
+		}
+	}
+	return response
+}
+
 // UpdateWANInterfaceRequest represents a request to configure a WAN interface.
 type UpdateWANInterfaceRequest struct {
 	Type string `json:"type" binding:"required,oneof=foreign domestic" example:"foreign"`

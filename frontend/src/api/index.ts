@@ -75,13 +75,11 @@ export {
 export {
   fetchDhcpLeases,
   fetchDhcpClients,
-  fetchDhcpServers,
   makeDhcpLeaseStatic,
   removeDhcpLease,
   type DhcpCredentials,
   type DhcpLease,
   type DhcpClient,
-  type DhcpServer,
   type DhcpLeaseAction,
 } from './dhcp';
 export { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from './firewall';
@@ -164,13 +162,6 @@ export {
 export { ApiError } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
-export {
-  sendChatMessage,
-  fetchChatMessages,
-  hasChatwootSession,
-  resetChatwootSession,
-  type ChatwootMessage,
-  type ChatRole,
-} from './chatwoot';
+export { loadChatwoot, toggleChatwoot } from './chatwoot';
 
 export type * from '@nasnet/mocks';

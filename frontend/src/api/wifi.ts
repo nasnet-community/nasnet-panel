@@ -43,6 +43,8 @@ export interface WifiConnectedClientResponse {
   txBitsPerSecond: string;
   rxBitsPerSecond: string;
   authorized: boolean;
+  ipAddress: string;
+  hostname: string;
 }
 
 export interface WifiPassphraseResponse {
