@@ -704,21 +704,6 @@ export const test = base.extend<TestFixtures>({
       const envelope = <T>(data: T, status = 200) =>
         JSON.stringify({ status, message: 'OK', data });
 
-      const servers = [
-        {
-          id: '*1',
-          name: 'default-lan',
-          interface: 'bridge1',
-          addressPool: 'lan-pool',
-          ranges: ['192.168.88.100-192.168.88.200'],
-          gateway: '192.168.88.1',
-          dnsServers: '1.1.1.1,8.8.8.8',
-          leaseTime: '10m',
-          disabled: false,
-          localAddress: '192.168.88.1',
-        },
-      ];
-
       const leases = [
         {
           id: '*1',
@@ -757,13 +742,6 @@ export const test = base.extend<TestFixtures>({
         },
       ];
 
-      await context.route('**/api/dhcp/servers', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope(servers),
-        });
-      });
       await context.route('**/api/dhcp/leases', async (route) => {
         await route.fulfill({
           status: 200,
