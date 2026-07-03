@@ -3,9 +3,15 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// Section order in WanPage: 0 Starlink, 1 Domestic, 2 Masking VPN, 3 Domestic VPN.
+// "New" button order in WanPage: 0 Starlink, 1 Domestic, 2 Masking VPN, 3 Domestic VPN.
+// The VPN Clients section between Masking and Domestic VPN uses "Add client" instead.
 const newButton = (page: Page, index: number) =>
   page.getByRole('button', { name: 'New' }).nth(index);
+
+const section = (page: Page, heading: string) =>
+  page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: heading, exact: true }) });
 
 const envelope = <T>(data: T, status = 200) => JSON.stringify({ status, message: 'OK', data });
 
@@ -194,7 +200,7 @@ const blankState = (): WanRouteState => ({
 });
 
 test.describe('WAN tab', () => {
-  test('tab is enabled, lists the four sections and shows empty states', async ({
+  test('tab is enabled, lists the five sections and shows empty states', async ({
     page,
     context,
     resetMocks,
@@ -213,12 +219,14 @@ test.describe('WAN tab', () => {
     await expect(
       page.getByRole('heading', { name: 'Starlink Masking VPN Client', exact: true }),
     ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'VPN Clients', exact: true })).toBeVisible();
     await expect(
       page.getByRole('heading', { name: 'Domestic VPN Interfaces', exact: true }),
     ).toBeVisible();
 
     await expect(page.getByText('No Starlink uplinks yet')).toBeVisible();
     await expect(page.getByText('No masking VPN clients yet')).toBeVisible();
+    await expect(page.getByText('No VPN clients yet.')).toBeVisible();
   });
 
   test('add a Starlink uplink via real BE and move it to Domestic', async ({
@@ -319,7 +327,12 @@ test.describe('WAN tab', () => {
     });
     // After the comment patch, the client should be classified as masking (foreign).
     state.vpnClients[0].comment = 'WAN - Foreign Link(Foreign)';
-    await expect(page.getByRole('cell', { name: 'mask-one', exact: true })).toBeVisible();
+    await expect(
+      section(page, 'Starlink Masking VPN Client').getByRole('cell', {
+        name: 'mask-one',
+        exact: true,
+      }),
+    ).toBeVisible();
   });
 
   test('delete a domestic VPN client via real BE', async ({
@@ -352,8 +365,9 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await expect(page.getByRole('cell', { name: 'dom-l2tp', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: /delete dom-l2tp/i }).click();
+    const domesticVpn = section(page, 'Domestic VPN Interfaces');
+    await expect(domesticVpn.getByRole('cell', { name: 'dom-l2tp', exact: true })).toBeVisible();
+    await domesticVpn.getByRole('button', { name: /delete dom-l2tp/i }).click();
     await page
       .getByRole('dialog')
       .getByRole('button', { name: /^delete$/i })

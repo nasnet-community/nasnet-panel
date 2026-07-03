@@ -16,7 +16,6 @@ import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
 import { mapClientFromBE, mapServersStatusToList } from './vpn/adapters';
 import { StatsStrip } from './vpn/StatsStrip';
-import { ClientsSection } from './vpn/sections/ClientsSection';
 import { ServersSection } from './vpn/sections/ServersSection';
 // import { PeersSection } from './vpn/sections/PeersSection';
 // TODO: re-enable PeersSection when /api/vpn/peers exists on the backend.
@@ -81,7 +80,6 @@ export function VPNPage() {
         protocols={protocols}
         loading={!loaded}
       />
-      <ClientsSection creds={creds} clients={clients} onChanged={reload} />
       <ServersSection creds={creds} servers={servers} onChanged={reload} />
       {/* <PeersSection routerId={id} peers={peers} servers={servers} onChanged={reload} /> */}
     </Stack>

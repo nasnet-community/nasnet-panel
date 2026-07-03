@@ -21,7 +21,7 @@ const baseClient = {
   linkDowns: 0,
 };
 
-test.describe('VPN clients tab', () => {
+test.describe('WAN VPN clients section', () => {
   test('lists clients from backend and toggles enable via PUT', async ({
     page,
     context,
@@ -58,17 +58,11 @@ test.describe('VPN clients tab', () => {
       await route.fallback();
     });
 
-    await context.route('**/api/vpn/servers', async (route) => {
+    await context.route('**/api/interface/interfaces', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope({
-          ovpnServers: [],
-          wireguards: [],
-          pptp: null,
-          l2tp: null,
-          sstp: null,
-        }),
+        body: envelope([]),
       });
     });
 
@@ -86,7 +80,7 @@ test.describe('VPN clients tab', () => {
       await route.fallback();
     });
 
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
 
     const row = page.getByRole('row', { name: /home-l2tp/ });
     await expect(row).toBeVisible();
@@ -127,21 +121,15 @@ test.describe('VPN clients tab', () => {
         body: envelope([]),
       });
     });
-    await context.route('**/api/vpn/servers', async (route) => {
+    await context.route('**/api/interface/interfaces', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope({
-          ovpnServers: [],
-          wireguards: [],
-          pptp: null,
-          l2tp: null,
-          sstp: null,
-        }),
+        body: envelope([]),
       });
     });
 
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
 
     await page.getByRole('button', { name: 'Add client' }).click();
     const dialog = page.getByRole('dialog');
@@ -210,17 +198,11 @@ test.describe('VPN clients tab', () => {
         body: envelope(body),
       });
     });
-    await context.route('**/api/vpn/servers', async (route) => {
+    await context.route('**/api/interface/interfaces', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope({
-          ovpnServers: [],
-          wireguards: [],
-          pptp: null,
-          l2tp: null,
-          sstp: null,
-        }),
+        body: envelope([]),
       });
     });
 
@@ -242,7 +224,7 @@ test.describe('VPN clients tab', () => {
       });
     });
 
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
 
     await page.getByRole('button', { name: 'Add client' }).click();
     const dialog = page.getByRole('dialog');
@@ -303,17 +285,11 @@ test.describe('VPN clients tab', () => {
         body: envelope([{ ...baseClient, disabled: false }]),
       });
     });
-    await context.route('**/api/vpn/servers', async (route) => {
+    await context.route('**/api/interface/interfaces', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope({
-          ovpnServers: [],
-          wireguards: [],
-          pptp: null,
-          l2tp: null,
-          sstp: null,
-        }),
+        body: envelope([]),
       });
     });
 
@@ -361,7 +337,7 @@ test.describe('VPN clients tab', () => {
       await route.fallback();
     });
 
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
 
     const row = page.getByRole('row', { name: /home-l2tp/ });
     await row.getByRole('button', { name: /edit home-l2tp/i }).click();
@@ -414,17 +390,11 @@ test.describe('VPN clients tab', () => {
         body: envelope([{ ...baseClient, disabled: false }]),
       });
     });
-    await context.route('**/api/vpn/servers', async (route) => {
+    await context.route('**/api/interface/interfaces', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope({
-          ovpnServers: [],
-          wireguards: [],
-          pptp: null,
-          l2tp: null,
-          sstp: null,
-        }),
+        body: envelope([]),
       });
     });
     await context.route('**/api/vpn/l2tp/client/home-l2tp', async (route) => {
@@ -465,7 +435,7 @@ test.describe('VPN clients tab', () => {
       await route.fallback();
     });
 
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
     const row = page.getByRole('row', { name: /home-l2tp/ });
     await row.getByRole('button', { name: /edit home-l2tp/i }).click();
 
@@ -515,17 +485,11 @@ test.describe('VPN clients tab', () => {
         body: envelope(body),
       });
     });
-    await context.route('**/api/vpn/servers', async (route) => {
+    await context.route('**/api/interface/interfaces', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope({
-          ovpnServers: [],
-          wireguards: [],
-          pptp: null,
-          l2tp: null,
-          sstp: null,
-        }),
+        body: envelope([]),
       });
     });
 
@@ -539,7 +503,7 @@ test.describe('VPN clients tab', () => {
       await route.fallback();
     });
 
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
 
     const row = page.getByRole('row', { name: /home-l2tp/ });
     await row.getByRole('button', { name: /delete home-l2tp/i }).click();
@@ -583,6 +547,13 @@ test.describe('VPN clients tab', () => {
         body: envelope([]),
       });
     });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
     await context.route('**/api/vpn/servers', async (route) => {
       await route.fulfill({
         status: 200,
@@ -597,9 +568,12 @@ test.describe('VPN clients tab', () => {
       });
     });
 
-    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
 
     await expect(page.getByText('No VPN clients yet.')).toBeVisible();
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+
     await expect(page.getByText('No VPN servers configured.')).toBeVisible();
   });
 });

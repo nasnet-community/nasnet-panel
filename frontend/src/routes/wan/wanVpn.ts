@@ -3,7 +3,6 @@ import {
   deleteL2TPClient,
   deleteWireguardInterface,
   importWireguardConfig,
-  listVPNClients,
   updateVPNClient,
   type SystemCredentials,
   type VPNClientResponse,
@@ -12,11 +11,7 @@ import { wanCommentFor, type WanCategory, type WanVpnFormPayload } from './types
 
 const WAN_VPN_TYPES = new Set(['wg', 'l2tp-out']);
 
-export async function listWanVpnClients(
-  creds: SystemCredentials,
-  signal?: AbortSignal,
-): Promise<VPNClientResponse[]> {
-  const all = await listVPNClients(creds, signal);
+export function filterWanVpnClients(all: VPNClientResponse[]): VPNClientResponse[] {
   return all.filter((c) => WAN_VPN_TYPES.has(c.type));
 }
 

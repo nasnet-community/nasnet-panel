@@ -4,8 +4,10 @@ import { useToast } from '@nasnet/ui';
 import {
   ApiError,
   fetchInterfaces,
+  listVPNClients,
   type InterfaceResponse,
   type SystemCredentials,
+  type VPNClient,
   type VPNClientResponse,
 } from '../api';
 import { useSession } from '../state/SessionContext';
@@ -17,7 +19,9 @@ import { DomesticUplinkSection } from './wan/sections/DomesticUplinkSection';
 import { MaskingVpnSection } from './wan/sections/MaskingVpnSection';
 import { DomesticVpnSection } from './wan/sections/DomesticVpnSection';
 import { matchesWanCategory } from './wan/types';
-import { listWanVpnClients } from './wan/wanVpn';
+import { filterWanVpnClients } from './wan/wanVpn';
+import { mapClientFromBE } from './vpn/adapters';
+import { ClientsSection } from './vpn/sections/ClientsSection';
 
 const WAN_INTERFACE_TYPES = ['ether', 'wireless', 'wifi', 'wlan', 'w60g', 'lte'];
 
@@ -30,6 +34,7 @@ export function WanPage() {
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState(false);
   const [vpnClients, setVpnClients] = useState<VPNClientResponse[]>([]);
+  const [allVpnClients, setAllVpnClients] = useState<VPNClient[]>([]);
 
   const resolveCreds = useCallback((): SystemCredentials | null => {
     if (!id) return null;
@@ -64,13 +69,15 @@ export function WanPage() {
 
   const loadVpn = useCallback(async () => {
     const creds = resolveCreds();
-    if (!creds) {
+    if (!id || !creds) {
       setVpnClients([]);
+      setAllVpnClients([]);
       return;
     }
     try {
-      const list = await listWanVpnClients(creds);
-      setVpnClients(list);
+      const list = await listVPNClients(creds);
+      setVpnClients(filterWanVpnClients(list));
+      setAllVpnClients(list.map((c) => mapClientFromBE(c, id)));
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -80,7 +87,7 @@ export function WanPage() {
             : 'Failed to load VPN clients.';
       toast.notify({ title: 'Failed to load VPN', description: message, tone: 'danger' });
     }
-  }, [resolveCreds, toast]);
+  }, [id, resolveCreds, toast]);
 
   const reload = useCallback(async () => {
     await Promise.all([loadInterfaces(), loadVpn()]);
@@ -119,6 +126,7 @@ export function WanPage() {
         onChanged={reload}
       />
       <MaskingVpnSection routerId={id} items={maskingVpn} onChanged={loadVpn} />
+      <ClientsSection creds={resolveCreds()} clients={allVpnClients} onChanged={loadVpn} />
       <DomesticVpnSection routerId={id} items={domesticVpn} onChanged={loadVpn} />
     </div>
   );
