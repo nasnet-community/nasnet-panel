@@ -30,6 +30,7 @@ export function WanPage() {
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState(false);
   const [vpnClients, setVpnClients] = useState<VPNClient[]>([]);
+  const [vpnDialogOpen, setVpnDialogOpen] = useState(false);
 
   const resolveCreds = useCallback((): SystemCredentials | null => {
     if (!id) return null;
@@ -90,7 +91,7 @@ export function WanPage() {
     void loadInterfaces();
   }, [loadInterfaces]);
 
-  usePolling(loadVpn, 5000, !!id);
+  usePolling(loadVpn, 5000, !!id && !vpnDialogOpen);
 
   if (!id) return null;
 
@@ -116,7 +117,12 @@ export function WanPage() {
         interfacesLoading={interfacesLoading}
         onChanged={reload}
       />
-      <ClientsSection creds={resolveCreds()} clients={vpnClients} onChanged={loadVpn} />
+      <ClientsSection
+        creds={resolveCreds()}
+        clients={vpnClients}
+        onChanged={loadVpn}
+        onDialogOpenChange={setVpnDialogOpen}
+      />
     </div>
   );
 }

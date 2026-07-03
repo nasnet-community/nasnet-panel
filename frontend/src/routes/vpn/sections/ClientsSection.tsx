@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
@@ -34,15 +34,21 @@ interface Props {
   creds: VPNCredentials | null;
   clients: VPNClient[];
   onChanged: () => void;
+  onDialogOpenChange?: (open: boolean) => void;
 }
 
-export function ClientsSection({ creds, clients, onChanged }: Props) {
+export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }: Props) {
   const paged = usePagedFilter(clients, matches);
   const toast = useToast();
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<VPNClient | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNClient | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
+  const dialogOpen = adding || editing !== null || pendingDelete !== null;
+  useEffect(() => {
+    onDialogOpenChange?.(dialogOpen);
+  }, [dialogOpen, onDialogOpenChange]);
 
   const onSubmitL2TP = async (req: AddL2TPClientRequest) => {
     if (!creds) {
