@@ -3,7 +3,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// Section order in WanPage: 0 Starlink, 1 Domestic, 2 Masking VPN, 3 Domestic VPN.
+// Section order in WanPage: 0 Starlink, 1 Domestic, 2 Masking VPN (Domestic VPN is hidden).
 const newButton = (page: Page, index: number) =>
   page.getByRole('button', { name: 'New' }).nth(index);
 
@@ -194,7 +194,7 @@ const blankState = (): WanRouteState => ({
 });
 
 test.describe('WAN tab', () => {
-  test('tab is enabled, lists the four sections and shows empty states', async ({
+  test('tab is enabled, lists the three sections and shows empty states', async ({
     page,
     context,
     resetMocks,
@@ -215,7 +215,7 @@ test.describe('WAN tab', () => {
     ).toBeVisible();
     await expect(
       page.getByRole('heading', { name: 'Domestic VPN Interfaces', exact: true }),
-    ).toBeVisible();
+    ).toBeHidden();
 
     await expect(page.getByText('No Starlink uplinks yet')).toBeVisible();
     await expect(page.getByText('No masking VPN clients yet')).toBeVisible();
@@ -322,7 +322,7 @@ test.describe('WAN tab', () => {
     await expect(page.getByRole('cell', { name: 'mask-one', exact: true })).toBeVisible();
   });
 
-  test('delete a domestic VPN client via real BE', async ({
+  test.skip('delete a domestic VPN client via real BE', async ({
     page,
     context,
     resetMocks,
