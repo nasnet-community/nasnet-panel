@@ -58,8 +58,8 @@ const toInterface = (wi: WifiInterfaceResponse): Interface => ({
 
 const toWirelessClient = (c: WifiConnectedClientResponse): WirelessClient => ({
   mac: c.macAddress,
-  hostname: c.macAddress,
-  ip: '',
+  hostname: c.hostname || c.macAddress,
+  ip: c.ipAddress,
   signalDbm: parseNumber(c.signal),
   band: toBand(c.band),
   txKbps: bpsToKbps(c.txBitsPerSecond),

@@ -17,8 +17,10 @@ export function NodeBubble({ node, onSelect }: NodeBubbleProps) {
   const inner = (
     <>
       <div className={iconClass}>{nodeIcon(node)}</div>
-      <div className={styles.nodeLabel}>{node.label}</div>
-      {sub ? <div className={styles.nodeSubLabel}>{sub}</div> : null}
+      <div className={styles.nodeLabelWrap}>
+        <div className={styles.nodeLabel}>{node.label}</div>
+        {sub ? <div className={styles.nodeSubLabel}>{sub}</div> : null}
+      </div>
     </>
   );
   return (

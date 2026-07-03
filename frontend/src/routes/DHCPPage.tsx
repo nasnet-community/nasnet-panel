@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Cable, Inbox, Pin, Server, Trash2 } from 'lucide-react';
+import { Cable, Inbox, Pin, Trash2 } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -19,14 +19,12 @@ import styles from './DHCPPage.module.scss';
 import {
   fetchDhcpClients,
   fetchDhcpLeases,
-  fetchDhcpServers,
   fetchInterfaces,
   fetchSystemOverview,
   makeDhcpLeaseStatic,
   removeDhcpLease,
   type DhcpClient,
   type DhcpLease,
-  type DhcpServer,
   type InterfaceResponse,
 } from '../api';
 import { useSession } from '../state/SessionContext';
@@ -60,7 +58,6 @@ export function DHCPPage() {
   const { getCredentials } = useSession();
   const toast = useToast();
 
-  const [servers, setServers] = useState<SectionState<DhcpServer>>(initial<DhcpServer>());
   const [leases, setLeases] = useState<SectionState<DhcpLease>>(initial<DhcpLease>());
   const [clients, setClients] = useState<SectionState<DhcpClient>>(initial<DhcpClient>());
   const [model, setModel] = useState<string | null>(null);
@@ -77,21 +74,18 @@ export function DHCPPage() {
       const host = router?.host;
       if (!creds || !host) {
         const missing = 'Missing router credentials for this session.';
-        setServers({ data: [], loading: false, error: missing });
         setLeases({ data: [], loading: false, error: missing });
         setClients({ data: [], loading: false, error: missing });
         return;
       }
       if (!silent) {
-        setServers((s) => ({ ...s, loading: true, error: null }));
         setLeases((s) => ({ ...s, loading: true, error: null }));
         setClients((s) => ({ ...s, loading: true, error: null }));
       }
 
       inFlightRef.current = true;
       const full = { host, ...creds };
-      const [sResult, lResult, cResult, oResult, iResult] = await Promise.allSettled([
-        fetchDhcpServers(full),
+      const [lResult, cResult, oResult, iResult] = await Promise.allSettled([
         fetchDhcpLeases(full),
         fetchDhcpClients(full),
         fetchSystemOverview(id, full),
@@ -102,15 +96,6 @@ export function DHCPPage() {
       if (oResult.status === 'fulfilled') setModel(oResult.value.model);
       if (iResult.status === 'fulfilled') setInterfaces(iResult.value);
 
-      setServers(
-        sResult.status === 'fulfilled'
-          ? { data: sResult.value, loading: false, error: null }
-          : {
-              data: [],
-              loading: false,
-              error: errorMessage(sResult.reason, 'Failed to load servers.'),
-            },
-      );
       setLeases(
         lResult.status === 'fulfilled'
           ? { data: lResult.value, loading: false, error: null }
@@ -197,37 +182,6 @@ export function DHCPPage() {
   }, [id, router?.host, getCredentials, leaseToRemove, reload, toast]);
 
   const wanNames = useMemo(() => wanInterfaceNames(interfaces), [interfaces]);
-
-  const serverColumns: DataTableColumn<DhcpServer>[] = [
-    { key: 'name', header: 'Name', render: (r) => r.name || '—' },
-    {
-      key: 'interface',
-      header: 'Interface',
-      render: (r) => <span className={styles.mono}>{r.interface}</span>,
-    },
-    { key: 'pool', header: 'Address pool', render: (r) => r.addressPool || '—' },
-    {
-      key: 'ranges',
-      header: 'Ranges',
-      render: (r) =>
-        r.ranges.length > 0 ? (
-          <span className={styles.mono}>{r.ranges.join(', ')}</span>
-        ) : (
-          <span className={styles.muted}>—</span>
-        ),
-    },
-    {
-      key: 'lease',
-      header: 'Lease time',
-      render: (r) => r.leaseTime || <span className={styles.muted}>—</span>,
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (r) =>
-        r.disabled ? <Badge tone="warning">disabled</Badge> : <Badge tone="success">enabled</Badge>,
-    },
-  ];
 
   const leaseColumns: DataTableColumn<DhcpLease>[] = [
     {
@@ -402,6 +356,26 @@ export function DHCPPage() {
         </div>
       </Card>
 
+      <Card data-testid="dhcp-clients">
+        <CardHeader>
+          <CardTitle>DHCP Clients</CardTitle>
+          <CardDescription>
+            Interfaces on which this router acts as a DHCP client (WAN).
+          </CardDescription>
+        </CardHeader>
+        {clients.error ? <div className={styles.errorBanner}>{clients.error}</div> : null}
+        {clients.loading ? (
+          loadingRows(6)
+        ) : clients.data.length === 0 ? (
+          <div className={styles.empty}>
+            <Cable size={22} aria-hidden className={styles.emptyIcon} />
+            <p>This router is not a DHCP client on any interface.</p>
+          </div>
+        ) : (
+          <DataTable columns={clientColumns} rows={clients.data} rowKey={(r) => r.id} />
+        )}
+      </Card>
+
       <Card data-testid="dhcp-leases">
         <CardHeader>
           <CardTitle>Leases</CardTitle>
@@ -421,44 +395,6 @@ export function DHCPPage() {
             rows={leases.data}
             rowKey={(r) => r.id || r.macAddress}
           />
-        )}
-      </Card>
-
-      <Card data-testid="dhcp-clients">
-        <CardHeader>
-          <CardTitle>Clients</CardTitle>
-          <CardDescription>
-            Interfaces on which this router acts as a DHCP client (WAN).
-          </CardDescription>
-        </CardHeader>
-        {clients.error ? <div className={styles.errorBanner}>{clients.error}</div> : null}
-        {clients.loading ? (
-          loadingRows(6)
-        ) : clients.data.length === 0 ? (
-          <div className={styles.empty}>
-            <Cable size={22} aria-hidden className={styles.emptyIcon} />
-            <p>This router is not a DHCP client on any interface.</p>
-          </div>
-        ) : (
-          <DataTable columns={clientColumns} rows={clients.data} rowKey={(r) => r.id} />
-        )}
-      </Card>
-
-      <Card data-testid="dhcp-servers">
-        <CardHeader>
-          <CardTitle>Servers</CardTitle>
-          <CardDescription>DHCP server instances bound to router interfaces.</CardDescription>
-        </CardHeader>
-        {servers.error ? <div className={styles.errorBanner}>{servers.error}</div> : null}
-        {servers.loading ? (
-          loadingRows(6)
-        ) : servers.data.length === 0 ? (
-          <div className={styles.empty}>
-            <Server size={22} aria-hidden className={styles.emptyIcon} />
-            <p>No DHCP servers configured.</p>
-          </div>
-        ) : (
-          <DataTable columns={serverColumns} rows={servers.data} rowKey={(r) => r.id} />
         )}
       </Card>
 
