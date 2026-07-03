@@ -155,6 +155,7 @@
 
 .trafficCard {
   gap: var(--space-md);
+  min-height: auto;
 }
 
 .networkCardHeader {
@@ -224,8 +225,7 @@
 }
 
 .chartArea {
-  flex: 1;
-  min-height: 120px;
+  height: 200px;
   position: relative;
 }
 
@@ -281,7 +281,7 @@
 }
 
 .ifaceSelect {
-  width: 140px;
+  width: 220px;
   flex: 0 0 auto;
 
   button {
