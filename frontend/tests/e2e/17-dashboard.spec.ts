@@ -28,7 +28,10 @@ test.describe('Real dashboard overview', () => {
     await expect(page.getByText('Memory', { exact: true })).toBeVisible();
     await expect(page.getByText('Disk', { exact: true })).toBeVisible();
 
-    // Traffic chart SVG rendered
+    // Traffic dropdown lists all interfaces and the graph renders for the selection
+    await expect(page.getByLabel('Select interface for traffic')).toBeVisible();
+    await expect(page.getByText('Download').first()).toBeVisible();
+    await expect(page.getByText(/Mb\/s/).first()).toBeVisible();
     await expect(page.locator('svg').first()).toBeVisible();
   });
 });

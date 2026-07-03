@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Activity,
@@ -29,10 +29,11 @@ import {
   useToast,
 } from '@nasnet/ui';
 import {
+  ApiError,
   fetchDHCPLeases,
   fetchDhcpClients,
   fetchDynamicOverview,
-  fetchInterfaceTraffic,
+  fetchInterfaceGraph,
   fetchInterfaces,
   fetchRoutes,
   fetchSystemOverview,
@@ -42,6 +43,7 @@ import {
   shutdownSystem,
   type DhcpClient,
   type DHCPLeaseResponse,
+  type InterfaceGraphSample,
   type InterfaceResponse,
   type IpAddressResponse,
   type RouteResponse,
@@ -55,7 +57,6 @@ import { useThemeColors } from '../utils/theme-colors';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
 import { UplinkIpCard } from './overview-panel/UplinkIpCard';
 import { resolveModelStrict } from './overview-panel/resolveModel';
-import { wanInterfaces } from './overview-panel/uplinks';
 import styles from './OverviewTab.module.scss';
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
@@ -84,8 +85,25 @@ const miniBarStyle = (pct: number, tone: 'success' | 'warning' | 'danger'): Reac
 const formatMbps = (kbps: number) => `${(kbps / 1000).toFixed(2)} Mb/s`;
 
 const OVERVIEW_REFRESH_MS = 3000;
-const TRAFFIC_WINDOW_MS = 20_000;
+const GRAPH_REFRESH_MS = 10_000;
 const DEFAULT_TRAFFIC_INTERFACE = 'ether1';
+
+const toTrafficSamples = (data: InterfaceGraphSample[]): TrafficSample[] => {
+  const samples: TrafficSample[] = [];
+  for (let i = 1; i < data.length; i += 1) {
+    const prev = data[i - 1];
+    const curr = data[i];
+    const t = new Date(curr.timestamp).getTime();
+    const dtSec = (t - new Date(prev.timestamp).getTime()) / 1000;
+    if (dtSec <= 0) continue;
+    samples.push({
+      t,
+      rxKbps: Math.max(0, ((curr.rxBytes - prev.rxBytes) * 8) / dtSec / 1000),
+      txKbps: Math.max(0, ((curr.txBytes - prev.txBytes) * 8) / dtSec / 1000),
+    });
+  }
+  return samples;
+};
 
 export function OverviewTab() {
   const { id } = useParams<{ id: string }>();
@@ -100,7 +118,8 @@ export function OverviewTab() {
   const [routes, setRoutes] = useState<RouteResponse[]>([]);
   const [dhcpClients, setDhcpClients] = useState<DhcpClient[]>([]);
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
-  const selectedIfaceRef = useRef(selectedIface);
+  const [graphLoading, setGraphLoading] = useState(false);
+  const [graphError, setGraphError] = useState<string | null>(null);
   const [powerAction, setPowerAction] = useState<'reboot' | 'shutdown' | null>(null);
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameInput, setRenameInput] = useState('');
@@ -184,9 +203,12 @@ export function OverviewTab() {
         setInterfaces(list);
         setRoutes(routeList);
         setDhcpClients(clients);
-        if (list.length > 0 && !list.some((i) => i.name === selectedIfaceRef.current)) {
-          const preferred = list.find((i) => i.running && i.type === 'ether') ?? list[0];
-          setSelectedIface(preferred.name);
+        if (list.length > 0) {
+          setSelectedIface((prev) => {
+            if (list.some((i) => i.name === prev)) return prev;
+            const preferred = list.find((i) => i.running && i.type === 'ether') ?? list[0];
+            return preferred.name;
+          });
         }
       } catch {
         // keep loading state visible; errors surface via network tab
@@ -195,9 +217,8 @@ export function OverviewTab() {
 
     const pollDynamic = async () => {
       try {
-        const [dynamic, trafficSample, vpnList, leases] = await Promise.all([
+        const [dynamic, vpnList, leases] = await Promise.all([
           fetchDynamicOverview({ host, ...creds }),
-          fetchInterfaceTraffic({ host, ...creds }, selectedIfaceRef.current).catch(() => null),
           fetchVPNClients({ host, ...creds }).catch(() => [] as VPNActiveClient[]),
           fetchDHCPLeases({ host, ...creds }).catch(() => [] as DHCPLeaseResponse[]),
         ]);
@@ -205,17 +226,6 @@ export function OverviewTab() {
         setOverview((prev) => (prev ? { ...prev, ...dynamic } : prev));
         setDhcpLeaseList(leases.filter((l) => l.status === 'bound'));
         setVpnClients(vpnList);
-        if (trafficSample) {
-          const sample: TrafficSample = {
-            t: Date.now(),
-            rxKbps: trafficSample.rxBitsPerSecond / 1000,
-            txKbps: trafficSample.txBitsPerSecond / 1000,
-          };
-          setTraffic((prev) => {
-            const cutoff = sample.t - TRAFFIC_WINDOW_MS;
-            return [...prev, sample].filter((s) => s.t >= cutoff);
-          });
-        }
       } catch {
         // keep previous values on transient failures
       }
@@ -235,9 +245,45 @@ export function OverviewTab() {
   }, [id, router?.host, getCredentials]);
 
   useEffect(() => {
-    selectedIfaceRef.current = selectedIface;
     setTraffic([]);
-  }, [selectedIface]);
+    setGraphError(null);
+    if (!id || !selectedIface) return;
+    const creds = getCredentials(id);
+    const host = router?.host;
+    if (!creds || !host) return;
+    let cancelled = false;
+    let timer: number | undefined;
+    setGraphLoading(true);
+
+    const poll = async () => {
+      try {
+        const res = await fetchInterfaceGraph({ host, ...creds }, selectedIface);
+        if (cancelled) return;
+        setTraffic(toTrafficSamples(res.trafficData ?? []));
+        setGraphError(null);
+      } catch (err) {
+        if (cancelled) return;
+        if (err instanceof ApiError && err.status === 404) {
+          setGraphError('No traffic data collected for this interface yet');
+        } else {
+          setGraphError(err instanceof Error ? err.message : 'Failed to load traffic data');
+        }
+      } finally {
+        if (!cancelled) {
+          setGraphLoading(false);
+          timer = window.setTimeout(() => {
+            void poll();
+          }, GRAPH_REFRESH_MS);
+        }
+      }
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [id, router?.host, getCredentials, selectedIface]);
 
   const ipAddresses = useMemo<IpAddressResponse[]>(
     () =>
@@ -253,11 +299,6 @@ export function OverviewTab() {
     [dhcpClients],
   );
 
-  const runningInterfaces = useMemo(
-    () => wanInterfaces(interfaces).filter((i) => i.running),
-    [interfaces],
-  );
-
   const memoryPct = useMemo(() => {
     if (!overview || !overview.memoryTotalBytes) return 0;
     return Math.round((overview.memoryUsedBytes / overview.memoryTotalBytes) * 100);
@@ -271,6 +312,10 @@ export function OverviewTab() {
   const latest = traffic[traffic.length - 1];
   const downloadKbps = latest?.rxKbps ?? 0;
   const uploadKbps = latest?.txKbps ?? 0;
+  const windowSec =
+    traffic.length > 1 ? Math.round((traffic[traffic.length - 1].t - traffic[0].t) / 1000) : 0;
+  const windowLabel =
+    windowSec >= 60 ? `-${Math.round(windowSec / 60)}m` : windowSec > 0 ? `-${windowSec}s` : '';
 
   if (!id || !overview) {
     return <OverviewSkeleton />;
@@ -326,13 +371,13 @@ export function OverviewTab() {
             </div>
             Network Traffic
           </div>
-          {runningInterfaces.length > 0 ? (
+          {interfaces.length > 0 ? (
             <Select
               className={styles.ifaceSelect}
               aria-label="Select interface for traffic"
               value={selectedIface}
               onChange={setSelectedIface}
-              options={runningInterfaces.map((i) => ({
+              options={interfaces.map((i) => ({
                 value: i.name,
                 label: i.name,
               }))}
@@ -354,10 +399,20 @@ export function OverviewTab() {
           </div>
         </div>
         <div className={styles.chartArea}>
-          <TrafficChart data={traffic} colors={colors} formatValue={formatMbps} />
+          {traffic.length > 0 ? (
+            <TrafficChart data={traffic} colors={colors} formatValue={formatMbps} />
+          ) : (
+            <div className={styles.networkEmpty}>
+              <span>
+                {graphLoading
+                  ? 'Loading traffic data'
+                  : (graphError ?? 'No traffic data collected for this interface yet')}
+              </span>
+            </div>
+          )}
         </div>
         <div className={styles.chartAxis}>
-          <span>{traffic.length > 1 ? `-${Math.round(TRAFFIC_WINDOW_MS / 1000)}s` : ''}</span>
+          <span>{windowLabel}</span>
           <span>now</span>
         </div>
         <div className={styles.chartLegend}>

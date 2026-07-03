@@ -93,12 +93,17 @@ export async function fetchDHCPLeases(
   return leases ?? [];
 }
 
-export interface InterfaceTrafficResponse {
-  name: string;
-  rxBitsPerSecond: number;
-  txBitsPerSecond: number;
-  rxPacketsPerSecond: number;
-  txPacketsPerSecond: number;
+export interface InterfaceGraphSample {
+  rxBytes: number;
+  txBytes: number;
+  rx: string;
+  tx: string;
+  timestamp: string;
+}
+
+export interface InterfaceGraphResponse {
+  interfaceName: string;
+  trafficData: InterfaceGraphSample[] | null;
 }
 
 export interface InterfaceResponse {
@@ -228,13 +233,13 @@ export async function shutdownSystem(creds: SystemCredentials): Promise<void> {
   });
 }
 
-export async function fetchInterfaceTraffic(
+export async function fetchInterfaceGraph(
   creds: SystemCredentials,
   interfaceName: string,
   signal?: AbortSignal,
-): Promise<InterfaceTrafficResponse> {
-  return apiRequest<InterfaceTrafficResponse>(
-    `/api/interfaces/${encodeURIComponent(interfaceName)}/traffic`,
+): Promise<InterfaceGraphResponse> {
+  return apiRequest<InterfaceGraphResponse>(
+    `/api/interface/graph/${encodeURIComponent(interfaceName)}`,
     {
       method: 'GET',
       headers: authHeaders(creds),
