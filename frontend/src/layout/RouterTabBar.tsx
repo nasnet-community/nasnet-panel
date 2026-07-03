@@ -3,7 +3,6 @@ import {
   Activity,
   Cable,
   CircleHelp,
-  Cpu,
   Globe,
   LayoutGrid,
   Network,
@@ -28,7 +27,6 @@ export const ROUTER_TABS: Array<TabItem & { path: string }> = [
   { id: 'lan', label: 'LAN', path: 'lan', icon: <Network size={16} />, disabled: true },
   { id: 'wireless', label: 'WIFI', path: 'wireless', icon: <Wifi size={16} /> },
   { id: 'vpn', label: 'VPN Server', path: 'vpn', icon: <Shield size={16} /> },
-  { id: 'system', label: 'System', path: 'system', icon: <Cpu size={16} />, disabled: true },
   { id: 'wizard', label: 'Wizard', path: 'config', icon: <Wand2 size={16} /> },
   {
     id: 'diagnostics',
