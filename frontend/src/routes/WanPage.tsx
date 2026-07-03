@@ -17,7 +17,6 @@ import styles from './wan/WanPage.module.scss';
 import { StarlinkSection } from './wan/sections/StarlinkSection';
 import { DomesticUplinkSection } from './wan/sections/DomesticUplinkSection';
 import { MaskingVpnSection } from './wan/sections/MaskingVpnSection';
-import { DomesticVpnSection } from './wan/sections/DomesticVpnSection';
 import { matchesWanCategory } from './wan/types';
 import { filterWanVpnClients } from './wan/wanVpn';
 import { mapClientFromBE } from './vpn/adapters';
@@ -105,7 +104,6 @@ export function WanPage() {
   const domestic = interfaces.filter((i) => matchesWanCategory(i.comment, 'domestic'));
   const assignedNames = [...foreign, ...domestic].map((i) => i.name);
   const maskingVpn = vpnClients.filter((c) => matchesWanCategory(c.comment, 'foreign'));
-  const domesticVpn = vpnClients.filter((c) => matchesWanCategory(c.comment, 'domestic'));
 
   return (
     <div className={styles.sectionGrid}>
@@ -127,7 +125,6 @@ export function WanPage() {
       />
       <MaskingVpnSection routerId={id} items={maskingVpn} onChanged={loadVpn} />
       <ClientsSection creds={resolveCreds()} clients={allVpnClients} onChanged={loadVpn} />
-      <DomesticVpnSection routerId={id} items={domesticVpn} onChanged={loadVpn} />
     </div>
   );
 }
