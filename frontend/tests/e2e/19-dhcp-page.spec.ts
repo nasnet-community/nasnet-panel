@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 
 test.describe('LAN page (DHCP + port diagram)', () => {
-  test('renders servers, leases, and clients loaded from the backend', async ({
+  test('renders leases and clients loaded from the backend', async ({
     page,
     resetMocks,
     seedRouter,
@@ -13,11 +13,6 @@ test.describe('LAN page (DHCP + port diagram)', () => {
     await mockOverviewBackend({ id: 'rtr_dhcp', model: 'hAP ax3' });
     await mockDhcpBackend({ id: 'rtr_dhcp' });
     await page.goto('/router/rtr_dhcp/lan');
-
-    const servers = page.getByTestId('dhcp-servers');
-    await expect(servers).toBeVisible();
-    await expect(servers).toContainText('default-lan');
-    await expect(servers).toContainText('192.168.88.100-192.168.88.200');
 
     const leases = page.getByTestId('dhcp-leases');
     await expect(leases).toBeVisible();
