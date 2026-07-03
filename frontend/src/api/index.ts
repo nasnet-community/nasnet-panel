@@ -75,13 +75,11 @@ export {
 export {
   fetchDhcpLeases,
   fetchDhcpClients,
-  fetchDhcpServers,
   makeDhcpLeaseStatic,
   removeDhcpLease,
   type DhcpCredentials,
   type DhcpLease,
   type DhcpClient,
-  type DhcpServer,
   type DhcpLeaseAction,
 } from './dhcp';
 export { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from './firewall';
