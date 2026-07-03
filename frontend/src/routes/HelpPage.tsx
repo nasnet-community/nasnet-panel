@@ -1,10 +1,8 @@
 import { MessagesSquare } from 'lucide-react';
 import { Card, CardDescription, CardHeader, CardTitle, Inline, Stack } from '@nasnet/ui';
 import styles from './HelpPage.module.scss';
+import { ChatPanel } from './help/ChatPanel';
 import { SupportLinks } from './help/SupportLinks';
-
-const CHATWOOT_WIDGET_URL =
-  'https://app.chatwoot.com/widget?website_token=6bf25JZcWyhrbtLMgiv4oNuy';
 
 export function HelpPage() {
   return (
@@ -25,12 +23,7 @@ export function HelpPage() {
             </CardDescription>
           </div>
         </CardHeader>
-        <iframe
-          className={styles.chatFrame}
-          src={CHATWOOT_WIDGET_URL}
-          title="AI Assistant chat"
-          allow="microphone; camera; clipboard-write"
-        />
+        <ChatPanel />
       </Card>
     </Stack>
   );

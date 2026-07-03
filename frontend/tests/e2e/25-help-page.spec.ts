@@ -20,7 +20,7 @@ test.describe('Help page', () => {
     await helpTab.click();
 
     await expect(page).toHaveURL(new RegExp(`/router/${ROUTER.id}/help$`));
-    await expect(page.getByTitle('AI Assistant chat')).toBeVisible();
+    await expect(page.getByTestId('help-chat')).toBeVisible();
   });
 
   test('support buttons link to knowledge base, Telegram and GitHub in a new tab', async ({
