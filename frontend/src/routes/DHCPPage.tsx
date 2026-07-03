@@ -402,28 +402,6 @@ export function DHCPPage() {
         </div>
       </Card>
 
-      <Card data-testid="dhcp-leases">
-        <CardHeader>
-          <CardTitle>Leases</CardTitle>
-          <CardDescription>Active DHCP leases issued to clients on the LAN.</CardDescription>
-        </CardHeader>
-        {leases.error ? <div className={styles.errorBanner}>{leases.error}</div> : null}
-        {leases.loading ? (
-          loadingRows(6)
-        ) : leases.data.length === 0 ? (
-          <div className={styles.empty}>
-            <Inbox size={22} aria-hidden className={styles.emptyIcon} />
-            <p>No active leases.</p>
-          </div>
-        ) : (
-          <DataTable
-            columns={leaseColumns}
-            rows={leases.data}
-            rowKey={(r) => r.id || r.macAddress}
-          />
-        )}
-      </Card>
-
       <Card data-testid="dhcp-clients">
         <CardHeader>
           <CardTitle>DHCP Clients</CardTitle>
@@ -459,6 +437,28 @@ export function DHCPPage() {
           </div>
         ) : (
           <DataTable columns={serverColumns} rows={servers.data} rowKey={(r) => r.id} />
+        )}
+      </Card>
+
+      <Card data-testid="dhcp-leases">
+        <CardHeader>
+          <CardTitle>Leases</CardTitle>
+          <CardDescription>Active DHCP leases issued to clients on the LAN.</CardDescription>
+        </CardHeader>
+        {leases.error ? <div className={styles.errorBanner}>{leases.error}</div> : null}
+        {leases.loading ? (
+          loadingRows(6)
+        ) : leases.data.length === 0 ? (
+          <div className={styles.empty}>
+            <Inbox size={22} aria-hidden className={styles.emptyIcon} />
+            <p>No active leases.</p>
+          </div>
+        ) : (
+          <DataTable
+            columns={leaseColumns}
+            rows={leases.data}
+            rowKey={(r) => r.id || r.macAddress}
+          />
         )}
       </Card>
 
