@@ -393,17 +393,21 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
-      await context.route('**/api/interfaces/*/traffic', async (route) => {
+      const graphStart = Date.now() - 29 * 10_000;
+      const trafficData = Array.from({ length: 30 }, (_, i) => ({
+        rxBytes: 1_000_000 + i * 1_250_000,
+        txBytes: 500_000 + i * 625_000,
+        rx: '1.25 MB/s',
+        tx: '625.0 kB/s',
+        timestamp: new Date(graphStart + i * 10_000).toISOString(),
+      }));
+      await context.route('**/api/interface/graph/*', async (route) => {
+        const url = new URL(route.request().url());
+        const interfaceName = decodeURIComponent(url.pathname.split('/').pop() ?? '');
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope({
-            name: 'ether1',
-            rxBitsPerSecond: 1_000_000,
-            txBitsPerSecond: 500_000,
-            rxPacketsPerSecond: 100,
-            txPacketsPerSecond: 50,
-          }),
+          body: envelope({ interfaceName, trafficData }),
         });
       });
 

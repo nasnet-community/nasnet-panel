@@ -65,15 +65,13 @@ export const TrafficChart: React.FC<TrafficChartProps> = ({
   const hoverX = hoverIdx !== null ? hoverIdx * stepX : 0;
   const tooltipLeftPct = CHART_W > 0 ? (hoverX / CHART_W) * 100 : 0;
 
-  const lastT = data[data.length - 1]?.t ?? 0;
-  const deltaSec = hoverPoint ? Math.max(0, Math.round((lastT - hoverPoint.t) / 1000)) : 0;
-  const timeLabel = !hoverPoint
-    ? ''
-    : deltaSec === 0
-      ? 'now'
-      : deltaSec < 60
-        ? `-${deltaSec}s`
-        : `-${Math.round(deltaSec / 60)}m`;
+  const timeLabel = hoverPoint
+    ? new Date(hoverPoint.t).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+    : '';
 
   return (
     <div className={styles.chartInner}>
@@ -128,34 +126,38 @@ export const TrafficChart: React.FC<TrafficChartProps> = ({
           vectorEffect="non-scaling-stroke"
         />
         {hoverIdx !== null ? (
-          <>
-            <line
-              x1={hoverX}
-              y1={0}
-              x2={hoverX}
-              y2={CHART_H}
-              stroke={colors.border}
-              strokeWidth={1}
-              strokeDasharray="2 2"
-              vectorEffect="non-scaling-stroke"
-            />
-            <circle
-              cx={hoverX}
-              cy={toY(data[hoverIdx].rxKbps)}
-              r={2.5}
-              fill={colors.success}
-              vectorEffect="non-scaling-stroke"
-            />
-            <circle
-              cx={hoverX}
-              cy={toY(data[hoverIdx].txKbps)}
-              r={2.5}
-              fill={colors.warning}
-              vectorEffect="non-scaling-stroke"
-            />
-          </>
+          <line
+            x1={hoverX}
+            y1={0}
+            x2={hoverX}
+            y2={CHART_H}
+            stroke={colors.border}
+            strokeWidth={1}
+            strokeDasharray="2 2"
+            vectorEffect="non-scaling-stroke"
+          />
         ) : null}
       </svg>
+      {hoverPoint ? (
+        <>
+          <span
+            className={styles.chartDot}
+            style={{
+              left: `${tooltipLeftPct}%`,
+              top: `${(toY(hoverPoint.rxKbps) / CHART_H) * 100}%`,
+              background: colors.success,
+            }}
+          />
+          <span
+            className={styles.chartDot}
+            style={{
+              left: `${tooltipLeftPct}%`,
+              top: `${(toY(hoverPoint.txKbps) / CHART_H) * 100}%`,
+              background: colors.warning,
+            }}
+          />
+        </>
+      ) : null}
       {hoverPoint ? (
         <div className={styles.chartTooltip} style={{ left: `${tooltipLeftPct}%` }} role="status">
           <div className={styles.chartTooltipTime}>{timeLabel}</div>
