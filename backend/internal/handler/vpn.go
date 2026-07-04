@@ -276,6 +276,10 @@ func HandleAddL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
 	}
 
+	if _, err := client.AddFirewallAddressListItem("VPNE", req.ConnectTo, false, req.Name); err != nil {
+		c.Logger().Errorf("Failed to add L2TP server address to firewall list: %v", err)
+	}
+
 	vpnClient, err := client.GetVPNClient(req.Name)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added L2TP client", err)
@@ -335,10 +339,34 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
+	l2tpClientBefore, err := client.GetL2TPClientInfo(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
+	}
+
 	useIPsecValue := req.IPsecSecret != nil && *req.IPsecSecret != ""
 
 	if err := client.UpdateL2TPClient(nameOrID, req.ConnectTo, req.User, req.Password, req.Disabled, req.IPsecSecret, &useIPsecValue); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update L2TP client", err)
+	}
+
+	if req.ConnectTo != nil && *req.ConnectTo != l2tpClientBefore.ConnectTo {
+		oldAddress := l2tpClientBefore.ConnectTo
+		newAddress := *req.ConnectTo
+
+		items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
+			ListName: "VPNE",
+			Address:  oldAddress,
+		})
+		if err == nil && len(items) > 0 {
+			if err := client.UpdateFirewallAddressListItem(items[0].ID, newAddress); err != nil {
+				c.Logger().Errorf("Failed to update firewall address list item: %v", err)
+			}
+		} else if err != nil || len(items) == 0 {
+			if _, err := client.AddFirewallAddressListItem("VPNE", newAddress, false, l2tpClientBefore.Name); err != nil {
+				c.Logger().Errorf("Failed to add firewall address list item: %v", err)
+			}
+		}
 	}
 
 	vpnClient, err := client.GetVPNClient(nameOrID)
@@ -392,8 +420,23 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Client name or ID is required", nil)
 	}
 
+	l2tpClient, err := client.GetL2TPClientInfo(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
+	}
+
 	if err := client.RemoveL2TPClient(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete L2TP client", err)
+	}
+
+	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
+		ListName: "VPNE",
+		Address:  l2tpClient.ConnectTo,
+	})
+	if err == nil && len(items) > 0 {
+		if err := client.RemoveFirewallAddressListItem(items[0].ID); err != nil {
+			c.Logger().Errorf("Failed to remove firewall address list item: %v", err)
+		}
 	}
 
 	return c.NoContent(http.StatusNoContent)
