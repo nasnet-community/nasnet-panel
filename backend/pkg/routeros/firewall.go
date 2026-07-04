@@ -107,6 +107,24 @@ type MangleRuleConfig struct {
 	Comment     string
 }
 
+// FirewallAddressListItem represents an entry in a firewall address list.
+type FirewallAddressListItem struct {
+	ID       string
+	List     string
+	Address  string
+	Disabled bool
+	Comment  string
+}
+
+// FirewallAddressListFilter represents filter criteria for querying firewall address list items.
+type FirewallAddressListFilter struct {
+	ID       string // Filter by item ID (RouterOS internal ID)
+	ListName string // Filter by address list name (e.g., "blacklist")
+	Address  string // Filter by specific address (e.g., "192.168.1.0/24")
+	Comment  string // Filter by comment text
+	Disabled *bool  // Filter by disabled status (true/false, nil for any)
+}
+
 // ListFirewallFilterRules retrieves all firewall filter rules.
 func (c *Client) ListFirewallFilterRules() ([]FirewallFilterRule, error) {
 	results, err := c.GetAll("/ip/firewall/filter")
@@ -393,6 +411,92 @@ func (c *Client) RemoveMangleRule(id string) error {
 	_, err := c.Remove("/ip/firewall/mangle", "=.id="+id)
 	if err != nil {
 		return fmt.Errorf("failed to remove mangle rule: %w", err)
+	}
+
+	return nil
+}
+
+// ListFirewallAddressListItems retrieves firewall address list items matching the given filter criteria.
+// If all filter fields are empty/nil, returns all items. Assigned fields are used as search criteria.
+func (c *Client) ListFirewallAddressListItems(filter FirewallAddressListFilter) ([]FirewallAddressListItem, error) {
+	args := make([]string, 0)
+
+	if filter.ID != "" {
+		args = append(args, "?=.id="+filter.ID)
+	}
+	if filter.ListName != "" {
+		args = append(args, "?=list="+filter.ListName)
+	}
+	if filter.Address != "" {
+		args = append(args, "?=address="+filter.Address)
+	}
+	if filter.Comment != "" {
+		args = append(args, "?=comment="+filter.Comment)
+	}
+	if filter.Disabled != nil {
+		disabledStr := "false"
+		if *filter.Disabled {
+			disabledStr = "true"
+		}
+		args = append(args, "?=disabled="+disabledStr)
+	}
+
+	results, err := c.GetAll("/ip/firewall/address-list", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list firewall address list items: %w", err)
+	}
+
+	items := make([]FirewallAddressListItem, 0, len(results))
+	for _, result := range results {
+		items = append(items, FirewallAddressListItem{
+			ID:       result[".id"],
+			List:     result["list"],
+			Address:  result["address"],
+			Disabled: result["disabled"] == "true",
+			Comment:  result["comment"],
+		})
+	}
+
+	return items, nil
+}
+
+// AddFirewallAddressListItem adds a new item to a firewall address list.
+func (c *Client) AddFirewallAddressListItem(listName, address string, disabled bool, comment string) (string, error) {
+	args := []string{
+		"=list=" + listName,
+		"=address=" + address,
+	}
+
+	if disabled {
+		args = append(args, "=disabled=yes")
+	}
+	if comment != "" {
+		args = append(args, "=comment="+comment)
+	}
+
+	id, err := c.Add("/ip/firewall/address-list", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add firewall address list item: %w", err)
+	}
+
+	return id, nil
+}
+
+// RemoveFirewallAddressListItem removes an item from a firewall address list by ID.
+func (c *Client) RemoveFirewallAddressListItem(id string) error {
+	_, err := c.Remove("/ip/firewall/address-list", "=.id="+id)
+	if err != nil {
+		return fmt.Errorf("failed to remove firewall address list item: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateFirewallAddressListItem updates an existing firewall address list item by ID.
+func (c *Client) UpdateFirewallAddressListItem(id, address string) error {
+	_, err := c.Set("/ip/firewall/address-list", "=.id="+id, "=address="+address)
+	if err != nil {
+		return fmt.Errorf("failed to update firewall address list item: %w", err)
 	}
 
 	return nil

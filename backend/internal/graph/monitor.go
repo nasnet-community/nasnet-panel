@@ -57,7 +57,6 @@ func StartMonitoring(credentials RouterCredentials, interval time.Duration, queu
 
 	// If monitor already exists for this IP, reuse it without recreating
 	if _, ok := activeMonitors[credentials.IP]; ok {
-		log.Printf("Monitor already running for router %s, reusing existing monitor", credentials.IP)
 		return nil
 	}
 

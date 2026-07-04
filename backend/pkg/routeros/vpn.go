@@ -408,13 +408,19 @@ func (c *Client) ListVPNClients() ([]VPNClientInfo, error) {
 
 // GetVPNClient returns a specific VPN client by name or ID.
 func (c *Client) GetVPNClient(nameOrID string) (*VPNClientInfo, error) {
-	result, err := c.GetFirst("/interface", "?=.id="+nameOrID)
-	if err != nil {
-		// Try by name
+	var result map[string]string
+	var err error
+
+	// If it looks like an ID (starts with *), try by ID first
+	if strings.HasPrefix(nameOrID, "*") {
+		result, err = c.GetByID("/interface", nameOrID)
+	} else {
+		// Otherwise try by name
 		result, err = c.GetFirst("/interface", "?=name="+nameOrID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get VPN client %s: %w", nameOrID, err)
-		}
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get VPN client %s: %w", nameOrID, err)
 	}
 
 	interfaceType := result["type"]
@@ -569,12 +575,17 @@ func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 
 // GetOvpnServer returns a specific OpenVPN server by ID or name.
 func (c *Client) GetOvpnServer(idOrName string) (*OvpnServerInfo, error) {
-	result, err := c.GetFirst("/interface/ovpn-server/server", "?=.id="+idOrName)
-	if err == nil {
-		return parseOvpnServerInfo(result), nil
+	var result map[string]string
+	var err error
+
+	// If it looks like an ID (starts with *), try by ID first
+	if strings.HasPrefix(idOrName, "*") {
+		result, err = c.GetByID("/interface/ovpn-server/server", idOrName)
+	} else {
+		// Otherwise try by name
+		result, err = c.GetFirst("/interface/ovpn-server/server", "?=name="+idOrName)
 	}
 
-	result, err = c.GetFirst("/interface/ovpn-server/server", "?=name="+idOrName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get OpenVPN server %s: %w", idOrName, err)
 	}
@@ -761,12 +772,17 @@ func (c *Client) ListWireGuards() ([]WireGuardInfo, error) {
 
 // GetWireGuard returns a specific WireGuard interface by name or ID.
 func (c *Client) GetWireGuard(nameOrID string) (*WireGuardInfo, error) {
-	result, err := c.GetFirst("/interface/wireguard", "?=.id="+nameOrID)
-	if err == nil {
-		return parseWireGuardInfo(result), nil
+	var result map[string]string
+	var err error
+
+	// If it looks like an ID (starts with *), try by ID first
+	if strings.HasPrefix(nameOrID, "*") {
+		result, err = c.GetByID("/interface/wireguard", nameOrID)
+	} else {
+		// Otherwise try by name
+		result, err = c.GetFirst("/interface/wireguard", "?=name="+nameOrID)
 	}
 
-	result, err = c.GetFirst("/interface/wireguard", "?=name="+nameOrID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get WireGuard interface %s: %w", nameOrID, err)
 	}
@@ -1170,12 +1186,26 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 }
 
 // GetL2TPClientInfo retrieves detailed information about an L2TP client.
-func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
-	result, err := c.GetFirst("/interface/l2tp-client", "?=name="+name)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get L2TP client %s: %w", name, err)
+func (c *Client) GetL2TPClientInfo(nameOrID string) (*L2TPClientInfo, error) {
+	var result map[string]string
+	var err error
+
+	// If it looks like an ID (starts with *), try by ID first
+	if strings.HasPrefix(nameOrID, "*") {
+		result, err = c.GetByID("/interface/l2tp-client", nameOrID)
+	} else {
+		// Otherwise try by name
+		result, err = c.GetFirst("/interface/l2tp-client", "?=name="+nameOrID)
 	}
 
+	if err != nil {
+		return nil, fmt.Errorf("failed to get L2TP client %s: %w", nameOrID, err)
+	}
+
+	return parseL2TPClientInfo(c, result)
+}
+
+func parseL2TPClientInfo(c *Client, result map[string]string) (*L2TPClientInfo, error) {
 	maxMTU, _ := strconv.Atoi(result["max-mtu"])
 	maxMRU, _ := strconv.Atoi(result["max-mru"])
 	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
