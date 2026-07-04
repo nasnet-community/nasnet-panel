@@ -3,7 +3,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// Section order in WanPage: 0 Starlink, 1 Domestic, 2 Masking VPN.
+// "New" button order in WanPage: 0 Starlink, 1 Domestic, 2 Starlink Masking VPN Client.
 const newButton = (page: Page, index: number) =>
   page.getByRole('button', { name: 'New' }).nth(index);
 
@@ -218,7 +218,7 @@ test.describe('WAN tab', () => {
     ).toBeHidden();
 
     await expect(page.getByText('No Starlink uplinks yet')).toBeVisible();
-    await expect(page.getByText('No masking VPN clients yet')).toBeVisible();
+    await expect(page.getByText('No VPN clients yet.')).toBeVisible();
   });
 
   test('add a Starlink uplink via real BE and move it to Domestic', async ({
@@ -281,7 +281,7 @@ test.describe('WAN tab', () => {
     await expect(page.getByRole('option', { name: 'ether2' })).toBeVisible();
   });
 
-  test('add a masking L2TP VPN client via real BE', async ({
+  test('add an L2TP VPN client via the masking section', async ({
     page,
     context,
     resetMocks,
@@ -299,11 +299,10 @@ test.describe('WAN tab', () => {
     await expect(dialog).toBeVisible();
 
     await dialog.getByLabel('Name').fill('mask-one');
-    await dialog.getByRole('radio', { name: 'L2TP' }).click();
-    await dialog.getByLabel('Server').fill('vpn.example.com');
-    await dialog.getByLabel('Username').fill('user');
-    await dialog.getByRole('textbox', { name: 'Password' }).fill('secret');
-    await dialog.getByRole('button', { name: /^save$/i }).click();
+    await dialog.getByLabel('Connect to').fill('vpn.example.com');
+    await dialog.getByLabel('User').fill('user');
+    await dialog.getByLabel('Password', { exact: true }).fill('secret');
+    await dialog.getByRole('button', { name: 'Add client' }).click();
 
     await expect.poll(() => state.l2tpPosts.length).toBe(1);
     expect(state.l2tpPosts[0]).toMatchObject({
@@ -312,13 +311,6 @@ test.describe('WAN tab', () => {
       user: 'user',
       password: 'secret',
     });
-    await expect.poll(() => state.vpnPuts.length).toBe(1);
-    expect(state.vpnPuts[0]).toMatchObject({
-      name: 'mask-one',
-      body: { comment: 'WAN - Foreign Link(Foreign)' },
-    });
-    // After the comment patch, the client should be classified as masking (foreign).
-    state.vpnClients[0].comment = 'WAN - Foreign Link(Foreign)';
     await expect(page.getByRole('cell', { name: 'mask-one', exact: true })).toBeVisible();
   });
 });
