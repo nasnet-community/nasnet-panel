@@ -239,6 +239,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                 value={draft.listenPort}
                 onChange={(e) => set('listenPort', e.target.value)}
                 inputMode="numeric"
+                autoComplete="off"
                 aria-label="Listen port"
                 aria-invalid={submitAttempted && !!errors.listenPort}
               />
@@ -255,6 +256,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                 onChange={(e) => set('mtu', e.target.value)}
                 placeholder="leave empty to keep current"
                 inputMode="numeric"
+                autoComplete="off"
                 aria-label="MTU"
                 aria-invalid={submitAttempted && !!errors.mtu}
               />
@@ -266,6 +268,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                 value={draft.comment}
                 onChange={(e) => set('comment', e.target.value)}
                 placeholder="optional"
+                autoComplete="off"
                 aria-label="Comment"
               />
             </Label>
@@ -278,7 +281,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                 onChange={(e) => set('interfacePrivateKey', e.target.value)}
                 placeholder="leave empty to keep current"
                 aria-label="Interface private key"
-                autoComplete="off"
+                autoComplete="new-password"
               />
             </Label>
           </FieldRow>
@@ -301,6 +304,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                   <Input
                     value={draft.endpointAddress}
                     onChange={(e) => set('endpointAddress', e.target.value)}
+                    autoComplete="off"
                     aria-label="Endpoint address"
                   />
                 </Label>
@@ -310,6 +314,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                     value={draft.endpointPort}
                     onChange={(e) => set('endpointPort', e.target.value)}
                     inputMode="numeric"
+                    autoComplete="off"
                     aria-label="Endpoint port"
                     aria-invalid={submitAttempted && !!errors.endpointPort}
                   />
@@ -325,6 +330,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                     value={draft.allowedAddresses}
                     onChange={(e) => set('allowedAddresses', e.target.value)}
                     placeholder="0.0.0.0/0"
+                    autoComplete="off"
                     aria-label="Allowed addresses"
                   />
                 </Label>
@@ -335,6 +341,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                     onChange={(e) => set('persistentKeepalive', e.target.value)}
                     placeholder="empty = off"
                     inputMode="numeric"
+                    autoComplete="off"
                     aria-label="Persistent keepalive"
                     aria-invalid={submitAttempted && !!errors.persistentKeepalive}
                   />
@@ -350,6 +357,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                     value={draft.peerPublicKey}
                     onChange={(e) => set('peerPublicKey', e.target.value)}
                     placeholder="leave empty to keep current"
+                    autoComplete="off"
                     aria-label="Peer public key"
                   />
                 </Label>
@@ -360,7 +368,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                     onChange={(e) => set('preSharedKey', e.target.value)}
                     placeholder="leave empty to keep current"
                     aria-label="Preshared key"
-                    autoComplete="off"
+                    autoComplete="new-password"
                   />
                 </Label>
               </FieldRow>
