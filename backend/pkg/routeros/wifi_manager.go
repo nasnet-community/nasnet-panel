@@ -57,6 +57,7 @@ type WifiInfo struct {
 	Passphrase   string
 	SecurityType string
 	Comment      string
+	IsVirtual    bool
 }
 
 type ConnectedClient struct {
