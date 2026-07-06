@@ -57,6 +57,7 @@ type WifiInfo struct {
 	Passphrase   string
 	SecurityType string
 	Comment      string
+	IsVirtual    bool // true if interface has no default-name and no master-interface
 }
 
 type ConnectedClient struct {

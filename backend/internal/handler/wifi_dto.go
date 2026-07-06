@@ -21,6 +21,7 @@ type WiFiInterfaceResponse struct {
 	Band         string `json:"band,omitempty"`
 	SecurityType string `json:"securityType,omitempty"`
 	Comment      string `json:"comment,omitempty"`
+	IsVirtual    bool   `json:"isVirtual"`
 }
 
 type WiFiConnectedClientResponse struct {
@@ -134,6 +135,7 @@ func ToWiFiInterfaceResponse(wi *routeros.WifiInfo) *WiFiInterfaceResponse {
 		Band:         wi.Band,
 		SecurityType: wi.SecurityType,
 		Comment:      wi.Comment,
+		IsVirtual:    wi.IsVirtual,
 	}
 }
 
