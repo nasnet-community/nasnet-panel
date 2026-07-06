@@ -144,6 +144,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
             <Input
               value={draft.name}
               onChange={(e) => set('name', e.target.value)}
+              autoComplete="off"
               aria-label="Name"
             />
           </Label>
@@ -154,6 +155,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
             <Input
               value={draft.endpointAddress}
               onChange={(e) => set('endpointAddress', e.target.value)}
+              autoComplete="off"
               aria-label="Endpoint address"
             />
           </Label>
@@ -164,6 +166,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
               onChange={(e) => set('endpointPort', e.target.value)}
               onBlur={() => markTouched('endpointPort')}
               inputMode="numeric"
+              autoComplete="off"
               aria-label="Endpoint port"
               aria-invalid={touched.endpointPort && !!errors.endpointPort}
             />
@@ -178,6 +181,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
             <Input
               value={draft.allowedAddresses}
               onChange={(e) => set('allowedAddresses', e.target.value)}
+              autoComplete="off"
               aria-label="Allowed addresses"
             />
           </Label>
@@ -189,6 +193,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
               onBlur={() => markTouched('persistentKeepalive')}
               placeholder="empty = off"
               inputMode="numeric"
+              autoComplete="off"
               aria-label="Persistent keepalive"
               aria-invalid={touched.persistentKeepalive && !!errors.persistentKeepalive}
             />
@@ -204,7 +209,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
               value={draft.preSharedKey}
               onChange={(e) => set('preSharedKey', e.target.value)}
               aria-label="Preshared key"
-              autoComplete="off"
+              autoComplete="new-password"
             />
           </Label>
           <Label>
@@ -213,6 +218,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
               value={draft.comment}
               onChange={(e) => set('comment', e.target.value)}
               placeholder="leave empty to keep current"
+              autoComplete="off"
               aria-label="Comment"
             />
           </Label>
