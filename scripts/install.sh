@@ -3,6 +3,8 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)"
+
 # ---- defaults --------------------------------------------------------------
 GH_OWNER="nasnet-community"
 GH_REPO="nasnet-panel"
@@ -23,6 +25,10 @@ CONTAINER_NAME="nnc"
 CONTAINER_ROOT_DIR="disk1/images/nnc"
 TAR_REMOTE_DIR="disk1"
 
+LAN_BRIDGE="LANBridgeSplit"
+LAN_BRIDGE_IP="192.168.10.1"
+LAN_BASELINE_RSC="nasnet-lan-baseline.rsc"
+
 COMMENT_TAG="nasnet-panel-installer"
 MIN_FREE_MB=30
 DEVICE_MODE_TIMEOUT=120
@@ -33,6 +39,8 @@ DRY_RUN=0
 UNINSTALL=0
 VERBOSE=0
 NO_ROLLBACK=0
+NO_LAN_BASELINE=0
+LAN_BASELINE_APPLIED=0
 CONFIG_FILE=""
 VERSION=""
 IMAGE_TAR=""
@@ -54,6 +62,7 @@ Usage: install.sh [options]
   --version <tag>      Release tag to install (default: snapshot).
   --image-tar <path>   Use a local tar instead of downloading a release asset.
   --lan-port <port>    LAN port for dstnat to panel (default: 8080).
+  --no-lan-baseline    Skip the baseline LAN setup (LANBridgeSplit, 192.168.10.0/24).
   --no-rollback        Do not undo partial state on failure.
   -v, --verbose        Verbose output.
   -h, --help           This help.
@@ -92,6 +101,7 @@ while [[ $# -gt 0 ]]; do
     --version)     VERSION="${2:?--version requires a tag}"; shift ;;
     --image-tar)   IMAGE_TAR="${2:?--image-tar requires a path}"; shift ;;
     --lan-port)    LAN_PORT="${2:?--lan-port requires a port}"; shift ;;
+    --no-lan-baseline) NO_LAN_BASELINE=1 ;;
     --no-rollback) NO_ROLLBACK=1 ;;
     -v|--verbose)  VERBOSE=1 ;;
     -h|--help)     usage; exit 0 ;;
@@ -757,6 +767,48 @@ start_and_poll() {
   exit 1
 }
 
+# ---- LAN baseline ----------------------------------------------------------
+setup_lan_baseline() {
+  log ""
+  log "Configuring baseline LAN (bridge ${LAN_BRIDGE}, ${LAN_BRIDGE_IP}/24) ..."
+
+  if ros_exists /interface/bridge "name=${LAN_BRIDGE}"; then
+    printf '  \033[32m✓\033[0m bridge %s (exists, skipping LAN baseline)\n' "$LAN_BRIDGE"
+    return 0
+  fi
+  if (( DRY_RUN )); then
+    log "[dry-run] would move LAN to ${LAN_BRIDGE_IP}/24 via detached RouterOS job"
+    return 0
+  fi
+
+  local rsc="${SCRIPT_DIR}/${LAN_BASELINE_RSC}" tmp=""
+  if [[ ! -r "$rsc" ]]; then
+    local ref="${VERSION:-$SNAPSHOT_CHANNEL}"
+    local url="https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${ref}/scripts/${LAN_BASELINE_RSC}"
+    tmp="$(mktemp)"
+    if ! spin "downloading LAN baseline script" curl -fsSL "$url" -o "$tmp"; then
+      rm -f "$tmp"
+      err "LAN baseline script not found next to install.sh and download failed: ${url}"
+      err "skipping LAN baseline; run the wizard from a wired connection or re-run install.sh"
+      return 0
+    fi
+    rsc="$tmp"
+  fi
+  if ! spin "uploading LAN baseline script" \
+       scp_pw "$rsc" "${ROUTER_USER}@${ROUTER_IP}:${LAN_BASELINE_RSC}"; then
+    [[ -n "$tmp" ]] && rm -f "$tmp"
+    err "LAN baseline upload failed; run the wizard from a wired connection or re-run install.sh"
+    return 0
+  fi
+  [[ -n "$tmp" ]] && rm -f "$tmp"
+  if ! spin "starting detached LAN baseline job" \
+       ros_cmd ":execute script={/import file-name=${LAN_BASELINE_RSC}}"; then
+    err "LAN baseline job failed to start; run the wizard from a wired connection or re-run install.sh"
+    return 0
+  fi
+  LAN_BASELINE_APPLIED=1
+}
+
 # ---- uninstall -------------------------------------------------------------
 uninstall_path() {
   log ""
@@ -783,6 +835,7 @@ uninstall_path() {
   if (( ! DRY_RUN )); then
     ros_cmd "/file/remove [find where (name~\"^${TAR_REMOTE_DIR}/${ASSET_PREFIX}-\") and (name~\"\\.tar\$\")]" \
       >/dev/null 2>&1 || true
+    remove_remote_file "$LAN_BASELINE_RSC"
   fi
 
   log ""
@@ -829,8 +882,20 @@ main() {
   final_port="$(ros_cmd "/ip/firewall/nat/print detail where comment=\"${COMMENT_TAG}-dstnat\"" 2>/dev/null \
                   | sed -nE 's/.*dst-port=([0-9]+).*/\1/p' | head -1)"
   [[ -z "$final_port" ]] && final_port="$LAN_PORT"
+
+  if (( ! NO_LAN_BASELINE )); then
+    setup_lan_baseline
+  fi
+
   log ""
-  log "\033[32m✓ Done. Panel reachable at http://${ROUTER_IP}:${final_port}/\033[0m"
+  if (( LAN_BASELINE_APPLIED )); then
+    log "\033[32m✓ Done. Baseline LAN ${LAN_BRIDGE_IP%.*}.0/24 (bridge ${LAN_BRIDGE}) configured.\033[0m"
+    log "  Reconnect (or renew your DHCP lease) on the ${LAN_BRIDGE_IP%.*}.x network,"
+    log "  then open \033[1mhttp://${LAN_BRIDGE_IP}:${final_port}/\033[0m"
+    log "  If it does not respond, the panel is still at \033[1mhttp://${ROUTER_IP}:${final_port}/\033[0m"
+  else
+    log "\033[32m✓ Done. Panel reachable at http://${ROUTER_IP}:${final_port}/\033[0m"
+  fi
 }
 
 main

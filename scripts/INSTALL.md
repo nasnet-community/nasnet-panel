@@ -82,19 +82,32 @@ SSHPASS=secret bash install.sh --config router.env
 | `--version <tag>`    | Release tag to install (default: `snapshot`).                           |
 | `--image-tar <path>` | Use a local tar instead of downloading a release asset.                 |
 | `--lan-port <port>`  | LAN port for the panel (default: 8080).                                 |
+| `--no-lan-baseline`  | Skip the baseline LAN setup (see below).                                |
 | `--no-rollback`      | Leave partial state in place on failure rather than undoing it.         |
 | `-v`, `--verbose`    | Verbose output.                                                         |
 | `-h`, `--help`       | Show usage.                                                             |
 
+### The baseline LAN
+
+As its final step, the script moves the router's LAN onto the same bridge the setup wizard uses (`LANBridgeSplit`, `192.168.10.1/24`, with DHCP for `192.168.10.2-254`). This keeps you connected while the wizard later reconfigures the router: the wizard preserves this bridge, so your connection to the panel survives the process. The change runs as a detached RouterOS job, so it completes even though it briefly interrupts your session. Interfaces acting as WAN uplinks (DHCP client or PPPoE) are left out of the bridge. On a device in AP/bridge mode (all ports on one uplink bridge) the bridge is created but has no member ports, so the panel remains at the router's current address until the wizard runs.
+
+The RouterOS commands live in `scripts/nasnet-lan-baseline.rsc`. The script uploads the copy sitting next to `install.sh`; if you downloaded `install.sh` on its own, the file is fetched from the repository automatically.
+
+After it applies, reconnect (or renew your DHCP lease) to get a `192.168.10.x` address; the panel is then at `http://192.168.10.1:8080/`.
+
+The step is skipped entirely when `LANBridgeSplit` already exists (a re-install, or a router already configured by the wizard). Pass `--no-lan-baseline` to opt out and keep your current LAN untouched; note the wizard will then dismantle your LAN mid-run and you will need to reconnect to `192.168.10.x` once it finishes.
+
 ### When it finishes
 
-The panel is reachable at `http://<router-ip>:8080/`, or on whichever port you passed to `--lan-port`. If anything fails partway through, the script rolls back the changes it made, unless you passed `--no-rollback`.
+The panel is reachable at `http://<router-ip>:8080/`, or on whichever port you passed to `--lan-port`. With the baseline LAN applied, use `http://192.168.10.1:8080/` instead. If anything fails partway through, the script rolls back the changes it made, unless you passed `--no-rollback`.
 
-To remove everything later:
+To remove the panel later:
 
 ```bash
 bash install.sh --uninstall --config router.env
 ```
+
+This removes the container, its networking, the installer firewall rules, and the uploaded files. It does not restore your original LAN: the baseline bridge (`LANBridgeSplit`, `192.168.10.1/24`) and its DHCP server stay in place, since that is now the router's LAN.
 
 ## Route 2: Manual installation via Winbox or terminal
 
