@@ -2,9 +2,63 @@ package routeros
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
+
+// WiFiRadio represents a WiFi radio configuration and capabilities.
+type WiFiRadio struct {
+	ID            string   // radio ID
+	Name          string   // radio name
+	Band          string   // normalized: "2.4", "5", or "6" (based on supported channels)
+	Bands         []string // supported bands (e.g., ["2.4GHz", "5GHz"])
+	BestBand      string   // best/newest supported band (e.g., "6ghz-be", "5ghz-ax", "2.4ghz-ac")
+	Channels2G    []int64  // supported 2.4GHz channels
+	Channels5G    []int64  // supported 5GHz channels
+	Channels6G    []int64  // supported 6GHz channels
+	RemoteCapName string   // remote CAP name identifier
+	HWMACSeparate bool     // hardware has separate TX/RX MAC address
+	RadioMAC      string   // radio MAC address
+	TXPowerLimit  int64    // TX power limit in dBm
+	Comment       string
+	Disabled      bool
+}
+
+// WiFiRadioFilter represents filter criteria for querying WiFi radios.
+type WiFiRadioFilter struct {
+	ID                   string // Filter by radio ID
+	Dead                 *bool  // Filter by dead status
+	Ciphers              string // Filter by ciphers
+	Countries            string // Filter by supported countries
+	CurrentChannels      string // Filter by current channels
+	CurrentCountry       string // Filter by current country
+	CurrentGopclasses    string // Filter by current GOPclasses
+	CurrentHalowRegdom   string // Filter by current HALOW regulatory domain
+	CurrentMaxRegPower   string // Filter by current max regulatory power
+	Channels2G           string // Filter by 2.4GHz channels
+	Channels5G           string // Filter by 5GHz channels
+	Channels60G          string // Filter by 60GHz channels
+	Channels6G           string // Filter by 6GHz channels
+	ChannelsS1G          string // Filter by S1G channels
+	HWCaps               string // Filter by hardware capabilities
+	HWType               string // Filter by hardware type
+	Interface            string // Filter by interface
+	Local                string // Filter by local setting
+	Bands                string // Filter by supported bands
+	MaxInterfaces        *int   // Filter by max interfaces
+	MaxPeers             *int   // Filter by max peers
+	MaxStationInterfaces *int   // Filter by max station interfaces
+	MaxVlans             *int   // Filter by max VLANs
+	MinAntennaGain       string // Filter by minimum antenna gain
+	MLGroup              string // Filter by ML group
+	RadioMAC             string // Filter by radio MAC address
+	RxChains             string // Filter by RX chains
+	TxChains             string // Filter by TX chains
+	About                string // Filter by about (description)
+	AFCDeployment        string // Filter by AFC deployment
+	Cap                  string // Filter by CAP
+}
 
 func (c *Client) getWiFiAuthenticationTypes(interfaceResult map[string]string) string {
 	// If security profile is set, get authentication-types from profile.
@@ -30,6 +84,19 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 
 	wifis := make([]WifiInfo, 0)
 	for _, result := range results {
+		band := result["channel.band"]
+
+		// If band is empty, try to get it from the radio
+		if band == "" {
+			filter := WiFiRadioFilter{Interface: firstNonEmpty(result["master-interface"], result["name"])}
+			radios, err := c.GetWiFiRadios(filter)
+			if err == nil && len(radios) > 0 {
+				band = radios[0].BestBand
+			}
+		}
+
+		isVirtual := result["default-name"] == "" && result["master-interface"] != ""
+
 		wifis = append(wifis, WifiInfo{
 			ID:           result[".id"],
 			Name:         result["name"],
@@ -37,7 +104,7 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 			SSID:         firstNonEmpty(result["configuration.ssid"]),
 			Disabled:     parseRouterOSBool(result["disabled"]),
 			Mode:         firstNonEmpty(result["configuration.mode"]),
-			Band:         result["channel.band"],
+			Band:         band,
 			ChannelWidth: result["channel.width"],
 			Frequency:    firstNonEmpty(result["channel.frequency"], "auto"),
 			Running:      parseRouterOSBool(result["running"]),
@@ -46,6 +113,7 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 			Passphrase:   firstNonEmpty(result["security.passphrase"]),
 			SecurityType: c.getWiFiAuthenticationTypes(result),
 			Comment:      result["comment"],
+			IsVirtual:    isVirtual,
 		})
 	}
 
@@ -58,6 +126,19 @@ func (c *Client) getWiFiInterface(name string) (*WifiInfo, error) {
 		return nil, fmt.Errorf("failed to get WiFi interface %s: %w", name, err)
 	}
 
+	band := result["channel.band"]
+
+	// If band is empty, try to get it from the radio
+	if band == "" {
+		filter := WiFiRadioFilter{Interface: firstNonEmpty(result["master-interface"], result["name"])}
+		radios, err := c.GetWiFiRadios(filter)
+		if err == nil && len(radios) > 0 {
+			band = radios[0].BestBand
+		}
+	}
+
+	isVirtual := result["default-name"] == "" && result["master-interface"] != ""
+
 	return &WifiInfo{
 		ID:           result[".id"],
 		Name:         result["name"],
@@ -65,7 +146,7 @@ func (c *Client) getWiFiInterface(name string) (*WifiInfo, error) {
 		SSID:         firstNonEmpty(result["configuration.ssid"]),
 		Disabled:     parseRouterOSBool(result["disabled"]),
 		Mode:         firstNonEmpty(result["configuration.mode"]),
-		Band:         result["channel.band"],
+		Band:         band,
 		ChannelWidth: result["channel.width"],
 		Frequency:    firstNonEmpty(result["channel.frequency"], "auto"),
 		Running:      parseRouterOSBool(result["running"]),
@@ -74,6 +155,7 @@ func (c *Client) getWiFiInterface(name string) (*WifiInfo, error) {
 		Passphrase:   firstNonEmpty(result["security.passphrase"]),
 		SecurityType: c.getWiFiAuthenticationTypes(result),
 		Comment:      result["comment"],
+		IsVirtual:    isVirtual,
 	}, nil
 }
 
@@ -684,4 +766,210 @@ func (c *Client) clearWiFiSecurityDirect(interfaceID string) error {
 	}
 
 	return nil
+}
+
+// GetWiFiRadios retrieves WiFi radio information with normalized band values from /interface/wifi/radio.
+// If all filter fields are empty/nil, returns all radios.
+func (c *Client) GetWiFiRadios(filter ...WiFiRadioFilter) ([]WiFiRadio, error) {
+	var args []string
+
+	// Process filter if provided
+	if len(filter) > 0 {
+		f := filter[0]
+		if f.ID != "" {
+			args = append(args, "?=.id="+f.ID)
+		}
+		if f.Dead != nil {
+			args = append(args, "?=.dead="+fmt.Sprintf("%v", *f.Dead))
+		}
+		if f.Ciphers != "" {
+			args = append(args, "?=ciphers="+f.Ciphers)
+		}
+		if f.Countries != "" {
+			args = append(args, "?=countries="+f.Countries)
+		}
+		if f.CurrentChannels != "" {
+			args = append(args, "?=current-channels="+f.CurrentChannels)
+		}
+		if f.CurrentCountry != "" {
+			args = append(args, "?=current-country="+f.CurrentCountry)
+		}
+		if f.CurrentGopclasses != "" {
+			args = append(args, "?=current-gopclasses="+f.CurrentGopclasses)
+		}
+		if f.CurrentHalowRegdom != "" {
+			args = append(args, "?=current-halow-regdom="+f.CurrentHalowRegdom)
+		}
+		if f.CurrentMaxRegPower != "" {
+			args = append(args, "?=current-max-reg-power="+f.CurrentMaxRegPower)
+		}
+		if f.Channels2G != "" {
+			args = append(args, "?=2g-channels="+f.Channels2G)
+		}
+		if f.Channels5G != "" {
+			args = append(args, "?=5g-channels="+f.Channels5G)
+		}
+		if f.Channels60G != "" {
+			args = append(args, "?=60g-channels="+f.Channels60G)
+		}
+		if f.Channels6G != "" {
+			args = append(args, "?=6g-channels="+f.Channels6G)
+		}
+		if f.ChannelsS1G != "" {
+			args = append(args, "?=s1g-channels="+f.ChannelsS1G)
+		}
+		if f.HWCaps != "" {
+			args = append(args, "?=hw-caps="+f.HWCaps)
+		}
+		if f.HWType != "" {
+			args = append(args, "?=hw-type="+f.HWType)
+		}
+		if f.Interface != "" {
+			args = append(args, "?=interface="+f.Interface)
+		}
+		if f.Local != "" {
+			args = append(args, "?=local="+f.Local)
+		}
+		if f.Bands != "" {
+			args = append(args, "?=bands="+f.Bands)
+		}
+		if f.MaxInterfaces != nil {
+			args = append(args, "?=max-interfaces="+fmt.Sprintf("%d", *f.MaxInterfaces))
+		}
+		if f.MaxPeers != nil {
+			args = append(args, "?=max-peers="+fmt.Sprintf("%d", *f.MaxPeers))
+		}
+		if f.MaxStationInterfaces != nil {
+			args = append(args, "?=max-station-interfaces="+fmt.Sprintf("%d", *f.MaxStationInterfaces))
+		}
+		if f.MaxVlans != nil {
+			args = append(args, "?=max-vlans="+fmt.Sprintf("%d", *f.MaxVlans))
+		}
+		if f.MinAntennaGain != "" {
+			args = append(args, "?=min-antenna-gain="+f.MinAntennaGain)
+		}
+		if f.MLGroup != "" {
+			args = append(args, "?=ml-group="+f.MLGroup)
+		}
+		if f.RadioMAC != "" {
+			args = append(args, "?=radio-mac="+f.RadioMAC)
+		}
+		if f.RxChains != "" {
+			args = append(args, "?=rx-chains="+f.RxChains)
+		}
+		if f.TxChains != "" {
+			args = append(args, "?=tx-chains="+f.TxChains)
+		}
+		if f.About != "" {
+			args = append(args, "?=about="+f.About)
+		}
+		if f.AFCDeployment != "" {
+			args = append(args, "?=afc-deployment="+f.AFCDeployment)
+		}
+		if f.Cap != "" {
+			args = append(args, "?=cap="+f.Cap)
+		}
+	}
+
+	results, err := c.GetAll("/interface/wifi/radio", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get WiFi radios: %w", err)
+	}
+
+	radios := make([]WiFiRadio, 0)
+	for _, result := range results {
+		channels2G := parseChannelList(result["2g-channels"])
+		channels5G := parseChannelList(result["5g-channels"])
+		channels6G := parseChannelList(result["6g-channels"])
+
+		txPowerLimit := int64(0)
+		if txPowerStr := result["tx-power-limit"]; txPowerStr != "" {
+			if val, err := strconv.ParseInt(txPowerStr, 10, 64); err == nil {
+				txPowerLimit = val
+			}
+		}
+
+		bands := parseBandsList(result["bands"])
+		radios = append(radios, WiFiRadio{
+			ID:            result[".id"],
+			Name:          result["name"],
+			Band:          determineBandFromChannels(channels2G, channels5G, channels6G),
+			Bands:         bands,
+			BestBand:      extractBestBand(bands),
+			Channels2G:    channels2G,
+			Channels5G:    channels5G,
+			Channels6G:    channels6G,
+			RemoteCapName: result["remote-cap-name"],
+			HWMACSeparate: parseRouterOSBool(result["hw-mac-separate"]),
+			RadioMAC:      result["radio-mac"],
+			TXPowerLimit:  txPowerLimit,
+			Comment:       result["comment"],
+			Disabled:      parseRouterOSBool(result["disabled"]),
+		})
+	}
+
+	return radios, nil
+}
+
+func determineBandFromChannels(channels2G, channels5G, channels6G []int64) string {
+	if len(channels6G) > 0 {
+		return "6"
+	}
+	if len(channels5G) > 0 {
+		return "5"
+	}
+	if len(channels2G) > 0 {
+		return "2.4"
+	}
+	return ""
+}
+
+func parseChannelList(channelStr string) []int64 {
+	if channelStr == "" {
+		return []int64{}
+	}
+
+	parts := strings.Split(channelStr, ",")
+	channels := make([]int64, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if val, err := strconv.ParseInt(part, 10, 64); err == nil {
+			channels = append(channels, val)
+		}
+	}
+	return channels
+}
+
+func parseBandsList(bandsStr string) []string {
+	if bandsStr == "" {
+		return []string{}
+	}
+
+	parts := strings.Split(bandsStr, ",")
+	bands := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part != "" {
+			bands = append(bands, part)
+		}
+	}
+	return bands
+}
+
+func extractBestBand(bands []string) string {
+	if len(bands) == 0 {
+		return ""
+	}
+
+	bandRegex := regexp.MustCompile(`([a-z0-9]+-[a-z0-9]+):`)
+	var lastMatch string
+
+	for _, band := range bands {
+		matches := bandRegex.FindStringSubmatch(band)
+		if len(matches) > 1 {
+			lastMatch = matches[1]
+		}
+	}
+
+	return strings.ToLower(lastMatch)
 }
