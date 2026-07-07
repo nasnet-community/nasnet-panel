@@ -331,7 +331,7 @@ func parseFileInfo(fileMap map[string]string) *FileInfo {
 		Name:     fileMap["name"],
 		Size:     size,
 		Type:     fileMap["type"],
-		ModTime:  fileMap["creation-time"],
+		ModTime:  fileMap["last-modified"],
 		Comment:  fileMap["comment"],
 		Disabled: disabled,
 	}
