@@ -52,8 +52,8 @@
 }
 
 /ip dhcp-client remove [find]
-/ip firewall filter remove [find dynamic=no]
-/ip firewall nat remove [find dynamic=no]
+/ip firewall filter remove [find dynamic=no && comment!="nasnet-panel-installer-forward"]
+/ip firewall nat remove [find dynamic=no && comment!="nasnet-panel-installer-srcnat" && comment!="nasnet-panel-installer-dstnat"]
 /ip firewall mangle remove [find dynamic=no]
 /ip firewall address-list remove [find dynamic=no]
 /ip dns forwarder remove [find]
