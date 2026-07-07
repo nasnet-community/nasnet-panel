@@ -33,7 +33,6 @@ export const ROUTER_TABS: Array<TabItem & { path: string }> = [
     label: 'Diagnostics',
     path: 'diagnostics',
     icon: <Activity size={16} />,
-    disabled: true,
   },
   { id: 'help', label: 'Help', path: 'help', icon: <CircleHelp size={16} /> },
   // { id: 'dhcp', label: 'DHCP', path: 'dhcp', icon: <Network size={16} /> },

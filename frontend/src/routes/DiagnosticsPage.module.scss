@@ -1,0 +1,229 @@
+.timelineScroll {
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(120px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: min-content;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: var(--space-sm);
+  min-width: 0;
+}
+
+.stepTitle {
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.stepTitleActive {
+  color: var(--color-text);
+}
+
+.stepStatus {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.stepTrack {
+  position: relative;
+  height: 20px;
+  margin-top: auto;
+  padding-top: var(--space-xs);
+  box-sizing: content-box;
+}
+
+.stepDot {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  box-shadow: 0 0 0 3px var(--color-surface-alt);
+  z-index: 1;
+}
+
+.stepDotDone {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(62, 194, 141, 0.18);
+}
+
+.stepDotActive {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(62, 194, 141, 0.18);
+  animation: diagPulse 1200ms ease-in-out infinite;
+}
+
+.stepLine {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  right: calc(-1 * var(--space-sm));
+  height: 2px;
+  transform: translateY(-50%);
+  background: var(--color-border);
+}
+
+.stepLineDone {
+  background: var(--color-success);
+}
+
+@keyframes diagPulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(62, 194, 141, 0.1);
+  }
+}
+
+@media (max-width: 640px) {
+  .timelineScroll {
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .step {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-right: 0;
+    min-height: 40px;
+  }
+
+  .stepStatus {
+    display: none;
+  }
+
+  .stepTrack {
+    order: -1;
+    width: 20px;
+    height: auto;
+    align-self: stretch;
+    flex-shrink: 0;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .stepDot {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .stepLine {
+    top: calc(50% + 9px);
+    bottom: calc(-50% + 9px);
+    left: 50%;
+    right: auto;
+    width: 2px;
+    height: auto;
+    transform: translateX(-50%);
+  }
+}
+
+.errorText {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-danger);
+}
+
+.fileTile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 320px;
+  max-width: 100%;
+  align-self: center;
+  margin: var(--space-lg) 0;
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.fileIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(62, 194, 141, 0.14);
+  color: var(--color-success);
+}
+
+.fileBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fileName {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  word-break: break-all;
+}
+
+.fileHint {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.fileAction {
+  display: flex;
+
+  > * {
+    flex: 1;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    flex-wrap: nowrap;
+
+    > * {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
+.actionsSpaced {
+  margin-top: var(--space-lg);
+}

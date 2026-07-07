@@ -1,0 +1,53 @@
+import { test, expect } from './fixtures';
+
+test.describe('Diagnostics page', () => {
+  test('runs a diagnostic, ticks the timeline, and downloads the report', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockDiagBackend,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_diag', name: 'Diag Router', host: '10.10.10.2' });
+    await mockDiagBackend({ id: 'rtr_diag' });
+    await page.goto('/router/rtr_diag/diagnostics');
+
+    await expect(page.getByText('System info')).toBeVisible();
+    await expect(page.getByText('Connectivity tests')).toBeVisible();
+    await expect(page.getByText('nasnet-diagnostic-report.txt')).toHaveCount(0);
+
+    const startButton = page.getByRole('button', { name: /^start$/i });
+    await expect(startButton).toBeEnabled();
+    await startButton.click();
+
+    await expect(page.getByRole('button', { name: /running/i })).toBeVisible();
+
+    await expect(page.getByText('nasnet-diagnostic-report.txt')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Generated 2026-07-08 01:36:16 (74.15 KB)')).toBeVisible();
+    await expect(page.getByRole('button', { name: /run again/i })).toBeEnabled();
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /^download$/i }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe('nasnet-diagnostic-report.txt');
+  });
+
+  test('shows an existing report on load and opens help via send to support', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockDiagBackend,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_diag2', name: 'Diag Router 2', host: '10.10.10.3' });
+    await mockDiagBackend({ id: 'rtr_diag2', initialProgress: 100 });
+    await page.goto('/router/rtr_diag2/diagnostics');
+
+    await expect(page.getByText('nasnet-diagnostic-report.txt')).toBeVisible();
+    await expect(page.getByText('Generated 2026-07-08 01:36:16 (74.15 KB)')).toBeVisible();
+    await expect(page.getByRole('button', { name: /run again/i })).toBeEnabled();
+
+    await page.getByRole('button', { name: /send to support/i }).click();
+    await expect(page).toHaveURL(/\/router\/rtr_diag2\/help$/);
+  });
+});
