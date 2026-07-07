@@ -8,6 +8,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"nasnet-panel/pkg/utils"
 )
 
 // HandleGenerateDiag generates a diagnostic report.
@@ -33,8 +35,14 @@ func HandleGenerateDiag(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to read diagnostic script", err)
 	}
 
+	err = client.SetEnvironmentVariable("DiagProgress", "1")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to set diagnostic progress", err)
+	}
+
 	err = client.ExecuteScriptString(string(script))
 	if err != nil {
+		_ = client.SetEnvironmentVariable("DiagProgress", "0")
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute diagnostic script", err)
 	}
 
@@ -70,10 +78,29 @@ func HandleGetDiagStatus(c echo.Context) error {
 
 	running := progress > 0 && progress < 100
 
-	return SuccessResponse(c, http.StatusOK, "Diagnostic report status retrieved", map[string]interface{}{
+	response := map[string]interface{}{
 		"progress": progress,
 		"running":  running,
-	})
+	}
+
+	const diagFilename = "nasnet-diagnostic-report.txt"
+	exists, err := client.FileExists(diagFilename)
+	if err == nil {
+		if !exists && progress != 0 {
+			progress = 0
+			response["progress"] = progress
+		}
+		if exists && !running {
+			fileInfo, err := client.GetFile(diagFilename)
+			fmt.Println("fileInfo:", fileInfo)
+			if err == nil {
+				response["fileSize"] = utils.BytesToSizeString(fileInfo.Size)
+				response["generateTime"] = fileInfo.ModTime
+			}
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Diagnostic report status retrieved", response)
 }
 
 // HandleDownloadDiag downloads the generated diagnostic report.
@@ -106,9 +133,17 @@ func HandleDownloadDiag(c echo.Context) error {
 	}
 
 	const diagFilename = "nasnet-diagnostic-report.txt"
+	exists, err := client.FileExists(diagFilename)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check diagnostic report file", err)
+	}
+	if !exists {
+		return ErrorResponse(c, http.StatusNotFound, "Diagnostic report file not found", fmt.Errorf("file %s does not exist", diagFilename))
+	}
+
 	fileContents, err := client.GetFileContents(diagFilename, 0)
 	if err != nil {
-		return ErrorResponse(c, http.StatusNotFound, "Diagnostic report file not found", err)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to read diagnostic report file", err)
 	}
 
 	c.Response().Header().Set(
