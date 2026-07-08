@@ -371,6 +371,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="office"
+            autoComplete="off"
             aria-label="Name"
             aria-invalid={submitAttempted && !!errors.name}
           />
@@ -383,6 +384,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
             onChange={(e) => setListenPort(e.target.value)}
             placeholder="51820"
             inputMode="numeric"
+            autoComplete="off"
             aria-label="Listen port"
             aria-invalid={submitAttempted && !!errors.listenPort}
           />
@@ -396,6 +398,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
             value={localAddress}
             onChange={(e) => setLocalAddress(e.target.value)}
             placeholder="10.8.0.1/24 (auto if empty)"
+            autoComplete="off"
             aria-label="Local address"
             aria-invalid={submitAttempted && !!errors.localAddress}
           />
@@ -410,6 +413,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
             onChange={(e) => setMtu(e.target.value)}
             placeholder="1420"
             inputMode="numeric"
+            autoComplete="off"
             aria-label="MTU"
             aria-invalid={submitAttempted && !!errors.mtu}
           />
@@ -424,7 +428,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
             onChange={(e) => setPrivateKey(e.target.value)}
             placeholder="auto-generated if empty"
             aria-label="Private key"
-            autoComplete="off"
+            autoComplete="new-password"
           />
         </Label>
         <Label>
@@ -433,6 +437,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="optional"
+            autoComplete="off"
             aria-label="Comment"
           />
         </Label>
