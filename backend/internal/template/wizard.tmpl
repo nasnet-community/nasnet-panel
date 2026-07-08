@@ -145,6 +145,8 @@ add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link SRC 
 add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link Routing Mark" disabled=no routing-mark="to-Domestic-Domestic Link" table="to-Domestic-Domestic Link"
 
 /interface bridge port
+remove [find bridge="LANBridgeSplit" interface="{{ .ForeignInterface }}"]
+remove [find bridge="LANBridgeSplit" interface="{{ .DomesticInterface }}"]
 {{range .WifiBands}}:if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN"]] = 0) do={
 add bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN" comment="Split"
 }
@@ -270,6 +272,10 @@ add list="MikroTik-Cloud-Services" address="cloud.mikrotik.com" comment="Legacy 
 /ip firewall filter
 add chain=input dst-port="53" in-interface-list="WAN" protocol="tcp" action=drop comment="Block Open Recursive DNS"
 add chain=input dst-port="53" in-interface-list="WAN" protocol="udp" action=drop comment="Block Open Recursive DNS"
+
+/ip firewall nat set [find comment="nasnet-panel-installer-dstnat"] in-interface-list="!WAN"
+/ip firewall nat set [find comment="nasnet-panel-installer-srcnat"] out-interface-list="WAN"
+/ip firewall filter set [find comment="nasnet-panel-installer-forward"] in-interface-list="!WAN"
 
 /ip firewall mangle
 add action=accept chain=prerouting comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"

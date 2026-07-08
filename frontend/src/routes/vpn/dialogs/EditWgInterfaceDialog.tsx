@@ -171,6 +171,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
                 onChange={(e) => set('listenPort', e.target.value)}
                 onBlur={() => markTouched('listenPort')}
                 inputMode="numeric"
+                autoComplete="off"
                 aria-label="Listen port"
                 aria-invalid={touched.listenPort && !!errors.listenPort}
               />
@@ -188,6 +189,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
                 onBlur={() => markTouched('mtu')}
                 placeholder="leave empty to keep current"
                 inputMode="numeric"
+                autoComplete="off"
                 aria-label="MTU"
                 aria-invalid={touched.mtu && !!errors.mtu}
               />
@@ -199,6 +201,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
                 value={draft.comment}
                 onChange={(e) => set('comment', e.target.value)}
                 placeholder="leave empty to keep current"
+                autoComplete="off"
                 aria-label="Comment"
               />
             </Label>
@@ -211,7 +214,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
                 onChange={(e) => set('privateKey', e.target.value)}
                 placeholder="leave empty to keep current"
                 aria-label="Private key"
-                autoComplete="off"
+                autoComplete="new-password"
               />
             </Label>
           </FieldRow>

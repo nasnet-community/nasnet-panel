@@ -269,21 +269,6 @@ type MacvlanInfo struct {
 }
 
 // WiFiRadio represents a RouterOS WiFi radio with band information.
-type WiFiRadio struct {
-	ID            string  // radio ID
-	Name          string  // radio name
-	Band          string  // normalized: "2.4", "5", or "6" (based on supported channels)
-	Channels2G    []int64 // supported 2.4GHz channels
-	Channels5G    []int64 // supported 5GHz channels
-	Channels6G    []int64 // supported 6GHz channels
-	RemoteCapName string  // remote CAP name identifier
-	HWMACSeparate bool    // hardware has separate TX/RX MAC address
-	RadioMAC      string  // radio MAC address
-	TXPowerLimit  int64   // TX power limit in dBm
-	Comment       string
-	Disabled      bool
-}
-
 func (c *Client) ListInterfaces() ([]InterfaceInfo, error) {
 	return c.ListInterfacesByType(nil, false)
 }
@@ -884,76 +869,6 @@ func (c *Client) RemoveInterfaceList(id string) error {
 	}
 
 	return nil
-}
-
-// determineBandFromChannels determines band based on supported channels.
-func determineBandFromChannels(channels2G, channels5G, channels6G []int64) string {
-	if len(channels6G) > 0 {
-		return "6"
-	}
-	if len(channels5G) > 0 {
-		return "5"
-	}
-	if len(channels2G) > 0 {
-		return "2.4"
-	}
-	return ""
-}
-
-// parseChannelList parses a comma-separated channel list into int64 slice.
-func parseChannelList(channelStr string) []int64 {
-	if channelStr == "" {
-		return []int64{}
-	}
-
-	parts := strings.Split(channelStr, ",")
-	channels := make([]int64, 0, len(parts))
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if val, err := strconv.ParseInt(part, 10, 64); err == nil {
-			channels = append(channels, val)
-		}
-	}
-	return channels
-}
-
-// GetWiFiRadios retrieves WiFi radio information with normalized band values from /interface/wifi/radio.
-func (c *Client) GetWiFiRadios() ([]WiFiRadio, error) {
-	results, err := c.GetAll("/interface/wifi/radio")
-	if err != nil {
-		return nil, fmt.Errorf("failed to get WiFi radios: %w", err)
-	}
-
-	radios := make([]WiFiRadio, 0)
-	for _, result := range results {
-		channels2G := parseChannelList(result["2g-channels"])
-		channels5G := parseChannelList(result["5g-channels"])
-		channels6G := parseChannelList(result["6g-channels"])
-
-		txPowerLimit := int64(0)
-		if txPowerStr := result["tx-power-limit"]; txPowerStr != "" {
-			if val, err := strconv.ParseInt(txPowerStr, 10, 64); err == nil {
-				txPowerLimit = val
-			}
-		}
-
-		radios = append(radios, WiFiRadio{
-			ID:            result[".id"],
-			Name:          result["name"],
-			Band:          determineBandFromChannels(channels2G, channels5G, channels6G),
-			Channels2G:    channels2G,
-			Channels5G:    channels5G,
-			Channels6G:    channels6G,
-			RemoteCapName: result["remote-cap-name"],
-			HWMACSeparate: parseRouterOSBool(result["hw-mac-separate"]),
-			RadioMAC:      result["radio-mac"],
-			TXPowerLimit:  txPowerLimit,
-			Comment:       result["comment"],
-			Disabled:      parseRouterOSBool(result["disabled"]),
-		})
-	}
-
-	return radios, nil
 }
 
 // GetEthernetInterfaceDetailed retrieves detailed information for a single ethernet interface from /interface/ethernet and monitor.

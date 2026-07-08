@@ -67,6 +67,11 @@ export interface DhcpBackendOptions {
   id?: string;
 }
 
+export interface DiagBackendOptions {
+  id?: string;
+  initialProgress?: number;
+}
+
 export interface EasyConfigBackendInterface {
   id?: string;
   name: string;
@@ -105,6 +110,7 @@ export interface TestFixtures {
   mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
   mockLogsBackend: (options?: LogsBackendOptions) => Promise<void>;
   mockDhcpBackend: (options?: DhcpBackendOptions) => Promise<void>;
+  mockDiagBackend: (options?: DiagBackendOptions) => Promise<void>;
   mockEasyConfigBackend: (options: EasyConfigBackendOptions) => Promise<void>;
 }
 
@@ -745,6 +751,69 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           contentType: 'application/json',
           body: envelope({ macAddress: 'AA:BB:CC:DD:EE:02', id: '*2', address: '192.168.88.102' }),
+        });
+      });
+    });
+  },
+  mockDiagBackend: async ({ context }, use) => {
+    await use(async (options = {}) => {
+      if (options.id) {
+        await context.addInitScript((routerId) => {
+          try {
+            const key = 'nasnet-panel.session-credentials.v1';
+            const raw = window.sessionStorage.getItem(key);
+            const map = (raw ? JSON.parse(raw) : {}) as Record<
+              string,
+              { username: string; password: string }
+            >;
+            map[routerId] = { username: 'admin', password: 'test' };
+            window.sessionStorage.setItem(key, JSON.stringify(map));
+          } catch {
+            /* ignore */
+          }
+        }, options.id);
+      }
+
+      const envelope = <T>(data: T, status = 200) =>
+        JSON.stringify({ status, message: 'OK', data });
+
+      let progress = options.initialProgress ?? 0;
+      let started = false;
+
+      await context.route('**/api/diag/generate', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        started = true;
+        progress = 0;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ message: 'Diagnostic script executed successfully' }),
+        });
+      });
+
+      await context.route('**/api/diag/status**', async (route) => {
+        if (started && progress < 100) progress = Math.min(100, progress + 45);
+        const running = progress > 0 && progress < 100;
+        const data: Record<string, unknown> = { progress, running };
+        if (progress === 100) {
+          data.generateTime = '2026-07-08 01:36:16';
+          data.fileSize = '74.15 KB';
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(data),
+        });
+      });
+
+      await context.route('**/api/diag/download', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'text/plain',
+          headers: {
+            'Content-Disposition': 'attachment; filename="nasnet-diagnostic-report.txt"',
+          },
+          body: 'NasNet Panel Diagnostic Report',
         });
       });
     });

@@ -94,6 +94,13 @@ export {
   type UpdateInstallResponse,
 } from './updates';
 export {
+  generateDiag,
+  fetchDiagStatus,
+  fetchDiagReport,
+  DIAG_REPORT_FILENAME,
+  type DiagStatusResponse,
+} from './diag';
+export {
   listVPNClients,
   updateVPNClient,
   addL2TPClient,
