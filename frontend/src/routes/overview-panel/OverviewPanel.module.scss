@@ -163,6 +163,28 @@
   border-color: color-mix(in srgb, var(--color-success) 55%, var(--color-border));
 }
 
+.rateDegraded {
+  color: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 55%, var(--color-border));
+}
+
+.rateBad {
+  color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 55%, var(--color-border));
+}
+
+.interactive:hover .rateDegraded,
+.interactive:focus-visible .rateDegraded {
+  color: color-mix(in srgb, var(--color-warning) 55%, #000);
+  border-color: color-mix(in srgb, var(--color-warning) 55%, #000);
+}
+
+.interactive:hover .rateBad,
+.interactive:focus-visible .rateBad {
+  color: color-mix(in srgb, var(--color-danger) 55%, #000);
+  border-color: color-mix(in srgb, var(--color-danger) 55%, #000);
+}
+
 .down,
 .disabled {
   color: var(--color-text-muted);

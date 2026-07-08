@@ -2,6 +2,8 @@ export type SlotKind = 'ethernet' | 'sfp' | 'usb' | 'power' | 'reset' | 'sim' | 
 
 export type PortStatus = 'up' | 'down' | 'disabled' | 'absent';
 
+export type RateTone = 'ok' | 'degraded' | 'bad';
+
 export interface PortSlot {
   id: string;
   kind: SlotKind;
@@ -32,6 +34,8 @@ export interface ResolvedSlot extends PortSlot {
   rxLabel?: string;
   txLabel?: string;
   mtu?: number;
+  rate?: string;
+  rateTone?: RateTone;
 }
 
 export interface PanelProps {

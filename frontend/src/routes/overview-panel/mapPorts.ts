@@ -1,5 +1,5 @@
 import type { InterfaceResponse } from '../../api';
-import type { PortSlot, PortStatus, ResolvedSlot, SlotKind } from './types';
+import type { PortSlot, PortStatus, RateTone, ResolvedSlot, SlotKind } from './types';
 
 const PORT_KINDS: SlotKind[] = ['ethernet', 'sfp'];
 
@@ -31,6 +31,26 @@ const findIface = (
   return interfaces.find((i) => i.name.toLowerCase() === lower);
 };
 
+const speedToMbps = (value: string | undefined): number | undefined => {
+  if (!value) return undefined;
+  const match = /^([\d.]+)\s*(m|g)/i.exec(value.trim());
+  if (!match) return undefined;
+  const num = Number.parseFloat(match[1]);
+  if (Number.isNaN(num)) return undefined;
+  return match[2].toLowerCase() === 'g' ? num * 1000 : num;
+};
+
+const deriveRateTone = (
+  rate: string | undefined,
+  nominalSpeed: string | undefined,
+): RateTone | undefined => {
+  const actual = speedToMbps(rate);
+  const nominal = speedToMbps(nominalSpeed);
+  if (actual === undefined || nominal === undefined) return undefined;
+  if (actual >= nominal) return 'ok';
+  return actual >= nominal / 10 ? 'degraded' : 'bad';
+};
+
 const deriveStatus = (iface: InterfaceResponse | undefined): PortStatus => {
   if (!iface) return 'absent';
   if (iface.disabled) return 'disabled';
@@ -41,6 +61,7 @@ export function mapPorts(
   slots: PortSlot[],
   interfaces: InterfaceResponse[],
   disabledIfaceNames?: ReadonlySet<string>,
+  ifaceRates?: Readonly<Record<string, string>>,
 ): ResolvedSlot[] {
   return slots.map((slot) => {
     if (!PORT_KINDS.includes(slot.kind)) {
@@ -61,11 +82,14 @@ export function mapPorts(
     const rxLabel = iface?.rx;
     const txLabel = iface?.tx;
     const mtu = iface?.actualMtu;
+    const rate = status === 'up' ? ifaceRates?.[name.toLowerCase()] : undefined;
+    const rateTone = deriveRateTone(rate, slot.nominalSpeed);
     let tooltip: string;
     if (status === 'absent') {
       tooltip = `${name} · not detected`;
     } else {
       const parts = [name, STATUS_LABEL[status]];
+      if (rate) parts.push(rate);
       if (rxLabel) parts.push(`↓ ${rxLabel}`);
       if (txLabel) parts.push(`↑ ${txLabel}`);
       if (mtu) parts.push(`${mtu} MTU`);
@@ -79,6 +103,8 @@ export function mapPorts(
       rxLabel,
       txLabel,
       mtu,
+      rate,
+      rateTone,
     };
   });
 }

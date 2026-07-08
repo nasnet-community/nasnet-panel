@@ -33,6 +33,7 @@ import {
   fetchDHCPLeases,
   fetchDhcpClients,
   fetchDynamicOverview,
+  fetchEthernetInterfaces,
   fetchInterfaceGraph,
   fetchInterfaces,
   fetchSystemOverview,
@@ -42,6 +43,7 @@ import {
   shutdownSystem,
   type DhcpClient,
   type DHCPLeaseResponse,
+  type EthernetInterfaceResponse,
   type InterfaceGraphSample,
   type InterfaceResponse,
   type IpAddressResponse,
@@ -113,6 +115,7 @@ export function OverviewTab() {
   const [vpnClients, setVpnClients] = useState<VPNActiveClient[]>([]);
   const [dhcpLeaseList, setDhcpLeaseList] = useState<DHCPLeaseResponse[]>([]);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
+  const [ethernetRates, setEthernetRates] = useState<Record<string, string>>({});
   const [dhcpClients, setDhcpClients] = useState<DhcpClient[]>([]);
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
   const [graphLoading, setGraphLoading] = useState(false);
@@ -189,15 +192,25 @@ export function OverviewTab() {
 
     const loadInitial = async () => {
       try {
-        const [ov, list, clients] = await Promise.all([
+        const [ov, list, clients, ethernets] = await Promise.all([
           fetchSystemOverview(id, { host, ...creds }),
           fetchInterfaces({ host, ...creds }).catch(() => [] as InterfaceResponse[]),
           fetchDhcpClients({ host, ...creds }).catch(() => [] as DhcpClient[]),
+          fetchEthernetInterfaces({ host, ...creds }).catch(
+            () => [] as EthernetInterfaceResponse[],
+          ),
         ]);
         if (cancelled) return;
         setOverview(ov);
         setInterfaces(list);
         setDhcpClients(clients);
+        setEthernetRates(
+          Object.fromEntries(
+            ethernets.flatMap((e) =>
+              e.name && e.rate ? [[e.name.toLowerCase(), e.rate] as const] : [],
+            ),
+          ),
+        );
         if (list.length > 0) {
           setSelectedIface((prev) => {
             if (list.some((i) => i.name === prev)) return prev;
@@ -352,6 +365,7 @@ export function OverviewTab() {
             <RouterPortDiagramCard
               model={overview.model}
               interfaces={interfaces}
+              ifaceRates={ethernetRates}
               onPower={setPowerAction}
             />
           </div>
