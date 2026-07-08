@@ -1087,6 +1087,20 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard server interface", err)
 	}
 
+	// Add firewall filter rule for the listening port using the created interface info
+	fwComment := "wireguard-" + wireguard.Name
+	fwRuleConfig := routeros.FirewallRuleConfig{
+		Chain:    "input",
+		Action:   "accept",
+		Protocol: "udp",
+		DstPort:  fmt.Sprintf("%d", wireguard.ListenPort),
+		Comment:  fwComment,
+	}
+	_, err = client.AddFirewallRule(fwRuleConfig)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for WireGuard", err)
+	}
+
 	// Add IP address to the interface
 	ipConfig := routeros.IPAddressConfig{
 		Interface: wireguard.Name,
@@ -1128,6 +1142,12 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
 	}
 
+	// Get current interface to check if listen port is changing
+	currentWg, err := client.GetWireGuard(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
+	}
+
 	var req UpdateWireGuardInterfaceRequest
 	if err := c.Bind(&req); err != nil {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
@@ -1146,6 +1166,37 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 			return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WireGuard interface", err)
+	}
+
+	// Handle listen port change - update firewall rule if needed
+	if req.ListenPort != nil && *req.ListenPort != currentWg.ListenPort {
+		newPort := *req.ListenPort
+		fwComment := "wireguard-" + currentWg.Name
+
+		// Get existing firewall rules on input chain
+		rules, err := client.GetFirewallRulesByChain("input")
+		if err == nil {
+			// Find and remove the old firewall rule if it exists
+			for i := range rules {
+				if rules[i].Comment == fwComment {
+					_ = client.RemoveFirewallRule(rules[i].ID)
+					break
+				}
+			}
+		}
+
+		// Add new firewall rule with the new port
+		fwRuleConfig := routeros.FirewallRuleConfig{
+			Chain:    "input",
+			Action:   "accept",
+			Protocol: "udp",
+			DstPort:  fmt.Sprintf("%d", newPort),
+			Comment:  fwComment,
+		}
+		_, err = client.AddFirewallRule(fwRuleConfig)
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to update firewall rule for WireGuard", err)
+		}
 	}
 
 	wireguard, err := client.GetWireGuard(nameOrID)
@@ -1579,6 +1630,20 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard interface", err)
 	}
 
+	// Delete associated firewall rule
+	fwComment := "wireguard-" + wireguard.Name
+	rules, err := client.GetFirewallRulesByChain("input")
+	if err == nil {
+		for i := range rules {
+			if rules[i].Comment == fwComment {
+				if err := client.RemoveFirewallRule(rules[i].ID); err != nil {
+					c.Logger().Errorf("Failed to remove firewall rule for interface %s: %v", wireguard.Name, err)
+				}
+				break
+			}
+		}
+	}
+
 	for i := range peers {
 		if peers[i].EndpointAddress != "" {
 			items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
@@ -1678,6 +1743,20 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	wg, err := client.CreateWireGuardInterface(interfaceConfig2)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
+	}
+
+	// Add firewall filter rule for the listening port using the created interface info
+	fwComment := "wireguard-" + wg.Name
+	fwRuleConfig := routeros.FirewallRuleConfig{
+		Chain:    "input",
+		Action:   "accept",
+		Protocol: "udp",
+		DstPort:  fmt.Sprintf("%d", wg.ListenPort),
+		Comment:  fwComment,
+	}
+	_, err = client.AddFirewallRule(fwRuleConfig)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for WireGuard", err)
 	}
 
 	// Add address to interface if specified
@@ -2157,6 +2236,35 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
+	updateTask(90, "Adding firewall rules")
+	// Add firewall filter rule for TCP port
+	tcpFwRuleConfig := routeros.FirewallRuleConfig{
+		Chain:    "input",
+		Action:   "accept",
+		Protocol: "tcp",
+		DstPort:  fmt.Sprintf("%d", tcpPort),
+		Comment:  "openvpn-" + serverConfigNameTCP,
+	}
+	_, err = client.AddFirewallRule(tcpFwRuleConfig)
+	if err != nil {
+		setError("Failed to add firewall rule for OpenVPN TCP: "+err.Error(), serverConfigNameTCP, poolName, profileName, []string{caName, serverName, clientName})
+		return
+	}
+
+	// Add firewall filter rule for UDP port
+	udpFwRuleConfig := routeros.FirewallRuleConfig{
+		Chain:    "input",
+		Action:   "accept",
+		Protocol: "udp",
+		DstPort:  fmt.Sprintf("%d", udpPort),
+		Comment:  "openvpn-" + serverConfigNameUDP,
+	}
+	_, err = client.AddFirewallRule(udpFwRuleConfig)
+	if err != nil {
+		setError("Failed to add firewall rule for OpenVPN UDP: "+err.Error(), serverConfigNameUDP, poolName, profileName, []string{caName, serverName, clientName})
+		return
+	}
+
 	updateTask(100, "Completed")
 
 	task.mu.Lock()
@@ -2269,6 +2377,20 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 
 	if otherServer != "" {
 		_ = client.RemoveOvpnServer(otherServer)
+	}
+
+	// Delete associated firewall rules
+	rules, err := client.GetFirewallRulesByChain("input")
+	if err == nil {
+		// Search for firewall rules associated with this OpenVPN server
+		for i := range rules {
+			// Check if the rule comment starts with "openvpn-" and contains the server config names
+			if strings.HasPrefix(rules[i].Comment, "openvpn-"+baseName) {
+				if err := client.RemoveFirewallRule(rules[i].ID); err != nil {
+					deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete firewall rule %s: %v", rules[i].Comment, err))
+				}
+			}
+		}
 	}
 
 	if timestamp != "" {
