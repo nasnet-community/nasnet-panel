@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { Badge, Button, DataTable, Switch, useToast } from '@nasnet/ui';
 import { ArrowDown, ArrowUp, Cable, Pencil, Trash2 } from 'lucide-react';
-import { ApiError, updateVPNClient, type VPNClient, type VPNCredentials } from '../../../api';
+import {
+  ApiError,
+  updateForeignGateway,
+  updateVPNClient,
+  type VPNClient,
+  type VPNCredentials,
+} from '../../../api';
 import { formatBytes } from '../../../utils/format';
 import { useThemeColors } from '../../../utils/theme-colors';
 
 interface Props {
   rows: VPNClient[];
+  allRows: VPNClient[];
   totalRows: number;
   creds: VPNCredentials | null;
   onToggled: () => void;
@@ -14,7 +21,15 @@ interface Props {
   onDelete: (client: VPNClient) => void;
 }
 
-export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDelete }: Props) {
+export function ClientsTable({
+  rows,
+  allRows,
+  totalRows,
+  creds,
+  onToggled,
+  onEdit,
+  onDelete,
+}: Props) {
   const toast = useToast();
   const colors = useThemeColors();
   const [pending, setPending] = useState<Set<string>>(() => new Set());
@@ -23,11 +38,10 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
   const isPending = (id: string) => pending.has(id);
   const checkedFor = (c: VPNClient) => optimistic[c.id] ?? c.enabled;
 
-  const setRowPending = (id: string, on: boolean) => {
+  const setRowsPending = (ids: string[], on: boolean) => {
     setPending((prev) => {
       const next = new Set(prev);
-      if (on) next.add(id);
-      else next.delete(id);
+      ids.forEach((id) => (on ? next.add(id) : next.delete(id)));
       return next;
     });
   };
@@ -100,14 +114,28 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                 disabled={!creds || busy}
                 onChange={async () => {
                   if (!creds) return;
-                  setOptimistic((m) => ({ ...m, [c.id]: next }));
-                  setRowPending(c.id, true);
+                  const others = next ? allRows.filter((o) => o.id !== c.id && checkedFor(o)) : [];
+                  const ids = [c.id, ...others.map((o) => o.id)];
+                  setOptimistic((m) => {
+                    const updated = { ...m, [c.id]: next };
+                    others.forEach((o) => {
+                      updated[o.id] = false;
+                    });
+                    return updated;
+                  });
+                  setRowsPending(ids, true);
                   try {
                     await updateVPNClient(creds, c.name, { disabled: !next });
+                    if (next) {
+                      await updateForeignGateway(creds, c.name);
+                      await Promise.all(
+                        others.map((o) => updateVPNClient(creds, o.name, { disabled: true })),
+                      );
+                    }
                   } catch (err) {
                     setOptimistic((m) => {
                       const reverted = { ...m };
-                      delete reverted[c.id];
+                      ids.forEach((rid) => delete reverted[rid]);
                       return reverted;
                     });
                     const message =
@@ -122,7 +150,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                       tone: 'danger',
                     });
                   } finally {
-                    setRowPending(c.id, false);
+                    setRowsPending(ids, false);
                     onToggled();
                   }
                 }}

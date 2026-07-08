@@ -80,6 +80,20 @@ test.describe('WAN VPN clients section', () => {
       await route.fallback();
     });
 
+    let gatewayPutBody: { gateway?: string } | null = null;
+    await context.route('**/api/route/foreign-gateway', async (route) => {
+      if (route.request().method() === 'PUT') {
+        gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ gateway: 'home-l2tp', routesUpdated: 2 }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
     const row = page.getByRole('row', { name: /home-l2tp/ });
@@ -88,6 +102,116 @@ test.describe('WAN VPN clients section', () => {
 
     await row.getByRole('switch', { name: /enabled/i }).click();
     await expect.poll(() => lastPutBody?.disabled).toBe(false);
+    await expect.poll(() => gatewayPutBody?.gateway).toBe('home-l2tp');
+  });
+
+  test('activating a client deactivates the others and points routes at it', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    const otherClient = {
+      ...baseClient,
+      id: '*2',
+      name: 'office-wg',
+      type: 'wg',
+      running: true,
+      disabled: false,
+    };
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope([baseClient, otherClient]),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+
+    let targetPutBody: { disabled?: boolean } | null = null;
+    await context.route('**/api/vpn/clients/home-l2tp', async (route) => {
+      if (route.request().method() === 'PUT') {
+        targetPutBody = route.request().postDataJSON() as typeof targetPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ ...baseClient, disabled: false }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    let otherPutBody: { disabled?: boolean } | null = null;
+    await context.route('**/api/vpn/clients/office-wg', async (route) => {
+      if (route.request().method() === 'PUT') {
+        otherPutBody = route.request().postDataJSON() as typeof otherPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ ...otherClient, disabled: true }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    let gatewayPutBody: { gateway?: string } | null = null;
+    await context.route('**/api/route/foreign-gateway', async (route) => {
+      if (route.request().method() === 'PUT') {
+        gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ gateway: 'home-l2tp', routesUpdated: 2 }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    const targetRow = page.getByRole('row', { name: /home-l2tp/ });
+    await expect(targetRow).toBeVisible();
+    await expect(
+      page.getByRole('row', { name: /office-wg/ }).getByRole('switch', { name: /enabled/i }),
+    ).toBeChecked();
+
+    await targetRow.getByRole('switch', { name: /enabled/i }).click();
+
+    await expect.poll(() => targetPutBody?.disabled).toBe(false);
+    await expect.poll(() => gatewayPutBody?.gateway).toBe('home-l2tp');
+    await expect.poll(() => otherPutBody?.disabled).toBe(true);
   });
 
   test('validates name and host inputs in add dialog and limits selectable types', async ({

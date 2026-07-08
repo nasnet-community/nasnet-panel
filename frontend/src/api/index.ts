@@ -24,7 +24,9 @@ export {
   fetchInterfaces,
   updateWanInterface,
   type WanInterfaceType,
-  fetchRoutes,
+  fetchForeignGateway,
+  updateForeignGateway,
+  type ForeignGatewayResponse,
   fetchVPNClients,
   rebootSystem,
   setSystemIdentity,
@@ -39,7 +41,6 @@ export {
   type InterfaceGraphSample,
   type InterfaceResponse,
   type IpAddressResponse,
-  type RouteResponse,
 } from './system';
 export {
   fetchWifiInterfaces,

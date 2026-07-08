@@ -22,81 +22,63 @@ async function seedCredentials(context: BrowserContext, routerId: string) {
   }, routerId);
 }
 
-async function mockTopologyApi(context: BrowserContext) {
+const wgMaskIface = {
+  id: '*5',
+  name: 'wg-client-mask',
+  type: 'wg',
+  running: true,
+  disabled: false,
+  comment: 'wg-mask',
+};
+
+const defaultInterfaces = [
+  {
+    id: '*1',
+    name: 'ether1',
+    type: 'ether',
+    running: true,
+    disabled: false,
+    comment: 'Starlink uplink',
+  },
+  {
+    id: '*2',
+    name: 'ether2',
+    type: 'ether',
+    running: false,
+    disabled: false,
+    comment: 'Irancell mobile',
+  },
+  {
+    id: '*3',
+    name: 'ether3',
+    type: 'ether',
+    running: true,
+    disabled: false,
+    comment: 'WAN - Domestic Link(Domestic)',
+  },
+  { id: '*4', name: 'bridge1', type: 'bridge', running: true, disabled: false },
+  wgMaskIface,
+];
+
+interface TopologyMockOptions {
+  interfaces?: Array<(typeof defaultInterfaces)[number]>;
+  gateway?: string | null;
+}
+
+async function mockTopologyApi(context: BrowserContext, opts: TopologyMockOptions = {}) {
   await context.route('**/api/interface/interfaces', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: envelope([
-        {
-          id: '*1',
-          name: 'ether1',
-          type: 'ether',
-          running: true,
-          disabled: false,
-          comment: 'Starlink uplink',
-        },
-        {
-          id: '*2',
-          name: 'ether2',
-          type: 'ether',
-          running: false,
-          disabled: false,
-          comment: 'Irancell mobile',
-        },
-        {
-          id: '*3',
-          name: 'ether3',
-          type: 'ether',
-          running: true,
-          disabled: false,
-          comment: 'WAN - Domestic Link(Domestic)',
-        },
-        { id: '*4', name: 'bridge1', type: 'bridge', running: true, disabled: false },
-      ]),
+      body: envelope(opts.interfaces ?? defaultInterfaces),
     });
   });
 
-  await context.route('**/api/routes', async (route) => {
+  await context.route('**/api/route/foreign-gateway', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: envelope([
-        {
-          id: '*1',
-          dstAddress: '0.0.0.0/0',
-          gateway: '100.64.0.1',
-          interface: 'ether1',
-          active: true,
-          distance: 1,
-        },
-      ]),
-    });
-  });
-
-  await context.route('**/api/vpn/clients', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: envelope([
-        {
-          id: '*1',
-          name: 'wg-mask',
-          type: 'wg',
-          running: true,
-          disabled: false,
-          mtu: 1420,
-          macAddress: '',
-          rxByte: 0,
-          txByte: 0,
-          rxPacket: 0,
-          txPacket: 0,
-          lastLinkUp: '',
-          lastLinkDown: '',
-          linkDowns: 0,
-          comment: 'wg-mask',
-        },
-      ]),
+      body: envelope({ gateway: opts.gateway === undefined ? 'wg-client-mask' : opts.gateway }),
     });
   });
 }
@@ -126,10 +108,10 @@ test.describe('Internet routing page', () => {
 
     await expect(svg.locator('path#edge-h_rtr_ether1')).toHaveCount(1);
     await expect(svg.locator('path#edge-h_rtr_ether2')).toHaveCount(1);
-    await expect(svg.locator('path#edge-h_vpn_wg-mask')).toHaveCount(1);
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveCount(1);
 
     await expect(page.getByText('Internet', { exact: true }).first()).toBeVisible();
-    await expect(svg.locator('path#edge-h_internet_vpn_wg-mask')).toHaveCount(1);
+    await expect(svg.locator('path#edge-h_internet_vpn_wg-client-mask')).toHaveCount(1);
     await expect(svg.locator('path#edge-h_internet_wan_ether3')).toHaveCount(1);
 
     const dots = svg.locator('circle animateMotion');
@@ -177,6 +159,166 @@ test.describe('Internet routing page', () => {
 
     const d = await svg.locator('path#edge-h_internet_wan_ether3').getAttribute('d');
     expect(d).toMatch(/^M -?[\d.]+ -?[\d.]+(?: L -?[\d.]+ -?[\d.]+)+$/);
+  });
+
+  test('marks only the routed VPN path as active', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      interfaces: [
+        ...defaultInterfaces,
+        { ...wgMaskIface, id: '*6', name: 'wg-client-alt', comment: 'wg-alt' },
+      ],
+      gateway: 'wg-client-mask',
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveAttribute(
+      'marker-end',
+      /arr-active/,
+    );
+    await expect(svg.locator('path#edge-h_vpn_wg-client-alt')).toHaveAttribute(
+      'marker-end',
+      /arr-idle/,
+    );
+    await expect(svg.locator('path#edge-h_internet_vpn_wg-client-mask')).toHaveAttribute(
+      'marker-end',
+      /arr-active/,
+    );
+    await expect(svg.locator('path#edge-h_internet_vpn_wg-client-alt')).toHaveAttribute(
+      'marker-end',
+      /arr-idle/,
+    );
+  });
+
+  test('keeps the domestic WAN path always active', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      interfaces: defaultInterfaces.map((i) =>
+        i.name === 'ether3' ? { ...i, running: false } : i,
+      ),
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_rtr_ether3')).toHaveAttribute('marker-end', /arr-active/);
+    await expect(svg.locator('path#edge-h_internet_wan_ether3')).toHaveAttribute(
+      'marker-end',
+      /arr-active/,
+    );
+  });
+
+  test('activating a tunnel from the hop dialog points routes at it and disables others', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      interfaces: [
+        ...defaultInterfaces.filter((i) => i.name !== 'wg-client-mask'),
+        { ...wgMaskIface, running: false, disabled: true },
+        { ...wgMaskIface, id: '*6', name: 'wg-client-alt', comment: 'wg-alt' },
+      ],
+      gateway: 'wg-client-alt',
+    });
+
+    let targetPutBody: { disabled?: boolean } | null = null;
+    await context.route('**/api/vpn/clients/wg-client-mask', async (route) => {
+      targetPutBody = route.request().postDataJSON() as typeof targetPutBody;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ ...wgMaskIface, disabled: false }),
+      });
+    });
+
+    let otherPutBody: { disabled?: boolean } | null = null;
+    await context.route('**/api/vpn/clients/wg-client-alt', async (route) => {
+      otherPutBody = route.request().postDataJSON() as typeof otherPutBody;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ ...wgMaskIface, id: '*6', name: 'wg-client-alt', disabled: true }),
+      });
+    });
+
+    let gatewayPutBody: { gateway?: string } | null = null;
+    await context.route('**/api/route/foreign-gateway', async (route) => {
+      if (route.request().method() === 'PUT') {
+        gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ gateway: 'wg-client-mask', routesUpdated: 2 }),
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ gateway: 'wg-client-alt' }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    await page.getByRole('button', { name: 'Configure wg-mask' }).click();
+    await page.getByRole('switch', { name: /active/i }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    await expect.poll(() => targetPutBody?.disabled).toBe(false);
+    await expect.poll(() => gatewayPutBody?.gateway).toBe('wg-client-mask');
+    await expect.poll(() => otherPutBody?.disabled).toBe(true);
+  });
+
+  test('marks no VPN path as active when no gateway route exists', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, { gateway: null });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveAttribute(
+      'marker-end',
+      /arr-idle/,
+    );
+    await expect(svg.locator('path#edge-h_internet_vpn_wg-client-mask')).toHaveAttribute(
+      'marker-end',
+      /arr-idle/,
+    );
   });
 
   test('topology stays scrollable on mobile viewports', async ({

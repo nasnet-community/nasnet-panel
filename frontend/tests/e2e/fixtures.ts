@@ -34,22 +34,12 @@ export interface OverviewBackendIpAddress {
   disabled?: boolean;
 }
 
-export interface OverviewBackendRoute {
-  id?: string;
-  dstAddress: string;
-  gateway: string;
-  interface?: string;
-  active?: boolean;
-  distance?: number;
-}
-
 export interface OverviewBackendRouter {
   id?: string;
   model?: string;
   version?: string;
   interfaces?: OverviewBackendInterface[];
   addresses?: OverviewBackendIpAddress[];
-  routes?: OverviewBackendRoute[];
 }
 
 export interface WifiBackendInterface {
@@ -294,17 +284,6 @@ export const test = base.extend<TestFixtures>({
           disabled: false,
         },
       ];
-      const routes = router.routes ?? [
-        {
-          id: '*1',
-          dstAddress: '0.0.0.0/0',
-          gateway: '100.64.0.1',
-          interface: 'ether1',
-          active: true,
-          distance: 1,
-        },
-      ];
-
       await context.route('**/api/system/info', async (route) => {
         await route.fulfill({
           status: 200,
@@ -382,14 +361,6 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           contentType: 'application/json',
           body: envelope(dhcpClients),
-        });
-      });
-
-      await context.route('**/api/routes', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope(routes),
         });
       });
 
