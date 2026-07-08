@@ -129,15 +129,6 @@ export interface IpAddressResponse {
   disabled: boolean;
 }
 
-export interface RouteResponse {
-  id: string;
-  dstAddress: string;
-  gateway: string;
-  interface?: string;
-  active: boolean;
-  distance: number;
-}
-
 export async function fetchInterfaces(
   creds: SystemCredentials,
   signal?: AbortSignal,
@@ -168,17 +159,37 @@ export async function updateWanInterface(
   });
 }
 
-export async function fetchRoutes(
+export interface ForeignGatewayResponse {
+  gateway: string | null;
+}
+
+export async function fetchForeignGateway(
   creds: SystemCredentials,
   signal?: AbortSignal,
-): Promise<RouteResponse[]> {
-  const list = await apiRequest<RouteResponse[] | null>('/api/routes', {
+): Promise<string | null> {
+  const data = await apiRequest<ForeignGatewayResponse | null>('/api/route/foreign-gateway', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
     signal,
   });
-  return list ?? [];
+  return data?.gateway ?? null;
+}
+
+export async function updateForeignGateway(
+  creds: SystemCredentials,
+  gateway: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest<unknown>('/api/route/foreign-gateway', {
+    method: 'PUT',
+    headers: {
+      ...authHeaders(creds),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ gateway }),
+    signal,
+  });
 }
 
 export async function fetchVPNClients(

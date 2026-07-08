@@ -86,7 +86,7 @@ test.describe('Overview tab — router port diagram + uplink IP', () => {
     await expect(page.getByTestId('port-ether1')).toBeVisible();
   });
 
-  test('uplink card lists WAN interface, IP, and the active default route', async ({
+  test('uplink card lists WAN interface and IP', async ({
     page,
     resetMocks,
     seedRouter,
@@ -102,11 +102,9 @@ test.describe('Overview tab — router port diagram + uplink IP', () => {
     const row = page.getByTestId('uplink-ether1');
     await expect(row).toBeVisible();
     await expect(row).toContainText('100.64.0.2/24');
-    await expect(row.getByTestId('uplink-default-route')).toBeVisible();
-    await expect(page.getByTestId('uplink-default-route')).toHaveCount(1);
   });
 
-  test('degrades gracefully when ip/route endpoints return nothing', async ({
+  test('degrades gracefully when ip endpoints return nothing', async ({
     page,
     resetMocks,
     seedRouter,
@@ -118,7 +116,6 @@ test.describe('Overview tab — router port diagram + uplink IP', () => {
       id: 'rtr_deg',
       model: 'hAP ax3',
       addresses: [],
-      routes: [],
     });
 
     await page.goto('/router/rtr_deg');
@@ -126,6 +123,5 @@ test.describe('Overview tab — router port diagram + uplink IP', () => {
 
     await expect(page.getByTestId('port-diagram')).toBeVisible();
     await expect(page.getByTestId('uplink-card')).toBeVisible();
-    await expect(page.getByTestId('uplink-default-route')).toHaveCount(0);
   });
 });

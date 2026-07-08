@@ -1,4 +1,4 @@
-import type { InterfaceResponse, IpAddressResponse, RouteResponse } from '../../api';
+import type { InterfaceResponse, IpAddressResponse } from '../../api';
 
 export type UplinkKind = 'starlink' | 'mobile' | 'fiber' | 'ether';
 
@@ -9,7 +9,6 @@ export interface UplinkRow {
   ipAddresses: string[];
   running: boolean;
   disabled: boolean;
-  isDefaultRoute: boolean;
 }
 
 interface UplinkMatch {
@@ -58,35 +57,13 @@ export function wanInterfaces(interfaces: InterfaceResponse[]): InterfaceRespons
   return hinted.length > 0 ? hinted : ether;
 }
 
-function prefixOf(cidr: string): string {
-  const ip = cidr.split('/')[0];
-  return `${ip.split('.').slice(0, 3).join('.')}.`;
-}
-
-function defaultRouteInterface(
-  routes: RouteResponse[],
-  addresses: IpAddressResponse[],
-): string | undefined {
-  const def = routes.find((r) => r.dstAddress === '0.0.0.0/0' && r.active);
-  if (!def) return undefined;
-  if (def.interface) return def.interface.toLowerCase();
-  const gw = def.gateway?.split('%')[0];
-  if (!gw) return undefined;
-  const match = addresses.find(
-    (a) => a.address.split('/')[0] && gw.startsWith(prefixOf(a.address)),
-  );
-  return match?.interface.toLowerCase();
-}
-
 export function buildUplinks(
   interfaces: InterfaceResponse[],
   addresses: IpAddressResponse[],
-  routes: RouteResponse[],
 ): UplinkRow[] {
   const ether = interfaces.filter((i) => i.type === 'ether' && !i.disabled);
   const hinted = ether.filter((i) => matchUplink(i) !== null);
   const pool = hinted.length > 0 ? hinted : ether;
-  const defIface = defaultRouteInterface(routes, addresses);
   return pool.map((iface) => {
     const { kind, label } = classify(iface);
     const ipAddresses = addresses
@@ -99,7 +76,6 @@ export function buildUplinks(
       ipAddresses,
       running: iface.running,
       disabled: !!iface.disabled,
-      isDefaultRoute: defIface === iface.name.toLowerCase(),
     };
   });
 }

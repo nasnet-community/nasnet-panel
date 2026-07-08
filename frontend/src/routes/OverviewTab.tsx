@@ -35,7 +35,6 @@ import {
   fetchDynamicOverview,
   fetchInterfaceGraph,
   fetchInterfaces,
-  fetchRoutes,
   fetchSystemOverview,
   fetchVPNClients,
   rebootSystem,
@@ -46,7 +45,6 @@ import {
   type InterfaceGraphSample,
   type InterfaceResponse,
   type IpAddressResponse,
-  type RouteResponse,
   type SystemOverview,
   type TrafficSample,
   type VPNActiveClient,
@@ -115,7 +113,6 @@ export function OverviewTab() {
   const [vpnClients, setVpnClients] = useState<VPNActiveClient[]>([]);
   const [dhcpLeaseList, setDhcpLeaseList] = useState<DHCPLeaseResponse[]>([]);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
-  const [routes, setRoutes] = useState<RouteResponse[]>([]);
   const [dhcpClients, setDhcpClients] = useState<DhcpClient[]>([]);
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
   const [graphLoading, setGraphLoading] = useState(false);
@@ -192,16 +189,14 @@ export function OverviewTab() {
 
     const loadInitial = async () => {
       try {
-        const [ov, list, routeList, clients] = await Promise.all([
+        const [ov, list, clients] = await Promise.all([
           fetchSystemOverview(id, { host, ...creds }),
           fetchInterfaces({ host, ...creds }).catch(() => [] as InterfaceResponse[]),
-          fetchRoutes({ host, ...creds }).catch(() => [] as RouteResponse[]),
           fetchDhcpClients({ host, ...creds }).catch(() => [] as DhcpClient[]),
         ]);
         if (cancelled) return;
         setOverview(ov);
         setInterfaces(list);
-        setRoutes(routeList);
         setDhcpClients(clients);
         if (list.length > 0) {
           setSelectedIface((prev) => {
@@ -540,7 +535,7 @@ export function OverviewTab() {
             )}
           </Card>
 
-          <UplinkIpCard interfaces={interfaces} addresses={ipAddresses} routes={routes} />
+          <UplinkIpCard interfaces={interfaces} addresses={ipAddresses} />
 
           <Card className={styles.networkCard}>
             <div className={styles.networkCardHeader}>

@@ -1,14 +1,13 @@
 import React, { useMemo } from 'react';
 import { Globe } from 'lucide-react';
 import { Badge, Card, StatusDot } from '@nasnet/ui';
-import type { InterfaceResponse, IpAddressResponse, RouteResponse } from '../../api';
+import type { InterfaceResponse, IpAddressResponse } from '../../api';
 import { buildUplinks, type UplinkKind } from './uplinks';
 import styles from './OverviewPanel.module.scss';
 
 export interface UplinkIpCardProps {
   interfaces: InterfaceResponse[];
   addresses: IpAddressResponse[];
-  routes: RouteResponse[];
 }
 
 const KIND_TONE: Record<UplinkKind, 'info' | 'warning' | 'success' | 'neutral'> = {
@@ -21,12 +20,8 @@ const KIND_TONE: Record<UplinkKind, 'info' | 'warning' | 'success' | 'neutral'> 
 export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function UplinkIpCard({
   interfaces,
   addresses,
-  routes,
 }) {
-  const rows = useMemo(
-    () => buildUplinks(interfaces, addresses, routes),
-    [interfaces, addresses, routes],
-  );
+  const rows = useMemo(() => buildUplinks(interfaces, addresses), [interfaces, addresses]);
 
   return (
     <Card className={styles.panelCard} data-testid="uplink-card">
@@ -62,11 +57,6 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
                 {row.label}
               </span>
               <Badge tone={KIND_TONE[row.kind]}>{row.kind}</Badge>
-              {row.isDefaultRoute ? (
-                <Badge tone="success" data-testid="uplink-default-route">
-                  Default route
-                </Badge>
-              ) : null}
               <span className={styles.uplinkIps}>
                 {row.ipAddresses.length > 0 ? (
                   row.ipAddresses.map((ip) => (

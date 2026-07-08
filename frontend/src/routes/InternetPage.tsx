@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardDescription, CardHeader, CardTitle, Stack, useToast } from '@nasnet/ui';
 import type { RoutingTopology } from '@nasnet/mocks';
-import { ApiError, updateVPNClient } from '../api';
+import { ApiError, updateForeignGateway, updateVPNClient } from '../api';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
@@ -79,6 +79,15 @@ export function InternetPage() {
       const vpnName = target.id.replace(/^vpn_/, '');
       try {
         await updateVPNClient(creds, vpnName, { disabled: !isActive });
+        if (isActive) {
+          await updateForeignGateway(creds, vpnName);
+          const others = topology.nodes.filter((n) => n.kind === 'vpn' && n.id !== target.id);
+          await Promise.all(
+            others.map((n) =>
+              updateVPNClient(creds, n.id.replace(/^vpn_/, ''), { disabled: true }),
+            ),
+          );
+        }
         await reload();
         toast.notify({ title: 'VPN tunnel updated', tone: 'success' });
       } catch (err) {
