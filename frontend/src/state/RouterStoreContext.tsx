@@ -33,6 +33,17 @@ const initial: State = {
   lastConnectedRouterId: null,
 };
 
+const isPersistedRouter = (value: unknown): value is Router => {
+  if (!value || typeof value !== 'object') return false;
+  const r = value as Partial<Router>;
+  return (
+    typeof r.id === 'string' &&
+    r.id.length > 0 &&
+    typeof r.name === 'string' &&
+    typeof r.host === 'string'
+  );
+};
+
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'hydrate':
@@ -53,6 +64,7 @@ function reducer(state: State, action: Action): State {
       return { ...state, routers: action.routers };
     case 'mergeFromRemote': {
       const existingById = new Map(state.routers.map((r) => [r.id, r]));
+      const remoteIds = new Set(action.remote.map((r) => r.id));
       const merged = action.remote.map((incoming) => {
         const existing = existingById.get(incoming.id);
         if (!existing) return incoming;
@@ -63,7 +75,8 @@ function reducer(state: State, action: Action): State {
           hostname: incoming.hostname ?? existing.hostname,
         };
       });
-      return { ...state, routers: merged };
+      const localOnly = state.routers.filter((r) => !remoteIds.has(r.id));
+      return { ...state, routers: [...merged, ...localOnly] };
     }
     case 'select':
       return { ...state, selectedRouterId: action.id };
@@ -97,16 +110,35 @@ export const RouterStoreProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [state, dispatch] = useReducer(reducer, initial);
 
   useEffect(() => {
+    let reset = false;
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as State;
-        if (parsed && Array.isArray(parsed.routers)) {
-          dispatch({ type: 'hydrate', state: parsed });
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<State> | null;
+      if (!parsed || !Array.isArray(parsed.routers)) {
+        reset = true;
+        return;
+      }
+      dispatch({
+        type: 'hydrate',
+        state: {
+          routers: parsed.routers.filter(isPersistedRouter),
+          selectedRouterId:
+            typeof parsed.selectedRouterId === 'string' ? parsed.selectedRouterId : null,
+          lastConnectedRouterId:
+            typeof parsed.lastConnectedRouterId === 'string' ? parsed.lastConnectedRouterId : null,
+        },
+      });
+    } catch {
+      reset = true;
+    } finally {
+      if (reset) {
+        try {
+          window.localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* ignore */
         }
       }
-    } catch {
-      /* ignore malformed storage */
     }
   }, []);
 

@@ -1,4 +1,4 @@
-import { mockStore } from './handlers/store';
+import { mockStore, MOCK_STORE_KEY } from './handlers/store';
 import { routers } from './handlers/routers';
 import { system } from './handlers/system';
 import { vpn, getProtocolOptions } from './handlers/vpn';
@@ -7,7 +7,7 @@ import { updates } from './handlers/updates';
 import { logs } from './handlers/logs';
 import { batch } from './handlers/batch';
 
-export { mockStore, getProtocolOptions };
+export { mockStore, MOCK_STORE_KEY, getProtocolOptions };
 
 export const mockApi = {
   routers,

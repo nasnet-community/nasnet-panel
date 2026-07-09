@@ -54,9 +54,10 @@ export function RouterListPage() {
 
   useEffect(() => {
     let cancelled = false;
-    void api.routers.list().then(() => {
+    const done = () => {
       if (!cancelled) setInitialLoad(false);
-    });
+    };
+    void api.routers.list().then(done, done);
     return () => {
       cancelled = true;
     };
