@@ -31,7 +31,7 @@ redirect-gateway=def1 keepalive-timeout=60
 
 /ppp secret
 {{range .OvpnServer.Users}}
-add name="{{ .Username }}-ovpn-tcp" password="{{ .Password }}" profile=profile-ovpn-server-{{ $.CurrentTimestamp }} service=ovpn
+add name="{{ .Username }}" password="{{ .Password }}" profile=profile-ovpn-server-{{ $.CurrentTimestamp }} service=ovpn
 {{end}}
 
 :global WizardProgress "85"
