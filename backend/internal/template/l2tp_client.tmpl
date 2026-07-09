@@ -4,7 +4,7 @@ add name="LANBridgeVPN-L2TP-Client" comment="VPN-L2TP-Client"
 /interface l2tp-client
 add name="l2tp-client-L2TP-Client" connect-to="{{ .L2tpClient.ConnectTo }}" comment="L2TP-Client L2TP" \
 random-source-port=yes user="{{ .L2tpClient.User }}" password="{{ .L2tpClient.Password }}" \
-use-ipsec={{ if .L2tpClient.IPsecSecret }}yes{{ else }}no{{ end }} allow-fast-path=yes allow=mschap2,mschap1 \
+{{ if .L2tpClient.IPsecSecret }}use-ipsec=yes ipsec-secret={{.L2tpClient.IPsecSecret}}{{ else }}use-ipsec=no{{ end }} allow-fast-path=yes allow=mschap2,mschap1 \
 l2tp-proto-version=l2tpv2 dial-on-demand=no disabled=no
 
 /interface list
