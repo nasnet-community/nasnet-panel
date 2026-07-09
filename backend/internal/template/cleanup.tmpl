@@ -12,14 +12,9 @@
 
 /interface vlan remove [find]
 
-:foreach i in=[/interface/bridge find] do={
-  :local bridgeName [/interface/bridge get $i name]
-  :if ($bridgeName = "LANBridgeSplit" || $bridgeName = "containers") do={
-    :continue
-  }
-  /interface/bridge/port remove [find bridge=$bridgeName]
-  /interface/bridge remove $i
-}
+
+/interface/bridge/port remove [find bridge!="containers"]
+/interface/bridge remove [find name!="containers"]
 
 /interface bonding remove [find]
 /interface macvlan remove [find]

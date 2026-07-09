@@ -14,28 +14,24 @@ export-certificate cert-client-{{ .CurrentTimestamp }} file-name=cert-client-{{ 
 
 
 /ip pool
-add name="ovpn-tcp-pool" ranges=192.168.120.2-192.168.120.254 comment="OpenVPN ovpn-tcp client pool"
-add name="ovpn-udp-pool" ranges=192.168.121.2-192.168.121.254 comment="OpenVPN ovpn-udp client pool"
+add name="pool-ovpn-server-{{ .CurrentTimestamp }}" ranges=192.168.120.2-192.168.120.254 comment="OpenVPN client pool"
 
 /ppp profile
 add address-list="VPN-LAN" dns-server="192.168.120.1" interface-list="VPN-LAN" \
-local-address="192.168.120.1" name="ovpn-tcp-profile" remote-address="ovpn-tcp-pool" \
-use-encryption=yes use-ipv6=no use-upnp=yes
-add address-list="VPN-LAN" dns-server="192.168.121.1" interface-list="VPN-LAN" \
-local-address="192.168.121.1" \ name="ovpn-udp-profile" remote-address="ovpn-udp-pool" \
+local-address="192.168.120.1" name="profile-ovpn-server-{{ .CurrentTimestamp }}" remote-address="pool-ovpn-server-{{ .CurrentTimestamp }}" \
 use-encryption=yes use-ipv6=no use-upnp=yes
 /interface ovpn-server server
-add name="ovpn-tcp" default-profile="ovpn-tcp-profile" disabled=no \
+add name="ovpn-server-{{ .CurrentTimestamp }}-tcp" default-profile="profile-ovpn-server-{{ .CurrentTimestamp }}" disabled=no \
 port="1194" protocol="tcp" mode="ip" certificate=cert-server-{{ .CurrentTimestamp }} \
 require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
 redirect-gateway=def1 keepalive-timeout=60
-add name="ovpn-udp" default-profile="ovpn-udp-profile" disabled=no port="1195" protocol="udp" \
+add name="ovpn-server-{{ .CurrentTimestamp }}-udp" default-profile="profile-ovpn-server-{{ .CurrentTimestamp }}" disabled=no port="1194" protocol="udp" \
 mode="ip" certificate=cert-server-{{ .CurrentTimestamp }} require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
 redirect-gateway=def1 keepalive-timeout=60
 
 /ppp secret
-{{range .OvpnServer.Users}}add name="{{ .Username }}-ovpn-tcp" password="{{ .Password }}" profile=ovpn-tcp-profile service=ovpn
-add name="{{ .Username }}-ovpn-udp" password="{{ .Password }}" profile=ovpn-udp-profile service=ovpn
+{{range .OvpnServer.Users}}
+add name="{{ .Username }}" password="{{ .Password }}" profile=profile-ovpn-server-{{ $.CurrentTimestamp }} service=ovpn
 {{end}}
 
 :global WizardProgress "85"
@@ -43,12 +39,11 @@ add name="{{ .Username }}-ovpn-udp" password="{{ .Password }}" profile=ovpn-udp-
 
 /ip firewall address-list
 add address="192.168.120.0/24" list="VPN-LAN" comment="ovpn-tcp OpenVPN subnet"
-add address="192.168.121.0/24" list="VPN-LAN" comment="ovpn-udp OpenVPN subnet"
 
 /ip firewall filter
 add action=accept chain=input comment="OpenVPN Server ovpn-tcp (tcp)" dst-port="1194" \
 in-interface-list="Domestic-WAN" protocol="tcp"
-add action=accept chain=input comment="OpenVPN Server ovpn-udp (udp)" dst-port="1195" \
+add action=accept chain=input comment="OpenVPN Server ovpn-udp (udp)" dst-port="1194" \
 in-interface-list="Domestic-WAN" protocol="udp"
 
 /ip firewall mangle
@@ -56,5 +51,5 @@ add action=mark-connection chain=input comment="Mark Inbound OpenVPN Connections
 connection-state=new \ in-interface-list="Domestic-WAN" protocol="tcp" dst-port="1194" \
 new-connection-mark="conn-vpn-server" passthrough=yes
 add action=mark-connection chain=input comment="Mark Inbound OpenVPN Connections (ovpn-udp)" \
-connection-state=new \ in-interface-list="Domestic-WAN" protocol="udp" dst-port="1195" \
+connection-state=new \ in-interface-list="Domestic-WAN" protocol="udp" dst-port="1194" \
 new-connection-mark="conn-vpn-server" passthrough=yes
