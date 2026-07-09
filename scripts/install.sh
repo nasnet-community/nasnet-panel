@@ -228,13 +228,18 @@ cat > "$SSH_ASKPASS_HELPER" <<'HELPER'
 printf '%s\n' "$NASNET_ASKPASS"
 HELPER
 
-SSH_CONTROL_DIR="$(mktemp -d)"
-SSH_CONTROL_PATH="${SSH_CONTROL_DIR}/cm-%h-%p"
 SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o LogLevel=ERROR
           -o BatchMode=no -o NumberOfPasswordPrompts=1
-          -o ConnectTimeout=4 -o ServerAliveInterval=5 -o ServerAliveCountMax=2
-          -o ControlMaster=auto -o "ControlPath=${SSH_CONTROL_PATH}"
-          -o ControlPersist=60)
+          -o ConnectTimeout=4 -o ServerAliveInterval=5 -o ServerAliveCountMax=2)
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) ;;
+  *)
+    SSH_CONTROL_DIR="$(mktemp -d)"
+    SSH_CONTROL_PATH="${SSH_CONTROL_DIR}/cm-%h-%p"
+    SSH_OPTS+=(-o ControlMaster=auto -o "ControlPath=${SSH_CONTROL_PATH}"
+               -o ControlPersist=60)
+    ;;
+esac
 
 ssh_pw() {
   NASNET_ASKPASS="$ROUTER_PASS" SSH_ASKPASS="$SSH_ASKPASS_HELPER" \
