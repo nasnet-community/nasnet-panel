@@ -37,6 +37,10 @@ const STATUS_PORT_CLASS = {
 
 const statusClass = (slot: ResolvedSlot): string | undefined => {
   if (slot.kind !== 'ethernet' && slot.kind !== 'sfp') return undefined;
+  if (slot.status === 'up') {
+    if (slot.rateTone === 'degraded') return styles.rateDegraded;
+    if (slot.rateTone === 'bad') return styles.rateBad;
+  }
   return STATUS_PORT_CLASS[slot.status];
 };
 

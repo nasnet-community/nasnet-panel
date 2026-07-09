@@ -22,6 +22,7 @@ export {
   fetchDynamicOverview,
   fetchInterfaceGraph,
   fetchInterfaces,
+  fetchEthernetInterfaces,
   updateWanInterface,
   type WanInterfaceType,
   fetchForeignGateway,
@@ -40,6 +41,7 @@ export {
   type InterfaceGraphResponse,
   type InterfaceGraphSample,
   type InterfaceResponse,
+  type EthernetInterfaceResponse,
   type IpAddressResponse,
 } from './system';
 export {

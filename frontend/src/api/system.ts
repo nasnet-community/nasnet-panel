@@ -142,6 +142,29 @@ export async function fetchInterfaces(
   return list ?? [];
 }
 
+export interface EthernetInterfaceResponse {
+  id?: string;
+  name?: string;
+  defaultName?: string;
+  running?: boolean;
+  disabled?: boolean;
+  status?: string;
+  rate?: string;
+}
+
+export async function fetchEthernetInterfaces(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<EthernetInterfaceResponse[]> {
+  const list = await apiRequest<EthernetInterfaceResponse[] | null>('/api/interface/ethernets', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return list ?? [];
+}
+
 export type WanInterfaceType = 'foreign' | 'domestic';
 
 export async function updateWanInterface(
