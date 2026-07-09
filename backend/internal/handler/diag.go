@@ -3,12 +3,11 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 
+	"nasnet-panel/internal/template"
 	"nasnet-panel/pkg/utils"
 )
 
@@ -29,8 +28,7 @@ func HandleGenerateDiag(c echo.Context) error {
 		return err
 	}
 
-	//nolint:gosec // Safe: reading a fixed internal template file
-	script, err := os.ReadFile(filepath.Join("internal", "template", "diag.tmpl"))
+	script, err := template.Files.ReadFile("diag.tmpl")
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to read diagnostic script", err)
 	}
