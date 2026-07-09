@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { store } from './api';
-import type { Router } from '@nasnet/mocks';
+import { MOCK_STORE_KEY, type Router } from '@nasnet/mocks';
 
 declare global {
   interface Window {
@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
   }
   const persisted = (() => {
     try {
-      return Boolean(window.localStorage?.getItem('nasnet-panel.mock-store.v3'));
+      return Boolean(window.localStorage?.getItem(MOCK_STORE_KEY));
     } catch {
       return false;
     }

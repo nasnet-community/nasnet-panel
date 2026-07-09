@@ -31,14 +31,8 @@ export interface Store {
   idCounter: number;
 }
 
-const STORAGE_KEY = 'nasnet-panel.mock-store.v13';
-const LEGACY_KEYS = [
-  'nasnet-panel.mock-store.v12',
-  'nasnet-panel.mock-store.v11',
-  'nasnet-panel.mock-store.v10',
-  'nasnet-panel.mock-store.v9',
-  'nasnet-panel.mock-store.v8',
-];
+export const MOCK_STORE_KEY = 'nasnet-panel.mock-store.v13';
+const LEGACY_KEYS = ['nasnet-panel.mock-store.v12'];
 
 const createStore = (): Store => ({
   routers: [],
@@ -57,23 +51,27 @@ const createStore = (): Store => ({
 const loadStore = (): Store => {
   if (typeof window === 'undefined') return createStore();
   try {
-    let raw = window.localStorage?.getItem(STORAGE_KEY);
+    let raw = window.localStorage?.getItem(MOCK_STORE_KEY);
+    let migrated = false;
     if (!raw) {
       for (const legacy of LEGACY_KEYS) {
         const legacyRaw = window.localStorage?.getItem(legacy);
         if (legacyRaw) {
           raw = legacyRaw;
+          migrated = true;
           window.localStorage?.removeItem(legacy);
           break;
         }
       }
     }
     if (!raw) return createStore();
-    const parsed = JSON.parse(raw) as Store;
-    if (!parsed.routingTopologies) {
-      parsed.routingTopologies = {};
+    const parsed = JSON.parse(raw) as Partial<Store> | null;
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.routers)) {
+      return createStore();
     }
-    return parsed;
+    const store = { ...createStore(), ...parsed };
+    if (migrated) persistStore(store);
+    return store;
   } catch {
     return createStore();
   }
@@ -82,7 +80,7 @@ const loadStore = (): Store => {
 const persistStore = (next: Store): void => {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage?.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.localStorage?.setItem(MOCK_STORE_KEY, JSON.stringify(next));
   } catch {
     /* ignore quota errors */
   }
