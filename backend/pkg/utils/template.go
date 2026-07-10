@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"text/template"
+
+	tmplpkg "nasnet-panel/internal/template"
 )
 
 // EscapeScriptString escapes special characters in a script string for safe RouterOS execution.
@@ -27,22 +28,18 @@ func templateFuncs() template.FuncMap {
 	}
 }
 
-// RenderTemplate reads a template file, parses it along with other templates in the same directory,
+// RenderTemplate reads a template file from embedded files, parses it along with other templates,
 // and renders it with the provided data. Returns the rendered template as a string.
-func RenderTemplate(templatePath string, data any) (string, error) {
-	if templatePath == "" {
-		return "", fmt.Errorf("template path is required")
+func RenderTemplate(filename string, data any) (string, error) {
+	if filename == "" {
+		return "", fmt.Errorf("template filename is required")
 	}
 
-	dir := filepath.Dir(templatePath)
-	pattern := filepath.Join(dir, "*.tmpl")
-
-	tmpl, err := template.New("config").Funcs(templateFuncs()).ParseGlob(pattern)
+	tmpl, err := template.New("config").Funcs(templateFuncs()).ParseFS(tmplpkg.Files, "*.tmpl")
 	if err != nil {
-		return "", fmt.Errorf("failed to parse templates from %s: %w", pattern, err)
+		return "", fmt.Errorf("failed to parse templates: %w", err)
 	}
 
-	filename := filepath.Base(templatePath)
 	var buf bytes.Buffer
 	err = tmpl.ExecuteTemplate(&buf, filename, data)
 	if err != nil {

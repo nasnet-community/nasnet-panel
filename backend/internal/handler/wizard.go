@@ -266,7 +266,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
 
-	rendered, err := utils.RenderTemplate("internal/template/wizard.tmpl", templateData)
+	rendered, err := utils.RenderTemplate("wizard.tmpl", templateData)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}
