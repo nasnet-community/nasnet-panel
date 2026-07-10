@@ -19,6 +19,7 @@ import styles from './DHCPPage.module.scss';
 import {
   fetchDhcpClients,
   fetchDhcpLeases,
+  fetchEthernetInterfaces,
   fetchInterfaces,
   fetchSystemOverview,
   makeDhcpLeaseStatic,
@@ -62,6 +63,7 @@ export function DHCPPage() {
   const [clients, setClients] = useState<SectionState<DhcpClient>>(initial<DhcpClient>());
   const [model, setModel] = useState<string | null>(null);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
+  const [ethernetRates, setEthernetRates] = useState<Record<string, string>>({});
   const [busyMac, setBusyMac] = useState<string | null>(null);
   const [leaseToRemove, setLeaseToRemove] = useState<DhcpLease | null>(null);
   const inFlightRef = useRef(false);
@@ -85,16 +87,26 @@ export function DHCPPage() {
 
       inFlightRef.current = true;
       const full = { host, ...creds };
-      const [lResult, cResult, oResult, iResult] = await Promise.allSettled([
+      const [lResult, cResult, oResult, iResult, eResult] = await Promise.allSettled([
         fetchDhcpLeases(full),
         fetchDhcpClients(full),
         fetchSystemOverview(id, full),
         fetchInterfaces(full),
+        fetchEthernetInterfaces(full),
       ]);
       inFlightRef.current = false;
 
       if (oResult.status === 'fulfilled') setModel(oResult.value.model);
       if (iResult.status === 'fulfilled') setInterfaces(iResult.value);
+      if (eResult.status === 'fulfilled') {
+        setEthernetRates(
+          Object.fromEntries(
+            eResult.value.flatMap((e) =>
+              e.name && e.rate ? [[e.name.toLowerCase(), e.rate] as const] : [],
+            ),
+          ),
+        );
+      }
 
       setLeases(
         lResult.status === 'fulfilled'
@@ -346,6 +358,7 @@ export function DHCPPage() {
               <RouterPortDiagramCard
                 model={model}
                 interfaces={interfaces}
+                ifaceRates={ethernetRates}
                 showPowerControls={false}
                 disabledIfaceNames={wanNames}
               />
