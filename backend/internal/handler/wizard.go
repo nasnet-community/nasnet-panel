@@ -226,7 +226,11 @@ func HandleFinalizeWizard(c echo.Context) error {
 	var otherEthernets []string
 	if ethernets, err := client.GetEthernetInterfaces(); err == nil {
 		for i := range ethernets {
-			if ethernets[i].Name != req.Foreign.Interface && ethernets[i].Name != req.Domestic.Interface {
+			exclude := ethernets[i].Name == req.Foreign.Interface
+			if domesticEnabled {
+				exclude = exclude || ethernets[i].Name == req.Domestic.Interface
+			}
+			if !exclude {
 				otherEthernets = append(otherEthernets, ethernets[i].Name)
 			}
 		}
@@ -240,7 +244,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"DomesticEnabled":    domesticEnabled,
 		"ManagementWifiSSID": randName,
 		"ForeignInterface":   req.Foreign.Interface,
-		"DomesticInterface":  req.Domestic.Interface,
 		"EnableWifiAP":       req.WiFiAP != nil,
 		"WifiBands":          wifiBands,
 		"OtherEthernets":     otherEthernets,
@@ -251,10 +254,13 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"RouterPassword":     creds.Password,
 	}
 
-	// Add domestic WiFi configuration if applicable
-	if req.Domestic.Type == "wifi" && req.Domestic.SSID != "" {
-		templateData["DomesticWifiSSID"] = req.Domestic.SSID
-		templateData["DomesticWifiPassword"] = req.Domestic.Password
+	// Add domestic interface configuration if enabled
+	if domesticEnabled {
+		templateData["DomesticInterface"] = req.Domestic.Interface
+		if req.Domestic.Type == "wifi" && req.Domestic.SSID != "" {
+			templateData["DomesticWifiSSID"] = req.Domestic.SSID
+			templateData["DomesticWifiPassword"] = req.Domestic.Password
+		}
 	}
 
 	// Add WiFi AP configuration if provided
