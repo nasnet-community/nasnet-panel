@@ -8,6 +8,7 @@ import (
 type WiFiInterfaceResponse struct {
 	ID           string `json:"id"`
 	Name         string `json:"name"`
+	DefaultName  string `json:"defaultName,omitempty"`
 	Interface    string `json:"interface"`
 	SSID         string `json:"ssid"`
 	Frequency    string `json:"frequency"`
@@ -122,6 +123,7 @@ func ToWiFiInterfaceResponse(wi *routeros.WifiInfo) *WiFiInterfaceResponse {
 	return &WiFiInterfaceResponse{
 		ID:           wi.ID,
 		Name:         wi.Name,
+		DefaultName:  wi.DefaultName,
 		Interface:    wi.Interface,
 		SSID:         wi.SSID,
 		Frequency:    wi.Frequency,

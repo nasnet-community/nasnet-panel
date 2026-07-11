@@ -114,6 +114,7 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 			SecurityType: c.getWiFiAuthenticationTypes(result),
 			Comment:      result["comment"],
 			IsVirtual:    isVirtual,
+			DefaultName:  result["default-name"],
 		})
 	}
 
@@ -156,6 +157,7 @@ func (c *Client) getWiFiInterface(name string) (*WifiInfo, error) {
 		SecurityType: c.getWiFiAuthenticationTypes(result),
 		Comment:      result["comment"],
 		IsVirtual:    isVirtual,
+		DefaultName:  result["default-name"],
 	}, nil
 }
 
