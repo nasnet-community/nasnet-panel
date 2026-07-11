@@ -207,6 +207,13 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
 	}
 
+	domesticEnabled := req.Domestic != nil && req.Domestic.Interface != ""
+
+	// Validate required foreign and domestic configurations
+	if req.Foreign == nil || req.Foreign.Interface == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface is required", nil)
+	}
+
 	// Get WiFi radios and extract bands
 	wifiBands := []string{}
 	if radios, err := client.GetWiFiRadios(); err == nil {
@@ -216,10 +223,10 @@ func HandleFinalizeWizard(c echo.Context) error {
 	}
 
 	// Get ethernet interfaces and filter out the ones used for foreign/domestic
-	otherEthernets := []string{}
+	var otherEthernets []string
 	if ethernets, err := client.GetEthernetInterfaces(); err == nil {
 		for i := range ethernets {
-			if ethernets[i].Name != req.ForeignInterface && ethernets[i].Name != req.DomesticInterface {
+			if ethernets[i].Name != req.Foreign.Interface && ethernets[i].Name != req.Domestic.Interface {
 				otherEthernets = append(otherEthernets, ethernets[i].Name)
 			}
 		}
@@ -230,9 +237,10 @@ func HandleFinalizeWizard(c echo.Context) error {
 
 	// Build template data from request
 	templateData := map[string]any{
+		"DomesticEnabled":    domesticEnabled,
 		"ManagementWifiSSID": randName,
-		"ForeignInterface":   req.ForeignInterface,
-		"DomesticInterface":  req.DomesticInterface,
+		"ForeignInterface":   req.Foreign.Interface,
+		"DomesticInterface":  req.Domestic.Interface,
 		"EnableWifiAP":       req.WiFiAP != nil,
 		"WifiBands":          wifiBands,
 		"OtherEthernets":     otherEthernets,
@@ -241,6 +249,12 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"BackupTime":         time.Now().Format("2006-01-02_15-04-05"),
 		"RouterUsername":     creds.Username,
 		"RouterPassword":     creds.Password,
+	}
+
+	// Add domestic WiFi configuration if applicable
+	if req.Domestic.Type == "wifi" && req.Domestic.SSID != "" {
+		templateData["DomesticWifiSSID"] = req.Domestic.SSID
+		templateData["DomesticWifiPassword"] = req.Domestic.Password
 	}
 
 	// Add WiFi AP configuration if provided
@@ -310,12 +324,4 @@ func HandleFinalizeWizard(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
 		"managementWiFiSSID": randName,
 	})
-}
-
-// L2tpClientConfig represents L2TP client configuration.
-type L2tpClientConfig struct {
-	Host              string
-	Username          string
-	Password          string
-	IPSecPreSharedKey string
 }

@@ -59,16 +59,20 @@ set [ find name="wifi{{.}}-SplitLAN" ] steering="Split"{{end}}
 :if ([:len [/interface/bridge find name="LANBridgeSplit"]] = 0) do={
 add name="LANBridgeSplit" comment="Split"
 }
+{{ if .DomesticEnabled}}
 add name="LANBridgeDomestic" comment="Domestic"
+add name="LANBridgeDomestic-Domestic Link" comment="Domestic-Domestic Link"
+{{ end }}
 add name="LANBridgeForeign" comment="Foreign"
 add name="LANBridgeVPN" comment="VPN"
 add name="LANBridgeForeign-Foreign Link" comment="Foreign-Foreign Link"
-add name="LANBridgeDomestic-Domestic Link" comment="Domestic-Domestic Link"
 add name="FTAH" comment="Foreign Table Address Holder"
 
 /interface ethernet
 set [ find default-name={{ .ForeignInterface }} ] comment="WAN - Foreign Link"
+{{ if .DomesticEnabled}}
 set [ find default-name={{ .DomesticInterface }} ] comment="WAN - Domestic Link"
+{{ end }}
 {{range .OtherEthernets}}set [ find default-name={{ . }} ] comment="Split Network"
 {{end}}
 
@@ -79,74 +83,89 @@ add name="WAN"
 add name="LAN"
 add name="Split-WAN" comment="Split"
 add name="Split-LAN" comment="Split"
+{{ if .DomesticEnabled}}
 add name="Domestic-WAN" comment="Domestic"
 add name="Domestic-LAN" comment="Domestic"
+add name="Domestic-Domestic Link-WAN" comment="Domestic-Domestic Link"
+add name="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
+{{ end }}
 add name="Foreign-WAN" comment="Foreign"
 add name="Foreign-LAN" comment="Foreign"
 add name="VPN-WAN" comment="VPN"
 add name="VPN-LAN" comment="VPN"
 add name="Foreign-Foreign Link-WAN" comment="Foreign-Foreign Link"
 add name="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
-add name="Domestic-Domestic Link-WAN" comment="Domestic-Domestic Link"
-add name="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
 
 /interface macvlan
 add name="MacVLAN-{{ .ForeignInterface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface }}" interface={{ .ForeignInterface }} mode=private
+{{ if .DomesticEnabled}}
 add name="MacVLAN-{{ .DomesticInterface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface }}" interface={{ .DomesticInterface }} mode=private
-
+{{ end }}
 /ip pool
 :if ([:len [/ip/pool find name="DHCP-pool-Split"]] = 0) do={
 add name="DHCP-pool-Split" ranges="192.168.10.2-192.168.10.254" comment="Split"
 }
+{{ if .DomesticEnabled}}
 add name="DHCP-pool-Domestic" ranges="192.168.20.2-192.168.20.254" comment="Domestic"
+add name="DHCP-pool-Domestic-Domestic Link" ranges="192.168.21.2-192.168.21.254" comment="Domestic-Domestic Link"
+{{ end }}
 add name="DHCP-pool-Foreign" ranges="192.168.30.2-192.168.30.254" comment="Foreign"
 add name="DHCP-pool-VPN" ranges="192.168.40.2-192.168.40.254" comment="VPN"
 add name="DHCP-pool-Foreign-Foreign Link" ranges="192.168.31.2-192.168.31.254" comment="Foreign-Foreign Link"
-add name="DHCP-pool-Domestic-Domestic Link" ranges="192.168.21.2-192.168.21.254" comment="Domestic-Domestic Link"
 
 /ip dhcp-server
 :if ([:len [/ip/dhcp-server find name="DHCP-Split"]] = 0) do={
 add address-pool="DHCP-pool-Split" interface="LANBridgeSplit" name="DHCP-Split" comment="Split"
 }
+{{ if .DomesticEnabled}}
 add address-pool="DHCP-pool-Domestic" interface="LANBridgeDomestic" name="DHCP-Domestic" comment="Domestic"
+add address-pool="DHCP-pool-Domestic-Domestic Link" interface="LANBridgeDomestic-Domestic Link" name="DHCP-Domestic-Domestic Link" comment="Domestic-Domestic Link"
+{{ end }}
 add address-pool="DHCP-pool-Foreign" interface="LANBridgeForeign" name="DHCP-Foreign" comment="Foreign"
 add address-pool="DHCP-pool-VPN" interface="LANBridgeVPN" name="DHCP-VPN" comment="VPN"
 add address-pool="DHCP-pool-Foreign-Foreign Link" interface="LANBridgeForeign-Foreign Link" name="DHCP-Foreign-Foreign Link" comment="Foreign-Foreign Link"
-add address-pool="DHCP-pool-Domestic-Domestic Link" interface="LANBridgeDomestic-Domestic Link" name="DHCP-Domestic-Domestic Link" comment="Domestic-Domestic Link"
 
 /ip dhcp-server network
 :if ([:len [/ip/dhcp-server/network find comment="Split"]] = 0) do={
 add address="192.168.10.0/24" dns-server="192.168.10.1" gateway="192.168.10.1" comment="Split"
 }
+{{ if .DomesticEnabled}}
 add address="192.168.20.0/24" dns-server="192.168.20.1" gateway="192.168.20.1" comment="Domestic"
+add address="192.168.21.0/24" dns-server="192.168.21.1" gateway="192.168.21.1" comment="Domestic-Domestic Link"
+{{ end }}
 add address="192.168.30.0/24" dns-server="192.168.30.1" gateway="192.168.30.1" comment="Foreign"
 add address="192.168.40.0/24" dns-server="192.168.40.1" gateway="192.168.40.1" comment="VPN"
 add address="192.168.31.0/24" dns-server="192.168.31.1" gateway="192.168.31.1" comment="Foreign-Foreign Link"
-add address="192.168.21.0/24" dns-server="192.168.21.1" gateway="192.168.21.1" comment="Domestic-Domestic Link"
 
 /routing table
 add fib name="to-Split" comment="Split"
+{{ if .DomesticEnabled}}
 add fib name="to-Domestic" comment="Domestic"
+add fib name="to-Domestic-Domestic Link" comment="Domestic-Domestic Link"
+{{ end }}
 add fib name="to-Foreign" comment="Foreign"
 add fib name="to-VPN" comment="VPN"
 add fib name="to-Foreign-Foreign Link" comment="Foreign-Foreign Link"
-add fib name="to-Domestic-Domestic Link" comment="Domestic-Domestic Link"
 
 /routing rule
+{{ if .DomesticEnabled}}
 add action=lookup-only-in-table comment="Routing the Domestic SRC Address" disabled=no src-address="192.168.20.0/24" table="to-Domestic"
 add action=lookup-only-in-table comment="Routing the Domestic Routing Mark" disabled=no routing-mark="to-Domestic" table="to-Domestic"
+add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link SRC Address" disabled=no src-address="192.168.21.0/24" table="to-Domestic-Domestic Link"
+add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link Routing Mark" disabled=no routing-mark="to-Domestic-Domestic Link" table="to-Domestic-Domestic Link"
+{{ end }}
 add action=lookup-only-in-table comment="Routing the Foreign SRC Address" disabled=no src-address="192.168.30.0/24" table="to-Foreign"
 add action=lookup-only-in-table comment="Routing the Foreign Routing Mark" disabled=no routing-mark="to-Foreign" table="to-Foreign"
 add action=lookup-only-in-table comment="Routing the VPN SRC Address" disabled=no src-address="192.168.40.0/24" table="to-VPN"
 add action=lookup-only-in-table comment="Routing the VPN Routing Mark" disabled=no routing-mark="to-VPN" table="to-VPN"
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link SRC Address" disabled=no src-address="192.168.31.0/24" table="to-Foreign-Foreign Link"
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link Routing Mark" disabled=no routing-mark="to-Foreign-Foreign Link" table="to-Foreign-Foreign Link"
-add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link SRC Address" disabled=no src-address="192.168.21.0/24" table="to-Domestic-Domestic Link"
-add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link Routing Mark" disabled=no routing-mark="to-Domestic-Domestic Link" table="to-Domestic-Domestic Link"
 
 /interface bridge port
 remove [find bridge="LANBridgeSplit" interface="{{ .ForeignInterface }}"]
+{{ if .DomesticEnabled}}
 remove [find bridge="LANBridgeSplit" interface="{{ .DomesticInterface }}"]
+{{ end }}
 {{range .WifiBands}}:if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN"]] = 0) do={
 add bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN" comment="Split"
 }
@@ -163,32 +182,36 @@ set disable-ipv6=yes
 /interface list member
 add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="WAN" comment="Foreign WAN"
 add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="Foreign-WAN" comment="Foreign WAN"
+{{ if .DomesticEnabled}}
 add interface="MacVLAN-{{ .DomesticInterface }}-Domestic Link" list="WAN" comment="Domestic WAN"
+add interface="LANBridgeDomestic" list="LAN" comment="Domestic"
+add interface="LANBridgeDomestic" list="Domestic-LAN" comment="Domestic"
+add interface="LANBridgeDomestic-Domestic Link" list="LAN" comment="Domestic-Domestic Link"
+add interface="LANBridgeDomestic-Domestic Link" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
+{{ end }}
 {{range .WifiBands}}add interface="wifi{{.}}-SplitLAN" list="Split-LAN" comment="SplitLAN"
 add interface="wifi{{.}}-SplitLAN" list="LAN" comment="SplitLAN"
 {{end}}
 add interface="LANBridgeSplit" list="LAN" comment="Split"
 add interface="LANBridgeSplit" list="Split-LAN" comment="Split"
-add interface="LANBridgeDomestic" list="LAN" comment="Domestic"
-add interface="LANBridgeDomestic" list="Domestic-LAN" comment="Domestic"
 add interface="LANBridgeForeign" list="LAN" comment="Foreign"
 add interface="LANBridgeForeign" list="Foreign-LAN" comment="Foreign"
 add interface="LANBridgeVPN" list="LAN" comment="VPN"
 add interface="LANBridgeVPN" list="VPN-LAN" comment="VPN"
 add interface="LANBridgeForeign-Foreign Link" list="LAN" comment="Foreign-Foreign Link"
 add interface="LANBridgeForeign-Foreign Link" list="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
-add interface="LANBridgeDomestic-Domestic Link" list="LAN" comment="Domestic-Domestic Link"
-add interface="LANBridgeDomestic-Domestic Link" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
 
 /ip address
 :if ([:len [/ip/address find interface="LANBridgeSplit"]] = 0) do={
 add address="192.168.10.1/24" interface="LANBridgeSplit" network="192.168.10.0" comment="Split"
 }
+{{ if .DomesticEnabled}}
 add address="192.168.20.1/24" interface="LANBridgeDomestic" network="192.168.20.0" comment="Domestic"
+add address="192.168.21.1/24" interface="LANBridgeDomestic-Domestic Link" network="192.168.21.0" comment="Domestic-Domestic Link"
+{{ end }}
 add address="192.168.30.1/24" interface="LANBridgeForeign" network="192.168.30.0" comment="Foreign"
 add address="192.168.40.1/24" interface="LANBridgeVPN" network="192.168.40.0" comment="VPN"
 add address="192.168.31.1/24" interface="LANBridgeForeign-Foreign Link" network="192.168.31.0" comment="Foreign-Foreign Link"
-add address="192.168.21.1/24" interface="LANBridgeDomestic-Domestic Link" network="192.168.21.0" comment="Domestic-Domestic Link"
 add address="192.168.39.12/32" interface="FTAH" network="192.168.39.12" comment="Foreign Table Address Holder"
 
 :global WizardProgress "30"
@@ -204,6 +227,7 @@ add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{
 \n    /ip route set [ find comment=\"Route-to-Foreign-Foreign Link\" gateway!=\$gw ] gateway=\$gw\r\
 \n}\r\
 \n}" use-peer-dns=no use-peer-ntp=no
+{{ if .DomesticEnabled}}
 add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface }}-Domestic Link" script=":if (\$bound=1) do={\r\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
 \n:local routeCount [/ip route print count-only where comment=\"Route-to-Domestic-Domestic Link\"]\r\
@@ -211,21 +235,25 @@ add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-
 \n    /ip route set [ find comment=\"Route-to-Domestic-Domestic Link\" gateway!=\$gw ] gateway=\$gw\r\
 \n}\r\
 \n}" use-peer-dns=no use-peer-ntp=no
-
+{{ end }}
 
 /ip dns
 set allow-remote-requests=yes  max-concurrent-queries=500 max-concurrent-tcp-sessions=50 cache-size=20480KiB cache-max-ttl=7d
-set servers=4.2.2.2,217.218.127.127,4.2.2.1
+set servers=4.2.2.2,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}4.2.2.1
 set use-doh-server="https://8.8.8.8/dns-query" verify-doh-cert=no doh-max-concurrent-queries=500 doh-max-server-connections=50
 
 /ip dns forwarders
 add name=VPN dns-servers=4.2.2.2 verify-doh-cert=no
+{{ if .DomesticEnabled}}
 add name=Domestic dns-servers=217.218.127.127 verify-doh-cert=no
+{{ end }}
 add name=Foreign dns-servers=4.2.2.1 verify-doh-cert=no
-add name=General dns-servers=4.2.2.2,217.218.127.127,4.2.2.1 verify-doh-cert=no
+add name=General dns-servers=4.2.2.2,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}4.2.2.1 verify-doh-cert=no
 
 /ip dns static
+{{ if .DomesticEnabled}}
 add type=FWD regexp="\\.ir" forward-to=Domestic comment="Forward .ir TLD queries via domestic DNS"
+{{ end }}
 add address="8.8.8.8" name="dns.google" comment="DOH-Domain-Static-Entry"
 add address="8.8.4.4" name="dns.google" comment="DOH-Domain-Static-Entry"
 add address="2001:4860:4860::8888" name="dns.google" comment="DOH-Domain-Static-Entry"
@@ -261,11 +289,13 @@ add comment="LOCAL-IP" address="192.168.0.0/16" list="LOCAL-IP"
 add comment="LOCAL-IP" address="172.16.0.0/12" list="LOCAL-IP"
 add comment="LOCAL-IP" address="10.0.0.0/8" list="LOCAL-IP"
 add address="192.168.10.0/24" list="Split-LAN" comment="Split"
+{{ if .DomesticEnabled}}
 add address="192.168.20.0/24" list="Domestic-LAN" comment="Domestic"
+add address="192.168.21.0/24" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
+{{ end }}
 add address="192.168.30.0/24" list="Foreign-LAN" comment="Foreign"
 add address="192.168.40.0/24" list="VPN-LAN" comment="VPN"
 add address="192.168.31.0/24" list="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
-add address="192.168.21.0/24" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
 add list="MikroTik-Cloud-Services" address="cloud2.mikrotik.com" comment="Dynamic list for MikroTik Cloud DDNS"
 add list="MikroTik-Cloud-Services" address="cloud.mikrotik.com" comment="Legacy endpoint for completeness"
 
@@ -291,40 +321,44 @@ add action=mark-routing chain=output comment="VPN Endpoint" \
 dst-address-list="VPNE" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" content="s4i.co" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" src-address=192.168.39.12 new-routing-mark="to-Foreign" passthrough=no
+{{ if .DomesticEnabled}}
 add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \
 new-routing-mark="to-Domestic" passthrough=no \
 comment="Force IP/Cloud DDNS traffic via Domestic WAN"
 add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \
 protocol="udp" dst-port="15252" new-routing-mark="to-Domestic" passthrough=no \
 comment="Force IP/Cloud DDNS traffic via Domestic WAN"
-add action=mark-routing chain=prerouting comment="Split-VPN" dst-address-list="SplitVPNAddList" \
-new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
-add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
-new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-DOM" dst-address-list="SplitDOMAddList" \
 new-routing-mark="to-Domestic" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-DOM" \
 dst-address-list="DOMAddList" new-routing-mark="to-Domestic" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-!DOM"\
 dst-address-list="!DOMAddList" new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="Domestic Routing" new-routing-mark="to-Domestic" passthrough=no src-address-list="Domestic-LAN"
+add action=mark-routing chain=prerouting comment="Domestic-Domestic Link Routing" new-routing-mark="to-Domestic-Domestic Link" passthrough=no src-address-list="Domestic-Domestic Link-LAN"
+{{ end }}
+add action=mark-routing chain=prerouting comment="Split-VPN" dst-address-list="SplitVPNAddList" \
+new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
+new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
 add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"
-add action=mark-routing chain=prerouting comment="Domestic Routing" new-routing-mark="to-Domestic" passthrough=no src-address-list="Domestic-LAN"
-add action=mark-routing chain=prerouting comment="Domestic-Domestic Link Routing" new-routing-mark="to-Domestic-Domestic Link" passthrough=no src-address-list="Domestic-Domestic Link-LAN"
 
 /ip firewall nat
 add action=masquerade chain=srcnat out-interface-list="WAN" comment="MASQUERADE the traffic go to WAN Interfaces"
 add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=udp src-address-list="Split-LAN" to-addresses=4.2.2.2
 add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=tcp src-address-list="Split-LAN" to-addresses=4.2.2.2
+{{ if .DomesticEnabled}}
 add action=dst-nat chain=dstnat comment="DNS Domestic" disabled=yes dst-port=53 protocol=udp src-address-list="Domestic-LAN" to-addresses=217.218.127.127
 add action=dst-nat chain=dstnat comment="DNS Domestic" disabled=yes dst-port=53 protocol=tcp src-address-list="Domestic-LAN" to-addresses=217.218.127.127
+add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=udp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
+add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
+{{ end }}
 add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-LAN" to-addresses=4.2.2.1
 add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-LAN" to-addresses=4.2.2.1
 add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-LAN" to-addresses=4.2.2.2
 add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-LAN" to-addresses=4.2.2.2
-add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=udp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
-add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
 add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-Foreign Link-LAN" to-addresses=4.2.2.1
 add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-Foreign Link-LAN" to-addresses=4.2.2.1
 add chain=dstnat action=redirect protocol=tcp dst-port=53 comment="Redirect DNS"
@@ -339,11 +373,13 @@ add chain=dstnat action=redirect protocol=udp dst-port=53 comment="Redirect DNS"
 :if ([:len [/ip/nat-pmp/interfaces find interface="LANBridgeSplit"]] = 0) do={
 add interface="LANBridgeSplit" type=internal
 }
+{{ if .DomesticEnabled}}
 add interface="LANBridgeDomestic" type=internal
+add interface="LANBridgeDomestic-Domestic Link" type=internal
+{{ end }}
 add interface="LANBridgeForeign" type=internal
 add interface="LANBridgeVPN" type=internal
 add interface="LANBridgeForeign-Foreign Link" type=internal
-add interface="LANBridgeDomestic-Domestic Link" type=internal
 
 /ip route
 add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
@@ -353,6 +389,7 @@ distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
 add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
+{{ if .DomesticEnabled}}
 add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
 comment="Route-to-Domestic-Domestic Link"
 add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
@@ -362,19 +399,22 @@ add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLA
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
 add dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" \
 routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
-add dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" \
-routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="217.218.127.127" routing-table="main" \
 distance="5" target-scope="11" comment="CheckIP-Route-to-Domestic-Domestic Link"
+{{ end }}
+add dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" \
+routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.1" routing-table="main" \
 distance="10" target-scope="11" comment="CheckIP-Route-to-Foreign-Foreign Link"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Split"
+{{ if .DomesticEnabled}}
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic"
+add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic-Domestic Link"
+{{ end }}
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign-Foreign Link"
-add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic-Domestic Link"
 
 :global WizardProgress "45"
 
@@ -436,9 +476,11 @@ add
 /tool romon
 set enabled=yes
 /tool netwatch
+{{ if .DomesticEnabled}}
 add host="217.218.127.127" interval=5s timeout=500ms \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " comment="Failover Netwatch - Domestic Link"
+{{ end }}
 add host="4.2.2.1" interval=5s timeout=500ms \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
@@ -453,7 +495,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 
 :global WizardProgress "65"
 
-{{if .OvpnServer}}{{ template "ovpn_server.tmpl" . }}{{end}}
+{{if and .OvpnServer .DomesticEnabled}}{{ template "ovpn_server.tmpl" . }}{{end}}
 
 :global WizardProgress "90"
 
