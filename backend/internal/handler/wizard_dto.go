@@ -25,25 +25,31 @@ type UpdateWizardStatusRequest struct {
 	Progress  *int  `json:"progress" example:"50"`
 }
 
-// MaskingL2tpConfig represents L2TP masking configuration.
-type MaskingL2tpConfig struct {
-	ConnectTo   string `json:"connectTo" example:"192.168.1.1"`
-	Disabled    bool   `json:"disabled" example:"false"`
-	IPsecSecret string `json:"ipsecSecret" example:"secretpassphrase123"`
-	Name        string `json:"name" example:"my-l2tp/client"`
-	Password    string `json:"password" example:"password123"`
-	User        string `json:"user" example:"username"`
+// InterfaceConfig represents a network interface configuration.
+type InterfaceConfig struct {
+	Type      string `json:"type" example:"ethernet" enum:"ethernet,wifi"`
+	Interface string `json:"interface" example:"ether1"`
+	SSID      string `json:"ssid,omitempty" example:"MyWiFiNetwork"`
+	Password  string `json:"password,omitempty" example:"wifiPassword123"`
 }
 
-// MaskingWireGuardConfig represents WireGuard masking configuration.
-type MaskingWireGuardConfig struct {
+// L2tpClientConfig represents L2TP client configuration.
+type L2tpClientConfig struct {
+	ConnectTo   string `json:"connectTo" example:"192.168.1.1"`
+	User        string `json:"user" example:"username"`
+	Password    string `json:"password" example:"password123"`
+	IPsecSecret string `json:"ipsecSecret" example:"secretpassphrase123"`
+}
+
+// WireGuardClientConfig represents WireGuard client configuration.
+type WireGuardClientConfig struct {
 	Config string `json:"config" example:"[Interface]\nListenPort = 51820\n..."`
 }
 
 // WiFiAPConfig represents WiFi AP configuration.
 type WiFiAPConfig struct {
-	SSID     string `json:"ssid" example:"MyWiFiNetwork"`
-	Password string `json:"password" example:"wifiPassword123"`
+	SSID     string `json:"ssid" example:"MyAccessPoint"`
+	Password string `json:"password" example:"apPassword123"`
 }
 
 // OvpnUser represents an OpenVPN user.
@@ -60,10 +66,10 @@ type OvpnServerConfig struct {
 
 // FinalizeWizardRequest represents the complete wizard finalization request.
 type FinalizeWizardRequest struct {
-	ForeignInterface  string                  `json:"foreignInterface" example:"ether1"`
-	DomesticInterface string                  `json:"domesticInterface" example:"ether2"`
-	L2tpClient        *MaskingL2tpConfig      `json:"l2tpClient"`
-	WireGuardClient   *MaskingWireGuardConfig `json:"wireGuardClient"`
-	WiFiAP            *WiFiAPConfig           `json:"wifiAP"`
-	OvpnServer        *OvpnServerConfig       `json:"ovpnServer"`
+	Foreign         *InterfaceConfig       `json:"foreign"`
+	Domestic        *InterfaceConfig       `json:"domestic"`
+	L2tpClient      *L2tpClientConfig      `json:"l2tpClient,omitempty"`
+	WireGuardClient *WireGuardClientConfig `json:"wireguardClient,omitempty"`
+	WiFiAP          *WiFiAPConfig          `json:"wifiAp,omitempty"`
+	OvpnServer      *OvpnServerConfig      `json:"ovpnServer,omitempty"`
 }
