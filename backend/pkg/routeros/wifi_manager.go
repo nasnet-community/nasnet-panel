@@ -58,6 +58,7 @@ type WifiInfo struct {
 	SecurityType string
 	Comment      string
 	IsVirtual    bool
+	DefaultName  string
 }
 
 type ConnectedClient struct {
