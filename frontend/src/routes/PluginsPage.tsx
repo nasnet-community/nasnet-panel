@@ -1,31 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Check, Download, Loader2, Search } from 'lucide-react';
+import { Download, Search } from 'lucide-react';
 import { Badge, Button, Input, PageShell, Stack, useToast } from '@nasnet/ui';
 import {
-  BitmaskLogo,
-  BriarMailboxLogo,
-  CabalLogo,
-  CenoLogo,
-  ConjureLogo,
-  CwtchLogo,
   DeltaChatLogo,
-  FDroidLogo,
-  GlobaLeaksLogo,
-  I2pdLogo,
-  LanternUnboundedLogo,
-  MagicWormholeLogo,
-  MailpileLogo,
+  NasnetMonitorLogo,
   OONIProbeLogo,
-  OnionShareLogo,
-  PsiphonConduitLogo,
-  SecureDropLogo,
-  SnowflakeProxyLogo,
   TelegramMtprotoLogo,
-  TorBridgeLogo,
+  XrayLogo,
 } from './plugins/PluginLogos';
 import styles from './PluginsPage.module.scss';
-
-type PluginStatus = 'available' | 'installing' | 'installed';
 
 interface Plugin {
   id: string;
@@ -40,40 +23,29 @@ interface Plugin {
 
 const PLUGINS: Plugin[] = [
   {
-    id: 'psiphon-conduit',
-    name: 'Psiphon Conduit',
-    author: 'Psiphon Inc.',
-    homepage: 'https://conduit.psiphon.ca',
-    category: 'Proxy',
-    tagline: 'Share bandwidth, expand uncensored access.',
-    description:
-      'Run a Conduit node to forward traffic for Psiphon users in restricted regions. Limits, schedules and quotas are configurable.',
-    Logo: PsiphonConduitLogo,
-  },
-  {
-    id: 'lantern-unbounded',
-    name: 'Lantern Unbounded',
-    author: 'Lantern',
-    homepage: 'https://lantern.io',
-    category: 'Proxy',
-    tagline: 'Help others reach the open internet.',
-    description:
-      'Donate a portion of your uplink to the Lantern Unbounded network. Encrypted, peer-to-peer, opt-in.',
-    Logo: LanternUnboundedLogo,
-  },
-  {
     id: 'telegram-mtproto',
     name: 'Telegram MTProto',
     author: 'Telegram',
-    homepage: 'https://core.telegram.org/mtproto',
-    category: 'Messaging',
+    homepage: 'https://github.com/TelegramMessenger/MTProxy',
+    category: 'Proxy',
     tagline: 'Self-hosted MTProto proxy for Telegram.',
     description:
       'Spin up an MTProto proxy on this router so devices on your network can reach Telegram through it.',
     Logo: TelegramMtprotoLogo,
   },
   {
-    id: 'deltachat',
+    id: 'xray-server',
+    name: 'V2Ray / Xray',
+    author: 'Project X',
+    homepage: 'https://github.com/XTLS/Xray-core',
+    category: 'Proxy',
+    tagline: 'Self-hosted V2Ray/Xray proxy server.',
+    description:
+      'Run an Xray (V2Ray-compatible) server on this router for VLESS or VMess proxying, with TCP or WebSocket transport.',
+    Logo: XrayLogo,
+  },
+  {
+    id: 'deltachat-madmail',
     name: 'DeltaChat',
     author: 'DeltaChat Team',
     homepage: 'https://delta.chat',
@@ -84,28 +56,6 @@ const PLUGINS: Plugin[] = [
     Logo: DeltaChatLogo,
   },
   {
-    id: 'tor-bridge',
-    name: 'Tor Bridge',
-    author: 'The Tor Project',
-    homepage: 'https://community.torproject.org/relay/setup/bridge/',
-    category: 'Bridge',
-    tagline: 'Help censored users reach the Tor network.',
-    description:
-      'Run an obfs4 bridge container so people in heavily filtered countries can connect to Tor without revealing they are using it.',
-    Logo: TorBridgeLogo,
-  },
-  {
-    id: 'snowflake-proxy',
-    name: 'Snowflake Proxy',
-    author: 'The Tor Project',
-    homepage: 'https://snowflake.torproject.org',
-    category: 'Bridge',
-    tagline: 'Volunteer WebRTC proxy for Tor users.',
-    description:
-      'Spin up an ephemeral WebRTC stepping stone for users behind censorship. Low bandwidth, automatic rotation, fully containerized.',
-    Logo: SnowflakeProxyLogo,
-  },
-  {
     id: 'ooni-probe',
     name: 'OONI Probe',
     author: 'OONI',
@@ -113,157 +63,24 @@ const PLUGINS: Plugin[] = [
     category: 'Measurement',
     tagline: 'Measure internet censorship from your network.',
     description:
-      'Periodically probe which sites, apps and protocols are blocked from this router and publish results to the open OONI dataset.',
+      'Run scheduled OONI Probe tests from this router to detect blocking of websites and apps, and contribute open measurement data to the OONI network.',
     Logo: OONIProbeLogo,
   },
   {
-    id: 'onionshare',
-    name: 'OnionShare',
-    author: 'OnionShare',
-    homepage: 'https://onionshare.org',
-    category: 'File sharing',
-    tagline: 'Share files anonymously over Tor.',
+    id: 'nasnet-monitor',
+    name: 'NASNET Monitor',
+    author: 'NASNET Community',
+    homepage: 'https://github.com/nasnet-community',
+    category: 'Monitoring',
+    tagline: 'Router and network health monitoring.',
     description:
-      'Host short-lived onion services for transferring files end-to-end without uploading them to any third-party service.',
-    Logo: OnionShareLogo,
-  },
-  {
-    id: 'briar-mailbox',
-    name: 'Briar Mailbox',
-    author: 'Briar Project',
-    homepage: 'https://briarproject.org/manual/mailbox/',
-    category: 'Messaging',
-    tagline: 'Always-on relay for Briar messages.',
-    description:
-      'Store-and-forward mailbox over Tor so contacts in the Briar peer-to-peer messenger receive messages even when offline.',
-    Logo: BriarMailboxLogo,
-  },
-  {
-    id: 'ceno',
-    name: 'CENO',
-    author: 'eQualitie',
-    homepage: 'https://censorship.no',
-    category: 'Web cache',
-    tagline: 'Peer-to-peer access to the open web.',
-    description:
-      'Ouinet-based container that caches web content and reshares it with peers, keeping pages reachable when upstream is throttled or blocked.',
-    Logo: CenoLogo,
-  },
-  {
-    id: 'mailpile',
-    name: 'Mailpile',
-    author: 'Mailpile',
-    homepage: 'https://www.mailpile.is',
-    category: 'Email',
-    tagline: 'Self-hosted encrypted webmail.',
-    description:
-      'Privacy-respecting webmail client with built-in OpenPGP, so your inbox lives on your own router rather than a third-party server.',
-    Logo: MailpileLogo,
-  },
-  {
-    id: 'f-droid-repo',
-    name: 'F-Droid Repo',
-    author: 'F-Droid',
-    homepage: 'https://f-droid.org',
-    category: 'App store',
-    tagline: 'Mirror the free Android app catalog.',
-    description:
-      'Host a local F-Droid repository so devices on your network can install free and open-source Android apps without going through Google Play.',
-    Logo: FDroidLogo,
-  },
-  {
-    id: 'i2pd',
-    name: 'i2pd',
-    author: 'PurpleI2P',
-    homepage: 'https://i2pd.website',
-    category: 'Anonymity',
-    tagline: 'Anonymous I2P network router.',
-    description:
-      'Lightweight C++ daemon for the I2P garlic-routed darknet. Exposes hidden services and end-to-end encrypted tunnels for clients on your LAN.',
-    Logo: I2pdLogo,
-  },
-  {
-    id: 'cwtch',
-    name: 'Cwtch',
-    author: 'Open Privacy',
-    homepage: 'https://cwtch.im',
-    category: 'Messaging',
-    tagline: 'Metadata-resistant chat over Tor.',
-    description:
-      'Server-optional, decentralized messenger that runs per-conversation Tor onion services. Useful as an always-on Cwtch peer for your contacts.',
-    Logo: CwtchLogo,
-  },
-  {
-    id: 'securedrop',
-    name: 'SecureDrop',
-    author: 'Freedom of the Press',
-    homepage: 'https://securedrop.org',
-    category: 'Whistleblowing',
-    tagline: 'Anonymous source submission system.',
-    description:
-      'Run a SecureDrop instance behind Tor so journalists and sources can exchange documents without exposing identifying metadata.',
-    Logo: SecureDropLogo,
-  },
-  {
-    id: 'globaleaks',
-    name: 'GlobaLeaks',
-    author: 'Hermes Center',
-    homepage: 'https://www.globaleaks.org',
-    category: 'Whistleblowing',
-    tagline: 'Free, open-source whistleblowing platform.',
-    description:
-      'Container-hosted secure intake portal for activists, NGOs and newsrooms collecting tips from anonymous reporters.',
-    Logo: GlobaLeaksLogo,
-  },
-  {
-    id: 'bitmask',
-    name: 'Bitmask Gateway',
-    author: 'LEAP',
-    homepage: 'https://leap.se',
-    category: 'VPN',
-    tagline: 'Run your own provider-friendly VPN node.',
-    description:
-      'Deploys the LEAP VPN gateway stack so the router can offer a Bitmask-compatible encrypted tunnel to opted-in clients.',
-    Logo: BitmaskLogo,
-  },
-  {
-    id: 'magic-wormhole',
-    name: 'Magic Wormhole',
-    author: 'Brian Warner',
-    homepage: 'https://magic-wormhole.readthedocs.io',
-    category: 'File sharing',
-    tagline: 'Send files via short, human-readable codes.',
-    description:
-      'Always-on relay endpoint for Magic Wormhole, so devices on your network can pair up and transfer files end-to-end encrypted with a four-word code.',
-    Logo: MagicWormholeLogo,
-  },
-  {
-    id: 'cabal',
-    name: 'Cabal',
-    author: 'Cabal Club',
-    homepage: 'https://cabal.chat',
-    category: 'Messaging',
-    tagline: 'Peer-to-peer group chat without servers.',
-    description:
-      'Hosts an always-on Cabal peer so distributed group conversations stay reachable on your local network even when the rest of the swarm is offline.',
-    Logo: CabalLogo,
-  },
-  {
-    id: 'conjure',
-    name: 'Conjure',
-    author: 'Refraction Networking',
-    homepage: 'https://refraction.network',
-    category: 'Bridge',
-    tagline: 'Refraction-based circumvention transport.',
-    description:
-      'Operates a Conjure station that turns ordinary unused IP addresses into pluggable transports for users facing nation-state-scale censorship.',
-    Logo: ConjureLogo,
+      'Collect router metrics, container status and connectivity checks on this router, with a local dashboard and optional alert webhooks.',
+    Logo: NasnetMonitorLogo,
   },
 ];
 
 export function PluginsPage() {
   const [query, setQuery] = useState('');
-  const [statusById, setStatusById] = useState<Record<string, PluginStatus>>({});
   const toast = useToast();
 
   const visible = useMemo(() => {
@@ -279,11 +96,11 @@ export function PluginsPage() {
   }, [query]);
 
   const install = (plugin: Plugin) => {
-    setStatusById((prev) => ({ ...prev, [plugin.id]: 'installing' }));
-    window.setTimeout(() => {
-      setStatusById((prev) => ({ ...prev, [plugin.id]: 'installed' }));
-      toast.notify({ title: `${plugin.name} installed`, tone: 'success' });
-    }, 900);
+    toast.notify({
+      title: `${plugin.name} is not available yet`,
+      description: 'Plugin installation is coming in a future release.',
+      tone: 'info',
+    });
   };
 
   return (
@@ -310,7 +127,6 @@ export function PluginsPage() {
       ) : (
         <div className={styles.grid}>
           {visible.map((plugin) => {
-            const status = statusById[plugin.id] ?? 'available';
             const { Logo } = plugin;
             return (
               <article key={plugin.id} className={styles.card}>
@@ -339,25 +155,8 @@ export function PluginsPage() {
                   <Badge tone="neutral" className={styles.categoryBadge}>
                     {plugin.category}
                   </Badge>
-                  <Button
-                    variant={status === 'installed' ? 'secondary' : 'primary'}
-                    size="sm"
-                    onClick={() => install(plugin)}
-                    disabled={status !== 'available'}
-                  >
-                    {status === 'installing' ? (
-                      <>
-                        <Loader2 size={14} aria-hidden className={styles.spin} /> Installing
-                      </>
-                    ) : status === 'installed' ? (
-                      <>
-                        <Check size={14} aria-hidden /> Installed
-                      </>
-                    ) : (
-                      <>
-                        <Download size={14} aria-hidden /> Install
-                      </>
-                    )}
+                  <Button variant="primary" size="sm" onClick={() => install(plugin)}>
+                    <Download size={14} aria-hidden /> Install
                   </Button>
                 </div>
               </article>

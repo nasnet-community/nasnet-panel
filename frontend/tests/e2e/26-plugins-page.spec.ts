@@ -18,9 +18,9 @@ test.describe('Plugins page', () => {
 
     await expect(page).toHaveURL(new RegExp(`/router/${ROUTER.id}/plugins$`));
     await expect(page.getByRole('searchbox', { name: 'Search plugins' })).toBeVisible();
-    await expect(page.getByRole('article')).toHaveCount(20);
-    await expect(page.getByRole('heading', { name: 'Psiphon Conduit' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Tor Bridge' })).toBeVisible();
+    await expect(page.getByRole('article')).toHaveCount(5);
+    await expect(page.getByRole('heading', { name: 'Telegram MTProto' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'NASNET Monitor' })).toBeVisible();
   });
 
   test('search filters plugins by name', async ({ page, resetMocks, seedRouter }) => {
@@ -29,11 +29,11 @@ test.describe('Plugins page', () => {
     await page.goto(`/router/${ROUTER.id}/plugins`);
 
     const search = page.getByRole('searchbox', { name: 'Search plugins' });
-    await search.fill('psiphon');
+    await search.fill('ooni');
 
     await expect(page.getByRole('article')).toHaveCount(1);
-    await expect(page.getByRole('heading', { name: 'Psiphon Conduit' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Tor Bridge' })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'OONI Probe' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Telegram MTProto' })).toHaveCount(0);
   });
 
   test('search shows empty state when nothing matches', async ({
@@ -51,7 +51,7 @@ test.describe('Plugins page', () => {
     await expect(page.getByText(/no plugins match/i)).toBeVisible();
   });
 
-  test('install button cycles through available, installing, and installed states', async ({
+  test('install button reports that installation is not available yet', async ({
     page,
     resetMocks,
     seedRouter,
@@ -60,15 +60,17 @@ test.describe('Plugins page', () => {
     await seedRouter(ROUTER);
     await page.goto(`/router/${ROUTER.id}/plugins`);
 
-    const torCard = page
+    const ooniCard = page
       .getByRole('article')
-      .filter({ has: page.getByRole('heading', { name: 'Tor Bridge' }) });
-    const installButton = torCard.getByRole('button', { name: /install/i });
+      .filter({ has: page.getByRole('heading', { name: 'OONI Probe' }) });
+    const installButton = ooniCard.getByRole('button', { name: /install/i });
 
     await expect(installButton).toHaveText('Install');
     await installButton.click();
-    await expect(installButton).toHaveText('Installed', { timeout: 5_000 });
-    await expect(installButton).toBeDisabled();
+
+    await expect(page.getByText('OONI Probe is not available yet')).toBeVisible();
+    await expect(installButton).toHaveText('Install');
+    await expect(installButton).toBeEnabled();
   });
 
   test('author name links to the project site in a new tab', async ({
@@ -80,13 +82,13 @@ test.describe('Plugins page', () => {
     await seedRouter(ROUTER);
     await page.goto(`/router/${ROUTER.id}/plugins`);
 
-    const onionShareCard = page
+    const deltaChatCard = page
       .getByRole('article')
-      .filter({ has: page.getByRole('heading', { name: 'OnionShare' }) });
-    const authorLink = onionShareCard.getByRole('link', { name: 'OnionShare' });
+      .filter({ has: page.getByRole('heading', { name: 'DeltaChat' }) });
+    const authorLink = deltaChatCard.getByRole('link', { name: 'DeltaChat Team' });
 
     await expect(authorLink).toHaveAttribute('target', '_blank');
     await expect(authorLink).toHaveAttribute('rel', /noopener/);
-    await expect(authorLink).toHaveAttribute('href', 'https://onionshare.org');
+    await expect(authorLink).toHaveAttribute('href', 'https://delta.chat');
   });
 });

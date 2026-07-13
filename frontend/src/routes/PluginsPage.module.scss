@@ -133,13 +133,3 @@
   gap: var(--space-md);
   margin-top: var(--space-sm);
 }
-
-.spin {
-  animation: extSpin 1s linear infinite;
-}
-
-@keyframes extSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
