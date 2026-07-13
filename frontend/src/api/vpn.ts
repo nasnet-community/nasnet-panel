@@ -412,21 +412,25 @@ export async function fetchNasnetVpnCredentials(
   });
 }
 
-export interface FinalizeWizardMaskingL2tp {
-  connectTo: string;
-  disabled: boolean;
-  ipsecSecret: string;
-  name: string;
-  password: string;
-  user: string;
+export interface FinalizeWizardInterface {
+  type: 'ethernet' | 'wifi';
+  interface: string;
+  ssid?: string;
+  password?: string;
 }
 
-export interface FinalizeWizardMaskingWireGuard {
+export interface FinalizeWizardL2tpClient {
+  connectTo: string;
+  user: string;
+  password: string;
+  ipsecSecret: string;
+}
+
+export interface FinalizeWizardWireGuardClient {
   config: string;
 }
 
-export interface FinalizeWizardWifiInterface {
-  id: string;
+export interface FinalizeWizardWifiAp {
   ssid: string;
   password: string;
 }
@@ -442,12 +446,12 @@ export interface FinalizeWizardOvpnServer {
 }
 
 export interface FinalizeWizardRequest {
-  foreignInterface: string;
-  domesticInterface: string;
-  maskingL2tp: FinalizeWizardMaskingL2tp | null;
-  maskingWireGuard: FinalizeWizardMaskingWireGuard | null;
-  wifiInterfaces: FinalizeWizardWifiInterface[];
-  ovpnServer: FinalizeWizardOvpnServer | null;
+  foreign: FinalizeWizardInterface;
+  domestic?: FinalizeWizardInterface;
+  l2tpClient?: FinalizeWizardL2tpClient;
+  wireguardClient?: FinalizeWizardWireGuardClient;
+  wifiAp?: FinalizeWizardWifiAp;
+  ovpnServer?: FinalizeWizardOvpnServer;
 }
 
 export async function finalizeWizard(
@@ -459,6 +463,22 @@ export async function finalizeWizard(
     method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export interface WizardStatus {
+  completed: boolean;
+  completedAt: string | null;
+  progress: number;
+}
+
+export async function fetchWizardStatus(
+  creds: VPNCredentials,
+  signal?: AbortSignal,
+): Promise<WizardStatus> {
+  return apiRequest<WizardStatus>('/api/wizard/status', {
+    headers: authHeaders(creds),
     signal,
   });
 }

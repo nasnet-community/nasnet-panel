@@ -133,6 +133,7 @@ export function EasyConfigWizard() {
         open={dialogOpen}
         applying={state.applying}
         applied={state.applied}
+        progress={state.progress}
         error={state.error}
         onClose={closeDialog}
         onRetry={() => onApply()}
