@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Download, Search } from 'lucide-react';
-import { Badge, Button, Input, PageShell, Stack, useToast } from '@nasnet/ui';
+import { Download } from 'lucide-react';
+import { Badge, Button, PageShell, Stack, useToast } from '@nasnet/ui';
 import {
   DeltaChatLogo,
   NasnetMonitorLogo,
@@ -80,20 +79,7 @@ const PLUGINS: Plugin[] = [
 ];
 
 export function PluginsPage() {
-  const [query, setQuery] = useState('');
   const toast = useToast();
-
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return PLUGINS;
-    return PLUGINS.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.tagline.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.author.toLowerCase().includes(q),
-    );
-  }, [query]);
 
   const install = (plugin: Plugin) => {
     toast.notify({
@@ -105,65 +91,44 @@ export function PluginsPage() {
 
   return (
     <PageShell>
-      <div className={styles.searchRow}>
-        <div className={styles.searchWrap}>
-          <Search size={16} aria-hidden className={styles.searchIcon} />
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search plugins"
-            aria-label="Search plugins"
-            className={styles.searchInput}
-          />
-        </div>
-        <span className={styles.resultCount}>
-          {visible.length} {visible.length === 1 ? 'result' : 'results'}
-        </span>
+      <div className={styles.grid}>
+        {PLUGINS.map((plugin) => {
+          const { Logo } = plugin;
+          return (
+            <article key={plugin.id} className={styles.card}>
+              <div className={styles.cardTop}>
+                <Logo size={56} />
+                <Stack $gap="4px" className={styles.cardHead}>
+                  <h3 className={styles.cardTitle} title={plugin.name}>
+                    {plugin.name}
+                  </h3>
+                  <p className={styles.cardAuthor}>
+                    by{' '}
+                    <a
+                      href={plugin.homepage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.cardAuthorLink}
+                    >
+                      {plugin.author}
+                    </a>
+                  </p>
+                </Stack>
+              </div>
+              <p className={styles.cardTagline}>{plugin.tagline}</p>
+              <p className={styles.cardDesc}>{plugin.description}</p>
+              <div className={styles.cardActions}>
+                <Badge tone="neutral" className={styles.categoryBadge}>
+                  {plugin.category}
+                </Badge>
+                <Button variant="primary" size="sm" onClick={() => install(plugin)}>
+                  <Download size={14} aria-hidden /> Install
+                </Button>
+              </div>
+            </article>
+          );
+        })}
       </div>
-
-      {visible.length === 0 ? (
-        <div className={styles.empty}>No plugins match &ldquo;{query}&rdquo;.</div>
-      ) : (
-        <div className={styles.grid}>
-          {visible.map((plugin) => {
-            const { Logo } = plugin;
-            return (
-              <article key={plugin.id} className={styles.card}>
-                <div className={styles.cardTop}>
-                  <Logo size={56} />
-                  <Stack $gap="4px" className={styles.cardHead}>
-                    <h3 className={styles.cardTitle} title={plugin.name}>
-                      {plugin.name}
-                    </h3>
-                    <p className={styles.cardAuthor}>
-                      by{' '}
-                      <a
-                        href={plugin.homepage}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.cardAuthorLink}
-                      >
-                        {plugin.author}
-                      </a>
-                    </p>
-                  </Stack>
-                </div>
-                <p className={styles.cardTagline}>{plugin.tagline}</p>
-                <p className={styles.cardDesc}>{plugin.description}</p>
-                <div className={styles.cardActions}>
-                  <Badge tone="neutral" className={styles.categoryBadge}>
-                    {plugin.category}
-                  </Badge>
-                  <Button variant="primary" size="sm" onClick={() => install(plugin)}>
-                    <Download size={14} aria-hidden /> Install
-                  </Button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
     </PageShell>
   );
 }

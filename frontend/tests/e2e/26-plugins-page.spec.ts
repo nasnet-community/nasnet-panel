@@ -17,38 +17,9 @@ test.describe('Plugins page', () => {
     await pluginsTab.click();
 
     await expect(page).toHaveURL(new RegExp(`/router/${ROUTER.id}/plugins$`));
-    await expect(page.getByRole('searchbox', { name: 'Search plugins' })).toBeVisible();
     await expect(page.getByRole('article')).toHaveCount(5);
     await expect(page.getByRole('heading', { name: 'Telegram MTProto' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'NASNET Monitor' })).toBeVisible();
-  });
-
-  test('search filters plugins by name', async ({ page, resetMocks, seedRouter }) => {
-    await resetMocks();
-    await seedRouter(ROUTER);
-    await page.goto(`/router/${ROUTER.id}/plugins`);
-
-    const search = page.getByRole('searchbox', { name: 'Search plugins' });
-    await search.fill('ooni');
-
-    await expect(page.getByRole('article')).toHaveCount(1);
-    await expect(page.getByRole('heading', { name: 'OONI Probe' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Telegram MTProto' })).toHaveCount(0);
-  });
-
-  test('search shows empty state when nothing matches', async ({
-    page,
-    resetMocks,
-    seedRouter,
-  }) => {
-    await resetMocks();
-    await seedRouter(ROUTER);
-    await page.goto(`/router/${ROUTER.id}/plugins`);
-
-    await page.getByRole('searchbox', { name: 'Search plugins' }).fill('zzzzzz');
-
-    await expect(page.getByRole('article')).toHaveCount(0);
-    await expect(page.getByText(/no plugins match/i)).toBeVisible();
   });
 
   test('install button reports that installation is not available yet', async ({
