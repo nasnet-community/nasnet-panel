@@ -34,8 +34,8 @@ PersistentKeepalive = 25`);
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 4 — WiFi
-    await page.getByLabel(/^2\.4 GHz SSID$/i).fill('Easy-SSID');
-    await page.getByLabel(/^2\.4 GHz password$/i).fill('longpassword');
+    await page.getByLabel('Network name (SSID)', { exact: true }).fill('Easy-SSID');
+    await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 5 — VPN Server (disabled by default) — Apply
