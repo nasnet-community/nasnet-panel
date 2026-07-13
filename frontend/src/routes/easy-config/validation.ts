@@ -60,39 +60,12 @@ export function canAdvance(state: State): string | null {
       }
       return null;
     case 'wifi': {
-      const bands: Array<{
-        on: boolean;
-        ssid: string;
-        password: string;
-        label: string;
-      }> = [
-        {
-          on: state.wifi24Enabled,
-          ssid: state.ssid,
-          password: state.wifiPassword,
-          label: '2.4 GHz',
-        },
-        {
-          on: state.wifi5Enabled,
-          ssid: state.ssid5,
-          password: state.wifiPassword5,
-          label: '5 GHz',
-        },
-        {
-          on: state.wifi6Enabled,
-          ssid: state.ssid6,
-          password: state.wifiPassword6,
-          label: '6 GHz',
-        },
-      ];
-      for (const b of bands) {
-        if (!b.on) continue;
-        if (!isSsid(b.ssid)) return `${b.label} SSID is required.`;
-        const forbidden = ssidContainsForbiddenWord(b.ssid);
-        if (forbidden) return forbidden;
-        if (!isWifiPassword(b.password)) {
-          return `${b.label} password must be 8–63 characters.`;
-        }
+      if (!state.wifiEnabled) return null;
+      if (!isSsid(state.ssid)) return 'SSID is required.';
+      const forbidden = ssidContainsForbiddenWord(state.ssid);
+      if (forbidden) return forbidden;
+      if (!isWifiPassword(state.wifiPassword)) {
+        return 'Wi-Fi password must be 8–63 characters.';
       }
       return null;
     }
