@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Card,
   CardDescription,
@@ -29,6 +29,12 @@ interface Props {
 
 type BandKey = '24' | '5' | '6';
 
+const BAND_LABELS: Record<BandKey, string> = {
+  '24': '2.4 GHz',
+  '5': '5 GHz',
+  '6': '6 GHz',
+};
+
 function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
   const b = (wi.band ?? '').toLowerCase();
   if (b.startsWith('2')) return '24';
@@ -42,37 +48,6 @@ function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
   }
   return null;
 }
-interface BandSpec {
-  key: BandKey;
-  label: string;
-  enabledField: 'wifi24Enabled' | 'wifi5Enabled' | 'wifi6Enabled';
-  ssidField: 'ssid' | 'ssid5' | 'ssid6';
-  passwordField: 'wifiPassword' | 'wifiPassword5' | 'wifiPassword6';
-}
-
-const BANDS: BandSpec[] = [
-  {
-    key: '24',
-    label: '2.4 GHz',
-    enabledField: 'wifi24Enabled',
-    ssidField: 'ssid',
-    passwordField: 'wifiPassword',
-  },
-  {
-    key: '5',
-    label: '5 GHz',
-    enabledField: 'wifi5Enabled',
-    ssidField: 'ssid5',
-    passwordField: 'wifiPassword5',
-  },
-  {
-    key: '6',
-    label: '6 GHz',
-    enabledField: 'wifi6Enabled',
-    ssidField: 'ssid6',
-    passwordField: 'wifiPassword6',
-  },
-];
 
 export function WifiStep({ state, dispatch, wifiInterfaces, footer }: Props) {
   const setText = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -88,108 +63,94 @@ export function WifiStep({ state, dispatch, wifiInterfaces, footer }: Props) {
     return order.filter((k) => set.has(k));
   }, [wifiInterfaces]);
 
-  const visibleBands = BANDS.filter((b) => availableBands.includes(b.key));
+  const multiBand = availableBands.length > 1;
+  const split = multiBand && state.wifiSplit;
+  const bandList = availableBands.map((k) => BAND_LABELS[k]).join(' and ');
 
-  useEffect(() => {
-    for (const band of BANDS) {
-      if (!availableBands.includes(band.key) && state[band.enabledField]) {
-        dispatch({ type: 'setField', field: band.enabledField, value: false });
-      }
-    }
-  }, [availableBands, state, dispatch]);
-
-  const anyEnabled = visibleBands.some((b) => state[b.enabledField]);
-  const previewBands = visibleBands
-    .filter((b) => state[b.enabledField])
-    .map((b) => ({
-      ssid: state[b.ssidField] as string,
-      band: b.label,
-    }));
+  const previewBands = split
+    ? availableBands.map((k) => ({ ssid: state.ssid, band: BAND_LABELS[k] }))
+    : [{ ssid: state.ssid, band: availableBands[0] ? BAND_LABELS[availableBands[0]] : undefined }];
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Wireless settings</CardTitle>
         <CardDescription>
-          Toggle each band on independently. Avoid words like &quot;starlink&quot;, &quot;VPN&quot;,
-          or &quot;Iran&quot; in the SSID.
+          One network name and password for the router&apos;s Wi-Fi. Avoid words like
+          &quot;starlink&quot;, &quot;VPN&quot;, or &quot;Iran&quot; in the SSID.
         </CardDescription>
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack>
-          {visibleBands.map((band) => {
-            const isOn = state[band.enabledField];
-            return (
-              <Stack key={band.key}>
+          <Inline>
+            <Switch
+              label={`Wi-Fi ${state.wifiEnabled ? 'enabled' : 'disabled'}`}
+              checked={state.wifiEnabled}
+              onChange={(e) =>
+                dispatch({ type: 'setField', field: 'wifiEnabled', value: e.target.checked })
+              }
+            />
+          </Inline>
+          <Collapsible open={state.wifiEnabled}>
+            <Stack>
+              <FieldRow>
+                <Label>
+                  <span>Network name (SSID)</span>
+                  <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
+                    <Input
+                      value={state.ssid}
+                      onChange={setText('ssid')}
+                      aria-label="Network name (SSID)"
+                      style={{ flex: 1 }}
+                    />
+                    <GenerateButton
+                      ariaLabel="Generate SSID"
+                      onClick={() =>
+                        dispatch({ type: 'setField', field: 'ssid', value: generateSsid() })
+                      }
+                    />
+                  </div>
+                </Label>
+              </FieldRow>
+              <FieldRow>
+                <Label>
+                  <span>Password</span>
+                  <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
+                    <PasswordInput
+                      value={state.wifiPassword}
+                      onChange={setText('wifiPassword')}
+                      aria-label="Wi-Fi password"
+                      style={{ flex: 1 }}
+                    />
+                    <GenerateButton
+                      ariaLabel="Generate Wi-Fi password"
+                      onClick={() =>
+                        dispatch({
+                          type: 'setField',
+                          field: 'wifiPassword',
+                          value: generatePassword(),
+                        })
+                      }
+                    />
+                  </div>
+                </Label>
+              </FieldRow>
+              {multiBand ? (
                 <Inline>
                   <Switch
-                    label={`${band.label} ${isOn ? 'enabled' : 'disabled'}`}
-                    checked={isOn}
+                    label={`Split across bands (${bandList})`}
+                    checked={state.wifiSplit}
                     onChange={(e) =>
-                      dispatch({
-                        type: 'setField',
-                        field: band.enabledField,
-                        value: e.target.checked,
-                      })
+                      dispatch({ type: 'setField', field: 'wifiSplit', value: e.target.checked })
                     }
                   />
                 </Inline>
-                <Collapsible open={isOn}>
-                  <Stack>
-                    <FieldRow>
-                      <Label>
-                        <span>{band.label} SSID</span>
-                        <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
-                          <Input
-                            value={state[band.ssidField]}
-                            onChange={setText(band.ssidField)}
-                            aria-label={`${band.label} SSID`}
-                            style={{ flex: 1 }}
-                          />
-                          <GenerateButton
-                            ariaLabel={`Generate ${band.label} SSID`}
-                            onClick={() =>
-                              dispatch({
-                                type: 'setField',
-                                field: band.ssidField,
-                                value: generateSsid(),
-                              })
-                            }
-                          />
-                        </div>
-                      </Label>
-                    </FieldRow>
-                    <FieldRow>
-                      <Label>
-                        <span>{band.label} password</span>
-                        <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
-                          <PasswordInput
-                            value={state[band.passwordField]}
-                            onChange={setText(band.passwordField)}
-                            aria-label={`${band.label} password`}
-                            style={{ flex: 1 }}
-                          />
-                          <GenerateButton
-                            ariaLabel={`Generate ${band.label} password`}
-                            onClick={() =>
-                              dispatch({
-                                type: 'setField',
-                                field: band.passwordField,
-                                value: generatePassword(),
-                              })
-                            }
-                          />
-                        </div>
-                      </Label>
-                    </FieldRow>
-                  </Stack>
-                </Collapsible>
-              </Stack>
-            );
-          })}
+              ) : null}
+            </Stack>
+          </Collapsible>
         </Stack>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <WirelessPreview bands={previewBands} enabled={anyEnabled} />
+          <WirelessPreview bands={previewBands} enabled={state.wifiEnabled} />
         </div>
       </div>
       {footer}

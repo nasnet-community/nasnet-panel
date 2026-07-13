@@ -20,15 +20,10 @@ export interface State {
   staticGateway: string;
   staticDns: string;
   wifiInterface: string;
-  wifi24Enabled: boolean;
-  wifi5Enabled: boolean;
-  wifi6Enabled: boolean;
+  wifiEnabled: boolean;
+  wifiSplit: boolean;
   ssid: string;
   wifiPassword: string;
-  ssid5: string;
-  wifiPassword5: string;
-  ssid6: string;
-  wifiPassword6: string;
   security: 'WPA2-PSK' | 'WPA3-PSK';
   band: '2.4ghz' | '5ghz';
   countryCode: string;
@@ -61,6 +56,7 @@ export interface State {
   error: string | null;
   applying: boolean;
   applied: boolean;
+  progress: number;
 }
 
 export const initial: State = {
@@ -80,15 +76,10 @@ export const initial: State = {
   staticGateway: '',
   staticDns: '',
   wifiInterface: '',
-  wifi24Enabled: true,
-  wifi5Enabled: false,
-  wifi6Enabled: false,
+  wifiEnabled: true,
+  wifiSplit: true,
   ssid: '',
   wifiPassword: '',
-  ssid5: '',
-  wifiPassword5: '',
-  ssid6: '',
-  wifiPassword6: '',
   security: 'WPA2-PSK',
   band: '5ghz',
   countryCode: 'US',
@@ -121,6 +112,7 @@ export const initial: State = {
   error: null,
   applying: false,
   applied: false,
+  progress: 0,
 };
 
 export type Action =
@@ -130,6 +122,7 @@ export type Action =
   | { type: 'step'; step: StepId }
   | { type: 'error'; message: string | null }
   | { type: 'applying'; value: boolean }
+  | { type: 'progress'; value: number }
   | { type: 'applied' };
 
 export function reducer(state: State, action: Action): State {
@@ -145,9 +138,13 @@ export function reducer(state: State, action: Action): State {
     case 'error':
       return { ...state, error: action.message };
     case 'applying':
-      return { ...state, applying: action.value };
+      return action.value
+        ? { ...state, applying: true, progress: 0 }
+        : { ...state, applying: false };
+    case 'progress':
+      return { ...state, progress: Math.max(state.progress, action.value) };
     case 'applied':
-      return { ...state, applied: true, applying: false };
+      return { ...state, applied: true, applying: false, progress: 100 };
     default:
       return state;
   }

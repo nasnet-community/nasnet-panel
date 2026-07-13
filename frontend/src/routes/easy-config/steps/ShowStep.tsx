@@ -68,6 +68,7 @@ export function ShowStep({ script, state, onApply, onBack }: Props) {
         open={dialogOpen}
         applying={state.applying}
         applied={state.applied}
+        progress={state.progress}
         error={state.error}
         onClose={closeDialog}
         onRetry={() => onApply(currentScript)}
