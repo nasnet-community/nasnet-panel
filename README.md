@@ -236,12 +236,33 @@ Requires Node.js 20+ and Go 1.26+.
 
 The backend reads its configuration from environment variables. See `backend/.env.example`.
 
-| Variable      | Default                        | Purpose                                                                                                        |
-| ------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `PORT`        | `8080` (dev), `80` (container) | TCP port the API and embedded SPA listen on.                                                                   |
-| `HOST`        | `0.0.0.0`                      | Bind address.                                                                                                  |
-| `ENVIRONMENT` | `development`                  | `production` disables dev-only routes (notably Swagger UI).                                                    |
-| `BACKEND_URL` | _empty_                        | Build-time. Empty means the SPA uses relative URLs to its own origin (the common case for the embedded build). |
+| Variable      | Default                        | Purpose                                                                                                                |
+| ------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `PORT`        | `8080` (dev), `80` (container) | TCP port the API and embedded SPA listen on.                                                                           |
+| `HOST`        | `0.0.0.0`                      | Bind address.                                                                                                          |
+| `ENVIRONMENT` | `development`                  | `production` disables dev-only routes (notably Swagger UI).                                                            |
+| `BACKEND_URL` | _empty_                        | Build-time. Empty means the SPA uses relative URLs to its own origin (the common case for the embedded build).         |
+| `SENTRY_DSN`  | Nasnet project DSN             | Build-time. Where the panel UI sends crash reports. Set to an empty string to build with error reporting compiled out. |
+
+## Error reporting
+
+When the panel UI hits an unhandled error, it sends a crash report so we can find and fix bugs
+that users never report. This is on by default and can be turned off at any time from the
+Diagnostics page, per browser.
+
+Three things worth being precise about:
+
+- Reporting only runs in production builds, meaning the released container image. `npm run dev`
+  builds in development mode and the SDK is never initialised, so local development never sends
+  anything.
+- The report is sent by your browser, not by the router. The MikroTik itself never connects to
+  Sentry.
+- A report contains the error, a stack trace, the app version, and your browser and OS name.
+  The SDK is configured to drop everything else: no router address, no credentials, no
+  configuration, no request or response bodies, no console output, no user identity.
+
+If you build a production bundle and want no reporting at all, build with `SENTRY_DSN=""` and the
+SDK is never initialised.
 
 ## Development
 

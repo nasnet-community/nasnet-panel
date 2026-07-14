@@ -177,5 +177,6 @@ export { ApiError } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
 export { loadChatwoot, toggleChatwoot } from './chatwoot';
+export { initSentry, isErrorReportingEnabled, setErrorReportingEnabled } from './sentry';
 
 export type * from '@nasnet/mocks';

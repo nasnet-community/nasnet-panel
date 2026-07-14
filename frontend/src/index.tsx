@@ -1,7 +1,9 @@
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { store } from './api';
+import { initSentry, store } from './api';
 import { MOCK_STORE_KEY, type Router } from '@nasnet/mocks';
+
+initSentry();
 
 declare global {
   interface Window {
