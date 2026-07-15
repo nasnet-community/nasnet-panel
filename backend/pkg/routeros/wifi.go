@@ -11,6 +11,7 @@ import (
 type WiFiRadio struct {
 	ID            string   // radio ID
 	Name          string   // radio name
+	Interface     string   // wifi interface the radio is bound to (e.g., wifi1)
 	Band          string   // normalized: "2.4", "5", or "6" (based on supported channels)
 	Bands         []string // supported bands (e.g., ["2.4GHz", "5GHz"])
 	BestBand      string   // best/newest supported band (e.g., "6ghz-be", "5ghz-ax", "2.4ghz-ac")
@@ -895,6 +896,7 @@ func (c *Client) GetWiFiRadios(filter ...WiFiRadioFilter) ([]WiFiRadio, error) {
 		radios = append(radios, WiFiRadio{
 			ID:            result[".id"],
 			Name:          result["name"],
+			Interface:     result["interface"],
 			Band:          determineBandFromChannels(channels2G, channels5G, channels6G),
 			Bands:         bands,
 			BestBand:      extractBestBand(bands),
