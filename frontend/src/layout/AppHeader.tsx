@@ -17,9 +17,6 @@ export function AppHeader() {
           <img src="/favicon.png" alt="Nasnet Panel" className={styles.logoImg} />
           <div className={styles.brandText}>
             <span className={styles.brandTitle}>Nasnet Panel</span>
-            <span className={styles.brandSubtitle}>
-              Enterprise MikroTik Router Management Platform
-            </span>
           </div>
         </Link>
         <div className={styles.actionsRight}>
