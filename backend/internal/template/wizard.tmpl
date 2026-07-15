@@ -14,16 +14,17 @@
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
 
 {{ if .ManagementWifiSSID}}
-:if ([:len [/interface wifi find]] > 0 && [:len [/interface find name="wifi-virtual"]] = 0) do={
+/interface wifi remove [find name="wifi-management"]
+:if ([:len [/interface wifi find]] > 0 && [:len [/interface find name="wifi-management"]] = 0) do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
-add name=wifi-virtual master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \
-security.authentication-types=wpa2-psk,wpa3-psk security.passphrase={{ .wifiPassword }} disabled=no
-/ip address add address="192.168.210.1/24" interface=wifi-virtual network="192.168.210.0" comment="WiFi Static Management Port"
+add name=wifi-management master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \
+security.authentication-types=wpa2-psk,wpa3-psk security.passphrase={{ .ManagementWifiPassword }} disabled=no comment="Management WiFi"
+/ip address add address="192.168.210.1/24" interface=wifi-management network="192.168.210.0" comment="WiFi Static Management Port"
 /ip pool
 add name="DHCP-pool-management-wifi" ranges="192.168.210.2-192.168.210.254" comment="Management Wifi"
 /ip dhcp-server
-add address-pool="DHCP-pool-management-wifi" interface="wifi-virtual" name="DHCP-Management-wifi" comment="Management"
+add address-pool="DHCP-pool-management-wifi" interface="wifi-management" name="DHCP-Management-wifi" comment="Management"
 /ip dhcp-server network
 add address="192.168.210.0/24" dns-server="192.168.210.1" gateway="192.168.210.1" comment="Management"
 }
@@ -70,14 +71,14 @@ add name="FTAH" comment="Foreign Table Address Holder"
 
 {{ if eq .ForeignInterface.Type "wifi" }}
 /interface wifi
-set [ find default-name={{ .ForeignInterface.Interface }} ] comment="Foreign Link WAN" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
+set [ find default-name={{ .ForeignInterface.Interface }} ] name="{{ .ForeignInterface.Interface }}-Foreign-WAN" comment="Foreign Link WAN" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
 security.passphrase="{{ .ForeignInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 {{ end }}
 
 {{ if and .DomesticEnabled (eq .DomesticInterface.Type "wifi") }}
 /interface wifi
-set [ find default-name={{ .DomesticInterface.Interface }} ] comment="Domestic WAN" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
+set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticInterface.Interface }}-Domestic-WAN" comment="Domestic WAN" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
 security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 {{ end}}
