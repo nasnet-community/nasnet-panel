@@ -38,17 +38,17 @@ set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 :global WizardProgress "10"
 
 {{if .EnableWifiAP }}
-/interface wifi{{range $index, $band := .WifiBands}}{{$wifiNum := add $index 1}}
-set [ find default-name=wifi{{$wifiNum}} ] disabled=no configuration.country=Japan \
+/interface wifi{{range .WifiRadios}}{{if and (ne .Interface $.ForeignInterface.Interface) (or (not $.DomesticEnabled) (ne .Interface $.DomesticInterface.Interface))}}
+set [ find default-name={{.Interface}} ] disabled=no configuration.country=Japan \
 .mode=ap .ssid="{{ $.wifiSSID }}" .installation=indoor \
-name="wifi{{$band}}-SplitLAN" comment="SplitLAN" \
+name="wifi{{.Band}}-SplitLAN" comment="SplitLAN" \
 configuration.hide-ssid=no security.authentication-types=wpa2-psk,wpa3-psk \
 .passphrase="{{ $.wifiPassword }}" security.ft=yes \
-.ft-over-ds=yes{{end}}
-{{if gt (len .WifiBands) 1}}
+.ft-over-ds=yes{{end}}{{end}}
+{{if gt (len .WifiRadios) 0}}
 steering add comment="Split" disabled=no \
-name="Split" neighbor-group="{{range $index, $band := .WifiBands}}{{if gt $index 0}},{{end}}wifi{{$band}}-SplitLAN{{end}}" rrm=yes wnm=yes{{range .WifiBands}}
-set [ find name="wifi{{.}}-SplitLAN" ] steering="Split"{{end}}
+name="Split" neighbor-group="{{range $index, $radio := .WifiRadios}}{{if gt $index 0}},{{end}}wifi{{$radio.Band}}-SplitLAN{{end}}" rrm=yes wnm=yes{{range .WifiRadios}}
+set [ find name="wifi{{.Band}}-SplitLAN" ] steering="Split"{{end}}
 {{end}}
 {{ else }}
 #seperate AP
@@ -68,12 +68,27 @@ add name="LANBridgeVPN" comment="VPN"
 add name="LANBridgeForeign-Foreign Link" comment="Foreign-Foreign Link"
 add name="FTAH" comment="Foreign Table Address Holder"
 
-/interface ethernet
-set [ find default-name={{ .ForeignInterface }} ] comment="WAN - Foreign Link"
-{{ if .DomesticEnabled}}
-set [ find default-name={{ .DomesticInterface }} ] comment="WAN - Domestic Link"
+{{ if eq .ForeignInterface.Type "wifi" }}
+/interface wifi
+set [ find default-name={{ .ForeignInterface.Interface }} ] comment="Foreign Link WAN" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
+security.passphrase="{{ .ForeignInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 {{ end }}
-{{range .OtherEthernets}}set [ find default-name={{ . }} ] comment="Split Network"
+
+{{ if and .DomesticEnabled (eq .DomesticInterface.Type "wifi") }}
+/interface wifi
+set [ find default-name={{ .DomesticInterface.Interface }} ] comment="Domestic WAN" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
+security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
+{{ end}}
+
+{{ if eq .ForeignInterface.Type "ether" }}
+/interface ethernet set [ find default-name={{ .ForeignInterface.Interface }} ] comment="WAN - Foreign Link"
+{{ end }}
+{{ if and .DomesticEnabled (eq .DomesticInterface.Type "ether") }}
+/interface ethernet set [ find default-name={{ .DomesticInterface.Interface }} ] comment="WAN - Domestic Link"
+{{ end }}
+{{range .BridgePorts}}/interface set [ find default-name={{ . }} ] comment="Split Network"
 {{end}}
 
 :global WizardProgress "20"
@@ -97,9 +112,9 @@ add name="Foreign-Foreign Link-WAN" comment="Foreign-Foreign Link"
 add name="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
 
 /interface macvlan
-add name="MacVLAN-{{ .ForeignInterface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface }}" interface={{ .ForeignInterface }} mode=private
+add name="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface.Interface }}" interface={{ .ForeignInterface.Interface }} mode=private
 {{ if .DomesticEnabled}}
-add name="MacVLAN-{{ .DomesticInterface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface }}" interface={{ .DomesticInterface }} mode=private
+add name="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface.Interface }}" interface={{ .DomesticInterface.Interface }} mode=private
 {{ end }}
 /ip pool
 :if ([:len [/ip/pool find name="DHCP-pool-Split"]] = 0) do={
@@ -162,15 +177,15 @@ add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link SRC Ad
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link Routing Mark" disabled=no routing-mark="to-Foreign-Foreign Link" table="to-Foreign-Foreign Link"
 
 /interface bridge port
-remove [find bridge="LANBridgeSplit" interface="{{ .ForeignInterface }}"]
+remove [find bridge="LANBridgeSplit" interface="{{ .ForeignInterface.Interface }}"]
 {{ if .DomesticEnabled}}
-remove [find bridge="LANBridgeSplit" interface="{{ .DomesticInterface }}"]
+remove [find bridge="LANBridgeSplit" interface="{{ .DomesticInterface.Interface }}"]
 {{ end }}
-{{range .WifiBands}}:if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN"]] = 0) do={
-add bridge="LANBridgeSplit" interface="wifi{{.}}-SplitLAN" comment="Split"
+{{range .BridgePorts}}:if ([:len [/interface find default-name="{{.}}"]] > 0) do={
+:local portName [/interface get [/interface find default-name="{{.}}"] name]
+:if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface=$portName]] = 0) do={
+add bridge="LANBridgeSplit" interface=$portName comment="Split"
 }
-{{end}}{{range .OtherEthernets}}:if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface="{{.}}"]] = 0) do={
-add bridge="LANBridgeSplit" interface="{{.}}" comment="Split"
 }
 {{end}}
 
@@ -180,17 +195,20 @@ set disable-ipv6=yes
 :global WizardProgress "25"
 
 /interface list member
-add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="WAN" comment="Foreign WAN"
-add interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" list="Foreign-WAN" comment="Foreign WAN"
+add interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" list="WAN" comment="Foreign WAN"
+add interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" list="Foreign-WAN" comment="Foreign WAN"
 {{ if .DomesticEnabled}}
-add interface="MacVLAN-{{ .DomesticInterface }}-Domestic Link" list="WAN" comment="Domestic WAN"
+add interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" list="WAN" comment="Domestic WAN"
 add interface="LANBridgeDomestic" list="LAN" comment="Domestic"
 add interface="LANBridgeDomestic" list="Domestic-LAN" comment="Domestic"
 add interface="LANBridgeDomestic-Domestic Link" list="LAN" comment="Domestic-Domestic Link"
 add interface="LANBridgeDomestic-Domestic Link" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
 {{ end }}
-{{range .WifiBands}}add interface="wifi{{.}}-SplitLAN" list="Split-LAN" comment="SplitLAN"
-add interface="wifi{{.}}-SplitLAN" list="LAN" comment="SplitLAN"
+{{range .WifiRadios}}:if ([:len [/interface find default-name="{{.Interface}}"]] > 0) do={
+:local wifiName [/interface get [/interface find default-name="{{.Interface}}"] name]
+add interface=$wifiName list="Split-LAN" comment="SplitLAN"
+add interface=$wifiName list="LAN" comment="SplitLAN"
+}
 {{end}}
 add interface="LANBridgeSplit" list="LAN" comment="Split"
 add interface="LANBridgeSplit" list="Split-LAN" comment="Split"
@@ -220,7 +238,7 @@ add address="192.168.39.12/32" interface="FTAH" network="192.168.39.12" comment=
 set ddns-enabled=yes ddns-update-interval=1m
 
 /ip dhcp-client
-add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{ .ForeignInterface }}-Foreign Link" script=":if (\$bound=1) do={\r\
+add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" script=":if (\$bound=1) do={\r\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
 \n:local routeCount [/ip route print count-only where comment=\"Route-to-Foreign-Foreign Link\"]\r\
 \n:if (\$routeCount > 0) do={\r\
@@ -228,7 +246,7 @@ add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{
 \n}\r\
 \n}" use-peer-dns=no use-peer-ntp=no
 {{ if .DomesticEnabled}}
-add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface }}-Domestic Link" script=":if (\$bound=1) do={\r\
+add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" script=":if (\$bound=1) do={\r\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
 \n:local routeCount [/ip route print count-only where comment=\"Route-to-Domestic-Domestic Link\"]\r\
 \n:if (\$routeCount > 0) do={\r\
@@ -382,27 +400,27 @@ add interface="LANBridgeVPN" type=internal
 add interface="LANBridgeForeign-Foreign Link" type=internal
 
 /ip route
-add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
-add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" routing-table="to-Foreign" \
+add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
+add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 {{ if .DomesticEnabled}}
-add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
 comment="Route-to-Domestic-Domestic Link"
-add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
-add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic" comment="Route-to-Domestic-Domestic Link"
-add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" routing-table="to-Domestic" \
+add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic" comment="Route-to-Domestic-Domestic Link"
+add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic" \
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
-add dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface }}-Domestic Link" \
+add dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" \
 routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="217.218.127.127" routing-table="main" \
 distance="5" target-scope="11" comment="CheckIP-Route-to-Domestic-Domestic Link"
 {{ end }}
-add dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface }}-Foreign Link" \
+add dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.1" routing-table="main" \
 distance="10" target-scope="11" comment="CheckIP-Route-to-Foreign-Foreign Link"

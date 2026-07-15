@@ -4,6 +4,7 @@
   :continue
   }
 /interface wifi set $w name=$defaultName comment=""
+/interface wifi unset $w steering
 }
 
 :foreach iface in=[/interface ethernet find] do={
