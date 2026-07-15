@@ -142,96 +142,98 @@ export function InternetPage() {
           </CardDescription>
         </CardHeader>
         <div className={styles.wrap} aria-busy={!loaded}>
-          <div
-            className={styles.canvas}
-            style={
-              layout && layout.height > 0
-                ? { aspectRatio: `${layout.width} / ${layout.height + HEADER_BAND}` }
-                : undefined
-            }
-          >
-            {hasContent ? (
-              <svg
-                className={styles.svg}
-                viewBox={`0 ${-HEADER_BAND} ${layout.width} ${layout.height + HEADER_BAND}`}
-                preserveAspectRatio="xMidYMid meet"
-                role="img"
-                aria-label="Routing topology"
-              >
-                <defs>
-                  <marker
-                    id="arr-idle"
-                    viewBox="0 0 10 10"
-                    refX="8"
-                    refY="5"
-                    markerWidth="7"
-                    markerHeight="7"
-                    orient="auto"
-                  >
-                    <path d="M0,0 L10,5 L0,10 z" className={styles.arrow} />
-                  </marker>
-                  <marker
-                    id="arr-active"
-                    viewBox="0 0 10 10"
-                    refX="8"
-                    refY="5"
-                    markerWidth="7"
-                    markerHeight="7"
-                    orient="auto"
-                  >
-                    <path d="M0,0 L10,5 L0,10 z" className={styles.arrowActive} />
-                  </marker>
-                </defs>
-                {columns.map((col) => (
-                  <foreignObject
-                    key={`col-${col.kind}`}
-                    x={col.x - 80}
-                    y={-HEADER_BAND + 6}
-                    width={160}
-                    height={30}
-                  >
-                    <div className={styles.columnHeader}>{COLUMN_LABELS[col.kind]}</div>
-                  </foreignObject>
-                ))}
-                {topology?.hops
-                  .map((hop) => ({
-                    hop,
-                    effectiveActive: hop.isActive && reachable.has(hop.fromId),
-                  }))
-                  .sort((a, b) => Number(a.effectiveActive) - Number(b.effectiveActive))
-                  .map(({ hop, effectiveActive }) => (
-                    <Edge
-                      key={hop.id}
-                      effectiveActive={effectiveActive}
-                      d={layout.edges.get(hop.id)}
-                      pathId={`edge-${hop.id}`}
-                    />
+          <div className={styles.viewport}>
+            <div
+              className={styles.canvas}
+              style={
+                layout && layout.height > 0
+                  ? { aspectRatio: `${layout.width} / ${layout.height + HEADER_BAND}` }
+                  : undefined
+              }
+            >
+              {hasContent ? (
+                <svg
+                  className={styles.svg}
+                  viewBox={`0 ${-HEADER_BAND} ${layout.width} ${layout.height + HEADER_BAND}`}
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  aria-label="Routing topology"
+                >
+                  <defs>
+                    <marker
+                      id="arr-idle"
+                      viewBox="0 0 10 10"
+                      refX="8"
+                      refY="5"
+                      markerWidth="7"
+                      markerHeight="7"
+                      orient="auto"
+                    >
+                      <path d="M0,0 L10,5 L0,10 z" className={styles.arrow} />
+                    </marker>
+                    <marker
+                      id="arr-active"
+                      viewBox="0 0 10 10"
+                      refX="8"
+                      refY="5"
+                      markerWidth="7"
+                      markerHeight="7"
+                      orient="auto"
+                    >
+                      <path d="M0,0 L10,5 L0,10 z" className={styles.arrowActive} />
+                    </marker>
+                  </defs>
+                  {columns.map((col) => (
+                    <foreignObject
+                      key={`col-${col.kind}`}
+                      x={col.x - 80}
+                      y={-HEADER_BAND + 6}
+                      width={160}
+                      height={30}
+                    >
+                      <div className={styles.columnHeader}>{COLUMN_LABELS[col.kind]}</div>
+                    </foreignObject>
                   ))}
-                {positioned.map((node) => {
-                  const editable = node.kind === 'vpn';
-                  return (
-                    <NodeBubble
-                      key={node.id}
-                      node={node}
-                      onSelect={
-                        editable && topology
-                          ? (n) => {
-                              const hop = hopForNode(n, topology);
-                              if (hop) setEditingHopId(hop.id);
-                            }
-                          : undefined
-                      }
-                    />
-                  );
-                })}
-              </svg>
-            ) : (
-              <div className={styles.empty}>
-                {loaded && (!topology || topology.nodes.length === 0)
-                  ? 'No routing topology configured for this router yet.'
-                  : 'Loading topology…'}
-              </div>
-            )}
+                  {topology?.hops
+                    .map((hop) => ({
+                      hop,
+                      effectiveActive: hop.isActive && reachable.has(hop.fromId),
+                    }))
+                    .sort((a, b) => Number(a.effectiveActive) - Number(b.effectiveActive))
+                    .map(({ hop, effectiveActive }) => (
+                      <Edge
+                        key={hop.id}
+                        effectiveActive={effectiveActive}
+                        d={layout.edges.get(hop.id)}
+                        pathId={`edge-${hop.id}`}
+                      />
+                    ))}
+                  {positioned.map((node) => {
+                    const editable = node.kind === 'vpn';
+                    return (
+                      <NodeBubble
+                        key={node.id}
+                        node={node}
+                        onSelect={
+                          editable && topology
+                            ? (n) => {
+                                const hop = hopForNode(n, topology);
+                                if (hop) setEditingHopId(hop.id);
+                              }
+                            : undefined
+                        }
+                      />
+                    );
+                  })}
+                </svg>
+              ) : (
+                <div className={styles.empty}>
+                  {loaded && (!topology || topology.nodes.length === 0)
+                    ? 'No routing topology configured for this router yet.'
+                    : 'Loading topology…'}
+                </div>
+              )}
+            </div>
           </div>
           <div className={styles.legend}>
             <span className={styles.legendItem}>
