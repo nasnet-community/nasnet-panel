@@ -19,7 +19,6 @@ import { RouterCard } from './RouterCard';
 import { useRouterStatusPolling } from './useRouterStatusPolling';
 import styles from './RouterListPage.module.scss';
 
-const SPLASH_PHRASES = ['Enterprise MikroTik Router Management Platform'];
 const SPLASH_FLAG = 'nasnet:splashSeen';
 const CONNECT_DELAY_MS = 2000;
 const STATUS_POLL_INTERVAL_MS = 5000;
@@ -117,7 +116,7 @@ export function RouterListPage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <BrandSplash phase="splash" phrases={SPLASH_PHRASES} />
+            <BrandSplash phase="splash" />
           </motion.div>
         ) : (
           <motion.div

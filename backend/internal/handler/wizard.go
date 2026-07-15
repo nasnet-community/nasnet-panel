@@ -209,7 +209,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 
 	domesticEnabled := req.Domestic != nil && req.Domestic.Interface != ""
 
-	// Validate required foreign and domestic configurations
 	if req.Foreign == nil || req.Foreign.Interface == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface is required", nil)
 	}
@@ -220,7 +219,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "SSID is required when domestic interface type is wifi", nil)
 	}
 
-	// WiFi interfaces used as foreign/domestic WAN must not be reconfigured as split APs
 	usedWifiInterfaces := map[string]bool{}
 	if req.Foreign.Type == "wifi" {
 		usedWifiInterfaces[req.Foreign.Interface] = true
@@ -229,8 +227,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		usedWifiInterfaces[req.Domestic.Interface] = true
 	}
 
-	// Radios report the current interface name, which may have been renamed by a
-	// previous wizard run; map it back to the immutable default-name.
 	wifiDefaultNames := map[string]string{}
 	if wifiInterfaces, err := client.ListWifiInterfaces(); err == nil {
 		for i := range wifiInterfaces {
@@ -271,24 +267,26 @@ func HandleFinalizeWizard(c echo.Context) error {
 			bridgePorts = append(bridgePorts, wifiRadios[i].Interface)
 		}
 	}
-
-	// Generate random management WiFi SSID
-	randName, _ := utils.GenerateRandomString(8, 20)
-
+	var randWifiSSID, randWifiPassword string
+	if len(wifiRadios) > 0 {
+		randWifiSSID = utils.GenerateName(3, "", utils.PascalCase)
+		randWifiPassword, _ = utils.GenerateRandomString(8, 20)
+	}
 	// Build template data from request
 	templateData := map[string]any{
-		"DomesticEnabled":    domesticEnabled,
-		"ManagementWifiSSID": randName,
-		"ForeignInterface":   req.Foreign,
-		"DomesticInterface":  req.Domestic,
-		"EnableWifiAP":       req.WiFiAP != nil,
-		"WifiRadios":         wifiRadios,
-		"BridgePorts":        bridgePorts,
-		"CurrentDate":        time.Now().Format("Jan/02/2006"),
-		"CurrentTimestamp":   time.Now().Unix(),
-		"BackupTime":         time.Now().Format("2006-01-02_15-04-05"),
-		"RouterUsername":     creds.Username,
-		"RouterPassword":     creds.Password,
+		"DomesticEnabled":        domesticEnabled,
+		"ManagementWifiSSID":     randWifiSSID,
+		"ManagementWifiPassword": randWifiPassword,
+		"ForeignInterface":       req.Foreign,
+		"DomesticInterface":      req.Domestic,
+		"EnableWifiAP":           req.WiFiAP != nil,
+		"WifiRadios":             wifiRadios,
+		"BridgePorts":            bridgePorts,
+		"CurrentDate":            time.Now().Format("Jan/02/2006"),
+		"CurrentTimestamp":       time.Now().Unix(),
+		"BackupTime":             time.Now().Format("2006-01-02_15-04-05"),
+		"RouterUsername":         creds.Username,
+		"RouterPassword":         creds.Password,
 	}
 
 	// Add WiFi AP configuration if provided
@@ -356,6 +354,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
-		"managementWiFiSSID": randName,
+		"managementWiFiSSID": randWifiSSID, "managementWiFiPassword": randWifiPassword,
 	})
 }
