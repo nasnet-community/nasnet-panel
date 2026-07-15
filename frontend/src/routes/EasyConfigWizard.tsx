@@ -135,6 +135,8 @@ export function EasyConfigWizard() {
         applied={state.applied}
         progress={state.progress}
         error={state.error}
+        managementWifiSsid={state.managementWifiSsid}
+        managementWifiPassword={state.managementWifiPassword}
         onClose={closeDialog}
         onRetry={() => onApply()}
         onDone={goToOverview}

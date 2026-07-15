@@ -102,6 +102,8 @@ export interface EasyConfigBackendOptions {
   scanNetworks?: EasyConfigBackendScanNetwork[];
   // progress returned by successive wizard status polls; the last value repeats
   wizardProgress?: number[];
+  // management WiFi credentials returned by finalize; pass null to omit them (no WiFi radio)
+  managementWifi?: { ssid: string; password: string } | null;
 }
 
 export interface TestFixtures {
@@ -572,7 +574,9 @@ export const test = base.extend<TestFixtures>({
     });
   },
   mockEasyConfigBackend: async ({ context }, use) => {
-    await use(async ({ id, interfaces, wifiInterfaces, scanNetworks, wizardProgress }) => {
+    await use(async (options) => {
+      const { id, interfaces, wifiInterfaces, scanNetworks, wizardProgress, managementWifi } =
+        options;
       await context.addInitScript((routerId) => {
         try {
           const key = 'nasnet-panel.session-credentials.v1';
@@ -656,11 +660,18 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
+      const mgmtWifi =
+        managementWifi === undefined
+          ? { ssid: 'NNC-Rescue-42', password: 'rescue-pass-4242' }
+          : managementWifi;
       await context.route('**/api/wizard/finalize', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope(null),
+          body: envelope({
+            managementWiFiSSID: mgmtWifi?.ssid ?? '',
+            managementWiFiPassword: mgmtWifi?.password ?? '',
+          }),
         });
       });
 

@@ -28,7 +28,7 @@ function wanInterface(
   if (type === 'wireless') {
     return { type: 'wifi', interface: name, ssid, password };
   }
-  return { type: 'ethernet', interface: name };
+  return { type: 'ether', interface: name };
 }
 
 function buildFinalizePayload(state: State): FinalizeWizardRequest {
@@ -256,7 +256,12 @@ export function useEasyConfig(routerId: string | undefined) {
     dispatch({ type: 'applying', value: true });
     dispatch({ type: 'error', message: null });
     try {
-      await finalizeWizard({ host, ...creds }, buildFinalizePayload(state));
+      const result = await finalizeWizard({ host, ...creds }, buildFinalizePayload(state));
+      dispatch({
+        type: 'managementWifi',
+        ssid: result.managementWiFiSSID ?? '',
+        password: result.managementWiFiPassword ?? '',
+      });
     } catch (err) {
       dispatch({ type: 'error', message: (err as Error).message ?? 'Apply failed' });
       dispatch({ type: 'applying', value: false });

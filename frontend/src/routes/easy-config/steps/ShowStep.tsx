@@ -70,6 +70,8 @@ export function ShowStep({ script, state, onApply, onBack }: Props) {
         applied={state.applied}
         progress={state.progress}
         error={state.error}
+        managementWifiSsid={state.managementWifiSsid}
+        managementWifiPassword={state.managementWifiPassword}
         onClose={closeDialog}
         onRetry={() => onApply(currentScript)}
         onDone={goToOverview}
