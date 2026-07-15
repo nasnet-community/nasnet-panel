@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
   fetchInterfaces,
   fetchWifiInterfaces,
+  fetchWizardStatus,
   finalizeWizard,
+  type FinalizeWizardInterface,
   type FinalizeWizardRequest,
-  type FinalizeWizardWifiInterface,
   type InterfaceResponse,
+  type VPNCredentials,
   type WifiInterfaceResponse,
 } from '../../api';
 import { useSession } from '../../state/SessionContext';
@@ -14,76 +16,68 @@ import { buildEasyConfigScript, type EasyConfigInput } from '../../utils/rsc-bui
 import { canAdvance } from './validation';
 import { initial, reducer, stepOrder, type State } from './state';
 
-function bandKeyForWifi(wi: WifiInterfaceResponse): '24' | '5' | '6' | null {
-  const b = (wi.band ?? '').toLowerCase();
-  if (b.startsWith('2')) return '24';
-  if (b.startsWith('5')) return '5';
-  if (b.startsWith('6')) return '6';
-  const f = Number(wi.frequency);
-  if (Number.isFinite(f)) {
-    if (f >= 2400 && f < 2500) return '24';
-    if (f >= 5000 && f < 5925) return '5';
-    if (f >= 5925) return '6';
+const POLL_INTERVAL_MS = 2000;
+const POLL_TIMEOUT_MS = 6 * 60 * 1000;
+
+function wanInterface(
+  type: State['starlinkInterfaceType'],
+  name: string,
+  ssid: string,
+  password: string,
+): FinalizeWizardInterface {
+  if (type === 'wireless') {
+    return { type: 'wifi', interface: name, ssid, password };
   }
-  return null;
+  return { type: 'ethernet', interface: name };
 }
 
-function buildFinalizePayload(
-  state: State,
-  wifiInterfaces: WifiInterfaceResponse[],
-): FinalizeWizardRequest {
-  const wifi: FinalizeWizardWifiInterface[] = [];
-  const bandToFields: Record<
-    '24' | '5' | '6',
-    { enabled: boolean; ssid: string; password: string }
-  > = {
-    '24': { enabled: state.wifi24Enabled, ssid: state.ssid, password: state.wifiPassword },
-    '5': { enabled: state.wifi5Enabled, ssid: state.ssid5, password: state.wifiPassword5 },
-    '6': { enabled: state.wifi6Enabled, ssid: state.ssid6, password: state.wifiPassword6 },
+function buildFinalizePayload(state: State): FinalizeWizardRequest {
+  const payload: FinalizeWizardRequest = {
+    foreign: wanInterface(
+      state.starlinkInterfaceType,
+      state.starlinkInterface,
+      state.starlinkWanSsid,
+      state.starlinkWanPassword,
+    ),
   };
-  for (const wi of wifiInterfaces) {
-    const key = bandKeyForWifi(wi);
-    if (!key) continue;
-    const fields = bandToFields[key];
-    if (!fields?.enabled) continue;
-    wifi.push({ id: wi.id, ssid: fields.ssid, password: fields.password });
+
+  if (state.mode === 'dual-link') {
+    payload.domestic = wanInterface(
+      state.domesticInterfaceType,
+      state.domesticInterface,
+      state.domesticWanSsid,
+      state.domesticWanPassword,
+    );
   }
 
-  let maskingL2tp: FinalizeWizardRequest['maskingL2tp'] = null;
-  let maskingWireGuard: FinalizeWizardRequest['maskingWireGuard'] = null;
   if (state.ipMaskEnabled) {
     if (state.ipMaskKind === 'l2tp') {
-      maskingL2tp = {
+      payload.l2tpClient = {
         connectTo: state.l2tpServer,
-        disabled: false,
-        ipsecSecret: state.l2tpUseIpsec ? state.l2tpIpsecSecret : '',
-        name: 'wan-mask-l2tp',
-        password: state.l2tpPassword,
         user: state.l2tpUsername,
+        password: state.l2tpPassword,
+        ipsecSecret: state.l2tpUseIpsec ? state.l2tpIpsecSecret : '',
       };
     } else if (state.ipMaskKind === 'wireguard') {
-      maskingWireGuard = { config: state.wgConfig };
+      payload.wireguardClient = { config: state.wgConfig };
     }
   }
 
-  const ovpnServer = state.vpnServerEnabled
-    ? {
-        clientCertificatePassword: state.vpnServerCertPassphrase,
-        users:
-          state.firstUserName && state.firstUserKey
-            ? [{ username: state.firstUserName, password: state.firstUserKey }]
-            : [],
-      }
-    : null;
+  if (state.wifiEnabled) {
+    payload.wifiAp = { ssid: state.ssid, password: state.wifiPassword };
+  }
 
-  return {
-    foreignInterface: state.starlinkInterface,
-    domesticInterface: state.mode === 'dual-link' ? state.domesticInterface : '',
-    maskingL2tp,
-    maskingWireGuard,
-    wifiInterfaces: wifi,
-    ovpnServer,
-  };
+  if (state.vpnServerEnabled) {
+    payload.ovpnServer = {
+      clientCertificatePassword: state.vpnServerCertPassphrase,
+      users:
+        state.firstUserName && state.firstUserKey
+          ? [{ username: state.firstUserName, password: state.firstUserKey }]
+          : [],
+    };
+  }
+
+  return payload;
 }
 
 function buildScript(state: State): string {
@@ -109,9 +103,9 @@ function buildScript(state: State): string {
       security: state.security,
       band: state.band,
       countryCode: state.countryCode,
-      splitBands: state.wifi24Enabled && state.wifi5Enabled,
-      band24: state.wifi24Enabled ? { ssid: state.ssid, password: state.wifiPassword } : undefined,
-      band5: state.wifi5Enabled ? { ssid: state.ssid5, password: state.wifiPassword5 } : undefined,
+      splitBands: state.wifiSplit,
+      band24: state.wifiSplit ? { ssid: state.ssid, password: state.wifiPassword } : undefined,
+      band5: state.wifiSplit ? { ssid: state.ssid, password: state.wifiPassword } : undefined,
     },
     ipMask: state.ipMaskEnabled
       ? state.ipMaskKind === 'wireguard'
@@ -207,6 +201,50 @@ export function useEasyConfig(routerId: string | undefined) {
   const script = useMemo(() => buildScript(state), [state]);
   const advanceProblem = useMemo(() => canAdvance(state), [state]);
 
+  const poll = useRef<{ cancelled: boolean; timer?: ReturnType<typeof setTimeout> }>({
+    cancelled: false,
+  });
+
+  useEffect(
+    () => () => {
+      poll.current.cancelled = true;
+      if (poll.current.timer) clearTimeout(poll.current.timer);
+    },
+    [],
+  );
+
+  const trackProgress = useCallback((creds: VPNCredentials) => {
+    const ctl = poll.current;
+    ctl.cancelled = false;
+    const deadline = Date.now() + POLL_TIMEOUT_MS;
+
+    const tick = async () => {
+      if (ctl.cancelled) return;
+      try {
+        const status = await fetchWizardStatus(creds);
+        if (ctl.cancelled) return;
+        dispatch({ type: 'progress', value: status.progress });
+        if (status.progress >= 100) {
+          dispatch({ type: 'applied' });
+          return;
+        }
+      } catch {
+        // router drops off while its addressing is rewritten; keep polling until the deadline
+      }
+      if (ctl.cancelled) return;
+      if (Date.now() > deadline) {
+        dispatch({ type: 'error', message: 'Timed out waiting for the router to finish.' });
+        dispatch({ type: 'applying', value: false });
+        return;
+      }
+      ctl.timer = setTimeout(() => {
+        void tick();
+      }, POLL_INTERVAL_MS);
+    };
+
+    void tick();
+  }, []);
+
   const onApply = useCallback(async () => {
     const creds = routerId ? getCredentials(routerId) : undefined;
     const host = router?.host;
@@ -218,14 +256,14 @@ export function useEasyConfig(routerId: string | undefined) {
     dispatch({ type: 'applying', value: true });
     dispatch({ type: 'error', message: null });
     try {
-      const payload = buildFinalizePayload(state, wifiInterfaces);
-      await finalizeWizard({ host, ...creds }, payload);
-      dispatch({ type: 'applied' });
+      await finalizeWizard({ host, ...creds }, buildFinalizePayload(state));
     } catch (err) {
       dispatch({ type: 'error', message: (err as Error).message ?? 'Apply failed' });
       dispatch({ type: 'applying', value: false });
+      return;
     }
-  }, [routerId, router?.host, getCredentials, state, wifiInterfaces]);
+    trackProgress({ host, ...creds });
+  }, [routerId, router?.host, getCredentials, state, trackProgress]);
 
   const goNext = () => {
     if (advanceProblem) {

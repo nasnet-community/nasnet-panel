@@ -1,4 +1,4 @@
-import { Button, Dialog, Inline } from '@nasnet/ui';
+import { Button, Dialog, Inline, Progress } from '@nasnet/ui';
 import styles from '../../../EasyConfigWizard.module.scss';
 import { SuccessCheck } from './SuccessCheck';
 import { ErrorCross } from './ErrorCross';
@@ -7,13 +7,23 @@ interface Props {
   open: boolean;
   applying: boolean;
   applied: boolean;
+  progress: number;
   error: string | null;
   onClose: () => void;
   onRetry: () => void;
   onDone: () => void;
 }
 
-export function ApplyDialog({ open, applying, applied, error, onClose, onRetry, onDone }: Props) {
+export function ApplyDialog({
+  open,
+  applying,
+  applied,
+  progress,
+  error,
+  onClose,
+  onRetry,
+  onDone,
+}: Props) {
   const showError = Boolean(error) && !applying && !applied;
   return (
     <Dialog open={open} onClose={onClose} size="sm" labelledBy="apply-dialog-title">
@@ -27,6 +37,9 @@ export function ApplyDialog({ open, applying, applied, error, onClose, onRetry, 
             <p className={styles.applySubtitle}>
               Running RouterOS commands via the batch executor.
             </p>
+            <div className={styles.applyProgress}>
+              <Progress value={progress} label="Progress" tone="success" />
+            </div>
           </>
         ) : applied ? (
           <>

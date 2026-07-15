@@ -147,12 +147,17 @@
   font-size: var(--font-sm);
 }
 
+.applyProgress {
+  width: 100%;
+  text-align: left;
+}
+
 .spinner {
   width: 72px;
   height: 72px;
   border-radius: 50%;
   border: 6px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border-top-color: var(--color-success);
   animation: spin 900ms linear infinite;
 }
 

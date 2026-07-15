@@ -100,6 +100,8 @@ export interface EasyConfigBackendOptions {
   interfaces?: EasyConfigBackendInterface[];
   wifiInterfaces?: EasyConfigBackendWifiInterface[];
   scanNetworks?: EasyConfigBackendScanNetwork[];
+  // progress returned by successive wizard status polls; the last value repeats
+  wizardProgress?: number[];
 }
 
 export interface TestFixtures {
@@ -570,7 +572,7 @@ export const test = base.extend<TestFixtures>({
     });
   },
   mockEasyConfigBackend: async ({ context }, use) => {
-    await use(async ({ id, interfaces, wifiInterfaces, scanNetworks }) => {
+    await use(async ({ id, interfaces, wifiInterfaces, scanNetworks, wizardProgress }) => {
       await context.addInitScript((routerId) => {
         try {
           const key = 'nasnet-panel.session-credentials.v1';
@@ -659,6 +661,18 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           contentType: 'application/json',
           body: envelope(null),
+        });
+      });
+
+      const steps = wizardProgress ?? [100];
+      let polls = 0;
+      await context.route('**/api/wizard/status', async (route) => {
+        const progress = steps[Math.min(polls, steps.length - 1)] ?? 100;
+        polls += 1;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ completed: progress >= 100, completedAt: null, progress }),
         });
       });
     });
