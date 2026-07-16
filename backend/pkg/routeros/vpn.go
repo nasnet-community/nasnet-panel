@@ -1798,7 +1798,7 @@ func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCert
 		return "", fmt.Errorf("failed to extract filename from export response")
 	}
 
-	config, err := c.GetCertificateFileContent(fileName)
+	config, err := c.GetFileContents(fileName, 0)
 	if err != nil {
 		return "", fmt.Errorf("failed to read exported configuration: %w", err)
 	}
