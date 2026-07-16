@@ -7,11 +7,19 @@
   border-radius: var(--radius-lg);
 }
 
+.viewport {
+  overflow: auto;
+  max-height: 70vh;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  -webkit-overflow-scrolling: touch;
+}
+
 .canvas {
   position: relative;
   width: 100%;
   aspect-ratio: 2 / 1;
-  min-height: 360px;
+  min-height: 420px;
 }
 
 .svg {
@@ -194,8 +202,8 @@
 }
 
 @media (max-width: 768px) {
-  .wrap {
-    overflow-x: auto;
+  .viewport {
+    max-height: 80vh;
   }
 
   .canvas {
