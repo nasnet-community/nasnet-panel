@@ -2471,34 +2471,14 @@ func HandleExportOvpnClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "publicAddress parameter is required", nil)
 	}
 
-	_, err = client.GetOvpnServer(serverName)
+	ovpnServer, err := client.GetOvpnServer(serverName)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
 	}
 
-	baseName := serverName
-	if strings.HasSuffix(baseName, "-tcp") {
-		baseName = strings.TrimSuffix(baseName, "-tcp")
-	} else if strings.HasSuffix(baseName, "-udp") {
-		baseName = strings.TrimSuffix(baseName, "-udp")
-	}
-
-	extractTimestamp := func(name string) string {
-		parts := strings.Split(name, "-")
-		if len(parts) >= 3 {
-			return parts[len(parts)-1]
-		}
-		return ""
-	}
-
-	timestamp := extractTimestamp(baseName)
-	if timestamp == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "could not extract timestamp from server name", nil)
-	}
-
-	ovpnServerName := "ovpn-server-" + timestamp
-	caName := ovpnServerName + "-ca"
-	clientCertName := ovpnServerName + "-client"
+	ovpnServerName := ovpnServer.CertFile
+	caName := strings.Replace(ovpnServerName, "server", "ca", 1)
+	clientCertName := strings.Replace(ovpnServerName, "server", "client", 1)
 
 	config, err := client.ExportOvpnClientConfiguration(serverName, publicAddress, caName, clientCertName)
 	if err != nil {
