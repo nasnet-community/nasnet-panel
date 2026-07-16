@@ -9,6 +9,8 @@ interface Props {
   applied: boolean;
   progress: number;
   error: string | null;
+  managementWifiSsid: string;
+  managementWifiPassword: string;
   onClose: () => void;
   onRetry: () => void;
   onDone: () => void;
@@ -20,6 +22,8 @@ export function ApplyDialog({
   applied,
   progress,
   error,
+  managementWifiSsid,
+  managementWifiPassword,
   onClose,
   onRetry,
   onDone,
@@ -39,6 +43,37 @@ export function ApplyDialog({
             </p>
             <div className={styles.applyProgress}>
               <Progress value={progress} label="Progress" tone="success" />
+            </div>
+            <div className={styles.emergencyAlert} role="alert">
+              <span aria-hidden="true" className={styles.emergencyAlertIcon}>
+                !
+              </span>
+              <div className={styles.emergencyAlertBody}>
+                <p className={styles.emergencyAlertText}>
+                  If the connection drops or setup runs into an error, you can still reach the
+                  router through the emergency interfaces: plug into the last Ethernet port and open{' '}
+                  <strong>192.168.200.1</strong>
+                  {managementWifiSsid ? (
+                    <>
+                      , or join the management WiFi below and open <strong>192.168.210.1</strong>
+                    </>
+                  ) : (
+                    '.'
+                  )}
+                </p>
+                {managementWifiSsid ? (
+                  <dl className={styles.emergencyWifi}>
+                    <div>
+                      <dt>WiFi name</dt>
+                      <dd>{managementWifiSsid}</dd>
+                    </div>
+                    <div>
+                      <dt>Password</dt>
+                      <dd>{managementWifiPassword}</dd>
+                    </div>
+                  </dl>
+                ) : null}
+              </div>
             </div>
           </>
         ) : applied ? (

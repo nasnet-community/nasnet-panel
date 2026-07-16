@@ -134,6 +134,7 @@ export {
   fetchWizardStatus,
   type NasnetVpnCredentialsResponse,
   type FinalizeWizardRequest,
+  type FinalizeWizardResponse,
   type FinalizeWizardInterface,
   type FinalizeWizardL2tpClient,
   type FinalizeWizardWireGuardClient,
