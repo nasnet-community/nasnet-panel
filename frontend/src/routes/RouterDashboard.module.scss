@@ -25,6 +25,12 @@
   gap: var(--space-xl);
 }
 
+@media (max-width: 640px) {
+  .contentShell {
+    padding: var(--space-lg);
+  }
+}
+
 .notFound {
   padding: var(--space-2xl);
   text-align: center;

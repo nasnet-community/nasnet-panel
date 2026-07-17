@@ -396,61 +396,63 @@ function PeersSection({ peers, canMutate, onAdd, onEdit, onDelete }: PeersSectio
       {peers.length === 0 ? (
         <p style={{ color: 'var(--color-muted)' }}>No peers configured.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
-              <th style={{ padding: '6px 8px' }}>Name</th>
-              <th style={{ padding: '6px 8px' }}>Allowed addresses</th>
-              <th style={{ padding: '6px 8px' }}>Endpoint</th>
-              <th style={{ padding: '6px 8px' }}>Last handshake</th>
-              <th style={{ padding: '6px 8px' }}>Status</th>
-              <th style={{ padding: '6px 8px', width: 120 }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {peers.map((p) => (
-              <tr key={p.id || p.name} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                <td style={{ padding: '6px 8px' }}>{p.name}</td>
-                <td style={{ padding: '6px 8px' }}>{p.allowedAddresses || '–'}</td>
-                <td style={{ padding: '6px 8px' }}>
-                  {p.currentEndpointAddress
-                    ? `${p.currentEndpointAddress}:${p.currentEndpointPort}`
-                    : p.endpointAddress
-                      ? `${p.endpointAddress}:${p.endpointPort}`
-                      : '–'}
-                </td>
-                <td style={{ padding: '6px 8px' }}>{p.lastHandshake || '–'}</td>
-                <td style={{ padding: '6px 8px' }}>
-                  <BoolBadge value={!p.disabled} />
-                </td>
-                <td style={{ padding: '6px 8px' }}>
-                  <span style={{ display: 'inline-flex', gap: 8 }}>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      disabled={!canMutate}
-                      title={`Edit ${p.name}`}
-                      aria-label={`Edit peer ${p.name}`}
-                      onClick={() => onEdit(p)}
-                    >
-                      <Pencil size={14} aria-hidden />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      disabled={!canMutate}
-                      title={`Delete ${p.name}`}
-                      aria-label={`Delete peer ${p.name}`}
-                      onClick={() => onDelete(p)}
-                    >
-                      <Trash2 size={14} aria-hidden />
-                    </Button>
-                  </span>
-                </td>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '6px 8px' }}>Name</th>
+                <th style={{ padding: '6px 8px' }}>Allowed addresses</th>
+                <th style={{ padding: '6px 8px' }}>Endpoint</th>
+                <th style={{ padding: '6px 8px' }}>Last handshake</th>
+                <th style={{ padding: '6px 8px' }}>Status</th>
+                <th style={{ padding: '6px 8px', width: 120 }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {peers.map((p) => (
+                <tr key={p.id || p.name} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                  <td style={{ padding: '6px 8px' }}>{p.name}</td>
+                  <td style={{ padding: '6px 8px' }}>{p.allowedAddresses || '–'}</td>
+                  <td style={{ padding: '6px 8px' }}>
+                    {p.currentEndpointAddress
+                      ? `${p.currentEndpointAddress}:${p.currentEndpointPort}`
+                      : p.endpointAddress
+                        ? `${p.endpointAddress}:${p.endpointPort}`
+                        : '–'}
+                  </td>
+                  <td style={{ padding: '6px 8px' }}>{p.lastHandshake || '–'}</td>
+                  <td style={{ padding: '6px 8px' }}>
+                    <BoolBadge value={!p.disabled} />
+                  </td>
+                  <td style={{ padding: '6px 8px' }}>
+                    <span style={{ display: 'inline-flex', gap: 8 }}>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={!canMutate}
+                        title={`Edit ${p.name}`}
+                        aria-label={`Edit peer ${p.name}`}
+                        onClick={() => onEdit(p)}
+                      >
+                        <Pencil size={14} aria-hidden />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        disabled={!canMutate}
+                        title={`Delete ${p.name}`}
+                        aria-label={`Delete peer ${p.name}`}
+                        onClick={() => onDelete(p)}
+                      >
+                        <Trash2 size={14} aria-hidden />
+                      </Button>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

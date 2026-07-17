@@ -363,7 +363,7 @@ export function DHCPPage() {
                 disabledIfaceNames={wanNames}
               />
             ) : (
-              <Skeleton width={320} height={56} />
+              <Skeleton width="min(320px, 100%)" height={56} />
             )}
           </div>
         </div>
