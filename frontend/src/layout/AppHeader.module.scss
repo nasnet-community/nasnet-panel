@@ -15,6 +15,12 @@
   gap: var(--space-md);
 }
 
+@media (max-width: 640px) {
+  .wrap {
+    padding: var(--space-md) var(--space-lg);
+  }
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
