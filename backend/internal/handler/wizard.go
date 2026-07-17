@@ -353,6 +353,19 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
 	}
 
+	err = client.SetEnvironmentVariable("WizardCompleted", "false")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion status", err)
+	}
+	err = client.SetEnvironmentVariable("WizardProgress", "0")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
+	}
+	err = client.SetEnvironmentVariable("WizardCompletedAt", "")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion timestamp", err)
+	}
+
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
 		"managementWiFiSSID": randWifiSSID, "managementWiFiPassword": randWifiPassword,
 	})
