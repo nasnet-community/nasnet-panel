@@ -2394,27 +2394,6 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 	}
 
 	if timestamp != "" {
-		profileName := "profile-ovpn-server-" + timestamp
-		secrets, err := client.GetPppSecretsByProfile(profileName)
-		if err == nil {
-			for _, secret := range secrets {
-				if username, ok := secret["name"]; ok {
-					if err := client.RemovePppSecret(username, "ovpn"); err != nil {
-						deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete PPP secret: %v", err))
-					}
-				}
-			}
-		}
-
-		if err := client.RemovePppProfile(profileName); err != nil {
-			deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete PPP profile: %v", err))
-		}
-
-		poolName := "pool-" + ovpnServerName
-		if err := client.RemoveIPPool(poolName); err != nil {
-			deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete IP pool: %v", err))
-		}
-
 		certNames := []string{
 			"cert-client-" + ovpnServerName,
 			"cert-server-" + ovpnServerName,
