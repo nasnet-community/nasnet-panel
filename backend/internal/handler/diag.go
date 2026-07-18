@@ -90,7 +90,6 @@ func HandleGetDiagStatus(c echo.Context) error {
 		}
 		if exists && !running {
 			fileInfo, err := client.GetFile(diagFilename)
-			fmt.Println("fileInfo:", fileInfo)
 			if err == nil {
 				response["fileSize"] = utils.BytesToSizeString(fileInfo.Size)
 				response["generateTime"] = fileInfo.ModTime
