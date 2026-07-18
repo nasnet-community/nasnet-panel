@@ -3,7 +3,9 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// "New" button order in WanPage: 0 Starlink, 1 Domestic, 2 Starlink Masking VPN Client.
+// "New" button order in WanPage: 0 Starlink Masking VPN Client.
+// The Starlink and Domestic add buttons are hidden for this release; when they come back
+// the order becomes 0 Starlink, 1 Domestic, 2 Starlink Masking VPN Client.
 const newButton = (page: Page, index: number) =>
   page.getByRole('button', { name: 'New' }).nth(index);
 
@@ -221,7 +223,8 @@ test.describe('WAN tab', () => {
     await expect(page.getByText('No VPN clients yet.')).toBeVisible();
   });
 
-  test('add a Starlink uplink via real BE and move it to Domestic', async ({
+  // Skipped while the WAN uplink "New" buttons are hidden.
+  test.skip('add a Starlink uplink via real BE and move it to Domestic', async ({
     page,
     context,
     resetMocks,
@@ -258,7 +261,8 @@ test.describe('WAN tab', () => {
     expect(state.wanPuts[1]).toMatchObject({ name: 'ether1', body: { type: 'domestic' } });
   });
 
-  test('already-tagged interface is excluded from the add picker', async ({
+  // Skipped while the WAN uplink "New" buttons are hidden.
+  test.skip('already-tagged interface is excluded from the add picker', async ({
     page,
     context,
     resetMocks,
@@ -294,7 +298,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newButton(page, 2).click();
+    await newButton(page, 0).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 

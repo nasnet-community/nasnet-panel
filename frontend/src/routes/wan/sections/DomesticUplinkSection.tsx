@@ -44,7 +44,7 @@ export function DomesticUplinkSection({
     return { host, ...creds };
   };
 
-  const openAdd = () => setDialogOpen(true);
+  // const openAdd = () => setDialogOpen(true);
   const closeDialog = () => setDialogOpen(false);
 
   const onSubmit = async (interfaceName: string) => {
@@ -114,7 +114,7 @@ export function DomesticUplinkSection({
         <SectionHeader
           title="Domestic"
           description="Interfaces tagged as the domestic uplink."
-          action={{ label: 'New', onClick: openAdd }}
+          // action={{ label: 'New', onClick: openAdd }}
         />
         <WanTable
           rows={items}
