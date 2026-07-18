@@ -91,14 +91,10 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/ovpn/server/status/:taskId", handler.HandleGetOvpnServerTaskStatus)
 	vpnGroup.DELETE("/ovpn/server/:name", handler.HandleDeleteOvpnServer)
 	vpnGroup.GET("/ovpn/server/export", handler.HandleExportOvpnClient)
-	vpnGroup.GET("/ovpn/server/users/:ovpnNameOrID", handler.HandleGetOvpnServerUsers)
-	vpnGroup.POST("/ovpn/server/user/:ovpnNameOrID", handler.HandleAddOvpnServerUser)
+
 	vpnGroup.GET("/pptp/server", handler.HandleGetPptpServerDetails)
 	vpnGroup.GET("/l2tp/server", handler.HandleGetL2tpServerDetails)
-	vpnGroup.GET("/l2tp/server/users", handler.HandleGetL2tpServerUsers)
-	vpnGroup.POST("/l2tp/server/user", handler.HandleAddL2tpServerUser)
-	vpnGroup.DELETE("/user/:usernameOrID", handler.HandleDeleteVPNUser)
-	vpnGroup.PUT("/user/:usernameOrID", handler.HandleUpdateVPNUser)
+
 	vpnGroup.GET("/sstp/server", handler.HandleGetSstpServerDetails)
 	vpnGroup.POST("/wireguard/client", handler.HandleCreateWireGuardClient)
 	vpnGroup.POST("/wireguard/server", handler.HandleCreateWireGuardServer)
@@ -111,6 +107,11 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/wireguard/detailed/:name", handler.HandleGetWireGuardDetailed)
 	vpnGroup.GET("/wireguard/interface/:nameOrID", handler.HandleGetWireGuardInterface)
 	vpnGroup.GET("/wireguard/peers/:name", handler.HandleGetWireGuardPeers)
+	vpnGroup.GET("/profiles", handler.HandleListVPNProfiles)
+	vpnGroup.GET("/users", handler.HandleListVPNUsers)
+	vpnGroup.POST("/users", handler.HandleCreateVPNUser)
+	vpnGroup.PUT("/users/:nameOrID", handler.HandleUpdateVPNUserByID)
+	vpnGroup.DELETE("/users/:nameOrID", handler.HandleDeleteVPNUserByID)
 
 	wizardGroup := e.Group("/api/wizard")
 	wizardGroup.Use(middleware.RouterOSAuth)

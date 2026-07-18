@@ -903,6 +903,7 @@ func (c *Client) RemovePppSecretByNameOrID(usernameOrID string) error {
 type UpdatePppSecretParams struct {
 	Name          *string
 	Password      *string
+	Profile       *string
 	Disabled      *bool
 	LimitBytesIn  *int64
 	LimitBytesOut *int64
@@ -937,6 +938,9 @@ func (c *Client) UpdatePppSecret(usernameOrID string, params UpdatePppSecretPara
 	}
 	if params.Password != nil {
 		args = append(args, "=password="+*params.Password)
+	}
+	if params.Profile != nil {
+		args = append(args, "=profile="+*params.Profile)
 	}
 	if params.Disabled != nil {
 		args = append(args, "=disabled="+fmt.Sprintf("%v", *params.Disabled))
