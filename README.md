@@ -259,7 +259,9 @@ Three things worth being precise about:
   Sentry.
 - A report contains the error, a stack trace, the app version, and your browser and OS name.
   The SDK is configured to drop everything else: no router address, no credentials, no
-  configuration, no request or response bodies, no console output, no user identity.
+  configuration, no request or response bodies, no console output, no user identity. As a last
+  line of defence, every string in the report is scanned for IPv4 and IPv6 addresses and they are
+  replaced with `[ip]` before the report leaves the browser.
 
 If you build a production bundle and want no reporting at all, build with `SENTRY_DSN=""` and the
 SDK is never initialised.

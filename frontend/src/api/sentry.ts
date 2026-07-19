@@ -28,6 +28,27 @@ export function setErrorReportingEnabled(enabled: boolean): void {
   }
 }
 
+const IP_PATTERNS = [
+  /\b\d{1,3}(?:\.\d{1,3}){3}\b/g,
+  /\b(?=[0-9a-f:]*[a-f])(?:[0-9a-f]{1,4}:|:){2,7}(?:[0-9a-f]{1,4}|:)(?:%\w+)?\b/gi,
+];
+
+const scrubIps = (text: string): string =>
+  IP_PATTERNS.reduce((out, pattern) => out.replace(pattern, '[ip]'), text);
+
+const scrubDeep = (value: unknown): unknown => {
+  if (typeof value === 'string') return scrubIps(value);
+  if (Array.isArray(value)) return value.map(scrubDeep);
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    for (const key of Object.keys(record)) {
+      record[key] = scrubDeep(record[key]);
+    }
+    return record;
+  }
+  return value;
+};
+
 const stripUrl = (value: unknown): string | undefined => {
   if (typeof value !== 'string') return undefined;
   try {
@@ -69,7 +90,7 @@ export function initSentry(): void {
       delete event.user;
       delete event.request;
       delete event.extra;
-      return event;
+      return scrubDeep(event) as typeof event;
     },
   });
 }
