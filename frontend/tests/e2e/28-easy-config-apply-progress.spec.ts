@@ -41,7 +41,12 @@ test.describe('Easy-Mode wizard — apply progress', () => {
     });
     await page.goto('/router/rtr_progress/config');
 
+    const finalizeRequest = page.waitForRequest('**/api/wizard/finalize');
     await stepToApply(page);
+
+    // the finalize payload uses the RouterOS interface type ("ether"), not the UI label
+    const body = (await finalizeRequest).postDataJSON();
+    expect(body.foreign).toMatchObject({ type: 'ether', interface: 'ether1' });
 
     const bar = page.getByRole('progressbar', { name: /progress/i });
     await expect(bar).toBeVisible();
@@ -51,6 +56,57 @@ test.describe('Easy-Mode wizard — apply progress', () => {
 
     await expect(page.getByText(/configuration applied/i).first()).toBeVisible();
     await expect(page.getByRole('progressbar')).toHaveCount(0);
+  });
+
+  test('shows emergency access details while applying', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockEasyConfigBackend,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_rescue', name: 'Rescue Router' });
+    await mockEasyConfigBackend({
+      id: 'rtr_rescue',
+      wifiInterfaces: [{ id: '*100', name: 'wifi1', band: '2ghz-ax' }],
+      wizardProgress: [5, 45, 100],
+      managementWifi: { ssid: 'NNC-Rescue-42', password: 'rescue-pass-4242' },
+    });
+    await page.goto('/router/rtr_rescue/config');
+
+    await stepToApply(page);
+
+    const alert = page.getByRole('alert');
+    await expect(alert).toBeVisible();
+    await expect(alert).toContainText('192.168.200.1');
+    await expect(alert).toContainText('192.168.210.1');
+    await expect(alert).toContainText('NNC-Rescue-42');
+    await expect(alert).toContainText('rescue-pass-4242');
+  });
+
+  test('omits the management WiFi details when the router has no WiFi radio', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockEasyConfigBackend,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_nowifi', name: 'No-WiFi Router' });
+    await mockEasyConfigBackend({
+      id: 'rtr_nowifi',
+      wifiInterfaces: [{ id: '*100', name: 'wifi1', band: '2ghz-ax' }],
+      wizardProgress: [5, 45, 100],
+      managementWifi: null,
+    });
+    await page.goto('/router/rtr_nowifi/config');
+
+    await stepToApply(page);
+
+    const alert = page.getByRole('alert');
+    await expect(alert).toBeVisible();
+    await expect(alert).toContainText('192.168.200.1');
+    await expect(alert).not.toContainText('192.168.210.1');
+    await expect(alert).not.toContainText(/WiFi name/i);
   });
 
   test('keeps polling when the router drops off mid-apply', async ({

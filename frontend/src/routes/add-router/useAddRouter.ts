@@ -53,8 +53,8 @@ export function useAddRouter(
   );
 
   const onConnect = useCallback(async () => {
-    if (!isRequired(state.username) || !isRequired(state.password)) {
-      dispatch({ type: 'error', message: 'Username and password are required.' });
+    if (!isRequired(state.username)) {
+      dispatch({ type: 'error', message: 'Username is required.' });
       return;
     }
     const duplicate = routers.find((r) => r.host === state.host);

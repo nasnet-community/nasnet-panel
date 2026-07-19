@@ -23,9 +23,8 @@ export const MODELS: RouterModelDescriptor[] = [
       eth(3, 2),
       eth(4, 3),
       eth(5, 4),
-      { id: 'usb', kind: 'usb', label: 'USB 3.0', row: 0, col: 5 },
-      { id: 'pwr', kind: 'power', label: 'DC', row: 0, col: 6 },
-      { id: 'rst', kind: 'reset', label: 'Reset', row: 0, col: 7 },
+      { id: 'pwr', kind: 'power', label: 'DC', row: 0, col: 5 },
+      { id: 'rst', kind: 'reset', label: 'Reset', row: 0, col: 6 },
     ],
   },
   {

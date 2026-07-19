@@ -903,6 +903,7 @@ func (c *Client) RemovePppSecretByNameOrID(usernameOrID string) error {
 type UpdatePppSecretParams struct {
 	Name          *string
 	Password      *string
+	Profile       *string
 	Disabled      *bool
 	LimitBytesIn  *int64
 	LimitBytesOut *int64
@@ -937,6 +938,9 @@ func (c *Client) UpdatePppSecret(usernameOrID string, params UpdatePppSecretPara
 	}
 	if params.Password != nil {
 		args = append(args, "=password="+*params.Password)
+	}
+	if params.Profile != nil {
+		args = append(args, "=profile="+*params.Profile)
 	}
 	if params.Disabled != nil {
 		args = append(args, "=disabled="+fmt.Sprintf("%v", *params.Disabled))
@@ -1798,7 +1802,7 @@ func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCert
 		return "", fmt.Errorf("failed to extract filename from export response")
 	}
 
-	config, err := c.GetCertificateFileContent(fileName)
+	config, err := c.GetFileContents(fileName, 0)
 	if err != nil {
 		return "", fmt.Errorf("failed to read exported configuration: %w", err)
 	}

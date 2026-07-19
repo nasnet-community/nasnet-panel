@@ -10,35 +10,18 @@ export-certificate cert-ca-{{ .CurrentTimestamp }} file-name=cert-ca-{{ .Current
 export-certificate cert-server-{{ .CurrentTimestamp }} file-name=cert-server-{{ .CurrentTimestamp }} type=pem
 export-certificate cert-client-{{ .CurrentTimestamp }} file-name=cert-client-{{ .CurrentTimestamp }} type=pem export-passphrase={{ .OvpnServer.ClientCertificatePassword }}
 
-:global WizardProgress "80"
-
-
-/ip pool
-add name="pool-ovpn-server-{{ .CurrentTimestamp }}" ranges=192.168.120.2-192.168.120.254 comment="OpenVPN client pool"
-
-/ppp profile
-add address-list="VPN-LAN" dns-server="192.168.120.1" interface-list="VPN-LAN" \
-local-address="192.168.120.1" name="profile-ovpn-server-{{ .CurrentTimestamp }}" remote-address="pool-ovpn-server-{{ .CurrentTimestamp }}" \
-use-encryption=yes use-ipv6=no use-upnp=yes
 /interface ovpn-server server
-add name="ovpn-server-{{ .CurrentTimestamp }}-tcp" default-profile="profile-ovpn-server-{{ .CurrentTimestamp }}" disabled=no \
+add name="ovpn-server-{{ .CurrentTimestamp }}-tcp" default-profile="default" disabled=no \
 port="1194" protocol="tcp" mode="ip" certificate=cert-server-{{ .CurrentTimestamp }} \
 require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
 redirect-gateway=def1 keepalive-timeout=60
-add name="ovpn-server-{{ .CurrentTimestamp }}-udp" default-profile="profile-ovpn-server-{{ .CurrentTimestamp }}" disabled=no port="1194" protocol="udp" \
+add name="ovpn-server-{{ .CurrentTimestamp }}-udp" default-profile="default" disabled=no port="1194" protocol="udp" \
 mode="ip" certificate=cert-server-{{ .CurrentTimestamp }} require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
 redirect-gateway=def1 keepalive-timeout=60
 
-/ppp secret
-{{range .OvpnServer.Users}}
-add name="{{ .Username }}" password="{{ .Password }}" profile=profile-ovpn-server-{{ $.CurrentTimestamp }} service=ovpn
+/ppp secret{{range .OvpnServer.Users}}
+add name="{{ .Username }}" password="{{ .Password }}" profile=VPN-VPN service=any
 {{end}}
-
-:global WizardProgress "85"
-
-
-/ip firewall address-list
-add address="192.168.120.0/24" list="VPN-LAN" comment="ovpn-tcp OpenVPN subnet"
 
 /ip firewall filter
 add action=accept chain=input comment="OpenVPN Server ovpn-tcp (tcp)" dst-port="1194" \

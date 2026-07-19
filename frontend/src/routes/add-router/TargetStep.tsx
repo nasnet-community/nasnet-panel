@@ -21,11 +21,7 @@ interface Props {
 }
 
 export function TargetStep({ state, dispatch, onBack, onConnect }: Props) {
-  const valid =
-    isRequired(state.name) &&
-    isIPv4(state.host) &&
-    isRequired(state.username) &&
-    isRequired(state.password);
+  const valid = isRequired(state.name) && isIPv4(state.host) && isRequired(state.username);
   return (
     <Card>
       <CardHeader>

@@ -27,7 +27,7 @@ type UpdateWizardStatusRequest struct {
 
 // InterfaceConfig represents a network interface configuration.
 type InterfaceConfig struct {
-	Type      string `json:"type" example:"ethernet" enum:"ethernet,wifi"`
+	Type      string `json:"type" example:"ether" enum:"ether,wifi"`
 	Interface string `json:"interface" example:"ether1"`
 	SSID      string `json:"ssid,omitempty" example:"MyWiFiNetwork"`
 	Password  string `json:"password,omitempty" example:"wifiPassword123"`

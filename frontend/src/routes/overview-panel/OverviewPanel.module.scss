@@ -29,6 +29,8 @@
 
 .chassisScroll {
   overflow: visible;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .chassis {
@@ -47,9 +49,23 @@
   display: flex;
   justify-content: flex-end;
   padding-top: var(--space-lg);
+  max-width: 100%;
+  min-width: 0;
 
   > div {
     margin-left: auto;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .bannerPorts {
+    justify-content: flex-start;
+
+    > div {
+      margin-left: 0;
+    }
   }
 }
 
@@ -311,4 +327,10 @@
 
 .txRow svg {
   color: var(--color-danger);
+}
+
+@media (max-width: 640px) {
+  .row {
+    flex-wrap: wrap;
+  }
 }

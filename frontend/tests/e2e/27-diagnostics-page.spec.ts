@@ -32,7 +32,7 @@ test.describe('Diagnostics page', () => {
     expect(download.suggestedFilename()).toBe('nasnet-diagnostic-report.txt');
   });
 
-  test('shows an existing report on load and opens help via send to support', async ({
+  test('shows an existing report on load and opens help via talk to support', async ({
     page,
     resetMocks,
     seedRouter,
@@ -47,7 +47,7 @@ test.describe('Diagnostics page', () => {
     await expect(page.getByText('Generated 2026-07-08 01:36:16 (74.15 KB)')).toBeVisible();
     await expect(page.getByRole('button', { name: /run again/i })).toBeEnabled();
 
-    await page.getByRole('button', { name: /send to support/i }).click();
+    await page.getByRole('button', { name: /talk to support/i }).click();
     await expect(page).toHaveURL(/\/router\/rtr_diag2\/help$/);
   });
 });

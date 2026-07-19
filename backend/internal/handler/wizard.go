@@ -209,58 +209,84 @@ func HandleFinalizeWizard(c echo.Context) error {
 
 	domesticEnabled := req.Domestic != nil && req.Domestic.Interface != ""
 
-	// Validate required foreign and domestic configurations
 	if req.Foreign == nil || req.Foreign.Interface == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface is required", nil)
 	}
+	if req.Foreign.Type == "wifi" && req.Foreign.SSID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "SSID is required when foreign interface type is wifi", nil)
+	}
+	if domesticEnabled && req.Domestic.Type == "wifi" && req.Domestic.SSID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "SSID is required when domestic interface type is wifi", nil)
+	}
 
-	// Get WiFi radios and extract bands
-	wifiBands := []string{}
+	usedWifiInterfaces := map[string]bool{}
+	if req.Foreign.Type == "wifi" {
+		usedWifiInterfaces[req.Foreign.Interface] = true
+	}
+	if domesticEnabled && req.Domestic.Type == "wifi" {
+		usedWifiInterfaces[req.Domestic.Interface] = true
+	}
+
+	wifiDefaultNames := map[string]string{}
+	if wifiInterfaces, err := client.ListWifiInterfaces(); err == nil {
+		for i := range wifiInterfaces {
+			if wifiInterfaces[i].DefaultName != "" {
+				wifiDefaultNames[wifiInterfaces[i].Name] = wifiInterfaces[i].DefaultName
+			}
+		}
+	}
+
+	var wifiRadios []routeros.WiFiRadio
 	if radios, err := client.GetWiFiRadios(); err == nil {
 		for i := range radios {
-			wifiBands = append(wifiBands, radios[i].Band)
+			if defaultName, ok := wifiDefaultNames[radios[i].Interface]; ok {
+				radios[i].Interface = defaultName
+			}
+			if usedWifiInterfaces[radios[i].Interface] {
+				continue
+			}
+			wifiRadios = append(wifiRadios, radios[i])
 		}
 	}
 
 	// Get ethernet interfaces and filter out the ones used for foreign/domestic
-	var otherEthernets []string
-	if ethernets, err := client.GetEthernetInterfaces(); err == nil {
-		for i := range ethernets {
-			exclude := ethernets[i].Name == req.Foreign.Interface
+	var bridgePorts []string
+	if ethers, err := client.GetEthernetInterfaces(); err == nil {
+		for i := range ethers {
+			exclude := ethers[i].Name == req.Foreign.Interface
 			if domesticEnabled {
-				exclude = exclude || ethernets[i].Name == req.Domestic.Interface
+				exclude = exclude || ethers[i].Name == req.Domestic.Interface
 			}
 			if !exclude {
-				otherEthernets = append(otherEthernets, ethernets[i].Name)
+				bridgePorts = append(bridgePorts, ethers[i].Name)
 			}
 		}
 	}
-
-	// Generate random management WiFi SSID
-	randName, _ := utils.GenerateRandomString(8, 20)
-
+	for i := range wifiRadios {
+		if wifiRadios[i].Interface != "" {
+			bridgePorts = append(bridgePorts, wifiRadios[i].Interface)
+		}
+	}
+	var randWifiSSID, randWifiPassword string
+	if len(wifiRadios) > 0 {
+		randWifiSSID = utils.GenerateName(3, "", utils.PascalCase)
+		randWifiPassword, _ = utils.GenerateRandomString(8, 20)
+	}
 	// Build template data from request
 	templateData := map[string]any{
-		"DomesticEnabled":    domesticEnabled,
-		"ManagementWifiSSID": randName,
-		"ForeignInterface":   req.Foreign.Interface,
-		"EnableWifiAP":       req.WiFiAP != nil,
-		"WifiBands":          wifiBands,
-		"OtherEthernets":     otherEthernets,
-		"CurrentDate":        time.Now().Format("Jan/02/2006"),
-		"CurrentTimestamp":   time.Now().Unix(),
-		"BackupTime":         time.Now().Format("2006-01-02_15-04-05"),
-		"RouterUsername":     creds.Username,
-		"RouterPassword":     creds.Password,
-	}
-
-	// Add domestic interface configuration if enabled
-	if domesticEnabled {
-		templateData["DomesticInterface"] = req.Domestic.Interface
-		if req.Domestic.Type == "wifi" && req.Domestic.SSID != "" {
-			templateData["DomesticWifiSSID"] = req.Domestic.SSID
-			templateData["DomesticWifiPassword"] = req.Domestic.Password
-		}
+		"DomesticEnabled":        domesticEnabled,
+		"ManagementWifiSSID":     randWifiSSID,
+		"ManagementWifiPassword": randWifiPassword,
+		"ForeignInterface":       req.Foreign,
+		"DomesticInterface":      req.Domestic,
+		"EnableWifiAP":           req.WiFiAP != nil,
+		"WifiRadios":             wifiRadios,
+		"BridgePorts":            bridgePorts,
+		"CurrentDate":            time.Now().Format("Jan/02/2006"),
+		"CurrentTimestamp":       time.Now().Unix(),
+		"BackupTime":             time.Now().Format("2006-01-02_15-04-05"),
+		"RouterUsername":         creds.Username,
+		"RouterPassword":         creds.Password,
 	}
 
 	// Add WiFi AP configuration if provided
@@ -327,7 +353,20 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
 	}
 
+	err = client.SetEnvironmentVariable("WizardCompleted", "false")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion status", err)
+	}
+	err = client.SetEnvironmentVariable("WizardProgress", "0")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
+	}
+	err = client.SetEnvironmentVariable("WizardCompletedAt", "")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion timestamp", err)
+	}
+
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
-		"managementWiFiSSID": randName,
+		"managementWiFiSSID": randWifiSSID, "managementWiFiPassword": randWifiPassword,
 	})
 }

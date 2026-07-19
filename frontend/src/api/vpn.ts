@@ -413,7 +413,7 @@ export async function fetchNasnetVpnCredentials(
 }
 
 export interface FinalizeWizardInterface {
-  type: 'ethernet' | 'wifi';
+  type: 'ether' | 'wifi';
   interface: string;
   ssid?: string;
   password?: string;
@@ -454,12 +454,17 @@ export interface FinalizeWizardRequest {
   ovpnServer?: FinalizeWizardOvpnServer;
 }
 
+export interface FinalizeWizardResponse {
+  managementWiFiSSID?: string;
+  managementWiFiPassword?: string;
+}
+
 export async function finalizeWizard(
   creds: VPNCredentials,
   body: FinalizeWizardRequest,
   signal?: AbortSignal,
-): Promise<void> {
-  await apiRequest('/api/wizard/finalize', {
+): Promise<FinalizeWizardResponse> {
+  return apiRequest<FinalizeWizardResponse>('/api/wizard/finalize', {
     method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),

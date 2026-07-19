@@ -1,17 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, KeyRound, LogOut, Moon, Sun } from 'lucide-react';
+import { Bell, ChevronDown, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useAppTheme } from '../state/ThemeContext';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
+import type { RouterSection } from './routerSections';
 import styles from './HeaderActions.module.scss';
 
 export interface HeaderActionsProps {
   routerName?: string;
+  routerId?: string;
+  sections?: RouterSection[];
+  activeSectionId?: string;
 }
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
 
-export function HeaderActions({ routerName }: HeaderActionsProps) {
+export function HeaderActions({
+  routerName,
+  routerId,
+  sections,
+  activeSectionId,
+}: HeaderActionsProps) {
   const { preference, resolved, setPreference } = useAppTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,19 +74,40 @@ export function HeaderActions({ routerName }: HeaderActionsProps) {
         className={styles.menuTrigger}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={routerName ? undefined : 'Open menu'}
+        aria-label="Open menu"
         onClick={() => setOpen((v) => !v)}
       >
-        {routerName ? (
-          <>
-            <span className={styles.onlineDot} aria-label="Online" role="status" />
-            <span className={styles.routerName}>{routerName}</span>
-          </>
-        ) : null}
-        <ChevronDown size={14} aria-hidden className={open ? styles.chevronOpen : undefined} />
+        <span className={styles.triggerDesktop}>
+          {routerName ? (
+            <>
+              <span className={styles.onlineDot} aria-label="Online" role="status" />
+              <span className={styles.routerName}>{routerName}</span>
+            </>
+          ) : null}
+          <ChevronDown size={14} aria-hidden className={open ? styles.chevronOpen : undefined} />
+        </span>
+        <Menu size={20} aria-hidden className={styles.triggerMobile} />
       </button>
       {open ? (
         <div className={styles.menuPanel} role="menu">
+          {sections && routerId ? (
+            <div className={styles.sectionsMobile}>
+              {sections.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  role="menuitem"
+                  disabled={s.disabled}
+                  className={cx(styles.menuItem, s.id === activeSectionId && styles.menuItemActive)}
+                  onClick={goAndClose(`/router/${routerId}${s.path ? `/${s.path}` : ''}`)}
+                >
+                  {s.icon}
+                  <span>{s.label}</span>
+                </button>
+              ))}
+              <div className={styles.menuDivider} role="separator" />
+            </div>
+          ) : null}
           <div className={styles.themeRow}>
             <button
               type="button"

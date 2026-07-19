@@ -257,7 +257,7 @@ export function DiagnosticsPage() {
         ) : null}
         <div className={`${styles.actions} ${ready ? '' : styles.actionsSpaced}`}>
           <Button variant="secondary" onClick={contactSupport}>
-            <MessageCircle size={14} aria-hidden /> Send to support
+            <MessageCircle size={14} aria-hidden /> Talk to support
           </Button>
           <Button
             variant={ready ? 'primary' : 'success'}

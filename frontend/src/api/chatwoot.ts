@@ -22,6 +22,7 @@ interface ChatwootWindow extends Window {
     type?: 'standard' | 'expanded_bubble';
     launcherTitle?: string;
     hideMessageBubble?: boolean;
+    enableFileUpload?: boolean;
   };
   chatwootSDK?: { run: (config: { websiteToken: string; baseUrl: string }) => void };
   $chatwoot?: ChatwootApi;
@@ -39,6 +40,7 @@ export function loadChatwoot(): Promise<void> {
       position: 'right',
       type: 'standard',
       launcherTitle: '',
+      enableFileUpload: true,
     };
     const script = document.createElement('script');
     script.src = `${BASE_URL}/packs/js/sdk.js`;

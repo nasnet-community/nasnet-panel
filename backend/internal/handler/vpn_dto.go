@@ -576,38 +576,54 @@ type PPPSecret struct {
 	PoolNumber    string `json:"pool-number,omitempty"`
 }
 
-// AddOvpnServerUserRequest represents a request to add a user to an OVPN server.
-type AddOvpnServerUserRequest struct {
-	Name          string  `json:"name" binding:"required" example:"vpnuser"`
-	Password      string  `json:"password" binding:"required" example:"securepassword123"`
-	Disabled      *bool   `json:"disabled,omitempty" example:"false"`
-	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty" example:"1000000"`
-	LimitBytesOut *int64  `json:"limitBytesOut,omitempty" example:"1000000"`
-	Comment       *string `json:"comment,omitempty" example:"Office VPN user"`
-	CallerID      *string `json:"callerId,omitempty" example:"caller123"`
-	Routes        *string `json:"routes,omitempty" example:"192.168.1.0/24"`
+// VPNUserResponse represents a PPP secret in the API response.
+type VPNUserResponse struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Service       string `json:"service"`
+	Profile       string `json:"profile"`
+	Password      string `json:"password"`
+	Disabled      bool   `json:"disabled"`
+	LimitBytesIn  int64  `json:"limitBytesIn"`
+	LimitBytesOut int64  `json:"limitBytesOut"`
+	CallerID      string `json:"callerId,omitempty"`
+	Routes        string `json:"routes,omitempty"`
+	Comment       string `json:"comment,omitempty"`
 }
 
-// AddL2tpServerUserRequest represents a request to add a user to the L2TP server.
-type AddL2tpServerUserRequest struct {
-	Name          string  `json:"name" binding:"required" example:"vpnuser"`
-	Password      string  `json:"password" binding:"required" example:"securepassword123"`
-	Disabled      *bool   `json:"disabled,omitempty" example:"false"`
-	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty" example:"1000000"`
-	LimitBytesOut *int64  `json:"limitBytesOut,omitempty" example:"1000000"`
-	Comment       *string `json:"comment,omitempty" example:"Office VPN user"`
-	CallerID      *string `json:"callerId,omitempty" example:"caller123"`
-	Routes        *string `json:"routes,omitempty" example:"192.168.1.0/24"`
+// CreateVPNUserRequest represents a request to create a new VPN user (PPP secret).
+type CreateVPNUserRequest struct {
+	Name          string  `json:"name"`
+	Password      string  `json:"password"`
+	Profile       string  `json:"profile"`
+	Disabled      *bool   `json:"disabled,omitempty"`
+	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty"`
+	LimitBytesOut *int64  `json:"limitBytesOut,omitempty"`
+	Comment       *string `json:"comment,omitempty"`
 }
 
-// UpdateVPNUserRequest represents a request to update a VPN user of any type.
-type UpdateVPNUserRequest struct {
-	Name          *string `json:"name,omitempty" example:"newusername"`
-	Password      *string `json:"password,omitempty" example:"newpassword123"`
-	Disabled      *bool   `json:"disabled,omitempty" example:"false"`
-	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty" example:"2000000"`
-	LimitBytesOut *int64  `json:"limitBytesOut,omitempty" example:"2000000"`
-	Comment       *string `json:"comment,omitempty" example:"Updated comment"`
-	CallerID      *string `json:"callerId,omitempty" example:"newcaller123"`
-	Routes        *string `json:"routes,omitempty" example:"192.168.2.0/24"`
+// UpdateVPNUserByIDRequest represents a request to update an existing VPN user (PPP secret).
+type UpdateVPNUserByIDRequest struct {
+	Name          *string `json:"name,omitempty"`
+	Password      *string `json:"password,omitempty"`
+	Profile       *string `json:"profile,omitempty"`
+	Disabled      *bool   `json:"disabled,omitempty"`
+	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty"`
+	LimitBytesOut *int64  `json:"limitBytesOut,omitempty"`
+	Comment       *string `json:"comment,omitempty"`
+}
+
+// VPNProfileResponse represents a PPP profile in the API response.
+type VPNProfileResponse struct {
+	ID                 string   `json:"id"`
+	Name               string   `json:"name"`
+	Default            bool     `json:"default"`
+	LocalAddress       string   `json:"localAddress,omitempty"`
+	RemoteAddress      string   `json:"remoteAddress,omitempty"`
+	RemoteAddressRange []string `json:"remoteAddressRange,omitempty"`
+	DNSServer          string   `json:"dnsServer,omitempty"`
+	RateLimit          string   `json:"rateLimit,omitempty"`
+	SessionTimeout     string   `json:"sessionTimeout,omitempty"`
+	IdleTimeout        string   `json:"idleTimeout,omitempty"`
+	Comment            string   `json:"comment,omitempty"`
 }
