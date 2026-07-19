@@ -8,6 +8,9 @@ module.exports = (_env, argv) => {
   const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:8080';
   const chatwootBaseUrl = process.env.CHATWOOT_BASE_URL ?? 'https://app.chatwoot.com';
   const chatwootWebsiteToken = process.env.CHATWOOT_WEBSITE_TOKEN ?? '6bf25JZcWyhrbtLMgiv4oNuy';
+  const sentryDsn =
+    process.env.SENTRY_DSN ??
+    'https://4bf4758d59976bb74d609a8493fd6136@o4505965467533312.ingest.us.sentry.io/4511727591292929';
   const appVersion = require('../package.json').version;
 
   return {
@@ -75,6 +78,7 @@ module.exports = (_env, argv) => {
         __BACKEND_URL__: JSON.stringify(backendUrl),
         __CHATWOOT_BASE_URL__: JSON.stringify(chatwootBaseUrl),
         __CHATWOOT_WEBSITE_TOKEN__: JSON.stringify(chatwootWebsiteToken),
+        __SENTRY_DSN__: JSON.stringify(sentryDsn),
         __APP_VERSION__: JSON.stringify(appVersion),
       }),
       new HtmlWebpackPlugin({

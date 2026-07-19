@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Download, FileText, Loader2, MessageCircle, Play, RefreshCw } from 'lucide-react';
-import { Button, Card, Stack, useToast } from '@nasnet/ui';
+import { Button, Card, Stack, Switch, useToast } from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
 import {
   DIAG_REPORT_FILENAME,
@@ -9,6 +9,8 @@ import {
   fetchDiagStatus,
   generateDiag,
   isAbortError,
+  isErrorReportingEnabled,
+  setErrorReportingEnabled,
   type SystemCredentials,
 } from '../api';
 import { useSession } from '../state/SessionContext';
@@ -63,6 +65,7 @@ export function DiagnosticsPage() {
   const [starting, setStarting] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [fileMeta, setFileMeta] = useState<{ time?: string; size?: string } | null>(null);
+  const [reporting, setReporting] = useState(() => isErrorReportingEnabled());
   const freshRunRef = useRef(false);
 
   useEffect(() => {
@@ -181,6 +184,11 @@ export function DiagnosticsPage() {
     navigate(`/router/${id}/help`);
   };
 
+  const changeReporting = (next: boolean) => {
+    setErrorReportingEnabled(next);
+    setReporting(next);
+  };
+
   const running = phase === 'running';
   const ready = phase === 'ready';
   const activeStepIndex = running ? DIAG_STEPS.findIndex((step) => progress < step.at) : -1;
@@ -270,6 +278,18 @@ export function DiagnosticsPage() {
               </>
             )}
           </Button>
+        </div>
+        <div className={styles.reporting}>
+          <Switch
+            label="Send error reports"
+            checked={reporting}
+            onChange={(e) => changeReporting(e.currentTarget.checked)}
+          />
+          <p className={styles.reportingHint}>
+            When the panel hits an error, an anonymous report is sent to the Nasnet team so we can
+            fix it. Reports contain the error and the app version, never your router address,
+            credentials, or configuration.
+          </p>
         </div>
       </Stack>
     </Card>
