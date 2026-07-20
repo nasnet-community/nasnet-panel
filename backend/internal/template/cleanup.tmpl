@@ -38,7 +38,7 @@
 #  }
 #  /ip/dhcp-server remove $i
 #}
-
+/tool netwatch remove [find]
 /ip/dhcp-server remove [find interface!="LANBridgeSplit"]
 /ip/dhcp-server/network remove [find]
 /ip dhcp-client remove [find]
@@ -60,7 +60,6 @@
 /tool graphing interface remove [find]
 /tool graphing queue remove [find]
 /tool graphing resource remove [find]
-/tool netwatch remove [find]
 /interface l2tp-client remove [find]
 /interface wireguard remove [find]
 /interface wireguard peers remove [find]
