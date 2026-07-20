@@ -120,14 +120,14 @@ func HandleGetWiFiInterface(c echo.Context) error {
 
 // HandleScanWiFiAccessPoints godoc
 // @Summary Scan available WiFi access points
-// @Description Scan nearby access points for 5 seconds on the specified WiFi interface
+// @Description Scan nearby access points for 10 seconds on the specified WiFi interface
 // @Tags WiFi
 // @Accept json
 // @Produce json
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param nameOrID path string true "WiFi interface name or ID"
-// @Param duration query int false "Scan duration in seconds (default: 5)"
+// @Param duration query int false "Scan duration in seconds (default: 10)"
 // @Success 200 {object} Response{data=[]wiFiAccessPointResponse}
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -140,7 +140,7 @@ func HandleScanWiFiAccessPoints(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
 	}
 
-	durationArg := "5s"
+	durationArg := "10s"
 	if durationValue := strings.TrimSpace(c.QueryParam("duration")); durationValue != "" {
 		durationSeconds, err := strconv.Atoi(durationValue)
 		if err != nil || durationSeconds <= 0 {
