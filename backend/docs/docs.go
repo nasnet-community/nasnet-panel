@@ -396,6 +396,138 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/diag/download": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Download the generated diagnostic report file",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Diagnostics"
+                ],
+                "summary": "Download Diagnostic Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Diagnostic report file",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/diag/generate": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Generate a new diagnostic report on the RouterOS device",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Diagnostics"
+                ],
+                "summary": "Generate Diagnostic Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/diag/status": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get the current status of the diagnostic report generation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Diagnostics"
+                ],
+                "summary": "Get Diagnostic Report Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/dns/info": {
             "get": {
                 "security": [
@@ -581,6 +713,204 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/ethernet/{nameOrID}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed information for a specific ethernet interface including monitor data (link status, speed, etc.)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Get ethernet interface details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.ethernetResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/ethernets": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed information for all ethernet interfaces including monitor data (link status, speed, etc.)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Get all ethernet interfaces",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.ethernetResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/graph/{nameOrID}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns historical traffic data (send/receive rates) for a specific interface",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Get interface traffic graph",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
                         }
                     }
                 }
@@ -804,6 +1134,58 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/net/status": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve Netwatch probe status for all monitored hosts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Net"
+                ],
+                "summary": "Get network status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Network status",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -2641,6 +3023,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/profiles": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns all PPP profiles from RouterOS",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "List VPN profiles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.VPNProfileResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/vpn/servers": {
             "get": {
                 "security": [
@@ -2734,6 +3177,293 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/users": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns all PPP secrets from RouterOS",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "List VPN users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.VPNUserResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Creates a new PPP secret. The profile must exist and must not be the default profile.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create VPN user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "User details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateVPNUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.VPNUserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/users/{nameOrID}": {
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Updates an existing PPP secret identified by name or RouterOS ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Update VPN user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User name or RouterOS ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to update",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateVPNUserByIDRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.VPNUserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Deletes a PPP secret identified by name or RouterOS ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Delete VPN user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User name or RouterOS ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
                         }
                     },
                     "500": {
@@ -4669,6 +5399,32 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateVPNUserRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "limitBytesIn": {
+                    "type": "integer"
+                },
+                "limitBytesOut": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profile": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.CreateWireGuardInterfaceRequest": {
             "type": "object",
             "required": [
@@ -4863,25 +5619,23 @@ const docTemplate = `{
         "handler.FinalizeWizardRequest": {
             "type": "object",
             "properties": {
-                "domesticInterface": {
-                    "type": "string",
-                    "example": "ether2"
+                "domestic": {
+                    "$ref": "#/definitions/handler.InterfaceConfig"
                 },
-                "foreignInterface": {
-                    "type": "string",
-                    "example": "ether1"
+                "foreign": {
+                    "$ref": "#/definitions/handler.InterfaceConfig"
                 },
                 "l2tpClient": {
-                    "$ref": "#/definitions/handler.MaskingL2tpConfig"
+                    "$ref": "#/definitions/handler.L2tpClientConfig"
                 },
                 "ovpnServer": {
                     "$ref": "#/definitions/handler.OvpnServerConfig"
                 },
-                "wifiAP": {
+                "wifiAp": {
                     "$ref": "#/definitions/handler.WiFiAPConfig"
                 },
-                "wireGuardClient": {
-                    "$ref": "#/definitions/handler.MaskingWireGuardConfig"
+                "wireguardClient": {
+                    "$ref": "#/definitions/handler.WireGuardClientConfig"
                 }
             }
         },
@@ -4958,6 +5712,27 @@ const docTemplate = `{
                 },
                 "peerName": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.InterfaceConfig": {
+            "type": "object",
+            "properties": {
+                "interface": {
+                    "type": "string",
+                    "example": "ether1"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "wifiPassword123"
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "MyWiFiNetwork"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "ether"
                 }
             }
         },
@@ -5074,6 +5849,27 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.L2tpClientConfig": {
+            "type": "object",
+            "properties": {
+                "connectTo": {
+                    "type": "string",
+                    "example": "192.168.1.1"
+                },
+                "ipsecSecret": {
+                    "type": "string",
+                    "example": "secretpassphrase123"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                },
+                "user": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
         "handler.L2tpServerDetailsResponse": {
             "type": "object",
             "properties": {
@@ -5153,44 +5949,6 @@ const docTemplate = `{
                 },
                 "topic": {
                     "type": "string"
-                }
-            }
-        },
-        "handler.MaskingL2tpConfig": {
-            "type": "object",
-            "properties": {
-                "connectTo": {
-                    "type": "string",
-                    "example": "192.168.1.1"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "ipsecSecret": {
-                    "type": "string",
-                    "example": "secretpassphrase123"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "my-l2tp/client"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "password123"
-                },
-                "user": {
-                    "type": "string",
-                    "example": "username"
-                }
-            }
-        },
-        "handler.MaskingWireGuardConfig": {
-            "type": "object",
-            "properties": {
-                "config": {
-                    "type": "string",
-                    "example": "[Interface]\nListenPort = 51820\n..."
                 }
             }
         },
@@ -5560,6 +6318,32 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateVPNUserByIDRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "limitBytesIn": {
+                    "type": "integer"
+                },
+                "limitBytesOut": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profile": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.UpdateWANInterfaceRequest": {
             "type": "object",
             "required": [
@@ -5708,10 +6492,6 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
-                "currentStep": {
-                    "type": "string",
-                    "example": "step2"
-                },
                 "progress": {
                     "type": "integer",
                     "example": 50
@@ -5796,6 +6576,47 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.VPNProfileResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "boolean"
+                },
+                "dnsServer": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "idleTimeout": {
+                    "type": "string"
+                },
+                "localAddress": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rateLimit": {
+                    "type": "string"
+                },
+                "remoteAddress": {
+                    "type": "string"
+                },
+                "remoteAddressRange": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sessionTimeout": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.VPNServersStatusResponse": {
             "type": "object",
             "properties": {
@@ -5822,6 +6643,44 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.VPNUserResponse": {
+            "type": "object",
+            "properties": {
+                "callerId": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "limitBytesIn": {
+                    "type": "integer"
+                },
+                "limitBytesOut": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profile": {
+                    "type": "string"
+                },
+                "routes": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.VpnUser": {
             "type": "object",
             "required": [
@@ -5844,11 +6703,11 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string",
-                    "example": "wifiPassword123"
+                    "example": "apPassword123"
                 },
                 "ssid": {
                     "type": "string",
-                    "example": "MyWiFiNetwork"
+                    "example": "MyAccessPoint"
                 }
             }
         },
@@ -5888,6 +6747,15 @@ const docTemplate = `{
                 },
                 "txPower": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.WireGuardClientConfig": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "string",
+                    "example": "[Interface]\nListenPort = 51820\n..."
                 }
             }
         },
@@ -6153,13 +7021,128 @@ const docTemplate = `{
                     "type": "string",
                     "example": "null"
                 },
-                "currentStep": {
-                    "type": "string",
-                    "example": "step1"
-                },
                 "progress": {
                     "type": "integer",
                     "example": 0
+                }
+            }
+        },
+        "handler.ethernetResponse": {
+            "type": "object",
+            "properties": {
+                "advertise": {
+                    "type": "string"
+                },
+                "advertising": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "arp": {
+                    "type": "string"
+                },
+                "arpTimeout": {
+                    "type": "string"
+                },
+                "autoNegotiation": {
+                    "type": "boolean"
+                },
+                "bandwidth": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "defaultName": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "fullDuplex": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "l2Mtu": {
+                    "type": "integer"
+                },
+                "linkPartnerAdvertising": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "loopProtect": {
+                    "type": "string"
+                },
+                "loopProtectDisableTime": {
+                    "type": "string"
+                },
+                "loopProtectSendInterval": {
+                    "type": "string"
+                },
+                "loopProtectStatus": {
+                    "type": "string"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "monitorAutoNegotiation": {
+                    "type": "string"
+                },
+                "monitorRxFlowControl": {
+                    "type": "boolean"
+                },
+                "monitorTxFlowControl": {
+                    "type": "boolean"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origMacAddress": {
+                    "type": "string"
+                },
+                "poeOut": {
+                    "type": "string"
+                },
+                "poePriority": {
+                    "type": "integer"
+                },
+                "powerCycleInterval": {
+                    "type": "string"
+                },
+                "powerCyclePingEnabled": {
+                    "type": "boolean"
+                },
+                "rate": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "rxFlowControl": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "supported": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "switch": {
+                    "type": "string"
+                },
+                "txFlowControl": {
+                    "type": "string"
                 }
             }
         },
