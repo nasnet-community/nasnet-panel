@@ -875,3 +875,117 @@ function parseFilename(disposition: string | null): string | null {
   const match = disposition.match(/filename\s*=\s*"?([^";]+)"?/i);
   return match ? match[1] : null;
 }
+
+export interface VPNUserResponse {
+  id: string;
+  name: string;
+  service: string;
+  profile: string;
+  password: string;
+  disabled: boolean;
+  limitBytesIn: number;
+  limitBytesOut: number;
+  callerId?: string;
+  routes?: string;
+  comment?: string;
+}
+
+export interface CreateVPNUserRequest {
+  name: string;
+  password: string;
+  profile: string;
+  disabled?: boolean;
+  limitBytesIn?: number;
+  limitBytesOut?: number;
+  comment?: string;
+}
+
+export interface UpdateVPNUserRequest {
+  name?: string;
+  password?: string;
+  profile?: string;
+  disabled?: boolean;
+  limitBytesIn?: number;
+  limitBytesOut?: number;
+  comment?: string;
+}
+
+export interface VPNProfileResponse {
+  id: string;
+  name: string;
+  default: boolean;
+  localAddress?: string;
+  remoteAddress?: string;
+  remoteAddressRange?: string[];
+  dnsServer?: string;
+  rateLimit?: string;
+  sessionTimeout?: string;
+  idleTimeout?: string;
+  comment?: string;
+}
+
+export async function listVPNUsers(
+  creds: VPNCredentials,
+  signal?: AbortSignal,
+): Promise<VPNUserResponse[]> {
+  const data = await apiRequest<VPNUserResponse[] | null>('/api/vpn/users', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return data ?? [];
+}
+
+export async function createVPNUser(
+  creds: VPNCredentials,
+  body: CreateVPNUserRequest,
+  signal?: AbortSignal,
+): Promise<VPNUserResponse> {
+  return apiRequest<VPNUserResponse>('/api/vpn/users', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function updateVPNUser(
+  creds: VPNCredentials,
+  nameOrID: string,
+  body: UpdateVPNUserRequest,
+  signal?: AbortSignal,
+): Promise<VPNUserResponse> {
+  return apiRequest<VPNUserResponse>(`/api/vpn/users/${encodeURIComponent(nameOrID)}`, {
+    method: 'PUT',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function deleteVPNUser(
+  creds: VPNCredentials,
+  nameOrID: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest<void>(`/api/vpn/users/${encodeURIComponent(nameOrID)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function listVPNProfiles(
+  creds: VPNCredentials,
+  signal?: AbortSignal,
+): Promise<VPNProfileResponse[]> {
+  const data = await apiRequest<VPNProfileResponse[] | null>('/api/vpn/profiles', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return data ?? [];
+}
