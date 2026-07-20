@@ -54,25 +54,25 @@
     :set DiagProgress 10
 
     :put "---------------- NASNET PANEL INSTALLATION CHECK ----------------"
-    :put "Script environment entry: successfulCerts"
-    :do { /system script environment print detail where name="successfulCerts" } on-error={ :put ("INFO: cannot read script environment: " . $e) }
+    :put "Script environment entry: WizardCompleted"
+    :do { /system script environment print detail where name="WizardCompleted" } on-error={ :put ("INFO: cannot read script environment: " . $e) }
 
-    :local successfulCertsValue "NOT FOUND"
+    :local WizardCompletedValue "NOT FOUND"
     :do {
-        :global successfulCerts
-        :if ([:typeof $successfulCerts] != "nothing") do={
-            :set successfulCertsValue $successfulCerts
+        :global WizardCompleted
+        :if ([:typeof $WizardCompleted] != "nothing") do={
+            :set WizardCompletedValue $WizardCompleted
         }
     } on-error={
-        :set successfulCertsValue "NOT FOUND"
+        :set WizardCompletedValue "NOT FOUND"
     }
 
-    :if ($successfulCertsValue = 1) do={
+    :if ($WizardCompletedValue = true) do={
         :put "NasNet Panel installation status: SUCCESS"
-        :put "Reason: successfulCerts is exactly 1."
+        :put "Reason: WizardCompleted is exactly true."
     } else={
         :put "NasNet Panel installation status: NOT CONFIRMED"
-        :put ("Reason: successfulCerts value is " . $successfulCertsValue . "; expected value is 1.")
+        :put ("Reason: WizardCompleted value is " . $WizardCompletedValue . "; expected value is 1.")
     }
 
     :put "Installed RouterOS scripts (names and runtime information only):"
@@ -281,7 +281,7 @@
     :put "WAN, DHCP and DNS-related logs:"
     :do { /log print detail where message~"dhcp|dns|route|gateway|ether|link|wan" } on-error={ :put ("INFO: WAN/DHCP/DNS log filter failed: " . $e) }
     :put "NasNet-related logs:"
-    :do { /log print detail where message~"nasnet|nclink|successfulcerts" } on-error={ :put ("INFO: NasNet log filter failed: " . $e) }
+    :do { /log print detail where message~"nasnet|nclink|WizardCompleted" } on-error={ :put ("INFO: NasNet log filter failed: " . $e) }
 
     :set DiagProgress 95
 
