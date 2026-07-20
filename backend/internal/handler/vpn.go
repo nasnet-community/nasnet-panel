@@ -2178,7 +2178,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 // HandleDeleteOvpnServer deletes an OpenVPN server and all related items.
 // @Summary Delete OpenVPN Server
-// @Description Delete an OpenVPN server and all related items (secrets, profile, IP pool, certificates)
+// @Description Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
