@@ -2160,46 +2160,16 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	updateTask(60, "Checking IP pools")
-	existingPools, err := client.ListIPPools()
-	if err != nil {
-		setError("Failed to check existing IP pools: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
-		return
-	}
-
-	availableX := utils.FindFirstAvailableRange(existingPools, "192.168.12")
-
-	poolName := "pool-" + ovpnServerName
-	poolRange := fmt.Sprintf("192.168.12%d.2-192.168.12%d.254", availableX, availableX)
-	poolConfig := routeros.IPPoolConfig{
-		Name:   poolName,
-		Ranges: poolRange,
-	}
-
-	updateTask(65, "Creating IP pool")
-	_, err = client.AddIPPool(poolConfig)
-	if err != nil {
-		setError("Failed to create IP pool: "+err.Error(), "", poolName, "", []string{caName, serverName, clientName})
-		return
-	}
-
 	updateTask(70, "Creating PPP profile")
 	serverConfigName := "ovpn-server-" + timestamp
-	profileName := "profile-" + serverConfigName
-	localAddress := fmt.Sprintf("192.168.12%d.1", availableX)
-
-	_, err = client.AddVpnProfile(profileName, localAddress, poolName)
-	if err != nil {
-		setError("Failed to create PPP profile: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
-		return
-	}
 
 	updateTask(75, "Creating PPP secrets")
+	defaultProfile := "VPN-VPN"
 	createdUsers := make([]map[string]string, 0)
 	for _, user := range req.Users {
-		_, err = client.AddVpnSecret(user.Username, user.Password, profileName, "ovpn")
+		_, err = client.AddVpnSecret(user.Username, user.Password, defaultProfile, "any")
 		if err != nil {
-			setError("Failed to create PPP secret for user '"+user.Username+"': "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
+			setError("Failed to create PPP secret for user '"+user.Username+"': "+err.Error(), "", "", defaultProfile, []string{caName, serverName, clientName})
 			return
 		}
 		createdUsers = append(createdUsers, map[string]string{
@@ -2211,27 +2181,27 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	updateTask(85, "Creating OpenVPN servers")
 	tcpPort, err := client.FindNextAvailableOvpnPort(1194, "tcp")
 	if err != nil {
-		setError("Failed to find available TCP port: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to find available TCP port: "+err.Error(), "", "", "default", []string{caName, serverName, clientName})
 		return
 	}
 
 	udpPort, err := client.FindNextAvailableOvpnPort(1194, "udp")
 	if err != nil {
-		setError("Failed to find available UDP port: "+err.Error(), "", poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to find available UDP port: "+err.Error(), "", "", "default", []string{caName, serverName, clientName})
 		return
 	}
 
 	serverConfigNameTCP := serverConfigName + "-tcp"
-	_, err = client.AddOvpnServer(serverConfigNameTCP, tcpPort, "ip", "tcp", serverName, true, "sha256", "aes256-cbc", profileName)
+	_, err = client.AddOvpnServer(serverConfigNameTCP, tcpPort, "ip", "tcp", serverName, true, "sha256", "aes256-cbc", "default")
 	if err != nil {
-		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigNameTCP, poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigNameTCP, "", "default", []string{caName, serverName, clientName})
 		return
 	}
 
 	serverConfigNameUDP := serverConfigName + "-udp"
-	_, err = client.AddOvpnServer(serverConfigNameUDP, udpPort, "ip", "udp", serverName, true, "sha256", "aes256-cbc", profileName)
+	_, err = client.AddOvpnServer(serverConfigNameUDP, udpPort, "ip", "udp", serverName, true, "sha256", "aes256-cbc", "default")
 	if err != nil {
-		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigNameUDP, poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2246,7 +2216,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 	_, err = client.AddFirewallRule(tcpFwRuleConfig)
 	if err != nil {
-		setError("Failed to add firewall rule for OpenVPN TCP: "+err.Error(), serverConfigNameTCP, poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to add firewall rule for OpenVPN TCP: "+err.Error(), serverConfigNameTCP, "", "default", []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2260,7 +2230,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 	_, err = client.AddFirewallRule(udpFwRuleConfig)
 	if err != nil {
-		setError("Failed to add firewall rule for OpenVPN UDP: "+err.Error(), serverConfigNameUDP, poolName, profileName, []string{caName, serverName, clientName})
+		setError("Failed to add firewall rule for OpenVPN UDP: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2276,16 +2246,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 			"client": clientName,
 		},
 		"timestamp": timestamp,
-		"pool": map[string]string{
-			"name":   poolName,
-			"ranges": poolRange,
-		},
-		"profile": map[string]string{
-			"name":          profileName,
-			"localAddress":  localAddress,
-			"remoteAddress": poolName,
-		},
-		"secrets": createdUsers,
+		"secrets":   createdUsers,
 		"servers": []map[string]interface{}{
 			{
 				"name":                     serverConfigNameTCP,
