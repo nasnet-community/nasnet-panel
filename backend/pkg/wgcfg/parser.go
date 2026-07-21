@@ -13,13 +13,14 @@ import (
 	"strings"
 )
 
+// ParseError is returned when the WireGuard config cannot be parsed.
 type ParseError struct {
 	why      string
 	offender string
 }
 
 func (e *ParseError) Error() string {
-	return fmt.Sprintf("%s: ‘%s’", e.why, e.offender)
+	return fmt.Sprintf("%s: '%s'", e.why, e.offender)
 }
 
 func parseEndpoints(s string) ([]Endpoint, error) {
@@ -51,17 +52,16 @@ func parseEndpoint(s string) (*Endpoint, error) {
 	hostColon := strings.IndexByte(host, ':')
 	if host[0] == '[' || host[len(host)-1] == ']' || hostColon > 0 {
 		err := &ParseError{"Brackets must contain an IPv6 address", host}
-		if len(host) > 3 && host[0] == '[' && host[len(host)-1] == ']' && hostColon > 0 {
-			maybeV6 := net.ParseIP(host[1 : len(host)-1])
-			if maybeV6 == nil || len(maybeV6) != net.IPv6len {
-				return nil, err
-			}
-		} else {
+		if len(host) <= 3 || host[0] != '[' || host[len(host)-1] != ']' || hostColon <= 0 {
+			return nil, err
+		}
+		maybeV6 := net.ParseIP(host[1 : len(host)-1])
+		if maybeV6 == nil || len(maybeV6) != net.IPv6len {
 			return nil, err
 		}
 		host = host[1 : len(host)-1]
 	}
-	return &Endpoint{host, uint16(port)}, nil
+	return &Endpoint{host, port}, nil
 }
 
 func parseMTU(s string) (uint16, error) {
@@ -113,19 +113,11 @@ func parseKeyHex(s string) (*Key, error) {
 	return &key, nil
 }
 
-func parseBytesOrStamp(s string) (uint64, error) {
-	b, err := strconv.ParseUint(s, 10, 64)
-	if err != nil {
-		return 0, &ParseError{"Number must be a number between 0 and 2^64-1: " + err.Error(), s}
-	}
-	return b, nil
-}
-
 func splitList(s string) ([]string, error) {
 	var out []string
 	for _, split := range strings.Split(s, ",") {
 		trim := strings.TrimSpace(split)
-		if len(trim) == 0 {
+		if trim == "" {
 			return nil, &ParseError{"Two commas in a row", s}
 		}
 		out = append(out, trim)
@@ -147,12 +139,13 @@ func (c *Config) maybeAddPeer(p *Peer) {
 	}
 }
 
-func FromWgQuick(s string, name string) (*Config, error) {
+// FromWgQuick parses a wg-quick format WireGuard config string.
+func FromWgQuick(s, name string) (*Config, error) {
 	if !TunnelNameIsValid(name) {
 		return nil, &ParseError{"Tunnel name is not valid", name}
 	}
 	lines := strings.Split(s, "\n")
-	parserState := notInASection
+	state := notInASection
 	conf := Config{Name: name}
 	sawPrivateKey := false
 	var peer *Peer
@@ -163,21 +156,21 @@ func FromWgQuick(s string, name string) (*Config, error) {
 		}
 		line = strings.TrimSpace(line)
 		lineLower := strings.ToLower(line)
-		if len(line) == 0 {
+		if line == "" {
 			continue
 		}
 		if lineLower == "[interface]" {
 			conf.maybeAddPeer(peer)
-			parserState = inInterfaceSection
+			state = inInterfaceSection
 			continue
 		}
 		if lineLower == "[peer]" {
 			conf.maybeAddPeer(peer)
 			peer = &Peer{}
-			parserState = inPeerSection
+			state = inPeerSection
 			continue
 		}
-		if parserState == notInASection {
+		if state == notInASection {
 			return nil, &ParseError{"Line must occur in a section", line}
 		}
 		equals := strings.IndexByte(line, '=')
@@ -185,10 +178,11 @@ func FromWgQuick(s string, name string) (*Config, error) {
 			return nil, &ParseError{"Invalid config key is missing an equals separator", line}
 		}
 		key, val := strings.TrimSpace(lineLower[:equals]), strings.TrimSpace(line[equals+1:])
-		if len(val) == 0 {
+		if val == "" {
 			return nil, &ParseError{"Key must have a value", line}
 		}
-		if parserState == inInterfaceSection {
+		switch state {
+		case inInterfaceSection:
 			switch key {
 			case "privatekey":
 				k, err := ParseKey(val)
@@ -236,20 +230,27 @@ func FromWgQuick(s string, name string) (*Config, error) {
 			default:
 				return nil, &ParseError{"Invalid key for [Interface] section", key}
 			}
-		} else if parserState == inPeerSection {
+		case inPeerSection:
+			if peer == nil {
+				continue
+			}
 			switch key {
 			case "publickey":
 				k, err := ParseKey(val)
 				if err != nil {
 					return nil, err
 				}
-				peer.PublicKey = *k
+				if k != nil {
+					peer.PublicKey = *k
+				}
 			case "presharedkey":
 				k, err := ParseKey(val)
 				if err != nil {
 					return nil, err
 				}
-				peer.PresharedKey = SymmetricKey(*k)
+				if k != nil {
+					peer.PresharedKey = SymmetricKey(*k)
+				}
 			case "allowedips":
 				addresses, err := splitList(val)
 				if err != nil {
@@ -293,13 +294,14 @@ func FromWgQuick(s string, name string) (*Config, error) {
 	return &conf, nil
 }
 
-// TODO(apenwarr): This is incompatibe with current Device.IpcSetOperation.
+// BrokenFromUAPI parses a UAPI format WireGuard config string.
 //
-//	It duplicates all the parser stuff in there, but is missing some
-//	keywords. Nothing useful seems to need it anymore.
-func Broken_FromUAPI(s string, existingConfig *Config) (*Config, error) {
+// TODO(apenwarr): This is incompatible with current Device.IpcSetOperation.
+// It duplicates all the parser stuff in there, but is missing some
+// keywords. Nothing useful seems to need it anymore.
+func BrokenFromUAPI(s string, existingConfig *Config) (*Config, error) {
 	lines := strings.Split(s, "\n")
-	parserState := inInterfaceSection
+	state := inInterfaceSection
 	conf := Config{
 		Name:      existingConfig.Name,
 		Addresses: existingConfig.Addresses,
@@ -308,7 +310,7 @@ func Broken_FromUAPI(s string, existingConfig *Config) (*Config, error) {
 	}
 	var peer *Peer
 	for _, line := range lines {
-		if len(line) == 0 {
+		if line == "" {
 			continue
 		}
 		equals := strings.IndexByte(line, '=')
@@ -316,22 +318,22 @@ func Broken_FromUAPI(s string, existingConfig *Config) (*Config, error) {
 			return nil, &ParseError{"Invalid config key is missing an equals separator", line}
 		}
 		key, val := line[:equals], line[equals+1:]
-		if len(val) == 0 {
+		if val == "" {
 			return nil, &ParseError{"Key must have a value", line}
 		}
 		switch key {
 		case "public_key":
 			conf.maybeAddPeer(peer)
 			peer = &Peer{}
-			parserState = inPeerSection
+			state = inPeerSection
 		case "errno":
-			if val == "0" {
-				continue
-			} else {
+			if val != "0" {
 				return nil, &ParseError{"Error in getting configuration", val}
 			}
+			continue
 		}
-		if parserState == inInterfaceSection {
+		switch state {
+		case inInterfaceSection:
 			switch key {
 			case "private_key":
 				k, err := parseKeyHex(val)
@@ -351,20 +353,27 @@ func Broken_FromUAPI(s string, existingConfig *Config) (*Config, error) {
 			default:
 				return nil, &ParseError{"Invalid key for interface section", key}
 			}
-		} else if parserState == inPeerSection {
+		case inPeerSection:
+			if peer == nil {
+				continue
+			}
 			switch key {
 			case "public_key":
 				k, err := parseKeyHex(val)
 				if err != nil {
 					return nil, err
 				}
-				peer.PublicKey = *k
+				if k != nil {
+					peer.PublicKey = *k
+				}
 			case "preshared_key":
 				k, err := parseKeyHex(val)
 				if err != nil {
 					return nil, err
 				}
-				peer.PresharedKey = SymmetricKey(*k)
+				if k != nil {
+					peer.PresharedKey = SymmetricKey(*k)
+				}
 			case "protocol_version":
 				if val != "1" {
 					return nil, &ParseError{"Protocol version must be 1", val}

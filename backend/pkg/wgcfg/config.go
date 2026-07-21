@@ -22,6 +22,7 @@ type Config struct {
 	Peers      []Peer
 }
 
+// Peer is a WireGuard peer configuration.
 type Peer struct {
 	PublicKey           Key
 	PresharedKey        SymmetricKey
@@ -30,6 +31,7 @@ type Peer struct {
 	PersistentKeepalive uint16
 }
 
+// Endpoint is a WireGuard peer endpoint address.
 type Endpoint struct {
 	Host string
 	Port uint16
@@ -42,8 +44,9 @@ func (e *Endpoint) String() string {
 	return fmt.Sprintf("%s:%d", e.Host, e.Port)
 }
 
+// IsEmpty reports whether the endpoint has no host.
 func (e *Endpoint) IsEmpty() bool {
-	return len(e.Host) == 0
+	return e.Host == ""
 }
 
 // Copy makes a deep copy of Config.

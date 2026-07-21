@@ -101,16 +101,6 @@ linters:
       - path: pkg/utils
         linters:
           - misspell
-      - path: pkg/wgcfg
-        linters:
-          - errorlint
-          - gocritic
-          - gosec
-          - revive
-          - staticcheck
-          - unconvert
-          - unused
-          - whitespace
 
 formatters:
   enable:

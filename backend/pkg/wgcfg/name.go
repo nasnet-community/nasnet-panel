@@ -24,6 +24,7 @@ func isReserved(name string) bool {
 	return false
 }
 
+// TunnelNameIsValid reports whether name is a valid WireGuard tunnel name.
 func TunnelNameIsValid(name string) bool {
 	// name must match /^[a-zA-Z0-9_=+.-]{1,32}$/ and not be a Windows
 	// reserved name.
@@ -42,7 +43,6 @@ func TunnelNameIsValid(name string) bool {
 		default:
 			return false
 		}
-
 	}
 	return true
 }

@@ -14,6 +14,7 @@ import (
 	"golang.org/x/crypto/curve25519"
 )
 
+// KeySize is the size in bytes of a WireGuard key.
 const KeySize = 32
 
 // Key is curve25519 key.
@@ -30,8 +31,10 @@ func NewPresharedKey() (*Key, error) {
 	return (*Key)(&k), nil
 }
 
+// ParseKey parses a base64-encoded key string.
 func ParseKey(b64 string) (*Key, error) { return parseKeyBase64(base64.StdEncoding, b64) }
 
+// ParseHexKey parses a hex-encoded key string.
 func ParseHexKey(s string) (Key, error) {
 	b, err := hex.DecodeString(s)
 	if err != nil {
@@ -46,6 +49,7 @@ func ParseHexKey(s string) (Key, error) {
 	return key, nil
 }
 
+// ParsePrivateHexKey parses a hex-encoded private key string.
 func ParsePrivateHexKey(v string) (PrivateKey, error) {
 	k, err := ParseHexKey(v)
 	if err != nil {
@@ -62,11 +66,19 @@ func ParsePrivateHexKey(v string) (PrivateKey, error) {
 	return pk, nil
 }
 
-func (k Key) Base64() string    { return base64.StdEncoding.EncodeToString(k[:]) }
-func (k Key) String() string    { return "pub:" + k.Base64()[:8] }
+// Base64 returns the base64 encoding of k.
+func (k Key) Base64() string { return base64.StdEncoding.EncodeToString(k[:]) }
+
+// String returns a short human-readable representation (not the full key).
+func (k Key) String() string { return "pub:" + k.Base64()[:8] }
+
+// HexString returns the hex encoding of k.
 func (k Key) HexString() string { return hex.EncodeToString(k[:]) }
+
+// Equal reports whether k and k2 are equal.
 func (k Key) Equal(k2 Key) bool { return subtle.ConstantTimeCompare(k[:], k2[:]) == 1 }
 
+// ShortString returns a short bracket-enclosed representation.
 func (k *Key) ShortString() string {
 	if k.IsZero() {
 		return "[empty]"
@@ -78,6 +90,7 @@ func (k *Key) ShortString() string {
 	return "[" + long[0:4] + "…" + long[len(long)-5:len(long)-1] + "]"
 }
 
+// IsZero reports whether k is the zero key.
 func (k *Key) IsZero() bool {
 	if k == nil {
 		return true
@@ -86,6 +99,7 @@ func (k *Key) IsZero() bool {
 	return subtle.ConstantTimeCompare(zeros[:], k[:]) == 1
 }
 
+// MarshalJSON implements json.Marshaler.
 func (k *Key) MarshalJSON() ([]byte, error) {
 	if k == nil {
 		return []byte("null"), nil
@@ -95,6 +109,7 @@ func (k *Key) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// UnmarshalJSON implements json.Unmarshaler.
 func (k *Key) UnmarshalJSON(b []byte) error {
 	if k == nil {
 		return errors.New("wgcfg.Key: UnmarshalJSON on nil pointer")
@@ -105,17 +120,19 @@ func (k *Key) UnmarshalJSON(b []byte) error {
 	b = b[1 : len(b)-1]
 	key, err := ParseHexKey(string(b))
 	if err != nil {
-		return fmt.Errorf("wgcfg.Key: UnmarshalJSON: %v", err)
+		return fmt.Errorf("wgcfg.Key: UnmarshalJSON: %w", err)
 	}
 	copy(k[:], key[:])
 	return nil
 }
 
-func (a *Key) LessThan(b *Key) bool {
-	for i := range a {
-		if a[i] < b[i] {
+// LessThan reports whether k is less than b in byte-wise order.
+func (k *Key) LessThan(b *Key) bool {
+	for i := range k {
+		if k[i] < b[i] {
 			return true
-		} else if a[i] > b[i] {
+		}
+		if k[i] > b[i] {
 			return false
 		}
 	}
@@ -135,18 +152,27 @@ func NewPrivateKey() (PrivateKey, error) {
 	}
 	k[0] &= 248
 	k[31] = (k[31] & 127) | 64
-	return (PrivateKey)(*k), nil
+	return PrivateKey(*k), nil
 }
 
+// ParsePrivateKey parses a base64-encoded private key.
 func ParsePrivateKey(b64 string) (*PrivateKey, error) {
 	k, err := parseKeyBase64(base64.StdEncoding, b64)
 	return (*PrivateKey)(k), err
 }
 
-func (k *PrivateKey) String() string           { return base64.StdEncoding.EncodeToString(k[:]) }
-func (k *PrivateKey) HexString() string        { return hex.EncodeToString(k[:]) }
-func (k *PrivateKey) Equal(k2 PrivateKey) bool { return subtle.ConstantTimeCompare(k[:], k2[:]) == 1 }
+// String returns the base64 encoding of k.
+func (k *PrivateKey) String() string { return base64.StdEncoding.EncodeToString(k[:]) }
 
+// HexString returns the hex encoding of k.
+func (k *PrivateKey) HexString() string { return hex.EncodeToString(k[:]) }
+
+// Equal reports whether k and k2 are equal.
+func (k *PrivateKey) Equal(k2 PrivateKey) bool {
+	return subtle.ConstantTimeCompare(k[:], k2[:]) == 1
+}
+
+// IsZero reports whether k is the zero key.
 func (k *PrivateKey) IsZero() bool {
 	pk := Key(*k)
 	return pk.IsZero()
@@ -165,15 +191,17 @@ func (k *PrivateKey) Public() Key {
 	}
 	var p [KeySize]byte
 	curve25519.ScalarBaseMult(&p, (*[KeySize]byte)(k))
-	return (Key)(p)
+	return Key(p)
 }
 
+// MarshalText implements encoding.TextMarshaler.
 func (k PrivateKey) MarshalText() ([]byte, error) {
 	buf := new(bytes.Buffer)
 	fmt.Fprintf(buf, `privkey:%x`, k[:])
 	return buf.Bytes(), nil
 }
 
+// UnmarshalText implements encoding.TextUnmarshaler.
 func (k *PrivateKey) UnmarshalText(b []byte) error {
 	s := string(b)
 	if !strings.HasPrefix(s, `privkey:`) {
@@ -182,16 +210,17 @@ func (k *PrivateKey) UnmarshalText(b []byte) error {
 	s = strings.TrimPrefix(s, `privkey:`)
 	key, err := ParseHexKey(s)
 	if err != nil {
-		return fmt.Errorf("wgcfg.PrivateKey: UnmarshalText: %v", err)
+		return fmt.Errorf("wgcfg.PrivateKey: UnmarshalText: %w", err)
 	}
 	copy(k[:], key[:])
 	return nil
 }
 
+// SharedSecret computes the Diffie-Hellman shared secret between k and pub.
 func (k PrivateKey) SharedSecret(pub Key) (ss [KeySize]byte) {
 	apk := (*[KeySize]byte)(&pub)
 	ask := (*[KeySize]byte)(&k)
-	curve25519.ScalarMult(&ss, ask, apk)
+	curve25519.ScalarMult(&ss, ask, apk) //nolint:staticcheck // SA1019: kept for compatibility; low-order points are not a concern in this context
 	return ss
 }
 
@@ -208,6 +237,7 @@ func parseKeyBase64(enc *base64.Encoding, s string) (*Key, error) {
 	return &key, nil
 }
 
+// ParseSymmetricKey parses a base64-encoded symmetric key.
 func ParseSymmetricKey(b64 string) (SymmetricKey, error) {
 	k, err := parseKeyBase64(base64.StdEncoding, b64)
 	if err != nil {
@@ -216,6 +246,7 @@ func ParseSymmetricKey(b64 string) (SymmetricKey, error) {
 	return SymmetricKey(*k), nil
 }
 
+// ParseSymmetricHexKey parses a hex-encoded symmetric key.
 func ParseSymmetricHexKey(s string) (SymmetricKey, error) {
 	b, err := hex.DecodeString(s)
 	if err != nil {
@@ -233,10 +264,19 @@ func ParseSymmetricHexKey(s string) (SymmetricKey, error) {
 // It is used by WireGuard to represent pre-shared symmetric keys.
 type SymmetricKey [chacha20poly1305.KeySize]byte
 
-func (k SymmetricKey) Base64() string    { return base64.StdEncoding.EncodeToString(k[:]) }
-func (k SymmetricKey) String() string    { return "sym:" + k.Base64()[:8] }
+// Base64 returns the base64 encoding of k.
+func (k SymmetricKey) Base64() string { return base64.StdEncoding.EncodeToString(k[:]) }
+
+// String returns a short human-readable representation (not the full key).
+func (k SymmetricKey) String() string { return "sym:" + k.Base64()[:8] }
+
+// HexString returns the hex encoding of k.
 func (k SymmetricKey) HexString() string { return hex.EncodeToString(k[:]) }
-func (k SymmetricKey) IsZero() bool      { return k.Equal(SymmetricKey{}) }
+
+// IsZero reports whether k is the zero key.
+func (k SymmetricKey) IsZero() bool { return k.Equal(SymmetricKey{}) }
+
+// Equal reports whether k and k2 are equal.
 func (k SymmetricKey) Equal(k2 SymmetricKey) bool {
 	return subtle.ConstantTimeCompare(k[:], k2[:]) == 1
 }
