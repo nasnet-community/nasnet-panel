@@ -60,12 +60,35 @@ const defaultInterfaces = [
   wgMaskIface,
 ];
 
+interface NetStatusEntry {
+  host: string;
+  status: string;
+  since: string;
+  type: 'foreign' | 'vpn' | 'domestic' | '';
+}
+
 interface TopologyMockOptions {
   interfaces?: Array<(typeof defaultInterfaces)[number]>;
   gateway?: string | null;
+  netStatus?: NetStatusEntry[];
 }
 
+const netProbe = (type: NetStatusEntry['type'], status: string): NetStatusEntry => ({
+  host: type === 'foreign' ? '4.2.2.1' : type === 'vpn' ? '4.2.2.2' : '217.218.127.127',
+  status,
+  since: '2026-07-22 10:00:00',
+  type,
+});
+
 async function mockTopologyApi(context: BrowserContext, opts: TopologyMockOptions = {}) {
+  await context.route('**/api/net/status', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: envelope(opts.netStatus ?? []),
+    });
+  });
+
   await context.route('**/api/interface/interfaces', async (route) => {
     await route.fulfill({
       status: 200,
@@ -318,6 +341,97 @@ test.describe('Internet routing page', () => {
     await expect(svg.locator('path#edge-h_internet_vpn_wg-client-mask')).toHaveAttribute(
       'marker-end',
       /arr-idle/,
+    );
+  });
+
+  test('grays the routed VPN path when the vpn probe is down', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      gateway: 'wg-client-mask',
+      netStatus: [netProbe('vpn', 'down'), netProbe('foreign', 'up'), netProbe('domestic', 'up')],
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveAttribute(
+      'marker-end',
+      /arr-idle/,
+    );
+    await expect(svg.locator('path#edge-h_internet_vpn_wg-client-mask')).toHaveAttribute(
+      'marker-end',
+      /arr-idle/,
+    );
+    await expect(svg.locator('path#edge-h_rtr_ether1')).toHaveAttribute('marker-end', /arr-active/);
+    await expect(svg.locator('path#edge-h_internet_wan_ether3')).toHaveAttribute(
+      'marker-end',
+      /arr-active/,
+    );
+  });
+
+  test('grays the domestic path when the domestic probe is down', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      gateway: 'wg-client-mask',
+      netStatus: [netProbe('domestic', 'down'), netProbe('vpn', 'up')],
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_rtr_ether3')).toHaveAttribute('marker-end', /arr-idle/);
+    await expect(svg.locator('path#edge-h_internet_wan_ether3')).toHaveAttribute(
+      'marker-end',
+      /arr-idle/,
+    );
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveAttribute(
+      'marker-end',
+      /arr-active/,
+    );
+  });
+
+  test('grays the foreign WAN link when the foreign probe is down', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      gateway: 'wg-client-mask',
+      netStatus: [netProbe('foreign', 'down'), netProbe('domestic', 'up')],
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_rtr_ether1')).toHaveAttribute('marker-end', /arr-idle/);
+    await expect(svg.locator('path#edge-h_rtr_ether3')).toHaveAttribute('marker-end', /arr-active/);
+    await expect(svg.locator('path#edge-h_internet_wan_ether3')).toHaveAttribute(
+      'marker-end',
+      /arr-active/,
     );
   });
 
