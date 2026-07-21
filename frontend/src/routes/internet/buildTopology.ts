@@ -1,4 +1,10 @@
-import { fetchForeignGateway, fetchInterfaces, type InterfaceResponse } from '../../api';
+import {
+  fetchForeignGateway,
+  fetchInterfaces,
+  fetchNetStatus,
+  type InterfaceResponse,
+  type NetStatusEntry,
+} from '../../api';
 import type {
   RoutingHop,
   RoutingNode,
@@ -82,10 +88,17 @@ export async function buildTopology(
   creds: Creds,
   signal?: AbortSignal,
 ): Promise<RoutingTopology> {
-  const [ifaces, foreignGateway] = await Promise.all([
+  const [ifaces, foreignGateway, netStatus] = await Promise.all([
     fetchInterfaces(creds, signal),
     fetchForeignGateway(creds, signal).catch(() => null),
+    fetchNetStatus(creds, signal).catch((): NetStatusEntry[] => []),
   ]);
+
+  const isNetDown = (type: NetStatusEntry['type']) =>
+    netStatus.some((e) => e.type === type && e.status === 'down');
+  const domesticDown = isNetDown('domestic');
+  const vpnDown = isNetDown('vpn');
+  const foreignDown = isNetDown('foreign');
 
   const nodes: RoutingNode[] = [];
   const hops: RoutingHop[] = [];
@@ -109,7 +122,7 @@ export async function buildTopology(
       id: `h_${ROUTER_ID}_${wan.name}`,
       fromId: ROUTER_ID,
       toId: id,
-      isActive: isDomestic || !!wan.running,
+      isActive: (isDomestic || !!wan.running) && !(isDomestic ? domesticDown : foreignDown),
     });
     if (isDomestic) domesticWans.push(wan);
   });
@@ -134,7 +147,7 @@ export async function buildTopology(
         id: `h_vpn_${vpn.name}`,
         fromId: `wan_${fallbackWan.name}`,
         toId: id,
-        isActive: !!vpn.running && isRouted(vpn.name),
+        isActive: !!vpn.running && isRouted(vpn.name) && !vpnDown,
       });
     }
   });
@@ -146,7 +159,7 @@ export async function buildTopology(
         id: `h_internet_vpn_${vpn.name}`,
         fromId: `vpn_${vpn.name}`,
         toId: INTERNET_ID,
-        isActive: !!vpn.running && isRouted(vpn.name),
+        isActive: !!vpn.running && isRouted(vpn.name) && !vpnDown,
       });
     });
     domesticWans.forEach((wan) => {
@@ -154,7 +167,7 @@ export async function buildTopology(
         id: `h_internet_wan_${wan.name}`,
         fromId: `wan_${wan.name}`,
         toId: INTERNET_ID,
-        isActive: true,
+        isActive: !domesticDown,
       });
     });
   }
