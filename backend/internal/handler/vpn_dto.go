@@ -93,25 +93,17 @@ type L2TPClientResponse struct {
 
 // ServerStatusItem represents a server with name and enabled status.
 type ServerStatusItem struct {
-	Name         string `json:"name"`
-	Enabled      bool   `json:"enabled"`
-	Port         int    `json:"port,omitempty"`
-	Protocol     string `json:"protocol,omitempty"`
-	LocalIP      string `json:"localIp,omitempty"`
-	LocalIPPool  string `json:"localIpPool,omitempty"`
-	RemoteIP     string `json:"remoteIp,omitempty"`
-	RemoteIPPool string `json:"remoteIpPool,omitempty"`
+	Name     string `json:"name"`
+	Enabled  bool   `json:"enabled"`
+	Port     int    `json:"port,omitempty"`
+	Protocol string `json:"protocol,omitempty"`
 }
 
 // SingleServerStatus represents a single server with enabled status.
 type SingleServerStatus struct {
-	Enabled      bool   `json:"enabled"`
-	Port         int    `json:"port,omitempty"`
-	Protocol     string `json:"protocol,omitempty"`
-	LocalIP      string `json:"localIp,omitempty"`
-	LocalIPPool  string `json:"localIpPool,omitempty"`
-	RemoteIP     string `json:"remoteIp,omitempty"`
-	RemoteIPPool string `json:"remoteIpPool,omitempty"`
+	Enabled  bool   `json:"enabled"`
+	Port     int    `json:"port,omitempty"`
+	Protocol string `json:"protocol,omitempty"`
 }
 
 // VPNServersStatusResponse represents the status of all VPN servers.
@@ -144,8 +136,6 @@ type PptpServerDetailsResponse struct {
 	Enabled        bool             `json:"enabled"`
 	Auth           string           `json:"auth"`
 	Profile        string           `json:"profile"`
-	LocalAddress   string           `json:"localAddress"`
-	RemoteAddress  string           `json:"remoteAddress"`
 	UseCompression string           `json:"useCompression"`
 	UseEncryption  string           `json:"useEncryption"`
 	OnlyOne        string           `json:"onlyOne"`
@@ -163,8 +153,6 @@ type L2tpServerDetailsResponse struct {
 	IPsecSecret        string           `json:"ipsecSecret"`
 	OneSessionPerHost  bool             `json:"oneSessionPerHost"`
 	AcceptProtoVersion string           `json:"protocol"`
-	LocalAddress       string           `json:"localAddress"`
-	RemoteAddress      string           `json:"remoteAddress"`
 	UseCompression     string           `json:"useCompression"`
 	UseEncryption      string           `json:"useEncryption"`
 	OnlyOne            string           `json:"onlyOne"`
@@ -184,8 +172,6 @@ type SstpServerDetailsResponse struct {
 	TLSVersion              string           `json:"tlsVersion"`
 	Ciphers                 string           `json:"ciphers"`
 	PFS                     string           `json:"pfs"`
-	LocalAddress            string           `json:"localAddress"`
-	RemoteAddress           string           `json:"remoteAddress"`
 	UseCompression          string           `json:"useCompression"`
 	UseEncryption           string           `json:"useEncryption"`
 	OnlyOne                 string           `json:"onlyOne"`

@@ -13,7 +13,7 @@
 {{ if .ManagementWifiSSID}}
 /interface wifi remove [find name="wifi-management"]
 /interface wifi remove [find name="wifi-virtual"]
-:if ([:len [/interface wifi find]] > 0 do={
+:if ([:len [/interface wifi find]] > 0) do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
 add name=wifi-management master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \

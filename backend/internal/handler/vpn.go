@@ -506,19 +506,6 @@ func HandleListVPNServers(c echo.Context) error {
 				Protocol: srv.ProtocolVersion,
 			}
 
-			if srv.DefaultProfile != "" {
-				profile, errProfile := client.GetL2TPProfile(srv.DefaultProfile)
-				if errProfile == nil {
-					localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
-					item.LocalIP = localIP
-					item.LocalIPPool = localPool
-
-					remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
-					item.RemoteIP = remoteIP
-					item.RemoteIPPool = remotePool
-				}
-			}
-
 			response.OvpnServers = append(response.OvpnServers, item)
 		}
 	}
@@ -548,19 +535,6 @@ func HandleListVPNServers(c echo.Context) error {
 			Protocol: "tcp",
 		}
 
-		if pptpServer.DefaultProfile != "" {
-			profile, errProfile := client.GetL2TPProfile(pptpServer.DefaultProfile)
-			if errProfile == nil {
-				localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
-				status.LocalIP = localIP
-				status.LocalIPPool = localPool
-
-				remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
-				status.RemoteIP = remoteIP
-				status.RemoteIPPool = remotePool
-			}
-		}
-
 		response.Pptp = status
 	}
 
@@ -572,19 +546,6 @@ func HandleListVPNServers(c echo.Context) error {
 			Protocol: "udp",
 		}
 
-		if l2tpServer.DefaultProfile != "" {
-			profile, errProfile := client.GetL2TPProfile(l2tpServer.DefaultProfile)
-			if errProfile == nil {
-				localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
-				status.LocalIP = localIP
-				status.LocalIPPool = localPool
-
-				remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
-				status.RemoteIP = remoteIP
-				status.RemoteIPPool = remotePool
-			}
-		}
-
 		response.L2tp = status
 	}
 
@@ -594,19 +555,6 @@ func HandleListVPNServers(c echo.Context) error {
 			Enabled:  sstpServer.Enabled,
 			Port:     sstpServer.Port,
 			Protocol: "tcp",
-		}
-
-		if sstpServer.DefaultProfile != "" {
-			profile, errProfile := client.GetL2TPProfile(sstpServer.DefaultProfile)
-			if errProfile == nil {
-				localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
-				status.LocalIP = localIP
-				status.LocalIPPool = localPool
-
-				remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
-				status.RemoteIP = remoteIP
-				status.RemoteIPPool = remotePool
-			}
 		}
 
 		response.Sstp = status
@@ -691,26 +639,11 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 	if pptpServer.DefaultProfile != "" {
 		profile, err := client.GetL2TPProfile(pptpServer.DefaultProfile)
 		if err == nil {
-			response.LocalAddress = profile.LocalAddress
-			response.RemoteAddress = profile.RemoteAddress
 			response.UseCompression = profile.UseCompression
 			response.UseEncryption = profile.UseEncryption
 			response.OnlyOne = profile.OnlyOne
 			response.ChangeTCPMSS = profile.ChangeTCPMSS
 			response.DNSServer = profile.DNSServer
-
-			if response.LocalAddress != "" {
-				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
-				if err == nil && poolRanges != "" {
-					response.LocalAddress = poolRanges
-				}
-			}
-			if response.RemoteAddress != "" {
-				poolRanges, err := client.GetIPPoolRanges(response.RemoteAddress)
-				if err == nil && poolRanges != "" {
-					response.RemoteAddress = poolRanges
-				}
-			}
 
 			secrets, err := client.GetL2TPSecretsForProfile(pptpServer.DefaultProfile)
 			if err == nil {
@@ -762,26 +695,11 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 	if l2tpServer.DefaultProfile != "" {
 		profile, err := client.GetL2TPProfile(l2tpServer.DefaultProfile)
 		if err == nil {
-			response.LocalAddress = profile.LocalAddress
-			response.RemoteAddress = profile.RemoteAddress
 			response.UseCompression = profile.UseCompression
 			response.UseEncryption = profile.UseEncryption
 			response.OnlyOne = profile.OnlyOne
 			response.ChangeTCPMSS = profile.ChangeTCPMSS
 			response.DNSServer = profile.DNSServer
-
-			if response.LocalAddress != "" {
-				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
-				if err == nil && poolRanges != "" {
-					response.LocalAddress = poolRanges
-				}
-			}
-			if response.RemoteAddress != "" {
-				poolRanges, err := client.GetIPPoolRanges(response.RemoteAddress)
-				if err == nil && poolRanges != "" {
-					response.RemoteAddress = poolRanges
-				}
-			}
 
 			secrets, err := client.GetL2TPSecretsForProfile(l2tpServer.DefaultProfile)
 			if err == nil {
@@ -835,26 +753,11 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 	if sstpServer.DefaultProfile != "" {
 		profile, err := client.GetL2TPProfile(sstpServer.DefaultProfile)
 		if err == nil {
-			response.LocalAddress = profile.LocalAddress
-			response.RemoteAddress = profile.RemoteAddress
 			response.UseCompression = profile.UseCompression
 			response.UseEncryption = profile.UseEncryption
 			response.OnlyOne = profile.OnlyOne
 			response.ChangeTCPMSS = profile.ChangeTCPMSS
 			response.DNSServer = profile.DNSServer
-
-			if response.LocalAddress != "" {
-				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
-				if err == nil && poolRanges != "" {
-					response.LocalAddress = poolRanges
-				}
-			}
-			if response.RemoteAddress != "" {
-				poolRanges, err := client.GetIPPoolRanges(response.RemoteAddress)
-				if err == nil && poolRanges != "" {
-					response.RemoteAddress = poolRanges
-				}
-			}
 
 			secrets, err := client.GetL2TPSecretsForProfile(sstpServer.DefaultProfile)
 			if err == nil {
@@ -2275,7 +2178,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 // HandleDeleteOvpnServer deletes an OpenVPN server and all related items.
 // @Summary Delete OpenVPN Server
-// @Description Delete an OpenVPN server and all related items (secrets, profile, IP pool, certificates)
+// @Description Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
