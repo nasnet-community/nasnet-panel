@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,6 +13,7 @@ import (
 
 	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/utils"
+	"nasnet-panel/pkg/wgcfg"
 )
 
 // HandleGetVPNCredentials retrieves VPN credentials from NasNet API using system ID.
@@ -300,11 +302,50 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["L2tpClient"] = req.L2tpClient
 	}
 
-	// Parse and add WireGuard client configuration if provided
 	if req.WireGuardClient != nil && req.WireGuardClient.Config != "" {
-		configMap := utils.ParseWireGuardConfigSimple(req.WireGuardClient.Config)
-		wgConfig := utils.ParseClientConfig(configMap)
-		templateData["WireGuardClient"] = wgConfig
+		cfg, err := wgcfg.FromWgQuick(req.WireGuardClient.Config, "import")
+		if err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Failed to parse WireGuard config", err)
+		}
+		type wgPeer struct {
+			PublicKey           string
+			EndpointAddress     string
+			EndpointPort        string
+			PreSharedKey        string
+			AllowedAddress      string
+			PersistentKeepalive string
+		}
+		wgData := struct {
+			InterfacePrivateKey string
+			InterfaceAddress    string
+			Peers               []wgPeer
+		}{
+			InterfacePrivateKey: cfg.PrivateKey.String(),
+		}
+		if len(cfg.Addresses) > 0 {
+			wgData.InterfaceAddress = cfg.Addresses[0].String()
+		}
+		for i := range cfg.Peers {
+			peer := cfg.Peers[i]
+			p := wgPeer{
+				PublicKey: peer.PublicKey.Base64(),
+			}
+			if len(peer.Endpoints) > 0 {
+				p.EndpointAddress = peer.Endpoints[0].Host
+				p.EndpointPort = fmt.Sprintf("%d", peer.Endpoints[0].Port)
+			}
+			if !peer.PresharedKey.IsZero() {
+				p.PreSharedKey = peer.PresharedKey.Base64()
+			}
+			if len(peer.AllowedIPs) > 0 {
+				p.AllowedAddress = peer.AllowedIPs[0].String()
+			}
+			if peer.PersistentKeepalive > 0 {
+				p.PersistentKeepalive = fmt.Sprintf("%d", peer.PersistentKeepalive)
+			}
+			wgData.Peers = append(wgData.Peers, p)
+		}
+		templateData["WireGuardClient"] = wgData
 	}
 
 	// Add OpenVPN server configuration if provided

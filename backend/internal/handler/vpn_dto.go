@@ -520,9 +520,9 @@ type ImportWireGuardConfigRequest struct {
 
 // ImportWireGuardConfigResponse represents the response after importing a WireGuard configuration.
 type ImportWireGuardConfigResponse struct {
-	InterfaceName string `json:"interfaceName"`
-	InterfaceIP   string `json:"interfaceIP"`
-	PeerName      string `json:"peerName"`
+	InterfaceName string   `json:"interfaceName"`
+	InterfaceIP   string   `json:"interfaceIP"`
+	PeerNames     []string `json:"peerNames"`
 }
 
 // CreateOvpnServerRequest represents a request to create an OpenVPN server with client certificate.

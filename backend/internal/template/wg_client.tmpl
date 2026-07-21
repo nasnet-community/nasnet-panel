@@ -9,10 +9,12 @@ add interface=wg-server-wireguard-server name="wireguard-server" allowed-address
 client-address=192.168.110.2/32 \ client-dns=192.168.110.0 client-endpoint="" \
 client-keepalive=25s client-listen-port=51820 persistent-keepalive=25s preshared-key=auto private-key=auto \
 responder=yes comment="Wireguard Server:wireguard-server Server"
-add interface="wireguard-client-wg-client" public-key="{{ .WireGuardClient.PeerPublicKey }}" \
-endpoint-address="{{ .WireGuardClient.EndpointAddress }}" endpoint-port={{ .WireGuardClient.EndpointPort }} \
-allowed-address="{{ .WireGuardClient.AllowedAddress }}" comment="wg-client-peer-wg-client"{{ if .WireGuardClient.PreSharedKey }} preshared-key="{{ .WireGuardClient.PreSharedKey }}"{{ end }} \
-persistent-keepalive={{ .WireGuardClient.PersistentKeepalive }}
+{{ range .WireGuardClient.Peers }}
+add interface="wireguard-client-wg-client" public-key="{{ .PublicKey }}" \
+{{ if .EndpointAddress }}endpoint-address="{{ .EndpointAddress }}" endpoint-port={{ .EndpointPort }} \
+{{ end }}allowed-address="{{ .AllowedAddress }}" comment="wg-client-peer-wg-client"{{ if .PreSharedKey }} preshared-key="{{ .PreSharedKey }}"{{ end }}{{ if .PersistentKeepalive }} \
+persistent-keepalive={{ .PersistentKeepalive }}{{ end }}
+{{ end }}
 
 /interface list
 add name="VPN-wg-client-WAN" comment="VPN-wg-client"
@@ -49,8 +51,8 @@ network="192.168.110.0"
 add address="192.168.42.1/24" interface="LANBridgeVPN-wg-client" network="192.168.42.0" comment="VPN-wg-client"
 
 /ip firewall address-list
-add address="{{ .WireGuardClient.EndpointAddress }}" list=VPNE comment="VPN-wg-client Interface:wireguard-client-wg-client"
-add address="192.168.110.0/24" list="VPN-LAN" comment="wg-server-wireguard-server subnet"
+{{ range .WireGuardClient.Peers }}{{ if .EndpointAddress }}add address="{{ .EndpointAddress }}" list=VPNE comment="wireguard-wireguard-client-wg-client"
+{{ end }}{{ end }}add address="192.168.110.0/24" list="VPN-LAN" comment="wg-server-wireguard-server subnet"
 add address="192.168.42.0/24" list="VPN-wg-client-LAN" comment="VPN-wg-client"
 
 /ip firewall filter
