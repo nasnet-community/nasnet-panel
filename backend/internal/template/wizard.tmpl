@@ -1,4 +1,4 @@
-:global WizardProgress "2"
+:global WizardProgress "5"
 
 /system backup save name={{ .BackupTime }}
 /export file={{ .BackupTime }}
@@ -538,9 +538,9 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :global WizardProgress "95"
 
 :execute script={/system script run DomesticIPUpdate}
+/interface wifi remove [find name="wifi-management"]
 
 :global WizardCompleted "true"
 :global WizardProgress "100"
 :global WizardCompletedAt (([/system clock get date] . "T" . [/system clock get time] . "Z"))
-/interface wifi remove [find name="wifi-management"]
 /system script remove [find name=wizard]
