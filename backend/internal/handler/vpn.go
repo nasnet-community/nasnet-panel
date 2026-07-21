@@ -12,6 +12,7 @@ import (
 
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
+	"nasnet-panel/pkg/wgcfg"
 )
 
 // OvpnServerTask tracks the status and progress of an OpenVPN server creation task.
@@ -1590,53 +1591,32 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Interface name is required", nil)
 	}
 
-	// Parse configuration
-	sections, err := utils.ParseWireGuardConfig(req.Config)
+	cfg, err := wgcfg.FromWgQuick(req.Config, "import")
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadRequest, "Failed to parse configuration", err)
 	}
 
-	// Get interface section
-	interfaceConfig, err := utils.GetInterfaceConfig(sections)
-	if err != nil {
-		return ErrorResponse(c, http.StatusBadRequest, "Invalid configuration: "+err.Error(), err)
-	}
-
-	// Get peer sections
-	peerConfigs := utils.GetPeerConfigs(sections)
-
-	// Parse interface fields
-	listenPort := 51820
-	if portStr, exists := interfaceConfig["ListenPort"]; exists {
-		_, err := fmt.Sscanf(portStr, "%d", &listenPort)
-		if err != nil {
-			return err
-		} //nolint:errcheck // use default port if parsing fails
-	}
-
-	privateKey := ""
-	if pk, exists := interfaceConfig["PrivateKey"]; exists {
-		privateKey = strings.TrimSpace(pk)
-	}
+	privateKey := cfg.PrivateKey.String()
 
 	address := ""
-	if addr, exists := interfaceConfig["Address"]; exists {
-		address = strings.TrimSpace(addr)
+	if len(cfg.Addresses) > 0 {
+		address = cfg.Addresses[0].String()
 	}
 
-	// dns is currently reserved for future use
-	if d, exists := interfaceConfig["DNS"]; exists {
-		_ = strings.TrimSpace(d)
+	var listenPort *int
+	if cfg.ListenPort != 0 {
+		p := int(cfg.ListenPort)
+		listenPort = &p
 	}
+
 	interfaceName := req.InterfaceName
 	if !strings.HasSuffix(interfaceName, "-client") {
 		interfaceName += "-client"
 	}
 
-	// Create interface
 	interfaceConfig2 := routeros.WireGuardClientConfig{
 		Name:       interfaceName,
-		ListenPort: &listenPort,
+		ListenPort: listenPort,
 	}
 	if privateKey != "" {
 		interfaceConfig2.PrivateKey = &privateKey
@@ -1672,59 +1652,29 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		}
 	}
 
-	// Add peers
-	var peerName string
-	if len(peerConfigs) > 0 {
-		peerConfig := peerConfigs[0]
+	var peerNames []string
+	for i := range cfg.Peers {
+		peer := cfg.Peers[i]
 
-		// Parse peer fields
-		publicKey := ""
-		if pk, exists := peerConfig["PublicKey"]; exists {
-			publicKey = strings.TrimSpace(pk)
-		}
-
-		allowedIPs := ""
-		if ips, exists := peerConfig["AllowedIPs"]; exists {
-			allowedIPs = strings.TrimSpace(ips)
-		}
-
-		endpoint := ""
-		if ep, exists := peerConfig["Endpoint"]; exists {
-			endpoint = strings.TrimSpace(ep)
-		}
-
-		presharedKey := ""
-		if psk, exists := peerConfig["PresharedKey"]; exists {
-			presharedKey = strings.TrimSpace(psk)
-		}
-
-		persistentKeepalive := 0
-		if ka, exists := peerConfig["PersistentKeepalive"]; exists {
-			_, err := fmt.Sscanf(ka, "%d", &persistentKeepalive)
-			if err != nil {
-				return err
-			} //nolint:errcheck // use default if parsing fails
-		}
-
+		publicKey := peer.PublicKey.Base64()
 		if publicKey == "" {
 			return ErrorResponse(c, http.StatusBadRequest, "Peer PublicKey is required", nil)
 		}
 
-		// Parse endpoint address and port
-		endpointAddr := ""
-		endpointPort := 51820
-		if endpoint != "" {
-			parts := strings.Split(endpoint, ":")
-			if len(parts) >= 2 {
-				endpointAddr = parts[0]
-				_, err := fmt.Sscanf(parts[1], "%d", &endpointPort)
-				if err != nil {
-					return err
-				} //nolint:errcheck // use default if parsing fails
-			}
+		allowedIPs := ""
+		if len(peer.AllowedIPs) > 0 {
+			allowedIPs = peer.AllowedIPs[0].String()
 		}
 
-		peerName = publicKey[:8]
+		endpointAddr := ""
+		endpointPort := 51820
+		if len(peer.Endpoints) > 0 {
+			endpointAddr = peer.Endpoints[0].Host
+			endpointPort = int(peer.Endpoints[0].Port)
+		}
+
+		persistentKeepalive := int(peer.PersistentKeepalive)
+		peerName := publicKey[:8]
 
 		config := routeros.WireGuardPeerConfig{
 			InterfaceName:       wg.Name,
@@ -1736,8 +1686,9 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			PersistentKeepalive: nil,
 		}
 
-		if presharedKey != "" {
-			config.PresharedKey = &presharedKey
+		if !peer.PresharedKey.IsZero() {
+			psk := peer.PresharedKey.Base64()
+			config.PresharedKey = &psk
 		}
 
 		if persistentKeepalive > 0 {
@@ -1748,12 +1699,20 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		if err != nil {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
 		}
+
+		if endpointAddr != "" {
+			if _, err := client.AddFirewallAddressListItem("VPNE", endpointAddr, false, "wireguard-"+wg.Name); err != nil {
+				c.Logger().Errorf("Failed to add peer endpoint IP to firewall list: %v", err)
+			}
+		}
+
+		peerNames = append(peerNames, peerName)
 	}
 
 	response := ImportWireGuardConfigResponse{
 		InterfaceName: wg.Name,
 		InterfaceIP:   address,
-		PeerName:      peerName,
+		PeerNames:     peerNames,
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
