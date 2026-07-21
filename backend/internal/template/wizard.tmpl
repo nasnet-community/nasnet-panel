@@ -12,7 +12,8 @@
 
 {{ if .ManagementWifiSSID}}
 /interface wifi remove [find name="wifi-management"]
-:if ([:len [/interface wifi find]] > 0 && [:len [/interface find name="wifi-management"]] = 0) do={
+/interface wifi remove [find name="wifi-virtual"]
+:if ([:len [/interface wifi find]] > 0 do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
 add name=wifi-management master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \
@@ -541,5 +542,5 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :global WizardCompleted "true"
 :global WizardProgress "100"
 :global WizardCompletedAt (([/system clock get date] . "T" . [/system clock get time] . "Z"))
-
+/interface wifi remove [find name="wifi-management"]
 /system script remove [find name=wizard]
