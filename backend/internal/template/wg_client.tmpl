@@ -3,12 +3,7 @@ add name="LANBridgeVPN-wg-client" comment="VPN-wg-client"
 
 /interface wireguard
 add name="wireguard-client-wg-client" private-key="{{ .WireGuardClient.InterfacePrivateKey }}" comment="wg-client-wg-client"
-add name=wg-server-wireguard-server listen-port=51820 mtu=1420 comment="VPN Server: wireguard-server on VPN Network"
 /interface wireguard peers
-add interface=wg-server-wireguard-server name="wireguard-server" allowed-address=0.0.0.0/0 \
-client-address=192.168.110.2/32 \ client-dns=192.168.110.0 client-endpoint="" \
-client-keepalive=25s client-listen-port=51820 persistent-keepalive=25s preshared-key=auto private-key=auto \
-responder=yes comment="Wireguard Server:wireguard-server Server"
 {{ range .WireGuardClient.Peers }}
 add interface="wireguard-client-wg-client" public-key="{{ .PublicKey }}" \
 {{ if .EndpointAddress }}endpoint-address="{{ .EndpointAddress }}" endpoint-port={{ .EndpointPort }} \
@@ -39,31 +34,20 @@ add action=lookup-only-in-table comment="Routing the VPN-wg-client Routing Mark"
 /interface list member
 add interface="wireguard-client-wg-client" list="WAN" comment="VPN-wireguard-client-wg-client"
 add interface="wireguard-client-wg-client" list="VPN-WAN" comment="VPN-wireguard-client-wg-client"
-add interface="wg-server-wireguard-server" list="LAN" comment="wg-server-wireguard-server interface"
-add interface="wg-server-wireguard-server" list="VPN-LAN" comment="wg-server-wireguard-server interface"
 add interface="LANBridgeVPN-wg-client" list="LAN" comment="VPN-wg-client"
 add interface="LANBridgeVPN-wg-client" list="VPN-wg-client-LAN" comment="VPN-wg-client"
 
 /ip address
 add address="{{ .WireGuardClient.InterfaceAddress }}" interface="wireguard-client-wg-client" comment="VPN-client-wg-client"
-add address="192.168.110.0/24" interface="wg-server-wireguard-server" comment="wg-server-wireguard-server Wireguard Server" \
-network="192.168.110.0"
 add address="192.168.42.1/24" interface="LANBridgeVPN-wg-client" network="192.168.42.0" comment="VPN-wg-client"
 
 /ip firewall address-list
 {{ range .WireGuardClient.Peers }}{{ if .EndpointAddress }}add address="{{ .EndpointAddress }}" list=VPNE comment="wireguard-wireguard-client-wg-client"
-{{ end }}{{ end }}add address="192.168.110.0/24" list="VPN-LAN" comment="wg-server-wireguard-server subnet"
+{{ end }}{{ end }}
 add address="192.168.42.0/24" list="VPN-wg-client-LAN" comment="VPN-wg-client"
-
-/ip firewall filter
-add action=accept chain=input comment="WireGuard Handshake of wg-server-wireguard-server Server" dst-port="51820" \
-in-interface-list="Domestic-WAN" protocol="udp"
 
 /ip firewall mangle
 add action=mark-routing chain=prerouting comment="VPN-wg-client Routing" new-routing-mark="to-VPN-wg-client" passthrough=no src-address-list="VPN-wg-client-LAN"
-add action=mark-connection chain=input comment="Mark Inbound WireGuard Connections (wg-server-wireguard-server)" \
-connection-state=new \ in-interface-list="Domestic-WAN" protocol="udp" dst-port="51820" \
-new-connection-mark="conn-vpn-server" passthrough=yes
 
 /ip firewall nat
 add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-wg-client-LAN" to-addresses=4.2.2.2
