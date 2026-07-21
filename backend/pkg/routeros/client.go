@@ -10,6 +10,8 @@ import (
 	"time"
 
 	ros "github.com/go-routeros/routeros/v3"
+
+	"nasnet-panel/internal/config"
 )
 
 const (
@@ -100,7 +102,9 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 				continue
 			}
 		}
-		log.Printf("command: %v", sentence)
+		if !config.IsProduction() {
+			log.Printf("command: %v", sentence)
+		}
 		reply, err := c.conn.Run(sentence...)
 		if err == nil {
 			return reply, nil
@@ -113,7 +117,9 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 		}
 
 		// Network error: log and retry
-		log.Printf("[RouterOS] Connection error (attempt %d/%d): %v", attempt+1, maxRetries, err)
+		if !config.IsProduction() {
+			log.Printf("[RouterOS] Connection error (attempt %d/%d): %v", attempt+1, maxRetries, err)
+		}
 		lastErr = err
 		// Clear cache and reconnect for next retry
 		c.mu.Unlock()
