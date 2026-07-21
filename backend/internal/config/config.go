@@ -18,6 +18,11 @@ func Load() *Config {
 	}
 }
 
+// IsProduction reports whether the ENVIRONMENT env var is set to "production".
+func IsProduction() bool {
+	return os.Getenv("ENVIRONMENT") == "production"
+}
+
 func getEnv(key, defaultVal string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value

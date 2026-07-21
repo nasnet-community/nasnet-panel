@@ -9,6 +9,7 @@ import (
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 
 	"nasnet-panel/internal/auth"
+	"nasnet-panel/internal/config"
 	"nasnet-panel/internal/web"
 )
 
@@ -23,10 +24,10 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		LogError:    true,
 		LogRemoteIP: true,
 		LogValuesFunc: func(c echo.Context, v echomiddleware.RequestLoggerValues) error {
-			if v.Error == nil {
-				log.Printf("%s %s %d %v", v.Method, v.URI, v.Status, v.Latency)
-			} else {
+			if v.Error != nil {
 				log.Printf("%s %s %d %v error=%v", v.Method, v.URI, v.Status, v.Latency, v.Error)
+			} else if !config.IsProduction() {
+				log.Printf("%s %s %d %v", v.Method, v.URI, v.Status, v.Latency)
 			}
 			return nil
 		},
