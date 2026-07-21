@@ -49,7 +49,6 @@
 /system script environment remove [/system script environment find name !=WizardProgress && name !=WizardCurrentStep]
 /system script remove [find name!="wizard"]
 /system scheduler remove [find]
-:global WizardProgress "15"
 /system logging remove [find default=no]
 /system logging action remove [find default=no]
 /system ntp client servers remove [find dynamic=no]
@@ -57,9 +56,9 @@
 /tool graphing queue remove [find]
 /tool graphing resource remove [find]
 /interface l2tp-client remove [find]
-:global WizardProgress "20"
 /interface wireguard remove [find]
 /interface wireguard peers remove [find]
+:global WizardProgress "15"
 /ppp profile remove [find default=no]
 /ppp secret remove [find]
 /interface ovpn-server server remove [find]
@@ -72,7 +71,6 @@
   }
   /ip/nat-pmp/interfaces remove $i
 }
-:global WizardProgress "25"
 :foreach i in=[/ip/address find] do={
   :local comment [/ip/address get $i comment]
   :local interface [/ip/address get $i interface]
