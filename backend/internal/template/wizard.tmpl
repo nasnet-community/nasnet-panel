@@ -5,7 +5,7 @@
 
 {{ template "cleanup.tmpl" . }}
 
-:global WizardProgress "30"
+:global WizardProgress "20"
 
 :local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
@@ -34,7 +34,7 @@ add dont-require-permissions=no name="DomesticIPUpdate" owner=admin policy=ftp,r
 /certificate settings
 set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 
-:global WizardProgress "35"
+:global WizardProgress "25"
 
 {{if .EnableWifiAP }}
 /interface wifi{{range .WifiRadios}}{{if and (ne .Interface $.ForeignInterface.Interface) (or (not $.DomesticEnabled) (ne .Interface $.DomesticInterface.Interface))}}
@@ -52,7 +52,7 @@ set [ find name="wifi{{.Band}}-SplitLAN" ] steering="Split"{{end}}
 {{ else }}
 #seperate AP
 {{ end }}
-:global WizardProgress "40"
+:global WizardProgress "30"
 
 /interface bridge
 :if ([:len [/interface/bridge find name="LANBridgeSplit"]] = 0) do={
@@ -66,7 +66,7 @@ add name="LANBridgeForeign" comment="Foreign"
 add name="LANBridgeVPN" comment="VPN"
 add name="LANBridgeForeign-Foreign Link" comment="Foreign-Foreign Link"
 add name="FTAH" comment="Foreign Table Address Holder"
-
+:global WizardProgress "35"
 {{ if eq .ForeignInterface.Type "wifi" }}
 /interface wifi
 set [ find default-name={{ .ForeignInterface.Interface }} ] name="{{ .ForeignInterface.Interface }}-Foreign-WAN" comment="Foreign Link WAN" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
@@ -80,7 +80,7 @@ set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticI
 security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 {{ end}}
-
+:global WizardProgress "40"
 {{ if eq .ForeignInterface.Type "ether" }}
 /interface ethernet set [ find default-name={{ .ForeignInterface.Interface }} ] comment="WAN - Foreign Link"
 {{ end }}
@@ -134,13 +134,13 @@ add name="VPN-Foreign-pool" ranges=192.168.122.2-192.168.122.254 comment="VPN-Fo
 /ppp profile
 add address-list="VPN-LAN" dns-server="192.168.120.1" interface-list="VPN-LAN" \
 local-address="192.168.120.1" name="VPN-VPN" remote-address="VPN-VPN-pool" \
-use-encryption=yes use-ipv6=no use-upnp=yes
+use-encryption=yes use-ipv6=no use-upnp=yes comment="Inbound: VPN -> Outbound: VPN"
 add address-list="Split-LAN" dns-server="192.168.121.1" interface-list="Split-LAN" \
 local-address="192.168.121.1" name="VPN-Split" remote-address="VPN-Split-pool" \
-use-encryption=yes use-ipv6=no use-upnp=yes
+use-encryption=yes use-ipv6=no use-upnp=yes comment="Inbound: VPN -> Outbound: Split"
 add address-list="Foreign-LAN" dns-server="192.168.122.1" interface-list="Foreign-LAN" \
 local-address="192.168.122.1" name="VPN-Foreign" remote-address="VPN-Foreign-pool" \
-use-encryption=yes use-ipv6=no use-upnp=yes
+use-encryption=yes use-ipv6=no use-upnp=yes comment="Inbound: VPN -> Outbound: Foreign"
 
 /ip dhcp-server
 :if ([:len [/ip/dhcp-server find name="DHCP-Split"]] = 0) do={
@@ -470,8 +470,6 @@ set www-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=443
 add chain=input action=drop
 add chain=forward action=drop
 
-:global WizardProgress "75"
-
 
 /system clock
 set date={{ .CurrentDate }}
@@ -520,15 +518,15 @@ add host="4.2.2.1" interval=5s timeout=500ms \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
 
-:global WizardProgress "80"
+:global WizardProgress "75"
 
 {{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
 
-:global WizardProgress "85"
+:global WizardProgress "80"
 
 {{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 
-:global WizardProgress "90"
+:global WizardProgress "85"
 
 {{if and .OvpnServer .DomesticEnabled}}{{ template "ovpn_server.tmpl" . }}{{end}}
 
