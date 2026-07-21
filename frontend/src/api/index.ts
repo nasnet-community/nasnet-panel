@@ -129,6 +129,11 @@ export {
   deleteWireguardPeer,
   createWireguardClient,
   importWireguardConfig,
+  listVPNUsers,
+  createVPNUser,
+  updateVPNUser,
+  deleteVPNUser,
+  listVPNProfiles,
   fetchNasnetVpnCredentials,
   finalizeWizard,
   fetchWizardStatus,
@@ -173,6 +178,10 @@ export {
   type CreateWireguardClientResponse,
   type ImportWireguardConfigRequest,
   type ImportWireguardConfigResponse,
+  type VPNUserResponse,
+  type CreateVPNUserRequest,
+  type UpdateVPNUserRequest,
+  type VPNProfileResponse,
 } from './vpn';
 export { ApiError } from './http';
 export { isAbortError } from './abort';

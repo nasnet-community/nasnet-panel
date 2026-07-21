@@ -52,15 +52,6 @@ export function ServersTable({
           },
         },
         {
-          key: 'remoteIp',
-          header: 'Remote IP',
-          render: (s: VPNServer) => {
-            if (!s.remoteIp && !s.ipPool) return '–';
-            if (s.remoteIp && s.ipPool) return `${s.remoteIp} (${s.ipPool})`;
-            return s.remoteIp || s.ipPool;
-          },
-        },
-        {
           key: 'actions',
           header: 'Actions',
           render: (s: VPNServer) => {
