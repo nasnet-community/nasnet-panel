@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
 import {
   Button,
   Dialog,
@@ -22,7 +21,6 @@ import {
   type CreateWireguardServerRequest,
   type OvpnServerTaskStatus,
   type VPNCredentials,
-  type VpnUser,
 } from '../../../api';
 import { isCIDR, isPort, validateIdentifier } from '../../../utils/validators';
 
@@ -34,11 +32,6 @@ const TYPE_OPTIONS: Array<{ value: AddVpnServerType; label: string }> = [
 ];
 
 const POLL_INTERVAL_MS = 1000;
-
-interface OvpnUserDraft {
-  username: string;
-  password: string;
-}
 
 interface Props {
   creds: VPNCredentials | null;
@@ -82,7 +75,6 @@ interface FormProps {
 
 function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
   const [certPassphrase, setCertPassphrase] = useState('');
-  const [users, setUsers] = useState<OvpnUserDraft[]>([{ username: '', password: '' }]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -135,40 +127,14 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
     };
   }, [taskId]);
 
-  const setUserField = (idx: number, field: keyof OvpnUserDraft, value: string) => {
-    setUsers((prev) => prev.map((u, i) => (i === idx ? { ...u, [field]: value } : u)));
-  };
-
-  const addUser = () => setUsers((prev) => [...prev, { username: '', password: '' }]);
-  const removeUser = (idx: number) =>
-    setUsers((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== idx)));
-
-  const errors = useMemo(() => {
-    const dupUsernames = new Set<string>();
-    const seen = new Set<string>();
-    users.forEach((u) => {
-      const v = u.username.trim();
-      if (!v) return;
-      if (seen.has(v)) dupUsernames.add(v);
-      else seen.add(v);
-    });
-    return {
+  const errors = useMemo(
+    () => ({
       certPassphrase: certPassphrase ? null : 'Certificate passphrase is required.',
-      users: users.map((u) => ({
-        username:
-          u.username.trim() === ''
-            ? 'Username is required.'
-            : dupUsernames.has(u.username.trim())
-              ? 'Duplicate username.'
-              : null,
-        password: u.password === '' ? 'Password is required.' : null,
-      })),
-    };
-  }, [certPassphrase, users]);
+    }),
+    [certPassphrase],
+  );
 
-  const hasErrors =
-    errors.certPassphrase !== null ||
-    errors.users.some((e) => e.username !== null || e.password !== null);
+  const hasErrors = errors.certPassphrase !== null;
 
   const canSubmit = !!creds && !submitting;
 
@@ -179,7 +145,7 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
     setSubmitting(true);
     const body: CreateOvpnServerRequest = {
       clientCertificatePassword: certPassphrase,
-      users: users.map<VpnUser>((u) => ({ username: u.username.trim(), password: u.password })),
+      users: [],
     };
     try {
       const res = await createOvpnServer(creds, body);
@@ -225,70 +191,13 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
             onChange={(e) => setCertPassphrase(e.target.value)}
             aria-label="Client certificate passphrase"
             autoComplete="new-password"
+            aria-invalid={submitAttempted && !!errors.certPassphrase}
           />
+          {submitAttempted && errors.certPassphrase ? (
+            <FormError>{errors.certPassphrase}</FormError>
+          ) : null}
         </Label>
       </FieldRow>
-      {users.map((u, idx) => (
-        <div
-          key={idx}
-          style={{
-            display: 'flex',
-            gap: 'var(--space-lg)',
-            alignItems: 'flex-start',
-          }}
-        >
-          <Label style={{ flex: 1, minWidth: 0 }}>
-            <span>Username</span>
-            <Input
-              value={u.username}
-              onChange={(e) => setUserField(idx, 'username', e.target.value)}
-              aria-label={`Username ${idx + 1}`}
-              autoComplete="off"
-            />
-            {submitAttempted && errors.users[idx].username ? (
-              <FormError>{errors.users[idx].username}</FormError>
-            ) : null}
-          </Label>
-          <Label style={{ flex: 1, minWidth: 0 }}>
-            <span>Password</span>
-            <PasswordInput
-              value={u.password}
-              onChange={(e) => setUserField(idx, 'password', e.target.value)}
-              aria-label={`Password ${idx + 1}`}
-              autoComplete="new-password"
-            />
-            {submitAttempted && errors.users[idx].password ? (
-              <FormError>{errors.users[idx].password}</FormError>
-            ) : null}
-          </Label>
-          <div
-            style={{
-              flex: '0 0 auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--space-xs)',
-            }}
-          >
-            <span aria-hidden style={{ fontSize: 'var(--font-sm)', visibility: 'hidden' }}>
-              .
-            </span>
-            <Button
-              variant="danger"
-              onClick={() => removeUser(idx)}
-              disabled={users.length <= 1}
-              title={`Remove user ${idx + 1}`}
-              aria-label={`Remove user ${idx + 1}`}
-            >
-              <Trash2 size={16} aria-hidden />
-            </Button>
-          </div>
-        </div>
-      ))}
-      <div>
-        <Button variant="primary" onClick={addUser}>
-          <Plus size={14} aria-hidden /> Add user
-        </Button>
-      </div>
       {error ? <FormError role="alert">{error}</FormError> : null}
       <FieldRow>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
