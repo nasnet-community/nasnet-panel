@@ -21,11 +21,8 @@ export async function scanWirelessNetworks(): Promise<WirelessNetwork[]> {
 
 export async function verifyWirelessPassword(
   _ssid: string,
-  password: string,
+  _password: string,
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
   await new Promise((r) => setTimeout(r, 600));
-  if (password.length < 8) {
-    return { ok: false, reason: 'Password must be at least 8 characters.' };
-  }
   return { ok: true };
 }
