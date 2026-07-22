@@ -102,6 +102,7 @@ export {
   DIAG_REPORT_FILENAME,
   type DiagStatusResponse,
 } from './diag';
+export { fetchNetStatus, type NetStatusEntry, type NetHostType } from './net';
 export {
   listVPNClients,
   updateVPNClient,
