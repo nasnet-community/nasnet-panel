@@ -68,7 +68,13 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
       .then((list) => {
         if (controller.signal.aborted) return;
         const sorted = [...list].sort((a, b) => signalNumber(b.signal) - signalNumber(a.signal));
-        setNetworks(sorted);
+        const seen = new Set<string>();
+        const unique = sorted.filter((n) => {
+          if (!n.ssid || seen.has(n.ssid)) return false;
+          seen.add(n.ssid);
+          return true;
+        });
+        setNetworks(unique);
         setScanning(false);
       })
       .catch((err: Error) => {
@@ -97,8 +103,7 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
   );
 
   const selected = networks.find((n) => n.ssid === ssid) ?? null;
-  const isOpenNetwork = isOpenSecurity(selected?.security);
-  const canVerify = Boolean(selected) && (isOpenNetwork || password.length >= 8);
+  const canVerify = Boolean(selected);
 
   const onVerify = async () => {
     if (!selected || !selected.ssid) return;
@@ -120,7 +125,7 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
       onClose={verifying ? () => undefined : onClose}
       size="md"
       title="Choose a wireless network"
-      description="Pick a network within range and enter its password."
+      description="Pick a network within range. Enter its password if it requires one."
       labelledBy="wireless-scan-title"
       footer={
         <>
@@ -151,9 +156,9 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
             disabled={scanning}
           />
         </Label>
-        {selected && !isOpenNetwork ? (
+        {selected ? (
           <Label>
-            <span>Password</span>
+            <span>Password (optional)</span>
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
