@@ -12,6 +12,7 @@ import {
 } from '../../api';
 import { useSession } from '../../state/SessionContext';
 import { useRouter } from '../../state/RouterStoreContext';
+import { useWizardGate } from '../../state/WizardGateContext';
 import { buildEasyConfigScript, type EasyConfigInput } from '../../utils/rsc-builder';
 import { canAdvance } from './validation';
 import { initial, reducer, stepOrder, type State } from './state';
@@ -148,6 +149,7 @@ function buildScript(state: State): string {
 export function useEasyConfig(routerId: string | undefined) {
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
+  const { markCompleted } = useWizardGate();
   const [state, dispatch] = useReducer(reducer, initial);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState<boolean>(false);
@@ -213,37 +215,41 @@ export function useEasyConfig(routerId: string | undefined) {
     [],
   );
 
-  const trackProgress = useCallback((creds: VPNCredentials) => {
-    const ctl = poll.current;
-    ctl.cancelled = false;
-    const deadline = Date.now() + POLL_TIMEOUT_MS;
+  const trackProgress = useCallback(
+    (creds: VPNCredentials) => {
+      const ctl = poll.current;
+      ctl.cancelled = false;
+      const deadline = Date.now() + POLL_TIMEOUT_MS;
 
-    const tick = async () => {
-      if (ctl.cancelled) return;
-      try {
-        const status = await fetchWizardStatus(creds);
+      const tick = async () => {
         if (ctl.cancelled) return;
-        dispatch({ type: 'progress', value: status.progress });
-        if (status.progress >= 100) {
-          dispatch({ type: 'applied' });
+        try {
+          const status = await fetchWizardStatus(creds);
+          if (ctl.cancelled) return;
+          dispatch({ type: 'progress', value: status.progress });
+          if (status.progress >= 100) {
+            dispatch({ type: 'applied' });
+            if (routerId) markCompleted(routerId);
+            return;
+          }
+        } catch {
+          // router drops off while its addressing is rewritten; keep polling until the deadline
+        }
+        if (ctl.cancelled) return;
+        if (Date.now() > deadline) {
+          dispatch({ type: 'error', message: 'Timed out waiting for the router to finish.' });
+          dispatch({ type: 'applying', value: false });
           return;
         }
-      } catch {
-        // router drops off while its addressing is rewritten; keep polling until the deadline
-      }
-      if (ctl.cancelled) return;
-      if (Date.now() > deadline) {
-        dispatch({ type: 'error', message: 'Timed out waiting for the router to finish.' });
-        dispatch({ type: 'applying', value: false });
-        return;
-      }
-      ctl.timer = setTimeout(() => {
-        void tick();
-      }, POLL_INTERVAL_MS);
-    };
+        ctl.timer = setTimeout(() => {
+          void tick();
+        }, POLL_INTERVAL_MS);
+      };
 
-    void tick();
-  }, []);
+      void tick();
+    },
+    [routerId, markCompleted],
+  );
 
   const onApply = useCallback(async () => {
     const creds = routerId ? getCredentials(routerId) : undefined;

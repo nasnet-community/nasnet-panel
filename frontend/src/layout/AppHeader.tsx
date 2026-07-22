@@ -3,11 +3,13 @@ import { HeaderActions } from './HeaderActions';
 import { ROUTER_SECTIONS, activeRouterSectionId } from './routerSections';
 import { useSession } from '../state/SessionContext';
 import { useRouter, useRouterStore } from '../state/RouterStoreContext';
+import { useWizardGate } from '../state/WizardGateContext';
 import styles from './AppHeader.module.scss';
 
 export function AppHeader() {
   const { activeRouterId } = useSession();
   const { lastConnectedRouterId, selectedRouterId } = useRouterStore();
+  const { statusFor } = useWizardGate();
   const location = useLocation();
   const targetId = activeRouterId ?? lastConnectedRouterId ?? selectedRouterId ?? null;
   const router = useRouter(targetId ?? undefined);
@@ -25,7 +27,7 @@ export function AppHeader() {
           <HeaderActions
             routerName={router?.name}
             routerId={targetId ?? undefined}
-            sections={targetId ? ROUTER_SECTIONS : undefined}
+            sections={targetId && statusFor(targetId) === 'completed' ? ROUTER_SECTIONS : undefined}
             activeSectionId={
               targetId ? activeRouterSectionId(location.pathname, targetId) : undefined
             }
