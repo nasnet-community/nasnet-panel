@@ -120,6 +120,18 @@ export interface TestFixtures {
 
 export const test = base.extend<TestFixtures>({
   resetMocks: async ({ context }, use) => {
+    // routers default to a completed wizard; gating specs override this route
+    await context.route('**/api/wizard/status', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 200,
+          message: 'OK',
+          data: { completed: true, completedAt: null, progress: 100 },
+        }),
+      });
+    });
     await use(async () => {
       await context.addInitScript(() => {
         try {

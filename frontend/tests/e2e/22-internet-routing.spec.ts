@@ -456,9 +456,10 @@ test.describe('Internet routing page', () => {
     expect(box?.width ?? 0).toBeGreaterThan(375);
   });
 
-  test('Internet tab is enabled', async ({ page, resetMocks, seedRouter }) => {
+  test('Internet tab is enabled', async ({ page, resetMocks, seedRouter, mockOverviewBackend }) => {
     await resetMocks();
-    await seedRouter({ id: 'rtr_tabs', name: 'Tabs Router' });
+    await seedRouter({ id: 'rtr_tabs', name: 'Tabs Router', host: '10.0.0.9' });
+    await mockOverviewBackend({ id: 'rtr_tabs' });
     await page.goto('/router/rtr_tabs');
 
     const tab = page.getByRole('tab', { name: /internet/i });

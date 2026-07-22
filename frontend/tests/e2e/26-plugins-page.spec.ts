@@ -7,9 +7,11 @@ test.describe('Plugins page', () => {
     page,
     resetMocks,
     seedRouter,
+    mockOverviewBackend,
   }) => {
     await resetMocks();
     await seedRouter(ROUTER);
+    await mockOverviewBackend({ id: ROUTER.id });
     await page.goto(`/router/${ROUTER.id}`);
 
     const pluginsTab = page.getByRole('tab', { name: 'Plugins' });
