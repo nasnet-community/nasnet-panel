@@ -45,6 +45,7 @@ CONFIG_FILE=""
 VERSION=""
 IMAGE_TAR=""
 LAN_PORT=8080
+HTTPS_LAN_PORT=8443
 
 ROUTER_IP=""
 ROUTER_USER=""
@@ -61,7 +62,8 @@ Usage: install.sh [options]
   --config <file>      env-style file: ROUTER_IP=, ROUTER_USER=, ROUTER_PASS=
   --version <tag>      Release tag to install (default: snapshot).
   --image-tar <path>   Use a local tar instead of downloading a release asset.
-  --lan-port <port>    LAN port for dstnat to panel (default: 8080).
+  --lan-port <port>    LAN port for dstnat to panel HTTP (default: 8080).
+  --https-lan-port <port>  LAN port for dstnat to panel HTTPS (default: 8443).
   --no-lan-baseline    Skip the baseline LAN setup (LANBridgeSplit, 192.168.10.0/24).
   --no-rollback        Do not undo partial state on failure.
   -v, --verbose        Verbose output.
@@ -98,7 +100,8 @@ while [[ $# -gt 0 ]]; do
     --config)      CONFIG_FILE="${2:?--config requires a path}"; shift ;;
     --version)     VERSION="${2:?--version requires a tag}"; shift ;;
     --image-tar)   IMAGE_TAR="${2:?--image-tar requires a path}"; shift ;;
-    --lan-port)    LAN_PORT="${2:?--lan-port requires a port}"; shift ;;
+    --lan-port)       LAN_PORT="${2:?--lan-port requires a port}"; shift ;;
+    --https-lan-port) HTTPS_LAN_PORT="${2:?--https-lan-port requires a port}"; shift ;;
     --no-lan-baseline) NO_LAN_BASELINE=1 ;;
     --no-rollback) NO_ROLLBACK=1 ;;
     -v|--verbose)  VERBOSE=1 ;;
@@ -648,10 +651,20 @@ configure_network() {
     "chain=dstnat action=dst-nat protocol=tcp dst-port=${LAN_PORT} to-addresses=${VETH_IP} to-ports=80 comment=\"${COMMENT_TAG}-dstnat\""
   ros_move_to_top /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat\""
 
+  ros_ensure "dstnat tcp/${HTTPS_LAN_PORT} -> ${VETH_IP}:443" \
+    /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat-https\"" \
+    "chain=dstnat action=dst-nat protocol=tcp dst-port=${HTTPS_LAN_PORT} to-addresses=${VETH_IP} to-ports=443 comment=\"${COMMENT_TAG}-dstnat-https\""
+  ros_move_to_top /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat-https\""
+
   ros_ensure "forward accept tcp/80 -> ${VETH_IP}" \
     /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward\"" \
     "chain=forward action=accept protocol=tcp dst-address=${VETH_IP} dst-port=80 comment=\"${COMMENT_TAG}-forward\""
   ros_move_to_top /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward\""
+
+  ros_ensure "forward accept tcp/443 -> ${VETH_IP}" \
+    /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\"" \
+    "chain=forward action=accept protocol=tcp dst-address=${VETH_IP} dst-port=443 comment=\"${COMMENT_TAG}-forward-https\""
+  ros_move_to_top /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
 }
 
 deploy_container() {
@@ -826,9 +839,11 @@ uninstall_path() {
     ros_remove "container ${CONTAINER_NAME}" /container "name=${CONTAINER_NAME}"
   fi
 
-  ros_remove "nat ${COMMENT_TAG}-srcnat"  /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
-  ros_remove "nat ${COMMENT_TAG}-dstnat"  /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""
-  ros_remove "filter forward"             /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward\""
+  ros_remove "nat ${COMMENT_TAG}-srcnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
+  ros_remove "nat ${COMMENT_TAG}-dstnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""
+  ros_remove "nat ${COMMENT_TAG}-dstnat-https" /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat-https\""
+  ros_remove "filter forward"                  /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward\""
+  ros_remove "filter forward-https"            /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
   ros_remove "bridge port ${VETH_NAME}"   /interface/bridge/port "interface=${VETH_NAME}"
   ros_remove "ip ${BRIDGE_IP_CIDR}"       /ip/address          "address=\"${BRIDGE_IP_CIDR}\""
   ros_remove "bridge ${BRIDGE_NAME}"      /interface/bridge    "name=${BRIDGE_NAME}"
@@ -895,9 +910,12 @@ main() {
     log "\033[32m✓ Done. Baseline LAN ${LAN_BRIDGE_IP%.*}.0/24 (bridge ${LAN_BRIDGE}) configured.\033[0m"
     log "  Reconnect (or renew your DHCP lease) on the ${LAN_BRIDGE_IP%.*}.x network,"
     log "  then open \033[1mhttp://${LAN_BRIDGE_IP}:${final_port}/\033[0m"
+    log "         or \033[1mhttps://${LAN_BRIDGE_IP}:${HTTPS_LAN_PORT}/\033[0m"
     log "  If it does not respond, the panel is still at \033[1mhttp://${ROUTER_IP}:${final_port}/\033[0m"
+    log "                                             or \033[1mhttps://${ROUTER_IP}:${HTTPS_LAN_PORT}/\033[0m"
   else
     log "\033[32m✓ Done. Panel reachable at http://${ROUTER_IP}:${final_port}/\033[0m"
+    log "                        or https://${ROUTER_IP}:${HTTPS_LAN_PORT}/"
   fi
 }
 
