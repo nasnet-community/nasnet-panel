@@ -31,7 +31,7 @@ RUN set -eux; \
 FROM busybox:musl AS production
 COPY --from=gobuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=gobuilder /out/app /app
-ENV PORT=80 GO_ENV=production ENVIRONMENT=production GOMAXPROCS=1 SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-EXPOSE 80
+ENV PORT=80 HTTPS_PORT=443 GO_ENV=production ENVIRONMENT=production GOMAXPROCS=1 SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+EXPOSE 80 443
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD wget -qO- http://127.0.0.1/health
 ENTRYPOINT ["/app"]
