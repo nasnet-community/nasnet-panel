@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/internal/middleware"
 	"nasnet-panel/internal/routes"
+	"nasnet-panel/internal/server"
 	"nasnet-panel/pkg/utils"
 )
 
@@ -61,11 +61,7 @@ func main() {
 		}
 	}()
 
-	if err := e.StartServer(&http.Server{
-		Addr:              ":" + httpsPort,
-		TLSConfig:         tlsConfig,
-		ReadHeaderTimeout: 15 * time.Second,
-	}); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	if err := server.ServeTLS(e, ":"+httpsPort, tlsConfig); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("HTTPS server error: %v", err)
 	}
 }
