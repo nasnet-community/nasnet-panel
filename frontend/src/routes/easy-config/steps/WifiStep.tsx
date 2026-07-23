@@ -24,6 +24,7 @@ interface Props {
   state: State;
   dispatch: React.Dispatch<Action>;
   wifiInterfaces: WifiInterfaceResponse[];
+  wifiSupported: boolean;
   footer?: React.ReactNode;
 }
 
@@ -49,7 +50,7 @@ function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
   return null;
 }
 
-export function WifiStep({ state, dispatch, wifiInterfaces, footer }: Props) {
+export function WifiStep({ state, dispatch, wifiInterfaces, wifiSupported, footer }: Props) {
   const setText = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: 'setField', field, value: e.target.value });
 
@@ -76,16 +77,27 @@ export function WifiStep({ state, dispatch, wifiInterfaces, footer }: Props) {
       <CardHeader>
         <CardTitle>Wireless settings</CardTitle>
         <CardDescription>
-          One network name and password for the router&apos;s Wi-Fi. Avoid words like
-          &quot;starlink&quot;, &quot;VPN&quot;, or &quot;Iran&quot; in the SSID.
+          {wifiSupported ? (
+            <>
+              One network name and password for the router&apos;s Wi-Fi. Avoid words like
+              &quot;starlink&quot;, &quot;VPN&quot;, or &quot;Iran&quot; in the SSID.
+            </>
+          ) : (
+            'This router has no Wi-Fi hardware, so wireless options are unavailable.'
+          )}
         </CardDescription>
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack>
           <Inline>
             <Switch
-              label={`Wi-Fi ${state.wifiEnabled ? 'enabled' : 'disabled'}`}
+              label={
+                wifiSupported
+                  ? `Wi-Fi ${state.wifiEnabled ? 'enabled' : 'disabled'}`
+                  : 'Wi-Fi not available'
+              }
               checked={state.wifiEnabled}
+              disabled={!wifiSupported}
               onChange={(e) =>
                 dispatch({ type: 'setField', field: 'wifiEnabled', value: e.target.checked })
               }
