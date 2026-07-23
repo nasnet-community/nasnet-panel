@@ -75,6 +75,11 @@
     transform: translateX(14px);
   }
 
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   &:focus-visible {
     outline: 2px solid var(--color-success);
     outline-offset: 2px;
