@@ -156,6 +156,12 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
             disabled={scanning}
           />
         </Label>
+        {scanning ? (
+          <div className={styles.scanning} role="status">
+            <span className={styles.spinner} aria-hidden />
+            <span>Scanning for nearby networks…</span>
+          </div>
+        ) : null}
         {selected ? (
           <Label>
             <span>Password (optional)</span>

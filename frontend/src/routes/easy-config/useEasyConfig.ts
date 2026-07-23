@@ -154,6 +154,7 @@ export function useEasyConfig(routerId: string | undefined) {
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState<boolean>(false);
   const [wifiInterfaces, setWifiInterfaces] = useState<WifiInterfaceResponse[]>([]);
+  const [wifiSupported, setWifiSupported] = useState<boolean>(true);
 
   useEffect(() => {
     if (!routerId) return;
@@ -164,6 +165,7 @@ export function useEasyConfig(routerId: string | undefined) {
     if (!creds || !host) {
       setInterfaces([]);
       setWifiInterfaces([]);
+      setWifiSupported(true);
       setInterfacesLoading(false);
       return;
     }
@@ -189,6 +191,10 @@ export function useEasyConfig(routerId: string | undefined) {
         const list = await fetchWifiInterfaces({ host, ...creds }, controller.signal);
         if (controller.signal.aborted) return;
         setWifiInterfaces(list);
+        setWifiSupported(list.length > 0);
+        if (list.length === 0) {
+          dispatch({ type: 'setField', field: 'wifiEnabled', value: false });
+        }
       } catch {
         if (controller.signal.aborted) return;
         setWifiInterfaces([]);
@@ -298,6 +304,7 @@ export function useEasyConfig(routerId: string | undefined) {
     interfaces,
     interfacesLoading,
     wifiInterfaces,
+    wifiSupported,
     script,
     onApply,
     goNext,

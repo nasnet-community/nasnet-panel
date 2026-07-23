@@ -20,6 +20,7 @@ export function EasyConfigWizard() {
     interfaces,
     interfacesLoading,
     wifiInterfaces,
+    wifiSupported,
     onApply,
     goNext,
     goPrev,
@@ -107,6 +108,7 @@ export function EasyConfigWizard() {
             state={state}
             dispatch={dispatch}
             wifiInterfaces={wifiInterfaces}
+            wifiSupported={wifiSupported}
             footer={footer}
           />
         );
