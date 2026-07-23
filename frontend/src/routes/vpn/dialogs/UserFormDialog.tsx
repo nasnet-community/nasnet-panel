@@ -97,9 +97,9 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
   const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
 
   const profileOptions = useMemo(() => {
-    const options = profiles.map((p) => ({ value: p.name, label: p.name }));
+    const options = profiles.map((p) => ({ value: p.name, label: p.name, description: p.comment }));
     if (user?.profile && !profiles.some((p) => p.name === user.profile)) {
-      options.unshift({ value: user.profile, label: user.profile });
+      options.unshift({ value: user.profile, label: user.profile, description: undefined });
     }
     return options;
   }, [profiles, user?.profile]);
