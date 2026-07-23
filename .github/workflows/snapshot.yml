@@ -136,6 +136,42 @@ jobs:
             - `nasnet-panel-dev-amd64.tar` (RouterOS x86_64)
             - `nasnet-panel-dev-arm64.tar` (RouterOS arm64)
             - `nasnet-panel-dev-armv7.tar` (RouterOS arm)
+
+            Windows GUI installer:
+            - `nasnet-panel-installer-windows-amd64.exe`
           files: |
             dist/*.tar
             dist/*.tar.sha256
+
+  installer:
+    needs: package
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-go-backend
+        with:
+          go-version-file: installer/windows/go.mod
+          cache-dependency-path: installer/windows/go.sum
+
+      - name: Build Windows installer
+        working-directory: installer/windows
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
+            go build -trimpath -tags desktop,production \
+            -ldflags "-s -w -H windowsgui" \
+            -o dist/nasnet-panel-installer-windows-amd64.exe .
+          ( cd dist && sha256sum nasnet-panel-installer-windows-amd64.exe > nasnet-panel-installer-windows-amd64.exe.sha256 )
+
+      - name: Publish installer to snapshot release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: snapshot
+          prerelease: true
+          files: |
+            installer/windows/dist/*.exe
+            installer/windows/dist/*.exe.sha256

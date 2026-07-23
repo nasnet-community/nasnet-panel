@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nasnet Panel Installer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <img class="logo" src="logo.png" alt="" />
+        <div class="brand">Nasnet Panel</div>
+        <div class="subtitle">Installer</div>
+      </header>
+
+      <section id="view-form" class="view">
+        <div class="card">
+          <h2>Router</h2>
+          <label class="field">
+            <span>Router IP or hostname</span>
+            <input id="host" placeholder="192.168.88.1" autocomplete="off" spellcheck="false" />
+          </label>
+          <div class="row">
+            <label class="field">
+              <span>User</span>
+              <input id="user" placeholder="admin" autocomplete="off" spellcheck="false" />
+            </label>
+            <div class="field">
+              <span>Password</span>
+              <div class="password-wrap">
+                <input id="password" type="password" />
+                <button
+                  id="btn-toggle-password"
+                  type="button"
+                  class="password-toggle"
+                  aria-label="Show password"
+                >
+                  <svg
+                    id="icon-eye"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+                    />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <svg
+                    id="icon-eye-off"
+                    class="hidden"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"
+                    />
+                    <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+                    <path
+                      d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"
+                    />
+                    <path d="m2 2 20 20" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div id="form-error" class="error hidden"></div>
+
+          <details>
+            <summary>Advanced options</summary>
+            <div class="row">
+              <label class="field">
+                <span>Winbox port</span>
+                <input id="winboxPort" type="number" value="8291" min="1" max="65535" />
+              </label>
+              <label class="field">
+                <span>SSH port</span>
+                <input id="sshPort" type="number" value="22" min="1" max="65535" />
+              </label>
+            </div>
+            <div class="row">
+              <label class="field">
+                <span>HTTP LAN port</span>
+                <input id="lanPort" type="number" value="8080" min="1" max="65535" />
+              </label>
+              <label class="field">
+                <span>HTTPS LAN port</span>
+                <input id="httpsLanPort" type="number" value="8443" min="1" max="65535" />
+              </label>
+            </div>
+            <fieldset>
+              <legend>Image source</legend>
+              <label class="radio">
+                <input type="radio" name="source" value="snapshot" checked />
+                <span>Latest snapshot</span>
+              </label>
+              <label class="radio">
+                <input type="radio" name="source" value="release" />
+                <span>Release tag</span>
+                <input id="version" placeholder="v1.2.3" autocomplete="off" spellcheck="false" />
+              </label>
+              <label class="radio">
+                <input type="radio" name="source" value="local" />
+                <span>Local tar</span>
+                <button id="btn-pick-tar" type="button" class="small">Browse</button>
+                <span id="tar-path" class="mono"></span>
+              </label>
+            </fieldset>
+            <label class="check">
+              <input type="checkbox" id="skipLanBaseline" />
+              <span>Skip LAN baseline (LANBridgeSplit, 192.168.10.0/24)</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="dryRun" />
+              <span>Dry run (print actions, change nothing)</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="noRollback" />
+              <span>Do not roll back partial state on failure</span>
+            </label>
+          </details>
+
+          <div class="actions">
+            <button id="btn-install" class="primary">Install</button>
+            <button id="btn-uninstall" class="danger-outline">Uninstall</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-run" class="view hidden">
+        <div class="columns">
+          <div class="card steps-card">
+            <h2 id="run-title">Installing</h2>
+            <div id="router-info" class="router-info hidden"></div>
+            <ul id="steps"></ul>
+            <div id="run-error" class="error hidden"></div>
+            <div class="actions">
+              <button id="btn-cancel" class="danger-outline">Cancel</button>
+              <button id="btn-back" class="hidden">Back</button>
+            </div>
+          </div>
+          <div class="card log-card">
+            <h2>Log</h2>
+            <pre id="log"></pre>
+          </div>
+        </div>
+        <div id="done" class="card done hidden">
+          <h2>Done</h2>
+          <p id="done-note"></p>
+          <div id="done-urls"></div>
+          <div class="actions">
+            <button id="btn-again">Back to start</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <button id="btn-help" type="button" class="footer-link">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+          <span>Help</span>
+        </button>
+        <button id="btn-telegram" type="button" class="footer-link">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m22 2-7 20-4-9-9-4Z" />
+            <path d="M22 2 11 13" />
+          </svg>
+          <span>Telegram support</span>
+        </button>
+        <button id="btn-github" type="button" class="footer-link">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"
+            />
+          </svg>
+          <span>Report a bug</span>
+        </button>
+      </footer>
+
+      <div id="modal-device" class="modal hidden">
+        <div class="modal-box">
+          <h3>Physical confirmation required</h3>
+          <div id="device-ask">
+            <p>RouterOS requires physical confirmation to enable container mode.</p>
+            <p>After you press Proceed, within 120 seconds do one of the following:</p>
+            <ol>
+              <li>
+                If your router has a reset/mode button: press it briefly while the router is powered
+                on.
+              </li>
+              <li>
+                If your router has no button (x86 / CHR): perform a cold power-cycle (unplug power,
+                plug back in).
+              </li>
+            </ol>
+            <div class="actions">
+              <button id="btn-device-ok" class="primary">Proceed</button>
+              <button id="btn-device-no">Abort</button>
+            </div>
+          </div>
+          <div id="device-wait" class="hidden">
+            <p><span class="spinner"></span> Waiting for physical confirmation...</p>
+            <p class="mono">
+              <span id="device-remaining">120</span>s left, router is
+              <span id="device-state">online</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-uninstall" class="modal hidden">
+        <div class="modal-box">
+          <h3>Uninstall Nasnet Panel?</h3>
+          <p>
+            This stops and removes the container, its network configuration, and uploaded files from
+            the router.
+          </p>
+          <div class="actions">
+            <button id="btn-uninstall-ok" class="danger">Uninstall</button>
+            <button id="btn-uninstall-no">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
