@@ -205,10 +205,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return err
 	}
 
-	if err := client.SetEnvironmentVariable("WizardProgress", "0"); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
-	}
-
 	domesticEnabled := req.Domestic != nil && req.Domestic.Interface != ""
 
 	if req.Foreign == nil || req.Foreign.Interface == "" {
