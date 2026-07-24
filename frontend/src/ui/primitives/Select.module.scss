@@ -131,6 +131,19 @@
   user-select: none;
 }
 
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.optionDescription {
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-regular);
+}
+
 .optionActive {
   background: var(--color-surface-alt);
 }

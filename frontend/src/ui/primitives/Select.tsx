@@ -13,6 +13,7 @@ import styles from './Select.module.scss';
 export interface SelectOption {
   value: string;
   label: string;
+  description?: string;
   disabled?: boolean;
 }
 
@@ -337,7 +338,12 @@ export const Select: React.FC<SelectProps> = (props) => {
                           selectAt(idx);
                         }}
                       >
-                        <span>{opt.label}</span>
+                        <span className={styles.optionText}>
+                          <span>{opt.label}</span>
+                          {opt.description ? (
+                            <span className={styles.optionDescription}>{opt.description}</span>
+                          ) : null}
+                        </span>
                         {selectedOpt ? (
                           <svg
                             className={styles.check}
