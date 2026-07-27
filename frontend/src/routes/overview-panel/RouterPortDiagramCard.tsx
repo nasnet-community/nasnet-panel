@@ -15,7 +15,7 @@ export interface RouterPortDiagramCardProps {
 }
 
 export const RouterPortDiagramCard: React.FC<RouterPortDiagramCardProps> = React.memo(
-  function RouterPortDiagramCard({
+  function RouterPortDiagramCardInner({
     model,
     interfaces,
     onPower,
