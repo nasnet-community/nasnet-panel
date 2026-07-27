@@ -336,7 +336,10 @@ func containsInterfaceType(interfaceTypes []string, interfaceType string) bool {
 func (c *Client) GetInterface(name string) (*InterfaceInfo, error) {
 	result, err := c.GetFirst("/interface", "?=name="+name)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get interface %s: %w", name, err)
+		result, err = c.GetFirst("/interface", "?=default-name="+name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get interface %s: %w", name, err)
+		}
 	}
 
 	parsed := parseInterfaceInfo(result)

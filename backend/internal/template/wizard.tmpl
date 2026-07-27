@@ -69,14 +69,14 @@ add name="FTAH" comment="Foreign Table Address Holder"
 :global WizardProgress "35"
 {{ if eq .ForeignInterface.Type "wifi" }}
 /interface wifi
-set [ find default-name={{ .ForeignInterface.Interface }} ] name="{{ .ForeignInterface.Interface }}-Foreign-WAN" comment="Foreign Link WAN" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
+set [ find default-name={{ .ForeignInterface.Interface }} ] name="{{ .ForeignInterface.Interface }}-Foreign-WAN" comment="WAN - Foreign Link" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
 security.passphrase="{{ .ForeignInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 {{ end }}
 
 {{ if and .DomesticEnabled (eq .DomesticInterface.Type "wifi") }}
 /interface wifi
-set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticInterface.Interface }}-Domestic-WAN" comment="Domestic WAN" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
+set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticInterface.Interface }}-Domestic-WAN" comment="WAN - Domestic Link" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
 security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 {{ end}}
@@ -252,12 +252,21 @@ add address="192.168.39.12/32" interface="FTAH" network="192.168.39.12" comment=
 set ddns-enabled=yes ddns-update-interval=1m
 
 /ip dhcp-client
-add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" script=":if (\$bound=1) do={\r\
-\n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
-\n:local routeCount [/ip route print count-only where comment=\"Route-to-Foreign-Foreign Link\"]\r\
-\n:if (\$routeCount > 0) do={\r\
-\n    /ip route set [ find comment=\"Route-to-Foreign-Foreign Link\" gateway!=\$gw ] gateway=\$gw\r\
-\n}\r\
+add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" script=":if (\$bound=1) do={\
+\n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\
+\n:local routeCount [/ip route print count-only where comment=\"Route-to-F\
+oreign-Foreign Link\"]\
+\n:if (\$routeCount > 0) do={\
+\n    /ip route set [ find comment=\"Route-to-Foreign-Foreign Link\" gatew\
+ay!=\$gw ] gateway=\$gw\
+\n}\
+\n:local routeCount1 [/ip route print count-only where comment=\"Route-to-\
+Foreign-Foreign Link 1\"]\
+\n:local gw1 (\$\"gateway-address\")\
+\n:if (\$routeCount1 > 0) do={\
+\n    /ip route set [ find comment=\"Route-to-Foreign-Foreign Link 1\" gat\
+eway!=\$gw1 ] gateway=\$gw1\
+\n}\
 \n}" use-peer-dns=no use-peer-ntp=no
 {{ if .DomesticEnabled}}
 add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" script=":if (\$bound=1) do={\r\
