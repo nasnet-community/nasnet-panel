@@ -83,7 +83,7 @@ export function AddVpnClientDialog({
   onSubmitWireguardImport,
 }: Props) {
   const [type, setType] = useState<AddVpnType>('l2tp');
-  const [wgMode, setWgMode] = useState<WgMode>('create');
+  const [wgMode, setWgMode] = useState<WgMode>('import');
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
