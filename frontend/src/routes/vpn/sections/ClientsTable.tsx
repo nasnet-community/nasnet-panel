@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge, Button, DataTable, Switch, useToast } from '@nasnet/ui';
 import { ArrowDown, ArrowUp, Cable, Pencil, Trash2 } from 'lucide-react';
 import {
   ApiError,
+  fetchForeignGateway,
   updateForeignGateway,
   updateVPNClient,
   type VPNClient,
@@ -13,7 +14,6 @@ import { useThemeColors } from '../../../utils/theme-colors';
 
 interface Props {
   rows: VPNClient[];
-  allRows: VPNClient[];
   totalRows: number;
   creds: VPNCredentials | null;
   onToggled: () => void;
@@ -21,19 +21,22 @@ interface Props {
   onDelete: (client: VPNClient) => void;
 }
 
-export function ClientsTable({
-  rows,
-  allRows,
-  totalRows,
-  creds,
-  onToggled,
-  onEdit,
-  onDelete,
-}: Props) {
+export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDelete }: Props) {
   const toast = useToast();
   const colors = useThemeColors();
   const [pending, setPending] = useState<Set<string>>(() => new Set());
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
+  const [gateway, setGatewayState] = useState<string | null>(null);
+  const [gatewayBusy, setGatewayBusy] = useState(false);
+
+  useEffect(() => {
+    if (!creds) return;
+    const controller = new AbortController();
+    fetchForeignGateway(creds, controller.signal)
+      .then((g) => setGatewayState(g))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [creds]);
 
   const isPending = (id: string) => pending.has(id);
   const checkedFor = (c: VPNClient) => optimistic[c.id] ?? c.enabled;
@@ -114,28 +117,14 @@ export function ClientsTable({
                 disabled={!creds || busy}
                 onChange={async () => {
                   if (!creds) return;
-                  const others = next ? allRows.filter((o) => o.id !== c.id && checkedFor(o)) : [];
-                  const ids = [c.id, ...others.map((o) => o.id)];
-                  setOptimistic((m) => {
-                    const updated = { ...m, [c.id]: next };
-                    others.forEach((o) => {
-                      updated[o.id] = false;
-                    });
-                    return updated;
-                  });
-                  setRowsPending(ids, true);
+                  setOptimistic((m) => ({ ...m, [c.id]: next }));
+                  setRowsPending([c.id], true);
                   try {
                     await updateVPNClient(creds, c.name, { disabled: !next });
-                    if (next) {
-                      await updateForeignGateway(creds, c.name);
-                      await Promise.all(
-                        others.map((o) => updateVPNClient(creds, o.name, { disabled: true })),
-                      );
-                    }
                   } catch (err) {
                     setOptimistic((m) => {
                       const reverted = { ...m };
-                      ids.forEach((rid) => delete reverted[rid]);
+                      delete reverted[c.id];
                       return reverted;
                     });
                     const message =
@@ -150,7 +139,7 @@ export function ClientsTable({
                       tone: 'danger',
                     });
                   } finally {
-                    setRowsPending(ids, false);
+                    setRowsPending([c.id], false);
                     onToggled();
                   }
                 }}
@@ -158,6 +147,53 @@ export function ClientsTable({
             );
           },
           width: '120px',
+        },
+        {
+          key: 'gateway',
+          header: 'Starlink gateway',
+          render: (c: VPNClient) => {
+            if (gateway === c.name) {
+              return <Badge tone="success">Gateway</Badge>;
+            }
+            return (
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={!creds || !checkedFor(c) || gatewayBusy}
+                title={`Set ${c.name} as Starlink gateway`}
+                aria-label={`Set ${c.name} as Starlink gateway`}
+                onClick={async () => {
+                  if (!creds) return;
+                  setGatewayBusy(true);
+                  try {
+                    await updateForeignGateway(creds, c.name);
+                    setGatewayState(c.name);
+                    toast.notify({
+                      title: `Starlink gateway set to "${c.name}"`,
+                      tone: 'success',
+                    });
+                  } catch (err) {
+                    const message =
+                      err instanceof ApiError
+                        ? err.message
+                        : err instanceof Error
+                          ? err.message
+                          : 'Failed to set gateway.';
+                    toast.notify({
+                      title: 'Failed to set gateway',
+                      description: message,
+                      tone: 'danger',
+                    });
+                  } finally {
+                    setGatewayBusy(false);
+                  }
+                }}
+              >
+                Set gateway
+              </Button>
+            );
+          },
+          width: '150px',
         },
         {
           key: 'actions',

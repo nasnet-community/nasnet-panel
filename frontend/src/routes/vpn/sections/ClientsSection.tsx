@@ -193,7 +193,6 @@ export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }
         <div style={{ marginTop: 16 }}>
           <ClientsTable
             rows={paged.pagedRows}
-            allRows={clients}
             totalRows={clients.length}
             creds={creds}
             onToggled={onChanged}
