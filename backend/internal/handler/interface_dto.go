@@ -211,5 +211,8 @@ func toEthernetResponses(interfaces []routeros.EthernetInfo) []ethernetResponse 
 
 // UpdateWANInterfaceRequest represents a request to configure a WAN interface.
 type UpdateWANInterfaceRequest struct {
-	Type string `json:"type" binding:"required,oneof=foreign domestic" example:"foreign"`
+	Interface string `json:"interface" example:"ether2"`
+	Type      string `json:"type"      example:"foreign"`
+	SSID      string `json:"ssid"      example:"MyNetwork"`
+	Password  string `json:"password"  example:"secret"`
 }

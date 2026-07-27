@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"nasnet-panel/pkg/utils"
+
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/internal/graph"
@@ -153,13 +155,15 @@ func parseInterfaceTypes(raw string) (interfaceTypes []string, includeSFP bool, 
 	return interfaceTypes, includeSFP, invalidTypes
 }
 
-// HandleUpdateWANInterface configures a WAN interface with type and DHCP client.
+// HandleUpdateWANInterface reconfigures a physical interface as a foreign or domestic WAN.
+// It removes the old WAN assignment of the same type, restores it to the LAN bridge, then
+// wires the new interface: macvlan, interface-list membership, DHCP client, and routes.
+//
 // @Summary Update WAN Interface
-// @Description Configure a WAN interface with type (foreign or domestic) and enable DHCP client
+// @Description Reassign a physical interface as foreign or domestic WAN using the change_wan template
 // @Tags Interface
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param name path string true "Interface name"
 // @Param request body UpdateWANInterfaceRequest true "WAN interface configuration"
 // @Accept json
 // @Produce json
@@ -167,16 +171,11 @@ func parseInterfaceTypes(raw string) (interfaceTypes []string, includeSFP bool, 
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/interface/wan/{name} [put].
+// @Router /api/interface/wan [put].
 func HandleUpdateWANInterface(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
-	}
-
-	name := c.Param("name")
-	if name == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "Interface name is required", nil)
 	}
 
 	var req UpdateWANInterfaceRequest
@@ -184,33 +183,33 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
+	if req.Interface == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "interface is required", nil)
+	}
 	if req.Type != "foreign" && req.Type != "domestic" {
-		return ErrorResponse(c, http.StatusBadRequest, "Type must be either 'foreign' or 'domestic'", nil)
+		return ErrorResponse(c, http.StatusBadRequest, "type must be 'foreign' or 'domestic'", nil)
 	}
 
-	iface, err := client.GetInterface(name)
-	if err != nil || iface == nil {
+	iface, err := client.GetInterface(req.Interface)
+	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
 	}
-
-	comment := "WAN - Domestic Link(Domestic)"
-	if req.Type == "foreign" {
-		comment = "WAN - Foreign Link(Foreign)"
+	if iface.DefaultName != nil {
+		req.Interface = *iface.DefaultName
 	}
 
-	if err := client.SetInterfaceComment(iface.ID, comment); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update interface comment", err)
-	}
-
-	_, _, err = client.ConfigureDHCPClient(name)
+	script, err := utils.RenderTemplate("change_wan.tmpl", req)
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to configure DHCP client", err)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render change_wan template", err)
+	}
+
+	if err := client.ExecuteScriptString(script); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute WAN change script", err)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WAN interface configured successfully", map[string]interface{}{
-		"name":    name,
-		"type":    req.Type,
-		"comment": comment,
+		"interface": req.Interface,
+		"type":      req.Type,
 	})
 }
 
