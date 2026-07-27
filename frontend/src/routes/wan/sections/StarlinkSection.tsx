@@ -10,8 +10,9 @@ import {
 import { useSession } from '../../../state/SessionContext';
 import { useRouter } from '../../../state/RouterStoreContext';
 import { SectionHeader } from '../../vpn/sections/SectionHeader';
+import { classifyInterface } from '../../easy-config/steps/wan/WanInterfaceSelect';
 import { WanTable } from '../WanTable';
-import { WanUplinkDialog } from '../dialogs/WanUplinkDialog';
+import { WanUplinkDialog, type WanUplinkValues } from '../dialogs/WanUplinkDialog';
 
 interface Props {
   routerId: string;
@@ -44,10 +45,10 @@ export function StarlinkSection({
     return { host, ...creds };
   };
 
-  // const openAdd = () => setDialogOpen(true);
+  const openAdd = () => setDialogOpen(true);
   const closeDialog = () => setDialogOpen(false);
 
-  const onSubmit = async (interfaceName: string) => {
+  const onSubmit = async ({ interfaceName, ssid, password }: WanUplinkValues) => {
     const creds = resolveCreds();
     if (!creds) {
       toast.notify({
@@ -58,7 +59,12 @@ export function StarlinkSection({
       return;
     }
     try {
-      await updateWanInterface(creds, interfaceName, 'foreign');
+      await updateWanInterface(creds, {
+        interface: interfaceName,
+        type: 'foreign',
+        ssid,
+        password,
+      });
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -92,7 +98,7 @@ export function StarlinkSection({
     }
     setMoveSubmitting(true);
     try {
-      await updateWanInterface(creds, target.name, 'domestic');
+      await updateWanInterface(creds, { interface: target.name, type: 'domestic' });
     } catch (err) {
       toast.notify({
         title: 'Failed to move uplink',
@@ -108,13 +114,31 @@ export function StarlinkSection({
     onChanged();
   };
 
+  const moveWireless = pendingMove ? classifyInterface(pendingMove) === 'wireless' : false;
+
+  const onMoveSubmit = async ({ interfaceName, ssid, password }: WanUplinkValues) => {
+    const creds = resolveCreds();
+    if (!creds) {
+      toast.notify({
+        title: 'Missing router credentials',
+        description: 'Reconnect to the router and try again.',
+        tone: 'danger',
+      });
+      return;
+    }
+    await updateWanInterface(creds, { interface: interfaceName, type: 'domestic', ssid, password });
+    setPendingMove(null);
+    toast.notify({ title: `Moved "${interfaceName}" to Domestic`, tone: 'info' });
+    onChanged();
+  };
+
   return (
     <Stack>
       <Card>
         <SectionHeader
           title="Foreign / Starlink"
           description="Interfaces tagged as the foreign (Starlink) uplink."
-          // action={{ label: 'New', onClick: openAdd }}
+          action={{ label: 'New', onClick: openAdd }}
         />
         <WanTable
           rows={items}
@@ -140,8 +164,18 @@ export function StarlinkSection({
           onSubmit={onSubmit}
         />
       ) : null}
+      {pendingMove && moveWireless ? (
+        <WanUplinkDialog
+          variant="domestic"
+          title={`Move ${pendingMove.name} to Domestic`}
+          interfaces={[pendingMove]}
+          initialInterface={pendingMove}
+          onCancel={() => setPendingMove(null)}
+          onSubmit={onMoveSubmit}
+        />
+      ) : null}
       <ConfirmDialog
-        open={!!pendingMove}
+        open={!!pendingMove && !moveWireless}
         title="Move to Domestic"
         description={
           pendingMove
