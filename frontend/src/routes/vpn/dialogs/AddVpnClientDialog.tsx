@@ -220,6 +220,7 @@ export function AddVpnClientDialog({
               onBlur={() => markTouched('name')}
               placeholder={type === 'wireguard' ? 'my-wg-client' : 'my-l2tp-client'}
               aria-label="Name"
+              autoComplete="off"
               aria-invalid={touched.name && !!errors.name}
             />
             {touched.name && errors.name ? <FormError>{errors.name}</FormError> : null}
@@ -323,6 +324,7 @@ function L2tpFields({ draft, set, errors, touched, markTouched }: L2tpFieldsProp
             onBlur={() => markTouched('connectTo')}
             placeholder="192.168.1.1"
             aria-label="Connect to"
+            autoComplete="off"
             aria-invalid={touched.connectTo && !!errors.connectTo}
           />
           {touched.connectTo && errors.connectTo ? <FormError>{errors.connectTo}</FormError> : null}
@@ -361,7 +363,7 @@ function L2tpFields({ draft, set, errors, touched, markTouched }: L2tpFieldsProp
             onChange={(e) => set('ipsecSecret', e.target.value)}
             placeholder="Pre-shared key"
             aria-label="IPsec secret"
-            autoComplete="off"
+            autoComplete="new-password"
             disabled={!draft.useIpsec}
           />
         </Label>
@@ -390,6 +392,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             onBlur={() => markTouched('interfaceLocalAddress')}
             placeholder="10.0.0.2/24"
             aria-label="Interface local address"
+            autoComplete="off"
             aria-invalid={touched.interfaceLocalAddress && !!errors.interfaceLocalAddress}
           />
           {touched.interfaceLocalAddress && errors.interfaceLocalAddress ? (
@@ -404,6 +407,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             onBlur={() => markTouched('allowedAddress')}
             placeholder="0.0.0.0/0"
             aria-label="Allowed address"
+            autoComplete="off"
             aria-invalid={touched.allowedAddress && !!errors.allowedAddress}
           />
           {touched.allowedAddress && errors.allowedAddress ? (
@@ -420,6 +424,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             onBlur={() => markTouched('endpoint')}
             placeholder="vpn.example.com"
             aria-label="Endpoint host"
+            autoComplete="off"
             aria-invalid={touched.endpoint && !!errors.endpoint}
           />
           {touched.endpoint && errors.endpoint ? <FormError>{errors.endpoint}</FormError> : null}
@@ -433,6 +438,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             placeholder="51820"
             inputMode="numeric"
             aria-label="Endpoint port"
+            autoComplete="off"
             aria-invalid={touched.endpointPort && !!errors.endpointPort}
           />
           {touched.endpointPort && errors.endpointPort ? (
@@ -449,6 +455,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             onBlur={() => markTouched('peerKey')}
             placeholder="leave empty if providing peer private key"
             aria-label="Peer public key"
+            autoComplete="off"
             aria-invalid={touched.peerKey && !!errors.peerKey}
           />
         </Label>
@@ -460,7 +467,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             onBlur={() => markTouched('peerKey')}
             placeholder="leave empty if providing public key"
             aria-label="Peer private key"
-            autoComplete="off"
+            autoComplete="new-password"
           />
         </Label>
       </FieldRow>
@@ -473,7 +480,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             onChange={(e) => set('presharedKey', e.target.value)}
             placeholder="optional"
             aria-label="Preshared key"
-            autoComplete="off"
+            autoComplete="new-password"
           />
         </Label>
         <Label>
@@ -485,6 +492,7 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
             placeholder="empty = off"
             inputMode="numeric"
             aria-label="Persistent keepalive"
+            autoComplete="off"
             aria-invalid={touched.persistentKeepalive && !!errors.persistentKeepalive}
           />
           {touched.persistentKeepalive && errors.persistentKeepalive ? (
