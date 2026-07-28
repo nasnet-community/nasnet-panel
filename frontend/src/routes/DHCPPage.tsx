@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Cable, Inbox, Pin, Trash2 } from 'lucide-react';
 import {
@@ -31,7 +31,6 @@ import {
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
-import { wanInterfaceNames } from './overview-panel/uplinks';
 
 interface SectionState<T> {
   data: T[];
@@ -192,8 +191,6 @@ export function DHCPPage() {
       setBusyMac(null);
     }
   }, [id, router?.host, getCredentials, leaseToRemove, reload, toast]);
-
-  const wanNames = useMemo(() => wanInterfaceNames(interfaces), [interfaces]);
 
   const leaseColumns: DataTableColumn<DhcpLease>[] = [
     {
@@ -360,7 +357,6 @@ export function DHCPPage() {
                 interfaces={interfaces}
                 ifaceRates={ethernetRates}
                 showPowerControls={false}
-                disabledIfaceNames={wanNames}
               />
             ) : (
               <Skeleton width="min(320px, 100%)" height={56} />

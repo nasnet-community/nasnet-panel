@@ -11,29 +11,24 @@ export interface RouterPortDiagramCardProps {
   interfaces: InterfaceResponse[];
   onPower?: (action: PowerAction) => void;
   showPowerControls?: boolean;
-  disabledIfaceNames?: readonly string[];
   ifaceRates?: Readonly<Record<string, string>>;
 }
 
 export const RouterPortDiagramCard: React.FC<RouterPortDiagramCardProps> = React.memo(
-  function RouterPortDiagramCard({
+  function RouterPortDiagramCardInner({
     model,
     interfaces,
     onPower,
     showPowerControls = true,
-    disabledIfaceNames,
     ifaceRates,
   }) {
     const { descriptor, slots } = useMemo(() => {
       const resolved = resolveModelStrict(model);
-      const disabled = disabledIfaceNames
-        ? new Set(disabledIfaceNames.map((n) => n.toLowerCase()))
-        : undefined;
       const baseSlots = showPowerControls
         ? resolved.slots
         : resolved.slots.filter((s) => s.kind !== 'power' && s.kind !== 'reset');
-      return { descriptor: resolved, slots: mapPorts(baseSlots, interfaces, disabled, ifaceRates) };
-    }, [model, interfaces, disabledIfaceNames, showPowerControls, ifaceRates]);
+      return { descriptor: resolved, slots: mapPorts(baseSlots, interfaces, ifaceRates) };
+    }, [model, interfaces, showPowerControls, ifaceRates]);
 
     const Panel = PANEL_REGISTRY[descriptor.key];
 
