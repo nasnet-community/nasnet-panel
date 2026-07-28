@@ -47,10 +47,6 @@ function classify(iface: InterfaceResponse): UplinkMatch {
   return matchUplink(iface) ?? { kind: 'ether', label: iface.name.toUpperCase() };
 }
 
-export function wanInterfaceNames(interfaces: InterfaceResponse[]): string[] {
-  return interfaces.filter((i) => i.type === 'ether' && matchUplink(i) !== null).map((i) => i.name);
-}
-
 export function wanInterfaces(interfaces: InterfaceResponse[]): InterfaceResponse[] {
   const ether = interfaces.filter((i) => i.type === 'ether' && !i.disabled);
   const hinted = ether.filter((i) => matchUplink(i) !== null);

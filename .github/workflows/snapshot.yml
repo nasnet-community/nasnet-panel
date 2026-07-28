@@ -53,6 +53,8 @@ jobs:
           provenance: false
           sbom: false
           tags: ${{ env.IMAGE }}:dev-${{ matrix.suffix }}
+          build-args: |
+            APP_VERSION=dev-${{ github.sha }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
 
@@ -108,7 +110,7 @@ jobs:
           sudo apt-get install -y skopeo
 
       - name: Log in to ${{ env.REGISTRY }}
-        run: skopeo login "${{ env.REGISTRY }}" -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | skopeo login "${{ env.REGISTRY }}" -u "${{ github.actor }}" --password-stdin
 
       - name: Package per-arch RouterOS container tars
         run: |
