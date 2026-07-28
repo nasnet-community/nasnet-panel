@@ -3,9 +3,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// "New" button order in WanPage: 0 Starlink Masking VPN Client.
-// The Starlink and Domestic add buttons are hidden for this release; when they come back
-// the order becomes 0 Starlink, 1 Domestic, 2 Starlink Masking VPN Client.
+// "New" button order in WanPage: 0 Starlink, 1 Domestic, 2 Starlink Masking VPN Client.
 const newButton = (page: Page, index: number) =>
   page.getByRole('button', { name: 'New' }).nth(index);
 
@@ -37,7 +35,9 @@ interface WanRouteState {
     linkDowns: number;
     comment?: string;
   }>;
-  wanPuts: Array<{ name: string; body: { type: string } }>;
+  wanPuts: Array<{
+    body: { interface: string; type: string; ssid?: string; password?: string };
+  }>;
   vpnPuts: Array<{ name: string; body: Record<string, unknown> }>;
   l2tpPosts: Array<Record<string, unknown>>;
   wgImports: Array<Record<string, unknown>>;
@@ -66,19 +66,31 @@ const setupWanRoutes = async (context: BrowserContext, state: WanRouteState) => 
     });
   });
 
-  await context.route('**/api/interface/wan/*', async (route) => {
+  await context.route('**/api/interface/wan', async (route) => {
     if (route.request().method() !== 'PUT') return route.fallback();
-    const name = decodeURIComponent(route.request().url().split('/').pop() ?? '');
-    const body = route.request().postDataJSON() as { type: 'foreign' | 'domestic' };
-    state.wanPuts.push({ name, body });
+    const body = route.request().postDataJSON() as {
+      interface: string;
+      type: 'foreign' | 'domestic';
+      ssid?: string;
+      password?: string;
+    };
+    state.wanPuts.push({ body });
     const comment =
       body.type === 'foreign' ? 'WAN - Foreign Link(Foreign)' : 'WAN - Domestic Link(Domestic)';
-    const idx = state.interfaces.findIndex((i) => i.name === name);
+    const idx = state.interfaces.findIndex((i) => i.name === body.interface);
     if (idx >= 0) state.interfaces[idx] = { ...state.interfaces[idx], comment };
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: envelope({ name, type: body.type, comment }),
+      body: envelope({ interface: body.interface, type: body.type }),
+    });
+  });
+
+  await context.route('**/api/wifi/scan/**', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: envelope([{ ssid: 'CafeNet', security: 'wpa2', signal: '-48' }]),
     });
   });
 
@@ -223,8 +235,7 @@ test.describe('WAN tab', () => {
     await expect(page.getByText('No VPN clients yet.')).toBeVisible();
   });
 
-  // Skipped while the WAN uplink "New" buttons are hidden.
-  test.skip('add a Starlink uplink via real BE and move it to Domestic', async ({
+  test('add a Starlink uplink via real BE and move it to Domestic', async ({
     page,
     context,
     resetMocks,
@@ -246,7 +257,7 @@ test.describe('WAN tab', () => {
     await dialog.getByRole('button', { name: /^save$/i }).click();
 
     await expect.poll(() => state.wanPuts.length).toBe(1);
-    expect(state.wanPuts[0]).toMatchObject({ name: 'ether1', body: { type: 'foreign' } });
+    expect(state.wanPuts[0]).toMatchObject({ body: { interface: 'ether1', type: 'foreign' } });
 
     await expect(page.getByRole('cell', { name: 'ether1', exact: true })).toBeVisible();
 
@@ -258,11 +269,55 @@ test.describe('WAN tab', () => {
       .click();
 
     await expect.poll(() => state.wanPuts.length).toBe(2);
-    expect(state.wanPuts[1]).toMatchObject({ name: 'ether1', body: { type: 'domestic' } });
+    expect(state.wanPuts[1]).toMatchObject({ body: { interface: 'ether1', type: 'domestic' } });
   });
 
-  // Skipped while the WAN uplink "New" buttons are hidden.
-  test.skip('already-tagged interface is excluded from the add picker', async ({
+  test('add a wireless Starlink uplink sends ssid and password', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
+    await setSessionCreds(context, ROUTER_ID);
+    const state = blankState();
+    state.interfaces.push({
+      id: '*3',
+      name: 'wifi1',
+      type: 'wifi',
+      running: true,
+      disabled: false,
+    });
+    await setupWanRoutes(context, state);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await newButton(page, 0).click();
+    const dialog = page.getByRole('dialog', { name: 'Add Starlink uplink' });
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByRole('radio', { name: 'Wireless' }).click();
+    await dialog.getByLabel('Starlink WAN').click();
+    await page.getByRole('option', { name: 'wifi1' }).click();
+    await dialog.getByRole('button', { name: 'Choose wireless network' }).click();
+
+    const scanDialog = page.getByRole('dialog', { name: 'Choose a wireless network' });
+    await expect(scanDialog).toBeVisible();
+    await scanDialog.getByLabel('Wireless network').click();
+    await page.getByRole('option', { name: /CafeNet/ }).click();
+    await scanDialog.getByLabel('Wireless password').fill('secret-pass');
+    await scanDialog.getByRole('button', { name: 'Verify and connect' }).click();
+    await expect(scanDialog).toBeHidden();
+
+    await dialog.getByRole('button', { name: /^save$/i }).click();
+
+    await expect.poll(() => state.wanPuts.length).toBe(1);
+    expect(state.wanPuts[0]).toMatchObject({
+      body: { interface: 'wifi1', type: 'foreign', ssid: 'CafeNet', password: 'secret-pass' },
+    });
+  });
+
+  test('already-tagged interface is excluded from the add picker', async ({
     page,
     context,
     resetMocks,
@@ -298,7 +353,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newButton(page, 0).click();
+    await newButton(page, 2).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 

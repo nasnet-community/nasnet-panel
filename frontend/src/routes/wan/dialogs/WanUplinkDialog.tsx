@@ -1,13 +1,20 @@
 import { useMemo, useReducer, useState } from 'react';
 import { Button, Dialog, FieldStack, FormError } from '@nasnet/ui';
 import type { InterfaceResponse } from '../../../api';
-import { initial, reducer } from '../../easy-config/state';
+import { initial, reducer, type State } from '../../easy-config/state';
 import {
   WanInterfaceSelect,
   availableInterfaceTypes,
+  classifyInterface,
 } from '../../easy-config/steps/wan/WanInterfaceSelect';
 
 type Variant = 'foreign' | 'domestic';
+
+export interface WanUplinkValues {
+  interfaceName: string;
+  ssid?: string;
+  password?: string;
+}
 
 interface Props {
   variant: Variant;
@@ -15,8 +22,9 @@ interface Props {
   interfaces: InterfaceResponse[];
   excludeNames?: string[];
   interfacesLoading?: boolean;
+  initialInterface?: InterfaceResponse;
   onCancel: () => void;
-  onSubmit: (interfaceName: string) => Promise<void>;
+  onSubmit: (values: WanUplinkValues) => Promise<void>;
 }
 
 const FIELD_MAP = {
@@ -46,11 +54,19 @@ export function WanUplinkDialog({
   interfaces,
   excludeNames,
   interfacesLoading,
+  initialInterface,
   onCancel,
   onSubmit,
 }: Props) {
   const fields = FIELD_MAP[variant];
-  const [state, dispatch] = useReducer(reducer, initial);
+  const [state, dispatch] = useReducer(reducer, initial, (base): State => {
+    if (!initialInterface) return base;
+    return {
+      ...base,
+      [fields.typeField]: classifyInterface(initialInterface) ?? 'ethernet',
+      [fields.nameField]: initialInterface.name,
+    };
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const availableTypes = useMemo(() => availableInterfaceTypes(interfaces), [interfaces]);
@@ -59,14 +75,20 @@ export function WanUplinkDialog({
     return interfaces.filter((i) => !excluded.has(i.name));
   }, [interfaces, excludeNames]);
   const chosen = state[fields.nameField];
-  const canSubmit = chosen !== '' && !submitting;
+  const wireless = state[fields.typeField] === 'wireless';
+  const ssid = state[fields.ssidField];
+  const canSubmit = chosen !== '' && (!wireless || ssid !== '') && !submitting;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setError(null);
     setSubmitting(true);
     try {
-      await onSubmit(chosen);
+      await onSubmit({
+        interfaceName: chosen,
+        ssid: wireless ? ssid : undefined,
+        password: wireless ? state[fields.passwordField] : undefined,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save uplink.');
       setSubmitting(false);
@@ -81,6 +103,7 @@ export function WanUplinkDialog({
       onClose={submitting ? () => undefined : onCancel}
       title={title}
       size="sm"
+      labelledBy="wan-uplink-title"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
