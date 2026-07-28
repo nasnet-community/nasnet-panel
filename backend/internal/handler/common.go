@@ -160,7 +160,7 @@ type HealthCheckResponse struct {
 // @Tags Health
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]string
+// @Success 200 {object} HealthCheckResponse
 // @Router /health [get]
 func HandleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, HealthCheckResponse{
