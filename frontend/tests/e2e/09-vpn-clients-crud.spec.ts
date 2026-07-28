@@ -82,6 +82,14 @@ test.describe('WAN VPN clients section', () => {
 
     let gatewayPutBody: { gateway?: string } | null = null;
     await context.route('**/api/route/foreign-gateway', async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ gateway: null }),
+        });
+        return;
+      }
       if (route.request().method() === 'PUT') {
         gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
         await route.fulfill({
@@ -102,10 +110,14 @@ test.describe('WAN VPN clients section', () => {
 
     await row.getByRole('switch', { name: /enabled/i }).click();
     await expect.poll(() => lastPutBody?.disabled).toBe(false);
+    expect(gatewayPutBody).toBeNull();
+
+    await row.getByRole('button', { name: /set home-l2tp as starlink gateway/i }).click();
     await expect.poll(() => gatewayPutBody?.gateway).toBe('home-l2tp');
+    await expect(row.getByText('Gateway', { exact: true })).toBeVisible();
   });
 
-  test('activating a client deactivates the others and points routes at it', async ({
+  test('enabling a client leaves others untouched and gateway button points routes at it', async ({
     page,
     context,
     resetMocks,
@@ -187,6 +199,14 @@ test.describe('WAN VPN clients section', () => {
 
     let gatewayPutBody: { gateway?: string } | null = null;
     await context.route('**/api/route/foreign-gateway', async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ gateway: 'office-wg' }),
+        });
+        return;
+      }
       if (route.request().method() === 'PUT') {
         gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
         await route.fulfill({
@@ -202,16 +222,23 @@ test.describe('WAN VPN clients section', () => {
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
     const targetRow = page.getByRole('row', { name: /home-l2tp/ });
+    const otherRow = page.getByRole('row', { name: /office-wg/ });
     await expect(targetRow).toBeVisible();
-    await expect(
-      page.getByRole('row', { name: /office-wg/ }).getByRole('switch', { name: /enabled/i }),
-    ).toBeChecked();
+    await expect(otherRow.getByRole('switch', { name: /enabled/i })).toBeChecked();
+    await expect(otherRow.getByText('Gateway', { exact: true })).toBeVisible();
 
     await targetRow.getByRole('switch', { name: /enabled/i }).click();
 
     await expect.poll(() => targetPutBody?.disabled).toBe(false);
+    expect(gatewayPutBody).toBeNull();
+    expect(otherPutBody).toBeNull();
+    await expect(otherRow.getByRole('switch', { name: /enabled/i })).toBeChecked();
+
+    await targetRow.getByRole('button', { name: /set home-l2tp as starlink gateway/i }).click();
+
     await expect.poll(() => gatewayPutBody?.gateway).toBe('home-l2tp');
-    await expect.poll(() => otherPutBody?.disabled).toBe(true);
+    await expect(targetRow.getByText('Gateway', { exact: true })).toBeVisible();
+    await expect(otherRow.getByText('Gateway', { exact: true })).toBeHidden();
   });
 
   test('validates name and host inputs in add dialog and limits selectable types', async ({
