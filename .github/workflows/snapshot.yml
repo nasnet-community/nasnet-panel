@@ -110,7 +110,7 @@ jobs:
           sudo apt-get install -y skopeo
 
       - name: Log in to ${{ env.REGISTRY }}
-        run: skopeo login "${{ env.REGISTRY }}" -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | skopeo login "${{ env.REGISTRY }}" -u "${{ github.actor }}" --password-stdin
 
       - name: Package per-arch RouterOS container tars
         run: |
