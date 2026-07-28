@@ -53,6 +53,9 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.IMAGE }}
+          # Per-arch images must never claim `latest` — three matrix jobs would
+          # race and leave it pointing at whichever arch pushed last.
+          flavor: latest=false
           tags: |
             type=semver,pattern={{version}},suffix=-${{ matrix.suffix }}
             type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.suffix }}
@@ -68,6 +71,8 @@ jobs:
           provenance: false
           sbom: false
           tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            APP_VERSION=${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
 
@@ -92,6 +97,32 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     steps:
+      # A tag cut from an older commit (backport, or a re-tag of history) must
+      # not hijack `latest`. Only the default-branch tip is allowed to move it.
+      - id: gate
+        name: Check tag is at default-branch tip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "push" ]; then
+            echo "is_tip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          TIP=$(curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${DEFAULT_BRANCH}" \
+            | jq -r .sha)
+          if [ "$TIP" = "$GITHUB_SHA" ]; then
+            echo "is_tip=true" >> "$GITHUB_OUTPUT"
+            echo "${GITHUB_REF_NAME} is at ${DEFAULT_BRANCH} tip; :latest will move"
+          else
+            echo "is_tip=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::${GITHUB_REF_NAME} (${GITHUB_SHA}) is not at ${DEFAULT_BRANCH} tip (${TIP}); leaving :latest unchanged"
+          fi
+
       - uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -102,9 +133,13 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.IMAGE }}
+          # `latest` is declared explicitly below rather than left to latest=auto,
+          # so the prerelease and dispatch conditions are visible here.
+          flavor: latest=false
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && !contains(github.ref_name, '-') && steps.gate.outputs.is_tip == 'true' }}
             type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Create multi-arch manifests
@@ -124,3 +159,99 @@ jobs:
               "${{ env.IMAGE }}:${BASE}-arm64" \
               "${{ env.IMAGE }}:${BASE}-armv7"
           done <<< "${{ steps.meta.outputs.tags }}"
+
+  # Only real tag pushes get a GitHub Release; workflow_dispatch builds test
+  # images under an arbitrary tag and must not publish one.
+  package:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - name: Install skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Log in to ${{ env.REGISTRY }}
+        run: skopeo login "${{ env.REGISTRY }}" -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+
+      # Asset names carry the version without the leading "v" to match the
+      # channel that scripts/install.sh derives from --version.
+      - id: pkg
+        name: Package per-arch RouterOS container tars
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          mkdir -p dist
+          for SUFFIX in amd64 arm64 armv7; do
+            REF="${IMAGE}:${VERSION}-${SUFFIX}"
+            OUT="nasnet-panel-${VERSION}-${SUFFIX}.tar"
+            echo "-> ${REF} => dist/${OUT}"
+            skopeo copy "docker://${REF}" "docker-archive:dist/${OUT}:nasnet-panel:${VERSION}-${SUFFIX}"
+            ( cd dist && sha256sum "${OUT}" > "${OUT}.sha256" )
+          done
+
+      - name: Publish release with container tars
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: NasNet Panel ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          body: |
+            Install on RouterOS:
+
+            ```
+            ./install.sh --version ${{ github.ref_name }}
+            ```
+
+            RouterOS container image tars consumed by `scripts/install.sh`:
+            - `nasnet-panel-${{ steps.pkg.outputs.version }}-amd64.tar` (RouterOS x86_64)
+            - `nasnet-panel-${{ steps.pkg.outputs.version }}-arm64.tar` (RouterOS arm64)
+            - `nasnet-panel-${{ steps.pkg.outputs.version }}-armv7.tar` (RouterOS arm)
+
+            Windows GUI installer:
+            - `nasnet-panel-installer-windows-amd64.exe`
+
+            Container image: `${{ env.IMAGE }}:${{ steps.pkg.outputs.version }}`
+          files: |
+            dist/*.tar
+            dist/*.tar.sha256
+
+  installer:
+    needs: package
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-go-backend
+        with:
+          go-version-file: installer/windows/go.mod
+          cache-dependency-path: installer/windows/go.sum
+
+      - name: Build Windows installer
+        working-directory: installer/windows
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
+            go build -trimpath -tags desktop,production \
+            -ldflags "-s -w -H windowsgui" \
+            -o dist/nasnet-panel-installer-windows-amd64.exe .
+          ( cd dist && sha256sum nasnet-panel-installer-windows-amd64.exe > nasnet-panel-installer-windows-amd64.exe.sha256 )
+
+      - name: Publish installer to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            installer/windows/dist/*.exe
+            installer/windows/dist/*.exe.sha256

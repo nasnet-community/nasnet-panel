@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"nasnet-panel/internal/auth"
+	"nasnet-panel/internal/buildinfo"
 	ctxpkg "nasnet-panel/internal/context"
 	"nasnet-panel/pkg/routeros"
 
@@ -148,8 +149,9 @@ func IsCredentialError(err error) bool {
 }
 
 type HealthCheckResponse struct {
-	Status string `json:"status"`
-	Server string `json:"server"`
+	Status  string `json:"status"`
+	Server  string `json:"server"`
+	Version string `json:"version"`
 }
 
 // HandleHealthCheck godoc
@@ -162,7 +164,8 @@ type HealthCheckResponse struct {
 // @Router /health [get]
 func HandleHealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, HealthCheckResponse{
-		Status: "healthy",
-		Server: "nasnet-panel",
+		Status:  "healthy",
+		Server:  "nasnet-panel",
+		Version: buildinfo.Version,
 	})
 }
