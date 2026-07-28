@@ -272,15 +272,20 @@ func HandleAddL2TPClient(c echo.Context) error {
 		disabled = *req.Disabled
 	}
 
-	if err := client.AddL2TPClient(req.Name, req.ConnectTo, req.User, req.Password, profileName, ipsecSecret, useIPsec, disabled); err != nil {
+	interfaceName := req.Name
+	if !strings.HasSuffix(interfaceName, "-l2tp-client") {
+		interfaceName += "-l2tp-client"
+	}
+
+	if err := client.AddL2TPClient(interfaceName, req.ConnectTo, req.User, req.Password, profileName, ipsecSecret, useIPsec, disabled); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
 	}
 
-	if _, err := client.AddFirewallAddressListItem("VPNE", req.ConnectTo, false, req.Name); err != nil {
+	if _, err := client.AddFirewallAddressListItem("VPNE", req.ConnectTo, false, interfaceName); err != nil {
 		c.Logger().Errorf("Failed to add L2TP server address to firewall list: %v", err)
 	}
 
-	vpnClient, err := client.GetVPNClient(req.Name)
+	vpnClient, err := client.GetVPNClient(interfaceName)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added L2TP client", err)
 	}
@@ -814,8 +819,8 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
 	interfaceName := req.Name
-	if !strings.HasSuffix(interfaceName, "-client") {
-		interfaceName += "-client"
+	if !strings.HasSuffix(interfaceName, "-wg-client") {
+		interfaceName += "-wg-client"
 	}
 
 	config := routeros.WireGuardClientConfig{
@@ -1610,8 +1615,8 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	}
 
 	interfaceName := req.InterfaceName
-	if !strings.HasSuffix(interfaceName, "-client") {
-		interfaceName += "-client"
+	if !strings.HasSuffix(interfaceName, "-wg-client") {
+		interfaceName += "-wg-client"
 	}
 
 	interfaceConfig2 := routeros.WireGuardClientConfig{
