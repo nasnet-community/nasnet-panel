@@ -25,6 +25,7 @@ export {
   fetchEthernetInterfaces,
   updateWanInterface,
   type WanInterfaceType,
+  type UpdateWanInterfaceRequest,
   fetchForeignGateway,
   updateForeignGateway,
   type ForeignGatewayResponse,

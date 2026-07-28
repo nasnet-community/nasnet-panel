@@ -167,18 +167,24 @@ export async function fetchEthernetInterfaces(
 
 export type WanInterfaceType = 'foreign' | 'domestic';
 
+export interface UpdateWanInterfaceRequest {
+  interface: string;
+  type: WanInterfaceType;
+  ssid?: string;
+  password?: string;
+}
+
 export async function updateWanInterface(
   creds: SystemCredentials,
-  name: string,
-  type: WanInterfaceType,
+  request: UpdateWanInterfaceRequest,
 ): Promise<void> {
-  await apiRequest<unknown>(`/api/interface/wan/${encodeURIComponent(name)}`, {
+  await apiRequest<unknown>('/api/interface/wan', {
     method: 'PUT',
     headers: {
       ...authHeaders(creds),
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ type }),
+    body: JSON.stringify(request),
   });
 }
 

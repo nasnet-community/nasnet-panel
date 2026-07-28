@@ -989,14 +989,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/interface/wan/{name}": {
+        "/api/interface/wan": {
             "put": {
                 "security": [
                     {
                         "BasicAuth": []
                     }
                 ],
-                "description": "Configure a WAN interface with type (foreign or domestic) and enable DHCP client",
+                "description": "Reassign a physical interface as foreign or domestic WAN using the change_wan template",
                 "consumes": [
                     "application/json"
                 ],
@@ -1013,13 +1013,6 @@ const docTemplate = `{
                         "description": "RouterOS host address",
                         "name": "X-RouterOS-Host",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Interface name",
-                        "name": "name",
-                        "in": "path",
                         "required": true
                     },
                     {
@@ -2910,7 +2903,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Delete an OpenVPN server and all related items (secrets, profile, IP pool, certificates)",
+                "description": "Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)",
                 "consumes": [
                     "application/json"
                 ],
@@ -4790,7 +4783,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Scan nearby access points for 5 seconds on the specified WiFi interface",
+                "description": "Scan nearby access points for 10 seconds on the specified WiFi interface",
                 "consumes": [
                     "application/json"
                 ],
@@ -4818,7 +4811,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Scan duration in seconds (default: 5)",
+                        "description": "Scan duration in seconds (default: 10)",
                         "name": "duration",
                         "in": "query"
                     }
@@ -5710,8 +5703,11 @@ const docTemplate = `{
                 "interfaceName": {
                     "type": "string"
                 },
-                "peerName": {
-                    "type": "string"
+                "peerNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -5891,9 +5887,6 @@ const docTemplate = `{
                 "ipsecSecret": {
                     "type": "string"
                 },
-                "localAddress": {
-                    "type": "string"
-                },
                 "oneSessionPerHost": {
                     "type": "boolean"
                 },
@@ -5904,9 +5897,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "protocol": {
-                    "type": "string"
-                },
-                "remoteAddress": {
                     "type": "string"
                 },
                 "secrets": {
@@ -6036,16 +6026,10 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "localAddress": {
-                    "type": "string"
-                },
                 "onlyOne": {
                     "type": "string"
                 },
                 "profile": {
-                    "type": "string"
-                },
-                "remoteAddress": {
                     "type": "string"
                 },
                 "secrets": {
@@ -6091,12 +6075,6 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "localIp": {
-                    "type": "string"
-                },
-                "localIpPool": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -6104,12 +6082,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "protocol": {
-                    "type": "string"
-                },
-                "remoteIp": {
-                    "type": "string"
-                },
-                "remoteIpPool": {
                     "type": "string"
                 }
             }
@@ -6128,22 +6100,10 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "localIp": {
-                    "type": "string"
-                },
-                "localIpPool": {
-                    "type": "string"
-                },
                 "port": {
                     "type": "integer"
                 },
                 "protocol": {
-                    "type": "string"
-                },
-                "remoteIp": {
-                    "type": "string"
-                },
-                "remoteIpPool": {
                     "type": "string"
                 }
             }
@@ -6169,9 +6129,6 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
-                "localAddress": {
-                    "type": "string"
-                },
                 "onlyOne": {
                     "type": "string"
                 },
@@ -6182,9 +6139,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "profile": {
-                    "type": "string"
-                },
-                "remoteAddress": {
                     "type": "string"
                 },
                 "secrets": {
@@ -6346,16 +6300,21 @@ const docTemplate = `{
         },
         "handler.UpdateWANInterfaceRequest": {
             "type": "object",
-            "required": [
-                "type"
-            ],
             "properties": {
+                "interface": {
+                    "type": "string",
+                    "example": "ether2"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "secret"
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "MyNetwork"
+                },
                 "type": {
                     "type": "string",
-                    "enum": [
-                        "foreign",
-                        "domestic"
-                    ],
                     "example": "foreign"
                 }
             }
