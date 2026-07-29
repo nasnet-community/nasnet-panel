@@ -60,7 +60,6 @@ const deriveStatus = (iface: InterfaceResponse | undefined): PortStatus => {
 export function mapPorts(
   slots: PortSlot[],
   interfaces: InterfaceResponse[],
-  disabledIfaceNames?: ReadonlySet<string>,
   ifaceRates?: Readonly<Record<string, string>>,
 ): ResolvedSlot[] {
   return slots.map((slot) => {
@@ -75,9 +74,7 @@ export function mapPorts(
       };
     }
     const iface = findIface(interfaces, slot.ifaceName);
-    const forcedDisabled =
-      !!slot.ifaceName && !!disabledIfaceNames?.has(slot.ifaceName.toLowerCase());
-    const status = forcedDisabled ? 'disabled' : deriveStatus(iface);
+    const status = deriveStatus(iface);
     const name = slot.ifaceName ?? slot.id;
     const rxLabel = iface?.rx;
     const txLabel = iface?.tx;
@@ -98,7 +95,7 @@ export function mapPorts(
     return {
       ...slot,
       status,
-      interactive: !forcedDisabled,
+      interactive: true,
       tooltip,
       rxLabel,
       txLabel,

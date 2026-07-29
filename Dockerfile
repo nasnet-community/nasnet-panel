@@ -14,6 +14,9 @@ RUN npm run build
 # Build the Go backend with the embedded SPA
 FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS gobuilder
 ARG TARGETOS TARGETARCH TARGETVARIANT
+# Overridden by the release/snapshot workflows; the default only applies to
+# ad-hoc local builds that pass no --build-arg.
+ARG APP_VERSION=v0.0.0-dev
 RUN apk add --no-cache ca-certificates upx
 WORKDIR /workspace/backend
 COPY backend/go.mod backend/go.sum ./
@@ -23,7 +26,9 @@ COPY --from=frontend /workspace/frontend/dist ./internal/web/dist
 RUN set -eux; \
     if [ "$TARGETARCH" = "arm" ] && [ -n "$TARGETVARIANT" ]; then export GOARM=${TARGETVARIANT#v}; fi; \
     CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
-      go build -trimpath -ldflags="-w -s -extldflags '-static'" -tags=netgo,production \
+      go build -trimpath \
+      -ldflags="-w -s -extldflags '-static' -X nasnet-panel/internal/buildinfo.Version=${APP_VERSION}" \
+      -tags=netgo,production \
       -o /out/app ./cmd/api; \
     upx --best --lzma /out/app
 

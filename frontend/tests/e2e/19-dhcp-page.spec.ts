@@ -28,7 +28,7 @@ test.describe('LAN page (DHCP + port diagram)', () => {
     await expect(clients).toContainText('10.0.0.42');
   });
 
-  test('shows the port diagram with WAN ports greyed and LAN port info', async ({
+  test('shows the port diagram with live port statuses', async ({
     page,
     resetMocks,
     seedRouter,
@@ -45,8 +45,10 @@ test.describe('LAN page (DHCP + port diagram)', () => {
     await expect(page.getByTestId('port-diagram')).toBeVisible();
     await expect(page.getByTestId('panel-model')).toHaveText('MikroTik hAP ax3');
 
-    // ether1 has comment "WAN uplink" -> greyed + disabled.
-    await expect(page.getByTestId('port-ether1')).toHaveAttribute('data-status', 'disabled');
+    // ether1 has comment "WAN uplink" but is running -> shows its real status, like Overview.
+    await expect(page.getByTestId('port-ether1')).toHaveAttribute('data-status', 'up');
+    // ether3 is administratively disabled -> greyed.
+    await expect(page.getByTestId('port-ether3')).toHaveAttribute('data-status', 'disabled');
     // ether2 is a LAN port -> live, with info exposed via the hover-card tooltip.
     await expect(page.getByTestId('port-ether2')).toHaveAttribute('data-status', 'up');
     await expect(page.getByTestId('port-ether2')).toHaveAttribute('aria-label', /ether2.*up/i);
