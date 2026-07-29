@@ -5,7 +5,8 @@ import (
 	"nasnet-panel/pkg/utils"
 )
 
-type interfaceResponse struct {
+// InterfaceResponse represents a generic RouterOS interface.
+type InterfaceResponse struct {
 	ID               string  `json:"id,omitempty"`
 	Name             string  `json:"name,omitempty"`
 	DefaultName      *string `json:"defaultName,omitempty"`
@@ -45,12 +46,12 @@ type interfaceResponse struct {
 	Comment          *string `json:"comment,omitempty"`
 }
 
-func toInterfaceResponse(iface *routeros.InterfaceInfo) *interfaceResponse {
+func toInterfaceResponse(iface *routeros.InterfaceInfo) *InterfaceResponse {
 	if iface == nil {
 		return nil
 	}
 
-	return &interfaceResponse{
+	return &InterfaceResponse{
 		ID:               iface.ID,
 		Name:             iface.Name,
 		DefaultName:      iface.DefaultName,
@@ -91,8 +92,8 @@ func toInterfaceResponse(iface *routeros.InterfaceInfo) *interfaceResponse {
 	}
 }
 
-func toInterfacesResponse(interfaces []routeros.InterfaceInfo) []interfaceResponse {
-	response := make([]interfaceResponse, 0, len(interfaces))
+func toInterfacesResponse(interfaces []routeros.InterfaceInfo) []InterfaceResponse {
+	response := make([]InterfaceResponse, 0, len(interfaces))
 	for i := range interfaces {
 		if converted := toInterfaceResponse(&interfaces[i]); converted != nil {
 			response = append(response, *converted)
@@ -111,8 +112,8 @@ func formatBytesPtr(value *int64) *string {
 	return &formatted
 }
 
-// ethernetResponse represents detailed information about an ethernet interface.
-type ethernetResponse struct {
+// EthernetResponse represents detailed information about an ethernet interface.
+type EthernetResponse struct {
 	ID                      string   `json:"id,omitempty"`
 	Name                    string   `json:"name,omitempty"`
 	DefaultName             *string  `json:"defaultName,omitempty"`
@@ -150,12 +151,12 @@ type ethernetResponse struct {
 	MonitorLinkPartnerAdv   []string `json:"linkPartnerAdvertising,omitempty"`
 }
 
-func toEthernetResponse(iface *routeros.EthernetInfo) *ethernetResponse {
+func toEthernetResponse(iface *routeros.EthernetInfo) *EthernetResponse {
 	if iface == nil {
 		return nil
 	}
 
-	resp := &ethernetResponse{
+	resp := &EthernetResponse{
 		ID:                      iface.ID,
 		Name:                    iface.Name,
 		DefaultName:             iface.DefaultName,
@@ -199,8 +200,8 @@ func toEthernetResponse(iface *routeros.EthernetInfo) *ethernetResponse {
 	return resp
 }
 
-func toEthernetResponses(interfaces []routeros.EthernetInfo) []ethernetResponse {
-	response := make([]ethernetResponse, 0, len(interfaces))
+func toEthernetResponses(interfaces []routeros.EthernetInfo) []EthernetResponse {
+	response := make([]EthernetResponse, 0, len(interfaces))
 	for i := range interfaces {
 		if converted := toEthernetResponse(&interfaces[i]); converted != nil {
 			response = append(response, *converted)

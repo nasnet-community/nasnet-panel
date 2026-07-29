@@ -40,10 +40,10 @@ const (
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
-// @Success 200 {object} Response{data=appVersionResponse}
+// @Success 200 {object} Response{data=AppVersionResponse}
 // @Router /api/app/version [get].
 func HandleAppVersion(c echo.Context) error {
-	return SuccessResponse(c, http.StatusOK, "Version retrieved", appVersionResponse{
+	return SuccessResponse(c, http.StatusOK, "Version retrieved", AppVersionResponse{
 		Version: buildinfo.Version,
 	})
 }
@@ -55,7 +55,7 @@ func HandleAppVersion(c echo.Context) error {
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
-// @Success 200 {object} Response{data=checkForUpdatesResponse}
+// @Success 200 {object} Response{data=CheckForUpdatesResponse}
 // @Failure 502 {object} Response
 // @Router /api/app/check-for-updates [get].
 func HandleAppCheckForUpdates(c echo.Context) error {
@@ -64,7 +64,7 @@ func HandleAppCheckForUpdates(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch latest release from GitHub", err)
 	}
 
-	return SuccessResponse(c, http.StatusOK, "Update check complete", checkForUpdatesResponse{
+	return SuccessResponse(c, http.StatusOK, "Update check complete", CheckForUpdatesResponse{
 		AppVersion:      buildinfo.Version,
 		LatestVersion:   release.TagName,
 		ReleaseDate:     release.PublishedAt,
@@ -114,11 +114,11 @@ func (s *appUpdateState) inProgress() (bool, appUpdatePhase) {
 	return busy, s.phase
 }
 
-func (s *appUpdateState) snapshot() updateStatusResponse {
+func (s *appUpdateState) snapshot() UpdateStatusResponse {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	resp := updateStatusResponse{
+	resp := UpdateStatusResponse{
 		Phase:   string(s.phase),
 		Message: s.message,
 		Version: s.version,
@@ -142,7 +142,7 @@ var appUpdate = &appUpdateState{phase: updatePhaseIdle}
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
-// @Success 200 {object} Response{data=installUpdateResponse}
+// @Success 200 {object} Response{data=InstallUpdateResponse}
 // @Failure 502 {object} Response
 // @Router /api/app/install-update [post].
 func HandleAppInstallUpdate(c echo.Context) error {
@@ -171,7 +171,7 @@ func HandleAppInstallUpdate(c echo.Context) error {
 	}
 
 	if !utils.IsNewerVersion(release.TagName, buildinfo.Version) {
-		return SuccessResponse(c, http.StatusOK, "Already up to date", installUpdateResponse{
+		return SuccessResponse(c, http.StatusOK, "Already up to date", InstallUpdateResponse{
 			UpdateAvailable: false,
 			FromVersion:     buildinfo.Version,
 			ToVersion:       release.TagName,
@@ -191,7 +191,7 @@ func HandleAppInstallUpdate(c echo.Context) error {
 
 	go watchNewContainerAndPromote(client, release.TagName)
 
-	return SuccessResponse(c, http.StatusOK, "Update started", installUpdateResponse{
+	return SuccessResponse(c, http.StatusOK, "Update started", InstallUpdateResponse{
 		UpdateAvailable: true,
 		FromVersion:     buildinfo.Version,
 		ToVersion:       release.TagName,
@@ -302,7 +302,7 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
-// @Success 200 {object} Response{data=updateStatusResponse}
+// @Success 200 {object} Response{data=UpdateStatusResponse}
 // @Router /api/app/update-status [get].
 func HandleAppUpdateStatus(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Update status retrieved", appUpdate.snapshot())

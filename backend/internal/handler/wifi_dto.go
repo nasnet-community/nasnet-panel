@@ -48,7 +48,8 @@ type WiFiConnectedClientResponse struct {
 	Hostname        string `json:"hostname"`
 }
 
-type wiFiAccessPointResponse struct {
+// WiFiAccessPointResponse represents a single scanned WiFi access point.
+type WiFiAccessPointResponse struct {
 	MACAddress string `json:"macAddress,omitempty"`
 	SSID       string `json:"ssid,omitempty"`
 	Channel    string `json:"channel,omitempty"`
@@ -190,12 +191,12 @@ func ToWiFiConnectedClientsResponse(clients []routeros.ConnectedClient) []WiFiCo
 	return responses
 }
 
-func toWiFiAccessPointResponse(ap *routeros.WiFiAccessPoint) *wiFiAccessPointResponse {
+func toWiFiAccessPointResponse(ap *routeros.WiFiAccessPoint) *WiFiAccessPointResponse {
 	if ap == nil {
 		return nil
 	}
 
-	return &wiFiAccessPointResponse{
+	return &WiFiAccessPointResponse{
 		MACAddress: ap.MACAddress,
 		SSID:       ap.SSID,
 		Channel:    ap.Channel,
@@ -229,8 +230,8 @@ func toWiFiStatusesResponse(statuses []routeros.WiFiStatus) []WiFiStatusResponse
 	return responses
 }
 
-func toWiFiAccessPointsResponse(aps []routeros.WiFiAccessPoint) []wiFiAccessPointResponse {
-	responses := make([]wiFiAccessPointResponse, 0, len(aps))
+func toWiFiAccessPointsResponse(aps []routeros.WiFiAccessPoint) []WiFiAccessPointResponse {
+	responses := make([]WiFiAccessPointResponse, 0, len(aps))
 	for i := range aps {
 		if resp := toWiFiAccessPointResponse(&aps[i]); resp != nil {
 			responses = append(responses, *resp)
