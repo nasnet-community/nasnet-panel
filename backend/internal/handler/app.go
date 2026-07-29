@@ -3,6 +3,8 @@ package handler
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -22,11 +24,13 @@ const (
 	githubLatestReleaseURL = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases/latest"
 	appContainerImage      = "ghcr.io/nasnet-community/nasnet-panel"
 	appContainerName       = "nnc" // matches CONTAINER_NAME in scripts/install.sh
+	appUpdateContainerName = "nnc-update"
 
-	updateWatchInterval = 3 * time.Second
-	updateWatchTimeout  = 20 * time.Minute
+	updateWatchInterval         = 3 * time.Second
+	updateWatchTimeout          = 5 * time.Minute
+	restartScheduleDelaySeconds = 3 // gives this request/response time to complete before nnc restarts
 
-	minUpdateFreeStorageBytes = 15 * 1024 * 1024 // 15MB, headroom for the pulled image layers
+	minUpdateFreeStorageBytes = 30 * 1024 * 1024 // 30MB, headroom for the pulled image layers
 )
 
 // HandleAppVersion godoc
@@ -76,7 +80,8 @@ type appUpdatePhase string
 
 const (
 	updatePhaseIdle       appUpdatePhase = "idle"
-	updatePhaseRepulling  appUpdatePhase = "repulling"
+	updatePhasePreparing  appUpdatePhase = "preparing"
+	updatePhasePulling    appUpdatePhase = "pulling"
 	updatePhaseRestarting appUpdatePhase = "restarting"
 	updatePhaseDone       appUpdatePhase = "done"
 	updatePhaseError      appUpdatePhase = "error"
@@ -96,9 +101,17 @@ func (s *appUpdateState) set(phase appUpdatePhase, version, message string) {
 	s.phase = phase
 	s.version = version
 	s.message = message
-	if phase == updatePhaseRepulling {
+	if phase == updatePhasePreparing {
 		s.startedAt = time.Now()
 	}
+}
+
+// inProgress reports whether a prepare, pull, or restart is currently running.
+func (s *appUpdateState) inProgress() (bool, appUpdatePhase) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	busy := s.phase == updatePhasePreparing || s.phase == updatePhasePulling || s.phase == updatePhaseRestarting
+	return busy, s.phase
 }
 
 func (s *appUpdateState) snapshot() updateStatusResponse {
@@ -121,9 +134,10 @@ var appUpdate = &appUpdateState{phase: updatePhaseIdle}
 // HandleAppInstallUpdate godoc
 // @Summary Install the latest nasnet-panel release
 // @Description Checks the latest GitHub release and, if newer than the running
-// @Description version, repulls the panel's container image. Restart happens
-// @Description automatically once the pull finishes; poll /api/app/update-status
-// @Description for progress.
+// @Description version, pulls it into a fresh nnc-update container alongside
+// @Description the running one. Once the pull finishes, nnc-update is promoted
+// @Description into nnc's place and started; poll /api/app/update-status for
+// @Description progress.
 // @Tags App
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -135,6 +149,20 @@ func HandleAppInstallUpdate(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
+	}
+
+	if busy, phase := appUpdate.inProgress(); busy {
+		return ErrorResponse(c, http.StatusConflict, "An update is already in progress",
+			fmt.Errorf("current phase: %s", phase))
+	}
+
+	sysUpdate, err := client.CheckForUpdates()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check RouterOS system updates", err)
+	}
+	if sysUpdate.UpdateAvailable {
+		return ErrorResponse(c, http.StatusPreconditionFailed, "RouterOS system update available; install it before updating the panel",
+			fmt.Errorf("installed %s, latest %s (%s)", sysUpdate.InstalledVersion, sysUpdate.LatestVersion, sysUpdate.Status))
 	}
 
 	release, err := fetchLatestGitHubRelease(c.Request().Context())
@@ -159,15 +187,9 @@ func HandleAppInstallUpdate(c echo.Context) error {
 			fmt.Errorf("%s free, %s required", utils.BytesToSizeString(resources.HDDFree), utils.BytesToSizeString(minUpdateFreeStorageBytes)))
 	}
 
-	remoteImage := appContainerImage + ":" + strings.TrimPrefix(release.TagName, "v")
+	appUpdate.set(updatePhasePreparing, release.TagName, "starting update")
 
-	appUpdate.set(updatePhaseRepulling, release.TagName, "pulling "+remoteImage)
-	if err := client.RepullContainer(appContainerName, remoteImage, ""); err != nil {
-		appUpdate.set(updatePhaseError, release.TagName, err.Error())
-		return ErrorResponse(c, http.StatusBadGateway, "Failed to repull container image", err)
-	}
-
-	go watchRepullAndRestart(client, release.TagName)
+	go watchNewContainerAndPromote(client, release.TagName)
 
 	return SuccessResponse(c, http.StatusOK, "Update started", installUpdateResponse{
 		UpdateAvailable: true,
@@ -176,19 +198,67 @@ func HandleAppInstallUpdate(c echo.Context) error {
 	})
 }
 
-// watchRepullAndRestart polls the container's download/extract state and
-// restarts it once the pull finishes. Runs detached from the HTTP request
-// that triggered it, so it uses its own timeout rather than a request context.
-func watchRepullAndRestart(client *routeros.Client, version string) {
+// watchNewContainerAndPromote removes any leftover nnc-update container,
+// creates a fresh one pulling the target release, polls its download/extract
+// state, and once the pull finishes promotes it into the running nnc
+// container's place. Runs detached from the HTTP request that triggered it,
+// so it uses its own timeout rather than a request context.
+func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
+	// A leftover nnc-update from a previous failed run would otherwise collide
+	// with AddContainer below. Safe to delete here since the in-progress guard
+	// in HandleAppInstallUpdate already ruled out a live update.
+	if _, err := client.GetContainer(appUpdateContainerName); err == nil {
+		appUpdate.set(updatePhasePreparing, releaseTag, "removing leftover "+appUpdateContainerName)
+		if err := client.RemoveContainer(appUpdateContainerName); err != nil {
+			appUpdate.set(updatePhaseError, releaseTag, "failed to remove leftover update container: "+err.Error())
+			log.Printf("[app-update] failed to remove leftover container %s: %v", appUpdateContainerName, err)
+			return
+		}
+	}
+
+	running, err := client.GetContainer(appContainerName)
+	if err != nil {
+		appUpdate.set(updatePhaseError, releaseTag, "failed to inspect running container: "+err.Error())
+		log.Printf("[app-update] failed to inspect container %s: %v", appContainerName, err)
+		return
+	}
+
+	version := strings.TrimPrefix(releaseTag, "v")
+	remoteImage := appContainerImage + ":" + version
+
+	randSuffix := make([]byte, 2)
+	if _, err := rand.Read(randSuffix); err != nil {
+		appUpdate.set(updatePhaseError, releaseTag, "failed to generate random root-dir suffix: "+err.Error())
+		log.Printf("[app-update] failed to generate random root-dir suffix: %v", err)
+		return
+	}
+	rootDir := fmt.Sprintf("disk1/images/%s-%s-%s", appContainerName, version, hex.EncodeToString(randSuffix))
+
+	appUpdate.set(updatePhasePreparing, releaseTag, "creating "+appUpdateContainerName)
+	if _, err := client.AddContainer(routeros.ContainerConfig{
+		Name:        appUpdateContainerName,
+		Interface:   running.Interface,
+		RootDir:     rootDir,
+		RemoteImage: remoteImage,
+		Logging:     true,
+		StartOnBoot: false,
+	}); err != nil {
+		appUpdate.set(updatePhaseError, releaseTag, "failed to create update container: "+err.Error())
+		log.Printf("[app-update] failed to create container %s: %v", appUpdateContainerName, err)
+		return
+	}
+
+	appUpdate.set(updatePhasePulling, releaseTag, "pulling "+remoteImage+" into "+appUpdateContainerName)
+
 	deadline := time.Now().Add(updateWatchTimeout)
 
 	for time.Now().Before(deadline) {
 		time.Sleep(updateWatchInterval)
 
-		info, err := client.GetContainer(appContainerName)
+		info, err := client.GetContainer(appUpdateContainerName)
 		if err != nil {
-			appUpdate.set(updatePhaseError, version, "lost track of container during pull: "+err.Error())
-			log.Printf("[app-update] failed to poll container %s: %v", appContainerName, err)
+			appUpdate.set(updatePhaseError, releaseTag, "lost track of update container during pull: "+err.Error())
+			log.Printf("[app-update] failed to poll container %s: %v", appUpdateContainerName, err)
 			return
 		}
 
@@ -197,28 +267,32 @@ func watchRepullAndRestart(client *routeros.Client, version string) {
 			if msg == "" {
 				msg = "image pull failed"
 			}
-			appUpdate.set(updatePhaseError, version, msg)
-			log.Printf("[app-update] repull failed for container %s: %s", appContainerName, msg)
+			appUpdate.set(updatePhaseError, releaseTag, msg)
+			log.Printf("[app-update] pull failed for container %s: %s", appUpdateContainerName, msg)
+			if rmErr := client.RemoveContainer(appUpdateContainerName); rmErr != nil {
+				log.Printf("[app-update] failed to clean up failed update container %s: %v", appUpdateContainerName, rmErr)
+			}
 			return
 		}
 
 		if info.DownloadingExtracting {
-			appUpdate.set(updatePhaseRepulling, version, "pulling "+info.RemoteImage)
+			appUpdate.set(updatePhasePulling, releaseTag, "pulling "+info.RemoteImage)
 			continue
 		}
 
-		appUpdate.set(updatePhaseRestarting, version, "restarting "+appContainerName)
-		if err := client.RestartContainer(appContainerName); err != nil {
-			appUpdate.set(updatePhaseError, version, "repull finished but restart failed: "+err.Error())
-			log.Printf("[app-update] failed to restart container %s: %v", appContainerName, err)
+		appUpdate.set(updatePhaseRestarting, releaseTag, "promoting "+appUpdateContainerName+" to "+appContainerName)
+		if err := client.PromoteContainer(appContainerName, appUpdateContainerName, restartScheduleDelaySeconds); err != nil {
+			appUpdate.set(updatePhaseError, releaseTag, "pull finished but promotion failed: "+err.Error())
+			log.Printf("[app-update] failed to promote container %s: %v", appUpdateContainerName, err)
 			return
 		}
 
-		appUpdate.set(updatePhaseDone, version, "update complete")
+		appUpdate.set(updatePhaseDone, releaseTag,
+			fmt.Sprintf("update complete; version %s will be applied in a few seconds", releaseTag))
 		return
 	}
 
-	appUpdate.set(updatePhaseError, version, "timed out waiting for image pull to finish")
+	appUpdate.set(updatePhaseError, releaseTag, "timed out waiting for image pull to finish")
 }
 
 // HandleAppUpdateStatus godoc

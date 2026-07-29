@@ -355,6 +355,75 @@ func (c *Client) RestartContainer(nameOrID string) error {
 	return nil
 }
 
+// RestartContainerWithTimeout stops and starts the named container after
+// waiting timeoutSeconds, running as a background RouterOS script via
+// ExecuteScriptString rather than acting synchronously. Useful when the
+// container being restarted is the one running the caller itself: the
+// timeout gives the current request/connection time to complete before
+// RouterOS stops the container out from under it.
+func (c *Client) RestartContainerWithTimeout(name string, timeoutSeconds int) error {
+	if name == "" {
+		return fmt.Errorf("container name is required")
+	}
+	if timeoutSeconds < 0 {
+		return fmt.Errorf("timeout must be zero or positive")
+	}
+
+	if _, err := c.GetContainer(name); err != nil {
+		return err
+	}
+
+	script := fmt.Sprintf(`:local c [/container/find where name="%s"]
+:delay %ds
+/container/stop $c
+/container/start $c`, name, timeoutSeconds)
+
+	if err := c.ExecuteScriptString(script); err != nil {
+		return fmt.Errorf("failed to schedule restart for container %s: %w", name, err)
+	}
+
+	return nil
+}
+
+// PromoteContainer replaces the container named runningName with the one
+// named stagedName: it stops runningName, waits 2s for it to fully tear down,
+// removes it, renames stagedName to runningName, marks it to start on boot,
+// and starts it. Runs as a single background RouterOS script via
+// ExecuteScriptString after waiting delaySeconds up front, rather than acting
+// synchronously — needed when runningName is the container the caller itself
+// is running in, so the caller gets time to finish before RouterOS stops it
+// out from under it.
+func (c *Client) PromoteContainer(runningName, stagedName string, delaySeconds int) error {
+	if runningName == "" || stagedName == "" {
+		return fmt.Errorf("both running and staged container names are required")
+	}
+	if delaySeconds < 0 {
+		return fmt.Errorf("delay must be zero or positive")
+	}
+
+	if _, err := c.GetContainer(runningName); err != nil {
+		return fmt.Errorf("running container %s: %w", runningName, err)
+	}
+	if _, err := c.GetContainer(stagedName); err != nil {
+		return fmt.Errorf("staged container %s: %w", stagedName, err)
+	}
+
+	script := fmt.Sprintf(`:local old [/container/find where name="%s"]
+:local new [/container/find where name="%s"]
+:delay %ds
+/container/stop $old
+:delay 2s
+/container/remove $old
+/container/set $new name="%s" start-on-boot=yes
+/container/start $new`, runningName, stagedName, delaySeconds, runningName)
+
+	if err := c.ExecuteScriptString(script); err != nil {
+		return fmt.Errorf("failed to schedule promotion of %s to %s: %w", stagedName, runningName, err)
+	}
+
+	return nil
+}
+
 // RepullContainer re-pulls and re-extracts the container image, identified by
 // name or .id. Pass remoteImage or file to override the image source used for
 // this pull; leave both empty to repull using the container's currently

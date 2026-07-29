@@ -19,7 +19,7 @@ type installUpdateResponse struct {
 }
 
 type updateStatusResponse struct {
-	Phase     string `json:"phase"` // idle, repulling, restarting, done, error
+	Phase     string `json:"phase"` // idle, preparing, pulling, restarting, done, error
 	Message   string `json:"message,omitempty"`
 	Version   string `json:"version,omitempty"`
 	StartedAt string `json:"startedAt,omitempty"`
