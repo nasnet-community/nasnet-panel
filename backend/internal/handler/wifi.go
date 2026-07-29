@@ -128,7 +128,7 @@ func HandleGetWiFiInterface(c echo.Context) error {
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param nameOrID path string true "WiFi interface name or ID"
 // @Param duration query int false "Scan duration in seconds (default: 10)"
-// @Success 200 {object} Response{data=[]wiFiAccessPointResponse}
+// @Success 200 {object} Response{data=[]WiFiAccessPointResponse}
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 404 {object} map[string]interface{} "WiFi interface not found"

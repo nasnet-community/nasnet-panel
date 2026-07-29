@@ -20,7 +20,7 @@ import (
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
-// @Success 200 {object} Response{data=ethernetResponse}
+// @Success 200 {object} Response{data=EthernetResponse}
 // @Failure 401 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
@@ -55,7 +55,7 @@ func HandleGetEthernetInterface(c echo.Context) error {
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
-// @Success 200 {object} Response{data=[]ethernetResponse}
+// @Success 200 {object} Response{data=[]EthernetResponse}
 // @Failure 401 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/interface/ethernets [get].
@@ -85,7 +85,7 @@ func HandleGetEthernetInterfaces(c echo.Context) error {
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param type query string false "Interface type filter"
 // @Produce json
-// @Success 200 {object} Response{data=[]interfaceResponse}
+// @Success 200 {object} Response{data=[]InterfaceResponse}
 // @Failure 400 {object} Response
 // @Failure 401 {object} Response
 // @Failure 500 {object} Response
