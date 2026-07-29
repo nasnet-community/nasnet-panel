@@ -12,6 +12,13 @@ func RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", handler.HandleHealthCheck)
 	initSwagger(e)
 
+	appGroup := e.Group("/api/app")
+	appGroup.Use(middleware.RouterOSAuth)
+	appGroup.GET("/version", handler.HandleAppVersion)
+	appGroup.GET("/check-for-updates", handler.HandleAppCheckForUpdates)
+	appGroup.POST("/install-update", handler.HandleAppInstallUpdate)
+	appGroup.GET("/update-status", handler.HandleAppUpdateStatus)
+
 	systemGroup := e.Group("/api/system")
 	systemGroup.Use(middleware.RouterOSAuth)
 	systemGroup.GET("/info", handler.HandleGetSystemInfo)
