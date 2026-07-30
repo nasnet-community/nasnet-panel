@@ -104,6 +104,7 @@ export {
   type DiagStatusResponse,
 } from './diag';
 export { fetchNetStatus, type NetStatusEntry, type NetHostType } from './net';
+export { fetchHealth, type HealthResponse } from './health';
 export {
   listVPNClients,
   updateVPNClient,
