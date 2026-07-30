@@ -15,6 +15,7 @@ export interface RadioGroupProps {
   onChange: (value: string) => void;
   orientation?: 'row' | 'column';
   ariaLabel?: string;
+  onOptionHover?: (value: string | null) => void;
 }
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
@@ -26,16 +27,22 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   onChange,
   orientation = 'row',
   ariaLabel,
+  onOptionHover,
 }) => (
   <div
     role="radiogroup"
     aria-label={ariaLabel}
     className={cx(styles.group, orientation === 'row' && styles.groupRow)}
+    onMouseLeave={onOptionHover ? () => onOptionHover(null) : undefined}
   >
     {options.map((opt) => {
       const checked = opt.value === value;
       return (
-        <label key={opt.value} className={cx(styles.option, checked && styles.optionChecked)}>
+        <label
+          key={opt.value}
+          className={cx(styles.option, checked && styles.optionChecked)}
+          onMouseEnter={onOptionHover ? () => onOptionHover(opt.value) : undefined}
+        >
           {opt.content ? <div className={styles.content}>{opt.content}</div> : null}
           <div className={styles.row}>
             <input
