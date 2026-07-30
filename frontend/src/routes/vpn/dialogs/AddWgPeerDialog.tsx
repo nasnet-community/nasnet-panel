@@ -120,6 +120,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onChange={(e) => setName(e.target.value)}
               placeholder="auto-generated if empty"
               aria-label="Name"
+              autoComplete="off"
             />
           </Label>
         </FieldRow>
@@ -132,6 +133,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onBlur={() => markTouched('endpointAddress')}
               placeholder="203.0.113.50"
               aria-label="Endpoint address"
+              autoComplete="off"
               aria-invalid={touched.endpointAddress && !!errors.endpointAddress}
             />
             {touched.endpointAddress && errors.endpointAddress ? (
@@ -146,6 +148,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onBlur={() => markTouched('endpointPort')}
               inputMode="numeric"
               aria-label="Endpoint port"
+              autoComplete="off"
               aria-invalid={touched.endpointPort && !!errors.endpointPort}
             />
             {touched.endpointPort && errors.endpointPort ? (
@@ -162,6 +165,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onBlur={() => markTouched('allowedAddresses')}
               placeholder="10.8.0.2/32"
               aria-label="Allowed addresses"
+              autoComplete="off"
               aria-invalid={touched.allowedAddresses && !!errors.allowedAddresses}
             />
             {touched.allowedAddresses && errors.allowedAddresses ? (
@@ -177,6 +181,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               placeholder="empty = off"
               inputMode="numeric"
               aria-label="Persistent keepalive"
+              autoComplete="off"
               aria-invalid={touched.persistentKeepalive && !!errors.persistentKeepalive}
             />
             {touched.persistentKeepalive && errors.persistentKeepalive ? (
@@ -192,6 +197,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onChange={(e) => setPublicKey(e.target.value)}
               placeholder="leave empty to auto-generate keypair"
               aria-label="Public key"
+              autoComplete="off"
             />
           </Label>
           <Label>
@@ -201,7 +207,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onChange={(e) => setPresharedKey(e.target.value)}
               placeholder="leave empty to auto-generate"
               aria-label="Preshared key"
-              autoComplete="off"
+              autoComplete="new-password"
             />
           </Label>
         </FieldRow>
