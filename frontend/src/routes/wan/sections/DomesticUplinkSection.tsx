@@ -20,7 +20,7 @@ interface Props {
   interfaces: InterfaceResponse[];
   excludeNames?: string[];
   interfacesLoading?: boolean;
-  onChanged: () => void;
+  onChanged: () => Promise<void>;
 }
 
 export function DomesticUplinkSection({
@@ -79,9 +79,9 @@ export function DomesticUplinkSection({
       });
       return;
     }
+    await onChanged();
     closeDialog();
     toast.notify({ title: 'Domestic uplink added', tone: 'success' });
-    onChanged();
   };
 
   const onConfirmMove = async () => {
@@ -108,10 +108,10 @@ export function DomesticUplinkSection({
       setMoveSubmitting(false);
       return;
     }
+    await onChanged();
     setMoveSubmitting(false);
     setPendingMove(null);
     toast.notify({ title: `Moved "${target.name}" to Foreign`, tone: 'info' });
-    onChanged();
   };
 
   const moveWireless = pendingMove ? classifyInterface(pendingMove) === 'wireless' : false;
@@ -127,9 +127,9 @@ export function DomesticUplinkSection({
       return;
     }
     await updateWanInterface(creds, { interface: interfaceName, type: 'foreign', ssid, password });
+    await onChanged();
     setPendingMove(null);
     toast.notify({ title: `Moved "${interfaceName}" to Foreign`, tone: 'info' });
-    onChanged();
   };
 
   return (
