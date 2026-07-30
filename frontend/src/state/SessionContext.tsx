@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 interface Credentials {
   username: string;
@@ -39,20 +39,28 @@ function persistCredentials(map: Map<string, Credentials>) {
 }
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const credentialsRef = useRef<Map<string, Credentials>>(loadCredentials());
+  const [credentialsMap, setCredentialsMap] = useState<Map<string, Credentials>>(loadCredentials);
   const [activeRouterId, setActiveRouterId] = useState<string | null>(null);
 
   const getCredentials = useCallback(
-    (routerId: string) => credentialsRef.current.get(routerId),
-    [],
+    (routerId: string) => credentialsMap.get(routerId),
+    [credentialsMap],
   );
   const setCredentials = useCallback((routerId: string, credentials: Credentials) => {
-    credentialsRef.current.set(routerId, credentials);
-    persistCredentials(credentialsRef.current);
+    setCredentialsMap((prev) => {
+      const next = new Map(prev);
+      next.set(routerId, credentials);
+      persistCredentials(next);
+      return next;
+    });
   }, []);
   const clearCredentials = useCallback((routerId: string) => {
-    credentialsRef.current.delete(routerId);
-    persistCredentials(credentialsRef.current);
+    setCredentialsMap((prev) => {
+      const next = new Map(prev);
+      next.delete(routerId);
+      persistCredentials(next);
+      return next;
+    });
   }, []);
 
   const value = useMemo<SessionContextValue>(

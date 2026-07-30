@@ -5,6 +5,7 @@ import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useWizardGate } from '../state/WizardGateContext';
 import { ROUTER_SECTIONS as TABS } from '../layout/routerSections';
+import { RouterCredentialsDialog } from './RouterCredentialsDialog';
 import styles from './RouterDashboard.module.scss';
 
 export function RouterDashboard() {
@@ -12,7 +13,7 @@ export function RouterDashboard() {
   const router = useRouter(id);
   const location = useLocation();
   const navigate = useNavigate();
-  const { setActiveRouterId } = useSession();
+  const { setActiveRouterId, getCredentials } = useSession();
   const { statusFor } = useWizardGate();
 
   useEffect(() => {
@@ -24,6 +25,14 @@ export function RouterDashboard() {
     return (
       <div className={styles.contentShell}>
         <div className={styles.notFound}>Router not found.</div>
+      </div>
+    );
+  }
+
+  if (!getCredentials(router.id)) {
+    return (
+      <div className={styles.contentShell}>
+        <RouterCredentialsDialog router={router} />
       </div>
     );
   }
