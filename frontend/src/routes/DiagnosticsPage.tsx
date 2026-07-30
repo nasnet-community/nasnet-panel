@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Download, FileText, Loader2, MessageCircle, Play, RefreshCw } from 'lucide-react';
-import { Button, Card, Stack, Switch, useToast } from '@nasnet/ui';
+import { Download, FileText, Loader2, MessageCircle, Play, RefreshCw, Wand2 } from 'lucide-react';
+import {
+  Button,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Inline,
+  Stack,
+  Switch,
+  useToast,
+} from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
 import {
   DIAG_REPORT_FILENAME,
@@ -184,6 +194,11 @@ export function DiagnosticsPage() {
     navigate(`/router/${id}/help`);
   };
 
+  const openWizard = () => {
+    if (!id) return;
+    navigate(`/router/${id}/config`);
+  };
+
   const changeReporting = (next: boolean) => {
     setErrorReportingEnabled(next);
     setReporting(next);
@@ -194,104 +209,121 @@ export function DiagnosticsPage() {
   const activeStepIndex = running ? DIAG_STEPS.findIndex((step) => progress < step.at) : -1;
 
   return (
-    <Card>
-      <Stack>
-        <div className={styles.timelineScroll}>
-          <ol className={styles.timeline}>
-            {DIAG_STEPS.map((step, index) => {
-              const done = ready || (running && progress >= step.at);
-              const active = running && !done && index === activeStepIndex;
-              return (
-                <li key={step.at} className={styles.step}>
-                  <span
-                    className={`${styles.stepTitle} ${done || active ? styles.stepTitleActive : ''}`}
-                  >
-                    {step.label}
-                  </span>
-                  <span className={styles.stepStatus}>{step.description}</span>
-                  <span className={styles.stepTrack}>
+    <Stack>
+      <Card>
+        <Stack>
+          <div className={styles.timelineScroll}>
+            <ol className={styles.timeline}>
+              {DIAG_STEPS.map((step, index) => {
+                const done = ready || (running && progress >= step.at);
+                const active = running && !done && index === activeStepIndex;
+                return (
+                  <li key={step.at} className={styles.step}>
                     <span
-                      className={`${styles.stepDot} ${done ? styles.stepDotDone : ''} ${
-                        active ? styles.stepDotActive : ''
-                      }`}
-                    />
-                    {index < DIAG_STEPS.length - 1 ? (
-                      <span className={`${styles.stepLine} ${done ? styles.stepLineDone : ''}`} />
-                    ) : null}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-        {phase === 'error' && error ? <p className={styles.errorText}>{error}</p> : null}
-        {ready ? (
-          <div className={styles.fileTile}>
-            <div className={styles.fileRow}>
-              <span className={styles.fileIcon}>
-                <FileText size={24} aria-hidden />
-              </span>
-              <span className={styles.fileBody}>
-                <span className={styles.fileName}>{DIAG_REPORT_FILENAME}</span>
-                {fileMeta?.time ? (
-                  <span className={styles.fileHint}>
-                    {`Generated ${fileMeta.time}${fileMeta.size ? ` (${fileMeta.size})` : ''}`}
-                  </span>
-                ) : null}
-              </span>
-            </div>
-            <div className={styles.fileAction}>
-              <Button variant="success" onClick={download} disabled={downloading}>
-                {downloading ? (
-                  <>
-                    <Loader2 size={14} aria-hidden /> Downloading…
-                  </>
-                ) : (
-                  <>
-                    <Download size={14} aria-hidden /> Download
-                  </>
-                )}
-              </Button>
-            </div>
+                      className={`${styles.stepTitle} ${done || active ? styles.stepTitleActive : ''}`}
+                    >
+                      {step.label}
+                    </span>
+                    <span className={styles.stepStatus}>{step.description}</span>
+                    <span className={styles.stepTrack}>
+                      <span
+                        className={`${styles.stepDot} ${done ? styles.stepDotDone : ''} ${
+                          active ? styles.stepDotActive : ''
+                        }`}
+                      />
+                      {index < DIAG_STEPS.length - 1 ? (
+                        <span className={`${styles.stepLine} ${done ? styles.stepLineDone : ''}`} />
+                      ) : null}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
-        ) : null}
-        <div className={`${styles.actions} ${ready ? '' : styles.actionsSpaced}`}>
-          <Button variant="secondary" onClick={contactSupport}>
-            <MessageCircle size={14} aria-hidden /> Talk to support
-          </Button>
-          <Button
-            variant={ready ? 'primary' : 'success'}
-            onClick={run}
-            disabled={!creds || phase === 'loading' || running || starting}
-          >
-            {running || starting ? (
-              <>
-                <Loader2 size={14} aria-hidden /> Running…
-              </>
-            ) : ready ? (
-              <>
-                <RefreshCw size={14} aria-hidden /> Run again
-              </>
-            ) : (
-              <>
-                <Play size={14} aria-hidden /> Start
-              </>
-            )}
-          </Button>
-        </div>
-        <div className={styles.reporting}>
-          <Switch
-            label="Send error reports"
-            checked={reporting}
-            onChange={(e) => changeReporting(e.currentTarget.checked)}
-          />
-          <p className={styles.reportingHint}>
-            When the panel hits an error, an anonymous report is sent to the Nasnet team so we can
-            fix it. Reports contain the error and the app version, never your router address,
-            credentials, or configuration.
-          </p>
-        </div>
-      </Stack>
-    </Card>
+          {phase === 'error' && error ? <p className={styles.errorText}>{error}</p> : null}
+          {ready ? (
+            <div className={styles.fileTile}>
+              <div className={styles.fileRow}>
+                <span className={styles.fileIcon}>
+                  <FileText size={24} aria-hidden />
+                </span>
+                <span className={styles.fileBody}>
+                  <span className={styles.fileName}>{DIAG_REPORT_FILENAME}</span>
+                  {fileMeta?.time ? (
+                    <span className={styles.fileHint}>
+                      {`Generated ${fileMeta.time}${fileMeta.size ? ` (${fileMeta.size})` : ''}`}
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+              <div className={styles.fileAction}>
+                <Button variant="success" onClick={download} disabled={downloading}>
+                  {downloading ? (
+                    <>
+                      <Loader2 size={14} aria-hidden /> Downloading…
+                    </>
+                  ) : (
+                    <>
+                      <Download size={14} aria-hidden /> Download
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+          <div className={`${styles.actions} ${ready ? '' : styles.actionsSpaced}`}>
+            <Button variant="secondary" onClick={contactSupport}>
+              <MessageCircle size={14} aria-hidden /> Talk to support
+            </Button>
+            <Button
+              variant={ready ? 'primary' : 'success'}
+              onClick={run}
+              disabled={!creds || phase === 'loading' || running || starting}
+            >
+              {running || starting ? (
+                <>
+                  <Loader2 size={14} aria-hidden /> Running…
+                </>
+              ) : ready ? (
+                <>
+                  <RefreshCw size={14} aria-hidden /> Run again
+                </>
+              ) : (
+                <>
+                  <Play size={14} aria-hidden /> Start
+                </>
+              )}
+            </Button>
+          </div>
+          <div className={styles.reporting}>
+            <Switch
+              label="Send error reports"
+              checked={reporting}
+              onChange={(e) => changeReporting(e.currentTarget.checked)}
+            />
+            <p className={styles.reportingHint}>
+              When the panel hits an error, an anonymous report is sent to the Nasnet team so we can
+              fix it. Reports contain the error and the app version, never your router address,
+              credentials, or configuration.
+            </p>
+          </div>
+        </Stack>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Inline>
+              <Wand2 size={16} aria-hidden /> Reset Configuration
+            </Inline>
+          </CardTitle>
+          <CardDescription>
+            Run the setup wizard again to reset and reconfigure this router from scratch.
+          </CardDescription>
+        </CardHeader>
+        <Button variant="secondary" onClick={openWizard}>
+          Reset and Reconfigure
+        </Button>
+      </Card>
+    </Stack>
   );
 }
