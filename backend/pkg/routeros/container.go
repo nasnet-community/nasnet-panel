@@ -1,6 +1,10 @@
 package routeros
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/go-routeros/routeros/v3/proto"
+)
 
 // ContainerConfig represents the configuration used to add a new container.
 // RemoteImage and File are both optional, but at most one may be set:
@@ -14,6 +18,7 @@ type ContainerConfig struct {
 	RemoteImage string // e.g. "pihole/pihole:latest"
 	File        string // local tarball path, e.g. "disk1/pihole.tar"
 	Hostname    string
+	Env         string // "KEY=VALUE,KEY2=VALUE2" pairs; a key with no value is written bare, with no trailing "="
 	EnvLists    string // comma-separated names of /container/envs lists
 	MountLists  string // comma-separated names of /container/mounts lists
 	Cmd         string
@@ -63,6 +68,7 @@ type ContainerInfo struct {
 	DefaultShell                    string
 	DefaultWorkdir                  string
 	DefaultUser                     string
+	User                            string // effective runtime user, distinct from DefaultUser
 	DefaultStopSignal               string
 	StopTime                        string
 	Logging                         bool
@@ -80,6 +86,7 @@ type ContainerInfo struct {
 	Devices                         string
 	ImageID                         string
 	ConfigJSON                      string // OCI image config blob (architecture, entrypoint, env, healthcheck, rootfs digests, ...)
+	ContainerSize                   string // disk usage in bytes; only reported once the container is fully pulled
 	Layers                          string
 	DefaultHealthcheckCmd           string
 	DefaultHealthcheckInterval      string
@@ -89,17 +96,25 @@ type ContainerInfo struct {
 	DefaultHealthcheckRetries       string
 	HealthcheckStatus               string
 	// RouterOS has no stable "status" property for containers; it instead adds
-	// transient boolean flags matching the current print flag (S/N/R/T/E/D/F).
-	// Only the ones observed in practice are modeled; all are absent (false)
-	// outside their respective states.
-	Healthy               bool   // present while running with a passing healthcheck
-	DownloadingExtracting bool   // present while pulling/extracting the image (flag E)
-	DownloadExtractFailed bool   // present when the pull/extract failed (flag F)
-	About                 string // error detail set alongside DownloadExtractFailed
-	Comment               string
+	// exactly one transient boolean flag matching the current print flag
+	// (S/N/R/T/E/D/F/C). Only the ones observed in practice are modeled; all
+	// are absent (false) outside their respective states, and Running is only
+	// present regardless of whether a healthcheck is configured — Healthy
+	// additionally requires one.
+	Running               bool // present while running (flag R), independent of healthcheck
+	Healthy               bool // present while running with a passing healthcheck
+	DownloadingExtracting bool // present while pulling/extracting the image (flag E)
+	DownloadExtractFailed bool // present when the pull/extract failed (flag F)
+	Stopped               bool // present while stopped (flag S)
+	// About carries .about detail, e.g. the error set alongside
+	// DownloadExtractFailed. RouterOS can return more than one .about entry
+	// for a single container (observed: a progress message alongside the
+	// actual error) — all of them are joined here, in order, separated by "; ".
+	About   string
+	Comment string
 }
 
-func parseContainerInfo(result map[string]string) ContainerInfo {
+func parseContainerInfo(result map[string]string, pairs []proto.Pair) ContainerInfo {
 	return ContainerInfo{
 		ID:                              result[".id"],
 		Name:                            result["name"],
@@ -129,6 +144,7 @@ func parseContainerInfo(result map[string]string) ContainerInfo {
 		DefaultShell:                    result["default-shell"],
 		DefaultWorkdir:                  result["default-workdir"],
 		DefaultUser:                     result["default-user"],
+		User:                            result["user"],
 		DefaultStopSignal:               result["default-stop-signal"],
 		StopTime:                        result["stop-time"],
 		Logging:                         result["logging"] == "yes" || result["logging"] == "true",
@@ -146,6 +162,7 @@ func parseContainerInfo(result map[string]string) ContainerInfo {
 		Devices:                         result["devices"],
 		ImageID:                         result["image-id"],
 		ConfigJSON:                      result["config-json"],
+		ContainerSize:                   result["container-size"],
 		Layers:                          result["layers"],
 		DefaultHealthcheckCmd:           result["default-healthcheck-cmd"],
 		DefaultHealthcheckInterval:      result["default-healthcheck-interval"],
@@ -154,10 +171,12 @@ func parseContainerInfo(result map[string]string) ContainerInfo {
 		DefaultHealthcheckStartInterval: result["default-healthcheck-start-interval"],
 		DefaultHealthcheckRetries:       result["default-healthcheck-retries"],
 		HealthcheckStatus:               result["healthcheck-status"],
+		Running:                         result["running"] == "true",
 		Healthy:                         result["healthy"] == "true",
 		DownloadingExtracting:           result["downloading/extracting"] == "true",
 		DownloadExtractFailed:           result["download/extract failed"] == "true",
-		About:                           result[".about"],
+		Stopped:                         result["stopped"] == "true",
+		About:                           joinPairValues(pairs, ".about"),
 		Comment:                         result["comment"],
 	}
 }
@@ -191,6 +210,9 @@ func (c *Client) AddContainer(config ContainerConfig) (string, error) {
 	}
 	if config.Hostname != "" {
 		args = append(args, "=hostname="+config.Hostname)
+	}
+	if config.Env != "" {
+		args = append(args, "=env="+config.Env)
 	}
 	if config.EnvLists != "" {
 		args = append(args, "=envlists="+config.EnvLists)
@@ -303,12 +325,17 @@ func (c *Client) GetContainer(nameOrID string) (*ContainerInfo, error) {
 		return nil, fmt.Errorf("container name or ID is required")
 	}
 
-	result, err := c.GetFirst("/container", nameOrIDFilterArg(nameOrID))
+	// Bypasses GetFirst: it only exposes the collapsed Map, but joinPairValues
+	// needs the sentence's raw ordered pair list to catch multiple .about entries.
+	reply, err := c.Query("/container", nameOrIDFilterArg(nameOrID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get container %s: %w", nameOrID, err)
 	}
+	if len(reply.Re) == 0 {
+		return nil, fmt.Errorf("failed to get container %s: no results found", nameOrID)
+	}
 
-	info := parseContainerInfo(result)
+	info := parseContainerInfo(reply.Re[0].Map, reply.Re[0].List)
 	return &info, nil
 }
 
@@ -470,15 +497,74 @@ func (c *Client) UpdateContainer(nameOrID string) error {
 
 // ListContainers retrieves all containers.
 func (c *Client) ListContainers() ([]ContainerInfo, error) {
-	results, err := c.GetAll("/container")
+	// Bypasses GetAll: see the comment in GetContainer.
+	reply, err := c.Query("/container")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list containers: %w", err)
 	}
 
-	containers := make([]ContainerInfo, 0, len(results))
-	for _, result := range results {
-		containers = append(containers, parseContainerInfo(result))
+	containers := make([]ContainerInfo, 0, len(reply.Re))
+	for _, sen := range reply.Re {
+		containers = append(containers, parseContainerInfo(sen.Map, sen.List))
 	}
 
 	return containers, nil
+}
+
+// AddContainerMount creates a /container/mounts entry under listName and
+// returns its RouterOS .id. One or more mounts can share the same listName;
+// a container references them all at once via its MountLists property.
+func (c *Client) AddContainerMount(listName, src, dst string) (string, error) {
+	if listName == "" || src == "" || dst == "" {
+		return "", fmt.Errorf("mount list name, src, and dst are all required")
+	}
+
+	id, err := c.Add("/container/mounts", "=list="+listName, "=src="+src, "=dst="+dst)
+	if err != nil {
+		return "", fmt.Errorf("failed to add container mount %s: %w", listName, err)
+	}
+
+	return id, nil
+}
+
+// RemoveContainerMount deletes every /container/mounts entry under listName.
+// A list may hold more than one entry and RouterOS addresses them only by
+// .id, so each is looked up and removed individually. A list with no entries
+// left (or that never existed) is not an error.
+func (c *Client) RemoveContainerMount(listName string) error {
+	if listName == "" {
+		return fmt.Errorf("mount list name is required")
+	}
+
+	results, err := c.GetAll("/container/mounts", "?=list="+listName)
+	if err != nil {
+		return fmt.Errorf("failed to look up container mount %s: %w", listName, err)
+	}
+
+	for i := range results {
+		id := results[i][".id"]
+		if id == "" {
+			continue
+		}
+		if _, err := c.Remove("/container/mounts", "=.id="+id); err != nil {
+			return fmt.Errorf("failed to remove container mount %s: %w", listName, err)
+		}
+	}
+
+	return nil
+}
+
+// ContainerMountExists reports whether any /container/mounts entry already
+// exists under listName.
+func (c *Client) ContainerMountExists(listName string) (bool, error) {
+	if listName == "" {
+		return false, fmt.Errorf("mount list name is required")
+	}
+
+	results, err := c.GetAll("/container/mounts", "?=list="+listName)
+	if err != nil {
+		return false, fmt.Errorf("failed to check container mount %s: %w", listName, err)
+	}
+
+	return len(results) > 0, nil
 }

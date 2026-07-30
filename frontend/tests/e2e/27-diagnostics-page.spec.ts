@@ -50,4 +50,23 @@ test.describe('Diagnostics page', () => {
     await page.getByRole('button', { name: /talk to support/i }).click();
     await expect(page).toHaveURL(/\/router\/rtr_diag2\/help$/);
   });
+
+  test('opens the setup wizard via reset and reconfigure', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockDiagBackend,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_diag3', name: 'Diag Router 3', host: '10.10.10.4' });
+    await mockDiagBackend({ id: 'rtr_diag3' });
+    await page.goto('/router/rtr_diag3/diagnostics');
+
+    await expect(page.getByText('Reset Configuration')).toBeVisible();
+    await page.getByRole('button', { name: /reset and reconfigure/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByText(/erase everything/i)).toBeVisible();
+    await dialog.getByRole('button', { name: /reset and reconfigure/i }).click();
+    await expect(page).toHaveURL(/\/router\/rtr_diag3\/config$/);
+  });
 });

@@ -7,7 +7,6 @@ import {
   LayoutGrid,
   Network,
   Shield,
-  Wand2,
   Wifi,
 } from 'lucide-react';
 import type { TabItem } from '@nasnet/ui';
@@ -21,7 +20,6 @@ export const ROUTER_SECTIONS: RouterSection[] = [
   { id: 'lan', label: 'LAN', path: 'lan', icon: <Network size={16} /> },
   { id: 'wireless', label: 'WIFI', path: 'wireless', icon: <Wifi size={16} /> },
   { id: 'vpn', label: 'VPN Server', path: 'vpn', icon: <Shield size={16} /> },
-  { id: 'wizard', label: 'Wizard', path: 'config', icon: <Wand2 size={16} /> },
   { id: 'plugins', label: 'Plugins', path: 'plugins', icon: <Blocks size={16} /> },
   { id: 'diagnostics', label: 'Diagnostics', path: 'diagnostics', icon: <Activity size={16} /> },
   { id: 'help', label: 'Help', path: 'help', icon: <CircleHelp size={16} /> },
