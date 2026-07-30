@@ -109,6 +109,7 @@ export interface EasyConfigBackendOptions {
 export interface TestFixtures {
   resetMocks: () => Promise<void>;
   seedRouter: (input: SeedInput) => Promise<void>;
+  seedCredentials: (routerId: string) => Promise<void>;
   mockBackendScan: (devices?: ScanMockDevice[]) => Promise<void>;
   mockOverviewBackend: (router?: OverviewBackendRouter) => Promise<void>;
   mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
@@ -155,6 +156,24 @@ export const test = base.extend<TestFixtures>({
         window.__PENDING_SEEDS__ = window.__PENDING_SEEDS__ ?? [];
         window.__PENDING_SEEDS__.push(seed);
       }, input);
+    });
+  },
+  seedCredentials: async ({ context }, use) => {
+    await use(async (routerId) => {
+      await context.addInitScript((id) => {
+        try {
+          const key = 'nasnet-panel.session-credentials.v1';
+          const raw = window.sessionStorage.getItem(key);
+          const map = (raw ? JSON.parse(raw) : {}) as Record<
+            string,
+            { username: string; password: string }
+          >;
+          map[id] = { username: 'admin', password: 'test' };
+          window.sessionStorage.setItem(key, JSON.stringify(map));
+        } catch {
+          /* ignore */
+        }
+      }, routerId);
     });
   },
   mockBackendScan: async ({ context }, use) => {
