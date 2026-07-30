@@ -29,9 +29,11 @@ test.describe('Help page', () => {
     page,
     resetMocks,
     seedRouter,
+    seedCredentials,
   }) => {
     await resetMocks();
     await seedRouter(ROUTER);
+    await seedCredentials(ROUTER.id);
     await page.goto(`/router/${ROUTER.id}/help`);
 
     const knowledgeBase = page.getByRole('link', { name: /knowledge base/i });
