@@ -69,11 +69,49 @@
   flex-shrink: 0;
 }
 
-.cardTagline {
+.badgeGroup {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs, 4px);
+}
+
+.cardIcon {
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+}
+
+.cardIconFallback {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted, var(--color-surface));
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.cardNote {
   margin: 0;
-  font-size: var(--font-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-text);
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  word-break: break-word;
+}
+
+.cardNoteFailed {
+  margin: 0;
+  font-size: var(--font-xs);
+  color: var(--color-danger);
+  word-break: break-word;
+}
+
+.noteBadge {
+  margin-left: var(--space-xs, 4px);
+  white-space: nowrap;
 }
 
 .cardDesc {
