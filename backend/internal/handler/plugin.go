@@ -20,12 +20,26 @@ const pluginRegistryURL = "https://raw.githubusercontent.com/nasnet-community/na
 
 const (
 	pluginInstallPollInterval = 3 * time.Second
-	pluginInstallTimeout      = 20 * time.Minute
+	pluginInstallTimeout      = 5 * time.Minute
 
 	// Grace period between stopping a plugin's container and removing it, so
 	// RouterOS has finished the stop before the remove is issued.
 	pluginUninstallStopDelay = 2 * time.Second
+
+	// Ceiling on a single registry fetch. Manifests, settings schemas and
+	// scripts are a few KB each, so this is generous; it exists because an
+	// install runs detached from any request, and a registry host that accepts
+	// the connection then never finishes the response would otherwise leave the
+	// install goroutine blocked forever. Its task would never reach a terminal
+	// phase, and the plugin could not be installed again until the panel
+	// restarts.
+	pluginFetchTimeout = 30 * time.Second
 )
+
+// pluginHTTPClient fetches from the plugin registry. Deliberately not
+// http.DefaultClient, whose Timeout is zero, meaning no bound at all on the
+// whole exchange — dial, TLS, headers and body read included.
+var pluginHTTPClient = &http.Client{Timeout: pluginFetchTimeout}
 
 // pluginInstallPhase enumerates the stages of an async plugin installation,
 // tracked in-process so GET /api/plugin/status/{pluginId} has something to
@@ -234,8 +248,9 @@ func HandleInstallPlugin(c echo.Context) error {
 
 // installPluginAsync performs the actual install steps for task, updating its
 // phase/message as it progresses. Runs detached from the HTTP request that
-// triggered it, so it uses its own context and timeout rather than the
-// request's.
+// triggered it, so it takes a background context rather than the request's,
+// which would be cancelled the moment that request returned. Registry fetches
+// are bounded by pluginHTTPClient's own timeout instead of by this context.
 func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	pluginID := task.pluginID
 	ctx := context.Background()
@@ -583,7 +598,7 @@ func fetchPluginJSON(ctx context.Context, url string, target any) error {
 	}
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := pluginHTTPClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -625,7 +640,7 @@ func fetchPluginScript(ctx context.Context, id, scriptPath string) (string, erro
 		return "", err
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := pluginHTTPClient.Do(req)
 	if err != nil {
 		return "", err
 	}
