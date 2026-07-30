@@ -26,6 +26,33 @@ export interface UpdateInstallResponse {
   latestVersion: string;
 }
 
+export interface AppVersionResponse {
+  version: string;
+}
+
+export interface AppCheckForUpdatesResponse {
+  appVersion: string;
+  latestVersion: string;
+  releaseDate: string;
+  releaseUrl: string;
+  updateAvailable: boolean;
+}
+
+export interface AppInstallUpdateResponse {
+  updateAvailable: boolean;
+  fromVersion: string;
+  toVersion?: string;
+}
+
+export type AppUpdatePhase = 'idle' | 'preparing' | 'pulling' | 'restarting' | 'done' | 'error';
+
+export interface AppUpdateStatusResponse {
+  phase: AppUpdatePhase;
+  message?: string;
+  version?: string;
+  startedAt?: string;
+}
+
 function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
   return {
     Authorization: `Basic ${btoa(`${username}:${password}`)}`,
@@ -61,5 +88,50 @@ export async function installUpdate(creds: SystemCredentials): Promise<UpdateIns
   return apiRequest<UpdateInstallResponse>('/api/system/install-update', {
     method: 'POST',
     headers: authHeaders(creds),
+  });
+}
+
+export async function fetchAppVersion(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<AppVersionResponse> {
+  return apiRequest<AppVersionResponse>('/api/app/version', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function checkAppForUpdates(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<AppCheckForUpdatesResponse> {
+  return apiRequest<AppCheckForUpdatesResponse>('/api/app/check-for-updates', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function installAppUpdate(
+  creds: SystemCredentials,
+): Promise<AppInstallUpdateResponse> {
+  return apiRequest<AppInstallUpdateResponse>('/api/app/install-update', {
+    method: 'POST',
+    headers: authHeaders(creds),
+  });
+}
+
+export async function fetchAppUpdateStatus(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<AppUpdateStatusResponse> {
+  return apiRequest<AppUpdateStatusResponse>('/api/app/update-status', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
   });
 }
