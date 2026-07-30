@@ -57,7 +57,11 @@ const setSessionCreds = async (context: BrowserContext, routerId: string) => {
   }, routerId);
 };
 
-const setupWanRoutes = async (context: BrowserContext, state: WanRouteState) => {
+const setupWanRoutes = async (
+  context: BrowserContext,
+  state: WanRouteState,
+  opts: { wanApplyDelayMs?: number } = {},
+) => {
   await context.route('**/api/interface/interfaces', async (route) => {
     await route.fulfill({
       status: 200,
@@ -77,8 +81,12 @@ const setupWanRoutes = async (context: BrowserContext, state: WanRouteState) => 
     state.wanPuts.push({ body });
     const comment =
       body.type === 'foreign' ? 'WAN - Foreign Link(Foreign)' : 'WAN - Domestic Link(Domestic)';
-    const idx = state.interfaces.findIndex((i) => i.name === body.interface);
-    if (idx >= 0) state.interfaces[idx] = { ...state.interfaces[idx], comment };
+    const apply = () => {
+      const idx = state.interfaces.findIndex((i) => i.name === body.interface);
+      if (idx >= 0) state.interfaces[idx] = { ...state.interfaces[idx], comment };
+    };
+    if (opts.wanApplyDelayMs) setTimeout(apply, opts.wanApplyDelayMs);
+    else apply();
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -270,6 +278,37 @@ test.describe('WAN tab', () => {
 
     await expect.poll(() => state.wanPuts.length).toBe(2);
     expect(state.wanPuts[1]).toMatchObject({ body: { interface: 'ether1', type: 'domestic' } });
+  });
+
+  test('slow WAN change keeps the dialog in progress until the table reflects it', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
+    await setSessionCreds(context, ROUTER_ID);
+    const state = blankState();
+    await setupWanRoutes(context, state, { wanApplyDelayMs: 2500 });
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await newButton(page, 0).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByLabel('Starlink WAN').click();
+    await page.getByRole('option', { name: 'ether1' }).click();
+    await dialog.getByRole('button', { name: /^save$/i }).click();
+
+    await expect.poll(() => state.wanPuts.length).toBe(1);
+    await expect(dialog.getByRole('button', { name: 'Saving…' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'ether1', exact: true })).toBeHidden();
+
+    await expect(page.getByRole('cell', { name: 'ether1', exact: true })).toBeVisible({
+      timeout: 10_000,
+    });
+    await expect(dialog).toBeHidden();
   });
 
   test('add a wireless Starlink uplink sends ssid and password', async ({
