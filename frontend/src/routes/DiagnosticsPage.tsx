@@ -7,6 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  ConfirmDialog,
   Inline,
   Stack,
   Switch,
@@ -76,6 +77,7 @@ export function DiagnosticsPage() {
   const [downloading, setDownloading] = useState(false);
   const [fileMeta, setFileMeta] = useState<{ time?: string; size?: string } | null>(null);
   const [reporting, setReporting] = useState(() => isErrorReportingEnabled());
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const freshRunRef = useRef(false);
 
   useEffect(() => {
@@ -320,10 +322,19 @@ export function DiagnosticsPage() {
             Run the setup wizard again to reset and reconfigure this router from scratch.
           </CardDescription>
         </CardHeader>
-        <Button variant="secondary" onClick={openWizard}>
+        <Button variant="danger" onClick={() => setResetConfirmOpen(true)}>
           Reset and Reconfigure
         </Button>
       </Card>
+      <ConfirmDialog
+        open={resetConfirmOpen}
+        title="Reset configuration?"
+        description="This will erase everything currently set up on this router, and the setup wizard will walk you through configuring it again from the beginning."
+        destructive
+        confirmLabel="Reset and Reconfigure"
+        onConfirm={openWizard}
+        onCancel={() => setResetConfirmOpen(false)}
+      />
     </Stack>
   );
 }

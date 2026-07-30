@@ -64,6 +64,9 @@ test.describe('Diagnostics page', () => {
 
     await expect(page.getByText('Reset Configuration')).toBeVisible();
     await page.getByRole('button', { name: /reset and reconfigure/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByText(/erase everything/i)).toBeVisible();
+    await dialog.getByRole('button', { name: /reset and reconfigure/i }).click();
     await expect(page).toHaveURL(/\/router\/rtr_diag3\/config$/);
   });
 });
