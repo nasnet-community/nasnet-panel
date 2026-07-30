@@ -251,6 +251,14 @@ type MacvlanConfig struct {
 	LoopProtectSendInterval string // time interval
 }
 
+// VethConfig represents the configuration used to add a new veth interface,
+// typically for backing a container (see ContainerConfig.Interface).
+type VethConfig struct {
+	Name    string // referenced afterward by RouterOS interface/container commands
+	Address string // e.g. "192.168.50.12/24"
+	Gateway string
+}
+
 // MacvlanInfo represents a MACVLAN interface.
 type MacvlanInfo struct {
 	ID                      string
@@ -999,4 +1007,52 @@ func parseEthernetInfo(result map[string]string) EthernetInfo {
 		Running:                 getBoolPtr(result, "running"),
 		Comment:                 getStringPtr(result, "comment"),
 	}
+}
+
+// AddVethInterface creates a new veth interface and returns its RouterOS .id.
+func (c *Client) AddVethInterface(config VethConfig) (string, error) {
+	if config.Name == "" {
+		return "", fmt.Errorf("veth interface name is required")
+	}
+
+	args := []string{"=name=" + config.Name}
+	if config.Address != "" {
+		args = append(args, "=address="+config.Address)
+	}
+	if config.Gateway != "" {
+		args = append(args, "=gateway="+config.Gateway)
+	}
+
+	id, err := c.Add("/interface/veth", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add veth interface %s: %w", config.Name, err)
+	}
+
+	return id, nil
+}
+
+// RemoveVethInterface deletes the veth interface with the given name. An
+// interface that is already gone is not an error, so callers cleaning up after
+// a partially applied configuration can call this unconditionally.
+func (c *Client) RemoveVethInterface(name string) error {
+	if name == "" {
+		return fmt.Errorf("veth interface name is required")
+	}
+
+	results, err := c.GetAll("/interface/veth", "?=name="+name)
+	if err != nil {
+		return fmt.Errorf("failed to look up veth interface %s: %w", name, err)
+	}
+
+	for i := range results {
+		id := results[i][".id"]
+		if id == "" {
+			continue
+		}
+		if _, err := c.Remove("/interface/veth", "=.id="+id); err != nil {
+			return fmt.Errorf("failed to remove veth interface %s: %w", name, err)
+		}
+	}
+
+	return nil
 }
