@@ -289,8 +289,8 @@ export interface WireguardDetailedResponse {
 export interface CreateWireguardPeerRequest {
   interfaceName: string;
   name?: string;
-  endpointAddress: string;
-  endpointPort: number;
+  endpointAddress?: string;
+  endpointPort?: number;
   allowedAddresses: string;
   privateKey?: string;
   publicKey?: string;
