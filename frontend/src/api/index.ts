@@ -92,9 +92,18 @@ export {
   fetchUpdateInfo,
   checkForUpdates,
   installUpdate,
+  fetchAppVersion,
+  checkAppForUpdates,
+  installAppUpdate,
+  fetchAppUpdateStatus,
   type UpdateInfoResponse,
   type UpdateCheckResponse,
   type UpdateInstallResponse,
+  type AppVersionResponse,
+  type AppCheckForUpdatesResponse,
+  type AppInstallUpdateResponse,
+  type AppUpdatePhase,
+  type AppUpdateStatusResponse,
 } from './updates';
 export {
   generateDiag,

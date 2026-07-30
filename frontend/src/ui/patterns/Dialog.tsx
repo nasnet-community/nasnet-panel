@@ -92,6 +92,7 @@ export interface ConfirmDialogProps {
   confirmLabel?: string;
   cancelLabel?: string;
   destructive?: boolean;
+  confirmVariant?: React.ComponentProps<typeof Button>['variant'];
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -103,6 +104,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   destructive,
+  confirmVariant,
   onConfirm,
   onCancel,
 }) => (
@@ -117,7 +119,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <Button variant="ghost" onClick={onCancel}>
           {cancelLabel}
         </Button>
-        <Button variant={destructive ? 'danger' : 'primary'} onClick={onConfirm}>
+        <Button
+          variant={confirmVariant ?? (destructive ? 'danger' : 'primary')}
+          onClick={onConfirm}
+        >
           {confirmLabel}
         </Button>
       </>

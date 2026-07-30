@@ -1,16 +1,85 @@
 import { test, expect } from './fixtures';
 
 test.describe('Updates page', () => {
-  test('check + install app update flow', async ({ page, resetMocks, seedRouter }) => {
+  test('check + install app update flow', async ({ context, page, resetMocks, seedRouter }) => {
     await resetMocks();
-    await seedRouter({ id: 'rtr_upd', name: 'Update Router' });
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+
+    await context.addInitScript((routerId: string) => {
+      try {
+        const credKey = 'nasnet-panel.session-credentials.v1';
+        window.sessionStorage.setItem(
+          credKey,
+          JSON.stringify({ [routerId]: { username: 'admin', password: 'test' } }),
+        );
+        const storeKey = 'nasnet-panel.router-store.v1';
+        window.localStorage.setItem(
+          storeKey,
+          JSON.stringify({
+            routers: [{ id: routerId, name: 'Update Router', host: '192.168.88.1' }],
+            selectedRouterId: null,
+            lastConnectedRouterId: routerId,
+          }),
+        );
+      } catch {
+        /* ignore */
+      }
+    }, 'rtr_upd');
+
+    const envelope = <T>(data: T) => JSON.stringify({ status: 200, message: 'OK', data });
+
+    await context.route('**/api/app/check-for-updates', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          appVersion: 'v1.0.0',
+          latestVersion: 'v1.1.0',
+          releaseDate: '2026-07-01T00:00:00Z',
+          releaseUrl: 'https://github.com/nasnet-community/nasnet-panel/releases/tag/v1.1.0',
+          updateAvailable: true,
+        }),
+      });
+    });
+
+    await context.route('**/api/app/install-update', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          updateAvailable: true,
+          fromVersion: 'v1.0.0',
+          toVersion: 'v1.1.0',
+        }),
+      });
+    });
+
+    await context.route('**/api/app/update-status', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ phase: 'done', message: 'update complete', version: 'v1.1.0' }),
+      });
+    });
+
+    await context.route('**/api/app/version', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ version: 'v1.1.0' }),
+      });
+    });
+
     await page.goto('/updates');
 
     await expect(page.getByRole('heading', { name: /app update/i })).toBeVisible();
-    await expect(page.getByTestId('app-current-version')).toBeVisible();
-    await expect(page.getByTestId('app-latest-version')).toBeVisible();
+    await expect(page.getByTestId('app-current-version')).toHaveText('v1.0.0');
+    await expect(page.getByTestId('app-latest-version')).toHaveText('v1.1.0');
 
     await page.getByRole('button', { name: /install app/i }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('button', { name: /^confirm$/i }).click();
     await expect(page.getByText(/update complete/i)).toBeVisible();
   });
 
