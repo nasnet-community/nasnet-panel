@@ -39,13 +39,16 @@ export function RouterDashboard() {
 
   const wizardStatus = statusFor(router.id);
 
-  const activeTab =
-    TABS.find((t) => {
-      const full = `/router/${router.id}${t.path ? `/${t.path}` : ''}`;
-      return t.path === '' ? location.pathname === full : location.pathname.startsWith(full);
-    })?.id ?? 'overview';
+  const onWizard = location.pathname.startsWith(`/router/${router.id}/config`);
 
-  if (wizardStatus === 'fresh' && activeTab !== 'wizard') {
+  const activeTab = onWizard
+    ? 'diagnostics'
+    : (TABS.find((t) => {
+        const full = `/router/${router.id}${t.path ? `/${t.path}` : ''}`;
+        return t.path === '' ? location.pathname === full : location.pathname.startsWith(full);
+      })?.id ?? 'overview');
+
+  if (wizardStatus === 'fresh' && !onWizard) {
     return <Navigate to={`/router/${router.id}/config`} replace />;
   }
 

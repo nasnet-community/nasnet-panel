@@ -13,6 +13,7 @@ import {
   ApiError,
   createWireguardPeer,
   type CreateWireguardPeerRequest,
+  type CreateWireguardPeerResponse,
   type VPNCredentials,
 } from '../../../api';
 import { isPort } from '../../../utils/validators';
@@ -21,14 +22,14 @@ interface Props {
   creds: VPNCredentials | null;
   interfaceName: string;
   onCancel: () => void;
-  onCreated: () => void;
+  onCreated: (created: CreateWireguardPeerResponse) => void;
 }
 
 export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: Props) {
   const [name, setName] = useState('');
   const [endpointAddress, setEndpointAddress] = useState('');
   const [endpointPort, setEndpointPort] = useState('51820');
-  const [allowedAddresses, setAllowedAddresses] = useState('');
+  const [allowedAddresses, setAllowedAddresses] = useState('0.0.0.0/0');
   const [publicKey, setPublicKey] = useState('');
   const [presharedKey, setPresharedKey] = useState('');
   const [persistentKeepalive, setPersistentKeepalive] = useState('');
@@ -40,8 +41,8 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
 
   const errors = useMemo(
     () => ({
-      endpointAddress: endpointAddress.trim() === '' ? 'Endpoint address is required.' : null,
-      endpointPort: isPort(endpointPort) ? null : 'Port must be 1-65535.',
+      endpointPort:
+        endpointAddress.trim() === '' || isPort(endpointPort) ? null : 'Port must be 1-65535.',
       allowedAddresses: allowedAddresses.trim() === '' ? 'Allowed addresses is required.' : null,
       persistentKeepalive:
         persistentKeepalive.trim() === '' ||
@@ -57,7 +58,6 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
 
   const submit = async () => {
     setTouched({
-      endpointAddress: true,
       endpointPort: true,
       allowedAddresses: true,
       persistentKeepalive: true,
@@ -68,17 +68,21 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
 
     const body: CreateWireguardPeerRequest = {
       interfaceName,
-      endpointAddress: endpointAddress.trim(),
-      endpointPort: Number(endpointPort),
       allowedAddresses: allowedAddresses.trim(),
     };
+    if (endpointAddress.trim()) {
+      body.endpointAddress = endpointAddress.trim();
+      body.endpointPort = Number(endpointPort);
+    }
     if (name.trim()) body.name = name.trim();
     if (publicKey.trim()) body.publicKey = publicKey.trim();
+    else body.savePrivateKey = true;
     if (presharedKey.trim()) body.preSharedKey = presharedKey.trim();
     if (persistentKeepalive.trim()) body.persistentKeepalive = Number(persistentKeepalive);
 
+    let created: CreateWireguardPeerResponse;
     try {
-      await createWireguardPeer(creds, body);
+      created = await createWireguardPeer(creds, body);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -91,7 +95,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
       return;
     }
     setSubmitting(false);
-    onCreated();
+    onCreated(created);
   };
 
   return (
@@ -120,23 +124,20 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onChange={(e) => setName(e.target.value)}
               placeholder="auto-generated if empty"
               aria-label="Name"
+              autoComplete="off"
             />
           </Label>
         </FieldRow>
         <FieldRow>
           <Label>
-            <span>Endpoint address</span>
+            <span>Endpoint address (optional)</span>
             <Input
               value={endpointAddress}
               onChange={(e) => setEndpointAddress(e.target.value)}
-              onBlur={() => markTouched('endpointAddress')}
               placeholder="203.0.113.50"
               aria-label="Endpoint address"
-              aria-invalid={touched.endpointAddress && !!errors.endpointAddress}
+              autoComplete="off"
             />
-            {touched.endpointAddress && errors.endpointAddress ? (
-              <FormError>{errors.endpointAddress}</FormError>
-            ) : null}
           </Label>
           <Label>
             <span>Endpoint port</span>
@@ -146,6 +147,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onBlur={() => markTouched('endpointPort')}
               inputMode="numeric"
               aria-label="Endpoint port"
+              autoComplete="off"
               aria-invalid={touched.endpointPort && !!errors.endpointPort}
             />
             {touched.endpointPort && errors.endpointPort ? (
@@ -162,6 +164,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onBlur={() => markTouched('allowedAddresses')}
               placeholder="10.8.0.2/32"
               aria-label="Allowed addresses"
+              autoComplete="off"
               aria-invalid={touched.allowedAddresses && !!errors.allowedAddresses}
             />
             {touched.allowedAddresses && errors.allowedAddresses ? (
@@ -177,6 +180,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               placeholder="empty = off"
               inputMode="numeric"
               aria-label="Persistent keepalive"
+              autoComplete="off"
               aria-invalid={touched.persistentKeepalive && !!errors.persistentKeepalive}
             />
             {touched.persistentKeepalive && errors.persistentKeepalive ? (
@@ -192,6 +196,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onChange={(e) => setPublicKey(e.target.value)}
               placeholder="leave empty to auto-generate keypair"
               aria-label="Public key"
+              autoComplete="off"
             />
           </Label>
           <Label>
@@ -201,7 +206,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
               onChange={(e) => setPresharedKey(e.target.value)}
               placeholder="leave empty to auto-generate"
               aria-label="Preshared key"
-              autoComplete="off"
+              autoComplete="new-password"
             />
           </Label>
         </FieldRow>

@@ -28,12 +28,12 @@ test.describe('Router dashboard + Overview tab', () => {
       'LAN',
       'WIFI',
       'VPN Server',
-      'Wizard',
       'Diagnostics',
       'Help',
     ]) {
       await expect(page.getByRole('tab', { name: tab })).toBeVisible();
     }
+    await expect(page.getByRole('tab', { name: 'Wizard' })).toHaveCount(0);
 
     await expect(page.getByRole('heading', { name: 'Resources', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Network', exact: true })).toBeVisible();

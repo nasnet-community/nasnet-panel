@@ -39,7 +39,8 @@ interface Props {
 }
 
 export function ModeStep({ state, dispatch, footer }: Props) {
-  const activeMode: Mode = state.mode ?? 'starlink-only';
+  const [preview, setPreview] = React.useState<Mode | null>(null);
+  const activeMode: Mode = preview ?? state.mode ?? 'starlink-only';
   return (
     <Card>
       <CardHeader>
@@ -57,16 +58,19 @@ export function ModeStep({ state, dispatch, footer }: Props) {
             orientation="column"
             options={MODE_OPTIONS}
             onChange={(v) => dispatch({ type: 'setMode', mode: v as Mode })}
+            onOptionHover={(v) => setPreview(v as Mode | null)}
           />
           {footer}
         </div>
         <div className={styles.flowStage}>
-          <div key={activeMode} className={styles.flowItem}>
-            {activeMode === 'dual-link' ? (
-              <DualLinkFlow />
-            ) : (
-              <FlowDiagram ariaLabel="Starlink-only traffic flow" nodes={STARLINK_FLOW_NODES} />
-            )}
+          <div className={`${styles.flowZoom} ${preview ? styles.flowZoomActive : ''}`}>
+            <div key={activeMode} className={styles.flowItem}>
+              {activeMode === 'dual-link' ? (
+                <DualLinkFlow />
+              ) : (
+                <FlowDiagram ariaLabel="Starlink-only traffic flow" nodes={STARLINK_FLOW_NODES} />
+              )}
+            </div>
           </div>
         </div>
       </div>

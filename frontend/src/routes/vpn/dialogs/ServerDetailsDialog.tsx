@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Badge, Button, ConfirmDialog, Dialog, useToast } from '@nasnet/ui';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import styles from '../../VPNPage.module.scss';
 import {
   ApiError,
@@ -23,6 +23,18 @@ import {
 import { AddWgPeerDialog } from './AddWgPeerDialog';
 import { EditWgPeerDialog } from './EditWgPeerDialog';
 import { ExportOvpnDialog } from './ExportOvpnDialog';
+import { WgClientConfigDialog } from './WgClientConfigDialog';
+
+interface PeerClientConfig {
+  peerName: string;
+  privateKey: string;
+  serverPublicKey: string;
+  presharedKey?: string;
+  defaultEndpoint?: string;
+  defaultAddress?: string;
+  defaultAllowedIps?: string;
+  persistentKeepalive?: string;
+}
 
 type Details =
   | { kind: 'openvpn'; data: OvpnServerDetailsResponse }
@@ -45,6 +57,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
   const [exporting, setExporting] = useState(false);
   const [addingPeer, setAddingPeer] = useState(false);
   const [editingPeer, setEditingPeer] = useState<WireguardPeerResponse | null>(null);
+  const [configPeer, setConfigPeer] = useState<PeerClientConfig | null>(null);
   const [pendingDeletePeer, setPendingDeletePeer] = useState<WireguardPeerResponse | null>(null);
   const [peerDeleteSubmitting, setPeerDeleteSubmitting] = useState(false);
   const toast = useToast();
@@ -105,6 +118,22 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
   const isOvpn = server?.protocol === 'openvpn';
   const ovpnServerName = isOvpn && server ? server.id.replace(/^ovpn:/, '') : '';
 
+  const showPeerConfig = (p: WireguardPeerResponse) => {
+    if (details?.kind !== 'wireguard' || !p.privateKey) return;
+    setConfigPeer({
+      peerName: p.name,
+      privateKey: p.privateKey,
+      serverPublicKey: details.data.publicKey,
+      presharedKey: p.preSharedKey,
+      defaultEndpoint:
+        p.clientEndpoint || (creds ? `${creds.host}:${details.data.listenPort}` : ''),
+      defaultAddress:
+        p.allowedAddresses && p.allowedAddresses !== '0.0.0.0/0' ? p.allowedAddresses : '',
+      defaultAllowedIps: p.clientAllowedAddress || undefined,
+      persistentKeepalive: p.persistentKeepalive || undefined,
+    });
+  };
+
   return (
     <>
       <Dialog
@@ -135,6 +164,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
             onAddPeer={() => setAddingPeer(true)}
             onEditPeer={setEditingPeer}
             onDeletePeer={setPendingDeletePeer}
+            onShowPeerConfig={showPeerConfig}
           />
         ) : null}
       </Dialog>
@@ -153,11 +183,41 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
           creds={creds}
           interfaceName={details.data.name}
           onCancel={() => setAddingPeer(false)}
-          onCreated={() => {
+          onCreated={(created) => {
             setAddingPeer(false);
             toast.notify({ title: 'WireGuard peer created', tone: 'success' });
+            if (created.privateKey && details.kind === 'wireguard') {
+              setConfigPeer({
+                peerName: created.name,
+                privateKey: created.privateKey,
+                serverPublicKey: details.data.publicKey,
+                presharedKey: created.preSharedKey,
+                defaultEndpoint: creds ? `${creds.host}:${details.data.listenPort}` : '',
+                defaultAddress:
+                  created.allowedAddresses && created.allowedAddresses !== '0.0.0.0/0'
+                    ? created.allowedAddresses
+                    : '',
+                persistentKeepalive: created.persistentKeepalive
+                  ? String(created.persistentKeepalive)
+                  : undefined,
+              });
+            }
             reload();
           }}
+        />
+      ) : null}
+
+      {configPeer ? (
+        <WgClientConfigDialog
+          peerName={configPeer.peerName}
+          privateKey={configPeer.privateKey}
+          serverPublicKey={configPeer.serverPublicKey}
+          presharedKey={configPeer.presharedKey}
+          defaultEndpoint={configPeer.defaultEndpoint}
+          defaultAddress={configPeer.defaultAddress}
+          defaultAllowedIps={configPeer.defaultAllowedIps}
+          persistentKeepalive={configPeer.persistentKeepalive}
+          onClose={() => setConfigPeer(null)}
         />
       ) : null}
 
@@ -235,6 +295,7 @@ interface DetailsBodyProps {
   onAddPeer: () => void;
   onEditPeer: (peer: WireguardPeerResponse) => void;
   onDeletePeer: (peer: WireguardPeerResponse) => void;
+  onShowPeerConfig: (peer: WireguardPeerResponse) => void;
 }
 
 function DetailsBody({
@@ -244,6 +305,7 @@ function DetailsBody({
   onAddPeer,
   onEditPeer,
   onDeletePeer,
+  onShowPeerConfig,
 }: DetailsBodyProps) {
   switch (details.kind) {
     case 'openvpn': {
@@ -289,6 +351,7 @@ function DetailsBody({
             onAdd={onAddPeer}
             onEdit={onEditPeer}
             onDelete={onDeletePeer}
+            onShowConfig={onShowPeerConfig}
           />
         </>
       );
@@ -373,9 +436,17 @@ interface PeersSectionProps {
   onAdd: () => void;
   onEdit: (peer: WireguardPeerResponse) => void;
   onDelete: (peer: WireguardPeerResponse) => void;
+  onShowConfig: (peer: WireguardPeerResponse) => void;
 }
 
-function PeersSection({ peers, canMutate, onAdd, onEdit, onDelete }: PeersSectionProps) {
+function PeersSection({
+  peers,
+  canMutate,
+  onAdd,
+  onEdit,
+  onDelete,
+  onShowConfig,
+}: PeersSectionProps) {
   return (
     <div style={{ marginTop: 16 }}>
       <div
@@ -405,7 +476,7 @@ function PeersSection({ peers, canMutate, onAdd, onEdit, onDelete }: PeersSectio
                 <th style={{ padding: '6px 8px' }}>Endpoint</th>
                 <th style={{ padding: '6px 8px' }}>Last handshake</th>
                 <th style={{ padding: '6px 8px' }}>Status</th>
-                <th style={{ padding: '6px 8px', width: 120 }}>Actions</th>
+                <th style={{ padding: '6px 8px', width: 160 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -426,6 +497,20 @@ function PeersSection({ peers, canMutate, onAdd, onEdit, onDelete }: PeersSectio
                   </td>
                   <td style={{ padding: '6px 8px' }}>
                     <span style={{ display: 'inline-flex', gap: 8 }}>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={!p.privateKey}
+                        title={
+                          p.privateKey
+                            ? `Client config for ${p.name}`
+                            : 'Private key not stored on router'
+                        }
+                        aria-label={`Client config for peer ${p.name}`}
+                        onClick={() => onShowConfig(p)}
+                      >
+                        <QrCode size={14} aria-hidden />
+                      </Button>
                       <Button
                         size="sm"
                         variant="secondary"
