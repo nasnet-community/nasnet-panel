@@ -402,6 +402,7 @@ function AppUpdateCard() {
         title="Install app update?"
         description="The panel restarts to apply the new version. The page reloads automatically once it is back."
         confirmLabel="Confirm"
+        confirmVariant="success"
         onConfirm={install}
         onCancel={() => setConfirming(false)}
       />
