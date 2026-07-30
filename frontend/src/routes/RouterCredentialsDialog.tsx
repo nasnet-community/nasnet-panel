@@ -57,6 +57,7 @@ export function RouterCredentialsDialog({ router }: Props) {
       title={`Connect to ${router.name || router.host}`}
       description={`Enter credentials for ${router.host}.`}
       size="sm"
+      labelledBy="router-credentials-title"
       footer={
         <>
           <Button variant="ghost" onClick={close} disabled={connecting}>

@@ -28,9 +28,11 @@ test.describe('Plugins page', () => {
     page,
     resetMocks,
     seedRouter,
+    seedCredentials,
   }) => {
     await resetMocks();
     await seedRouter(ROUTER);
+    await seedCredentials(ROUTER.id);
     await page.goto(`/router/${ROUTER.id}/plugins`);
 
     const ooniCard = page
@@ -50,9 +52,11 @@ test.describe('Plugins page', () => {
     page,
     resetMocks,
     seedRouter,
+    seedCredentials,
   }) => {
     await resetMocks();
     await seedRouter(ROUTER);
+    await seedCredentials(ROUTER.id);
     await page.goto(`/router/${ROUTER.id}/plugins`);
 
     const deltaChatCard = page

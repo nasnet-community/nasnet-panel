@@ -20,7 +20,7 @@ test.describe('Saved router credentials prompt', () => {
     const dialog = page.getByRole('dialog', { name: /connect to saved router/i });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByLabel('Username')).toHaveValue('admin');
-    await dialog.getByLabel('Password').fill('test');
+    await dialog.getByLabel('Password', { exact: true }).fill('test');
     await dialog.getByRole('button', { name: 'Connect' }).click();
 
     await expect(page.getByRole('heading', { name: 'Resources', exact: true })).toBeVisible();
