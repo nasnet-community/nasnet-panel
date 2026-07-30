@@ -33,7 +33,6 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
     role="radiogroup"
     aria-label={ariaLabel}
     className={cx(styles.group, orientation === 'row' && styles.groupRow)}
-    onMouseLeave={onOptionHover ? () => onOptionHover(null) : undefined}
   >
     {options.map((opt) => {
       const checked = opt.value === value;
@@ -42,6 +41,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
           key={opt.value}
           className={cx(styles.option, checked && styles.optionChecked)}
           onMouseEnter={onOptionHover ? () => onOptionHover(opt.value) : undefined}
+          onMouseLeave={onOptionHover ? () => onOptionHover(null) : undefined}
         >
           {opt.content ? <div className={styles.content}>{opt.content}</div> : null}
           <div className={styles.row}>
