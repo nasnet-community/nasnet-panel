@@ -15,6 +15,10 @@ import (
 	"nasnet-panel/pkg/wgcfg"
 )
 
+// vpnLANAddressList is the firewall address list the VPN routing rules match
+// on as src-address-list, set up by the wizard template.
+const vpnLANAddressList = "VPN-LAN"
+
 // OvpnServerTask tracks the status and progress of an OpenVPN server creation task.
 type OvpnServerTask struct {
 	ID            string
@@ -1018,6 +1022,11 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 
 	if _, err := client.AddIPAddress(ipConfig); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
+	}
+
+	addrListComment := "wg-server: " + wireguard.Name
+	if _, err := client.AddFirewallAddressListItem(vpnLANAddressList, *localAddress, false, addrListComment); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add address to VPN-LAN address list", err)
 	}
 
 	response := ToWireGuardServerCreateResponse(wireguard)
