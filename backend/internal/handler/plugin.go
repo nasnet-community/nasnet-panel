@@ -28,7 +28,7 @@ const (
 )
 
 // pluginInstallPhase enumerates the stages of an async plugin installation,
-// tracked in-process so GET /api/plugin/status/{taskId} has something to
+// tracked in-process so GET /api/plugin/status/{pluginId} has something to
 // report while the background goroutine runs independently of the request
 // that started it.
 type pluginInstallPhase string
@@ -46,10 +46,10 @@ const (
 	pluginInstallPhaseError              pluginInstallPhase = "error"
 )
 
-// pluginInstallTask tracks one in-flight (or completed) async installation.
+// pluginInstallTask tracks one in-flight (or completed) async installation,
+// identified by the id of the plugin being installed.
 type pluginInstallTask struct {
 	mu          sync.RWMutex
-	taskID      string
 	pluginID    string
 	phase       pluginInstallPhase
 	message     string
@@ -84,7 +84,6 @@ func (t *pluginInstallTask) snapshot() PluginInstallStatusResponse {
 	defer t.mu.RUnlock()
 
 	return PluginInstallStatusResponse{
-		TaskID:      t.taskID,
 		PluginID:    t.pluginID,
 		Phase:       string(t.phase),
 		Message:     t.message,
@@ -94,9 +93,10 @@ func (t *pluginInstallTask) snapshot() PluginInstallStatusResponse {
 	}
 }
 
-// pluginInstallPool tracks every plugin installation task, keyed by task ID.
-// One plugin id may have at most one non-terminal task at a time; different
-// plugin ids may install concurrently.
+// pluginInstallPool tracks every plugin installation task, keyed by plugin id.
+// At most one install per plugin may be in flight, so a plugin id is enough to
+// identify its task. Different plugins may install concurrently, and
+// re-installing a plugin replaces its previous, finished task.
 type pluginInstallPool struct {
 	mu    sync.RWMutex
 	tasks map[string]*pluginInstallTask
@@ -107,15 +107,10 @@ var pluginInstalls = &pluginInstallPool{tasks: make(map[string]*pluginInstallTas
 // activeLocked reports whether pluginID has a non-terminal task in flight.
 // Callers must already hold p.mu, since sync.RWMutex is not reentrant.
 func (p *pluginInstallPool) activeLocked(pluginID string) bool {
-	for _, t := range p.tasks {
-		t.mu.RLock()
-		samePlugin := t.pluginID == pluginID
-		t.mu.RUnlock()
-		if samePlugin && !t.terminal() {
-			return true
-		}
-	}
-	return false
+	// A missing key yields a nil pointer, so the nil check doubles as the
+	// "no such task" check.
+	task := p.tasks[pluginID]
+	return task != nil && !task.terminal()
 }
 
 // active reports whether pluginID is currently being installed.
@@ -135,16 +130,13 @@ func (p *pluginInstallPool) start(pluginID string) (*pluginInstallTask, error) {
 		return nil, fmt.Errorf("plugin %s is already being installed", pluginID)
 	}
 
-	taskID := fmt.Sprintf("%d", time.Now().Unix())
-
 	task := &pluginInstallTask{
-		taskID:    taskID,
 		pluginID:  pluginID,
 		phase:     pluginInstallPhasePreparing,
 		message:   "starting install",
 		startedAt: time.Now(),
 	}
-	p.tasks[taskID] = task
+	p.tasks[pluginID] = task
 	return task, nil
 }
 
@@ -184,7 +176,7 @@ func HandleListPlugins(c echo.Context) error {
 // @Description Starts an async install of a plugin from the community registry:
 // @Description creates the veth interface its manifest specifies (if not already
 // @Description present), creates its mounts, and adds its container, then waits for
-// @Description the image to finish pulling. Poll GET /api/plugin/status/{taskId} for
+// @Description the image to finish pulling. Poll GET /api/plugin/status/{pluginId} for
 // @Description progress. At most one install per plugin id may run at a time;
 // @Description different plugins may install concurrently.
 // @Tags Plugin
@@ -235,8 +227,8 @@ func HandleInstallPlugin(c echo.Context) error {
 	go installPluginAsync(client, task)
 
 	return SuccessResponse(c, http.StatusOK, "Plugin installation started", InstallPluginResponse{
-		ID:     req.ID,
-		TaskID: task.taskID,
+		ID:       req.ID,
+		PluginID: task.pluginID,
 	})
 }
 
@@ -439,20 +431,21 @@ func startPluginContainer(ctx context.Context, client *routeros.Client, task *pl
 // @Tags Plugin
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param taskId path string true "Task ID returned by POST /api/plugin/install"
+// @Param pluginId path string true "Plugin id passed to POST /api/plugin/install"
 // @Produce json
 // @Success 200 {object} Response{data=PluginInstallStatusResponse}
 // @Failure 404 {object} Response
-// @Router /api/plugin/status/{taskId} [get].
+// @Router /api/plugin/status/{pluginId} [get].
 func HandleGetPluginInstallStatus(c echo.Context) error {
-	taskID := c.Param("taskId")
+	pluginID := c.Param("pluginId")
 
 	pluginInstalls.mu.RLock()
-	task, ok := pluginInstalls.tasks[taskID]
+	task, ok := pluginInstalls.tasks[pluginID]
 	pluginInstalls.mu.RUnlock()
 
 	if !ok {
-		return ErrorResponse(c, http.StatusNotFound, "Unknown installation task", fmt.Errorf("no task with id %s", taskID))
+		return ErrorResponse(c, http.StatusNotFound, "Unknown installation task",
+			fmt.Errorf("no installation task for plugin %s", pluginID))
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Installation status retrieved", task.snapshot())

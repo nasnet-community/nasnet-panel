@@ -24,7 +24,7 @@ func RegisterRoutes(e *echo.Echo) {
 	pluginGroup.GET("/plugins", handler.HandleListPlugins)
 	pluginGroup.POST("/install", handler.HandleInstallPlugin)
 	pluginGroup.DELETE("/plugin/:name", handler.HandleUninstallPlugin)
-	pluginGroup.GET("/status/:taskId", handler.HandleGetPluginInstallStatus)
+	pluginGroup.GET("/status/:pluginId", handler.HandleGetPluginInstallStatus)
 
 	systemGroup := e.Group("/api/system")
 	systemGroup.Use(middleware.RouterOSAuth)
