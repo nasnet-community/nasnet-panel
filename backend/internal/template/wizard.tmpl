@@ -544,7 +544,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 
 :global WizardProgress "95"
 
-:execute script={/system script run DomesticIPUpdate}
+:execute script={/system script run DomesticIPUpdate-OneTime}
 /ip dhcp-server network remove [find address="192.168.210.0/24"]
 /ip dhcp-server remove [find name="DHCP-Management-wifi"]
 /ip pool remove [find name="DHCP-pool-management-wifi"]
