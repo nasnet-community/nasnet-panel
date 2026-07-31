@@ -270,6 +270,12 @@ func HandleFinalizeWizard(c echo.Context) error {
 		randWifiSSID = utils.GenerateName(3, "", utils.PascalCase)
 		randWifiPassword, _ = utils.GenerateRandomString(8, 20)
 	}
+
+	randomUserID, err := utils.GenerateUserID()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
+	}
+
 	// Build template data from request
 	templateData := map[string]any{
 		"DomesticEnabled":        domesticEnabled,
@@ -285,6 +291,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"BackupTime":             time.Now().Format("2006-01-02_15-04-05"),
 		"RouterUsername":         creds.Username,
 		"RouterPassword":         creds.Password,
+		"RandomUserID":           randomUserID,
 	}
 
 	// Add WiFi AP configuration if provided

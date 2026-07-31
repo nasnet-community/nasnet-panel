@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
 
 	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/utils"
 )
 
 // Base URL hosting per-plugin assets (such as the icon and manifest) in the
@@ -272,7 +272,7 @@ func settingsDefaults(schema *PluginSettingsSchema) (map[string]string, error) {
 		case field.Default != nil:
 			defaults[field.Key] = fmt.Sprintf("%v", field.Default)
 		case field.Generate == "uuid":
-			id, err := generateUUIDv4()
+			id, err := utils.GenerateUUIDv4()
 			if err != nil {
 				return nil, fmt.Errorf("failed to generate value for setting %s: %w", field.Key, err)
 			}
@@ -301,17 +301,6 @@ func resolveEnvPlaceholders(env, defaults map[string]string) map[string]string {
 		resolved[k] = resolveSettingsPlaceholders(v, defaults)
 	}
 	return resolved
-}
-
-// generateUUIDv4 returns a random RFC 4122 version 4 UUID string.
-func generateUUIDv4() (string, error) {
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-	b[6] = (b[6] & 0x0f) | 0x40
-	b[8] = (b[8] & 0x3f) | 0x80
-	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16]), nil
 }
 
 // supportsArchitecture reports whether a plugin manifest's architectures list
