@@ -106,6 +106,18 @@ export {
   type AppUpdateStatusResponse,
 } from './updates';
 export {
+  fetchPlugins,
+  installPlugin,
+  fetchPluginInstallStatus,
+  uninstallPlugin,
+  type PluginCredentials,
+  type PluginInfoResponse,
+  type PluginInstallPhase,
+  type InstallPluginResponse,
+  type PluginInstallStatusResponse,
+  type UninstallPluginResponse,
+} from './plugins';
+export {
   generateDiag,
   fetchDiagStatus,
   fetchDiagReport,
