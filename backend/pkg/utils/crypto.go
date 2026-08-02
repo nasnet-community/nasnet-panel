@@ -94,3 +94,32 @@ func GenerateRandomString(minLen, maxLen int) (string, error) {
 
 	return string(result), nil
 }
+
+// userIDPrefix is the fixed marker carried by the first three groups of every
+// generated user ID, so NasNet installs stay identifiable to the services that
+// receive it.
+const userIDPrefix = "6e6e7001-7631-6d6b"
+
+// GenerateUserID returns a UUID-shaped identifier whose first three groups are
+// the constant NasNet marker and whose last two groups are random.
+func GenerateUserID() (string, error) {
+	b := make([]byte, 8)
+	if _, err := rand.Read(b); err != nil {
+		return "", fmt.Errorf("failed to generate user ID: %w", err)
+	}
+
+	return fmt.Sprintf("%s-%x-%x", userIDPrefix, b[0:2], b[2:8]), nil
+}
+
+// GenerateUUIDv4 returns a random RFC 4122 version 4 UUID string.
+func GenerateUUIDv4() (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+
+	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16]), nil
+}
