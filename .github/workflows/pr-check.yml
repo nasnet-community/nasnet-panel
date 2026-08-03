@@ -128,22 +128,22 @@ jobs:
 
       - uses: ./.github/actions/setup-go-backend
         with:
-          go-version-file: installer/windows/go.mod
-          cache-dependency-path: installer/windows/go.sum
+          go-version-file: graphical-installer/go.mod
+          cache-dependency-path: graphical-installer/go.sum
 
       - name: LAN baseline script in sync with scripts/
-        run: cmp installer/windows/assets/nasnet-lan-baseline.rsc scripts/nasnet-lan-baseline.rsc
+        run: cmp graphical-installer/assets/nasnet-lan-baseline.rsc scripts/nasnet-lan-baseline.rsc
 
       - name: Format check (gofmt)
-        working-directory: installer/windows
+        working-directory: graphical-installer
         run: test -z "$(gofmt -l .)"
 
       - name: go vet
-        working-directory: installer/windows
+        working-directory: graphical-installer
         run: GOOS=windows GOARCH=amd64 go vet -tags desktop,production ./...
 
       - name: go build (windows/amd64)
-        working-directory: installer/windows
+        working-directory: graphical-installer
         run: GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags desktop,production -ldflags "-H windowsgui" -o /dev/null .
 
   e2e:
