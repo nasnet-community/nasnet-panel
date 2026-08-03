@@ -258,18 +258,7 @@ func HandleAddL2TPClient(c echo.Context) error {
 		ipsecSecret = *req.IPsecSecret
 	}
 
-	profileName := req.Name + "-client-profile"
-
-	exists, err := client.ProfileExists(profileName)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check profile existence", err)
-	}
-
-	if !exists {
-		if err := client.CreateVPNProfile(profileName); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create VPN profile", err)
-		}
-	}
+	profileName := "default"
 
 	disabled := false
 	if req.Disabled != nil {
@@ -535,28 +524,6 @@ func HandleListVPNServers(c echo.Context) error {
 				Protocol: "udp",
 			})
 		}
-	}
-
-	pptpServer, err := client.GetPptpServer()
-	if err == nil {
-		status := &SingleServerStatus{
-			Enabled:  pptpServer.Enabled,
-			Port:     1723, // Default PPTP port
-			Protocol: "tcp",
-		}
-
-		response.Pptp = status
-	}
-
-	l2tpServer, err := client.GetL2tpServer()
-	if err == nil {
-		status := &SingleServerStatus{
-			Enabled:  l2tpServer.Enabled,
-			Port:     1701, // Default L2TP port
-			Protocol: "udp",
-		}
-
-		response.L2tp = status
 	}
 
 	sstpServer, err := client.GetSstpServer()

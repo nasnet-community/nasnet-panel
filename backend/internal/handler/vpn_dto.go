@@ -110,8 +110,6 @@ type SingleServerStatus struct {
 type VPNServersStatusResponse struct {
 	OvpnServers []ServerStatusItem  `json:"ovpnServers"`
 	WireGuards  []ServerStatusItem  `json:"wireguards"`
-	Pptp        *SingleServerStatus `json:"pptp"`
-	L2tp        *SingleServerStatus `json:"l2tp"`
 	Sstp        *SingleServerStatus `json:"sstp"`
 }
 
