@@ -214,15 +214,16 @@ jobs:
             - `nasnet-panel-${{ steps.pkg.outputs.version }}-arm64.tar` (RouterOS arm64)
             - `nasnet-panel-${{ steps.pkg.outputs.version }}-armv7.tar` (RouterOS arm)
 
-            Windows GUI installer:
-            - `nasnet-panel-installer-windows-amd64.exe`
+            Graphical installers:
+            - `nasnet-panel-installer-windows-amd64.exe` (Windows)
+            - `nasnet-panel-installer-macos-universal.dmg` (macOS)
 
             Container image: `${{ env.IMAGE }}:${{ steps.pkg.outputs.version }}`
           files: |
             dist/*.tar
             dist/*.tar.sha256
 
-  installer:
+  installer-windows:
     needs: package
     if: github.event_name == 'push'
     runs-on: ubuntu-24.04
@@ -233,11 +234,11 @@ jobs:
 
       - uses: ./.github/actions/setup-go-backend
         with:
-          go-version-file: installer/windows/go.mod
-          cache-dependency-path: installer/windows/go.sum
+          go-version-file: graphical-installer/go.mod
+          cache-dependency-path: graphical-installer/go.sum
 
       - name: Build Windows installer
-        working-directory: installer/windows
+        working-directory: graphical-installer
         run: |
           set -euo pipefail
           mkdir -p dist
@@ -253,5 +254,67 @@ jobs:
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
-            installer/windows/dist/*.exe
-            installer/windows/dist/*.exe.sha256
+            graphical-installer/dist/*.exe
+            graphical-installer/dist/*.exe.sha256
+
+  installer-macos:
+    needs: package
+    if: github.event_name == 'push'
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-go-backend
+        with:
+          go-version-file: graphical-installer/go.mod
+          cache-dependency-path: graphical-installer/go.sum
+
+      - name: Build macOS installer app
+        working-directory: graphical-installer
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          # Wails v2.13 references UTType without linking its framework
+          export CGO_LDFLAGS="-framework UniformTypeIdentifiers"
+          GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 \
+            go build -trimpath -tags desktop,production \
+            -ldflags "-s -w" -o dist/installer-arm64 .
+          GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 \
+            go build -trimpath -tags desktop,production \
+            -ldflags "-s -w" -o dist/installer-amd64 .
+          lipo -create -output dist/nasnet-panel-installer dist/installer-arm64 dist/installer-amd64
+          APP="dist/Nasnet Panel Installer.app"
+          mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+          cp darwin/Info.plist "$APP/Contents/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${GITHUB_REF_NAME#v}" \
+            -c "Set :CFBundleVersion ${GITHUB_REF_NAME#v}" "$APP/Contents/Info.plist"
+          cp dist/nasnet-panel-installer "$APP/Contents/MacOS/nasnet-panel-installer"
+          ICONSET=dist/appicon.iconset
+          mkdir -p "$ICONSET"
+          for SIZE in 16 32 128; do
+            sips -z "$SIZE" "$SIZE" frontend/dist/logo.png --out "$ICONSET/icon_${SIZE}x${SIZE}.png"
+          done
+          iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/appicon.icns"
+
+      - name: Create DMG
+        working-directory: graphical-installer
+        run: |
+          set -euo pipefail
+          STAGE=dist/dmg
+          mkdir -p "$STAGE"
+          cp -R "dist/Nasnet Panel Installer.app" "$STAGE/"
+          ln -s /Applications "$STAGE/Applications"
+          hdiutil create -volname "Nasnet Panel Installer" -srcfolder "$STAGE" -ov -format UDZO \
+            dist/nasnet-panel-installer-macos-universal.dmg
+          ( cd dist && shasum -a 256 nasnet-panel-installer-macos-universal.dmg > nasnet-panel-installer-macos-universal.dmg.sha256 )
+
+      - name: Publish installer to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            graphical-installer/dist/*.dmg
+            graphical-installer/dist/*.dmg.sha256

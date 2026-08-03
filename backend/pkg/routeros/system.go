@@ -337,6 +337,22 @@ func (c *Client) SetSystemClock(date string, time string) error {
 	return nil
 }
 
+// BackupSystem saves a binary system backup under the given file name, stored
+// under /file on the router. Backups saved this way are unencrypted, matching
+// RouterOS's own default when no password is supplied.
+func (c *Client) BackupSystem(name string) error {
+	if name == "" {
+		return fmt.Errorf("backup name is required")
+	}
+
+	_, err := c.Execute("/system/backup/save", "=name="+name)
+	if err != nil {
+		return fmt.Errorf("failed to save system backup %s: %w", name, err)
+	}
+
+	return nil
+}
+
 func (c *Client) RebootSystem() error {
 	_, err := c.Execute("/system/reboot")
 	if err != nil {
