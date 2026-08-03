@@ -275,9 +275,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}
 
-	// The script references WAN interfaces by default-name, which survives the
-	// renames the wizard itself performs; resolve on copies so req itself, and
-	// the interface-filtering above keyed on req.Foreign/req.Domestic, are untouched.
 	foreignIface, err := client.GetInterface(req.Foreign.Interface)
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface not found", err)
