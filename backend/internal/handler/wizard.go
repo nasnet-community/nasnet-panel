@@ -247,7 +247,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		}
 	}
 
-	// Get ethernet interfaces and filter out the ones used for foreign/domestic
 	var bridgePorts []string
 	if ethers, err := client.GetEthernetInterfaces(); err == nil {
 		for i := range ethers {
@@ -276,13 +275,39 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}
 
-	// Build template data from request
+	// The script references WAN interfaces by default-name, which survives the
+	// renames the wizard itself performs; resolve on copies so req itself, and
+	// the interface-filtering above keyed on req.Foreign/req.Domestic, are untouched.
+	foreignIface, err := client.GetInterface(req.Foreign.Interface)
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface not found", err)
+	}
+	foreignInterface := *req.Foreign
+	if foreignIface.DefaultName != nil && *foreignIface.DefaultName != "" {
+		foreignInterface.Interface = *foreignIface.DefaultName
+	}
+
+	var domesticInterface *InterfaceConfig
+	if req.Domestic != nil {
+		resolved := *req.Domestic
+		if resolved.Interface != "" {
+			domesticIface, err := client.GetInterface(resolved.Interface)
+			if err != nil {
+				return ErrorResponse(c, http.StatusBadRequest, "Domestic interface not found", err)
+			}
+			if domesticIface.DefaultName != nil && *domesticIface.DefaultName != "" {
+				resolved.Interface = *domesticIface.DefaultName
+			}
+		}
+		domesticInterface = &resolved
+	}
+
 	templateData := map[string]any{
 		"DomesticEnabled":        domesticEnabled,
 		"ManagementWifiSSID":     randWifiSSID,
 		"ManagementWifiPassword": randWifiPassword,
-		"ForeignInterface":       req.Foreign,
-		"DomesticInterface":      req.Domestic,
+		"ForeignInterface":       &foreignInterface,
+		"DomesticInterface":      domesticInterface,
 		"EnableWifiAP":           req.WiFiAP != nil,
 		"WifiRadios":             wifiRadios,
 		"BridgePorts":            bridgePorts,
@@ -294,13 +319,11 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"RandomUserID":           randomUserID,
 	}
 
-	// Add WiFi AP configuration if provided
 	if req.WiFiAP != nil {
 		templateData["wifiSSID"] = req.WiFiAP.SSID
 		templateData["wifiPassword"] = req.WiFiAP.Password
 	}
 
-	// Add L2TP client configuration if provided
 	if req.L2tpClient != nil {
 		templateData["L2tpClient"] = req.L2tpClient
 	}
@@ -351,7 +374,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["WireGuardClient"] = wgData
 	}
 
-	// Add OpenVPN server configuration if provided
 	if req.OvpnServer != nil {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
@@ -361,7 +383,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}
 
-	// Upload rendered script via SFTP
 	sftpConfig := sftp.Config{
 		Host:     creds.RouterOSHost,
 		Username: creds.Username,
@@ -378,10 +399,8 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to upload wizard script", err)
 	}
 
-	// Check if wizard script exists and remove it
 	_ = client.RemoveScript("wizard")
 
-	// Create wizard script with import command
 	scriptConfig := routeros.ScriptConfig{
 		Name:   "wizard",
 		Source: ":execute script={import wizard.rsc}",
@@ -391,7 +410,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create wizard script", err)
 	}
 
-	// Execute the wizard script by name
 	err = client.RunScript("wizard")
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
