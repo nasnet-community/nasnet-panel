@@ -2,7 +2,7 @@
 node_modules/
 dist/
 !backend/internal/web/dist/
-!installer/windows/frontend/dist/
+!graphical-installer/frontend/dist/
 build/
 .cache/
 *.tsbuildinfo
