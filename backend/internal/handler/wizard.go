@@ -299,6 +299,8 @@ func HandleFinalizeWizard(c echo.Context) error {
 		domesticInterface = &resolved
 	}
 
+	backupTime := time.Now().Format("2006-01-02_15-04-05")
+
 	templateData := map[string]any{
 		"DomesticEnabled":        domesticEnabled,
 		"ManagementWifiSSID":     randWifiSSID,
@@ -310,7 +312,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"BridgePorts":            bridgePorts,
 		"CurrentDate":            time.Now().Format("Jan/02/2006"),
 		"CurrentTimestamp":       time.Now().Unix(),
-		"BackupTime":             time.Now().Format("2006-01-02_15-04-05"),
+		"BackupTime":             backupTime,
 		"RouterUsername":         creds.Username,
 		"RouterPassword":         utils.EscapeQuotes(creds.Password),
 		"RandomUserID":           randomUserID,
@@ -380,6 +382,23 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}
 
+	if err := client.BackupSystem(backupTime); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to back up system", err)
+	}
+
+	err = client.SetEnvironmentVariable("WizardCompleted", "false")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion status", err)
+	}
+	err = client.SetEnvironmentVariable("WizardProgress", "0")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
+	}
+	err = client.SetEnvironmentVariable("WizardCompletedAt", "")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion timestamp", err)
+	}
+
 	sftpConfig := sftp.Config{
 		Host:     creds.RouterOSHost,
 		Username: creds.Username,
@@ -410,19 +429,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 	err = client.RunScript("wizard")
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
-	}
-
-	err = client.SetEnvironmentVariable("WizardCompleted", "false")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion status", err)
-	}
-	err = client.SetEnvironmentVariable("WizardProgress", "0")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
-	}
-	err = client.SetEnvironmentVariable("WizardCompletedAt", "")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion timestamp", err)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
