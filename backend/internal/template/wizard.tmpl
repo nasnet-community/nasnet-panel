@@ -1,7 +1,8 @@
 :global WizardProgress "5"
 
-/system backup save name={{ .BackupTime }}
 /export file={{ .BackupTime }}
+
+:global WizardProgress "8"
 
 {{ template "cleanup.tmpl" . }}
 
