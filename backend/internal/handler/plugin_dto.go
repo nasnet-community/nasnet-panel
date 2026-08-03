@@ -23,6 +23,7 @@ type PluginInfo struct {
 	Category   string `json:"category"`
 	Tagline    string `json:"tagline"`
 	URL        string `json:"url"`
+	CanInstall bool   `json:"canInstall"`
 	Icon       string `json:"icon"`
 	Installed  bool   `json:"installed"`
 	Running    bool   `json:"running"`
