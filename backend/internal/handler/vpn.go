@@ -1785,26 +1785,23 @@ func HandleCreateOvpnServer(c echo.Context) error {
 	if req.ClientCertificatePassword == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "Client certificate password is required", nil)
 	}
-	if len(req.Users) == 0 {
-		return ErrorResponse(c, http.StatusBadRequest, "At least one user is required", nil)
-	}
-
-	for _, user := range req.Users {
-		if user.Username == "" {
-			return ErrorResponse(c, http.StatusBadRequest, "Username is required for all users", nil)
-		}
-		if user.Password == "" {
-			return ErrorResponse(c, http.StatusBadRequest, "Password is required for all users", nil)
-		}
-		userExists, err := client.GetPppSecretByNameAndService(user.Username, "ovpn")
-		if err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to check if user exists", err)
-		}
-		if userExists {
-			return ErrorResponse(c, http.StatusConflict, "User with username '"+user.Username+"' already exists for OpenVPN service", nil)
+	if len(req.Users) > 0 {
+		for _, user := range req.Users {
+			if user.Username == "" {
+				return ErrorResponse(c, http.StatusBadRequest, "Username is required for all users", nil)
+			}
+			if user.Password == "" {
+				return ErrorResponse(c, http.StatusBadRequest, "Password is required for all users", nil)
+			}
+			userExists, err := client.GetPppSecretByNameAndService(user.Username, "ovpn")
+			if err != nil {
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to check if user exists", err)
+			}
+			if userExists {
+				return ErrorResponse(c, http.StatusConflict, "User with username '"+user.Username+"' already exists for OpenVPN service", nil)
+			}
 		}
 	}
-
 	taskID := LaunchOpenVpnServerCreation(client, req)
 
 	return SuccessResponse(c, http.StatusOK, "OpenVPN server creation task started", map[string]interface{}{
