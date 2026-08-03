@@ -540,7 +540,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 {{if and .OvpnServer .DomesticEnabled}}{{ template "ovpn_server.tmpl" . }}{{end}}
 
 :delay 1s
-/user set {{ .RouterUsername }} password={{ .RouterPassword }}
+/user set {{ .RouterUsername }} password="{{ .RouterPassword }}"
 
 :global WizardProgress "95"
 
