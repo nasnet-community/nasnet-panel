@@ -290,7 +290,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"CurrentTimestamp":       time.Now().Unix(),
 		"BackupTime":             time.Now().Format("2006-01-02_15-04-05"),
 		"RouterUsername":         creds.Username,
-		"RouterPassword":         creds.Password,
+		"RouterPassword":         utils.EscapeQuotes(creds.Password),
 		"RandomUserID":           randomUserID,
 	}
 
