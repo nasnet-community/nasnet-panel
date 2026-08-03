@@ -32,11 +32,19 @@ function wanInterface(
   return { type: 'ether', interface: name };
 }
 
-function buildFinalizePayload(state: State): FinalizeWizardRequest {
+function toDefaultName(name: string, interfaces: InterfaceResponse[]): string {
+  const match = interfaces.find((i) => i.name === name);
+  return match?.defaultName || name;
+}
+
+function buildFinalizePayload(
+  state: State,
+  interfaces: InterfaceResponse[],
+): FinalizeWizardRequest {
   const payload: FinalizeWizardRequest = {
     foreign: wanInterface(
       state.starlinkInterfaceType,
-      state.starlinkInterface,
+      toDefaultName(state.starlinkInterface, interfaces),
       state.starlinkWanSsid,
       state.starlinkWanPassword,
     ),
@@ -45,7 +53,7 @@ function buildFinalizePayload(state: State): FinalizeWizardRequest {
   if (state.mode === 'dual-link') {
     payload.domestic = wanInterface(
       state.domesticInterfaceType,
-      state.domesticInterface,
+      toDefaultName(state.domesticInterface, interfaces),
       state.domesticWanSsid,
       state.domesticWanPassword,
     );
@@ -268,7 +276,10 @@ export function useEasyConfig(routerId: string | undefined) {
     dispatch({ type: 'applying', value: true });
     dispatch({ type: 'error', message: null });
     try {
-      const result = await finalizeWizard({ host, ...creds }, buildFinalizePayload(state));
+      const result = await finalizeWizard(
+        { host, ...creds },
+        buildFinalizePayload(state, interfaces),
+      );
       dispatch({
         type: 'managementWifi',
         ssid: result.managementWiFiSSID ?? '',
@@ -280,7 +291,7 @@ export function useEasyConfig(routerId: string | undefined) {
       return;
     }
     trackProgress({ host, ...creds });
-  }, [routerId, router?.host, getCredentials, state, trackProgress]);
+  }, [routerId, router?.host, getCredentials, state, interfaces, trackProgress]);
 
   const goNext = () => {
     if (advanceProblem) {
