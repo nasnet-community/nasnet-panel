@@ -526,28 +526,6 @@ func HandleListVPNServers(c echo.Context) error {
 		}
 	}
 
-	/*pptpServer, err := client.GetPptpServer()
-	if err == nil {
-		status := &SingleServerStatus{
-			Enabled:  pptpServer.Enabled,
-			Port:     1723, // Default PPTP port
-			Protocol: "tcp",
-		}
-
-		response.Pptp = status
-	}
-
-	l2tpServer, err := client.GetL2tpServer()
-	if err == nil {
-		status := &SingleServerStatus{
-			Enabled:  l2tpServer.Enabled,
-			Port:     1701, // Default L2TP port
-			Protocol: "udp",
-		}
-
-		response.L2tp = status
-	}*/
-
 	sstpServer, err := client.GetSstpServer()
 	if err == nil {
 		status := &SingleServerStatus{
