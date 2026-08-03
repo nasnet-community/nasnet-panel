@@ -258,18 +258,7 @@ func HandleAddL2TPClient(c echo.Context) error {
 		ipsecSecret = *req.IPsecSecret
 	}
 
-	profileName := req.Name + "-client-profile"
-
-	exists, err := client.ProfileExists(profileName)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check profile existence", err)
-	}
-
-	if !exists {
-		if err := client.CreateVPNProfile(profileName); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create VPN profile", err)
-		}
-	}
+	profileName := "default"
 
 	disabled := false
 	if req.Disabled != nil {
