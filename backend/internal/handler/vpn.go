@@ -526,7 +526,7 @@ func HandleListVPNServers(c echo.Context) error {
 		}
 	}
 
-	pptpServer, err := client.GetPptpServer()
+	/*pptpServer, err := client.GetPptpServer()
 	if err == nil {
 		status := &SingleServerStatus{
 			Enabled:  pptpServer.Enabled,
@@ -546,7 +546,7 @@ func HandleListVPNServers(c echo.Context) error {
 		}
 
 		response.L2tp = status
-	}
+	}*/
 
 	sstpServer, err := client.GetSstpServer()
 	if err == nil {
