@@ -347,7 +347,7 @@ add list="MikroTik-Cloud-Services" address="cloud.mikrotik.com" comment="Legacy 
 /ip firewall filter
 add chain=input dst-port="53" in-interface-list="WAN" protocol="tcp" action=drop comment="Block Open Recursive DNS"
 add chain=input dst-port="53" in-interface-list="WAN" protocol="udp" action=drop comment="Block Open Recursive DNS"
-add chain=input dst-port="8080,8443,8291,22" in-interface-list="WAN" protocol="tcp" action=drop comment="Block WAN access to management ports"
+add chain=input dst-port="80,443,8080,8443,22" in-interface-list="WAN" protocol="tcp" action=drop comment="Block WAN access to management ports"
 
 /ip firewall nat set [find comment="nasnet-panel-installer-dstnat"] in-interface-list="!WAN"
 /ip firewall nat set [find comment="nasnet-panel-installer-srcnat"] out-interface-list="WAN"
