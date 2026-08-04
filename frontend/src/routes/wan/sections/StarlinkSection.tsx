@@ -138,7 +138,7 @@ export function StarlinkSection({
         <SectionHeader
           title="Foreign / Starlink"
           description="Interfaces tagged as the foreign (Starlink) uplink."
-          action={{ label: 'New', onClick: openAdd }}
+          action={{ label: 'Change', onClick: openAdd }}
         />
         <WanTable
           rows={items}

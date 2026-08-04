@@ -138,7 +138,7 @@ export function DomesticUplinkSection({
         <SectionHeader
           title="Domestic"
           description="Interfaces tagged as the domestic uplink."
-          action={{ label: 'New', onClick: openAdd }}
+          action={{ label: 'Change', onClick: openAdd }}
         />
         <WanTable
           rows={items}
