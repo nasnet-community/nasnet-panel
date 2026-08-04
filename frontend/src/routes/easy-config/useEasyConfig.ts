@@ -15,7 +15,7 @@ import { useRouter } from '../../state/RouterStoreContext';
 import { useWizardGate } from '../../state/WizardGateContext';
 import { buildEasyConfigScript, type EasyConfigInput } from '../../utils/rsc-builder';
 import { canAdvance } from './validation';
-import { initial, reducer, stepOrder, type State } from './state';
+import { initial, reducer, stepsForMode, type State } from './state';
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_TIMEOUT_MS = 6 * 60 * 1000;
@@ -298,14 +298,16 @@ export function useEasyConfig(routerId: string | undefined) {
       dispatch({ type: 'error', message: advanceProblem });
       return;
     }
-    const idx = stepOrder.indexOf(state.currentStep);
-    const next = stepOrder[idx + 1];
+    const steps = stepsForMode(state.mode);
+    const idx = steps.indexOf(state.currentStep);
+    const next = steps[idx + 1];
     if (next) dispatch({ type: 'step', step: next });
   };
 
   const goPrev = () => {
-    const idx = stepOrder.indexOf(state.currentStep);
-    const prev = stepOrder[idx - 1];
+    const steps = stepsForMode(state.mode);
+    const idx = steps.indexOf(state.currentStep);
+    const prev = steps[idx - 1];
     if (prev) dispatch({ type: 'step', step: prev });
   };
 

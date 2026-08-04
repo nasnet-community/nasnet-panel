@@ -133,7 +133,11 @@ export type Action =
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'setMode':
-      return { ...state, mode: action.mode };
+      return {
+        ...state,
+        mode: action.mode,
+        vpnServerEnabled: action.mode === 'starlink-only' ? false : state.vpnServerEnabled,
+      };
     case 'setField':
       return { ...state, [action.field]: action.value } as State;
     case 'setKeys':
@@ -158,6 +162,10 @@ export function reducer(state: State, action: Action): State {
 }
 
 export const stepOrder: StepId[] = ['mode', 'wan', 'ipmask', 'wifi', 'vpnsrv'];
+
+export function stepsForMode(mode: Mode | null): StepId[] {
+  return mode === 'starlink-only' ? stepOrder.filter((s) => s !== 'vpnsrv') : stepOrder;
+}
 
 export const stepTitles: Record<StepId, { title: string; description: string }> = {
   mode: { title: 'Choose', description: 'Setup type' },

@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 
 test.describe('Easy-Mode wizard — Starlink-only', () => {
-  test('step through all five steps and apply', async ({
+  test('step through all four steps and apply', async ({
     page,
     resetMocks,
     seedRouter,
@@ -12,8 +12,9 @@ test.describe('Easy-Mode wizard — Starlink-only', () => {
     await mockEasyConfigBackend({ id: 'rtr_easy' });
     await page.goto('/router/rtr_easy/config');
 
-    // Step 1 — Choose
+    // Step 1 — Choose (Starlink-only drops the VPN Server step)
     await page.getByRole('radio', { name: /starlink-only/i }).check();
+    await expect(page.getByText('VPN Server')).toHaveCount(0);
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 2 — WAN (Ethernet tile is default)
@@ -33,12 +34,9 @@ AllowedIPs = 0.0.0.0/0
 PersistentKeepalive = 25`);
     await page.getByRole('button', { name: /^next$/i }).click();
 
-    // Step 4 — WiFi
+    // Step 4 — WiFi (last step) — Apply
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('Easy-SSID');
     await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
-    await page.getByRole('button', { name: /^next$/i }).click();
-
-    // Step 5 — VPN Server (disabled by default) — Apply
     await page.getByRole('button', { name: /^apply$/i }).click();
     await expect(page.getByText(/configuration applied/i).first()).toBeVisible();
   });
