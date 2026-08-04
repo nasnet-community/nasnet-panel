@@ -9,6 +9,7 @@ const basePlugin = {
   category: 'Proxy',
   url: 'https://example.com',
   icon: '',
+  canInstall: true,
   installed: false,
   running: false,
   installing: false,
@@ -52,7 +53,10 @@ test.describe('Plugins page', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope([CATALOG[0], { ...CATALOG[1], installed: true, running: true }]),
+        body: envelope([
+          { ...CATALOG[0], canInstall: false },
+          { ...CATALOG[1], installed: true, running: true },
+        ]),
       });
     });
 
@@ -72,6 +76,12 @@ test.describe('Plugins page', () => {
       .filter({ has: page.getByRole('heading', { name: 'OONI Probe' }) });
     await expect(ooniCard.getByText('running', { exact: true })).toBeVisible();
     await expect(ooniCard.getByRole('button', { name: /uninstall/i })).toBeVisible();
+
+    const xrayCard = page
+      .getByRole('article')
+      .filter({ has: page.getByRole('heading', { name: 'V2Ray / Xray' }) });
+    await expect(xrayCard.getByRole('button', { name: 'Coming soon' })).toBeDisabled();
+    await expect(xrayCard.getByRole('button', { name: /install/i })).toHaveCount(0);
 
     const authorLink = ooniCard.getByRole('link', { name: 'OONI' });
     await expect(authorLink).toHaveAttribute('target', '_blank');
