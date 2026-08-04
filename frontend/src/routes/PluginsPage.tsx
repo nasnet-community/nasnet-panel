@@ -365,9 +365,13 @@ export function PluginsPage() {
                         </>
                       )}
                     </Button>
-                  ) : (
+                  ) : plugin.canInstall ? (
                     <Button variant="primary" size="sm" onClick={() => install(plugin)}>
                       <Download size={14} aria-hidden /> Install
+                    </Button>
+                  ) : (
+                    <Button variant="secondary" size="sm" disabled>
+                      Coming soon
                     </Button>
                   )}
                 </div>

@@ -11,6 +11,7 @@ export interface PluginInfoResponse {
   category: string;
   tagline: string;
   url: string;
+  canInstall: boolean;
   icon: string;
   installed: boolean;
   running: boolean;
