@@ -54,25 +54,22 @@
     :set DiagProgress 10
 
     :put "---------------- NASNET PANEL INSTALLATION CHECK ----------------"
-    :put "Script environment entry: WizardCompleted"
-    :do { /system script environment print detail where name="WizardCompleted" } on-error={ :put ("INFO: cannot read script environment: " . $e) }
+    :put "Marker file: nasnet-panel-wizard-success.txt"
+    :do { /file print detail where name="nasnet-panel-wizard-success.txt" } on-error={ :put ("INFO: cannot read file list: " . $e) }
 
-    :local WizardCompletedValue "NOT FOUND"
+    :local WizardSuccessFileFound false
     :do {
-        :global WizardCompleted
-        :if ([:typeof $WizardCompleted] != "nothing") do={
-            :set WizardCompletedValue $WizardCompleted
-        }
+        :set WizardSuccessFileFound ([:len [/file find name="nasnet-panel-wizard-success.txt"]] > 0)
     } on-error={
-        :set WizardCompletedValue "NOT FOUND"
+        :set WizardSuccessFileFound false
     }
 
-    :if ($WizardCompletedValue = true) do={
+    :if ($WizardSuccessFileFound = true) do={
         :put "NasNet Panel installation status: SUCCESS"
-        :put "Reason: WizardCompleted is exactly true."
+        :put "Reason: nasnet-panel-wizard-success.txt marker file found."
     } else={
         :put "NasNet Panel installation status: NOT CONFIRMED"
-        :put ("Reason: WizardCompleted value is " . $WizardCompletedValue . "; expected value is 1.")
+        :put "Reason: nasnet-panel-wizard-success.txt marker file not found."
     }
 
     :put "Installed RouterOS scripts (names and runtime information only):"

@@ -1,5 +1,5 @@
 :global WizardProgress "5"
-
+/system/backup/save name={{ .BackupTime }}
 /export file={{ .BackupTime }}
 
 :global WizardProgress "8"
@@ -553,7 +553,6 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 /ip address remove [find address="192.168.210.1/24"]
 /interface wifi remove [find name="wifi-management"]
 
-:global WizardCompleted "true"
 :global WizardProgress "100"
-:global WizardCompletedAt (([/system clock get date] . "T" . [/system clock get time] . "Z"))
+/file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
 /system script remove [find name=wizard]
