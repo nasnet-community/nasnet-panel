@@ -112,9 +112,9 @@ add name="Foreign-Foreign Link-WAN" comment="Foreign-Foreign Link"
 add name="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
 
 /interface macvlan
-add name="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface.Interface }}" interface={{ .ForeignInterface.Interface }} mode=private
+add name="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface.Interface }}" interface=[/interface/get [find default-name={{ .ForeignInterface.Interface }}] name] mode=private
 {{ if .DomesticEnabled}}
-add name="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface.Interface }}" interface={{ .DomesticInterface.Interface }} mode=private
+add name="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface.Interface }}" interface=[/interface/get [find default-name={{ .DomesticInterface.Interface }}] name] mode=private
 {{ end }}
 /ip pool
 :if ([:len [/ip/pool find name="DHCP-pool-Split"]] = 0) do={
@@ -192,9 +192,9 @@ add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link SRC Ad
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link Routing Mark" disabled=no routing-mark="to-Foreign-Foreign Link" table="to-Foreign-Foreign Link"
 
 /interface bridge port
-remove [find bridge="LANBridgeSplit" interface="{{ .ForeignInterface.Interface }}"]
+remove [find bridge="LANBridgeSplit" interface="[/interface/get [find default-name={{ .ForeignInterface.Interface }}] name]"]
 {{ if .DomesticEnabled}}
-remove [find bridge="LANBridgeSplit" interface="{{ .DomesticInterface.Interface }}"]
+remove [find bridge="LANBridgeSplit" interface="[/interface/get [find default-name={{ .DomesticInterface.Interface }}] name]"]
 {{ end }}
 {{range .BridgePorts}}:if ([:len [/interface find default-name="{{.}}"]] > 0) do={
 :local portName [/interface get [/interface find default-name="{{.}}"] name]
