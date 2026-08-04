@@ -39,7 +39,7 @@ set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 
 {{if .EnableWifiAP }}
 /interface wifi{{range .WifiRadios}}{{if and (ne .Interface $.ForeignInterface.Interface) (or (not $.DomesticEnabled) (ne .Interface $.DomesticInterface.Interface))}}
-set [ find default-name={{.Interface}} ] disabled=no configuration.country=Japan \
+set [ find default-name={{.Interface}} ] disabled=no configuration.country="United States" \
 .mode=ap .ssid="{{ $.wifiSSID }}" .installation=indoor \
 name="wifi{{.Band}}-SplitLAN" comment="SplitLAN" \
 configuration.hide-ssid=no security.authentication-types=wpa2-psk,wpa3-psk \
