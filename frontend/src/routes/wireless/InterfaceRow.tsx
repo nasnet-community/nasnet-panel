@@ -19,8 +19,11 @@ const formatMode = (mode: string): string =>
     )
     .join(' ');
 
+const isStationMode = (mode: string): boolean => mode.toLowerCase().startsWith('station');
+
 export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
   const enabled = !iface.disabled;
+  const station = iface.mode ? isStationMode(iface.mode) : false;
   return (
     <div className={styles.interfaceRow}>
       <div className={cx(styles.iconTone, toneClass('primary'))}>
@@ -32,7 +35,12 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
         {iface.mode ? (
           <>
             {' '}
-            <Badge className={styles.modeBadge}>{formatMode(iface.mode)}</Badge>
+            <Badge
+              tone={station ? 'info' : 'neutral'}
+              className={station ? undefined : styles.modeBadge}
+            >
+              {formatMode(iface.mode)}
+            </Badge>
           </>
         ) : null}
         <div>
