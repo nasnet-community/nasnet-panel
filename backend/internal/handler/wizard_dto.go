@@ -19,12 +19,6 @@ type WizardStatus struct {
 	Progress    int        `json:"progress" example:"0"`
 }
 
-// UpdateWizardStatusRequest represents a request to update wizard status fields.
-type UpdateWizardStatusRequest struct {
-	Completed *bool `json:"completed" example:"false"`
-	Progress  *int  `json:"progress" example:"50"`
-}
-
 // InterfaceConfig represents a network interface configuration.
 type InterfaceConfig struct {
 	Type      string `json:"type" example:"ether" enum:"ether,wifi"`
