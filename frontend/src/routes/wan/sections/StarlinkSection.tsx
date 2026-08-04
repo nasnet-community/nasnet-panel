@@ -79,9 +79,9 @@ export function StarlinkSection({
       });
       return;
     }
-    await onChanged();
     closeDialog();
     toast.notify({ title: 'Starlink uplink added', tone: 'success' });
+    void onChanged();
   };
 
   const onConfirmMove = async () => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from '@nasnet/ui';
 import {
@@ -20,19 +20,12 @@ import { mapClientFromBE } from './vpn/adapters';
 import { ClientsSection } from './vpn/sections/ClientsSection';
 
 const WAN_INTERFACE_TYPES = ['ether', 'wireless', 'wifi', 'wlan', 'w60g', 'lte'];
-const WAN_REFRESH_ATTEMPTS = 5;
-const WAN_REFRESH_DELAY_MS = 1000;
+const WAN_REFRESH_DELAY_MS = 3000;
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => {
     window.setTimeout(resolve, ms);
   });
-
-const wanSignature = (list: InterfaceResponse[]) =>
-  list
-    .map((i) => `${i.name}|${i.comment ?? ''}`)
-    .sort()
-    .join(';');
 
 export function WanPage() {
   const { id } = useParams<{ id: string }>();
@@ -41,7 +34,6 @@ export function WanPage() {
   const router = useRouter(id);
 
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
-  const interfacesRef = useRef<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState(false);
   const [vpnClients, setVpnClients] = useState<VPNClient[]>([]);
   const [vpnDialogOpen, setVpnDialogOpen] = useState(false);
@@ -54,21 +46,16 @@ export function WanPage() {
     return { host, ...creds };
   }, [id, router?.host, getCredentials]);
 
-  const applyInterfaces = useCallback((wan: InterfaceResponse[]) => {
-    interfacesRef.current = wan;
-    setInterfaces(wan);
-  }, []);
-
   const loadInterfaces = useCallback(async () => {
     const creds = resolveCreds();
     if (!creds) {
-      applyInterfaces([]);
+      setInterfaces([]);
       return;
     }
     setInterfacesLoading(true);
     try {
       const list = await fetchInterfaces(creds);
-      applyInterfaces(list.filter((i) => WAN_INTERFACE_TYPES.includes(i.type)));
+      setInterfaces(list.filter((i) => WAN_INTERFACE_TYPES.includes(i.type)));
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -80,7 +67,7 @@ export function WanPage() {
     } finally {
       setInterfacesLoading(false);
     }
-  }, [resolveCreds, applyInterfaces, toast]);
+  }, [resolveCreds, toast]);
 
   const loadVpn = useCallback(async () => {
     const creds = resolveCreds();
@@ -104,32 +91,9 @@ export function WanPage() {
 
   const reloadAfterWanChange = useCallback(async () => {
     void loadVpn();
-    const creds = resolveCreds();
-    if (!creds) return;
-    const before = wanSignature(interfacesRef.current);
-    setInterfacesLoading(true);
-    try {
-      for (let attempt = 1; attempt <= WAN_REFRESH_ATTEMPTS; attempt += 1) {
-        await sleep(WAN_REFRESH_DELAY_MS);
-        const list = await fetchInterfaces(creds);
-        const wan = list.filter((i) => WAN_INTERFACE_TYPES.includes(i.type));
-        if (attempt === WAN_REFRESH_ATTEMPTS || wanSignature(wan) !== before) {
-          applyInterfaces(wan);
-          return;
-        }
-      }
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : 'Failed to load interfaces.';
-      toast.notify({ title: 'Failed to load interfaces', description: message, tone: 'danger' });
-    } finally {
-      setInterfacesLoading(false);
-    }
-  }, [resolveCreds, loadVpn, applyInterfaces, toast]);
+    await sleep(WAN_REFRESH_DELAY_MS);
+    await loadInterfaces();
+  }, [loadVpn, loadInterfaces]);
 
   useEffect(() => {
     void loadInterfaces();
