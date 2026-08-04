@@ -35,6 +35,7 @@ export function StarlinkSection({
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<InterfaceResponse | null>(null);
   const [pendingMove, setPendingMove] = useState<InterfaceResponse | null>(null);
   const [moveSubmitting, setMoveSubmitting] = useState(false);
 
@@ -82,6 +83,22 @@ export function StarlinkSection({
     await onChanged();
     closeDialog();
     toast.notify({ title: 'Starlink uplink added', tone: 'success' });
+  };
+
+  const onEditSubmit = async ({ interfaceName, ssid, password }: WanUplinkValues) => {
+    const creds = resolveCreds();
+    if (!creds) {
+      toast.notify({
+        title: 'Missing router credentials',
+        description: 'Reconnect to the router and try again.',
+        tone: 'danger',
+      });
+      return;
+    }
+    await updateWanInterface(creds, { interface: interfaceName, type: 'foreign', ssid, password });
+    await onChanged();
+    setEditTarget(null);
+    toast.notify({ title: `Updated "${interfaceName}"`, tone: 'success' });
   };
 
   const onConfirmMove = async () => {
@@ -149,8 +166,8 @@ export function StarlinkSection({
           enabled={(i) => !i.disabled}
           emptyIcon={<SatelliteDish size={20} aria-hidden />}
           emptyMessage="No Starlink uplinks yet"
-          editLabel={(i) => `Move ${i.name} to Domestic`}
-          onEdit={(i) => setPendingMove(i)}
+          editLabel={(i) => `Edit ${i.name}`}
+          onEdit={(i) => setEditTarget(i)}
         />
       </Card>
       {dialogOpen ? (
@@ -162,6 +179,23 @@ export function StarlinkSection({
           interfacesLoading={interfacesLoading}
           onCancel={closeDialog}
           onSubmit={onSubmit}
+        />
+      ) : null}
+      {editTarget ? (
+        <WanUplinkDialog
+          variant="foreign"
+          title={`Edit ${editTarget.name}`}
+          interfaces={[editTarget]}
+          initialInterface={editTarget}
+          secondaryAction={{
+            label: 'Move to Domestic',
+            onClick: () => {
+              setPendingMove(editTarget);
+              setEditTarget(null);
+            },
+          }}
+          onCancel={() => setEditTarget(null)}
+          onSubmit={onEditSubmit}
         />
       ) : null}
       {pendingMove && moveWireless ? (
