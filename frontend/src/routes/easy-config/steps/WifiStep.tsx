@@ -13,7 +13,7 @@ import {
   Switch,
 } from '@nasnet/ui';
 import wizardStyles from '../../EasyConfigWizard.module.scss';
-import type { WifiInterfaceResponse } from '../../../api';
+import type { InterfaceResponse, WifiInterfaceResponse } from '../../../api';
 import type { Action, State } from '../state';
 import { generatePassword, generateSsid } from './wifi/generate';
 import { GenerateButton } from './wifi/GenerateButton';
@@ -23,6 +23,7 @@ import { Collapsible } from './components/Collapsible';
 interface Props {
   state: State;
   dispatch: React.Dispatch<Action>;
+  interfaces: InterfaceResponse[];
   wifiInterfaces: WifiInterfaceResponse[];
   wifiSupported: boolean;
   footer?: React.ReactNode;
@@ -35,6 +36,13 @@ const BAND_LABELS: Record<BandKey, string> = {
   '5': '5 GHz',
   '6': '6 GHz',
 };
+
+const WIRELESS_TYPES = ['wireless', 'wifi', 'wlan', 'w60g'];
+
+interface WirelessEntry {
+  name: string;
+  label: string;
+}
 
 function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
   const b = (wi.band ?? '').toLowerCase();
@@ -50,27 +58,40 @@ function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
   return null;
 }
 
-export function WifiStep({ state, dispatch, wifiInterfaces, wifiSupported, footer }: Props) {
+export function WifiStep({
+  state,
+  dispatch,
+  interfaces,
+  wifiInterfaces,
+  wifiSupported,
+  footer,
+}: Props) {
   const setText = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: 'setField', field, value: e.target.value });
 
-  const availableBands = useMemo<BandKey[]>(() => {
-    const set = new Set<BandKey>();
-    for (const wi of wifiInterfaces) {
-      const key = bandKeyFor(wi);
-      if (key) set.add(key);
-    }
-    const order: BandKey[] = ['24', '5', '6'];
-    return order.filter((k) => set.has(k));
-  }, [wifiInterfaces]);
+  const wirelessEntries = useMemo<WirelessEntry[]>(() => {
+    const fromList = interfaces
+      .filter((i) => WIRELESS_TYPES.includes(i.type))
+      .map((i) => {
+        const wi = wifiInterfaces.find((w) => w.name === i.name || w.interface === i.name);
+        const band = wi ? bandKeyFor(wi) : null;
+        return { name: i.name, label: band ? BAND_LABELS[band] : i.name };
+      });
+    if (fromList.length > 0) return fromList;
+    return wifiInterfaces.map((wi) => {
+      const band = bandKeyFor(wi);
+      return { name: wi.name, label: band ? BAND_LABELS[band] : wi.name };
+    });
+  }, [interfaces, wifiInterfaces]);
 
-  const multiBand = availableBands.length > 1;
+  const multiBand = wirelessEntries.length > 1;
   const split = multiBand && state.wifiSplit;
-  const bandList = availableBands.map((k) => BAND_LABELS[k]).join(' and ');
+  const labels = wirelessEntries.map((e) => e.label);
+  const bandList = labels.join(labels.length > 2 ? ', ' : ' and ');
 
   const previewBands = split
-    ? availableBands.map((k) => ({ ssid: state.ssid, band: BAND_LABELS[k] }))
-    : [{ ssid: state.ssid, band: availableBands[0] ? BAND_LABELS[availableBands[0]] : undefined }];
+    ? wirelessEntries.map((e) => ({ id: e.name, ssid: state.ssid, band: e.label }))
+    : [{ ssid: state.ssid, band: wirelessEntries[0]?.label }];
 
   return (
     <Card>
