@@ -113,8 +113,12 @@ function buildScript(state: State): string {
       band: state.band,
       countryCode: state.countryCode,
       splitBands: state.wifiSplit,
-      band24: state.wifiSplit ? { ssid: state.ssid, password: state.wifiPassword } : undefined,
-      band5: state.wifiSplit ? { ssid: state.ssid, password: state.wifiPassword } : undefined,
+      band24: state.wifiSplit
+        ? { ssid: `${state.ssid}-2.4`, password: state.wifiPassword }
+        : undefined,
+      band5: state.wifiSplit
+        ? { ssid: `${state.ssid}-5`, password: state.wifiPassword }
+        : undefined,
     },
     ipMask: state.ipMaskEnabled
       ? state.ipMaskKind === 'wireguard'
