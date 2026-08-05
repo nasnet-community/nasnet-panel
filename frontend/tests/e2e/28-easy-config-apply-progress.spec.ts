@@ -132,7 +132,7 @@ test.describe('Easy-Mode wizard — apply progress', () => {
         body: JSON.stringify({
           status: 200,
           message: 'OK',
-          data: { completed: true, completedAt: null, progress: 100 },
+          data: { completed: true, progress: 100 },
         }),
       });
     });

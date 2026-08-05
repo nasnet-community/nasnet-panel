@@ -79,7 +79,7 @@ export const initial: State = {
   staticDns: '',
   wifiInterface: '',
   wifiEnabled: true,
-  wifiSplit: true,
+  wifiSplit: false,
   ssid: '',
   wifiPassword: '',
   security: 'WPA2-PSK',
