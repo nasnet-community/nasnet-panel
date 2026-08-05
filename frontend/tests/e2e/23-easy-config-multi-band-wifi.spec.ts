@@ -48,9 +48,9 @@ AllowedIPs = 0.0.0.0/0`);
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('NN-Home');
     await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
 
-    // An empty SSID blocks Next
+    // An empty SSID blocks Apply
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('');
-    await expect(page.getByRole('button', { name: /^next$/i })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /^apply$/i })).toBeDisabled();
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('NN-Home');
 
     await splitToggle.check();
@@ -63,9 +63,7 @@ AllowedIPs = 0.0.0.0/0`);
     await splitToggle.uncheck();
     await expect(splitToggle).not.toBeChecked();
 
-    await page.getByRole('button', { name: /^next$/i }).click();
-
-    // Step 5 — Apply
+    // WiFi is the last step in Starlink-only — Apply
     await page.getByRole('button', { name: /^apply$/i }).click();
     await expect(page.getByText(/configuration applied/i).first()).toBeVisible();
   });

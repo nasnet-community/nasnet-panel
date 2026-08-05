@@ -20,8 +20,6 @@ AllowedIPs = 0.0.0.0/0`);
 
   await page.getByLabel('Network name (SSID)', { exact: true }).fill('Progress-Net');
   await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
-  await page.getByRole('button', { name: /^next$/i }).click();
-
   await page.getByRole('button', { name: /^apply$/i }).click();
 }
 
