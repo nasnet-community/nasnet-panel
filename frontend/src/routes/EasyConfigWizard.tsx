@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button, FormError, Stack, Stepper } from '@nasnet/ui';
 import styles from './EasyConfigWizard.module.scss';
-import { stepOrder, stepTitles } from './easy-config/state';
+import { stepsForMode, stepTitles } from './easy-config/state';
 import { useEasyConfig } from './easy-config/useEasyConfig';
 import { ModeStep } from './easy-config/steps/ModeStep';
 import { WanStep } from './easy-config/steps/WanStep';
@@ -26,9 +26,10 @@ export function EasyConfigWizard() {
     goPrev,
     advanceProblem,
   } = useEasyConfig(id);
-  const activeIndex = stepOrder.indexOf(state.currentStep);
+  const steps = stepsForMode(state.mode);
+  const activeIndex = steps.indexOf(state.currentStep);
   const canSave = advanceProblem === null;
-  const isLastStep = activeIndex === stepOrder.length - 1;
+  const isLastStep = activeIndex === steps.length - 1;
   const { dialogOpen, openDialog, closeDialog, goToOverview } = useApplyDialog(
     state.applying,
     state.applied,
@@ -124,7 +125,7 @@ export function EasyConfigWizard() {
       <Stepper
         orientation="horizontal"
         activeIndex={activeIndex}
-        steps={stepOrder.map((stepId) => ({
+        steps={steps.map((stepId) => ({
           id: stepId,
           title: stepTitles[stepId].title,
           description: stepTitles[stepId].description,

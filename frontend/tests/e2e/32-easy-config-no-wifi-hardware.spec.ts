@@ -43,9 +43,7 @@ AllowedIPs = 0.0.0.0/0`);
     await expect(page.getByText(/no wi-fi hardware/i)).toBeVisible();
     await expect(page.getByLabel('Network name (SSID)', { exact: true })).not.toBeVisible();
 
-    await expect(page.getByRole('button', { name: /^next$/i })).toBeEnabled();
-    await page.getByRole('button', { name: /^next$/i }).click();
-
+    await expect(page.getByRole('button', { name: /^apply$/i })).toBeEnabled();
     await page.getByRole('button', { name: /^apply$/i }).click();
     await expect(page.getByText(/configuration applied/i).first()).toBeVisible();
   });

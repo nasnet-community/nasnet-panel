@@ -52,12 +52,9 @@ Endpoint = mask.example.com:51820
 AllowedIPs = 0.0.0.0/0`);
     await page.getByRole('button', { name: /^next$/i }).click();
 
-    // Step 4 — WiFi
+    // Step 4 — WiFi (last step) — Apply
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('Wireless-Net');
     await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
-    await page.getByRole('button', { name: /^next$/i }).click();
-
-    // Step 5 — Apply (vpn server stays disabled)
     await page.getByRole('button', { name: /^apply$/i }).click();
     await expect(page.getByText(/configuration applied/i).first()).toBeVisible();
   });
