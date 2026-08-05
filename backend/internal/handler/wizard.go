@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"nasnet-panel/pkg/routeros"
@@ -58,8 +57,8 @@ func HandleGetVPNCredentials(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", response)
 }
 
-// HandleGetWizardStatus retrieves the wizard status: Completed/CompletedAt from
-// the wizardSuccessFile marker, Progress from environment variables.
+// HandleGetWizardStatus retrieves the wizard status: Completed from the
+// wizardSuccessFile marker, Progress from environment variables.
 // @Summary Get Wizard Status
 // @Description Retrieve the current wizard configuration status
 // @Tags Wizard
@@ -77,9 +76,8 @@ func HandleGetWizardStatus(c echo.Context) error {
 	}
 
 	status := &WizardStatus{
-		Completed:   false,
-		CompletedAt: nil,
-		Progress:    0,
+		Completed: false,
+		Progress:  0,
 	}
 	if progress, err := client.GetEnvironmentVariable("WizardProgress"); err == nil && progress != "" {
 		if p, err := strconv.Atoi(progress); err == nil {
@@ -90,14 +88,6 @@ func HandleGetWizardStatus(c echo.Context) error {
 	if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
 		status.Progress = 100
 		status.Completed = true
-		if contents, err := client.GetFileContents(wizardSuccessFile, 0); err == nil {
-			completedAt := strings.TrimSpace(contents)
-			if t, err := time.Parse(time.RFC3339, completedAt); err == nil {
-				status.CompletedAt = &t
-			} else if t, err := time.Parse("2006-01-02 15:04:05", completedAt); err == nil {
-				status.CompletedAt = &t
-			}
-		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard status retrieved successfully", status)
