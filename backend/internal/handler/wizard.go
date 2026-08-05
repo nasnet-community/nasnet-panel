@@ -16,6 +16,10 @@ import (
 	"nasnet-panel/pkg/wgcfg"
 )
 
+// wizardSuccessFile is the marker file the wizard script itself writes to the
+// router on successful completion, containing the completion timestamp.
+const wizardSuccessFile = "nasnet-panel-wizard-success.txt"
+
 // HandleGetVPNCredentials retrieves VPN credentials from NasNet API using system ID.
 // @Summary Get VPN Credentials
 // @Description Fetch L2TP VPN credentials from NasNet using the router's system ID
@@ -53,7 +57,8 @@ func HandleGetVPNCredentials(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", response)
 }
 
-// HandleGetWizardStatus retrieves the wizard status from environment variables.
+// HandleGetWizardStatus retrieves the wizard status: Completed from the
+// wizardSuccessFile marker, Progress from environment variables.
 // @Summary Get Wizard Status
 // @Description Retrieve the current wizard configuration status
 // @Tags Wizard
@@ -71,110 +76,21 @@ func HandleGetWizardStatus(c echo.Context) error {
 	}
 
 	status := &WizardStatus{
-		Completed:   false,
-		CompletedAt: nil,
-		Progress:    0,
+		Completed: false,
+		Progress:  0,
 	}
-
-	if completed, err := client.GetEnvironmentVariable("WizardCompleted"); err == nil && completed != "" {
-		status.Completed = completed == "true"
-	}
-
 	if progress, err := client.GetEnvironmentVariable("WizardProgress"); err == nil && progress != "" {
 		if p, err := strconv.Atoi(progress); err == nil {
 			status.Progress = p
 		}
 	}
 
-	if completedAt, err := client.GetEnvironmentVariable("WizardCompletedAt"); err == nil && completedAt != "" {
-		if t, err := time.Parse(time.RFC3339, completedAt); err != nil {
-			if t, err := time.Parse("2006-01-02 15:04:05", completedAt); err == nil {
-				status.CompletedAt = &t
-			}
-		} else {
-			status.CompletedAt = &t
-		}
+	if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
+		status.Progress = 100
+		status.Completed = true
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard status retrieved successfully", status)
-}
-
-// HandleUpdateWizardStatus updates the wizard status in environment variables.
-// @Summary Update Wizard Status
-// @Description Update wizard configuration status, only supplied fields are updated
-// @Tags Wizard
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Accept json
-// @Produce json
-// @Param body body UpdateWizardStatusRequest true "Wizard status updates"
-// @Success 200 {object} Response{data=WizardStatus}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
-// @Router /api/wizard/status [put].
-func HandleUpdateWizardStatus(c echo.Context) error {
-	client, err := GetRouterOSClient(c)
-	if err != nil {
-		return err
-	}
-
-	var req UpdateWizardStatusRequest
-	if err := c.Bind(&req); err != nil {
-		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
-	}
-
-	currentStatus := &WizardStatus{
-		Completed:   false,
-		CompletedAt: nil,
-		Progress:    0,
-	}
-
-	if completed, err := client.GetEnvironmentVariable("WizardCompleted"); err == nil && completed != "" {
-		currentStatus.Completed = completed == "true"
-	}
-
-	if progress, err := client.GetEnvironmentVariable("WizardProgress"); err == nil && progress != "" {
-		if p, err := strconv.Atoi(progress); err == nil {
-			currentStatus.Progress = p
-		}
-	}
-
-	if completedAt, err := client.GetEnvironmentVariable("WizardCompletedAt"); err == nil && completedAt != "" {
-		if t, err := time.Parse(time.RFC3339, completedAt); err == nil {
-			currentStatus.CompletedAt = &t
-		}
-	}
-
-	if req.Completed != nil {
-		currentStatus.Completed = *req.Completed
-		if *req.Completed {
-			now := time.Now()
-			currentStatus.CompletedAt = &now
-		} else {
-			currentStatus.CompletedAt = nil
-		}
-	}
-	if req.Progress != nil {
-		currentStatus.Progress = *req.Progress
-	}
-
-	if err := client.SetEnvironmentVariable("WizardCompleted", strconv.FormatBool(currentStatus.Completed)); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardCompleted", err)
-	}
-
-	if err := client.SetEnvironmentVariable("WizardProgress", strconv.Itoa(currentStatus.Progress)); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardProgress", err)
-	}
-
-	completedAtStr := ""
-	if currentStatus.CompletedAt != nil {
-		completedAtStr = currentStatus.CompletedAt.Format(time.RFC3339)
-	}
-	if err := client.SetEnvironmentVariable("WizardCompletedAt", completedAtStr); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to save WizardCompletedAt", err)
-	}
-
-	return SuccessResponse(c, http.StatusOK, "Wizard status updated successfully", currentStatus)
 }
 
 // HandleFinalizeWizard finalizes wizard configuration by rendering and executing the template.
@@ -382,22 +298,11 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}
 
-	if err := client.BackupSystem(backupTime); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to back up system", err)
-	}
-
-	err = client.SetEnvironmentVariable("WizardCompleted", "false")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion status", err)
-	}
 	err = client.SetEnvironmentVariable("WizardProgress", "0")
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
 	}
-	err = client.SetEnvironmentVariable("WizardCompletedAt", "")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard completion timestamp", err)
-	}
+	_ = client.DeleteFile(wizardSuccessFile)
 
 	sftpConfig := sftp.Config{
 		Host:     creds.RouterOSHost,

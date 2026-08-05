@@ -1,5 +1,5 @@
 :global WizardProgress "5"
-
+/system/backup/save name={{ .BackupTime }}
 /export file={{ .BackupTime }}
 
 :global WizardProgress "8"
@@ -39,7 +39,7 @@ set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 
 {{if .EnableWifiAP }}
 /interface wifi{{range .WifiRadios}}{{if and (ne .Interface $.ForeignInterface.Interface) (or (not $.DomesticEnabled) (ne .Interface $.DomesticInterface.Interface))}}
-set [ find default-name={{.Interface}} ] disabled=no configuration.country=Japan \
+set [ find default-name={{.Interface}} ] disabled=no configuration.country="United States" \
 .mode=ap .ssid="{{ $.wifiSSID }}" .installation=indoor \
 name="wifi{{.Band}}-SplitLAN" comment="SplitLAN" \
 configuration.hide-ssid=no security.authentication-types=wpa2-psk,wpa3-psk \
@@ -112,9 +112,9 @@ add name="Foreign-Foreign Link-WAN" comment="Foreign-Foreign Link"
 add name="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
 
 /interface macvlan
-add name="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface.Interface }}" interface={{ .ForeignInterface.Interface }} mode=private
+add name="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface.Interface }}" interface=[/interface/get [find default-name={{ .ForeignInterface.Interface }}] name] mode=private
 {{ if .DomesticEnabled}}
-add name="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface.Interface }}" interface={{ .DomesticInterface.Interface }} mode=private
+add name="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface.Interface }}" interface=[/interface/get [find default-name={{ .DomesticInterface.Interface }}] name] mode=private
 {{ end }}
 /ip pool
 :if ([:len [/ip/pool find name="DHCP-pool-Split"]] = 0) do={
@@ -192,9 +192,9 @@ add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link SRC Ad
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link Routing Mark" disabled=no routing-mark="to-Foreign-Foreign Link" table="to-Foreign-Foreign Link"
 
 /interface bridge port
-remove [find bridge="LANBridgeSplit" interface="{{ .ForeignInterface.Interface }}"]
+remove [find bridge="LANBridgeSplit" interface="[/interface/get [find default-name={{ .ForeignInterface.Interface }}] name]"]
 {{ if .DomesticEnabled}}
-remove [find bridge="LANBridgeSplit" interface="{{ .DomesticInterface.Interface }}"]
+remove [find bridge="LANBridgeSplit" interface="[/interface/get [find default-name={{ .DomesticInterface.Interface }}] name]"]
 {{ end }}
 {{range .BridgePorts}}:if ([:len [/interface find default-name="{{.}}"]] > 0) do={
 :local portName [/interface get [/interface find default-name="{{.}}"] name]
@@ -553,7 +553,6 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 /ip address remove [find address="192.168.210.1/24"]
 /interface wifi remove [find name="wifi-management"]
 
-:global WizardCompleted "true"
 :global WizardProgress "100"
-:global WizardCompletedAt (([/system clock get date] . "T" . [/system clock get time] . "Z"))
+/file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
 /system script remove [find name=wizard]
