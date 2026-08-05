@@ -36,6 +36,12 @@ const BAND_LABELS: Record<BandKey, string> = {
   '6': '6 GHz',
 };
 
+const BAND_SUFFIXES: Record<BandKey, string> = {
+  '24': '2.4',
+  '5': '5',
+  '6': '6',
+};
+
 function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
   const b = (wi.band ?? '').toLowerCase();
   if (b.startsWith('2')) return '24';
@@ -69,7 +75,10 @@ export function WifiStep({ state, dispatch, wifiInterfaces, wifiSupported, foote
   const bandList = availableBands.map((k) => BAND_LABELS[k]).join(' and ');
 
   const previewBands = split
-    ? availableBands.map((k) => ({ ssid: state.ssid, band: BAND_LABELS[k] }))
+    ? availableBands.map((k) => ({
+        ssid: state.ssid.trim() ? `${state.ssid}-${BAND_SUFFIXES[k]}` : state.ssid,
+        band: BAND_LABELS[k],
+      }))
     : [{ ssid: state.ssid, band: availableBands[0] ? BAND_LABELS[availableBands[0]] : undefined }];
 
   return (

@@ -39,10 +39,10 @@ export function IpMaskL2tpFields({ state, dispatch }: Props) {
               type="button"
               variant="secondary"
               onClick={() => setClaimOpen(true)}
-              aria-label="Claim a free VPN"
-              title="Claim a free VPN"
+              style={{ whiteSpace: 'nowrap' }}
             >
-              <Sparkles size={14} strokeWidth={2} />
+              <Sparkles size={16} strokeWidth={2} />
+              Claim free VPN
             </Button>
           </div>
         </Label>

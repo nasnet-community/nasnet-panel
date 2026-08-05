@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 
 test.describe('Easy-Mode wizard — multi-band WiFi', () => {
-  test('shares one SSID across bands via the split toggle and applies', async ({
+  test('offers the split toggle off by default, suffixes band names when enabled, and applies', async ({
     page,
     resetMocks,
     seedRouter,
@@ -39,27 +39,31 @@ Endpoint = mask.example.com:51820
 AllowedIPs = 0.0.0.0/0`);
     await page.getByRole('button', { name: /^next$/i }).click();
 
-    // Step 4 — the router reports three radios, so the split toggle is offered and on by default
+    // Step 4 — the router reports three radios, so the split toggle is offered, off by default
     const splitToggle = page.getByRole('switch', { name: /split across bands/i });
     await expect(splitToggle).toBeVisible();
-    await expect(splitToggle).toBeChecked();
+    await expect(splitToggle).not.toBeChecked();
 
-    // A single SSID and password now cover every band
+    // A single SSID and password cover every band
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('NN-Home');
     await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
 
-    // An empty SSID blocks Next
+    // An empty SSID blocks Apply
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('');
-    await expect(page.getByRole('button', { name: /^next$/i })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /^apply$/i })).toBeDisabled();
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('NN-Home');
+
+    await splitToggle.check();
+    await expect(splitToggle).toBeChecked();
+    await expect(page.getByText('NN-Home-2.4')).toBeVisible();
+    await expect(page.getByText('NN-Home-5', { exact: true })).toBeVisible();
+    await expect(page.getByText('NN-Home-6', { exact: true })).toBeVisible();
 
     // Splitting can be turned off to keep the network on a single band
     await splitToggle.uncheck();
     await expect(splitToggle).not.toBeChecked();
 
-    await page.getByRole('button', { name: /^next$/i }).click();
-
-    // Step 5 — Apply
+    // WiFi is the last step in Starlink-only — Apply
     await page.getByRole('button', { name: /^apply$/i }).click();
     await expect(page.getByText(/configuration applied/i).first()).toBeVisible();
   });
