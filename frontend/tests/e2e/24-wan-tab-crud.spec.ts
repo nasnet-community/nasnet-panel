@@ -3,9 +3,11 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 const ROUTER_ID = 'rtr_wan';
 
-// "New" button order in WanPage: 0 Starlink, 1 Domestic, 2 Starlink Masking VPN Client.
-const newButton = (page: Page, index: number) =>
-  page.getByRole('button', { name: 'New' }).nth(index);
+// "Change" button order in WanPage: 0 Starlink, 1 Domestic.
+const changeButton = (page: Page, index: number) =>
+  page.getByRole('button', { name: 'Change' }).nth(index);
+
+const newClientButton = (page: Page) => page.getByRole('button', { name: 'New' });
 
 const envelope = <T>(data: T, status = 200) => JSON.stringify({ status, message: 'OK', data });
 
@@ -256,7 +258,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newButton(page, 0).click();
+    await changeButton(page, 0).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
@@ -293,7 +295,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state, { wanApplyDelayMs: 2500 });
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newButton(page, 0).click();
+    await changeButton(page, 0).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
@@ -331,7 +333,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newButton(page, 0).click();
+    await changeButton(page, 0).click();
     const dialog = page.getByRole('dialog', { name: 'Add Starlink uplink' });
     await expect(dialog).toBeVisible();
 
@@ -370,7 +372,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newButton(page, 1).click(); // Domestic add modal
+    await changeButton(page, 1).click(); // Domestic add modal
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Domestic WAN').click();
 
@@ -392,7 +394,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newButton(page, 2).click();
+    await newClientButton(page).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
