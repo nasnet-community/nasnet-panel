@@ -14,7 +14,9 @@ test.describe('Easy-Mode wizard — Starlink-only', () => {
 
     // Step 1 — Choose (Starlink-only drops the VPN Server step)
     await page.getByRole('radio', { name: /starlink-only/i }).check();
-    await expect(page.getByText('VPN Server')).toHaveCount(0);
+    await expect(
+      page.getByRole('list', { name: 'Wizard progress' }).getByText('VPN Server'),
+    ).toHaveCount(0);
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 2 — WAN (Ethernet tile is default)
