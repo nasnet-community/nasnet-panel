@@ -2,6 +2,7 @@ import { Wifi, WifiOff } from 'lucide-react';
 import styles from './WirelessPreview.module.scss';
 
 export interface WirelessPreviewBand {
+  id?: string;
   ssid: string;
   band?: string;
 }
@@ -18,7 +19,7 @@ export function WirelessPreview({ bands, enabled }: Props) {
         {bands.map((b) => {
           const ssid = b.ssid.trim() || 'Your network name';
           const isPlaceholder = !b.ssid.trim();
-          const key = b.band ?? 'single';
+          const key = b.id ?? b.band ?? 'single';
           return (
             <div key={key} className={styles.preview}>
               <div className={`${styles.iconWrap} ${enabled ? '' : styles.iconWrapMuted}`}>
