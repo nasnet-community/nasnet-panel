@@ -37,11 +37,18 @@ const BAND_LABELS: Record<BandKey, string> = {
   '6': '6 GHz',
 };
 
+const BAND_SUFFIXES: Record<BandKey, string> = {
+  '24': '2.4',
+  '5': '5',
+  '6': '6',
+};
+
 const WIRELESS_TYPES = ['wireless', 'wifi', 'wlan', 'w60g'];
 
 interface WirelessEntry {
   name: string;
   label: string;
+  suffix: string;
 }
 
 function bandKeyFor(wi: WifiInterfaceResponse): BandKey | null {
@@ -75,12 +82,20 @@ export function WifiStep({
       .map((i) => {
         const wi = wifiInterfaces.find((w) => w.name === i.name || w.interface === i.name);
         const band = wi ? bandKeyFor(wi) : null;
-        return { name: i.name, label: band ? BAND_LABELS[band] : i.name };
+        return {
+          name: i.name,
+          label: band ? BAND_LABELS[band] : i.name,
+          suffix: band ? BAND_SUFFIXES[band] : i.name,
+        };
       });
     if (fromList.length > 0) return fromList;
     return wifiInterfaces.map((wi) => {
       const band = bandKeyFor(wi);
-      return { name: wi.name, label: band ? BAND_LABELS[band] : wi.name };
+      return {
+        name: wi.name,
+        label: band ? BAND_LABELS[band] : wi.name,
+        suffix: band ? BAND_SUFFIXES[band] : wi.name,
+      };
     });
   }, [interfaces, wifiInterfaces]);
 
@@ -90,7 +105,11 @@ export function WifiStep({
   const bandList = labels.join(labels.length > 2 ? ', ' : ' and ');
 
   const previewBands = split
-    ? wirelessEntries.map((e) => ({ id: e.name, ssid: state.ssid, band: e.label }))
+    ? wirelessEntries.map((e) => ({
+        id: e.name,
+        ssid: state.ssid.trim() ? `${state.ssid}-${e.suffix}` : state.ssid,
+        band: e.label,
+      }))
     : [{ ssid: state.ssid, band: wirelessEntries[0]?.label }];
 
   return (

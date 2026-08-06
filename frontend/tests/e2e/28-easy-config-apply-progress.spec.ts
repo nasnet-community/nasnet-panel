@@ -20,8 +20,6 @@ AllowedIPs = 0.0.0.0/0`);
 
   await page.getByLabel('Network name (SSID)', { exact: true }).fill('Progress-Net');
   await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
-  await page.getByRole('button', { name: /^next$/i }).click();
-
   await page.getByRole('button', { name: /^apply$/i }).click();
 }
 
@@ -134,7 +132,7 @@ test.describe('Easy-Mode wizard — apply progress', () => {
         body: JSON.stringify({
           status: 200,
           message: 'OK',
-          data: { completed: true, completedAt: null, progress: 100 },
+          data: { completed: true, progress: 100 },
         }),
       });
     });
