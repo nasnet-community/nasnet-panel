@@ -11,6 +11,13 @@ test.describe('Easy-Mode wizard — multi-band WiFi', () => {
     await seedRouter({ id: 'rtr_mband', name: 'Multi-band Router' });
     await mockEasyConfigBackend({
       id: 'rtr_mband',
+      interfaces: [
+        { id: '*1', name: 'ether1', type: 'ether', running: true, disabled: false },
+        { id: '*2', name: 'ether2', type: 'ether', running: true, disabled: false },
+        { id: '*3', name: 'wifi1', type: 'wifi', running: true, disabled: false },
+        { id: '*4', name: 'wifi2', type: 'wifi', running: true, disabled: false },
+        { id: '*5', name: 'wifi3', type: 'wifi', running: true, disabled: false },
+      ],
       wifiInterfaces: [
         { id: '*100', name: 'wifi1', band: '2ghz-ax' },
         { id: '*101', name: 'wifi2', band: '5ghz-ax' },
@@ -55,9 +62,9 @@ AllowedIPs = 0.0.0.0/0`);
 
     await splitToggle.check();
     await expect(splitToggle).toBeChecked();
-    await expect(page.getByText('NN-Home-2.4')).toBeVisible();
-    await expect(page.getByText('NN-Home-5', { exact: true })).toBeVisible();
-    await expect(page.getByText('NN-Home-6', { exact: true })).toBeVisible();
+    await expect(page.getByText('NN-Home-2.4G', { exact: true })).toBeVisible();
+    await expect(page.getByText('NN-Home-5G', { exact: true })).toBeVisible();
+    await expect(page.getByText('NN-Home-6G', { exact: true })).toBeVisible();
 
     // Splitting can be turned off to keep the network on a single band
     await splitToggle.uncheck();
@@ -78,6 +85,11 @@ AllowedIPs = 0.0.0.0/0`);
     await seedRouter({ id: 'rtr_single', name: 'Single-band Router' });
     await mockEasyConfigBackend({
       id: 'rtr_single',
+      interfaces: [
+        { id: '*1', name: 'ether1', type: 'ether', running: true, disabled: false },
+        { id: '*2', name: 'ether2', type: 'ether', running: true, disabled: false },
+        { id: '*3', name: 'wifi1', type: 'wifi', running: true, disabled: false },
+      ],
       wifiInterfaces: [{ id: '*100', name: 'wifi1', band: '2ghz-ax' }],
     });
     await page.goto('/router/rtr_single/config');

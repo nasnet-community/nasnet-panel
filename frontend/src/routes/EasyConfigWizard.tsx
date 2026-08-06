@@ -108,6 +108,7 @@ export function EasyConfigWizard() {
           <WifiStep
             state={state}
             dispatch={dispatch}
+            interfaces={interfaces}
             wifiInterfaces={wifiInterfaces}
             wifiSupported={wifiSupported}
             footer={footer}
