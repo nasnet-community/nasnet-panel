@@ -62,9 +62,9 @@ AllowedIPs = 0.0.0.0/0`);
 
     await splitToggle.check();
     await expect(splitToggle).toBeChecked();
-    await expect(page.getByText('NN-Home-2.4')).toBeVisible();
-    await expect(page.getByText('NN-Home-5', { exact: true })).toBeVisible();
-    await expect(page.getByText('NN-Home-6', { exact: true })).toBeVisible();
+    await expect(page.getByText('NN-Home-2.4G', { exact: true })).toBeVisible();
+    await expect(page.getByText('NN-Home-5G', { exact: true })).toBeVisible();
+    await expect(page.getByText('NN-Home-6G', { exact: true })).toBeVisible();
 
     // Splitting can be turned off to keep the network on a single band
     await splitToggle.uncheck();

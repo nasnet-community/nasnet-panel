@@ -38,9 +38,9 @@ const BAND_LABELS: Record<BandKey, string> = {
 };
 
 const BAND_SUFFIXES: Record<BandKey, string> = {
-  '24': '2.4',
-  '5': '5',
-  '6': '6',
+  '24': '2.4G',
+  '5': '5G',
+  '6': '6G',
 };
 
 const WIRELESS_TYPES = ['wireless', 'wifi', 'wlan', 'w60g'];
@@ -102,7 +102,7 @@ export function WifiStep({
   const multiBand = wirelessEntries.length > 1;
   const split = multiBand && state.wifiSplit;
   const labels = wirelessEntries.map((e) => e.label);
-  const bandList = labels.join(labels.length > 2 ? ', ' : ' and ');
+  const bandList = labels.join(', ');
 
   const previewBands = split
     ? wirelessEntries.map((e) => ({
@@ -110,7 +110,7 @@ export function WifiStep({
         ssid: state.ssid.trim() ? `${state.ssid}-${e.suffix}` : state.ssid,
         band: e.label,
       }))
-    : [{ ssid: state.ssid, band: wirelessEntries[0]?.label }];
+    : [{ ssid: state.ssid, band: labels.length > 1 ? bandList : labels[0] }];
 
   return (
     <Card>
