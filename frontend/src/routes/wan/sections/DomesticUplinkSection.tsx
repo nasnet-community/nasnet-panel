@@ -149,8 +149,8 @@ export function DomesticUplinkSection({
           enabled={(i) => !i.disabled}
           emptyIcon={<Cable size={20} aria-hidden />}
           emptyMessage="No domestic uplinks yet"
-          editLabel={(i) => `Move ${i.name} to Foreign`}
-          onEdit={(i) => setPendingMove(i)}
+          moveLabel={(i) => `Move ${i.name} to Foreign`}
+          onMove={(i) => setPendingMove(i)}
         />
       </Card>
       {dialogOpen ? (
