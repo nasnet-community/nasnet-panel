@@ -268,12 +268,8 @@ test.describe('WAN tab', () => {
 
     await expect(page.getByRole('cell', { name: 'ether1', exact: true })).toBeVisible();
 
-    // Move to Domestic via the edit dialog's action.
-    await page.getByRole('button', { name: /edit ether1/i }).click();
-    await page
-      .getByRole('dialog')
-      .getByRole('button', { name: /move to domestic/i })
-      .click();
+    // Move to Domestic via the row action next to Edit.
+    await page.getByRole('button', { name: /move ether1 to domestic/i }).click();
     await page
       .getByRole('dialog')
       .getByRole('button', { name: /^move$/i })

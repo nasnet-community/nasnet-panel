@@ -23,7 +23,6 @@ interface Props {
   excludeNames?: string[];
   interfacesLoading?: boolean;
   initialInterface?: InterfaceResponse;
-  secondaryAction?: { label: string; onClick: () => void };
   onCancel: () => void;
   onSubmit: (values: WanUplinkValues) => Promise<void>;
 }
@@ -56,7 +55,6 @@ export function WanUplinkDialog({
   excludeNames,
   interfacesLoading,
   initialInterface,
-  secondaryAction,
   onCancel,
   onSubmit,
 }: Props) {
@@ -108,11 +106,6 @@ export function WanUplinkDialog({
       labelledBy="wan-uplink-title"
       footer={
         <>
-          {secondaryAction ? (
-            <Button variant="secondary" onClick={secondaryAction.onClick} disabled={submitting}>
-              {secondaryAction.label}
-            </Button>
-          ) : null}
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
             Cancel
           </Button>

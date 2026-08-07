@@ -168,6 +168,8 @@ export function StarlinkSection({
           emptyMessage="No Starlink uplinks yet"
           editLabel={(i) => `Edit ${i.name}`}
           onEdit={(i) => setEditTarget(i)}
+          moveLabel={(i) => `Move ${i.name} to Domestic`}
+          onMove={(i) => setPendingMove(i)}
         />
       </Card>
       {dialogOpen ? (
@@ -187,13 +189,6 @@ export function StarlinkSection({
           title={`Edit ${editTarget.name}`}
           interfaces={[editTarget]}
           initialInterface={editTarget}
-          secondaryAction={{
-            label: 'Move to Domestic',
-            onClick: () => {
-              setPendingMove(editTarget);
-              setEditTarget(null);
-            },
-          }}
           onCancel={() => setEditTarget(null)}
           onSubmit={onEditSubmit}
         />
