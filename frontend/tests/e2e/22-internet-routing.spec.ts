@@ -38,7 +38,7 @@ const defaultInterfaces = [
     type: 'ether',
     running: true,
     disabled: false,
-    comment: 'WAN - Foreign Link (Starlink uplink)',
+    comment: 'WAN - Foreign Link',
   },
   {
     id: '*2',
@@ -46,7 +46,7 @@ const defaultInterfaces = [
     type: 'ether',
     running: false,
     disabled: false,
-    comment: 'WAN - Foreign Link (Irancell mobile)',
+    comment: 'WAN - Foreign Link',
   },
   {
     id: '*3',
@@ -54,7 +54,7 @@ const defaultInterfaces = [
     type: 'ether',
     running: true,
     disabled: false,
-    comment: 'WAN - Domestic Link(Domestic)',
+    comment: 'WAN - Domestic Link',
   },
   { id: '*4', name: 'bridge1', type: 'bridge', running: true, disabled: false },
   wgMaskIface,
@@ -122,8 +122,8 @@ test.describe('Internet routing page', () => {
 
     await expect(page.getByRole('heading', { name: /internet routing/i })).toBeVisible();
     await expect(page.getByText('Clients', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('Starlink', { exact: true })).toBeVisible();
-    await expect(page.getByText('Irancell', { exact: true })).toBeVisible();
+    await expect(page.getByText('WAN - Foreign Link', { exact: true })).toHaveCount(2);
+    await expect(page.getByText('WAN - Domestic Link', { exact: true })).toBeVisible();
     await expect(page.getByText('wg-mask', { exact: true })).toBeVisible();
 
     const svg = page.getByRole('img', { name: 'Routing topology' });
