@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useToast } from '@nasnet/ui';
 import {
@@ -53,6 +53,8 @@ export function WanPage() {
     if (!creds || !host) return null;
     return { host, ...creds };
   }, [id, router?.host, getCredentials]);
+
+  const vpnCreds = useMemo(() => resolveCreds(), [resolveCreds]);
 
   const applyInterfaces = useCallback((wan: InterfaceResponse[]) => {
     interfacesRef.current = wan;
@@ -162,7 +164,7 @@ export function WanPage() {
         onChanged={reloadAfterWanChange}
       />
       <ClientsSection
-        creds={resolveCreds()}
+        creds={vpnCreds}
         clients={vpnClients}
         onChanged={loadVpn}
         onDialogOpenChange={setVpnDialogOpen}
