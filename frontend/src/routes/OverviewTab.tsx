@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Activity,
@@ -54,6 +54,7 @@ import {
 import { useRouter, useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useThemeColors } from '../utils/theme-colors';
+import { matchesWanCategory } from './wan/types';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
 import { UplinkIpCard } from './overview-panel/UplinkIpCard';
 import { resolveModelStrict } from './overview-panel/resolveModel';
@@ -118,6 +119,7 @@ export function OverviewTab() {
   const [ethernetRates, setEthernetRates] = useState<Record<string, string>>({});
   const [dhcpClients, setDhcpClients] = useState<DhcpClient[]>([]);
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
+  const ifaceDefaultApplied = useRef(false);
   const [graphLoading, setGraphLoading] = useState(false);
   const [graphError, setGraphError] = useState<string | null>(null);
   const [powerAction, setPowerAction] = useState<'reboot' | 'shutdown' | null>(null);
@@ -213,6 +215,11 @@ export function OverviewTab() {
         );
         if (list.length > 0) {
           setSelectedIface((prev) => {
+            if (!ifaceDefaultApplied.current) {
+              ifaceDefaultApplied.current = true;
+              const foreign = list.find((i) => matchesWanCategory(i.comment, 'foreign'));
+              if (foreign) return foreign.name;
+            }
             if (list.some((i) => i.name === prev)) return prev;
             const preferred = list.find((i) => i.running && i.type === 'ether') ?? list[0];
             return preferred.name;
