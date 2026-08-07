@@ -1,9 +1,5 @@
 package handler
 
-import (
-	"time"
-)
-
 // VPNCredentialsResponse represents VPN credentials in the API response.
 type VPNCredentialsResponse struct {
 	Username   string `json:"username" example:"NNC_zN9RI61d"`
@@ -14,9 +10,8 @@ type VPNCredentialsResponse struct {
 
 // WizardStatus represents the current status of a setup wizard.
 type WizardStatus struct {
-	Completed   bool       `json:"completed" example:"false"`
-	CompletedAt *time.Time `json:"completedAt" example:"null"`
-	Progress    int        `json:"progress" example:"0"`
+	Completed bool `json:"completed" example:"false"`
+	Progress  int  `json:"progress" example:"0"`
 }
 
 // InterfaceConfig represents a network interface configuration.

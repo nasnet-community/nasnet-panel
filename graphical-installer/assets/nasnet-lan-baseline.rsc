@@ -2,6 +2,8 @@
   :log info "nasnet-panel: LANBridgeSplit already exists, skipping LAN baseline"
 } else={
   :log info "nasnet-panel: applying LAN baseline (192.168.10.0/24)"
+  :log info "nasnet-panel: clearing static firewall filter rules"
+  :do { /ip/firewall/filter remove [find dynamic=no !(comment~"nasnet-panel-installer")] } on-error={}
   :local wanIfaces [:toarray ""]
   :foreach c in=[/ip/dhcp-client find] do={
     :set wanIfaces ($wanIfaces , [/ip/dhcp-client get $c interface])
