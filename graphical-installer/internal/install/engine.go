@@ -284,7 +284,9 @@ func (e *Engine) moveToTop(path, selector string) {
 	if e.opts.DryRun {
 		return
 	}
-	_, _ = e.cl.RunRaw(fmt.Sprintf("%s/move [find %s] destination=0", path, selector), 15*time.Second)
+	cmd := fmt.Sprintf(`:local n 0; :local stop false; :foreach i in=[%s/find] do={ :if (!$stop) do={ :if ([%s/get $i dynamic]) do={ :set n ($n + 1) } else={ :set stop true } } }; %s/move [find %s] destination=$n`,
+		path, path, path, selector)
+	_, _ = e.cl.RunRaw(cmd, 15*time.Second)
 }
 
 var filePrintRow = regexp.MustCompile(`(?m)^\s*\d+`)

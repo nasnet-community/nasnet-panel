@@ -295,7 +295,7 @@ ros_remove() {
 ros_move_to_top() {
   local path="$1" selector="$2"
   (( DRY_RUN )) && return 0
-  ros_cmd "${path}/move [find ${selector}] destination=0" >/dev/null 2>&1 || true
+  ros_cmd ":local n 0; :local stop false; :foreach i in=[${path}/find] do={ :if (!\$stop) do={ :if ([${path}/get \$i dynamic]) do={ :set n (\$n + 1) } else={ :set stop true } } }; ${path}/move [find ${selector}] destination=\$n" >/dev/null 2>&1 || true
 }
 
 ros_ensure_dir() {

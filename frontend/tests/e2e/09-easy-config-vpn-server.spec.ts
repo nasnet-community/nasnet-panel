@@ -12,13 +12,15 @@ test.describe('Easy-Mode wizard — VPN server step', () => {
     await mockEasyConfigBackend({ id: 'rtr_vpn' });
     await page.goto('/router/rtr_vpn/config');
 
-    // Step 1 — Choose
-    await page.getByRole('radio', { name: /starlink-only/i }).check();
+    // Step 1 — Choose (dual-link keeps the VPN Server step)
+    await page.getByRole('radio', { name: /dual-link/i }).check();
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 2 — WAN
     await page.getByLabel(/starlink wan/i).click();
     await page.getByRole('option', { name: 'ether1' }).click();
+    await page.getByLabel(/domestic wan/i).click();
+    await page.getByRole('option', { name: 'ether2' }).click();
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 3 — IP-Mask (WireGuard is default)

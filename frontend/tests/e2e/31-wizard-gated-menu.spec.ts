@@ -3,7 +3,7 @@ import { test, expect } from './fixtures';
 const freshStatus = JSON.stringify({
   status: 200,
   message: 'OK',
-  data: { completed: false, completedAt: null, progress: 0 },
+  data: { completed: false, progress: 0 },
 });
 
 test.describe('Wizard-gated navigation', () => {
