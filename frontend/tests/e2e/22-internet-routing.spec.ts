@@ -38,7 +38,7 @@ const defaultInterfaces = [
     type: 'ether',
     running: true,
     disabled: false,
-    comment: 'Starlink uplink',
+    comment: 'WAN - Foreign Link (Starlink uplink)',
   },
   {
     id: '*2',
@@ -46,7 +46,7 @@ const defaultInterfaces = [
     type: 'ether',
     running: false,
     disabled: false,
-    comment: 'Irancell mobile',
+    comment: 'WAN - Foreign Link (Irancell mobile)',
   },
   {
     id: '*3',
