@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash2 } from 'lucide-react';
 import { Badge, Button, DataTable, Switch } from '@nasnet/ui';
 import styles from './WanPage.module.scss';
 
@@ -15,6 +15,8 @@ interface Props<T> {
   onToggle?: (row: T, enabled: boolean) => void;
   onEdit?: (row: T) => void;
   editLabel?: (row: T) => string;
+  onMove?: (row: T) => void;
+  moveLabel?: (row: T) => string;
   onDelete?: (row: T) => void;
 }
 
@@ -30,9 +32,11 @@ export function WanTable<T>({
   onToggle,
   onEdit,
   editLabel,
+  onMove,
+  moveLabel,
   onDelete,
 }: Props<T>) {
-  const showActions = !!onEdit || !!onDelete;
+  const showActions = !!onEdit || !!onMove || !!onDelete;
   return (
     <DataTable<T>
       rows={rows}
@@ -80,6 +84,18 @@ export function WanTable<T>({
                         onClick={() => onEdit(r)}
                       >
                         <Pencil size={14} aria-hidden />
+                      </Button>
+                    ) : null}
+                    {onMove ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className={styles.iconBtn}
+                        title={moveLabel ? moveLabel(r) : `Move ${name(r)}`}
+                        aria-label={moveLabel ? moveLabel(r) : `move ${name(r)}`}
+                        onClick={() => onMove(r)}
+                      >
+                        <ArrowUpDown size={14} aria-hidden />
                       </Button>
                     ) : null}
                     {onDelete ? (

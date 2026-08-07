@@ -129,7 +129,7 @@ export const test = base.extend<TestFixtures>({
         body: JSON.stringify({
           status: 200,
           message: 'OK',
-          data: { completed: true, completedAt: null, progress: 100 },
+          data: { completed: true, progress: 100 },
         }),
       });
     });
@@ -714,7 +714,7 @@ export const test = base.extend<TestFixtures>({
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope({ completed: progress >= 100, completedAt: null, progress }),
+          body: envelope({ completed: progress >= 100, progress }),
         });
       });
     });
