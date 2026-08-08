@@ -172,41 +172,57 @@ func (c *Client) ListIPRoutes() ([]IPRouteInfo, error) {
 	return routes, nil
 }
 
-// ListIPRoutesWithFilters lists IP routes with optional filtering.
-// Supported filter keys: dst-address, gateway, distance, disabled, dynamic, check-gateway, scope, target-scope, routing-table, comment.
-func (c *Client) ListIPRoutesWithFilters(filters map[string]string) ([]IPRouteInfo, error) {
+// IPRouteFilter represents filter criteria for querying IP routes. Fields are
+// RouterOS wire-format strings (e.g. Disabled/Dynamic as "true"/"false"), not
+// parsed types, since they're passed straight through to a ?= query argument;
+// an empty field is omitted from the query.
+type IPRouteFilter struct {
+	DstAddress   string
+	Gateway      string
+	Distance     string
+	Disabled     string
+	Dynamic      string
+	CheckGateway string
+	Scope        string
+	TargetScope  string
+	RoutingTable string
+	Comment      string
+}
+
+// ListIPRoutesWithFilters lists IP routes matching the given filter criteria.
+// If all filter fields are empty, returns every route.
+func (c *Client) ListIPRoutesWithFilters(filter IPRouteFilter) ([]IPRouteInfo, error) {
 	args := []string{}
 
-	// Build filter arguments based on provided filters
-	if dstAddr, ok := filters["dst-address"]; ok && dstAddr != "" {
-		args = append(args, "?=dst-address="+dstAddr)
+	if filter.DstAddress != "" {
+		args = append(args, "?=dst-address="+filter.DstAddress)
 	}
-	if gateway, ok := filters["gateway"]; ok && gateway != "" {
-		args = append(args, "?=gateway="+gateway)
+	if filter.Gateway != "" {
+		args = append(args, "?=gateway="+filter.Gateway)
 	}
-	if distance, ok := filters["distance"]; ok && distance != "" {
-		args = append(args, "?=distance="+distance)
+	if filter.Distance != "" {
+		args = append(args, "?=distance="+filter.Distance)
 	}
-	if disabled, ok := filters["disabled"]; ok && disabled != "" {
-		args = append(args, "?=disabled="+disabled)
+	if filter.Disabled != "" {
+		args = append(args, "?=disabled="+filter.Disabled)
 	}
-	if dynamic, ok := filters["dynamic"]; ok && dynamic != "" {
-		args = append(args, "?=dynamic="+dynamic)
+	if filter.Dynamic != "" {
+		args = append(args, "?=dynamic="+filter.Dynamic)
 	}
-	if checkGateway, ok := filters["check-gateway"]; ok && checkGateway != "" {
-		args = append(args, "?=check-gateway="+checkGateway)
+	if filter.CheckGateway != "" {
+		args = append(args, "?=check-gateway="+filter.CheckGateway)
 	}
-	if scope, ok := filters["scope"]; ok && scope != "" {
-		args = append(args, "?=scope="+scope)
+	if filter.Scope != "" {
+		args = append(args, "?=scope="+filter.Scope)
 	}
-	if targetScope, ok := filters["target-scope"]; ok && targetScope != "" {
-		args = append(args, "?=target-scope="+targetScope)
+	if filter.TargetScope != "" {
+		args = append(args, "?=target-scope="+filter.TargetScope)
 	}
-	if routingTable, ok := filters["routing-table"]; ok && routingTable != "" {
-		args = append(args, "?=routing-table="+routingTable)
+	if filter.RoutingTable != "" {
+		args = append(args, "?=routing-table="+filter.RoutingTable)
 	}
-	if comment, ok := filters["comment"]; ok && comment != "" {
-		args = append(args, "?=comment="+comment)
+	if filter.Comment != "" {
+		args = append(args, "?=comment="+filter.Comment)
 	}
 
 	results, err := c.GetAll("/ip/route", args...)
