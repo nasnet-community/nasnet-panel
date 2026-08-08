@@ -35,10 +35,7 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
         {iface.mode ? (
           <>
             {' '}
-            <Badge
-              tone={station ? 'info' : 'neutral'}
-              className={station ? undefined : styles.modeBadge}
-            >
+            <Badge className={station ? styles.stationBadge : styles.modeBadge}>
               {formatMode(iface.mode)}
             </Badge>
           </>
