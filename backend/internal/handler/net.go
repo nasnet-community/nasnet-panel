@@ -40,20 +40,20 @@ func HandleGetNetStatus(c echo.Context) error {
 			Host:   items[i].Host,
 			Status: string(items[i].Status),
 			Since:  items[i].Since,
-			Type:   resolveNetwatchHostType(items[i].Host),
+			Type:   resolveNetwatchCommentType(items[i].Comment),
 		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Network status retrieved", response)
 }
 
-func resolveNetwatchHostType(host string) NetwatchHostType {
-	switch host {
-	case "4.2.2.1":
+func resolveNetwatchCommentType(comment string) NetwatchHostType {
+	switch comment {
+	case "Failover Netwatch - Foreign Link":
 		return NetwatchHostTypeForeign
-	case "4.2.2.2":
+	case "Failover Netwatch - VPN-Client":
 		return NetwatchHostTypeVPN
-	case "217.218.127.127":
+	case "Failover Netwatch - Domestic Link":
 		return NetwatchHostTypeDomestic
 	default:
 		return ""
