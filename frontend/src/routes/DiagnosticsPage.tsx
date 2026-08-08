@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Download, FileText, Loader2, MessageCircle, Play, RefreshCw, Wand2 } from 'lucide-react';
+import {
+  Bug,
+  Download,
+  FileText,
+  Loader2,
+  MessageCircle,
+  Play,
+  RefreshCw,
+  Wand2,
+} from 'lucide-react';
 import {
   Button,
   Card,
@@ -9,6 +18,7 @@ import {
   CardTitle,
   ConfirmDialog,
   Inline,
+  SectionGrid,
   Stack,
   Switch,
   useToast,
@@ -297,35 +307,44 @@ export function DiagnosticsPage() {
               )}
             </Button>
           </div>
-          <div className={styles.reporting}>
-            <Switch
-              label="Send error reports"
-              checked={reporting}
-              onChange={(e) => changeReporting(e.currentTarget.checked)}
-            />
-            <p className={styles.reportingHint}>
-              When the panel hits an error, an anonymous report is sent to the Nasnet team so we can
-              fix it. Reports contain the error and the app version, never your router address,
-              credentials, or configuration.
-            </p>
-          </div>
         </Stack>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Inline>
-              <Wand2 size={16} aria-hidden /> Reset Configuration
-            </Inline>
-          </CardTitle>
-          <CardDescription>
-            Run the setup wizard again to reset and reconfigure this router from scratch.
-          </CardDescription>
-        </CardHeader>
-        <Button variant="danger" onClick={() => setResetConfirmOpen(true)}>
-          Reset and Reconfigure
-        </Button>
-      </Card>
+      <SectionGrid>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Inline>
+                <Bug size={16} aria-hidden /> Error Reports
+              </Inline>
+            </CardTitle>
+            <CardDescription>
+              Anonymous error reports help the Nasnet team fix bugs, and never include your router
+              address, credentials, or configuration.
+            </CardDescription>
+          </CardHeader>
+          <Switch
+            label="Send error reports"
+            checked={reporting}
+            onChange={(e) => changeReporting(e.currentTarget.checked)}
+          />
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Inline>
+                <Wand2 size={16} aria-hidden /> Reset Configuration
+              </Inline>
+            </CardTitle>
+            <CardDescription>
+              Erase everything currently set up on this router and walk through the setup wizard
+              again from the beginning. This cannot be undone.
+            </CardDescription>
+          </CardHeader>
+          <Button variant="danger" onClick={() => setResetConfirmOpen(true)}>
+            Reset and Reconfigure
+          </Button>
+        </Card>
+      </SectionGrid>
       <ConfirmDialog
         open={resetConfirmOpen}
         title="Reset configuration?"
