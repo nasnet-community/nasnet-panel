@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SatelliteDish } from 'lucide-react';
+import { Pencil, SatelliteDish } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
@@ -35,7 +35,6 @@ export function StarlinkSection({
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<InterfaceResponse | null>(null);
   const [pendingMove, setPendingMove] = useState<InterfaceResponse | null>(null);
   const [moveSubmitting, setMoveSubmitting] = useState(false);
 
@@ -74,7 +73,7 @@ export function StarlinkSection({
             ? err.message
             : 'Failed to assign interface.';
       toast.notify({
-        title: 'Failed to add Starlink uplink',
+        title: 'Failed to change Starlink uplink',
         description: message,
         tone: 'danger',
       });
@@ -82,23 +81,7 @@ export function StarlinkSection({
     }
     await onChanged();
     closeDialog();
-    toast.notify({ title: 'Starlink uplink added', tone: 'success' });
-  };
-
-  const onEditSubmit = async ({ interfaceName, ssid, password }: WanUplinkValues) => {
-    const creds = resolveCreds();
-    if (!creds) {
-      toast.notify({
-        title: 'Missing router credentials',
-        description: 'Reconnect to the router and try again.',
-        tone: 'danger',
-      });
-      return;
-    }
-    await updateWanInterface(creds, { interface: interfaceName, type: 'foreign', ssid, password });
-    await onChanged();
-    setEditTarget(null);
-    toast.notify({ title: `Updated "${interfaceName}"`, tone: 'success' });
+    toast.notify({ title: 'Starlink uplink changed', tone: 'success' });
   };
 
   const onConfirmMove = async () => {
@@ -155,7 +138,7 @@ export function StarlinkSection({
         <SectionHeader
           title="Foreign / Starlink"
           description="Interfaces tagged as the foreign (Starlink) uplink."
-          action={{ label: 'Change', onClick: openAdd }}
+          action={{ label: 'Change', onClick: openAdd, icon: <Pencil size={14} aria-hidden /> }}
         />
         <WanTable
           rows={items}
@@ -166,8 +149,6 @@ export function StarlinkSection({
           enabled={(i) => !i.disabled}
           emptyIcon={<SatelliteDish size={20} aria-hidden />}
           emptyMessage="No Starlink uplinks yet"
-          editLabel={(i) => `Edit ${i.name}`}
-          onEdit={(i) => setEditTarget(i)}
           moveLabel={(i) => `Move ${i.name} to Domestic`}
           onMove={(i) => setPendingMove(i)}
         />
@@ -175,22 +156,12 @@ export function StarlinkSection({
       {dialogOpen ? (
         <WanUplinkDialog
           variant="foreign"
-          title="Add Starlink uplink"
+          title="Change Starlink uplink"
           interfaces={interfaces}
           excludeNames={excludeNames}
           interfacesLoading={interfacesLoading}
           onCancel={closeDialog}
           onSubmit={onSubmit}
-        />
-      ) : null}
-      {editTarget ? (
-        <WanUplinkDialog
-          variant="foreign"
-          title={`Edit ${editTarget.name}`}
-          interfaces={[editTarget]}
-          initialInterface={editTarget}
-          onCancel={() => setEditTarget(null)}
-          onSubmit={onEditSubmit}
         />
       ) : null}
       {pendingMove && moveWireless ? (

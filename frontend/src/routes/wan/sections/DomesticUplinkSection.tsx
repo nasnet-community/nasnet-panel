@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Cable } from 'lucide-react';
+import { Cable, Pencil } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
@@ -73,7 +73,7 @@ export function DomesticUplinkSection({
             ? err.message
             : 'Failed to assign interface.';
       toast.notify({
-        title: 'Failed to add domestic uplink',
+        title: 'Failed to change domestic uplink',
         description: message,
         tone: 'danger',
       });
@@ -81,7 +81,7 @@ export function DomesticUplinkSection({
     }
     await onChanged();
     closeDialog();
-    toast.notify({ title: 'Domestic uplink added', tone: 'success' });
+    toast.notify({ title: 'Domestic uplink changed', tone: 'success' });
   };
 
   const onConfirmMove = async () => {
@@ -138,7 +138,7 @@ export function DomesticUplinkSection({
         <SectionHeader
           title="Domestic"
           description="Interfaces tagged as the domestic uplink."
-          action={{ label: 'Change', onClick: openAdd }}
+          action={{ label: 'Change', onClick: openAdd, icon: <Pencil size={14} aria-hidden /> }}
         />
         <WanTable
           rows={items}
@@ -156,7 +156,7 @@ export function DomesticUplinkSection({
       {dialogOpen ? (
         <WanUplinkDialog
           variant="domestic"
-          title="Add domestic uplink"
+          title="Change domestic uplink"
           interfaces={interfaces}
           excludeNames={excludeNames}
           interfacesLoading={interfacesLoading}

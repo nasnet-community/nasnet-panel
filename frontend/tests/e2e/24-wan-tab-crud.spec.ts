@@ -333,7 +333,7 @@ test.describe('WAN tab', () => {
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
     await changeButton(page, 0).click();
-    const dialog = page.getByRole('dialog', { name: 'Add Starlink uplink' });
+    const dialog = page.getByRole('dialog', { name: 'Change Starlink uplink' });
     await expect(dialog).toBeVisible();
 
     await dialog.getByRole('radio', { name: 'Wireless' }).click();
