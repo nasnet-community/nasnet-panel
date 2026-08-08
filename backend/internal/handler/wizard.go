@@ -141,8 +141,8 @@ func HandleFinalizeWizard(c echo.Context) error {
 	var wifiAPs []WiFiAP
 	var foreignInterface InterfaceConfig
 	var domesticInterface InterfaceConfig
-	var foreignInterfaceType string
-	var domesticInterfaceType string
+	var foreignFound bool
+	var domesticFound bool
 	for i := range ifaces {
 		iface := &ifaces[i]
 
@@ -188,7 +188,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		}
 
 		if isForeign {
-			foreignInterfaceType = iface.Type
+			foreignFound = true
 			foreignInterface = InterfaceConfig{
 				Interface: *iface.DefaultName,
 				Type:      iface.Type,
@@ -196,7 +196,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 				Password:  req.Foreign.Password,
 			}
 		} else {
-			domesticInterfaceType = iface.Type
+			domesticFound = true
 			domesticInterface = InterfaceConfig{
 				Interface: *iface.DefaultName,
 				Type:      iface.Type,
@@ -204,6 +204,13 @@ func HandleFinalizeWizard(c echo.Context) error {
 				Password:  req.Domestic.Password,
 			}
 		}
+	}
+
+	if !foreignFound {
+		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface not found", nil)
+	}
+	if domesticEnabled && !domesticFound {
+		return ErrorResponse(c, http.StatusBadRequest, "Domestic interface not found", nil)
 	}
 	identity := utils.GenerateName(3, "", utils.PascalCase)
 	var managementWifi WiFiAP
@@ -231,22 +238,20 @@ func HandleFinalizeWizard(c echo.Context) error {
 	}
 
 	templateData := map[string]any{
-		"DomesticEnabled":       domesticEnabled,
-		"ManagementWifi":        managementWifi,
-		"ForeignInterface":      foreignInterface,
-		"DomesticInterface":     domesticInterface,
-		"ForeignInterfaceType":  foreignInterfaceType,
-		"DomesticInterfaceType": domesticInterfaceType,
-		"WifiAPs":               wifiAPs,
-		"WifiSplit":             wifiSplit,
-		"BridgePorts":           bridgePorts,
-		"CurrentDate":           time.Now().Format("Jan/02/2006"),
-		"CurrentTimestamp":      time.Now().Unix(),
-		"BackupTime":            backupTime,
-		"Identity":              identity,
-		"RouterUsername":        creds.Username,
-		"RouterPassword":        utils.EscapeQuotes(creds.Password),
-		"RandomUserID":          randomUserID,
+		"DomesticEnabled":   domesticEnabled,
+		"ManagementWifi":    managementWifi,
+		"ForeignInterface":  foreignInterface,
+		"DomesticInterface": domesticInterface,
+		"WifiAPs":           wifiAPs,
+		"WifiSplit":         wifiSplit,
+		"BridgePorts":       bridgePorts,
+		"CurrentDate":       time.Now().Format("Jan/02/2006"),
+		"CurrentTimestamp":  time.Now().Unix(),
+		"BackupTime":        backupTime,
+		"Identity":          identity,
+		"RouterUsername":    creds.Username,
+		"RouterPassword":    utils.EscapeQuotes(creds.Password),
+		"RandomUserID":      randomUserID,
 	}
 
 	if req.L2tpClient != nil {
