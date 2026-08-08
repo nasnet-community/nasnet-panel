@@ -89,6 +89,10 @@ func RegisterRoutes(e *echo.Echo) {
 	dnsGroup.Use(middleware.RouterOSAuth)
 	dnsGroup.GET("/info", handler.HandleGetDNSInfo)
 	dnsGroup.PUT("/info", handler.HandleUpdateDNS)
+	dnsGroup.GET("/suggest", handler.HandleSuggestDNS)
+	dnsGroup.GET("/validate", handler.HandleValidateDNS)
+	dnsGroup.POST("/change", handler.HandleChangeDNS)
+	dnsGroup.POST("/reset", handler.HandleResetDNS)
 
 	vpnGroup := e.Group("/api/vpn")
 	vpnGroup.Use(middleware.RouterOSAuth)

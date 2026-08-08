@@ -2,6 +2,7 @@ package routeros
 
 import (
 	"fmt"
+	"net"
 )
 
 // FirewallFilterRule represents a firewall filter rule configuration.
@@ -109,11 +110,12 @@ type MangleRuleConfig struct {
 
 // FirewallAddressListItem represents an entry in a firewall address list.
 type FirewallAddressListItem struct {
-	ID       string
-	List     string
-	Address  string
-	Disabled bool
-	Comment  string
+	ID           string
+	List         string
+	Address      string
+	Disabled     bool
+	Comment      string
+	CreationTime string // raw RouterOS creation-time value; format varies by version
 }
 
 // FirewallAddressListFilter represents filter criteria for querying firewall address list items.
@@ -449,15 +451,113 @@ func (c *Client) ListFirewallAddressListItems(filter FirewallAddressListFilter) 
 	items := make([]FirewallAddressListItem, 0, len(results))
 	for _, result := range results {
 		items = append(items, FirewallAddressListItem{
-			ID:       result[".id"],
-			List:     result["list"],
-			Address:  result["address"],
-			Disabled: result["disabled"] == "true",
-			Comment:  result["comment"],
+			ID:           result[".id"],
+			List:         result["list"],
+			Address:      result["address"],
+			Disabled:     result["disabled"] == "true",
+			Comment:      result["comment"],
+			CreationTime: result["creation-time"],
 		})
 	}
 
 	return items, nil
+}
+
+// FindFirewallAddressListEntries returns every /ip/firewall/address-list entry
+// whose address contains target, matching the semantics of the RouterOS CLI's
+// "(target in address)" query, e.g. "print where list=DOMAddList (<ip> in
+// address)". ListName scopes the search to one list; an empty listName
+// searches all lists, matching print with no list= filter. Target may be a
+// single address or a CIDR range; in the latter case an entry matches only if
+// it fully contains that range, not merely overlaps it, mirroring the CLI's
+// "in" operator.
+//
+// The RouterOS binary API has no "in" query word (only =, >, < and the #
+// logical operators, per MikroTik's API documentation), so this fetches
+// candidate entries via the ordinary list= filter and evaluates containment
+// in Go. Callers that already have the list's items from another call (e.g. to
+// check its size or freshness) should use FilterAddressListByContainment
+// directly instead, to avoid fetching the same list twice.
+func (c *Client) FindFirewallAddressListEntries(listName, target string) ([]FirewallAddressListItem, error) {
+	if target == "" {
+		return nil, fmt.Errorf("target address is required")
+	}
+
+	items, err := c.ListFirewallAddressListItems(FirewallAddressListFilter{ListName: listName})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list firewall address list items: %w", err)
+	}
+
+	return FilterAddressListByContainment(items, target)
+}
+
+// FilterAddressListByContainment returns every item in items whose Address
+// contains target, using the same containment semantics as
+// FindFirewallAddressListEntries. It performs no RouterOS calls of its own,
+// so callers that also need other information about the same list (e.g. its
+// size or the newest entry's creation time) can fetch once via
+// ListFirewallAddressListItems and reuse that result here.
+func FilterAddressListByContainment(items []FirewallAddressListItem, target string) ([]FirewallAddressListItem, error) {
+	if target == "" {
+		return nil, fmt.Errorf("target address is required")
+	}
+
+	targetNet, err := parseAddressOrCIDR(target)
+	if err != nil {
+		return nil, fmt.Errorf("invalid target address %s: %w", target, err)
+	}
+
+	matches := make([]FirewallAddressListItem, 0)
+	for i := range items {
+		entryNet, err := parseAddressOrCIDR(items[i].Address)
+		if err != nil {
+			continue
+		}
+
+		if !cidrContains(entryNet, targetNet) {
+			continue
+		}
+
+		matches = append(matches, items[i])
+	}
+
+	return matches, nil
+}
+
+// parseAddressOrCIDR parses value as a CIDR range, or as a single address
+// widened to its narrowest CIDR (/32 for IPv4, /128 for IPv6) if it has no
+// "/" of its own.
+func parseAddressOrCIDR(value string) (*net.IPNet, error) {
+	if _, ipNet, err := net.ParseCIDR(value); err == nil {
+		return ipNet, nil
+	}
+
+	ip := net.ParseIP(value)
+	if ip == nil {
+		return nil, fmt.Errorf("not a valid address or CIDR")
+	}
+
+	if ip4 := ip.To4(); ip4 != nil {
+		return &net.IPNet{IP: ip4, Mask: net.CIDRMask(32, 32)}, nil
+	}
+	return &net.IPNet{IP: ip, Mask: net.CIDRMask(128, 128)}, nil
+}
+
+// cidrContains reports whether contained is fully inside container: container
+// must be the same address family, have a prefix at least as broad, and
+// contain contained's network address.
+func cidrContains(container, contained *net.IPNet) bool {
+	containerOnes, containerBits := container.Mask.Size()
+	containedOnes, containedBits := contained.Mask.Size()
+
+	if containerBits != containedBits {
+		return false // different address families (IPv4 vs IPv6)
+	}
+	if containedOnes < containerOnes {
+		return false // contained is a broader range than container, can't fit inside it
+	}
+
+	return container.Contains(contained.IP)
 }
 
 // AddFirewallAddressListItem adds a new item to a firewall address list.

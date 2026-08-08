@@ -62,25 +62,11 @@ function classifyWan(iface: InterfaceResponse): { kind: RoutingWanKind; label: s
 }
 
 function pickWanInterfaces(ifaces: InterfaceResponse[]): InterfaceResponse[] {
-  const candidates = ifaces.filter((i) => {
-    if (i.disabled) return false;
-    if (i.type !== 'ether') return false;
-    const comment = (i.comment ?? '').toLowerCase();
-    return (
-      comment.includes('wan') ||
-      comment.includes('uplink') ||
-      comment.includes('isp') ||
-      comment.includes('starlink') ||
-      comment.includes('fiber') ||
-      comment.includes('mobile') ||
-      comment.includes('lte') ||
-      comment.includes('5g') ||
-      comment.includes('hamrah') ||
-      comment.includes('irancell')
-    );
-  });
-  if (candidates.length > 0) return candidates;
-  return ifaces.filter((i) => i.type === 'ether' && !i.disabled);
+  return ifaces.filter(
+    (i) =>
+      !i.disabled &&
+      (matchesWanCategory(i.comment, 'domestic') || matchesWanCategory(i.comment, 'foreign')),
+  );
 }
 
 export async function buildTopology(

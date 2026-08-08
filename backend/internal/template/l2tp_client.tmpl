@@ -58,9 +58,11 @@ add dst-address="0.0.0.0/0" gateway="l2tp-client-L2TP-Client" routing-table="to-
 add check-gateway=ping dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" \
 distance=1 target-scope="11" comment="Route-to-VPN-Client"
 add dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="main" scope="10" comment="Route-to-VPN-Client"
+add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.2" routing-table="main" \
+distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-Client"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-L2TP-Client"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN-L2TP-Client"
 
 /tool netwatch
 add host="4.2.2.2" interval=5s timeout=500ms ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
-up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - L2TP-Client"
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - VPN-Client"

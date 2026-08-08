@@ -1892,10 +1892,9 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		task.mu.Unlock()
 	}
 
-	ovpnServerName := "ovpn-server-" + timestamp
-	caName := "cert-ca-" + ovpnServerName
-	serverName := "cert-server-" + ovpnServerName
-	clientName := "cert-client-" + ovpnServerName
+	caName := "cert-ca-" + timestamp
+	serverName := "cert-server-" + timestamp
+	clientName := "cert-client-" + timestamp
 
 	updateTask(5, "Creating CA certificate")
 	caCertParams := routeros.AddCertificateParams{

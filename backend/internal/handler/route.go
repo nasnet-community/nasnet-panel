@@ -25,12 +25,12 @@ func HandleGetForeignGateway(c echo.Context) error {
 		return err
 	}
 
-	filters := map[string]string{
-		"comment":       "Route-to-VPN-Client",
-		"routing-table": "main",
+	filter := routeros.IPRouteFilter{
+		Comment:      "Route-to-VPN-Client",
+		RoutingTable: "main",
 	}
 
-	routes, err := client.ListIPRoutesWithFilters(filters)
+	routes, err := client.ListIPRoutesWithFilters(filter)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve foreign gateway route", err)
 	}
@@ -74,11 +74,11 @@ func HandleUpdateForeignGateway(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Gateway is required", nil)
 	}
 
-	filters := map[string]string{
-		"comment": "Route-to-VPN-Client",
+	filter := routeros.IPRouteFilter{
+		Comment: "Route-to-VPN-Client",
 	}
 
-	routes, err := client.ListIPRoutesWithFilters(filters)
+	routes, err := client.ListIPRoutesWithFilters(filter)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve routes", err)
 	}

@@ -81,8 +81,7 @@ const setupWanRoutes = async (
       password?: string;
     };
     state.wanPuts.push({ body });
-    const comment =
-      body.type === 'foreign' ? 'WAN - Foreign Link(Foreign)' : 'WAN - Domestic Link(Domestic)';
+    const comment = body.type === 'foreign' ? 'WAN - Foreign Link' : 'WAN - Domestic Link';
     const apply = () => {
       const idx = state.interfaces.findIndex((i) => i.name === body.interface);
       if (idx >= 0) state.interfaces[idx] = { ...state.interfaces[idx], comment };
@@ -271,7 +270,7 @@ test.describe('WAN tab', () => {
 
     await expect(page.getByRole('cell', { name: 'ether1', exact: true })).toBeVisible();
 
-    // Move to Domestic via the pencil button on the row.
+    // Move to Domestic via the row action next to Edit.
     await page.getByRole('button', { name: /move ether1 to domestic/i }).click();
     await page
       .getByRole('dialog')
@@ -368,7 +367,7 @@ test.describe('WAN tab', () => {
     await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
     await setSessionCreds(context, ROUTER_ID);
     const state = blankState();
-    state.interfaces[0].comment = 'WAN - Foreign Link(Foreign)';
+    state.interfaces[0].comment = 'WAN - Foreign Link';
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);
 

@@ -354,6 +354,21 @@ func (c *Client) GetInterface(name string) (*InterfaceInfo, error) {
 	return &parsed, nil
 }
 
+// InterfaceExistsWithComment reports whether any /interface entry has exactly
+// the given comment.
+func (c *Client) InterfaceExistsWithComment(comment string) (bool, error) {
+	if comment == "" {
+		return false, fmt.Errorf("comment is required")
+	}
+
+	results, err := c.GetAll("/interface", "?=comment="+comment)
+	if err != nil {
+		return false, fmt.Errorf("failed to search interfaces by comment %s: %w", comment, err)
+	}
+
+	return len(results) > 0, nil
+}
+
 func parseInterfaceInfo(result map[string]string) InterfaceInfo {
 	return InterfaceInfo{
 		ID:               result[".id"],
