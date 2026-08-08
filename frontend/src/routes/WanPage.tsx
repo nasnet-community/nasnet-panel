@@ -48,28 +48,31 @@ export function WanPage() {
 
   const vpnCreds = useMemo(() => resolveCreds(), [resolveCreds]);
 
-  const loadInterfaces = useCallback(async () => {
-    const creds = resolveCreds();
-    if (!creds) {
-      setInterfaces([]);
-      return;
-    }
-    setInterfacesLoading(true);
-    try {
-      const list = await fetchInterfaces(creds);
-      setInterfaces(list.filter((i) => WAN_INTERFACE_TYPES.includes(i.type)));
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof Error
+  const loadInterfaces = useCallback(
+    async (silent = false) => {
+      const creds = resolveCreds();
+      if (!creds) {
+        setInterfaces([]);
+        return;
+      }
+      if (!silent) setInterfacesLoading(true);
+      try {
+        const list = await fetchInterfaces(creds);
+        setInterfaces(list.filter((i) => WAN_INTERFACE_TYPES.includes(i.type)));
+      } catch (err) {
+        const message =
+          err instanceof ApiError
             ? err.message
-            : 'Failed to load interfaces.';
-      toast.notify({ title: 'Failed to load interfaces', description: message, tone: 'danger' });
-    } finally {
-      setInterfacesLoading(false);
-    }
-  }, [resolveCreds, toast]);
+            : err instanceof Error
+              ? err.message
+              : 'Failed to load interfaces.';
+        toast.notify({ title: 'Failed to load interfaces', description: message, tone: 'danger' });
+      } finally {
+        if (!silent) setInterfacesLoading(false);
+      }
+    },
+    [resolveCreds, toast],
+  );
 
   const loadVpn = useCallback(async () => {
     const creds = resolveCreds();
@@ -94,7 +97,7 @@ export function WanPage() {
   const reloadAfterWanChange = useCallback(async () => {
     void loadVpn();
     await sleep(WAN_REFRESH_DELAY_MS);
-    await loadInterfaces();
+    await loadInterfaces(true);
   }, [loadVpn, loadInterfaces]);
 
   useEffect(() => {

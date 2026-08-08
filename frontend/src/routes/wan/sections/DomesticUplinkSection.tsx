@@ -79,9 +79,9 @@ export function DomesticUplinkSection({
       });
       return;
     }
+    await onChanged();
     closeDialog();
     toast.notify({ title: 'Domestic uplink added', tone: 'success' });
-    void onChanged();
   };
 
   const onConfirmMove = async () => {
