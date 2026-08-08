@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Plus } from 'lucide-react';
 import { Badge, Button, CardDescription, CardHeader, CardTitle, Input } from '@nasnet/ui';
 import styles from '../../VPNPage.module.scss';
@@ -8,6 +9,7 @@ interface Action {
   onClick: () => void;
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
   showPlus?: boolean;
+  icon?: ReactNode;
 }
 
 interface Props {
@@ -57,7 +59,9 @@ export function SectionHeader({ title, count, description, search, action, extra
             onClick={a.onClick}
             disabled={a.disabled}
           >
-            {a.showPlus !== false && a === action ? <Plus size={14} aria-hidden /> : null} {a.label}
+            {a.icon ??
+              (a.showPlus !== false && a === action ? <Plus size={14} aria-hidden /> : null)}{' '}
+            {a.label}
           </Button>
         ))}
       </div>

@@ -52,29 +52,12 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
       <CardHeader>
         <CardTitle>{isDual ? 'Dual-Link connection' : 'Starlink-Only connection'}</CardTitle>
         <CardDescription>
-          Tell us which ports are wired to each uplink, starting with the Starlink interface.
+          Tell us which ports are wired to each uplink, starting with the{' '}
+          {isDual ? 'Domestic' : 'Starlink'} interface.
         </CardDescription>
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack onMouseLeave={() => setFocus(undefined)}>
-          <section onMouseEnter={() => setFocus('starlink')} onFocus={() => setFocus('starlink')}>
-            <WanInterfaceSelect
-              state={state}
-              dispatch={dispatch}
-              interfaces={interfaces}
-              availableTypes={availableTypes}
-              loading={interfacesLoading}
-              heading="Starlink WAN"
-              ariaLabel="Starlink WAN"
-              typeField="starlinkInterfaceType"
-              nameField="starlinkInterface"
-              excludeName={state.domesticInterface}
-              ssidField="starlinkWanSsid"
-              passwordField="starlinkWanPassword"
-              wirelessLabel="Starlink wireless"
-            />
-          </section>
-
           {isDual ? (
             <section onMouseEnter={() => setFocus('domestic')} onFocus={() => setFocus('domestic')}>
               <WanInterfaceSelect
@@ -94,6 +77,24 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
               />
             </section>
           ) : null}
+
+          <section onMouseEnter={() => setFocus('starlink')} onFocus={() => setFocus('starlink')}>
+            <WanInterfaceSelect
+              state={state}
+              dispatch={dispatch}
+              interfaces={interfaces}
+              availableTypes={availableTypes}
+              loading={interfacesLoading}
+              heading="Starlink WAN"
+              ariaLabel="Starlink WAN"
+              typeField="starlinkInterfaceType"
+              nameField="starlinkInterface"
+              excludeName={state.domesticInterface}
+              ssidField="starlinkWanSsid"
+              passwordField="starlinkWanPassword"
+              wirelessLabel="Starlink wireless"
+            />
+          </section>
           {footer}
         </Stack>
         <div
