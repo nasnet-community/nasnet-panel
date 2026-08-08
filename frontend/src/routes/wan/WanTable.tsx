@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpDown, Pencil, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Trash2 } from 'lucide-react';
 import { Badge, Button, DataTable, Switch } from '@nasnet/ui';
 import styles from './WanPage.module.scss';
 
@@ -13,8 +13,6 @@ interface Props<T> {
   emptyIcon: React.ReactNode;
   emptyMessage: string;
   onToggle?: (row: T, enabled: boolean) => void;
-  onEdit?: (row: T) => void;
-  editLabel?: (row: T) => string;
   onMove?: (row: T) => void;
   moveLabel?: (row: T) => string;
   onDelete?: (row: T) => void;
@@ -30,13 +28,11 @@ export function WanTable<T>({
   emptyIcon,
   emptyMessage,
   onToggle,
-  onEdit,
-  editLabel,
   onMove,
   moveLabel,
   onDelete,
 }: Props<T>) {
-  const showActions = !!onEdit || !!onMove || !!onDelete;
+  const showActions = !!onMove || !!onDelete;
   return (
     <DataTable<T>
       rows={rows}
@@ -74,18 +70,6 @@ export function WanTable<T>({
                 header: '',
                 render: (r: T) => (
                   <span className={styles.rowActions}>
-                    {onEdit ? (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className={styles.iconBtn}
-                        title={editLabel ? editLabel(r) : `Edit ${name(r)}`}
-                        aria-label={editLabel ? editLabel(r) : `edit ${name(r)}`}
-                        onClick={() => onEdit(r)}
-                      >
-                        <Pencil size={14} aria-hidden />
-                      </Button>
-                    ) : null}
                     {onMove ? (
                       <Button
                         size="sm"
