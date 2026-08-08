@@ -1,5 +1,76 @@
 package handler
 
+import (
+	"fmt"
+
+	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/wgcfg"
+)
+
+// WireGuardPeerTemplateData is one peer entry for the wizard's WireGuard
+// client template block.
+type WireGuardPeerTemplateData struct {
+	PublicKey           string
+	EndpointAddress     string
+	EndpointPort        string
+	PreSharedKey        string
+	AllowedAddress      string
+	PersistentKeepalive string
+}
+
+// WireGuardClientTemplateData is the wizard template's WireGuard client block.
+type WireGuardClientTemplateData struct {
+	InterfacePrivateKey string
+	InterfaceAddress    string
+	Peers               []WireGuardPeerTemplateData
+}
+
+// buildWireGuardClientTemplateData parses a wg-quick config into the shape
+// wizard.tmpl expects.
+func buildWireGuardClientTemplateData(rawConfig string) (*WireGuardClientTemplateData, error) {
+	cfg, err := wgcfg.FromWgQuick(rawConfig, "import")
+	if err != nil {
+		return nil, err
+	}
+
+	data := &WireGuardClientTemplateData{
+		InterfacePrivateKey: cfg.PrivateKey.String(),
+	}
+	if len(cfg.Addresses) > 0 {
+		data.InterfaceAddress = cfg.Addresses[0].String()
+	}
+
+	for i := range cfg.Peers {
+		peer := cfg.Peers[i]
+		p := WireGuardPeerTemplateData{PublicKey: peer.PublicKey.Base64()}
+		if len(peer.Endpoints) > 0 {
+			p.EndpointAddress = peer.Endpoints[0].Host
+			p.EndpointPort = fmt.Sprintf("%d", peer.Endpoints[0].Port)
+		}
+		if !peer.PresharedKey.IsZero() {
+			p.PreSharedKey = peer.PresharedKey.Base64()
+		}
+		if len(peer.AllowedIPs) > 0 {
+			p.AllowedAddress = peer.AllowedIPs[0].String()
+		}
+		if peer.PersistentKeepalive > 0 {
+			p.PersistentKeepalive = fmt.Sprintf("%d", peer.PersistentKeepalive)
+		}
+		data.Peers = append(data.Peers, p)
+	}
+
+	return data, nil
+}
+
+func getWifiBandFromRadios(radios []routeros.WiFiRadio, wifiInterfaceName string) string {
+	for i := range radios {
+		if radios[i].Interface == wifiInterfaceName {
+			return radios[i].Band
+		}
+	}
+	return ""
+}
+
 // VPNCredentialsResponse represents VPN credentials in the API response.
 type VPNCredentialsResponse struct {
 	Username   string `json:"username" example:"NNC_zN9RI61d"`
@@ -16,8 +87,18 @@ type WizardStatus struct {
 
 // InterfaceConfig represents a network interface configuration.
 type InterfaceConfig struct {
-	Type      string `json:"type" example:"ether" enum:"ether,wifi"`
+	Interface string
+	Type      string
+	SSID      string
+	Password  string
+}
+
+// InterfaceConfigRequest represents a network interface configuration. Type is
+// deliberately absent: it's recognized by looking the interface up on the
+// router rather than trusted from the request.
+type InterfaceConfigRequest struct {
 	Interface string `json:"interface" example:"ether1"`
+	Type      string `json:"type" example:"ether"`
 	SSID      string `json:"ssid,omitempty" example:"MyWiFiNetwork"`
 	Password  string `json:"password,omitempty" example:"wifiPassword123"`
 }
@@ -39,6 +120,17 @@ type WireGuardClientConfig struct {
 type WiFiAPConfig struct {
 	SSID     string `json:"ssid" example:"MyAccessPoint"`
 	Password string `json:"password" example:"apPassword123"`
+	Split    bool   `json:"split" example:"false"`
+}
+
+// WiFiAP represents WiFi AP properties.
+type WiFiAP struct {
+	Name        string
+	DefaultName string
+	NameToSet   string
+	SSID        string
+	Password    string
+	Band        string
 }
 
 // OvpnUser represents an OpenVPN user.
@@ -55,10 +147,10 @@ type OvpnServerConfig struct {
 
 // FinalizeWizardRequest represents the complete wizard finalization request.
 type FinalizeWizardRequest struct {
-	Foreign         *InterfaceConfig       `json:"foreign"`
-	Domestic        *InterfaceConfig       `json:"domestic"`
-	L2tpClient      *L2tpClientConfig      `json:"l2tpClient,omitempty"`
-	WireGuardClient *WireGuardClientConfig `json:"wireguardClient,omitempty"`
-	WiFiAP          *WiFiAPConfig          `json:"wifiAp,omitempty"`
-	OvpnServer      *OvpnServerConfig      `json:"ovpnServer,omitempty"`
+	Foreign         *InterfaceConfigRequest `json:"foreign"`
+	Domestic        *InterfaceConfigRequest `json:"domestic"`
+	L2tpClient      *L2tpClientConfig       `json:"l2tpClient,omitempty"`
+	WireGuardClient *WireGuardClientConfig  `json:"wireguardClient,omitempty"`
+	WiFiAP          *WiFiAPConfig           `json:"wifiAp,omitempty"`
+	OvpnServer      *OvpnServerConfig       `json:"ovpnServer,omitempty"`
 }

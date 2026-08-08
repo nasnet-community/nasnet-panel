@@ -13,7 +13,6 @@ import (
 
 	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/utils"
-	"nasnet-panel/pkg/wgcfg"
 )
 
 // wizardSuccessFile is the marker file the wizard script itself writes to the
@@ -126,64 +125,97 @@ func HandleFinalizeWizard(c echo.Context) error {
 	if req.Foreign == nil || req.Foreign.Interface == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface is required", nil)
 	}
-	if req.Foreign.Type == "wifi" && req.Foreign.SSID == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "SSID is required when foreign interface type is wifi", nil)
-	}
-	if domesticEnabled && req.Domestic.Type == "wifi" && req.Domestic.SSID == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "SSID is required when domestic interface type is wifi", nil)
+
+	wifiRadios, err := client.GetWiFiRadios()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve WiFi radios", err)
 	}
 
-	usedWifiInterfaces := map[string]bool{}
-	if req.Foreign.Type == "wifi" {
-		usedWifiInterfaces[req.Foreign.Interface] = true
-	}
-	if domesticEnabled && req.Domestic.Type == "wifi" {
-		usedWifiInterfaces[req.Domestic.Interface] = true
-	}
-
-	wifiDefaultNames := map[string]string{}
-	if wifiInterfaces, err := client.ListWifiInterfaces(); err == nil {
-		for i := range wifiInterfaces {
-			if wifiInterfaces[i].DefaultName != "" {
-				wifiDefaultNames[wifiInterfaces[i].Name] = wifiInterfaces[i].DefaultName
-			}
-		}
-	}
-
-	var wifiRadios []routeros.WiFiRadio
-	if radios, err := client.GetWiFiRadios(); err == nil {
-		for i := range radios {
-			if defaultName, ok := wifiDefaultNames[radios[i].Interface]; ok {
-				radios[i].Interface = defaultName
-			}
-			if usedWifiInterfaces[radios[i].Interface] {
-				continue
-			}
-			wifiRadios = append(wifiRadios, radios[i])
-		}
+	ifaces, err := client.ListInterfacesByType(
+		[]string{string(routeros.InterfaceTypeEther), string(routeros.InterfaceTypeWiFi)}, false)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list interfaces", err)
 	}
 
 	var bridgePorts []string
-	if ethers, err := client.GetEthernetInterfaces(); err == nil {
-		for i := range ethers {
-			exclude := ethers[i].Name == req.Foreign.Interface
-			if domesticEnabled {
-				exclude = exclude || ethers[i].Name == req.Domestic.Interface
+	var wifiAPs []WiFiAP
+	var foreignInterface InterfaceConfig
+	var domesticInterface InterfaceConfig
+	var foreignInterfaceType string
+	var domesticInterfaceType string
+	for i := range ifaces {
+		iface := &ifaces[i]
+
+		// Not every interface RouterOS returns has a default-name (e.g. some
+		// virtual interface types); treat those as never matching Foreign or
+		// Domestic rather than dereferencing a nil pointer.
+		defaultName := ""
+		if iface.DefaultName != nil {
+			defaultName = *iface.DefaultName
+		}
+
+		isForeign := defaultName != "" && defaultName == req.Foreign.Interface
+		isDomestic := domesticEnabled && defaultName != "" && defaultName == req.Domestic.Interface
+
+		if !isForeign && !isDomestic {
+			if iface.Type == string(routeros.InterfaceTypeWiFi) && defaultName != "" && req.WiFiAP != nil {
+				ssid := req.WiFiAP.SSID
+				if req.WiFiAP.Split {
+					ssid = fmt.Sprintf("%s_%sGHz", req.WiFiAP.SSID, getWifiBandFromRadios(wifiRadios, iface.Name))
+				}
+				wifiAPs = append(wifiAPs, WiFiAP{
+					Name:        iface.Name,
+					DefaultName: defaultName,
+					NameToSet:   fmt.Sprintf("wifi%s-SplitLAN", getWifiBandFromRadios(wifiRadios, iface.Name)),
+					SSID:        ssid,
+					Password:    req.WiFiAP.Password,
+				})
 			}
-			if !exclude {
-				bridgePorts = append(bridgePorts, ethers[i].Name)
+			bridgePorts = append(bridgePorts, defaultName)
+			continue
+		}
+
+		// The interface's real type is only known once it's been looked up
+		// here, so the wifi-requires-SSID check has to happen at this point
+		// rather than up front against a client-supplied type.
+		if iface.Type == string(routeros.InterfaceTypeWiFi) {
+			if isForeign && req.Foreign.SSID == "" {
+				return ErrorResponse(c, http.StatusBadRequest, "SSID is required when foreign interface type is wifi", nil)
+			}
+			if isDomestic && req.Domestic.SSID == "" {
+				return ErrorResponse(c, http.StatusBadRequest, "SSID is required when domestic interface type is wifi", nil)
+			}
+		}
+
+		if isForeign {
+			foreignInterfaceType = iface.Type
+			foreignInterface = InterfaceConfig{
+				Interface: *iface.DefaultName,
+				Type:      iface.Type,
+				SSID:      req.Foreign.SSID,
+				Password:  req.Foreign.Password,
+			}
+		} else {
+			domesticInterfaceType = iface.Type
+			domesticInterface = InterfaceConfig{
+				Interface: *iface.DefaultName,
+				Type:      iface.Type,
+				SSID:      req.Domestic.SSID,
+				Password:  req.Domestic.Password,
 			}
 		}
 	}
-	for i := range wifiRadios {
-		if wifiRadios[i].Interface != "" {
-			bridgePorts = append(bridgePorts, wifiRadios[i].Interface)
-		}
-	}
-	var randWifiSSID, randWifiPassword string
+	identity := utils.GenerateName(3, "", utils.PascalCase)
+	var managementWifi WiFiAP
 	if len(wifiRadios) > 0 {
-		randWifiSSID = utils.GenerateName(3, "", utils.PascalCase)
-		randWifiPassword, _ = utils.GenerateRandomString(8, 20)
+		password, _ := utils.GenerateRandomString(8, 20)
+		managementWifi = WiFiAP{
+			SSID:     identity,
+			Password: password,
+		}
+	}
+	if req.WiFiAP.SSID != "" {
+		identity = req.WiFiAP.SSID
 	}
 
 	randomUserID, err := utils.GenerateUserID()
@@ -191,52 +223,30 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}
 
-	foreignIface, err := client.GetInterface(req.Foreign.Interface)
-	if err != nil {
-		return ErrorResponse(c, http.StatusBadRequest, "Foreign interface not found", err)
-	}
-	foreignInterface := *req.Foreign
-	if foreignIface.DefaultName != nil && *foreignIface.DefaultName != "" {
-		foreignInterface.Interface = *foreignIface.DefaultName
-	}
-
-	var domesticInterface *InterfaceConfig
-	if req.Domestic != nil {
-		resolved := *req.Domestic
-		if resolved.Interface != "" {
-			domesticIface, err := client.GetInterface(resolved.Interface)
-			if err != nil {
-				return ErrorResponse(c, http.StatusBadRequest, "Domestic interface not found", err)
-			}
-			if domesticIface.DefaultName != nil && *domesticIface.DefaultName != "" {
-				resolved.Interface = *domesticIface.DefaultName
-			}
-		}
-		domesticInterface = &resolved
-	}
-
 	backupTime := time.Now().Format("2006-01-02_15-04-05")
 
-	templateData := map[string]any{
-		"DomesticEnabled":        domesticEnabled,
-		"ManagementWifiSSID":     randWifiSSID,
-		"ManagementWifiPassword": randWifiPassword,
-		"ForeignInterface":       &foreignInterface,
-		"DomesticInterface":      domesticInterface,
-		"EnableWifiAP":           req.WiFiAP != nil,
-		"WifiRadios":             wifiRadios,
-		"BridgePorts":            bridgePorts,
-		"CurrentDate":            time.Now().Format("Jan/02/2006"),
-		"CurrentTimestamp":       time.Now().Unix(),
-		"BackupTime":             backupTime,
-		"RouterUsername":         creds.Username,
-		"RouterPassword":         utils.EscapeQuotes(creds.Password),
-		"RandomUserID":           randomUserID,
+	wifiSplit := false
+	if req.WiFiAP != nil {
+		wifiSplit = req.WiFiAP.Split
 	}
 
-	if req.WiFiAP != nil {
-		templateData["wifiSSID"] = req.WiFiAP.SSID
-		templateData["wifiPassword"] = req.WiFiAP.Password
+	templateData := map[string]any{
+		"DomesticEnabled":       domesticEnabled,
+		"ManagementWifi":        managementWifi,
+		"ForeignInterface":      foreignInterface,
+		"DomesticInterface":     domesticInterface,
+		"ForeignInterfaceType":  foreignInterfaceType,
+		"DomesticInterfaceType": domesticInterfaceType,
+		"WifiAPs":               wifiAPs,
+		"WifiSplit":             wifiSplit,
+		"BridgePorts":           bridgePorts,
+		"CurrentDate":           time.Now().Format("Jan/02/2006"),
+		"CurrentTimestamp":      time.Now().Unix(),
+		"BackupTime":            backupTime,
+		"Identity":              identity,
+		"RouterUsername":        creds.Username,
+		"RouterPassword":        utils.EscapeQuotes(creds.Password),
+		"RandomUserID":          randomUserID,
 	}
 
 	if req.L2tpClient != nil {
@@ -244,47 +254,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 	}
 
 	if req.WireGuardClient != nil && req.WireGuardClient.Config != "" {
-		cfg, err := wgcfg.FromWgQuick(req.WireGuardClient.Config, "import")
+		wgData, err := buildWireGuardClientTemplateData(req.WireGuardClient.Config)
 		if err != nil {
 			return ErrorResponse(c, http.StatusBadRequest, "Failed to parse WireGuard config", err)
-		}
-		type wgPeer struct {
-			PublicKey           string
-			EndpointAddress     string
-			EndpointPort        string
-			PreSharedKey        string
-			AllowedAddress      string
-			PersistentKeepalive string
-		}
-		wgData := struct {
-			InterfacePrivateKey string
-			InterfaceAddress    string
-			Peers               []wgPeer
-		}{
-			InterfacePrivateKey: cfg.PrivateKey.String(),
-		}
-		if len(cfg.Addresses) > 0 {
-			wgData.InterfaceAddress = cfg.Addresses[0].String()
-		}
-		for i := range cfg.Peers {
-			peer := cfg.Peers[i]
-			p := wgPeer{
-				PublicKey: peer.PublicKey.Base64(),
-			}
-			if len(peer.Endpoints) > 0 {
-				p.EndpointAddress = peer.Endpoints[0].Host
-				p.EndpointPort = fmt.Sprintf("%d", peer.Endpoints[0].Port)
-			}
-			if !peer.PresharedKey.IsZero() {
-				p.PreSharedKey = peer.PresharedKey.Base64()
-			}
-			if len(peer.AllowedIPs) > 0 {
-				p.AllowedAddress = peer.AllowedIPs[0].String()
-			}
-			if peer.PersistentKeepalive > 0 {
-				p.PersistentKeepalive = fmt.Sprintf("%d", peer.PersistentKeepalive)
-			}
-			wgData.Peers = append(wgData.Peers, p)
 		}
 		templateData["WireGuardClient"] = wgData
 	}
@@ -335,8 +307,10 @@ func HandleFinalizeWizard(c echo.Context) error {
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
 	}
-
+	if managementWifi.SSID == "" || managementWifi.Password == "" {
+		return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", nil)
+	}
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
-		"managementWiFiSSID": randWifiSSID, "managementWiFiPassword": randWifiPassword,
+		"managementWiFiSSID": managementWifi.SSID, "managementWiFiPassword": managementWifi.Password,
 	})
 }
