@@ -388,6 +388,7 @@ add action=mark-routing chain=prerouting comment="Split-VPN" dst-address-list="S
 new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
 new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="containers outbound via foreign" dst-address-list=!LOCAL-IP new-routing-mark=to-Foreign passthrough=no src-address=192.168.50.0/24
 add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
 add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"
