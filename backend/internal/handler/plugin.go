@@ -18,6 +18,11 @@ import (
 
 const pluginRegistryURL = "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/main/plugins.json"
 
+// pluginContainersBridge is the bridge every plugin's veth interface is
+// attached to, protected from removal by the wizard's cleanup script, and
+// assumed to already exist on the router by the time a plugin is installed.
+const pluginContainersBridge = "containers"
+
 const (
 	pluginInstallPollInterval = 3 * time.Second
 	pluginInstallTimeout      = 5 * time.Minute
@@ -311,6 +316,20 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		}
 	}
 
+	onBridge, err := client.BridgeMemberExists(pluginContainersBridge, iface.Name)
+	if err != nil {
+		task.set(pluginInstallPhaseError, "failed to check "+pluginContainersBridge+" bridge membership: "+err.Error())
+		log.Printf("[plugin-install %s] failed to check bridge membership: %v", pluginID, err)
+		return
+	}
+	if !onBridge {
+		if err := client.AddBridgeMember(pluginContainersBridge, iface.Name, pluginID); err != nil {
+			task.set(pluginInstallPhaseError, "failed to add veth interface to "+pluginContainersBridge+" bridge: "+err.Error())
+			log.Printf("[plugin-install %s] failed to add veth interface to bridge: %v", pluginID, err)
+			return
+		}
+	}
+
 	task.set(pluginInstallPhaseCreatingMounts, "creating container mounts")
 	mountListNames := make([]string, 0, len(manifest.Container.Mounts))
 	for _, mount := range manifest.Container.Mounts {
@@ -353,6 +372,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		MountLists:  strings.Join(mountListNames, ","),
 		Logging:     true,
 		StartOnBoot: false,
+		Comment:     manifest.Version,
 	})
 	if err != nil {
 		task.set(pluginInstallPhaseError, "failed to create plugin container: "+err.Error())
@@ -570,6 +590,11 @@ func HandleUninstallPlugin(c echo.Context) error {
 
 	removedInterface := strings.TrimSpace(manifest.Container.Interface.Name)
 	if removedInterface != "" {
+		if err := client.RemoveBridgeMember(pluginContainersBridge, removedInterface); err != nil {
+			warnings = append(warnings, "failed to remove veth interface from "+pluginContainersBridge+" bridge: "+err.Error())
+			log.Printf("[plugin-uninstall %s] failed to remove bridge member: %v", name, err)
+		}
+
 		if err := client.RemoveVethInterface(removedInterface); err != nil {
 			warnings = append(warnings, "failed to remove veth interface "+removedInterface+": "+err.Error())
 			log.Printf("[plugin-uninstall %s] failed to remove veth interface %s: %v", name, removedInterface, err)

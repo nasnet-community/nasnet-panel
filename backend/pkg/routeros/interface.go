@@ -552,10 +552,20 @@ func (c *Client) AddVLANInterface(config VLANConfig) (string, error) {
 	return id, nil
 }
 
+// BridgeMemberExists reports whether member is already a port of bridge.
+func (c *Client) BridgeMemberExists(bridge, member string) (bool, error) {
+	results, err := c.GetAll("/interface/bridge/port", "?=bridge="+bridge, "?=interface="+member)
+	if err != nil {
+		return false, fmt.Errorf("failed to check bridge port %s on %s: %w", member, bridge, err)
+	}
+
+	return len(results) > 0, nil
+}
+
 func (c *Client) AddBridgeMember(bridge string, member string, comment string) error {
 	args := []string{
-		"bridge=" + bridge,
-		"interface=" + member,
+		"=bridge=" + bridge,
+		"=interface=" + member,
 	}
 
 	if comment != "" {
@@ -571,19 +581,20 @@ func (c *Client) AddBridgeMember(bridge string, member string, comment string) e
 }
 
 func (c *Client) RemoveBridgeMember(bridge string, member string) error {
-	results, err := c.GetAll("/interface/bridge/port", "?=.id="+bridge)
+	results, err := c.GetAll("/interface/bridge/port", "?=bridge="+bridge, "?=interface="+member)
 	if err != nil {
 		return fmt.Errorf("failed to find bridge members: %w", err)
 	}
 
-	for _, result := range results {
-		if result["interface"] == member {
-			_, err := c.Remove("/interface/bridge/port", "=.id="+result[".id"])
-			if err != nil {
-				return fmt.Errorf("failed to remove bridge member: %w", err)
-			}
-			return nil
+	for i := range results {
+		id := results[i][".id"]
+		if id == "" {
+			continue
 		}
+		if _, err := c.Remove("/interface/bridge/port", "=.id="+id); err != nil {
+			return fmt.Errorf("failed to remove bridge member: %w", err)
+		}
+		return nil
 	}
 
 	return fmt.Errorf("member %s not found in bridge %s", member, bridge)
