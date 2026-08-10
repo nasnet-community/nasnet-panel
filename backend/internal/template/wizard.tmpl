@@ -11,14 +11,14 @@
 :local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
 
-{{ if .ManagementWifiSSID}}
+{{ if .ManagementWifi.SSID }}
 /interface wifi remove [find name="wifi-management"]
 /interface wifi remove [find name="wifi-virtual"]
 :if ([:len [/interface wifi find]] > 0) do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
-add name=wifi-management master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifiSSID }} \
-security.authentication-types=wpa2-psk,wpa3-psk security.passphrase={{ .ManagementWifiPassword }} disabled=no comment="Management WiFi"
+add name=wifi-management master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifi.SSID }} \
+security.authentication-types=wpa2-psk,wpa3-psk security.passphrase={{ .ManagementWifi.Password }} disabled=no comment="Management WiFi"
 /ip address add address="192.168.210.1/24" interface=wifi-management network="192.168.210.0" comment="WiFi Static Management Port"
 /ip pool
 add name="DHCP-pool-management-wifi" ranges="192.168.210.2-192.168.210.254" comment="Management Wifi"
@@ -37,21 +37,23 @@ set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 
 :global WizardProgress "25"
 
-{{if .EnableWifiAP }}
-/interface wifi{{range .WifiRadios}}{{if and (ne .Interface $.ForeignInterface.Interface) (or (not $.DomesticEnabled) (ne .Interface $.DomesticInterface.Interface))}}
-set [ find default-name={{.Interface}} ] disabled=no configuration.country="United States" \
-.mode=ap .ssid="{{ $.wifiSSID }}" .installation=indoor \
-name="wifi{{.Band}}-SplitLAN" comment="SplitLAN" \
+{{if gt (len .WifiAPs) 0 }}
+/interface wifi
+{{ range .WifiAPs}}
+set [ find default-name={{ .DefaultName }} ] disabled=no configuration.country="United States" \
+.mode=ap .ssid="{{ .SSID }}" .installation=indoor \
+name="{{ .NameToSet }}" comment="SplitLAN" \
 configuration.hide-ssid=no security.authentication-types=wpa2-psk,wpa3-psk \
-.passphrase="{{ $.wifiPassword }}" security.ft=yes \
-.ft-over-ds=yes{{end}}{{end}}
-{{if gt (len .WifiRadios) 0}}
-steering add comment="Split" disabled=no \
-name="Split" neighbor-group="{{range $index, $radio := .WifiRadios}}{{if gt $index 0}},{{end}}wifi{{$radio.Band}}-SplitLAN{{end}}" rrm=yes wnm=yes{{range .WifiRadios}}
-set [ find name="wifi{{.Band}}-SplitLAN" ] steering="Split"{{end}}
+.passphrase="{{ .Password }}" security.ft=yes \
+.ft-over-ds=yes
+{{ end }}
+{{if and (eq .WifiSplit false) (gt (len .WifiAPs) 1) }}
+steering add comment="Steering" disabled=no \
+name="Steering" neighbor-group="{{range $index, $wifi := .WifiAPs }}{{ if $index}},{{end}}{{ $wifi.NameToSet }}{{ end }}" rrm=yes wnm=yes
+{{range .WifiAPs }}
+set [ find name="{{ .NameToSet }}" ] steering="Steering"
 {{end}}
-{{ else }}
-#seperate AP
+{{ end }}
 {{ end }}
 :global WizardProgress "30"
 
@@ -88,7 +90,8 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 {{ if and .DomesticEnabled (eq .DomesticInterface.Type "ether") }}
 /interface ethernet set [ find default-name={{ .DomesticInterface.Interface }} ] comment="WAN - Domestic Link"
 {{ end }}
-{{range .BridgePorts}}/interface set [ find default-name={{ . }} ] comment="Split Network"
+{{range .BridgePorts}}
+/interface set [ find default-name={{ . }} ] comment="Split Network"
 {{end}}
 
 :global WizardProgress "45"
@@ -219,11 +222,9 @@ add interface="LANBridgeDomestic" list="Domestic-LAN" comment="Domestic"
 add interface="LANBridgeDomestic-Domestic Link" list="LAN" comment="Domestic-Domestic Link"
 add interface="LANBridgeDomestic-Domestic Link" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
 {{ end }}
-{{range .WifiRadios}}:if ([:len [/interface find default-name="{{.Interface}}"]] > 0) do={
-:local wifiName [/interface get [/interface find default-name="{{.Interface}}"] name]
-add interface=$wifiName list="Split-LAN" comment="SplitLAN"
-add interface=$wifiName list="LAN" comment="SplitLAN"
-}
+{{range .WifiAPs}}
+add interface={{ .NameToSet }} list="Split-LAN" comment="SplitLAN"
+add interface={{ .NameToSet }} list="LAN" comment="SplitLAN"
 {{end}}
 add interface="LANBridgeSplit" list="LAN" comment="Split"
 add interface="LANBridgeSplit" list="Split-LAN" comment="Split"
@@ -486,7 +487,7 @@ add chain=forward action=drop
 set date={{ .CurrentDate }}
 set time-zone-autodetect=no time-zone-name=Asia/Tehran
 /system identity
-set name="{{ .wifiSSID }}"
+set name="{{ .Identity }}"
 /system logging action
 add disk-file-count=10 disk-file-name=PanelLog disk-lines-per-file=100 disk-stop-on-full=yes name=DiskC target=disk
 /system logging
