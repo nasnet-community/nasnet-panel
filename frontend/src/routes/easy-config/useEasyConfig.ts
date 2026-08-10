@@ -27,9 +27,9 @@ function wanInterface(
   password: string,
 ): FinalizeWizardInterface {
   if (type === 'wireless') {
-    return { type: 'wifi', interface: name, ssid, password };
+    return { interface: name, ssid, password };
   }
-  return { type: 'ether', interface: name };
+  return { interface: name };
 }
 
 function toDefaultName(name: string, interfaces: InterfaceResponse[]): string {
@@ -73,7 +73,11 @@ function buildFinalizePayload(
   }
 
   if (state.wifiEnabled) {
-    payload.wifiAp = { ssid: state.ssid, password: state.wifiPassword };
+    payload.wifiAp = {
+      ssid: state.ssid,
+      password: state.wifiPassword,
+      split: state.wifiSplit,
+    };
   }
 
   if (state.vpnServerEnabled) {

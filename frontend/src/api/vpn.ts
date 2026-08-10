@@ -413,7 +413,6 @@ export async function fetchNasnetVpnCredentials(
 }
 
 export interface FinalizeWizardInterface {
-  type: 'ether' | 'wifi';
   interface: string;
   ssid?: string;
   password?: string;
@@ -433,6 +432,7 @@ export interface FinalizeWizardWireGuardClient {
 export interface FinalizeWizardWifiAp {
   ssid: string;
   password: string;
+  split: boolean;
 }
 
 export interface FinalizeWizardOvpnUser {
