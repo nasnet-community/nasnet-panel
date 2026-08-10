@@ -42,9 +42,14 @@ test.describe('Easy-Mode wizard — apply progress', () => {
     const finalizeRequest = page.waitForRequest('**/api/wizard/finalize');
     await stepToApply(page);
 
-    // the finalize payload uses the RouterOS interface type ("ether"), not the UI label
+    // the router derives the interface type from its default name, so the payload omits it
     const body = (await finalizeRequest).postDataJSON();
-    expect(body.foreign).toMatchObject({ type: 'ether', interface: 'ether1' });
+    expect(body.foreign).toEqual({ interface: 'ether1' });
+    expect(body.wifiAp).toEqual({
+      ssid: 'Progress-Net',
+      password: 'longpassword',
+      split: false,
+    });
 
     const bar = page.getByRole('progressbar', { name: /progress/i });
     await expect(bar).toBeVisible();
