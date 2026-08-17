@@ -74,7 +74,7 @@ interface TopologyMockOptions {
 }
 
 const netProbe = (type: NetStatusEntry['type'], status: string): NetStatusEntry => ({
-  host: type === 'foreign' ? '4.2.2.1' : type === 'vpn' ? '4.2.2.2' : '217.218.127.127',
+  host: type === 'foreign' ? '1.1.1.1' : type === 'vpn' ? '1.0.0.1' : '217.218.127.127',
   status,
   since: '2026-07-22 10:00:00',
   type,

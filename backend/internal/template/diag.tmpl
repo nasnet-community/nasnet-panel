@@ -202,9 +202,9 @@
             :set foreignLinkFound 1
             :put ("Foreign / Starlink interface: " . $foreignName)
             :do {
-                /tool ping address=4.2.2.1 count=5 interval=500ms interface=$foreignName
+                /tool ping address=1.1.1.1 count=5 interval=500ms interface=$foreignName
             } on-error={
-                :put ("FAIL: Could not ping 4.2.2.1 via " . $foreignName)
+                :put ("FAIL: Could not ping 1.1.1.1 via " . $foreignName)
             }
         }
     }
@@ -238,9 +238,9 @@
         :set vpnClientFound 1
         :put ("L2TP client interface: " . $l2tpName)
         :do {
-            /tool ping address=4.2.2.2 count=5 interval=500ms interface=$l2tpName
+            /tool ping address=1.0.0.1 count=5 interval=500ms interface=$l2tpName
         } on-error={
-            :put ("FAIL: Could not ping 4.2.2.2 via L2TP client " . $l2tpName)
+            :put ("FAIL: Could not ping 1.0.0.1 via L2TP client " . $l2tpName)
         }
     }
     :foreach wgId in=[/interface wireguard find where disabled=no] do={
@@ -248,9 +248,9 @@
         :set vpnClientFound 1
         :put ("WireGuard interface: " . $wgName)
         :do {
-            /tool ping address=4.2.2.2 count=5 interval=500ms interface=$wgName
+            /tool ping address=1.0.0.1 count=5 interval=500ms interface=$wgName
         } on-error={
-            :put ("FAIL: Could not ping 4.2.2.2 via WireGuard interface " . $wgName)
+            :put ("FAIL: Could not ping 1.0.0.1 via WireGuard interface " . $wgName)
         }
     }
     :if ($vpnClientFound = 0) do={

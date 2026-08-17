@@ -50,27 +50,27 @@ add address="192.168.42.0/24" list="VPN-wg-client-LAN" comment="VPN-wg-client"
 add action=mark-routing chain=prerouting comment="VPN-wg-client Routing" new-routing-mark="to-VPN-wg-client" passthrough=no src-address-list="VPN-wg-client-LAN"
 
 /ip firewall nat
-add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-wg-client-LAN" to-addresses=4.2.2.2
-add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-wg-client-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-wg-client-LAN" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-wg-client-LAN" to-addresses=1.0.0.1
 
 /ip nat-pmp interfaces
 add interface="LANBridgeVPN-wg-client" type=internal
 
 /ip route
 add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" scope=30 target-scope=10  comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="4.2.2.2" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" \
+add check-gateway=ping dst-address="1.0.0.1" gateway="wireguard-client-wg-client" routing-table="to-VPN-wg-client" \
 distance=1 target-scope="11" comment="Route-to-VPN-Client"
 add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="4.2.2.2" gateway="wireguard-client-wg-client" routing-table="to-VPN" \
+add check-gateway=ping dst-address="1.0.0.1" gateway="wireguard-client-wg-client" routing-table="to-VPN" \
 distance=1 target-scope="11" comment="Route-to-VPN-Client"
-add dst-address="4.2.2.2" gateway="wireguard-client-wg-client" \
+add dst-address="1.0.0.1" gateway="wireguard-client-wg-client" \
 routing-table="main" scope="10" comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.2" routing-table="main" \
+add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.0.0.1" routing-table="main" \
 distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-Client"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-wg-client"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN-wg-client"
 
 /tool netwatch
-add host="4.2.2.2" interval=5s timeout=500ms \
+add host="1.0.0.1" interval=5s timeout=2s \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - VPN-Client"

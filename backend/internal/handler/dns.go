@@ -362,6 +362,23 @@ func HandleChangeDNS(c echo.Context) error {
 		updatedForwarders = append(updatedForwarders, forwarder.Name)
 	}
 
+	addressListItems, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
+		ListName: dnsAddressListName,
+		Address:  req.OldIP,
+	})
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS address list items", err)
+	}
+	updatedAddressListItems := make([]string, 0, len(addressListItems))
+	for i := range addressListItems {
+		item := &addressListItems[i]
+		if err := client.UpdateFirewallAddressListItem(item.ID, req.NewIP); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update DNS address list item %s", item.ID), err)
+		}
+		updatedAddressListItems = append(updatedAddressListItems, item.ID)
+	}
+
 	dstAddressRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{DstAddress: req.OldIP})
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP routes by dst-address", err)
@@ -412,13 +429,14 @@ func HandleChangeDNS(c echo.Context) error {
 		UpdatedDstAddressRoutes: updatedDstAddressRoutes,
 		UpdatedGatewayRoutes:    updatedGatewayRoutes,
 		UpdatedNetwatchProbes:   updatedNetwatchProbes,
+		UpdatedAddressListItems: updatedAddressListItems,
 	})
 }
 
 // dnsResetServers, dnsResetDOHServer and dnsResetForwarders define the fixed
 // state GET /api/dns/reset restores /ip/dns and /ip/dns/forwarders to.
 var (
-	dnsResetServers   = "4.2.2.2,217.218.127.127,4.2.2.1"
+	dnsResetServers   = "1.0.0.1,217.218.127.127,1.1.1.1"
 	dnsResetDOHServer = "https://cloudflare-dns.com/dns-query"
 
 	dnsResetForwarders = []struct {
@@ -427,9 +445,9 @@ var (
 		Domestic   bool
 	}{
 		{Name: dnsForwarderTypeDomestic, DNSServers: "217.218.127.127", Domestic: true},
-		{Name: dnsForwarderTypeForeign, DNSServers: "4.2.2.1"},
-		{Name: "General", DNSServers: "4.2.2.2,217.218.127.127,4.2.2.1"},
-		{Name: dnsForwarderTypeVPN, DNSServers: "4.2.2.2"},
+		{Name: dnsForwarderTypeForeign, DNSServers: "1.1.1.1"},
+		{Name: "General", DNSServers: "1.0.0.1,217.218.127.127,1.1.1.1"},
+		{Name: dnsForwarderTypeVPN, DNSServers: "1.0.0.1"},
 	}
 
 	// CheckIP routes, identified by comment, and the gateway each is reset to.
@@ -439,8 +457,8 @@ var (
 		Domestic bool
 	}{
 		{Comment: "CheckIP-Route-to-Domestic-Domestic Link", Gateway: "217.218.127.127", Domestic: true},
-		{Comment: "CheckIP-Route-to-Foreign-Foreign Link", Gateway: "4.2.2.1"},
-		{Comment: "CheckIP-Route-to-VPN-Client", Gateway: "4.2.2.2"},
+		{Comment: "CheckIP-Route-to-Foreign-Foreign Link", Gateway: "1.1.1.1"},
+		{Comment: "CheckIP-Route-to-VPN-Client", Gateway: "1.0.0.1"},
 	}
 
 	// Domestic/Foreign/VPN link routes, identified by comment, whose
@@ -451,8 +469,8 @@ var (
 		Domestic   bool
 	}{
 		{Comment: "Route-to-Domestic-Domestic Link", DstAddress: "217.218.127.127", Domestic: true},
-		{Comment: "Route-to-Foreign-Foreign Link", DstAddress: "4.2.2.1"},
-		{Comment: "Route-to-VPN-Client", DstAddress: "4.2.2.2"},
+		{Comment: "Route-to-Foreign-Foreign Link", DstAddress: "1.1.1.1"},
+		{Comment: "Route-to-VPN-Client", DstAddress: "1.0.0.1"},
 	}
 
 	// Failover netwatch probes, identified by comment, and the host each is reset to.
@@ -462,8 +480,8 @@ var (
 		Domestic bool
 	}{
 		{Comment: "Failover Netwatch - Domestic Link", Host: "217.218.127.127", Domestic: true},
-		{Comment: "Failover Netwatch - Foreign Link", Host: "4.2.2.1"},
-		{Comment: "Failover Netwatch - VPN-Client", Host: "4.2.2.2"},
+		{Comment: "Failover Netwatch - Foreign Link", Host: "1.1.1.1"},
+		{Comment: "Failover Netwatch - VPN-Client", Host: "1.0.0.1"},
 	}
 )
 
@@ -478,21 +496,23 @@ const wanDomesticLinkComment = "WAN - Domestic Link"
 
 // HandleResetDNS godoc
 // @Summary Reset all DNS-related settings to their default configuration
-// @Description Replaces /ip/dns's servers with 4.2.2.2, 217.218.127.127 and 4.2.2.1, sets its
+// @Description Replaces /ip/dns's servers with 1.0.0.1, 217.218.127.127 and 1.1.1.1, sets its
 // @Description DoH server to https://cloudflare-dns.com/dns-query with certificate verification
 // @Description disabled, removes every existing /ip/dns/forwarders entry, and recreates exactly
 // @Description four, each with certificate verification disabled: Domestic (217.218.127.127),
-// @Description Foreign (4.2.2.1), General (4.2.2.2, 217.218.127.127, 4.2.2.1) and VPN (4.2.2.2).
+// @Description Foreign (1.1.1.1), General (1.0.0.1, 217.218.127.127, 1.1.1.1) and VPN (1.0.0.1).
 // @Description Also resets the gateway of every /ip/route entry commented CheckIP-Route-to-
 // @Description Domestic-Domestic Link to 217.218.127.127, CheckIP-Route-to-Foreign-Foreign Link
-// @Description to 4.2.2.1, and CheckIP-Route-to-VPN-Client to 4.2.2.2. And, unless its
+// @Description to 1.1.1.1, and CheckIP-Route-to-VPN-Client to 1.0.0.1. And, unless its
 // @Description dst-address is already the default route (0.0.0.0/0), resets the dst-address of
 // @Description every /ip/route entry commented Route-to-Domestic-Domestic Link to
-// @Description 217.218.127.127, Route-to-Foreign-Foreign Link to 4.2.2.1, and
-// @Description Route-to-VPN-Client to 4.2.2.2. Also resets the host of every /tool/netwatch
+// @Description 217.218.127.127, Route-to-Foreign-Foreign Link to 1.1.1.1, and
+// @Description Route-to-VPN-Client to 1.0.0.1. Also resets the host of every /tool/netwatch
 // @Description probe commented "Failover Netwatch - Domestic Link" to 217.218.127.127,
-// @Description "Failover Netwatch - Foreign Link" to 4.2.2.1, and "Failover Netwatch -
-// @Description VPN-Client" to 4.2.2.2. All Domestic-related creations and changes above (the
+// @Description "Failover Netwatch - Foreign Link" to 1.1.1.1, and "Failover Netwatch -
+// @Description VPN-Client" to 1.0.0.1. Also removes every existing "DNS" firewall
+// @Description address-list item and recreates one per reset DNS server IP, each with
+// @Description list name "DNS" and comment "DNS". All Domestic-related creations and changes above (the
 // @Description Domestic forwarder, and the Domestic CheckIP route, dst-address route and
 // @Description netwatch probe) are skipped entirely, and any existing Domestic forwarder is left
 // @Description in place, unless an /interface entry commented "WAN - Domestic Link" exists.
@@ -600,6 +620,30 @@ func HandleResetDNS(c echo.Context) error {
 		}
 	}
 
+	existingDNSAddressListItems, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
+		ListName: dnsAddressListName,
+	})
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS address list items", err)
+	}
+	for i := range existingDNSAddressListItems {
+		if err := client.RemoveFirewallAddressListItem(existingDNSAddressListItems[i].ID); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError,
+				fmt.Sprintf("Failed to remove DNS address list item %s", existingDNSAddressListItems[i].ID), err)
+		}
+	}
+
+	dnsResetServersList := strings.Split(dnsResetServers, ",")
+	createdAddressListItems := make([]string, 0, len(dnsResetServersList))
+	for _, server := range dnsResetServersList {
+		id, err := client.AddFirewallAddressListItem(dnsAddressListName, server, false, dnsAddressListName)
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError,
+				fmt.Sprintf("Failed to add DNS address list item %s", server), err)
+		}
+		createdAddressListItems = append(createdAddressListItems, id)
+	}
+
 	updatedNetwatchProbes := make([]string, 0, len(dnsResetNetwatchProbes))
 	for _, probe := range dnsResetNetwatchProbes {
 		if !hasDomesticLink && probe.Domestic {
@@ -626,6 +670,7 @@ func HandleResetDNS(c echo.Context) error {
 		UpdatedCheckIPRoutes:     updatedCheckIPRoutes,
 		UpdatedRouteDstAddresses: updatedRouteDstAddresses,
 		UpdatedNetwatchProbes:    updatedNetwatchProbes,
+		CreatedAddressListItems:  createdAddressListItems,
 	})
 }
 

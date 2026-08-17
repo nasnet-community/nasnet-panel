@@ -24,6 +24,7 @@ const (
 	dnsForwarderTypeUnknown  = "Unknown"
 
 	domesticAddressListName = "DOMAddList"
+	dnsAddressListName      = "DNS"
 )
 
 // DNSCheckResponse is the response for GET /api/dns/validate.
@@ -50,6 +51,7 @@ type DNSChangeResponse struct {
 	UpdatedDstAddressRoutes []string `json:"updatedDstAddressRoutes"`
 	UpdatedGatewayRoutes    []string `json:"updatedGatewayRoutes"`
 	UpdatedNetwatchProbes   []string `json:"updatedNetwatchProbes"`
+	UpdatedAddressListItems []string `json:"updatedAddressListItems"`
 }
 
 // DNSForwarderResult describes one DNS forwarder created by POST /api/dns/reset.
@@ -67,6 +69,7 @@ type DNSResetResponse struct {
 	UpdatedCheckIPRoutes     []string             `json:"updatedCheckIpRoutes"`
 	UpdatedRouteDstAddresses []string             `json:"updatedRouteDstAddresses"`
 	UpdatedNetwatchProbes    []string             `json:"updatedNetwatchProbes"`
+	CreatedAddressListItems  []string             `json:"createdAddressListItems"`
 }
 
 // dnsSuggestTypeDomestic and dnsSuggestTypeForeign are the accepted values for
@@ -94,10 +97,8 @@ type DNSSuggestResponse struct {
 
 // domesticDNSSuggestions lists known-good domestic (Iranian) DNS server IPs.
 var domesticDNSSuggestions = []DNSSuggestion{
-	{IP: "10.202.10.10", Description: "Shatel DNS"},
-	{IP: "10.202.10.11", Description: "Shatel DNS"},
-	{IP: "10.202.10.202", Description: "Shatel DNS"},
-	{IP: "10.202.10.102", Description: "Shatel DNS"},
+	{IP: "217.218.127.127", Description: "ICT DNS"},
+	{IP: "217.218.155.155", Description: "ICT DNS"},
 	{IP: "5.202.100.101", Description: "Iranian ISP"},
 	{IP: "37.156.145.229", Description: "Iranian ISP"},
 	{IP: "37.156.145.21", Description: "Iranian ISP"},

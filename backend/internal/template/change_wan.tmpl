@@ -88,12 +88,12 @@ eway!=\$gw1 ] gateway=\$gw1\
 /ip route
 add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign" \
+add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
-add dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" \
+add dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" \
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN"
 
