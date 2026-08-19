@@ -27,6 +27,9 @@ nasnet-panel-slim
 backend/nasnet-panel
 backend/nasnet-panel-slim
 
+# Generated installer assets (copied from scripts/ at build time)
+graphical-installer/assets/nasnet-lan-baseline.rsc
+
 # Environment files
 .env
 .env.local

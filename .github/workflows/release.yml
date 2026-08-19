@@ -237,6 +237,9 @@ jobs:
           go-version-file: graphical-installer/go.mod
           cache-dependency-path: graphical-installer/go.sum
 
+      - name: Stage LAN baseline script
+        run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
+
       - name: Build Windows installer
         working-directory: graphical-installer
         run: |
@@ -270,6 +273,9 @@ jobs:
         with:
           go-version-file: graphical-installer/go.mod
           cache-dependency-path: graphical-installer/go.sum
+
+      - name: Stage LAN baseline script
+        run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
 
       - name: Build macOS installer app
         working-directory: graphical-installer
