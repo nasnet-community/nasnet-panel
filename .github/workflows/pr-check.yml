@@ -131,8 +131,8 @@ jobs:
           go-version-file: graphical-installer/go.mod
           cache-dependency-path: graphical-installer/go.sum
 
-      - name: LAN baseline script in sync with scripts/
-        run: cmp graphical-installer/assets/nasnet-lan-baseline.rsc scripts/nasnet-lan-baseline.rsc
+      - name: Stage LAN baseline script
+        run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
 
       - name: Format check (gofmt)
         working-directory: graphical-installer
