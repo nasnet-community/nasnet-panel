@@ -145,10 +145,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 	var domesticFound bool
 	for i := range ifaces {
 		iface := &ifaces[i]
-
-		// Not every interface RouterOS returns has a default-name (e.g. some
-		// virtual interface types); treat those as never matching Foreign or
-		// Domestic rather than dereferencing a nil pointer.
 		defaultName := ""
 		if iface.DefaultName != nil {
 			defaultName = *iface.DefaultName

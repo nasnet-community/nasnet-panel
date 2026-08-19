@@ -207,6 +207,13 @@ add bridge="LANBridgeSplit" interface=$portName comment="Split"
 }
 {{end}}
 
+:foreach i in=[/ip/bridge/port find] do={
+:local interfaceName [/ip/bridge/port get $i interface]
+/interface disable $interfaceName
+:delay 100ms
+/interface enable $interfaceName
+}
+
 /ipv6 settings
 set disable-ipv6=yes
 
