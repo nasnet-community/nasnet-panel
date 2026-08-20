@@ -87,6 +87,15 @@
       :do { /interface/bridge remove $b } on-error={}
     }
   }
+  :log info "nasnet-panel: cycling LANBridgeSplit ports so DNS answers on the new gateway"
+  :foreach i in=[/interface/bridge/port find bridge="LANBridgeSplit"] do={
+    :local pn [/interface/bridge/port get $i interface]
+    :do {
+      /interface disable $pn
+      :delay 100ms
+      /interface enable $pn
+    } on-error={}
+  }
   :if ([:len [/interface/bridge/port find bridge="LANBridgeSplit"]] = 0) do={
     :log warning "nasnet-panel: LANBridgeSplit has no member ports (single-bridge/AP-mode router); reach the panel at the router's current address until the wizard runs"
   }
