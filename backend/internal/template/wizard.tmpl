@@ -207,6 +207,13 @@ add bridge="LANBridgeSplit" interface=$portName comment="Split"
 }
 {{end}}
 
+:foreach i in=[/interface/bridge/port find] do={
+:local interfaceName [/interface/bridge/port get $i interface]
+/interface disable $interfaceName
+:delay 100ms
+/interface enable $interfaceName
+}
+
 /ipv6 settings
 set disable-ipv6=yes
 
@@ -282,16 +289,16 @@ add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-
 
 /ip dns
 set allow-remote-requests=yes  max-concurrent-queries=500 max-concurrent-tcp-sessions=50 cache-size=20480KiB cache-max-ttl=7d
-set servers=4.2.2.2,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}4.2.2.1
-set use-doh-server="https://8.8.8.8/dns-query" verify-doh-cert=no doh-max-concurrent-queries=500 doh-max-server-connections=50
+set servers=1.0.0.1,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}1.1.1.1
+set use-doh-server="https://cloudflare-dns.com/dns-query" verify-doh-cert=no doh-max-concurrent-queries=500 doh-max-server-connections=50
 
 /ip dns forwarders
-add name=VPN dns-servers=4.2.2.2 verify-doh-cert=no
+add name=VPN dns-servers=1.0.0.1 verify-doh-cert=no
 {{ if .DomesticEnabled}}
 add name=Domestic dns-servers=217.218.127.127 verify-doh-cert=no
 {{ end }}
-add name=Foreign dns-servers=4.2.2.1 verify-doh-cert=no
-add name=General dns-servers=4.2.2.2,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}4.2.2.1 verify-doh-cert=no
+add name=Foreign dns-servers=1.1.1.1 verify-doh-cert=no
+add name=General dns-servers=1.0.0.1,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}1.1.1.1 verify-doh-cert=no
 
 /ip dns static
 {{ if .DomesticEnabled}}
@@ -331,6 +338,9 @@ add name=time.google.com type=FWD forward-to=General match-subdomain=no comment=
 add comment="LOCAL-IP" address="192.168.0.0/16" list="LOCAL-IP"
 add comment="LOCAL-IP" address="172.16.0.0/12" list="LOCAL-IP"
 add comment="LOCAL-IP" address="10.0.0.0/8" list="LOCAL-IP"
+add comment="DNS" address="1.0.0.1" list="DNS"
+add comment="DNS" address="217.218.127.127" list="DNS"
+add comment="DNS" address="1.1.1.1" list="DNS"
 add address="192.168.10.0/24" list="Split-LAN" comment="Split"
 {{ if .DomesticEnabled}}
 add address="192.168.20.0/24" list="Domestic-LAN" comment="Domestic"
@@ -360,6 +370,7 @@ add action=accept chain=postrouting comment="Accept" dst-address-list="LOCAL-IP"
 add action=accept chain=output comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
 add action=accept chain=input comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
 add action=accept chain=forward comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
+add action=accept chain=output comment="Netwatch probe exempt" dst-address-list="DNS" protocol=icmp
 add action=mark-connection chain=output comment="VPN Endpoint" \
 dst-address-list="VPNE" new-connection-mark="conn-VPNE" passthrough=yes
 add action=mark-routing chain=output comment="VPN Endpoint" \
@@ -368,6 +379,7 @@ add action=mark-routing chain=output comment="VPN Endpoint" \
 dst-address-list="VPNE" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" content="s4i.co" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" src-address=192.168.39.12 new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output comment="Router Foreign" new-routing-mark=to-Foreign passthrough=no
 {{ if .DomesticEnabled}}
 add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \
 new-routing-mark="to-Domestic" passthrough=no \
@@ -388,26 +400,29 @@ add action=mark-routing chain=prerouting comment="Split-VPN" dst-address-list="S
 new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
 new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="containers outbound via foreign" dst-address-list=!LOCAL-IP new-routing-mark=to-Foreign passthrough=no src-address=192.168.50.0/24
 add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
 add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"
 
 /ip firewall nat
 add action=masquerade chain=srcnat out-interface-list="WAN" comment="MASQUERADE the traffic go to WAN Interfaces"
-add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=udp src-address-list="Split-LAN" to-addresses=4.2.2.2
-add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=tcp src-address-list="Split-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=udp src-address-list="Split-LAN" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS Split" disabled=yes dst-port=53 protocol=tcp src-address-list="Split-LAN" to-addresses=1.0.0.1
 {{ if .DomesticEnabled}}
 add action=dst-nat chain=dstnat comment="DNS Domestic" disabled=yes dst-port=53 protocol=udp src-address-list="Domestic-LAN" to-addresses=217.218.127.127
 add action=dst-nat chain=dstnat comment="DNS Domestic" disabled=yes dst-port=53 protocol=tcp src-address-list="Domestic-LAN" to-addresses=217.218.127.127
 add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=udp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
 add action=dst-nat chain=dstnat comment="DNS Domestic-Domestic Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Domestic-Domestic Link-LAN" to-addresses=217.218.127.127
 {{ end }}
-add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-LAN" to-addresses=4.2.2.1
-add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-LAN" to-addresses=4.2.2.1
-add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-LAN" to-addresses=4.2.2.2
-add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-LAN" to-addresses=4.2.2.2
-add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-Foreign Link-LAN" to-addresses=4.2.2.1
-add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-Foreign Link-LAN" to-addresses=4.2.2.1
+add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-LAN" to-addresses=1.1.1.1
+add action=dst-nat chain=dstnat comment="DNS Foreign" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-LAN" to-addresses=1.1.1.1
+add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-LAN" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-LAN" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-Foreign Link-LAN" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-Foreign Link-LAN" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS Containers" disabled=no dst-port=53 protocol=udp src-address="192.168.50.0/24" to-addresses=1.1.1.1
+add action=dst-nat chain=dstnat comment="DNS Containers" disabled=no dst-port=53 protocol=tcp src-address="192.168.50.0/24" to-addresses=1.1.1.1
 add chain=dstnat action=redirect protocol=tcp dst-port=53 comment="Redirect DNS"
 add chain=dstnat action=redirect protocol=udp dst-port=53 comment="Redirect DNS"
 
@@ -431,10 +446,10 @@ add interface="LANBridgeForeign-Foreign Link" type=internal
 /ip route
 add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" \
+add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 {{ if .DomesticEnabled}}
 add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
@@ -449,9 +464,9 @@ routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="217.218.127.127" routing-table="main" \
 distance="5" target-scope="11" comment="CheckIP-Route-to-Domestic-Domestic Link"
 {{ end }}
-add dst-address="4.2.2.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
+add dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.1" routing-table="main" \
+add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.1.1.1" routing-table="main" \
 distance="10" target-scope="11" comment="CheckIP-Route-to-Foreign-Foreign Link"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Split"
 {{ if .DomesticEnabled}}
@@ -477,6 +492,8 @@ set www address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=80
 set www-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=443
 
 /ip upnp set enabled=yes
+
+/ip neighbor discovery-settings set discover-interface-list=all
 
 /ipv6 firewall filter
 add chain=input action=drop
@@ -522,11 +539,11 @@ add
 set enabled=yes
 /tool netwatch
 {{ if .DomesticEnabled}}
-add host="217.218.127.127" interval=5s timeout=500ms \
+add host="217.218.127.127" interval=5s timeout=2s \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Domestic-Domestic Link\"]; " comment="Failover Netwatch - Domestic Link"
 {{ end }}
-add host="4.2.2.1" interval=5s timeout=500ms \
+add host="1.1.1.1" interval=5s timeout=2s \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
 

@@ -1,6 +1,10 @@
 package handler
 
-import "nasnet-panel/pkg/routeros"
+import (
+	"strings"
+
+	"nasnet-panel/pkg/routeros"
+)
 
 // DNSInfoResponse represents the DNS information response.
 type DNSInfoResponse struct {
@@ -15,6 +19,13 @@ type UpdateDNSRequest struct {
 	DOHServer *string `json:"dohServer" description:"DoH server URL (e.g., 'https://dns.google/dns-query'). Set to empty string to clear."`
 }
 
+// DNSForwarderListItem is one entry in the GET /api/dns/list response.
+type DNSForwarderListItem struct {
+	Name    string `json:"name"`
+	IP      string `json:"ip"`
+	Comment string `json:"comment"`
+}
+
 // dnsForwarderType names the three recognized DNS forwarder roles, carried in
 // a forwarder's name.
 const (
@@ -24,6 +35,75 @@ const (
 	dnsForwarderTypeUnknown  = "Unknown"
 
 	domesticAddressListName = "DOMAddList"
+	dnsAddressListName      = "DNS"
+)
+
+// dnsResetForwarder describes one DNS forwarder GET /api/dns/reset recreates.
+type dnsResetForwarder struct {
+	Name       string
+	DNSServers string
+	Domestic   bool
+}
+
+// dnsResetCheckIPRoute describes one CheckIP route, identified by comment,
+// whose gateway GET /api/dns/reset resets.
+type dnsResetCheckIPRoute struct {
+	Comment  string
+	Gateway  string
+	Domestic bool
+}
+
+// dnsResetRouteDstAddress describes one Domestic/Foreign/VPN link route,
+// identified by comment, whose dst-address GET /api/dns/reset resets unless
+// it's the default route (0.0.0.0/0).
+type dnsResetRouteDstAddress struct {
+	Comment    string
+	DstAddress string
+	Domestic   bool
+}
+
+// dnsResetNetwatchProbe describes one failover netwatch probe, identified by
+// comment, whose host GET /api/dns/reset resets.
+type dnsResetNetwatchProbe struct {
+	Comment  string
+	Host     string
+	Domestic bool
+}
+
+// dnsResetServers, dnsResetDOHServer and dnsResetForwarders define the fixed
+// state GET /api/dns/reset restores /ip/dns and /ip/dns/forwarders to.
+var (
+	dnsResetServers   = strings.Join([]string{dnsDefaultVPNIP, dnsDefaultDomesticIP, dnsDefaultForeignIP}, ",")
+	dnsResetDOHServer = "https://cloudflare-dns.com/dns-query"
+
+	dnsResetForwarders = []dnsResetForwarder{
+		{Name: dnsForwarderTypeDomestic, DNSServers: dnsDefaultDomesticIP, Domestic: true},
+		{Name: dnsForwarderTypeForeign, DNSServers: dnsDefaultForeignIP},
+		{Name: "General", DNSServers: dnsResetServers},
+		{Name: dnsForwarderTypeVPN, DNSServers: dnsDefaultVPNIP},
+	}
+
+	// CheckIP routes, identified by comment, and the gateway each is reset to.
+	dnsResetCheckIPRoutes = []dnsResetCheckIPRoute{
+		{Comment: "CheckIP-Route-to-Domestic-Domestic Link", Gateway: dnsDefaultDomesticIP, Domestic: true},
+		{Comment: "CheckIP-Route-to-Foreign-Foreign Link", Gateway: dnsDefaultForeignIP},
+		{Comment: "CheckIP-Route-to-VPN-Client", Gateway: dnsDefaultVPNIP},
+	}
+
+	// Domestic/Foreign/VPN link routes, identified by comment, whose
+	// dst-address is reset unless it's the default route (0.0.0.0/0).
+	dnsResetRouteDstAddresses = []dnsResetRouteDstAddress{
+		{Comment: "Route-to-Domestic-Domestic Link", DstAddress: dnsDefaultDomesticIP, Domestic: true},
+		{Comment: "Route-to-Foreign-Foreign Link", DstAddress: dnsDefaultForeignIP},
+		{Comment: "Route-to-VPN-Client", DstAddress: dnsDefaultVPNIP},
+	}
+
+	// Failover netwatch probes, identified by comment, and the host each is reset to.
+	dnsResetNetwatchProbes = []dnsResetNetwatchProbe{
+		{Comment: "Failover Netwatch - Domestic Link", Host: dnsDefaultDomesticIP, Domestic: true},
+		{Comment: "Failover Netwatch - Foreign Link", Host: dnsDefaultForeignIP},
+		{Comment: "Failover Netwatch - VPN-Client", Host: dnsDefaultVPNIP},
+	}
 )
 
 // DNSCheckResponse is the response for GET /api/dns/validate.
@@ -50,6 +130,8 @@ type DNSChangeResponse struct {
 	UpdatedDstAddressRoutes []string `json:"updatedDstAddressRoutes"`
 	UpdatedGatewayRoutes    []string `json:"updatedGatewayRoutes"`
 	UpdatedNetwatchProbes   []string `json:"updatedNetwatchProbes"`
+	UpdatedAddressListItems []string `json:"updatedAddressListItems"`
+	UpdatedNATRules         []string `json:"updatedNatRules"`
 }
 
 // DNSForwarderResult describes one DNS forwarder created by POST /api/dns/reset.
@@ -67,6 +149,8 @@ type DNSResetResponse struct {
 	UpdatedCheckIPRoutes     []string             `json:"updatedCheckIpRoutes"`
 	UpdatedRouteDstAddresses []string             `json:"updatedRouteDstAddresses"`
 	UpdatedNetwatchProbes    []string             `json:"updatedNetwatchProbes"`
+	CreatedAddressListItems  []string             `json:"createdAddressListItems"`
+	UpdatedNATRules          []string             `json:"updatedNatRules"`
 }
 
 // dnsSuggestTypeDomestic and dnsSuggestTypeForeign are the accepted values for
@@ -94,10 +178,8 @@ type DNSSuggestResponse struct {
 
 // domesticDNSSuggestions lists known-good domestic (Iranian) DNS server IPs.
 var domesticDNSSuggestions = []DNSSuggestion{
-	{IP: "10.202.10.10", Description: "Shatel DNS"},
-	{IP: "10.202.10.11", Description: "Shatel DNS"},
-	{IP: "10.202.10.202", Description: "Shatel DNS"},
-	{IP: "10.202.10.102", Description: "Shatel DNS"},
+	{IP: "217.218.127.127", Description: "ICT DNS"},
+	{IP: "217.218.155.155", Description: "ICT DNS"},
 	{IP: "5.202.100.101", Description: "Iranian ISP"},
 	{IP: "37.156.145.229", Description: "Iranian ISP"},
 	{IP: "37.156.145.21", Description: "Iranian ISP"},

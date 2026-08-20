@@ -44,25 +44,25 @@ add address="192.168.41.0/24" list="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Clien
 add action=mark-routing chain=prerouting comment="VPN-L2TP-Client Routing" new-routing-mark="to-VPN-L2TP-Client" passthrough=no src-address-list="VPN-L2TP-Client-LAN"
 
 /ip firewall nat
-add action=dst-nat chain=dstnat comment="DNS VPN-L2TP-Client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-L2TP-Client-LAN" to-addresses=4.2.2.2
-add action=dst-nat chain=dstnat comment="DNS VPN-L2TP-Client" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-L2TP-Client-LAN" to-addresses=4.2.2.2
+add action=dst-nat chain=dstnat comment="DNS VPN-L2TP-Client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-L2TP-Client-LAN" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS VPN-L2TP-Client" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-L2TP-Client-LAN" to-addresses=1.0.0.1
 
 /ip nat-pmp interfaces
 add interface="LANBridgeVPN-L2TP-Client" type=internal
 
 /ip route
 add dst-address="0.0.0.0/0" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN-L2TP-Client" scope=30 target-scope=10  comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN-L2TP-Client" \
+add check-gateway=ping dst-address="1.0.0.1" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN-L2TP-Client" \
 distance=1 target-scope="11" comment="Route-to-VPN-Client"
 add dst-address="0.0.0.0/0" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" \
+add check-gateway=ping dst-address="1.0.0.1" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" \
 distance=1 target-scope="11" comment="Route-to-VPN-Client"
-add dst-address="4.2.2.2" gateway="l2tp-client-L2TP-Client" routing-table="main" scope="10" comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="0.0.0.0/0" gateway="4.2.2.2" routing-table="main" \
+add dst-address="1.0.0.1" gateway="l2tp-client-L2TP-Client" routing-table="main" scope="10" comment="Route-to-VPN-Client"
+add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.0.0.1" routing-table="main" \
 distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-Client"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-L2TP-Client"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN-L2TP-Client"
 
 /tool netwatch
-add host="4.2.2.2" interval=5s timeout=500ms ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
+add host="1.0.0.1" interval=5s timeout=2s ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - VPN-Client"
