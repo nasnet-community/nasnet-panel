@@ -246,8 +246,78 @@ func (c *Client) RemoveFirewallRule(id string) error {
 	return nil
 }
 
-func (c *Client) ListNATRules() ([]NATRule, error) {
-	results, err := c.GetAll("/ip/firewall/nat")
+// NATRuleFilter represents filter criteria for querying NAT rules. Assigned
+// fields are used as search criteria; an empty/nil filter returns all rules.
+type NATRuleFilter struct {
+	ID          string
+	Chain       string
+	Action      string
+	Protocol    string
+	SrcAddr     string
+	DstAddr     string
+	SrcPort     string
+	DstPort     string
+	ToAddresses string
+	ToPorts     string
+	InIface     string
+	OutIface    string
+	Disabled    *bool
+	Comment     string
+}
+
+// ListNATRules retrieves NAT rules matching the given filter criteria.
+// If all filter fields are empty/nil, returns all rules.
+func (c *Client) ListNATRules(filter NATRuleFilter) ([]NATRule, error) {
+	args := make([]string, 0)
+
+	if filter.ID != "" {
+		args = append(args, "?=.id="+filter.ID)
+	}
+	if filter.Chain != "" {
+		args = append(args, "?=chain="+filter.Chain)
+	}
+	if filter.Action != "" {
+		args = append(args, "?=action="+filter.Action)
+	}
+	if filter.Protocol != "" {
+		args = append(args, "?=protocol="+filter.Protocol)
+	}
+	if filter.SrcAddr != "" {
+		args = append(args, "?=src-address="+filter.SrcAddr)
+	}
+	if filter.DstAddr != "" {
+		args = append(args, "?=dst-address="+filter.DstAddr)
+	}
+	if filter.SrcPort != "" {
+		args = append(args, "?=src-port="+filter.SrcPort)
+	}
+	if filter.DstPort != "" {
+		args = append(args, "?=dst-port="+filter.DstPort)
+	}
+	if filter.ToAddresses != "" {
+		args = append(args, "?=to-addresses="+filter.ToAddresses)
+	}
+	if filter.ToPorts != "" {
+		args = append(args, "?=to-ports="+filter.ToPorts)
+	}
+	if filter.InIface != "" {
+		args = append(args, "?=in-interface="+filter.InIface)
+	}
+	if filter.OutIface != "" {
+		args = append(args, "?=out-interface="+filter.OutIface)
+	}
+	if filter.Disabled != nil {
+		disabledStr := "false"
+		if *filter.Disabled {
+			disabledStr = "true"
+		}
+		args = append(args, "?=disabled="+disabledStr)
+	}
+	if filter.Comment != "" {
+		args = append(args, "?=comment="+filter.Comment)
+	}
+
+	results, err := c.GetAll("/ip/firewall/nat", args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list NAT rules: %w", err)
 	}
@@ -325,6 +395,16 @@ func (c *Client) AddNATRule(config NATRuleConfig) (string, error) {
 	}
 
 	return id, nil
+}
+
+// UpdateNATRule sets a NAT rule's to-addresses.
+func (c *Client) UpdateNATRule(id, toAddresses string) error {
+	_, err := c.Set("/ip/firewall/nat", "=.id="+id, "=to-addresses="+toAddresses)
+	if err != nil {
+		return fmt.Errorf("failed to update NAT rule: %w", err)
+	}
+
+	return nil
 }
 
 func (c *Client) RemoveNATRule(id string) error {
