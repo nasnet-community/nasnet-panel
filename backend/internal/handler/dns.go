@@ -58,6 +58,48 @@ func HandleGetDNSInfo(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "DNS information retrieved", response)
 }
 
+// HandleListDNSForwarders godoc
+// @Summary List DNS forwarders
+// @Description Lists every /ip/dns/forwarders entry except "General", with its name, IP
+// @Description address(es) and comment.
+// @Tags DNS
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} Response{data=[]DNSForwarderListItem}
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/dns/list [get].
+func HandleListDNSForwarders(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	forwarders, err := client.ListDNSForwarders()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS forwarders", err)
+	}
+
+	items := make([]DNSForwarderListItem, 0, len(forwarders))
+	for i := range forwarders {
+		if forwarders[i].Name == "General" {
+			continue
+		}
+		items = append(items, DNSForwarderListItem{
+			Name:    forwarders[i].Name,
+			IP:      strings.Join(forwarders[i].DNSServers, ","),
+			Comment: forwarders[i].Comment,
+		})
+	}
+
+	return SuccessResponse(c, http.StatusOK, "DNS forwarders retrieved", items)
+}
+
 // HandleUpdateDNS godoc
 // @Summary Update DNS configuration
 // @Description Update DNS servers and DoH configuration on RouterOS device

@@ -19,6 +19,13 @@ type UpdateDNSRequest struct {
 	DOHServer *string `json:"dohServer" description:"DoH server URL (e.g., 'https://dns.google/dns-query'). Set to empty string to clear."`
 }
 
+// DNSForwarderListItem is one entry in the GET /api/dns/list response.
+type DNSForwarderListItem struct {
+	Name    string `json:"name"`
+	IP      string `json:"ip"`
+	Comment string `json:"comment"`
+}
+
 // dnsForwarderType names the three recognized DNS forwarder roles, carried in
 // a forwarder's name.
 const (
