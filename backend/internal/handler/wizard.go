@@ -137,7 +137,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list interfaces", err)
 	}
 
-	var bridgePorts []string
+	var bridgePorts []BridgePort
 	var wifiAPs []WiFiAP
 	var foreignInterface InterfaceConfig
 	var domesticInterface InterfaceConfig
@@ -167,7 +167,18 @@ func HandleFinalizeWizard(c echo.Context) error {
 					Password:    req.WiFiAP.Password,
 				})
 			}
-			bridgePorts = append(bridgePorts, defaultName)
+			if defaultName != "" {
+				ifType := iface.Type
+				if ifType == "ether" {
+					ifType = "ethernet"
+				}
+				port := BridgePort{
+					Name:        iface.Name,
+					DefaultName: defaultName,
+					Type:        iface.Type,
+				}
+				bridgePorts = append(bridgePorts, port)
+			}
 			continue
 		}
 
@@ -183,11 +194,17 @@ func HandleFinalizeWizard(c echo.Context) error {
 			}
 		}
 
+		type2 := iface.Type
+		if type2 == "ether" {
+			type2 = "ethernet"
+		}
+
 		if isForeign {
 			foreignFound = true
 			foreignInterface = InterfaceConfig{
 				Interface: *iface.DefaultName,
 				Type:      iface.Type,
+				Type2:     type2,
 				SSID:      req.Foreign.SSID,
 				Password:  req.Foreign.Password,
 			}
@@ -196,6 +213,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 			domesticInterface = InterfaceConfig{
 				Interface: *iface.DefaultName,
 				Type:      iface.Type,
+				Type2:     iface.Type,
 				SSID:      req.Domestic.SSID,
 				Password:  req.Domestic.Password,
 			}
