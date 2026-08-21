@@ -82,7 +82,7 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticInterface.Interface }}-Domestic-WAN" comment="WAN - Domestic Link" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
 security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
-{{ end}}
+{{ end }}
 :global WizardProgress "40"
 {{ if eq .ForeignInterface.Type "ether" }}
 /interface ethernet set [ find default-name={{ .ForeignInterface.Interface }} ] comment="WAN - Foreign Link"
@@ -90,8 +90,8 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 {{ if and .DomesticEnabled (eq .DomesticInterface.Type "ether") }}
 /interface ethernet set [ find default-name={{ .DomesticInterface.Interface }} ] comment="WAN - Domestic Link"
 {{ end }}
-{{range .BridgePorts}}
-/interface set [ find default-name={{ . }} ] comment="Split Network"
+{{ range .BridgePorts }}
+/interface {{ .Type }} set [ find default-name={{ .DefaultName }} ] comment="Split Network"
 {{end}}
 
 :global WizardProgress "45"
@@ -115,9 +115,9 @@ add name="Foreign-Foreign Link-WAN" comment="Foreign-Foreign Link"
 add name="Foreign-Foreign Link-LAN" comment="Foreign-Foreign Link"
 
 /interface macvlan
-add name="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface.Interface }}" interface=[/interface/get [find default-name={{ .ForeignInterface.Interface }}] name] mode=private
+add name="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link MACVLAN on {{ .ForeignInterface.Interface }}" interface=[/interface/get [/interface/{{ .ForeignInterface.Type2 }} find default-name={{ .ForeignInterface.Interface }}] name] mode=private
 {{ if .DomesticEnabled}}
-add name="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface.Interface }}" interface=[/interface/get [find default-name={{ .DomesticInterface.Interface }}] name] mode=private
+add name="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link MACVLAN on {{ .DomesticInterface.Interface }}" interface=[/interface/get [/interface/{{ .DomesticInterface.Type2 }} find default-name={{ .DomesticInterface.Interface }}] name] mode=private
 {{ end }}
 /ip pool
 :if ([:len [/ip/pool find name="DHCP-pool-Split"]] = 0) do={
@@ -195,12 +195,12 @@ add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link SRC Ad
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link Routing Mark" disabled=no routing-mark="to-Foreign-Foreign Link" table="to-Foreign-Foreign Link"
 
 /interface bridge port
-remove [find bridge="LANBridgeSplit" interface="[/interface/get [find default-name={{ .ForeignInterface.Interface }}] name]"]
+remove [find bridge="LANBridgeSplit" interface=[/interface/get [/interface/{{ .ForeignInterface.Type2 }} find default-name={{ .ForeignInterface.Interface }}] name]]
 {{ if .DomesticEnabled}}
-remove [find bridge="LANBridgeSplit" interface="[/interface/get [find default-name={{ .DomesticInterface.Interface }}] name]"]
+remove [find bridge="LANBridgeSplit" interface=[/interface/get [/interface/{{ .DomesticInterface.Type2 }} find default-name={{ .DomesticInterface.Interface }}] name]]
 {{ end }}
-{{range .BridgePorts}}:if ([:len [/interface find default-name="{{.}}"]] > 0) do={
-:local portName [/interface get [/interface find default-name="{{.}}"] name]
+{{range .BridgePorts}}:if ([:len [/interface/{{ .Type }} find default-name="{{ .DefaultName }}"]] > 0) do={
+:local portName [/interface {{ .Type }} get [/interface/{{ .Type }} find default-name="{{ .DefaultName }}"] name]
 :if ([:len [/interface/bridge/port find bridge="LANBridgeSplit" interface=$portName]] = 0) do={
 add bridge="LANBridgeSplit" interface=$portName comment="Split"
 }
@@ -570,6 +570,9 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 /ip pool remove [find name="DHCP-pool-management-wifi"]
 /ip address remove [find address="192.168.210.1/24"]
 /interface wifi remove [find name="wifi-management"]
+/ip address remove [find address="192.168.200.1/24"]
+/tool mac-server set allowed-interface-list=all
+/tool mac-server mac-winbox set allowed-interface-list=all
 
 :global WizardProgress "100"
 /file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))

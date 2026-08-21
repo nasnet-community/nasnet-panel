@@ -89,6 +89,7 @@ type WizardStatus struct {
 type InterfaceConfig struct {
 	Interface string
 	Type      string
+	Type2     string
 	SSID      string
 	Password  string
 }
@@ -131,6 +132,13 @@ type WiFiAP struct {
 	SSID        string
 	Password    string
 	Band        string
+}
+
+// BridgePort represents bridge port properties.
+type BridgePort struct {
+	Name        string
+	DefaultName string
+	Type        string
 }
 
 // OvpnUser represents an OpenVPN user.
