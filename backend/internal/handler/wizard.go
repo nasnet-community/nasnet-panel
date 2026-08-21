@@ -175,7 +175,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 				port := BridgePort{
 					Name:        iface.Name,
 					DefaultName: defaultName,
-					Type:        iface.Type,
+					Type:        ifType,
 				}
 				bridgePorts = append(bridgePorts, port)
 			}
