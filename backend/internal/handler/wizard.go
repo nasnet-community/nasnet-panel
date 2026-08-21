@@ -213,7 +213,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 			domesticInterface = InterfaceConfig{
 				Interface: *iface.DefaultName,
 				Type:      iface.Type,
-				Type2:     iface.Type,
+				Type2:     type2,
 				SSID:      req.Domestic.SSID,
 				Password:  req.Domestic.Password,
 			}
