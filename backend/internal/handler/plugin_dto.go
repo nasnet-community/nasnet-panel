@@ -265,6 +265,79 @@ func joinEnvPairs(env map[string]string) string {
 	return strings.Join(pairs, ",")
 }
 
+// EnvVar is one entry in the GET /api/plugin/envs/{pluginId} response.
+// Changeable reports whether Key can be edited: env-current reports every
+// variable actually in effect, including ones pulled in from resolved
+// /container/envs lists, but only a variable set directly on the container's
+// own env property can be changed (e.g. via EditContainer).
+type EnvVar struct {
+	Key        string `json:"key"`
+	Value      string `json:"value"`
+	Changeable bool   `json:"changeable"`
+}
+
+// parseEnvPairs parses envCurrent, a RouterOS container's `KEY=VALUE,KEY2=VALUE2`
+// env-current string (falling back to env if envCurrent is empty), into an
+// ordered list of EnvVar, one per comma-separated entry, with Changeable set
+// for each key also present in env. A bare entry with no "=" (a key written
+// with no value) becomes an EnvVar with an empty Value. Order is preserved
+// from the source string rather than sorted, since it reflects however
+// RouterOS itself reports it.
+func parseEnvPairs(envCurrent, env string) []EnvVar {
+	changeable := envKeySet(env)
+
+	source := envCurrent
+	if source == "" {
+		source = env
+	}
+	if source == "" {
+		return []EnvVar{}
+	}
+
+	entries := strings.Split(source, ",")
+	vars := make([]EnvVar, 0, len(entries))
+	for _, entry := range entries {
+		key, value, _ := strings.Cut(entry, "=")
+		vars = append(vars, EnvVar{Key: key, Value: value, Changeable: changeable[key]})
+	}
+	return vars
+}
+
+// envKeySet parses a RouterOS container's env `KEY=VALUE,KEY2=VALUE2` string
+// into a set of just its keys, for membership checks.
+func envKeySet(env string) map[string]bool {
+	keys := map[string]bool{}
+	if env == "" {
+		return keys
+	}
+	for _, entry := range strings.Split(env, ",") {
+		key, _, _ := strings.Cut(entry, "=")
+		keys[key] = true
+	}
+	return keys
+}
+
+// envToMap parses a RouterOS container's env `KEY=VALUE,KEY2=VALUE2` string
+// into a map keyed by key, so PUT /api/plugin/env/{pluginId} can add or
+// overwrite one entry and re-render the whole string with joinEnvPairs.
+func envToMap(env string) map[string]string {
+	values := map[string]string{}
+	if env == "" {
+		return values
+	}
+	for _, entry := range strings.Split(env, ",") {
+		key, value, _ := strings.Cut(entry, "=")
+		values[key] = value
+	}
+	return values
+}
+
+// SetPluginEnvVarRequest is the request body for PUT /api/plugin/env/{pluginId}.
+type SetPluginEnvVarRequest struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 // settingsDefaults renders each setting's default value as a string, keyed by
 // its key, for substituting "{{settings.<key>}}" placeholders found elsewhere
 // in a plugin's manifest. A field with no default but "generate":"uuid" gets
