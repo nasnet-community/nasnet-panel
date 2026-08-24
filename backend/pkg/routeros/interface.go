@@ -898,6 +898,46 @@ func (c *Client) UpdateInterfaceList(id string, config InterfaceListConfig) erro
 	return nil
 }
 
+// InterfaceListMemberExists reports whether iface is already a member of list.
+func (c *Client) InterfaceListMemberExists(list, iface string) (bool, error) {
+	results, err := c.GetAll("/interface/list/member", "?=list="+list, "?=interface="+iface)
+	if err != nil {
+		return false, fmt.Errorf("failed to check interface list membership of %s in %s: %w", iface, list, err)
+	}
+
+	return len(results) > 0, nil
+}
+
+// AddInterfaceListMember adds iface as a member of list.
+func (c *Client) AddInterfaceListMember(list, iface string) (string, error) {
+	id, err := c.Add("/interface/list/member", "=list="+list, "=interface="+iface)
+	if err != nil {
+		return "", fmt.Errorf("failed to add %s to interface list %s: %w", iface, list, err)
+	}
+
+	return id, nil
+}
+
+// RemoveInterfaceListMember removes iface from list, if it's a member.
+func (c *Client) RemoveInterfaceListMember(list, iface string) error {
+	results, err := c.GetAll("/interface/list/member", "?=list="+list, "?=interface="+iface)
+	if err != nil {
+		return fmt.Errorf("failed to find interface list members: %w", err)
+	}
+
+	for i := range results {
+		id := results[i][".id"]
+		if id == "" {
+			continue
+		}
+		if _, err := c.Remove("/interface/list/member", "=.id="+id); err != nil {
+			return fmt.Errorf("failed to remove %s from interface list %s: %w", iface, list, err)
+		}
+	}
+
+	return nil
+}
+
 // RemoveInterfaceList deletes an interface list.
 func (c *Client) RemoveInterfaceList(id string) error {
 	_, err := c.Remove("/interface/list", "=.id="+id)
