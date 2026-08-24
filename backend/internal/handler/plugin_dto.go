@@ -32,6 +32,12 @@ type PluginInfo struct {
 	Note       string `json:"note,omitempty"`
 }
 
+// InstalledPluginInfo is one entry in the GET /api/plugin/installed response.
+type InstalledPluginInfo struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 // PluginRegistry is the top-level structure of plugins.json fetched from the
 // community plugin registry repository.
 type PluginRegistry struct {
