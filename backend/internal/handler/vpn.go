@@ -278,6 +278,20 @@ func HandleAddL2TPClient(c echo.Context) error {
 		c.Logger().Errorf("Failed to add L2TP server address to firewall list: %v", err)
 	}
 
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, interfaceName)
+		if err != nil {
+			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
+			continue
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, interfaceName); err != nil {
+			c.Logger().Errorf("Failed to add %s to %s interface list: %v", interfaceName, list, err)
+		}
+	}
+
 	vpnClient, err := client.GetVPNClient(interfaceName)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added L2TP client", err)
@@ -421,6 +435,12 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 	l2tpClient, err := client.GetL2TPClientInfo(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		if err := client.RemoveInterfaceListMember(list, l2tpClient.Name); err != nil {
+			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", l2tpClient.Name, list, err)
+		}
 	}
 
 	if err := client.RemoveL2TPClient(nameOrID); err != nil {
@@ -845,6 +865,20 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 
 	if _, err := client.AddWireGuardPeer(peerConfig); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add WireGuard peer", err)
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, wireguard.Name)
+		if err != nil {
+			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
+			continue
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, wireguard.Name); err != nil {
+			c.Logger().Errorf("Failed to add %s to %s interface list: %v", wireguard.Name, list, err)
+		}
 	}
 
 	if req.EndpointIP != "" {
@@ -1509,6 +1543,12 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		peers = []routeros.WireGuardPeerInfo{}
 	}
 
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		if err := client.RemoveInterfaceListMember(list, wireguard.Name); err != nil {
+			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", wireguard.Name, list, err)
+		}
+	}
+
 	err = client.DeleteWireGuardInterface(nameOrID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard interface", err)
@@ -1688,6 +1728,20 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		}
 
 		peerNames = append(peerNames, peerName)
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, wg.Name)
+		if err != nil {
+			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
+			continue
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, wg.Name); err != nil {
+			c.Logger().Errorf("Failed to add %s to %s interface list: %v", wg.Name, list, err)
+		}
 	}
 
 	response := ImportWireGuardConfigResponse{

@@ -421,8 +421,8 @@ add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 proto
 add action=dst-nat chain=dstnat comment="DNS VPN" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-LAN" to-addresses=1.0.0.1
 add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=udp src-address-list="Foreign-Foreign Link-LAN" to-addresses=1.0.0.1
 add action=dst-nat chain=dstnat comment="DNS Foreign-Foreign Link" disabled=yes dst-port=53 protocol=tcp src-address-list="Foreign-Foreign Link-LAN" to-addresses=1.0.0.1
-add action=dst-nat chain=dstnat comment="DNS Containers" disabled=no dst-port=53 protocol=udp src-address="192.168.50.0/24" to-addresses=1.1.1.1
-add action=dst-nat chain=dstnat comment="DNS Containers" disabled=no dst-port=53 protocol=tcp src-address="192.168.50.0/24" to-addresses=1.1.1.1
+add action=dst-nat chain=dstnat comment="DNS Containers" disabled=no dst-port=53 protocol=udp src-address="192.168.50.0/24" to-addresses=1.0.0.1
+add action=dst-nat chain=dstnat comment="DNS Containers" disabled=no dst-port=53 protocol=tcp src-address="192.168.50.0/24" to-addresses=1.0.0.1
 add chain=dstnat action=redirect protocol=tcp dst-port=53 comment="Redirect DNS"
 add chain=dstnat action=redirect protocol=udp dst-port=53 comment="Redirect DNS"
 
