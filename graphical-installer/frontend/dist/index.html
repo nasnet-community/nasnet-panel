@@ -238,6 +238,33 @@
         </div>
       </div>
 
+      <div id="modal-reboot" class="modal hidden">
+        <div class="modal-box">
+          <h3>Router restart required</h3>
+          <div id="reboot-ask">
+            <p>
+              Container mode is not enabled yet. The container package is now enabled, and the
+              router has to restart before it can run containers.
+            </p>
+            <p>
+              The installer waits while the router reboots and carries on by itself once it is back,
+              so nothing else is needed from you.
+            </p>
+            <div class="actions">
+              <button id="btn-reboot-ok" class="primary">Restart router</button>
+              <button id="btn-reboot-no">Abort</button>
+            </div>
+          </div>
+          <div id="reboot-wait" class="hidden">
+            <p><span class="spinner"></span> Waiting for the router to come back...</p>
+            <p class="mono">
+              <span id="reboot-elapsed">0</span>s elapsed, router is
+              <span id="reboot-state">restarting</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div id="modal-uninstall" class="modal hidden">
         <div class="modal-box">
           <h3>Uninstall Nasnet Panel?</h3>
