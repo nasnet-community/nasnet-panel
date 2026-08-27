@@ -72,11 +72,69 @@ func (e *Engine) stepCheck() error {
 	}
 	out, err = e.cl.RunRaw(":put [/system/package/get [find name=container] disabled]", 15*time.Second)
 	if err == nil && strings.TrimSpace(out) == "true" {
-		return errors.New("container package is installed but disabled. Run on the router: /system/package/enable container ; /system/reboot")
+		if err := e.enableContainerPackage(); err != nil {
+			return err
+		}
 	}
 
 	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free", e.sys.Arch, e.sys.Version, e.sys.FreeMB)
 	return nil
+}
+
+func (e *Engine) enableContainerPackage() error {
+	e.log("container package is disabled, enabling it")
+	if e.opts.DryRun {
+		e.log("[dry-run] /system/package/enable container, then restart the router")
+		return nil
+	}
+	if out, err := e.cl.Run("/system/package/enable container"); err != nil {
+		return fmt.Errorf("failed to enable the container package: %w (%s)", err, strings.TrimSpace(out))
+	}
+	if !e.ev.RebootPrompt() {
+		return errors.New("router restart declined by user")
+	}
+	go func() {
+		_, _ = e.cl.RunRaw("/system/reboot", 10*time.Second)
+	}()
+	if err := e.waitForReboot(); err != nil {
+		return err
+	}
+	out, err := e.cl.RunRaw(":put [/system/package/get [find name=container] disabled]", 15*time.Second)
+	if err != nil {
+		return fmt.Errorf("could not read the container package state after the restart: %w", err)
+	}
+	if strings.TrimSpace(out) == "true" {
+		return errors.New("the container package is still disabled after the restart")
+	}
+	e.log("container package enabled")
+	return nil
+}
+
+func (e *Engine) waitForReboot() error {
+	e.log("waiting for the router to restart")
+	e.cl.Close()
+	if err := e.sleep(rebootSettle); err != nil {
+		return err
+	}
+	start := time.Now()
+	tick := time.NewTicker(3 * time.Second)
+	defer tick.Stop()
+	for time.Since(start) < rebootTimeout {
+		e.ev.RebootTick(int(time.Since(start)/time.Second)+int(rebootSettle/time.Second), "restarting")
+		if err := e.cl.Reconnect(); err == nil {
+			if _, rerr := e.cl.RunRaw(":put ok", 8*time.Second); rerr == nil {
+				e.ev.RebootTick(int(time.Since(start)/time.Second)+int(rebootSettle/time.Second), "online")
+				e.log("router is back online")
+				return nil
+			}
+		}
+		select {
+		case <-e.ctx.Done():
+			return e.ctx.Err()
+		case <-tick.C:
+		}
+	}
+	return fmt.Errorf("router did not come back within %s after the restart", rebootTimeout)
 }
 
 func (e *Engine) stepDeviceMode() error {

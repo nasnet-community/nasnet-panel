@@ -79,6 +79,8 @@ type Events struct {
 	SysInfo          func(info SystemInfo)
 	DeviceModePrompt func() bool
 	DeviceModeTick   func(remaining int, routerState string)
+	RebootPrompt     func() bool
+	RebootTick       func(elapsed int, routerState string)
 	Done             func(urls []string, note string)
 }
 
