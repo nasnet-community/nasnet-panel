@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
@@ -28,6 +29,43 @@ jobs:
             exit 1
           fi
           echo "Branch is up-to-date."
+
+  changes:
+    name: Detect changed areas
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      frontend: ${{ steps.areas.outputs.frontend }}
+      backend: ${{ steps.areas.outputs.backend }}
+      installer: ${{ steps.areas.outputs.installer }}
+    steps:
+      - name: Classify changed files
+        id: areas
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FILES=$(gh api --paginate "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" --jq '.[].filename')
+          FRONTEND=false
+          BACKEND=false
+          INSTALLER=false
+          while IFS= read -r FILE; do
+            [ -n "$FILE" ] || continue
+            case "$FILE" in
+              .github/*) FRONTEND=true; BACKEND=true; INSTALLER=true ;;
+              backend/*) BACKEND=true ;;
+              graphical-installer/*|scripts/*) FRONTEND=true; INSTALLER=true ;;
+              *) FRONTEND=true ;;
+            esac
+          done <<< "$FILES"
+          if [ -z "$FILES" ]; then
+            FRONTEND=true
+            BACKEND=true
+            INSTALLER=true
+          fi
+          echo "frontend=$FRONTEND" >> "$GITHUB_OUTPUT"
+          echo "backend=$BACKEND" >> "$GITHUB_OUTPUT"
+          echo "installer=$INSTALLER" >> "$GITHUB_OUTPUT"
+          echo "frontend=$FRONTEND backend=$BACKEND installer=$INSTALLER"
 
   frontend:
     name: Frontend (format · typecheck · build)
