@@ -225,19 +225,31 @@ jobs:
   status:
     name: PR Status
     runs-on: ubuntu-latest
-    needs: [up-to-date, frontend, eslint, backend, nilaway, installer, e2e]
+    needs: [up-to-date, changes, frontend, eslint, backend, nilaway, installer, e2e]
     if: always()
     steps:
       - name: Check job results
+        env:
+          RESULTS: |
+            Up-to-date=${{ needs.up-to-date.result }}
+            Changes=${{ needs.changes.result }}
+            Frontend=${{ needs.frontend.result }}
+            ESLint=${{ needs.eslint.result }}
+            Backend=${{ needs.backend.result }}
+            Nilaway=${{ needs.nilaway.result }}
+            Installer=${{ needs.installer.result }}
+            E2E=${{ needs.e2e.result }}
         run: |
-          echo "Up-to-date: ${{ needs.up-to-date.result }}"
-          echo "Frontend:   ${{ needs.frontend.result }}"
-          echo "ESLint:     ${{ needs.eslint.result }}"
-          echo "Backend:    ${{ needs.backend.result }}"
-          echo "Nilaway:    ${{ needs.nilaway.result }}"
-          echo "Installer:  ${{ needs.installer.result }}"
-          echo "E2E:        ${{ needs.e2e.result }}"
-          if [[ "${{ needs.up-to-date.result }}" != "success" || "${{ needs.frontend.result }}" != "success" || "${{ needs.eslint.result }}" != "success" || "${{ needs.backend.result }}" != "success" || "${{ needs.nilaway.result }}" != "success" || "${{ needs.installer.result }}" != "success" || "${{ needs.e2e.result }}" != "success" ]]; then
+          FAILED=0
+          while IFS='=' read -r NAME RESULT; do
+            [ -n "$NAME" ] || continue
+            echo "$NAME: $RESULT"
+            case "$RESULT" in
+              success | skipped) ;;
+              *) FAILED=1 ;;
+            esac
+          done <<< "$RESULTS"
+          if [ "$FAILED" -ne 0 ]; then
             echo "::error::One or more checks failed"
             exit 1
           fi
