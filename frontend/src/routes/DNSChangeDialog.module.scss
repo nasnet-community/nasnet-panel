@@ -1,0 +1,48 @@
+.readonlyGrid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: var(--space-md);
+  align-items: center;
+  font-size: var(--font-sm);
+}
+
+.readonlyLabel {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
+}
+
+.readonlyValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-xs);
+  background: var(--color-surface-alt);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  justify-self: start;
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: var(--font-sm);
+
+  p {
+    margin: 0;
+  }
+}
+
+.warningIcon {
+  color: var(--color-warning);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
