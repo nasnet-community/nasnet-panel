@@ -50,9 +50,11 @@ func (e *Engine) stepRemoveNetwork() error {
 	e.removeObj("filter forward", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward"))
 	e.removeObj("filter forward-https", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward-https"))
 	e.removeObj("bridge port "+vethName, "/interface/bridge/port", "interface="+vethName)
+	e.removeObj("bridge port "+legacyVethName, "/interface/bridge/port", "interface="+legacyVethName)
 	e.removeObj("ip "+bridgeIPCIDR, "/ip/address", fmt.Sprintf("address=%q", bridgeIPCIDR))
 	e.removeObj("bridge "+bridgeName, "/interface/bridge", "name="+bridgeName)
 	e.removeObj("veth "+vethName, "/interface/veth", "name="+vethName)
+	e.removeObj("veth "+legacyVethName, "/interface/veth", "name="+legacyVethName)
 	return nil
 }
 
