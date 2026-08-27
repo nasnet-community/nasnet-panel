@@ -59,6 +59,9 @@ func (e *Engine) stepCheck() error {
 	if _, err := assetSuffix(e.sys.Arch); err != nil {
 		return err
 	}
+	if versionBelow(e.sys.Version, minROSMajor, minROSMinor) {
+		return fmt.Errorf("RouterOS %s is too old, %d.%d or newer is required. Update the router (System > Packages > Check For Updates), then run the installer again", e.sys.Version, minROSMajor, minROSMinor)
+	}
 	if e.sys.FreeMB < minFreeMB {
 		return fmt.Errorf("free memory %d MB below threshold %d MB", e.sys.FreeMB, minFreeMB)
 	}

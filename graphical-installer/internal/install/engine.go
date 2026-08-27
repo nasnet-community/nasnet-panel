@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,8 +38,12 @@ const (
 
 	commentTag        = "nasnet-panel-installer"
 	minFreeMB         = 30
+	minROSMajor       = 7
+	minROSMinor       = 24
 	deviceModeTimeout = 120 * time.Second
 	startTimeout      = 120 * time.Second
+	rebootSettle      = 15 * time.Second
+	rebootTimeout     = 5 * time.Minute
 )
 
 type Options struct {
@@ -310,6 +315,21 @@ func (e *Engine) sleep(d time.Duration) error {
 	case <-time.After(d):
 		return nil
 	}
+}
+
+var rosVersionRe = regexp.MustCompile(`^(\d+)\.(\d+)`)
+
+func versionBelow(version string, major, minor int) bool {
+	m := rosVersionRe.FindStringSubmatch(strings.TrimSpace(version))
+	if m == nil {
+		return false
+	}
+	gotMajor, _ := strconv.Atoi(m[1])
+	gotMinor, _ := strconv.Atoi(m[2])
+	if gotMajor != major {
+		return gotMajor < major
+	}
+	return gotMinor < minor
 }
 
 func assetSuffix(arch string) (string, error) {
