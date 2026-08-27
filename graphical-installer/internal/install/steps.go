@@ -284,7 +284,7 @@ func (e *Engine) stepUpload() error {
 		return err
 	}
 	e.pushRollback(func() {
-		_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", remote), 15*time.Second)
+		e.removeRemoteFile(remote)
 	})
 	e.note = humanBytes(localSize)
 	return nil
@@ -349,6 +349,7 @@ func (e *Engine) stepNetwork() error {
 func (e *Engine) stepContainer() error {
 	if e.exists("/container", "name="+containerName) {
 		e.note = "container " + containerName + " already exists"
+		e.removeRemoteFile(e.remoteTar)
 		return nil
 	}
 	if e.opts.DryRun {
@@ -364,6 +365,7 @@ func (e *Engine) stepContainer() error {
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", containerName), 15*time.Second)
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/remove [find name=%s]", containerName), 30*time.Second)
 	})
+	e.removeRemoteFile(e.remoteTar)
 	e.note = containerName + " created"
 	return nil
 }
