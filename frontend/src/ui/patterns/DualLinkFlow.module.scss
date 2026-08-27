@@ -12,12 +12,12 @@
 
 .zoomDomestic {
   transform: scale(1.3);
-  transform-origin: 75% 24%;
+  transform-origin: 75% 76%;
 }
 
 .zoomStarlink {
   transform: scale(1.3);
-  transform-origin: 75% 76%;
+  transform-origin: 75% 24%;
 }
 
 @media (prefers-reduced-motion: reduce) {
