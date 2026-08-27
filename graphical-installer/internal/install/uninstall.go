@@ -57,11 +57,11 @@ func (e *Engine) stepRemoveNetwork() error {
 }
 
 func (e *Engine) stepRemoveFiles() error {
-	e.log("removing tar(s) under %s/%s-*.tar", tarRemoteDir, assetPrefix)
+	e.log("removing %s-*.tar from router storage", assetPrefix)
 	if e.opts.DryRun {
 		return nil
 	}
-	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where (name~"^%s/%s-") and (name~"\.tar$")]`, tarRemoteDir, assetPrefix), 30*time.Second)
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where (name~"%s-") and (name~"\.tar$")]`, assetPrefix), 30*time.Second)
 	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", lanBaselineRsc), 15*time.Second)
 	e.note = "uploaded files removed"
 	return nil

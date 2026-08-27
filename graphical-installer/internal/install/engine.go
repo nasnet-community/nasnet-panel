@@ -27,9 +27,8 @@ const (
 	vethIP       = "192.168.50.2"
 	vethGW       = "192.168.50.1"
 
-	containerName    = "nnc"
-	containerRootDir = "disk1/images/nnc"
-	tarRemoteDir     = "disk1"
+	containerName      = "nnc"
+	containerImagesDir = "images/nnc"
 
 	lanBridge      = "LANBridgeSplit"
 	lanBridgeIP    = "192.168.10.1"
@@ -56,10 +55,12 @@ type Options struct {
 }
 
 type SystemInfo struct {
-	Board   string `json:"board"`
-	Arch    string `json:"arch"`
-	Version string `json:"version"`
-	FreeMB  int64  `json:"freeMb"`
+	Board         string `json:"board"`
+	Arch          string `json:"arch"`
+	Version       string `json:"version"`
+	FreeMB        int64  `json:"freeMb"`
+	Storage       string `json:"storage"`
+	StorageFreeMB int64  `json:"storageFreeMb"`
 }
 
 type StepInfo struct {
@@ -97,6 +98,7 @@ type Engine struct {
 	assetName string
 	localTar  string
 	remoteTar string
+	storage   string
 
 	finalPort       int
 	baselineApplied bool
