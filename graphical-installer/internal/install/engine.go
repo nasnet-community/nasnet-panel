@@ -207,7 +207,7 @@ func (e *Engine) finish() {
 			fmt.Sprintf("http://%s:%d/", lanBridgeIP, port),
 			fmt.Sprintf("https://%s:%d/", lanBridgeIP, e.opts.HTTPSLANPort),
 		}
-		note = fmt.Sprintf("Baseline LAN %s.0/24 configured. Reconnect or renew your DHCP lease on the %s.x network, then use the first link. If it does not respond, the panel is still reachable on the router address.",
+		note = fmt.Sprintf("Baseline LAN %s.0/24 configured. The address you installed from no longer serves the panel, so reconnect or renew your DHCP lease on the %s.x network, then use the links below.",
 			lanBridgeIP[:strings.LastIndex(lanBridgeIP, ".")], lanBridgeIP[:strings.LastIndex(lanBridgeIP, ".")])
 	default:
 		urls = []string{
