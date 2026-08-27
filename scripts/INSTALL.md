@@ -169,13 +169,13 @@ In Winbox, open **Files** and drag the tar into the `disk1` directory, so it lan
 These commands create a virtual ethernet interface for the container, a bridge, an address, and the firewall rules that expose the panel on the LAN. Run them in order.
 
 ```
-/interface/veth/add name=veth1 address=192.168.50.2/24 gateway=192.168.50.1
+/interface/veth/add name=veth-nasnet-panel address=192.168.50.2/24 gateway=192.168.50.1
 
 /interface/bridge/add name=containers
 
 /ip/address/add address=192.168.50.1/24 interface=containers
 
-/interface/bridge/port/add bridge=containers interface=veth1
+/interface/bridge/port/add bridge=containers interface=veth-nasnet-panel
 
 /ip/firewall/nat/add chain=srcnat action=masquerade src-address=192.168.50.0/24 comment="nasnet-panel-installer-srcnat"
 
@@ -200,7 +200,7 @@ Once the `container` package is installed and device-mode is enabled, Winbox and
 1. Open **Container** and click the **+** (Add) button.
 2. Set the fields:
    - **File:** `disk1/nasnet-panel-dev-arm64.tar` (the tar you uploaded; match your architecture)
-   - **Interface:** `veth1`
+   - **Interface:** `veth-nasnet-panel`
    - **Root Dir:** `disk1/images/nnc`
    - **Name:** `nnc`
    - **Start On Boot:** ticked
@@ -210,10 +210,10 @@ Once the `container` package is installed and device-mode is enabled, Winbox and
 
 **Using the terminal**
 
-Create the container from the uploaded tarball, attaching it to `veth1`. Replace the filename with the tarball you uploaded.
+Create the container from the uploaded tarball, attaching it to `veth-nasnet-panel`. Replace the filename with the tarball you uploaded.
 
 ```
-/container/add file=disk1/nasnet-panel-dev-arm64.tar interface=veth1 root-dir=disk1/images/nnc name=nnc start-on-boot=yes logging=yes
+/container/add file=disk1/nasnet-panel-dev-arm64.tar interface=veth-nasnet-panel root-dir=disk1/images/nnc name=nnc start-on-boot=yes logging=yes
 ```
 
 RouterOS extracts the image, which takes a moment. Once the container shows as extracted, start it:
@@ -228,7 +228,7 @@ Instead of uploading a tar, RouterOS can pull the image straight from GitHub Con
 
 ```
 /container/config/set registry-url=https://ghcr.io tmpdir=disk1/pull
-/container/add remote-image=nasnet-community/nasnet-panel:dev interface=veth1 root-dir=disk1/images/nnc name=nnc start-on-boot=yes logging=yes
+/container/add remote-image=nasnet-community/nasnet-panel:dev interface=veth-nasnet-panel root-dir=disk1/images/nnc name=nnc start-on-boot=yes logging=yes
 ```
 
 Use the multi-arch `dev` tag (or `latest`); the registry serves the image matching your board, so no architecture suffix is needed. This route needs working DNS and outbound HTTPS on the router, and `tmpdir` must sit on the external disk.
@@ -268,10 +268,10 @@ To undo a manual installation, stop and remove the container, then delete the ne
 /ip/firewall/nat/remove [find comment="nasnet-panel-installer-dstnat"]
 /ip/firewall/filter/remove [find comment="nasnet-panel-installer-forward"]
 
-/interface/bridge/port/remove [find interface=veth1]
+/interface/bridge/port/remove [find interface=veth-nasnet-panel]
 /ip/address/remove [find address=192.168.50.1/24]
 /interface/bridge/remove [find name=containers]
-/interface/veth/remove [find name=veth1]
+/interface/veth/remove [find name=veth-nasnet-panel]
 
 /file/remove [find name="disk1/nasnet-panel-dev-arm64.tar"]
 ```
