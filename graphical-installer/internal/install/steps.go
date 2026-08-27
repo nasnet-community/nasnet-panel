@@ -462,9 +462,10 @@ func (e *Engine) stepBaseline() error {
 		e.note = "upload failed, run the wizard from a wired connection or re-run the installer"
 		return nil
 	}
-	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%s}", lanBaselineRsc)); err != nil {
+	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%s; /file/remove [find name=%q]}", lanBaselineRsc, lanBaselineRsc)); err != nil {
 		e.log("LAN baseline job failed to start: %v (%s)", err, strings.TrimSpace(out))
 		e.note = "job failed to start, run the wizard from a wired connection or re-run the installer"
+		e.removeRemoteFile(lanBaselineRsc)
 		return nil
 	}
 	e.baselineApplied = true
