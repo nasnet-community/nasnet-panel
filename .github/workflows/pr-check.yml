@@ -71,7 +71,8 @@ jobs:
     name: Frontend (format · typecheck · build)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: up-to-date
+    needs: [up-to-date, changes]
+    if: needs.changes.outputs.frontend == 'true'
     steps:
       - uses: actions/checkout@v5
 
@@ -92,7 +93,8 @@ jobs:
     name: ESLint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: up-to-date
+    needs: [up-to-date, changes]
+    if: needs.changes.outputs.frontend == 'true'
     steps:
       - uses: actions/checkout@v5
 
@@ -107,7 +109,8 @@ jobs:
     name: Backend (fmt · vet · lint · build · test)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: up-to-date
+    needs: [up-to-date, changes]
+    if: needs.changes.outputs.backend == 'true'
     steps:
       - uses: actions/checkout@v5
 
@@ -143,7 +146,8 @@ jobs:
     name: Nilaway
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: up-to-date
+    needs: [up-to-date, changes]
+    if: needs.changes.outputs.backend == 'true'
     steps:
       - uses: actions/checkout@v5
 
@@ -160,7 +164,8 @@ jobs:
     name: Installer (fmt · vet · build)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: up-to-date
+    needs: [up-to-date, changes]
+    if: needs.changes.outputs.installer == 'true'
     steps:
       - uses: actions/checkout@v5
 
@@ -188,7 +193,8 @@ jobs:
     name: E2E (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: up-to-date
+    needs: [up-to-date, changes]
+    if: needs.changes.outputs.frontend == 'true'
     steps:
       - uses: actions/checkout@v5
 
