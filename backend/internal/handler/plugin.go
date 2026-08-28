@@ -7,10 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
 
+	"nasnet-panel/pkg/proxy"
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
@@ -188,6 +190,62 @@ func HandleListPlugins(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Plugins retrieved", finalizePlugins(registry.Plugins, containers))
+}
+
+// HandleViewPlugin godoc
+// @Summary Proxy a plugin's web UI (test mode: base-tag injection only)
+// @Description Proxies a plugin's own web UI, resolving its target from the plugin's manifest:
+// @Description the container interface's address (its IP, without the subnet) as host, and the
+// @Description containerPort of the first entry in container.ports whose description starts
+// @Description with "web" (case-insensitive) as port.
+// @Description Test mode: no redirect/cookie/CSS/JS rewriting is performed; a <base href>
+// @Description tag pointing at this route's own base URL is injected into HTML responses only.
+// @Description /api/plugin/view/{pluginID} is the base URL for the plugin's web UI; any path
+// @Description appended after it (assets, API calls, etc.) is forwarded to the same target,
+// @Description relative to that base.
+// @Description Does not require RouterOS auth: it proxies the plugin's own web UI, not RouterOS.
+// @Tags Plugin
+// @Param pluginID path string true "Plugin id"
+// @Router /api/plugin/view/{pluginID} [get].
+// @Router /api/plugin/view/{pluginID}/{path} [get].
+func HandleViewPlugin(c echo.Context) error {
+	pluginID := c.Param("pluginID")
+
+	manifest, err := fetchPluginManifest(c.Request().Context(), pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
+	}
+
+	host, _, _ := strings.Cut(manifest.Container.Interface.Address, "/")
+	if host == "" {
+		return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no interface address", nil)
+	}
+
+	var webPort *PluginManifestPort
+	for i := range manifest.Container.Ports {
+		if strings.HasPrefix(strings.ToLower(manifest.Container.Ports[i].Description), "web") {
+			webPort = &manifest.Container.Ports[i]
+			break
+		}
+	}
+	if webPort == nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no web port", nil)
+	}
+
+	target, err := url.Parse(fmt.Sprintf("http://%s:%d", host, webPort.ContainerPort))
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Invalid plugin target URL", err)
+	}
+
+	baseURL := strings.TrimSuffix(c.Request().URL.Path, c.Param("*"))
+	baseURL = strings.TrimSuffix(baseURL, "/")
+
+	proxyHandler, err := proxy.NewSubpathProxy(baseURL, target)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to set up plugin proxy", err)
+	}
+
+	return proxyHandler(c)
 }
 
 // HandleInstallPlugin godoc

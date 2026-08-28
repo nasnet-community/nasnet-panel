@@ -19,6 +19,14 @@ func RegisterRoutes(e *echo.Echo) {
 	appGroup.POST("/install-update", handler.HandleAppInstallUpdate)
 	appGroup.GET("/update-status", handler.HandleAppUpdateStatus)
 
+	// Registered directly on e, not pluginGroup, so it skips RouterOSAuth: this
+	// endpoint proxies a plugin's own web UI and doesn't touch RouterOS itself.
+	// The base path and the wildcard below it (assets, API calls the plugin's
+	// UI makes, etc.) both route here so the whole UI works, not just its
+	// landing page.
+	e.Any("/api/plugin/view/:pluginID", handler.HandleViewPlugin)
+	e.Any("/api/plugin/view/:pluginID/*", handler.HandleViewPlugin)
+
 	pluginGroup := e.Group("/api/plugin")
 	pluginGroup.Use(middleware.RouterOSAuth)
 	pluginGroup.GET("/plugins", handler.HandleListPlugins)
