@@ -159,8 +159,14 @@ jobs:
           go-version-file: graphical-installer/go.mod
           cache-dependency-path: graphical-installer/go.sum
 
+      - name: Resolve version
+        run: echo "APP_VERSION=dev-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
       - name: Stage LAN baseline script
         run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
+
+      - name: Stamp Windows version resource
+        run: scripts/installer-windows-resource.sh "$APP_VERSION" "${{ github.run_number }}"
 
       - name: Build Windows installer
         working-directory: graphical-installer
@@ -169,7 +175,7 @@ jobs:
           mkdir -p dist
           GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
             go build -trimpath -tags desktop,production \
-            -ldflags "-s -w -H windowsgui" \
+            -ldflags "-s -w -H windowsgui -X nasnet-panel-installer/internal/buildinfo.Version=$APP_VERSION" \
             -o dist/nasnet-panel-installer-windows-amd64.exe .
           ( cd dist && sha256sum nasnet-panel-installer-windows-amd64.exe > nasnet-panel-installer-windows-amd64.exe.sha256 )
 
@@ -195,6 +201,9 @@ jobs:
           go-version-file: graphical-installer/go.mod
           cache-dependency-path: graphical-installer/go.sum
 
+      - name: Resolve version
+        run: echo "APP_VERSION=dev-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
       - name: Stage LAN baseline script
         run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
 
@@ -205,16 +214,19 @@ jobs:
           mkdir -p dist
           # Wails v2.13 references UTType without linking its framework
           export CGO_LDFLAGS="-framework UniformTypeIdentifiers"
+          LDFLAGS="-s -w -X nasnet-panel-installer/internal/buildinfo.Version=$APP_VERSION"
           GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 \
             go build -trimpath -tags desktop,production \
-            -ldflags "-s -w" -o dist/installer-arm64 .
+            -ldflags "$LDFLAGS" -o dist/installer-arm64 .
           GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 \
             go build -trimpath -tags desktop,production \
-            -ldflags "-s -w" -o dist/installer-amd64 .
+            -ldflags "$LDFLAGS" -o dist/installer-amd64 .
           lipo -create -output dist/nasnet-panel-installer dist/installer-arm64 dist/installer-amd64
           APP="dist/Nasnet Panel Installer.app"
           mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
           cp darwin/Info.plist "$APP/Contents/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_VERSION#v}" \
+            -c "Set :CFBundleVersion ${APP_VERSION#v}" "$APP/Contents/Info.plist"
           cp dist/nasnet-panel-installer "$APP/Contents/MacOS/nasnet-panel-installer"
           ICONSET=dist/appicon.iconset
           mkdir -p "$ICONSET"

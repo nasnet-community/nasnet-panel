@@ -54,6 +54,26 @@ GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 go build -tags desktop,production \
 Release builds produce a universal binary via `lipo`, wrap it in `Nasnet Panel Installer.app` using
 `darwin/Info.plist`, and package a DMG. See `.github/workflows/release.yml` for the full sequence.
 
+## Versioning
+
+`internal/buildinfo.Version` defaults to `v0.0.0-dev` and is replaced at link time:
+
+```bash
+go build -ldflags "-X nasnet-panel-installer/internal/buildinfo.Version=v1.2.3" .
+```
+
+The UI reads it through `AppVersion` and shows it in the header. CI passes the release tag, or
+`dev-<short sha>` for snapshot builds, and stamps the same value into the macOS bundle
+(`CFBundleShortVersionString`) and the Windows version resource:
+
+```bash
+../scripts/installer-windows-resource.sh v1.2.3 0
+```
+
+That writes `resource_windows_amd64.syso`, which `go build` links into the Windows executable. The
+file is generated and gitignored, so regenerate it whenever you want a local Windows build to carry
+version metadata.
+
 ## Checks
 
 ```bash
