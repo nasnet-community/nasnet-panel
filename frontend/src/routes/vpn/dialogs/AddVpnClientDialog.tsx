@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Cable, Globe, KeyRound, Shield } from 'lucide-react';
 import {
   Button,
   Dialog,
@@ -9,10 +10,10 @@ import {
   Input,
   Label,
   PasswordInput,
-  Select,
   Switch,
   Textarea,
 } from '@nasnet/ui';
+import { VpnTypeTilePicker, type VpnTypeTile } from './VpnTypeTilePicker';
 import type {
   AddL2TPClientRequest,
   CreateWireguardClientRequest,
@@ -22,9 +23,18 @@ import { isCIDR, isPort, validateHostOrIp, validateIdentifier } from '../../../u
 
 export type AddVpnType = 'l2tp' | 'wireguard';
 
-const TYPE_OPTIONS: Array<{ value: AddVpnType; label: string }> = [
-  { value: 'l2tp', label: 'L2TP' },
-  { value: 'wireguard', label: 'WireGuard' },
+type AddVpnTileType = AddVpnType | 'openvpn' | 'sstp';
+
+const TYPE_TILES: Array<VpnTypeTile<AddVpnTileType>> = [
+  { value: 'l2tp', label: 'L2TP', icon: <Cable size={26} strokeWidth={1.75} /> },
+  { value: 'wireguard', label: 'WireGuard', icon: <Shield size={26} strokeWidth={1.75} /> },
+  {
+    value: 'openvpn',
+    label: 'OpenVPN',
+    icon: <Globe size={26} strokeWidth={1.75} />,
+    disabled: true,
+  },
+  { value: 'sstp', label: 'SSTP', icon: <KeyRound size={26} strokeWidth={1.75} />, disabled: true },
 ];
 
 interface Draft {
@@ -202,16 +212,15 @@ export function AddVpnClientDialog({
       }
     >
       <FieldStack>
+        <VpnTypeTilePicker
+          ariaLabel="VPN client type"
+          legend="Choose VPN client type"
+          value={type}
+          tiles={TYPE_TILES}
+          onChange={(v) => setType(v as AddVpnType)}
+        />
+
         <FieldRow>
-          <Label>
-            <span>VPN type</span>
-            <Select
-              aria-label="VPN type"
-              value={type}
-              onChange={(v) => setType(v as AddVpnType)}
-              options={TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
-            />
-          </Label>
           <Label>
             <span>Name</span>
             <Input
