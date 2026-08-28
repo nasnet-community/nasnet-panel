@@ -34,6 +34,13 @@
     App = window.go.main.App;
     bindRuntimeEvents();
     bindUI();
+    showVersion();
+  }
+
+  function showVersion() {
+    App.AppVersion().then(function (v) {
+      $('app-version').textContent = v;
+    });
   }
 
   function bindUI() {

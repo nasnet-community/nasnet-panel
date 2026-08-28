@@ -86,6 +86,14 @@ header {
   line-height: 1.2;
 }
 
+.app-version {
+  margin-left: auto;
+  align-self: center;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
 .hidden {
   display: none !important;
 }
