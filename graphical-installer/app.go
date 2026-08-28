@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"nasnet-panel-installer/internal/buildinfo"
 	"nasnet-panel-installer/internal/install"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -28,6 +29,10 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+func (a *App) AppVersion() string {
+	return buildinfo.Version
 }
 
 type ProbeResult struct {
