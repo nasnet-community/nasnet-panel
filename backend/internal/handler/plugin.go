@@ -192,6 +192,45 @@ func HandleListPlugins(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Plugins retrieved", finalizePlugins(registry.Plugins, containers))
 }
 
+// HandleListInstalledPlugins godoc
+// @Summary List installed plugins
+// @Description Fetches the community plugin registry and the router's own containers, then
+// @Description returns just the id and name of every registry plugin currently installed (a
+// @Description plugin is installed as a container named after its id).
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=[]InstalledPluginInfo}
+// @Failure 502 {object} Response
+// @Router /api/plugin/installed [get].
+func HandleListInstalledPlugins(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	registry, err := fetchPluginRegistry(c.Request().Context())
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin registry", err)
+	}
+
+	containers, err := client.ListContainers()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list containers", err)
+	}
+
+	plugins := finalizePlugins(registry.Plugins, containers)
+	installed := make([]InstalledPluginInfo, 0, len(plugins))
+	for i := range plugins {
+		if plugins[i].Installed {
+			installed = append(installed, InstalledPluginInfo{ID: plugins[i].ID, Name: plugins[i].Name})
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Installed plugins retrieved", installed)
+}
+
 // HandleViewPlugin godoc
 // @Summary Proxy a plugin's web UI (test mode: base-tag injection only)
 // @Description Proxies a plugin's own web UI, resolving its target from the plugin's manifest:
