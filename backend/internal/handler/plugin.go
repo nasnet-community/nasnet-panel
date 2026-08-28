@@ -231,6 +231,108 @@ func HandleListInstalledPlugins(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Installed plugins retrieved", installed)
 }
 
+// HandleListPluginEnvVars godoc
+// @Summary List a plugin's container environment variables
+// @Description Returns the effective environment variables of the container installed for
+// @Description pluginId (a plugin is installed as a container named after its id): the
+// @Description container's resolved env-current when set, falling back to its own env
+// @Description otherwise. Each entry's changeable flag is true only if its key is also set
+// @Description directly on the container's own env property, since only those can be edited;
+// @Description a key present only via a resolved /container/envs list cannot be.
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param pluginId path string true "Plugin id"
+// @Produce json
+// @Success 200 {object} Response{data=[]EnvVar}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Router /api/plugin/envs/{pluginId} [get].
+func HandleListPluginEnvVars(c echo.Context) error {
+	pluginID := c.Param("pluginId")
+	if pluginID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	container, err := client.GetContainer(pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
+	}
+
+	envVars := parseEnvPairs(container.EnvCurrent, container.Env)
+
+	return SuccessResponse(c, http.StatusOK, "Plugin environment variables retrieved", envVars)
+}
+
+// HandleSetPluginEnvVar godoc
+// @Summary Set a plugin's container environment variable
+// @Description Adds or overwrites one entry in the container's own env property, identified by
+// @Description pluginId (a plugin is installed as a container named after its id). Only
+// @Description variables set this way (as opposed to ones pulled in from a resolved
+// @Description /container/envs list) can be changed; see GET /api/plugin/envs/{pluginId}'s
+// @Description changeable field.
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param pluginId path string true "Plugin id"
+// @Param request body SetPluginEnvVarRequest true "Environment variable to set"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=EnvVar}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/plugin/env/{pluginId} [put].
+func HandleSetPluginEnvVar(c echo.Context) error {
+	pluginID := c.Param("pluginId")
+	if pluginID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
+	}
+
+	var req SetPluginEnvVarRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	if req.Key == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "key is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	container, err := client.GetContainer(pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
+	}
+
+	// A key already in effect only via a resolved /container/envs list isn't
+	// settable here: it doesn't exist on the container's own env yet writing
+	// it would silently shadow, rather than actually change, the list-derived
+	// value the container currently sees.
+	if envKeySet(container.EnvCurrent)[req.Key] && !envKeySet(container.Env)[req.Key] {
+		return ErrorResponse(c, http.StatusConflict,
+			fmt.Sprintf("Environment variable %q is not changeable: it is set via a container envs list, not directly", req.Key), nil)
+	}
+
+	envMap := envToMap(container.Env)
+	envMap[req.Key] = req.Value
+
+	if err := client.EditContainer(pluginID, map[string]string{"env": joinEnvPairs(envMap)}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update plugin environment variable", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Plugin environment variable updated successfully",
+		EnvVar{Key: req.Key, Value: req.Value, Changeable: true})
+}
+
 // HandleViewPlugin godoc
 // @Summary Proxy a plugin's web UI (test mode: base-tag injection only)
 // @Description Proxies a plugin's own web UI, resolving its target from the plugin's manifest:
