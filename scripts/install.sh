@@ -21,8 +21,9 @@ VETH_ADDR_CIDR="192.168.50.2/24"
 VETH_IP="192.168.50.2"
 VETH_GW="192.168.50.1"
 
-CONTAINER_NAME="nnc"
-CONTAINER_ROOT_DIR="disk1/images/nnc"
+CONTAINER_NAME="nasnet-panel"
+LEGACY_CONTAINER_NAME="nnc"
+CONTAINER_ROOT_DIR="disk1/images/nasnet-panel"
 TAR_REMOTE_DIR="disk1"
 
 LAN_BRIDGE="LANBridgeSplit"
@@ -830,14 +831,17 @@ uninstall_path() {
   log ""
   log "Uninstalling ..."
 
-  if ros_exists /container "name=${CONTAINER_NAME}"; then
-    log "  stop:   container ${CONTAINER_NAME}"
-    if (( ! DRY_RUN )); then
-      ros_cmd "/container/stop [find name=${CONTAINER_NAME}]" >/dev/null 2>&1 || true
-      sleep 2
+  local name
+  for name in "$CONTAINER_NAME" "$LEGACY_CONTAINER_NAME"; do
+    if ros_exists /container "name=${name}"; then
+      log "  stop:   container ${name}"
+      if (( ! DRY_RUN )); then
+        ros_cmd "/container/stop [find name=${name}]" >/dev/null 2>&1 || true
+        sleep 2
+      fi
+      ros_remove "container ${name}" /container "name=${name}"
     fi
-    ros_remove "container ${CONTAINER_NAME}" /container "name=${CONTAINER_NAME}"
-  fi
+  done
 
   ros_remove "nat ${COMMENT_TAG}-srcnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""
