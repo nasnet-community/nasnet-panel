@@ -93,9 +93,6 @@ func (e *Engine) enableContainerPackage() error {
 	if !e.ev.RebootPrompt() {
 		return errors.New("router restart declined by user")
 	}
-	go func() {
-		_, _ = e.cl.RunRaw("/system/reboot", 10*time.Second)
-	}()
 	if err := e.waitForReboot(); err != nil {
 		return err
 	}

@@ -597,6 +597,8 @@ footer {
   padding: 24px;
   max-width: 480px;
   width: 90%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   box-shadow: var(--shadow-md);
 }
 
@@ -617,4 +619,31 @@ footer {
 
 .modal-box li {
   margin-bottom: 8px;
+}
+
+.figures {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.figures figure {
+  flex: 1;
+  min-width: 0;
+}
+
+.figures img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.figures figcaption {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  text-align: center;
 }
