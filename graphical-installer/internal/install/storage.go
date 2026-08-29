@@ -9,16 +9,16 @@ import (
 	"time"
 )
 
-const minStorageMB = 128
+const minStorageMB = 32
 
 type storageInfo struct {
 	name   string
 	freeMB int64
 }
 
-const diskProbeScript = `:foreach i in=[/disk/find] do={:local n ""; :do {:set n [:tostr [/disk/get $i slot]]} on-error={}; :if ([:len $n] = 0) do={:do {:set n [:tostr [/disk/get $i name]]} on-error={}}; :local f ""; :do {:set f [:tostr [/disk/get $i free]]} on-error={}; :if ([:len $f] = 0) do={:do {:set f [:tostr [/disk/get $i free-space]]} on-error={}}; :if ([:len $n] > 0) do={:put ("S=" . $n . " " . $f)}}`
+const diskProbeScript = `:foreach i in=[/disk/find] do={:local n ""; :do {:set n [:tostr [/disk/get $i slot]]} on-error={}; :if ([:len $n] = 0) do={:do {:set n [:tostr [/disk/get $i name]]} on-error={}}; :local f ""; :do {:set f [:tostr [/disk/get $i free]]} on-error={}; :if ([:len $f] = 0) do={:do {:set f [:tostr [/disk/get $i free-space]]} on-error={}}; :if ([:len $f] = 0) do={:set f "-"}; :if ([:len $n] > 0) do={:put ("S=" . $f . " " . $n)}}`
 
-const fileProbeScript = `:foreach i in=[/file/find where type="disk"] do={:put ("S=" . [/file/get $i name] . " ")}`
+const fileProbeScript = `:foreach i in=[/file/find where type="disk"] do={:put ("S=- " . [/file/get $i name])}`
 
 func (e *Engine) detectStorage() (storageInfo, error) {
 	found := e.listStorage()
@@ -58,18 +58,31 @@ func parseStorage(out string, err error) []storageInfo {
 		if !strings.HasPrefix(line, "S=") {
 			continue
 		}
-		fields := strings.Fields(strings.TrimPrefix(line, "S="))
-		if len(fields) == 0 || seen[fields[0]] {
+		free, name, ok := strings.Cut(strings.TrimSpace(strings.TrimPrefix(line, "S=")), " ")
+		name = strings.TrimSpace(name)
+		if !ok || name == "" || seen[name] {
 			continue
 		}
-		item := storageInfo{name: fields[0], freeMB: -1}
-		if len(fields) > 1 {
-			if bytes, perr := strconv.ParseInt(fields[1], 10, 64); perr == nil {
-				item.freeMB = bytes / 1024 / 1024
-			}
+		item := storageInfo{name: name, freeMB: -1}
+		if bytes, perr := strconv.ParseInt(free, 10, 64); perr == nil {
+			item.freeMB = bytes / 1024 / 1024
 		}
-		seen[item.name] = true
+		seen[name] = true
 		list = append(list, item)
 	}
 	return list
+}
+
+func (e *Engine) verifyStorageWritable(name string) error {
+	probe := name + "/nasnet-panel-write-test"
+	if e.opts.DryRun {
+		e.log("[dry-run] would write %s to check the storage is writable", probe)
+		return nil
+	}
+	payload := "nasnet-panel\n"
+	if err := e.cl.UploadReader(strings.NewReader(payload), int64(len(payload)), probe, nil); err != nil {
+		return fmt.Errorf("router storage %s is not writable (%v). Make sure the disk is formatted and mounted, then re-run the installer", name, err)
+	}
+	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", probe), 15*time.Second)
+	return nil
 }

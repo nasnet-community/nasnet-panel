@@ -85,6 +85,9 @@ func (e *Engine) stepCheck() error {
 	} else {
 		e.log("using router storage %s", st.name)
 	}
+	if err := e.verifyStorageWritable(st.name); err != nil {
+		return err
+	}
 
 	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.name)
 	return nil
