@@ -209,7 +209,7 @@ When it finishes, the panel is reachable at `http://<router-ip>:8080` (or whatev
 1. Probes Winbox (8291) and SSH (22) on the router; collects credentials.
 2. Checks RouterOS version, architecture (`arm` / `arm64` / `x86_64`), free RAM, `container` package, and `device-mode container`.
 3. Downloads the prebuilt container tar for the detected arch (`amd64` / `arm64` / `armv7`) from the rolling `snapshot` release (or the tag passed to `--version`) and verifies its checksum.
-4. Configures container networking: `veth1` at `192.168.50.2/24`, `containers` bridge at `192.168.50.1/24`, `srcnat` masquerade for `192.168.50.0/24`, and `dstnat` from `--lan-port` to the veth.
+4. Configures container networking: `veth-nasnet-panel` at `192.168.50.2/24`, `containers` bridge at `192.168.50.1/24`, `srcnat` masquerade for `192.168.50.0/24`, and `dstnat` from `--lan-port` to the veth.
 5. SCPs the tarball to `disk1/`, adds the container with `start-on-boot=yes`, and starts it.
 6. Polls `http://<router>:<lan-port>/health` for up to 120 s; dumps container logs on failure.
 
