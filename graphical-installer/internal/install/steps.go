@@ -284,7 +284,7 @@ func (e *Engine) stepUpload() error {
 		return err
 	}
 	e.pushRollback(func() {
-		_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", remote), 15*time.Second)
+		e.removeRemoteFile(remote)
 	})
 	e.note = humanBytes(localSize)
 	return nil
@@ -349,6 +349,7 @@ func (e *Engine) stepNetwork() error {
 func (e *Engine) stepContainer() error {
 	if e.exists("/container", "name="+containerName) {
 		e.note = "container " + containerName + " already exists"
+		e.removeRemoteFile(e.remoteTar)
 		return nil
 	}
 	if e.opts.DryRun {
@@ -364,6 +365,7 @@ func (e *Engine) stepContainer() error {
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", containerName), 15*time.Second)
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/remove [find name=%s]", containerName), 30*time.Second)
 	})
+	e.removeRemoteFile(e.remoteTar)
 	e.note = containerName + " created"
 	return nil
 }
@@ -460,9 +462,10 @@ func (e *Engine) stepBaseline() error {
 		e.note = "upload failed, run the wizard from a wired connection or re-run the installer"
 		return nil
 	}
-	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%s}", lanBaselineRsc)); err != nil {
+	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%s; /file/remove [find name=%q]}", lanBaselineRsc, lanBaselineRsc)); err != nil {
 		e.log("LAN baseline job failed to start: %v (%s)", err, strings.TrimSpace(out))
 		e.note = "job failed to start, run the wizard from a wired connection or re-run the installer"
+		e.removeRemoteFile(lanBaselineRsc)
 		return nil
 	}
 	e.baselineApplied = true

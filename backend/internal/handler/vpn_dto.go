@@ -535,6 +535,11 @@ type VpnUser struct {
 	Password string `json:"password" binding:"required" example:"userpassword123"`
 }
 
+// CreateSstpServerRequest represents a request to enable or disable the SSTP server.
+type CreateSstpServerRequest struct {
+	Enabled bool `json:"enabled" example:"true"`
+}
+
 // ExportOvpnClientRequest represents a request to export OVPN client configuration.
 type ExportOvpnClientRequest struct {
 	ServerName    string `query:"serverName" binding:"required" example:"OpenVPN-Server-1779215157"`
