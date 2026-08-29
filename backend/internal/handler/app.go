@@ -23,12 +23,12 @@ import (
 const (
 	githubLatestReleaseURL = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases/latest"
 	appContainerImage      = "ghcr.io/nasnet-community/nasnet-panel"
-	appContainerName       = "nnc" // matches CONTAINER_NAME in scripts/install.sh
-	appUpdateContainerName = "nnc-update"
+	appContainerName       = "nasnet-panel" // matches CONTAINER_NAME in scripts/install.sh
+	appUpdateContainerName = "nasnet-panel-update"
 
 	updateWatchInterval         = 3 * time.Second
 	updateWatchTimeout          = 5 * time.Minute
-	restartScheduleDelaySeconds = 3 // gives this request/response time to complete before nnc restarts
+	restartScheduleDelaySeconds = 3 // gives this request/response time to complete before nasnet-panel restarts
 
 	minUpdateFreeStorageBytes = 30 * 1024 * 1024 // 30MB, headroom for the pulled image layers
 )
@@ -134,9 +134,9 @@ var appUpdate = &appUpdateState{phase: updatePhaseIdle}
 // HandleAppInstallUpdate godoc
 // @Summary Install the latest nasnet-panel release
 // @Description Checks the latest GitHub release and, if newer than the running
-// @Description version, pulls it into a fresh nnc-update container alongside
-// @Description the running one. Once the pull finishes, nnc-update is promoted
-// @Description into nnc's place and started; poll /api/app/update-status for
+// @Description version, pulls it into a fresh nasnet-panel-update container alongside
+// @Description the running one. Once the pull finishes, nasnet-panel-update is promoted
+// @Description into nasnet-panel's place and started; poll /api/app/update-status for
 // @Description progress.
 // @Tags App
 // @Security BasicAuth
@@ -198,13 +198,13 @@ func HandleAppInstallUpdate(c echo.Context) error {
 	})
 }
 
-// watchNewContainerAndPromote removes any leftover nnc-update container,
+// watchNewContainerAndPromote removes any leftover nasnet-panel-update container,
 // creates a fresh one pulling the target release, polls its download/extract
-// state, and once the pull finishes promotes it into the running nnc
+// state, and once the pull finishes promotes it into the running nasnet-panel
 // container's place. Runs detached from the HTTP request that triggered it,
 // so it uses its own timeout rather than a request context.
 func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
-	// A leftover nnc-update from a previous failed run would otherwise collide
+	// A leftover nasnet-panel-update from a previous failed run would otherwise collide
 	// with AddContainer below. Safe to delete here since the in-progress guard
 	// in HandleAppInstallUpdate already ruled out a live update.
 	if _, err := client.GetContainer(appUpdateContainerName); err == nil {
