@@ -7,15 +7,19 @@ interface EdgeProps {
   effectiveActive: boolean;
   d: string | undefined;
   pathId: string;
+  fromId: string;
+  toId: string;
 }
 
-export function Edge({ effectiveActive, d, pathId }: EdgeProps) {
+export function Edge({ effectiveActive, d, pathId, fromId, toId }: EdgeProps) {
   if (!d) return null;
   return (
     <>
       <path
         id={pathId}
         d={d}
+        data-from={fromId}
+        data-to={toId}
         className={effectiveActive ? `${styles.edge} ${styles.edgeActive}` : styles.edge}
         markerEnd={`url(#${effectiveActive ? 'arr-active' : 'arr-idle'})`}
       />

@@ -7,10 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
 
+	"nasnet-panel/pkg/proxy"
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
@@ -22,6 +24,24 @@ const pluginRegistryURL = "https://raw.githubusercontent.com/nasnet-community/na
 // attached to, protected from removal by the wizard's cleanup script, and
 // assumed to already exist on the router by the time a plugin is installed.
 const pluginContainersBridge = "containers"
+
+// pluginViewTarget is the host/port HandleViewPlugin resolves from a plugin's
+// manifest, cached in pluginViewTargets so it doesn't have to be re-fetched
+// on every proxied request.
+type pluginViewTarget struct {
+	Host string
+	Port int
+}
+
+// pluginViewTargets caches each plugin's resolved proxy target, keyed by
+// plugin id, across HandleViewPlugin calls. Entries never expire: a plugin's
+// container address and web port don't change without a reinstall, and a
+// reinstalled plugin is expected to restart the panel or otherwise pick up a
+// fresh manifest fetch some other way.
+var (
+	pluginViewTargets   = map[string]pluginViewTarget{}
+	pluginViewTargetsMu sync.RWMutex
+)
 
 const (
 	pluginInstallPollInterval = 3 * time.Second
@@ -188,6 +208,216 @@ func HandleListPlugins(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Plugins retrieved", finalizePlugins(registry.Plugins, containers))
+}
+
+// HandleListInstalledPlugins godoc
+// @Summary List installed plugins
+// @Description Fetches the community plugin registry and the router's own containers, then
+// @Description returns just the id and name of every registry plugin currently installed (a
+// @Description plugin is installed as a container named after its id).
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=[]InstalledPluginInfo}
+// @Failure 502 {object} Response
+// @Router /api/plugin/installed [get].
+func HandleListInstalledPlugins(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	registry, err := fetchPluginRegistry(c.Request().Context())
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin registry", err)
+	}
+
+	containers, err := client.ListContainers()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list containers", err)
+	}
+
+	plugins := finalizePlugins(registry.Plugins, containers)
+	installed := make([]InstalledPluginInfo, 0, len(plugins))
+	for i := range plugins {
+		if plugins[i].Installed {
+			installed = append(installed, InstalledPluginInfo{ID: plugins[i].ID, Name: plugins[i].Name})
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Installed plugins retrieved", installed)
+}
+
+// HandleListPluginEnvVars godoc
+// @Summary List a plugin's container environment variables
+// @Description Returns the effective environment variables of the container installed for
+// @Description pluginId (a plugin is installed as a container named after its id): the
+// @Description container's resolved env-current when set, falling back to its own env
+// @Description otherwise. Each entry's changeable flag is true only if its key is also set
+// @Description directly on the container's own env property, since only those can be edited;
+// @Description a key present only via a resolved /container/envs list cannot be.
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param pluginId path string true "Plugin id"
+// @Produce json
+// @Success 200 {object} Response{data=[]EnvVar}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Router /api/plugin/envs/{pluginId} [get].
+func HandleListPluginEnvVars(c echo.Context) error {
+	pluginID := c.Param("pluginId")
+	if pluginID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	container, err := client.GetContainer(pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
+	}
+
+	envVars := parseEnvPairs(container.EnvCurrent, container.Env)
+
+	return SuccessResponse(c, http.StatusOK, "Plugin environment variables retrieved", envVars)
+}
+
+// HandleSetPluginEnvVar godoc
+// @Summary Set a plugin's container environment variable
+// @Description Adds or overwrites one entry in the container's own env property, identified by
+// @Description pluginId (a plugin is installed as a container named after its id). Only
+// @Description variables set this way (as opposed to ones pulled in from a resolved
+// @Description /container/envs list) can be changed; see GET /api/plugin/envs/{pluginId}'s
+// @Description changeable field.
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param pluginId path string true "Plugin id"
+// @Param request body SetPluginEnvVarRequest true "Environment variable to set"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=EnvVar}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/plugin/env/{pluginId} [put].
+func HandleSetPluginEnvVar(c echo.Context) error {
+	pluginID := c.Param("pluginId")
+	if pluginID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
+	}
+
+	var req SetPluginEnvVarRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	if req.Key == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "key is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	container, err := client.GetContainer(pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
+	}
+
+	// A key already in effect only via a resolved /container/envs list isn't
+	// settable here: it doesn't exist on the container's own env yet writing
+	// it would silently shadow, rather than actually change, the list-derived
+	// value the container currently sees.
+	if envKeySet(container.EnvCurrent)[req.Key] && !envKeySet(container.Env)[req.Key] {
+		return ErrorResponse(c, http.StatusConflict,
+			fmt.Sprintf("Environment variable %q is not changeable: it is set via a container envs list, not directly", req.Key), nil)
+	}
+
+	envMap := envToMap(container.Env)
+	envMap[req.Key] = req.Value
+
+	if err := client.EditContainer(pluginID, map[string]string{"env": joinEnvPairs(envMap)}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update plugin environment variable", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Plugin environment variable updated successfully",
+		EnvVar{Key: req.Key, Value: req.Value, Changeable: true})
+}
+
+// HandleViewPlugin godoc
+// @Summary Proxy a plugin's web UI (test mode: base-tag injection only)
+// @Description Proxies a plugin's own web UI, resolving its target from the plugin's manifest:
+// @Description the container interface's address (its IP, without the subnet) as host, and the
+// @Description containerPort of the first entry in container.ports whose description starts
+// @Description with "web" (case-insensitive) as port. The resolved target is cached in-memory
+// @Description per plugin id, so the manifest is only fetched once per plugin.
+// @Description Test mode: no redirect/cookie/CSS/JS rewriting is performed; a <base href>
+// @Description tag pointing at this route's own base URL is injected into HTML responses only.
+// @Description /api/plugin/view/{pluginID} is the base URL for the plugin's web UI; any path
+// @Description appended after it (assets, API calls, etc.) is forwarded to the same target,
+// @Description relative to that base.
+// @Description Does not require RouterOS auth: it proxies the plugin's own web UI, not RouterOS.
+// @Tags Plugin
+// @Param pluginID path string true "Plugin id"
+// @Router /api/plugin/view/{pluginID} [get].
+// @Router /api/plugin/view/{pluginID}/{path} [get].
+func HandleViewPlugin(c echo.Context) error {
+	pluginID := c.Param("pluginID")
+
+	pluginViewTargetsMu.RLock()
+	cached, ok := pluginViewTargets[pluginID]
+	pluginViewTargetsMu.RUnlock()
+
+	if !ok {
+		manifest, err := fetchPluginManifest(c.Request().Context(), pluginID)
+		if err != nil {
+			return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
+		}
+
+		host, _, _ := strings.Cut(manifest.Container.Interface.Address, "/")
+		if host == "" {
+			return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no interface address", nil)
+		}
+
+		var webPort *PluginManifestPort
+		for i := range manifest.Container.Ports {
+			if strings.HasPrefix(strings.ToLower(manifest.Container.Ports[i].Description), "web") {
+				webPort = &manifest.Container.Ports[i]
+				break
+			}
+		}
+		if webPort == nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no web port", nil)
+		}
+
+		cached = pluginViewTarget{Host: host, Port: webPort.ContainerPort}
+
+		pluginViewTargetsMu.Lock()
+		pluginViewTargets[pluginID] = cached
+		pluginViewTargetsMu.Unlock()
+	}
+
+	target, err := url.Parse(fmt.Sprintf("http://%s:%d", cached.Host, cached.Port))
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Invalid plugin target URL", err)
+	}
+
+	baseURL := strings.TrimSuffix(c.Request().URL.Path, c.Param("*"))
+	baseURL = strings.TrimSuffix(baseURL, "/")
+
+	proxyHandler, err := proxy.NewSubpathProxy(baseURL, target)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to set up plugin proxy", err)
+	}
+
+	return proxyHandler(c)
 }
 
 // HandleInstallPlugin godoc

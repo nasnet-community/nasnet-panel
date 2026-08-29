@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,14 +23,15 @@ const (
 	bridgeIPCIDR = "192.168.50.1/24"
 	bridgeNet    = "192.168.50.0/24"
 
-	vethName     = "veth1"
-	vethAddrCIDR = "192.168.50.2/24"
-	vethIP       = "192.168.50.2"
-	vethGW       = "192.168.50.1"
+	vethName       = "veth-nasnet-panel"
+	legacyVethName = "veth1"
+	vethAddrCIDR   = "192.168.50.2/24"
+	vethIP         = "192.168.50.2"
+	vethGW         = "192.168.50.1"
 
-	containerName    = "nnc"
-	containerRootDir = "disk1/images/nnc"
-	tarRemoteDir     = "disk1"
+	containerName       = "nasnet-panel"
+	legacyContainerName = "nnc"
+	containerImagesDir  = "images/nasnet-panel"
 
 	lanBridge      = "LANBridgeSplit"
 	lanBridgeIP    = "192.168.10.1"
@@ -37,8 +39,12 @@ const (
 
 	commentTag        = "nasnet-panel-installer"
 	minFreeMB         = 30
+	minROSMajor       = 7
+	minROSMinor       = 24
 	deviceModeTimeout = 120 * time.Second
 	startTimeout      = 120 * time.Second
+	rebootSettle      = 15 * time.Second
+	rebootTimeout     = 5 * time.Minute
 )
 
 type Options struct {
@@ -56,10 +62,12 @@ type Options struct {
 }
 
 type SystemInfo struct {
-	Board   string `json:"board"`
-	Arch    string `json:"arch"`
-	Version string `json:"version"`
-	FreeMB  int64  `json:"freeMb"`
+	Board         string `json:"board"`
+	Arch          string `json:"arch"`
+	Version       string `json:"version"`
+	FreeMB        int64  `json:"freeMb"`
+	Storage       string `json:"storage"`
+	StorageFreeMB int64  `json:"storageFreeMb"`
 }
 
 type StepInfo struct {
@@ -74,6 +82,8 @@ type Events struct {
 	SysInfo          func(info SystemInfo)
 	DeviceModePrompt func() bool
 	DeviceModeTick   func(remaining int, routerState string)
+	RebootPrompt     func() bool
+	RebootTick       func(elapsed int, routerState string)
 	Done             func(urls []string, note string)
 }
 
@@ -97,6 +107,7 @@ type Engine struct {
 	assetName string
 	localTar  string
 	remoteTar string
+	storage   string
 
 	finalPort       int
 	baselineApplied bool
@@ -206,10 +217,8 @@ func (e *Engine) finish() {
 		urls = []string{
 			fmt.Sprintf("http://%s:%d/", lanBridgeIP, port),
 			fmt.Sprintf("https://%s:%d/", lanBridgeIP, e.opts.HTTPSLANPort),
-			fmt.Sprintf("http://%s:%d/", e.opts.Host, port),
-			fmt.Sprintf("https://%s:%d/", e.opts.Host, e.opts.HTTPSLANPort),
 		}
-		note = fmt.Sprintf("Baseline LAN %s.0/24 configured. Reconnect or renew your DHCP lease on the %s.x network, then use the first link. If it does not respond, the panel is still reachable on the router address.",
+		note = fmt.Sprintf("Baseline LAN %s.0/24 configured. The address you installed from no longer serves the panel, so reconnect or renew your DHCP lease on the %s.x network, then use the links below.",
 			lanBridgeIP[:strings.LastIndex(lanBridgeIP, ".")], lanBridgeIP[:strings.LastIndex(lanBridgeIP, ".")])
 	default:
 		urls = []string{
@@ -280,6 +289,20 @@ func (e *Engine) removeObj(label, path, selector string) {
 	_, _ = e.cl.RunRaw(fmt.Sprintf("%s/remove [find %s]", path, selector), 15*time.Second)
 }
 
+func (e *Engine) removeRemoteFile(name string) {
+	if name == "" {
+		return
+	}
+	if e.opts.DryRun {
+		e.log("[dry-run] would remove %s from the router", name)
+		return
+	}
+	e.log("removing %s from the router", name)
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/file/remove [find name=%q]", name), 15*time.Second); err != nil {
+		e.log("could not remove %s from the router: %v (%s)", name, err, strings.TrimSpace(out))
+	}
+}
+
 func (e *Engine) moveToTop(path, selector string) {
 	if e.opts.DryRun {
 		return
@@ -310,6 +333,21 @@ func (e *Engine) sleep(d time.Duration) error {
 	case <-time.After(d):
 		return nil
 	}
+}
+
+var rosVersionRe = regexp.MustCompile(`^(\d+)\.(\d+)`)
+
+func versionBelow(version string, major, minor int) bool {
+	m := rosVersionRe.FindStringSubmatch(strings.TrimSpace(version))
+	if m == nil {
+		return false
+	}
+	gotMajor, _ := strconv.Atoi(m[1])
+	gotMinor, _ := strconv.Atoi(m[2])
+	if gotMajor != major {
+		return gotMajor < major
+	}
+	return gotMinor < minor
 }
 
 func assetSuffix(arch string) (string, error) {

@@ -21,6 +21,7 @@ type App struct {
 	running  bool
 	cancel   context.CancelFunc
 	deviceCh chan bool
+	rebootCh chan bool
 }
 
 func NewApp() *App {
@@ -94,6 +95,7 @@ func (a *App) start(opts install.Options, uninstall bool) error {
 	a.running = true
 	a.cancel = cancel
 	a.deviceCh = make(chan bool, 1)
+	a.rebootCh = make(chan bool, 1)
 
 	eng := install.New(ctx, opts, a.events(ctx))
 	go func() {
@@ -141,6 +143,18 @@ func (a *App) events(ctx context.Context) install.Events {
 		DeviceModeTick: func(remaining int, routerState string) {
 			runtime.EventsEmit(a.ctx, "install:device-mode-tick", map[string]any{"remaining": remaining, "state": routerState})
 		},
+		RebootPrompt: func() bool {
+			runtime.EventsEmit(a.ctx, "install:reboot", map[string]any{"timeout": 300})
+			select {
+			case v := <-a.rebootCh:
+				return v
+			case <-ctx.Done():
+				return false
+			}
+		},
+		RebootTick: func(elapsed int, routerState string) {
+			runtime.EventsEmit(a.ctx, "install:reboot-tick", map[string]any{"elapsed": elapsed, "state": routerState})
+		},
 		Done: func(urls []string, note string) {
 			runtime.EventsEmit(a.ctx, "install:done", map[string]any{"urls": urls, "note": note})
 		},
@@ -150,6 +164,18 @@ func (a *App) events(ctx context.Context) install.Events {
 func (a *App) ConfirmDeviceMode(accept bool) {
 	a.mu.Lock()
 	ch := a.deviceCh
+	a.mu.Unlock()
+	if ch != nil {
+		select {
+		case ch <- accept:
+		default:
+		}
+	}
+}
+
+func (a *App) ConfirmReboot(accept bool) {
+	a.mu.Lock()
+	ch := a.rebootCh
 	a.mu.Unlock()
 	if ch != nil {
 		select {

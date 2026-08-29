@@ -6,6 +6,7 @@ import {
   Globe,
   LayoutGrid,
   Network,
+  Server,
   Shield,
   Wifi,
 } from 'lucide-react';
@@ -18,6 +19,7 @@ export const ROUTER_SECTIONS: RouterSection[] = [
   { id: 'internet', label: 'Internet', path: 'internet', icon: <Globe size={16} /> },
   { id: 'wan', label: 'WAN', path: 'wan', icon: <Cable size={16} /> },
   { id: 'lan', label: 'LAN', path: 'lan', icon: <Network size={16} /> },
+  { id: 'dns', label: 'DNS', path: 'dns', icon: <Server size={16} /> },
   { id: 'wireless', label: 'WIFI', path: 'wireless', icon: <Wifi size={16} /> },
   { id: 'vpn', label: 'VPN Server', path: 'vpn', icon: <Shield size={16} /> },
   { id: 'plugins', label: 'Plugins', path: 'plugins', icon: <Blocks size={16} /> },
