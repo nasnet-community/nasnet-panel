@@ -201,25 +201,25 @@ Once the `container` package is installed and device-mode is enabled, Winbox and
 2. Set the fields:
    - **File:** `disk1/nasnet-panel-dev-arm64.tar` (the tar you uploaded; match your architecture)
    - **Interface:** `veth-nasnet-panel`
-   - **Root Dir:** `disk1/images/nnc`
-   - **Name:** `nnc`
+   - **Root Dir:** `disk1/images/nasnet-panel`
+   - **Name:** `nasnet-panel`
    - **Start On Boot:** ticked
    - **Logging:** ticked
 3. Click **OK**. The new entry appears in the list and RouterOS begins extracting the image; the status moves through `extracting` to `stopped` once ready.
-4. Select the `nnc` row and click **Start**. The status changes to `running`.
+4. Select the `nasnet-panel` row and click **Start**. The status changes to `running`.
 
 **Using the terminal**
 
 Create the container from the uploaded tarball, attaching it to `veth-nasnet-panel`. Replace the filename with the tarball you uploaded.
 
 ```
-/container/add file=disk1/nasnet-panel-dev-arm64.tar interface=veth-nasnet-panel root-dir=disk1/images/nnc name=nnc start-on-boot=yes logging=yes
+/container/add file=disk1/nasnet-panel-dev-arm64.tar interface=veth-nasnet-panel root-dir=disk1/images/nasnet-panel name=nasnet-panel start-on-boot=yes logging=yes
 ```
 
 RouterOS extracts the image, which takes a moment. Once the container shows as extracted, start it:
 
 ```
-/container/start [find name=nnc]
+/container/start [find name=nasnet-panel]
 ```
 
 **Alternative: pull from the registry (not recommended)**
@@ -228,7 +228,7 @@ Instead of uploading a tar, RouterOS can pull the image straight from GitHub Con
 
 ```
 /container/config/set registry-url=https://ghcr.io tmpdir=disk1/pull
-/container/add remote-image=nasnet-community/nasnet-panel:dev interface=veth-nasnet-panel root-dir=disk1/images/nnc name=nnc start-on-boot=yes logging=yes
+/container/add remote-image=nasnet-community/nasnet-panel:dev interface=veth-nasnet-panel root-dir=disk1/images/nasnet-panel name=nasnet-panel start-on-boot=yes logging=yes
 ```
 
 Use the multi-arch `dev` tag (or `latest`); the registry serves the image matching your board, so no architecture suffix is needed. This route needs working DNS and outbound HTTPS on the router, and `tmpdir` must sit on the external disk.
@@ -237,7 +237,7 @@ RouterOS's registry pull is unreliable in practice, which is why the tar route a
 
 ### Step 6: Verify
 
-In the **Container** menu, the `nnc` row should show status `running`. From the terminal you can check the same thing:
+In the **Container** menu, the `nasnet-panel` row should show status `running`. From the terminal you can check the same thing:
 
 ```
 /container/print
@@ -252,7 +252,7 @@ http://<router-ip>:8080/
 The health endpoint at `http://<router-ip>:8080/health` should return HTTP 200 once the container is fully up. If it does not, inspect the container and its logs:
 
 ```
-/container/print detail where name=nnc
+/container/print detail where name=nasnet-panel
 /log/print where topics~"container"
 ```
 
@@ -261,8 +261,8 @@ The health endpoint at `http://<router-ip>:8080/health` should return HTTP 200 o
 To undo a manual installation, stop and remove the container, then delete the networking and firewall entries and the uploaded tarball:
 
 ```
-/container/stop [find name=nnc]
-/container/remove [find name=nnc]
+/container/stop [find name=nasnet-panel]
+/container/remove [find name=nasnet-panel]
 
 /ip/firewall/nat/remove [find comment="nasnet-panel-installer-srcnat"]
 /ip/firewall/nat/remove [find comment="nasnet-panel-installer-dstnat"]
