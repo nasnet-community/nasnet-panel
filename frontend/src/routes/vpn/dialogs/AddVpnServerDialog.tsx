@@ -15,20 +15,24 @@ import {
 import {
   ApiError,
   createOvpnServer,
+  createSstpServer,
   createWireguardServer,
   fetchOvpnServerTaskStatus,
   type CreateOvpnServerRequest,
   type CreateWireguardServerRequest,
   type OvpnServerTaskStatus,
+  type SstpServerTaskStatus,
   type VPNCredentials,
 } from '../../../api';
 import { isCIDR, isPort, validateIdentifier } from '../../../utils/validators';
+import { pollSstpServerTask } from '../sstpTask';
 
-export type AddVpnServerType = 'openvpn' | 'wireguard';
+export type AddVpnServerType = 'openvpn' | 'wireguard' | 'sstp';
 
 const TYPE_OPTIONS: Array<{ value: AddVpnServerType; label: string }> = [
   { value: 'openvpn', label: 'OpenVPN' },
   { value: 'wireguard', label: 'WireGuard' },
+  { value: 'sstp', label: 'SSTP' },
 ];
 
 const POLL_INTERVAL_MS = 1000;
@@ -59,6 +63,8 @@ export function AddVpnServerDialog({ creds, onCancel, onCreated }: Props) {
 
         {type === 'openvpn' ? (
           <OvpnServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
+        ) : type === 'sstp' ? (
+          <SstpServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
         ) : (
           <WireguardServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
         )}
@@ -205,6 +211,105 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
         </Button>
         <Button variant="success" onClick={submit} disabled={!canSubmit}>
           {submitting ? 'Creating…' : 'Create OpenVPN server'}
+        </Button>
+      </FieldRow>
+    </FieldStack>
+  );
+}
+
+function SstpServerForm({ creds, onCancel, onCreated }: FormProps) {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [taskId, setTaskId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<SstpServerTaskStatus | null>(null);
+
+  const credsRef = useRef(creds);
+  const onCreatedRef = useRef(onCreated);
+  useEffect(() => {
+    credsRef.current = creds;
+    onCreatedRef.current = onCreated;
+  });
+
+  useEffect(() => {
+    if (!taskId) return;
+    const c = credsRef.current;
+    if (!c) return;
+
+    const poll = pollSstpServerTask(c, taskId, setProgress);
+    poll.done
+      .then((status) => {
+        if (status.status === 'completed') {
+          onCreatedRef.current();
+        } else {
+          setError(status.error ?? 'SSTP server setup failed.');
+          setSubmitting(false);
+        }
+      })
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : 'Failed to fetch task status.');
+        setSubmitting(false);
+      });
+
+    return () => poll.cancel();
+  }, [taskId]);
+
+  const canSubmit = !!creds && !submitting;
+
+  const submit = async () => {
+    if (!canSubmit || !creds) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      const res = await createSstpServer(creds, { enabled: true });
+      setTaskId(res.taskId);
+    } catch (err) {
+      const message =
+        err instanceof ApiError && err.status === 409
+          ? 'The SSTP server is already enabled on this router.'
+          : err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : 'Failed to start SSTP server setup.';
+      setError(message);
+      setSubmitting(false);
+    }
+  };
+
+  if (taskId && progress && progress.status !== 'completed') {
+    const failed = progress.status === 'error';
+    return (
+      <FieldStack>
+        <Progress
+          value={progress.progress}
+          label={failed ? 'Failed' : (progress.currentStep ?? 'Working…')}
+          tone={failed ? 'danger' : 'success'}
+        />
+        {error ? <FormError role="alert">{error}</FormError> : null}
+        <FieldRow>
+          <Button variant="ghost" onClick={onCancel} disabled={!failed}>
+            Close
+          </Button>
+        </FieldRow>
+      </FieldStack>
+    );
+  }
+
+  return (
+    <FieldStack>
+      <FieldRow>
+        <p style={{ color: 'var(--color-muted)' }}>
+          Enabling SSTP issues a server certificate, starts the SSTP server on port 4433 and adds a
+          firewall rule accepting inbound connections. Existing VPN users can sign in over SSTP.
+        </p>
+      </FieldRow>
+      {error ? <FormError role="alert">{error}</FormError> : null}
+      <FieldRow>
+        <Button variant="ghost" onClick={onCancel} disabled={submitting}>
+          Cancel
+        </Button>
+        <Button variant="success" onClick={submit} disabled={!canSubmit}>
+          {submitting ? 'Enabling…' : 'Enable SSTP server'}
         </Button>
       </FieldRow>
     </FieldStack>
