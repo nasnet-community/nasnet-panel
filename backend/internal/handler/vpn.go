@@ -2111,10 +2111,14 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	updateTask(70, "Creating PPP profile")
-	serverConfigName := "ovpn-server-" + timestamp
+	clientCertPasswordFile := clientName + "-password.txt"
+	if err := client.AddFile(clientCertPasswordFile, req.ClientCertificatePassword); err != nil {
+		setError("Failed to save client certificate password: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
+		return
+	}
 
 	updateTask(75, "Creating PPP secrets")
+	serverConfigName := "ovpn-server-" + timestamp
 	defaultProfile := "VPN-VPN"
 	createdUsers := make([]map[string]string, 0)
 	for _, user := range req.Users {
@@ -2196,8 +2200,9 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 			"server": serverName,
 			"client": clientName,
 		},
-		"timestamp": timestamp,
-		"secrets":   createdUsers,
+		"clientCertificatePasswordFile": clientCertPasswordFile,
+		"timestamp":                     timestamp,
+		"secrets":                       createdUsers,
 		"servers": []map[string]interface{}{
 			{
 				"name":                     serverConfigNameTCP,
