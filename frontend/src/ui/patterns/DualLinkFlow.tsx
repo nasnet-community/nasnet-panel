@@ -17,7 +17,6 @@ interface NodeProps {
   sublabel?: string;
   sublabelIcon?: React.ReactNode;
   badge?: NodeBadge;
-  labelAbove?: boolean;
   selected?: boolean;
   branch?: 'domestic' | 'starlink' | 'common';
   focus?: DualLinkFlowProps['focus'];
@@ -39,15 +38,11 @@ const Node: React.FC<NodeProps> = ({
   sublabel,
   sublabelIcon,
   badge,
-  labelAbove,
   selected,
   branch,
   focus,
 }) => (
-  <div
-    className={cx(styles.node, labelAbove && styles.nodeAbove, emphasisClass(branch, focus))}
-    style={{ left, top }}
-  >
+  <div className={cx(styles.node, emphasisClass(branch, focus))} style={{ left, top }}>
     <div className={cx(styles.nodeIcon, selected && styles.nodeIconSelected)}>{icon}</div>
     <div className={styles.labelGroup}>
       <div className={styles.nodeLabel}>{label}</div>
@@ -204,7 +199,6 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         sublabelIcon={starlinkInterfaceIcon}
         badge={starlinkBadge}
         selected={Boolean(starlinkInterface)}
-        labelAbove
         branch="starlink"
         focus={focus}
       />
@@ -213,7 +207,6 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         top="24%"
         icon={<Server size={32} strokeWidth={1.75} />}
         label="Foreign Site"
-        labelAbove
         branch="starlink"
         focus={focus}
       />
