@@ -59,6 +59,9 @@ func (e *Engine) stepCheck() error {
 	if _, err := assetSuffix(e.sys.Arch); err != nil {
 		return err
 	}
+	if versionBelow(e.sys.Version, minROSMajor, minROSMinor) {
+		return fmt.Errorf("RouterOS %s is too old, %d.%d or newer is required. Update the router (System > Packages > Check For Updates), then run the installer again", e.sys.Version, minROSMajor, minROSMinor)
+	}
 	if e.sys.FreeMB < minFreeMB {
 		return fmt.Errorf("free memory %d MB below threshold %d MB", e.sys.FreeMB, minFreeMB)
 	}
@@ -69,11 +72,83 @@ func (e *Engine) stepCheck() error {
 	}
 	out, err = e.cl.RunRaw(":put [/system/package/get [find name=container] disabled]", 15*time.Second)
 	if err == nil && strings.TrimSpace(out) == "true" {
-		return errors.New("container package is installed but disabled. Run on the router: /system/package/enable container ; /system/reboot")
+		if err := e.enableContainerPackage(); err != nil {
+			return err
+		}
 	}
 
-	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free", e.sys.Arch, e.sys.Version, e.sys.FreeMB)
+	st, err := e.detectStorage()
+	if err != nil {
+		return err
+	}
+	e.storage = st.name
+	e.sys.Storage = st.name
+	e.sys.StorageFreeMB = st.freeMB
+	e.ev.SysInfo(e.sys)
+	if st.freeMB >= 0 {
+		e.log("using router storage %s (%d MB free)", st.name, st.freeMB)
+	} else {
+		e.log("using router storage %s", st.name)
+	}
+	if err := e.verifyStorageWritable(st.name); err != nil {
+		return err
+	}
+
+	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.name)
 	return nil
+}
+
+func (e *Engine) enableContainerPackage() error {
+	e.log("container package is disabled, enabling it")
+	if e.opts.DryRun {
+		e.log("[dry-run] /system/package/enable container, then restart the router")
+		return nil
+	}
+	if out, err := e.cl.Run("/system/package/enable container"); err != nil {
+		return fmt.Errorf("failed to enable the container package: %w (%s)", err, strings.TrimSpace(out))
+	}
+	if !e.ev.RebootPrompt() {
+		return errors.New("router restart declined by user")
+	}
+	if err := e.waitForReboot(); err != nil {
+		return err
+	}
+	out, err := e.cl.RunRaw(":put [/system/package/get [find name=container] disabled]", 15*time.Second)
+	if err != nil {
+		return fmt.Errorf("could not read the container package state after the restart: %w", err)
+	}
+	if strings.TrimSpace(out) == "true" {
+		return errors.New("the container package is still disabled after the restart")
+	}
+	e.log("container package enabled")
+	return nil
+}
+
+func (e *Engine) waitForReboot() error {
+	e.log("waiting for the router to restart")
+	e.cl.Close()
+	if err := e.sleep(rebootSettle); err != nil {
+		return err
+	}
+	start := time.Now()
+	tick := time.NewTicker(3 * time.Second)
+	defer tick.Stop()
+	for time.Since(start) < rebootTimeout {
+		e.ev.RebootTick(int(time.Since(start)/time.Second)+int(rebootSettle/time.Second), "restarting")
+		if err := e.cl.Reconnect(); err == nil {
+			if _, rerr := e.cl.RunRaw(":put ok", 8*time.Second); rerr == nil {
+				e.ev.RebootTick(int(time.Since(start)/time.Second)+int(rebootSettle/time.Second), "online")
+				e.log("router is back online")
+				return nil
+			}
+		}
+		select {
+		case <-e.ctx.Done():
+			return e.ctx.Err()
+		case <-tick.C:
+		}
+	}
+	return fmt.Errorf("router did not come back within %s after the restart", rebootTimeout)
 }
 
 func (e *Engine) stepDeviceMode() error {
@@ -247,7 +322,7 @@ func (e *Engine) fetchChecksum(url string) (string, error) {
 }
 
 func (e *Engine) stepUpload() error {
-	remote := tarRemoteDir + "/" + e.assetName
+	remote := e.storage + "/" + e.assetName
 	e.remoteTar = remote
 
 	info, err := os.Stat(e.localTar)
@@ -275,7 +350,7 @@ func (e *Engine) stepUpload() error {
 		e.log("[dry-run] sftp upload")
 		return nil
 	}
-	e.ensureDir(tarRemoteDir)
+	e.ensureDir(e.storage)
 	err = e.cl.Upload(e.localTar, remote, func(done, total int64) {
 		e.ev.Progress("upload", float64(done)*100/float64(total),
 			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
@@ -284,7 +359,7 @@ func (e *Engine) stepUpload() error {
 		return err
 	}
 	e.pushRollback(func() {
-		_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", remote), 15*time.Second)
+		e.removeRemoteFile(remote)
 	})
 	e.note = humanBytes(localSize)
 	return nil
@@ -349,6 +424,7 @@ func (e *Engine) stepNetwork() error {
 func (e *Engine) stepContainer() error {
 	if e.exists("/container", "name="+containerName) {
 		e.note = "container " + containerName + " already exists"
+		e.removeRemoteFile(e.remoteTar)
 		return nil
 	}
 	if e.opts.DryRun {
@@ -356,14 +432,15 @@ func (e *Engine) stepContainer() error {
 		return nil
 	}
 	e.log("extracting tar and adding container %s (this can take a few minutes)", containerName)
-	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%s interface=%s root-dir=%s name=%s start-on-boot=yes logging=yes",
-		e.remoteTar, vethName, containerRootDir, containerName), 5*time.Minute); err != nil {
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s start-on-boot=yes logging=yes",
+		e.remoteTar, vethName, e.storage+"/"+containerImagesDir, containerName), 5*time.Minute); err != nil {
 		return fmt.Errorf("failed to add container: %w (%s)", err, strings.TrimSpace(out))
 	}
 	e.pushRollback(func() {
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", containerName), 15*time.Second)
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/remove [find name=%s]", containerName), 30*time.Second)
 	})
+	e.removeRemoteFile(e.remoteTar)
 	e.note = containerName + " created"
 	return nil
 }
@@ -460,9 +537,10 @@ func (e *Engine) stepBaseline() error {
 		e.note = "upload failed, run the wizard from a wired connection or re-run the installer"
 		return nil
 	}
-	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%s}", lanBaselineRsc)); err != nil {
+	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%s; /file/remove [find name=%q]}", lanBaselineRsc, lanBaselineRsc)); err != nil {
 		e.log("LAN baseline job failed to start: %v (%s)", err, strings.TrimSpace(out))
 		e.note = "job failed to start, run the wizard from a wired connection or re-run the installer"
+		e.removeRemoteFile(lanBaselineRsc)
 		return nil
 	}
 	e.baselineApplied = true

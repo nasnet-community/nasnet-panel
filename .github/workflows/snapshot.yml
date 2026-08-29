@@ -43,6 +43,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Resolve version
+        run: echo "APP_VERSION=dev-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
       - id: build
         uses: docker/build-push-action@v7
         with:
@@ -54,7 +57,7 @@ jobs:
           sbom: false
           tags: ${{ env.IMAGE }}:dev-${{ matrix.suffix }}
           build-args: |
-            APP_VERSION=dev-${{ github.sha }}
+            APP_VERSION=${{ env.APP_VERSION }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
 
