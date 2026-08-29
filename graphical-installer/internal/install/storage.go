@@ -83,6 +83,6 @@ func (e *Engine) verifyStorageWritable(name string) error {
 	if err := e.cl.UploadReader(strings.NewReader(payload), int64(len(payload)), probe, nil); err != nil {
 		return fmt.Errorf("router storage %s is not writable (%v). Make sure the disk is formatted and mounted, then re-run the installer", name, err)
 	}
-	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", probe), 15*time.Second)
+	e.removeRemoteFile(probe)
 	return nil
 }
