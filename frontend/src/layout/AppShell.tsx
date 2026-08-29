@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, Inline } from '@nasnet/ui';
 import { fetchHealth } from '../api';
+import { formatBuildVersion } from '../utils/format';
 import { AppHeader } from './AppHeader';
 import styles from './AppShell.module.scss';
 
@@ -12,7 +13,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     const controller = new AbortController();
     fetchHealth(controller.signal)
-      .then((health) => setVersion(health.version))
+      .then((health) => setVersion(formatBuildVersion(health.version)))
       .catch(() => {});
     return () => controller.abort();
   }, []);

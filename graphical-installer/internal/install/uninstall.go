@@ -58,18 +58,20 @@ func (e *Engine) stepRemoveNetwork() error {
 	e.removeObj("filter forward", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward"))
 	e.removeObj("filter forward-https", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward-https"))
 	e.removeObj("bridge port "+vethName, "/interface/bridge/port", "interface="+vethName)
+	e.removeObj("bridge port "+legacyVethName, "/interface/bridge/port", "interface="+legacyVethName)
 	e.removeObj("ip "+bridgeIPCIDR, "/ip/address", fmt.Sprintf("address=%q", bridgeIPCIDR))
 	e.removeObj("bridge "+bridgeName, "/interface/bridge", "name="+bridgeName)
 	e.removeObj("veth "+vethName, "/interface/veth", "name="+vethName)
+	e.removeObj("veth "+legacyVethName, "/interface/veth", "name="+legacyVethName)
 	return nil
 }
 
 func (e *Engine) stepRemoveFiles() error {
-	e.log("removing tar(s) under %s/%s-*.tar", tarRemoteDir, assetPrefix)
+	e.log("removing %s-*.tar from router storage", assetPrefix)
 	if e.opts.DryRun {
 		return nil
 	}
-	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where (name~"^%s/%s-") and (name~"\.tar$")]`, tarRemoteDir, assetPrefix), 30*time.Second)
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\.tar$"]`, assetPrefix), 30*time.Second)
 	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", lanBaselineRsc), 15*time.Second)
 	e.note = "uploaded files removed"
 	return nil
