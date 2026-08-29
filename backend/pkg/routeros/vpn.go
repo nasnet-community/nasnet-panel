@@ -741,6 +741,60 @@ func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 	}, nil
 }
 
+// SstpServerConfig represents configuration to apply to RouterOS's single SSTP
+// server instance.
+type SstpServerConfig struct {
+	Enabled                 bool
+	Port                    int
+	DefaultProfile          string
+	Authentication          string // comma-separated, e.g. "pap,chap,mschap1,mschap2"
+	Certificate             string
+	VerifyClientCertificate bool
+	Ciphers                 string // comma-separated, e.g. "aes256-sha,aes256-gcm-sha384"
+}
+
+// SetSstpServer configures RouterOS's SSTP server. Unlike OVPN, RouterOS
+// exposes a single /interface/sstp-server/server config item rather than a
+// list of named servers, so this always updates that one instance in place
+// rather than adding a new one.
+func (c *Client) SetSstpServer(config SstpServerConfig) error {
+	enabled := "no"
+	if config.Enabled {
+		enabled = "yes"
+	}
+	verifyClientCert := "no"
+	if config.VerifyClientCertificate {
+		verifyClientCert = "yes"
+	}
+
+	args := []string{
+		"=enabled=" + enabled,
+		"=verify-client-certificate=" + verifyClientCert,
+	}
+	if config.Port > 0 {
+		args = append(args, fmt.Sprintf("=port=%d", config.Port))
+	}
+	if config.DefaultProfile != "" {
+		args = append(args, "=default-profile="+config.DefaultProfile)
+	}
+	if config.Authentication != "" {
+		args = append(args, "=authentication="+config.Authentication)
+	}
+	if config.Certificate != "" {
+		args = append(args, "=certificate="+config.Certificate)
+	}
+	if config.Ciphers != "" {
+		args = append(args, "=ciphers="+config.Ciphers)
+	}
+
+	_, err := c.Set("/interface/sstp-server/server", args...)
+	if err != nil {
+		return fmt.Errorf("failed to configure SSTP server: %w", err)
+	}
+
+	return nil
+}
+
 // ListWireGuards returns all WireGuard interfaces.
 func (c *Client) ListWireGuards() ([]WireGuardInfo, error) {
 	results, err := c.GetAll("/interface/wireguard")

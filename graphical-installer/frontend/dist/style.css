@@ -529,6 +529,15 @@ li.running .step-icon::after {
   color: var(--green);
 }
 
+.done-wait {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+
 #done-urls {
   display: flex;
   flex-direction: column;
