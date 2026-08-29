@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Cable, Globe, KeyRound, Shield } from 'lucide-react';
 import {
   Button,
   Dialog,
@@ -9,9 +10,10 @@ import {
   Label,
   PasswordInput,
   Progress,
-  Select,
   Switch,
 } from '@nasnet/ui';
+import { VpnTypeTilePicker, type VpnTypeTile } from './VpnTypeTilePicker';
+import styles from './AddVpnServerDialog.module.scss';
 import {
   ApiError,
   createOvpnServer,
@@ -26,9 +28,13 @@ import { isCIDR, isPort, validateIdentifier } from '../../../utils/validators';
 
 export type AddVpnServerType = 'openvpn' | 'wireguard';
 
-const TYPE_OPTIONS: Array<{ value: AddVpnServerType; label: string }> = [
-  { value: 'openvpn', label: 'OpenVPN' },
-  { value: 'wireguard', label: 'WireGuard' },
+type AddVpnServerTileType = AddVpnServerType | 'l2tp' | 'sstp';
+
+const TYPE_TILES: Array<VpnTypeTile<AddVpnServerTileType>> = [
+  { value: 'openvpn', label: 'OpenVPN', icon: <Globe size={26} strokeWidth={1.75} /> },
+  { value: 'wireguard', label: 'WireGuard', icon: <Shield size={26} strokeWidth={1.75} /> },
+  { value: 'l2tp', label: 'L2TP', icon: <Cable size={26} strokeWidth={1.75} />, disabled: true },
+  { value: 'sstp', label: 'SSTP', icon: <KeyRound size={26} strokeWidth={1.75} />, disabled: true },
 ];
 
 const POLL_INTERVAL_MS = 1000;
@@ -45,17 +51,13 @@ export function AddVpnServerDialog({ creds, onCancel, onCreated }: Props) {
   return (
     <Dialog open onClose={onCancel} title="New VPN server" size="md" footer={null}>
       <FieldStack>
-        <FieldRow>
-          <Label>
-            <span>VPN type</span>
-            <Select
-              aria-label="VPN type"
-              value={type}
-              onChange={(v) => setType(v as AddVpnServerType)}
-              options={TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
-            />
-          </Label>
-        </FieldRow>
+        <VpnTypeTilePicker
+          ariaLabel="VPN server type"
+          legend="Choose VPN server type"
+          value={type}
+          tiles={TYPE_TILES}
+          onChange={(v) => setType(v as AddVpnServerType)}
+        />
 
         {type === 'openvpn' ? (
           <OvpnServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
@@ -172,11 +174,11 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
           tone={failed ? 'danger' : 'success'}
         />
         {error ? <FormError role="alert">{error}</FormError> : null}
-        <FieldRow>
+        <div className={styles.actions}>
           <Button variant="ghost" onClick={onCancel} disabled={!failed}>
             Close
           </Button>
-        </FieldRow>
+        </div>
       </FieldStack>
     );
   }
@@ -199,14 +201,14 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
         </Label>
       </FieldRow>
       {error ? <FormError role="alert">{error}</FormError> : null}
-      <FieldRow>
+      <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
         <Button variant="success" onClick={submit} disabled={!canSubmit}>
           {submitting ? 'Creating…' : 'Create OpenVPN server'}
         </Button>
-      </FieldRow>
+      </div>
     </FieldStack>
   );
 }
@@ -361,14 +363,14 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
         </Label>
       </FieldRow>
       {error ? <FormError role="alert">{error}</FormError> : null}
-      <FieldRow>
+      <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
         <Button variant="success" onClick={submit} disabled={!canSubmit}>
           {submitting ? 'Creating…' : 'Create WireGuard server'}
         </Button>
-      </FieldRow>
+      </div>
     </FieldStack>
   );
 }
