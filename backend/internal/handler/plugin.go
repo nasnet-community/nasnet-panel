@@ -25,6 +25,24 @@ const pluginRegistryURL = "https://raw.githubusercontent.com/nasnet-community/na
 // assumed to already exist on the router by the time a plugin is installed.
 const pluginContainersBridge = "containers"
 
+// pluginViewTarget is the host/port HandleViewPlugin resolves from a plugin's
+// manifest, cached in pluginViewTargets so it doesn't have to be re-fetched
+// on every proxied request.
+type pluginViewTarget struct {
+	Host string
+	Port int
+}
+
+// pluginViewTargets caches each plugin's resolved proxy target, keyed by
+// plugin id, across HandleViewPlugin calls. Entries never expire: a plugin's
+// container address and web port don't change without a reinstall, and a
+// reinstalled plugin is expected to restart the panel or otherwise pick up a
+// fresh manifest fetch some other way.
+var (
+	pluginViewTargets   = map[string]pluginViewTarget{}
+	pluginViewTargetsMu sync.RWMutex
+)
+
 const (
 	pluginInstallPollInterval = 3 * time.Second
 	pluginInstallTimeout      = 5 * time.Minute
@@ -338,7 +356,8 @@ func HandleSetPluginEnvVar(c echo.Context) error {
 // @Description Proxies a plugin's own web UI, resolving its target from the plugin's manifest:
 // @Description the container interface's address (its IP, without the subnet) as host, and the
 // @Description containerPort of the first entry in container.ports whose description starts
-// @Description with "web" (case-insensitive) as port.
+// @Description with "web" (case-insensitive) as port. The resolved target is cached in-memory
+// @Description per plugin id, so the manifest is only fetched once per plugin.
 // @Description Test mode: no redirect/cookie/CSS/JS rewriting is performed; a <base href>
 // @Description tag pointing at this route's own base URL is injected into HTML responses only.
 // @Description /api/plugin/view/{pluginID} is the base URL for the plugin's web UI; any path
@@ -352,28 +371,40 @@ func HandleSetPluginEnvVar(c echo.Context) error {
 func HandleViewPlugin(c echo.Context) error {
 	pluginID := c.Param("pluginID")
 
-	manifest, err := fetchPluginManifest(c.Request().Context(), pluginID)
-	if err != nil {
-		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
-	}
+	pluginViewTargetsMu.RLock()
+	cached, ok := pluginViewTargets[pluginID]
+	pluginViewTargetsMu.RUnlock()
 
-	host, _, _ := strings.Cut(manifest.Container.Interface.Address, "/")
-	if host == "" {
-		return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no interface address", nil)
-	}
-
-	var webPort *PluginManifestPort
-	for i := range manifest.Container.Ports {
-		if strings.HasPrefix(strings.ToLower(manifest.Container.Ports[i].Description), "web") {
-			webPort = &manifest.Container.Ports[i]
-			break
+	if !ok {
+		manifest, err := fetchPluginManifest(c.Request().Context(), pluginID)
+		if err != nil {
+			return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
 		}
-	}
-	if webPort == nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no web port", nil)
+
+		host, _, _ := strings.Cut(manifest.Container.Interface.Address, "/")
+		if host == "" {
+			return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no interface address", nil)
+		}
+
+		var webPort *PluginManifestPort
+		for i := range manifest.Container.Ports {
+			if strings.HasPrefix(strings.ToLower(manifest.Container.Ports[i].Description), "web") {
+				webPort = &manifest.Container.Ports[i]
+				break
+			}
+		}
+		if webPort == nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no web port", nil)
+		}
+
+		cached = pluginViewTarget{Host: host, Port: webPort.ContainerPort}
+
+		pluginViewTargetsMu.Lock()
+		pluginViewTargets[pluginID] = cached
+		pluginViewTargetsMu.Unlock()
 	}
 
-	target, err := url.Parse(fmt.Sprintf("http://%s:%d", host, webPort.ContainerPort))
+	target, err := url.Parse(fmt.Sprintf("http://%s:%d", cached.Host, cached.Port))
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Invalid plugin target URL", err)
 	}
