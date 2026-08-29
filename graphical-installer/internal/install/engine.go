@@ -27,9 +27,10 @@ const (
 	vethIP       = "192.168.50.2"
 	vethGW       = "192.168.50.1"
 
-	containerName    = "nnc"
-	containerRootDir = "disk1/images/nnc"
-	tarRemoteDir     = "disk1"
+	containerName       = "nasnet-panel"
+	legacyContainerName = "nnc"
+	containerRootDir    = "disk1/images/nasnet-panel"
+	tarRemoteDir        = "disk1"
 
 	lanBridge      = "LANBridgeSplit"
 	lanBridgeIP    = "192.168.10.1"
