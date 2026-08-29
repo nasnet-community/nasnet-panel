@@ -71,7 +71,7 @@ func (e *Engine) stepRemoveFiles() error {
 	if e.opts.DryRun {
 		return nil
 	}
-	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where (name~"%s-") and (name~"\.tar$")]`, assetPrefix), 30*time.Second)
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\.tar$"]`, assetPrefix), 30*time.Second)
 	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", lanBaselineRsc), 15*time.Second)
 	e.note = "uploaded files removed"
 	return nil

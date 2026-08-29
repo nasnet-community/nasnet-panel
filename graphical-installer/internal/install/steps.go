@@ -374,7 +374,7 @@ func (e *Engine) stepContainer() error {
 		return nil
 	}
 	e.log("extracting tar and adding container %s (this can take a few minutes)", containerName)
-	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%s interface=%s root-dir=%s name=%s start-on-boot=yes logging=yes",
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s start-on-boot=yes logging=yes",
 		e.remoteTar, vethName, e.storage+"/"+containerImagesDir, containerName), 5*time.Minute); err != nil {
 		return fmt.Errorf("failed to add container: %w (%s)", err, strings.TrimSpace(out))
 	}
