@@ -9,6 +9,7 @@ import {
   RadioGroup,
   Select,
   Stack,
+  Switch,
   useToast,
 } from '@nasnet/ui';
 import styles from './DNSChangeDialog.module.scss';
@@ -50,6 +51,7 @@ export function DNSChangeDialog({
   const [oldIp, setOldIp] = useState(() => currentIps[0] ?? '');
   const [newIp, setNewIp] = useState('');
   const [suggestions, setSuggestions] = useState<DnsSuggestion[]>([]);
+  const [manualEntry, setManualEntry] = useState(false);
   const [busy, setBusy] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
 
@@ -57,6 +59,7 @@ export function DNSChangeDialog({
     if (!open) return;
     setOldIp(currentIps[0] ?? '');
     setNewIp('');
+    setManualEntry(false);
     setWarning(null);
   }, [open, currentIps]);
 
@@ -80,6 +83,8 @@ export function DNSChangeDialog({
       })),
     [suggestions],
   );
+
+  const showManual = manualEntry || suggestionOptions.length === 0;
 
   const applyChange = useCallback(async () => {
     setBusy(true);
@@ -176,37 +181,52 @@ export function DNSChangeDialog({
         )}
 
         <FieldStack>
-          <Label htmlFor="dns-new-ip">New IP</Label>
-          <Input
-            id="dns-new-ip"
-            value={newIp}
-            onChange={(e) => {
-              setNewIp(e.target.value);
-              setWarning(null);
-            }}
-            placeholder={forwarder.name === 'Domestic' ? '217.218.127.127' : '1.1.1.1'}
-            disabled={busy}
-          />
-        </FieldStack>
-
-        <FieldStack>
-          <Label as="span" id="dns-suggestion-label">
-            Or pick a suggestion
-          </Label>
-          <Select
-            options={suggestionOptions}
-            value={suggestionOptions.some((o) => o.value === newIp.trim()) ? newIp.trim() : ''}
-            onChange={(value) => {
-              setNewIp(value);
-              setWarning(null);
-            }}
-            placeholder={suggestionOptions.length > 0 ? 'Select…' : 'No suggestions available'}
-            disabled={busy || suggestionOptions.length === 0}
-            searchable
-            searchPlaceholder="Search suggestions…"
-            aria-labelledby="dns-suggestion-label"
-          />
-          <p className={styles.hint}>Suggestions are optional. Any reachable IP can be entered.</p>
+          <div className={styles.fieldHeader}>
+            <Label as="span" htmlFor={showManual ? 'dns-new-ip' : undefined} id="dns-new-ip-label">
+              New IP
+            </Label>
+            <Switch
+              label="Enter manually"
+              checked={showManual}
+              onChange={(e) => {
+                setManualEntry(e.target.checked);
+                setNewIp('');
+                setWarning(null);
+              }}
+              disabled={busy || suggestionOptions.length === 0}
+            />
+          </div>
+          {showManual ? (
+            <Input
+              id="dns-new-ip"
+              value={newIp}
+              onChange={(e) => {
+                setNewIp(e.target.value);
+                setWarning(null);
+              }}
+              placeholder={forwarder.name === 'Domestic' ? '217.218.127.127' : '1.1.1.1'}
+              disabled={busy}
+            />
+          ) : (
+            <Select
+              options={suggestionOptions}
+              value={suggestionOptions.some((o) => o.value === newIp.trim()) ? newIp.trim() : ''}
+              onChange={(value) => {
+                setNewIp(value);
+                setWarning(null);
+              }}
+              placeholder={suggestionOptions.length > 0 ? 'Select…' : 'No suggestions available'}
+              disabled={busy || suggestionOptions.length === 0}
+              searchable
+              searchPlaceholder="Search suggestions…"
+              aria-labelledby="dns-new-ip-label"
+            />
+          )}
+          <p className={styles.hint}>
+            {showManual
+              ? 'Any reachable IP can be entered.'
+              : 'Turn on manual entry to type an IP that is not listed.'}
+          </p>
         </FieldStack>
 
         {warning ? (

@@ -137,7 +137,7 @@ export function DNSPage() {
 
   return (
     <Stack>
-      <Card className={styles.card}>
+      <Card>
         <CardHeader className={styles.cardHeader}>
           <div>
             <CardTitle>

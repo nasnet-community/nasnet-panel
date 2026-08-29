@@ -46,3 +46,10 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+.fieldHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
