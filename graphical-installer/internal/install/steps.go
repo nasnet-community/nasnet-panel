@@ -72,7 +72,24 @@ func (e *Engine) stepCheck() error {
 		return errors.New("container package is installed but disabled. Run on the router: /system/package/enable container ; /system/reboot")
 	}
 
-	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free", e.sys.Arch, e.sys.Version, e.sys.FreeMB)
+	st, err := e.detectStorage()
+	if err != nil {
+		return err
+	}
+	e.storage = st.name
+	e.sys.Storage = st.name
+	e.sys.StorageFreeMB = st.freeMB
+	e.ev.SysInfo(e.sys)
+	if st.freeMB >= 0 {
+		e.log("using router storage %s (%d MB free)", st.name, st.freeMB)
+	} else {
+		e.log("using router storage %s", st.name)
+	}
+	if err := e.verifyStorageWritable(st.name); err != nil {
+		return err
+	}
+
+	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.name)
 	return nil
 }
 
@@ -247,7 +264,7 @@ func (e *Engine) fetchChecksum(url string) (string, error) {
 }
 
 func (e *Engine) stepUpload() error {
-	remote := tarRemoteDir + "/" + e.assetName
+	remote := e.storage + "/" + e.assetName
 	e.remoteTar = remote
 
 	info, err := os.Stat(e.localTar)
@@ -275,7 +292,7 @@ func (e *Engine) stepUpload() error {
 		e.log("[dry-run] sftp upload")
 		return nil
 	}
-	e.ensureDir(tarRemoteDir)
+	e.ensureDir(e.storage)
 	err = e.cl.Upload(e.localTar, remote, func(done, total int64) {
 		e.ev.Progress("upload", float64(done)*100/float64(total),
 			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
@@ -357,8 +374,8 @@ func (e *Engine) stepContainer() error {
 		return nil
 	}
 	e.log("extracting tar and adding container %s (this can take a few minutes)", containerName)
-	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%s interface=%s root-dir=%s name=%s start-on-boot=yes logging=yes",
-		e.remoteTar, vethName, containerRootDir, containerName), 5*time.Minute); err != nil {
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s start-on-boot=yes logging=yes",
+		e.remoteTar, vethName, e.storage+"/"+containerImagesDir, containerName), 5*time.Minute); err != nil {
 		return fmt.Errorf("failed to add container: %w (%s)", err, strings.TrimSpace(out))
 	}
 	e.pushRollback(func() {

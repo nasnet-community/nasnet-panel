@@ -292,12 +292,20 @@
     window.runtime.EventsOn('install:sysinfo', function (info) {
       var el = $('router-info');
       el.innerHTML = '';
-      [
+      var facts = [
         'Board: ' + info.board,
         'Arch: ' + info.arch,
         'RouterOS ' + info.version,
         info.freeMb + ' MB free',
-      ].forEach(function (text) {
+      ];
+      if (info.storage) {
+        facts.push(
+          info.storageFreeMb > 0
+            ? 'Storage: ' + info.storage + ' (' + info.storageFreeMb + ' MB free)'
+            : 'Storage: ' + info.storage
+        );
+      }
+      facts.forEach(function (text) {
         var span = document.createElement('span');
         span.textContent = text;
         el.appendChild(span);

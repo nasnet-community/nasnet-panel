@@ -30,8 +30,7 @@ const (
 
 	containerName       = "nasnet-panel"
 	legacyContainerName = "nnc"
-	containerRootDir    = "disk1/images/nasnet-panel"
-	tarRemoteDir        = "disk1"
+	containerImagesDir  = "images/nasnet-panel"
 
 	lanBridge      = "LANBridgeSplit"
 	lanBridgeIP    = "192.168.10.1"
@@ -58,10 +57,12 @@ type Options struct {
 }
 
 type SystemInfo struct {
-	Board   string `json:"board"`
-	Arch    string `json:"arch"`
-	Version string `json:"version"`
-	FreeMB  int64  `json:"freeMb"`
+	Board         string `json:"board"`
+	Arch          string `json:"arch"`
+	Version       string `json:"version"`
+	FreeMB        int64  `json:"freeMb"`
+	Storage       string `json:"storage"`
+	StorageFreeMB int64  `json:"storageFreeMb"`
 }
 
 type StepInfo struct {
@@ -99,6 +100,7 @@ type Engine struct {
 	assetName string
 	localTar  string
 	remoteTar string
+	storage   string
 
 	finalPort       int
 	baselineApplied bool
