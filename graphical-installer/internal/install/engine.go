@@ -22,10 +22,11 @@ const (
 	bridgeIPCIDR = "192.168.50.1/24"
 	bridgeNet    = "192.168.50.0/24"
 
-	vethName     = "veth1"
-	vethAddrCIDR = "192.168.50.2/24"
-	vethIP       = "192.168.50.2"
-	vethGW       = "192.168.50.1"
+	vethName       = "veth-nasnet-panel"
+	legacyVethName = "veth1"
+	vethAddrCIDR   = "192.168.50.2/24"
+	vethIP         = "192.168.50.2"
+	vethGW         = "192.168.50.1"
 
 	containerName       = "nasnet-panel"
 	legacyContainerName = "nnc"
