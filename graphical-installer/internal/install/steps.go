@@ -144,14 +144,30 @@ func (e *Engine) stepDeviceMode() error {
 	return fmt.Errorf("device-mode change not confirmed within %s", deviceModeTimeout)
 }
 
+var unsafeRemoteNameRe = regexp.MustCompile(`[^A-Za-z0-9._-]+`)
+
+func safeRemoteName(name string) string {
+	s := unsafeRemoteNameRe.ReplaceAllString(filepath.Base(name), "_")
+	s = strings.ReplaceAll(s, "_.", ".")
+	s = strings.Trim(s, "_")
+	if s == "" || s == "." || s == ".." {
+		return assetPrefix + ".tar"
+	}
+	return s
+}
+
 func (e *Engine) stepDownload() error {
 	if e.opts.ImageTar != "" {
 		if _, err := os.Stat(e.opts.ImageTar); err != nil {
 			return fmt.Errorf("image tar not readable: %w", err)
 		}
+		base := filepath.Base(e.opts.ImageTar)
 		e.localTar = e.opts.ImageTar
-		e.assetName = filepath.Base(e.opts.ImageTar)
-		e.note = "using local tar " + e.assetName
+		e.assetName = safeRemoteName(base)
+		if e.assetName != base {
+			e.log("router-side file name sanitized to %s", e.assetName)
+		}
+		e.note = "using local tar " + base
 		return nil
 	}
 
