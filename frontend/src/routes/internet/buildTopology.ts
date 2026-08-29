@@ -97,6 +97,7 @@ export async function buildTopology(
 
   const INTERNET_ID = 'internet';
   const domesticWans: InterfaceResponse[] = [];
+  const foreignWans: InterfaceResponse[] = [];
 
   const wans = pickWanInterfaces(ifaces);
   wans.forEach((wan) => {
@@ -111,9 +112,11 @@ export async function buildTopology(
       isActive: (isDomestic || !!wan.running) && !(isDomestic ? domesticDown : foreignDown),
     });
     if (isDomestic) domesticWans.push(wan);
+    else foreignWans.push(wan);
   });
 
-  const fallbackWan = wans.find((w) => w.running) ?? wans[0];
+  const vpnUpstream =
+    foreignWans.find((w) => w.running) ?? foreignWans[0] ?? wans.find((w) => w.running) ?? wans[0];
   const vpnTunnels = ifaces.filter((i) => {
     if (!VPN_INTERFACE_TYPES.has(i.type) || i.type.endsWith('-in')) return false;
     const name = i.name.toLowerCase();
@@ -128,10 +131,10 @@ export async function buildTopology(
       label: vpn.comment?.trim() ? vpn.comment : vpn.name,
       protocol: TYPE_TO_PROTOCOL[vpn.type],
     });
-    if (fallbackWan) {
+    if (vpnUpstream) {
       hops.push({
         id: `h_vpn_${vpn.name}`,
-        fromId: `wan_${fallbackWan.name}`,
+        fromId: `wan_${vpnUpstream.name}`,
         toId: id,
         isActive: !!vpn.running && isRouted(vpn.name) && !vpnDown,
       });
