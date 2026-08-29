@@ -529,6 +529,15 @@ li.running .step-icon::after {
   color: var(--green);
 }
 
+.done-wait {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+
 #done-urls {
   display: flex;
   flex-direction: column;
@@ -588,6 +597,8 @@ footer {
   padding: 24px;
   max-width: 480px;
   width: 90%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   box-shadow: var(--shadow-md);
 }
 
@@ -608,4 +619,26 @@ footer {
 
 .modal-box li {
   margin-bottom: 8px;
+}
+
+.figure {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.figure img {
+  width: 240px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.figure figcaption {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
 }

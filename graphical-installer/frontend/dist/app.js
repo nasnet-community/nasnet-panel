@@ -1,9 +1,15 @@
 (function () {
   'use strict';
 
+  var PANEL_READY_DELAY_MS = 3000;
+
   var App = null;
   var tarPath = '';
   var running = false;
+  var rebootTimer = null;
+  var rebootElapsed = 0;
+  var panelReadyTimer = null;
+  var routerBoard = '';
 
   function $(id) {
     return document.getElementById(id);
@@ -24,6 +30,37 @@
 
   function hide(id) {
     $(id).classList.add('hidden');
+  }
+
+  function applyRebootImage() {
+    var board = routerBoard.replace(/\u00b2/g, '2').replace(/\u00b3/g, '3');
+    var ax2 = /hap/i.test(board) && /ax\D*2/i.test(board);
+    $('reboot-button-img').src = ax2 ? 'hap_ax2_button.jpg' : 'hap_ax3_button.jpg';
+    $('reboot-button-img').alt = ax2
+      ? 'Pressing the MODE button on the top of a hAP ax2'
+      : 'Pressing the MODE button on the front of a hAP ax3';
+    $('reboot-button-caption').textContent = ax2
+      ? 'hAP ax2, MODE button on top of the case'
+      : 'hAP ax3, MODE button on the front panel next to the USB port';
+  }
+
+  function startRebootTimer() {
+    stopRebootTimer();
+    rebootElapsed = 0;
+    $('reboot-elapsed').textContent = '0';
+    var tick = function () {
+      rebootElapsed += 1;
+      $('reboot-elapsed').textContent = rebootElapsed;
+      rebootTimer = setTimeout(tick, 1000);
+    };
+    rebootTimer = setTimeout(tick, 1000);
+  }
+
+  function stopRebootTimer() {
+    if (rebootTimer) {
+      clearTimeout(rebootTimer);
+      rebootTimer = null;
+    }
   }
 
   function init() {
@@ -79,6 +116,17 @@
     $('btn-device-no').addEventListener('click', function () {
       hide('modal-device');
       App.ConfirmDeviceMode(false);
+    });
+    $('btn-reboot-ok').addEventListener('click', function () {
+      hide('reboot-ask');
+      show('reboot-wait');
+      startRebootTimer();
+      App.ConfirmReboot(true);
+    });
+    $('btn-reboot-no').addEventListener('click', function () {
+      hide('modal-reboot');
+      stopRebootTimer();
+      App.ConfirmReboot(false);
     });
     $('btn-toggle-password').addEventListener('click', function () {
       var input = $('password');
@@ -190,6 +238,7 @@
 
   function beginRun(uninstall, steps) {
     running = true;
+    clearTimeout(panelReadyTimer);
     $('run-title').textContent = uninstall ? 'Uninstalling' : 'Installing';
     var list = $('steps');
     list.innerHTML = '';
@@ -220,9 +269,12 @@
 
   function backToForm() {
     running = false;
+    clearTimeout(panelReadyTimer);
     setFormBusy(false);
     hide('view-run');
     hide('modal-device');
+    hide('modal-reboot');
+    stopRebootTimer();
     show('view-form');
   }
 
@@ -246,6 +298,10 @@
     if (id === 'device-mode' && status !== 'running') {
       hide('modal-device');
     }
+    if (id === 'check' && status !== 'running') {
+      hide('modal-reboot');
+      stopRebootTimer();
+    }
   }
 
   function onRunError(message) {
@@ -254,6 +310,8 @@
     hide('btn-cancel');
     show('btn-back');
     hide('modal-device');
+    hide('modal-reboot');
+    stopRebootTimer();
   }
 
   function appendLog(line) {
@@ -285,14 +343,23 @@
     });
 
     window.runtime.EventsOn('install:sysinfo', function (info) {
+      routerBoard = info.board || '';
       var el = $('router-info');
       el.innerHTML = '';
-      [
+      var facts = [
         'Board: ' + info.board,
         'Arch: ' + info.arch,
         'RouterOS ' + info.version,
         info.freeMb + ' MB free',
-      ].forEach(function (text) {
+      ];
+      if (info.storage) {
+        facts.push(
+          info.storageFreeMb > 0
+            ? 'Storage: ' + info.storage + ' (' + info.storageFreeMb + ' MB free)'
+            : 'Storage: ' + info.storage
+        );
+      }
+      facts.forEach(function (text) {
         var span = document.createElement('span');
         span.textContent = text;
         el.appendChild(span);
@@ -311,14 +378,30 @@
       $('device-state').textContent = data.state;
     });
 
+    window.runtime.EventsOn('install:reboot', function () {
+      applyRebootImage();
+      show('reboot-ask');
+      hide('reboot-wait');
+      show('modal-reboot');
+    });
+
+    window.runtime.EventsOn('install:reboot-tick', function (data) {
+      rebootElapsed = data.elapsed;
+      $('reboot-elapsed').textContent = data.elapsed;
+      $('reboot-state').textContent = data.state;
+    });
+
     window.runtime.EventsOn('install:done', function (data) {
       running = false;
       hide('btn-cancel');
       hide('modal-device');
+      hide('modal-reboot');
+      stopRebootTimer();
       $('done-note').textContent = data.note || '';
       var urlsEl = $('done-urls');
       urlsEl.innerHTML = '';
-      (data.urls || []).forEach(function (url) {
+      var urls = data.urls || [];
+      urls.forEach(function (url) {
         var btn = document.createElement('button');
         btn.textContent = url;
         btn.addEventListener('click', function () {
@@ -327,6 +410,18 @@
         urlsEl.appendChild(btn);
       });
       show('done');
+      clearTimeout(panelReadyTimer);
+      if (urls.length) {
+        hide('done-urls');
+        show('done-wait');
+        panelReadyTimer = setTimeout(function () {
+          hide('done-wait');
+          show('done-urls');
+        }, PANEL_READY_DELAY_MS);
+      } else {
+        hide('done-wait');
+        show('done-urls');
+      }
     });
 
     window.runtime.EventsOn('install:error', function (message) {

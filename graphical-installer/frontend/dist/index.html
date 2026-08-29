@@ -159,6 +159,9 @@
         <div id="done" class="card done hidden">
           <h2>Done</h2>
           <p id="done-note"></p>
+          <p id="done-wait" class="done-wait hidden">
+            <span class="spinner"></span> Starting the panel...
+          </p>
           <div id="done-urls"></div>
           <div class="actions">
             <button id="btn-again">Back to start</button>
@@ -233,6 +236,40 @@
             <p class="mono">
               <span id="device-remaining">120</span>s left, router is
               <span id="device-state">online</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-reboot" class="modal hidden">
+        <div class="modal-box">
+          <h3>Router restart required</h3>
+          <div id="reboot-ask">
+            <p>
+              Container mode is not enabled yet. The container package is now enabled, and the
+              router has to restart before it can run containers.
+            </p>
+            <p>Restart the router yourself, then confirm below.</p>
+            <p>Use the MODE button while the router is powered on:</p>
+            <figure class="figure">
+              <img id="reboot-button-img" src="hap_ax3_button.jpg" alt="" />
+              <figcaption id="reboot-button-caption"></figcaption>
+            </figure>
+            <p>
+              On other models, use System &gt; Reboot in Winbox or WebFig, or unplug the power and
+              plug it back in.
+            </p>
+            <p>The installer waits for the router to come back and carries on by itself.</p>
+            <div class="actions">
+              <button id="btn-reboot-ok" class="primary">I restarted the router</button>
+              <button id="btn-reboot-no">Abort</button>
+            </div>
+          </div>
+          <div id="reboot-wait" class="hidden">
+            <p><span class="spinner"></span> Waiting for the router to come back...</p>
+            <p class="mono">
+              <span id="reboot-elapsed">0</span>s elapsed, router is
+              <span id="reboot-state">restarting</span>
             </p>
           </div>
         </div>
