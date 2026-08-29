@@ -13,6 +13,7 @@ import {
   Switch,
 } from '@nasnet/ui';
 import { VpnTypeTilePicker, type VpnTypeTile } from './VpnTypeTilePicker';
+import styles from './AddVpnServerDialog.module.scss';
 import {
   ApiError,
   createOvpnServer,
@@ -173,11 +174,11 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
           tone={failed ? 'danger' : 'success'}
         />
         {error ? <FormError role="alert">{error}</FormError> : null}
-        <FieldRow>
+        <div className={styles.actions}>
           <Button variant="ghost" onClick={onCancel} disabled={!failed}>
             Close
           </Button>
-        </FieldRow>
+        </div>
       </FieldStack>
     );
   }
@@ -200,14 +201,14 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
         </Label>
       </FieldRow>
       {error ? <FormError role="alert">{error}</FormError> : null}
-      <FieldRow>
+      <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
         <Button variant="success" onClick={submit} disabled={!canSubmit}>
           {submitting ? 'Creating…' : 'Create OpenVPN server'}
         </Button>
-      </FieldRow>
+      </div>
     </FieldStack>
   );
 }
@@ -362,14 +363,14 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
         </Label>
       </FieldRow>
       {error ? <FormError role="alert">{error}</FormError> : null}
-      <FieldRow>
+      <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
         <Button variant="success" onClick={submit} disabled={!canSubmit}>
           {submitting ? 'Creating…' : 'Create WireGuard server'}
         </Button>
-      </FieldRow>
+      </div>
     </FieldStack>
   );
 }
