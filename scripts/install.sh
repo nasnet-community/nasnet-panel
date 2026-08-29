@@ -16,13 +16,15 @@ BRIDGE_NAME="containers"
 BRIDGE_IP_CIDR="192.168.50.1/24"
 BRIDGE_NET="192.168.50.0/24"
 
-VETH_NAME="veth1"
+VETH_NAME="veth-nasnet-panel"
+LEGACY_VETH_NAME="veth1"
 VETH_ADDR_CIDR="192.168.50.2/24"
 VETH_IP="192.168.50.2"
 VETH_GW="192.168.50.1"
 
-CONTAINER_NAME="nnc"
-CONTAINER_ROOT_DIR="disk1/images/nnc"
+CONTAINER_NAME="nasnet-panel"
+LEGACY_CONTAINER_NAME="nnc"
+CONTAINER_ROOT_DIR="disk1/images/nasnet-panel"
 TAR_REMOTE_DIR="disk1"
 
 LAN_BRIDGE="LANBridgeSplit"
@@ -830,14 +832,17 @@ uninstall_path() {
   log ""
   log "Uninstalling ..."
 
-  if ros_exists /container "name=${CONTAINER_NAME}"; then
-    log "  stop:   container ${CONTAINER_NAME}"
-    if (( ! DRY_RUN )); then
-      ros_cmd "/container/stop [find name=${CONTAINER_NAME}]" >/dev/null 2>&1 || true
-      sleep 2
+  local name
+  for name in "$CONTAINER_NAME" "$LEGACY_CONTAINER_NAME"; do
+    if ros_exists /container "name=${name}"; then
+      log "  stop:   container ${name}"
+      if (( ! DRY_RUN )); then
+        ros_cmd "/container/stop [find name=${name}]" >/dev/null 2>&1 || true
+        sleep 2
+      fi
+      ros_remove "container ${name}" /container "name=${name}"
     fi
-    ros_remove "container ${CONTAINER_NAME}" /container "name=${CONTAINER_NAME}"
-  fi
+  done
 
   ros_remove "nat ${COMMENT_TAG}-srcnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""
@@ -845,9 +850,11 @@ uninstall_path() {
   ros_remove "filter forward"                  /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward\""
   ros_remove "filter forward-https"            /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
   ros_remove "bridge port ${VETH_NAME}"   /interface/bridge/port "interface=${VETH_NAME}"
+  ros_remove "bridge port ${LEGACY_VETH_NAME}" /interface/bridge/port "interface=${LEGACY_VETH_NAME}"
   ros_remove "ip ${BRIDGE_IP_CIDR}"       /ip/address          "address=\"${BRIDGE_IP_CIDR}\""
   ros_remove "bridge ${BRIDGE_NAME}"      /interface/bridge    "name=${BRIDGE_NAME}"
   ros_remove "veth ${VETH_NAME}"          /interface/veth      "name=${VETH_NAME}"
+  ros_remove "veth ${LEGACY_VETH_NAME}"   /interface/veth      "name=${LEGACY_VETH_NAME}"
 
   log "  remove: tar(s) under ${TAR_REMOTE_DIR}/${ASSET_PREFIX}-*.tar"
   if (( ! DRY_RUN )); then
