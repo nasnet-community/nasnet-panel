@@ -55,6 +55,8 @@ func (e *Engine) stepRemoveNetwork() error {
 	e.removeObj("nat "+commentTag+"-srcnat", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-srcnat"))
 	e.removeObj("nat "+commentTag+"-dstnat", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat"))
 	e.removeObj("nat "+commentTag+"-dstnat-https", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"))
+	e.removeObj("nat "+commentTag+"-container-dns-tcp", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-container-dns-tcp"))
+	e.removeObj("nat "+commentTag+"-container-dns-udp", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-container-dns-udp"))
 	e.removeObj("filter forward", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward"))
 	e.removeObj("filter forward-https", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward-https"))
 	e.removeObj("bridge port "+vethName, "/interface/bridge/port", "interface="+vethName)
