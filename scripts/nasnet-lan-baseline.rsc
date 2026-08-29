@@ -1,3 +1,14 @@
+:log info "nasnet-panel: enabling the NTP client so the clock is correct for TLS"
+:do {
+  /system/ntp/client set enabled=yes
+  :foreach s in=[:toarray "pool.ntp.org,time.cloudflare.com,time.google.com"] do={
+    :if ([:len [/system/ntp/client/servers find address=$s]] = 0) do={
+      /system/ntp/client/servers add address=$s
+    }
+  }
+} on-error={
+  :log warning "nasnet-panel: could not configure the NTP client, check the router clock manually"
+}
 :if ([:len [/interface/bridge find name="LANBridgeSplit"]] > 0) do={
   :log info "nasnet-panel: LANBridgeSplit already exists, skipping LAN baseline"
 } else={
