@@ -335,14 +335,14 @@ func (e *Engine) stepNetwork() error {
 	}
 	if err := e.ensure(fmt.Sprintf("dstnat tcp/%d to %s:80", e.opts.LANPort, vethIP),
 		"/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat"),
-		fmt.Sprintf("chain=dstnat action=dst-nat protocol=tcp dst-port=%d to-addresses=%s to-ports=80 comment=%q", e.opts.LANPort, vethIP, commentTag+"-dstnat")); err != nil {
+		fmt.Sprintf("chain=dstnat action=dst-nat protocol=tcp dst-address=%s dst-port=%d to-addresses=%s to-ports=80 comment=%q", lanDstNet, e.opts.LANPort, vethIP, commentTag+"-dstnat")); err != nil {
 		return err
 	}
 	e.moveToTop("/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat"))
 
 	if err := e.ensure(fmt.Sprintf("dstnat tcp/%d to %s:443", e.opts.HTTPSLANPort, vethIP),
 		"/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"),
-		fmt.Sprintf("chain=dstnat action=dst-nat protocol=tcp dst-port=%d to-addresses=%s to-ports=443 comment=%q", e.opts.HTTPSLANPort, vethIP, commentTag+"-dstnat-https")); err != nil {
+		fmt.Sprintf("chain=dstnat action=dst-nat protocol=tcp dst-address=%s dst-port=%d to-addresses=%s to-ports=443 comment=%q", lanDstNet, e.opts.HTTPSLANPort, vethIP, commentTag+"-dstnat-https")); err != nil {
 		return err
 	}
 	e.moveToTop("/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"))
