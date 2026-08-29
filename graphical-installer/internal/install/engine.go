@@ -22,13 +22,15 @@ const (
 	bridgeIPCIDR = "192.168.50.1/24"
 	bridgeNet    = "192.168.50.0/24"
 
-	vethName     = "veth1"
-	vethAddrCIDR = "192.168.50.2/24"
-	vethIP       = "192.168.50.2"
-	vethGW       = "192.168.50.1"
+	vethName       = "veth-nasnet-panel"
+	legacyVethName = "veth1"
+	vethAddrCIDR   = "192.168.50.2/24"
+	vethIP         = "192.168.50.2"
+	vethGW         = "192.168.50.1"
 
-	containerName      = "nnc"
-	containerImagesDir = "images/nnc"
+	containerName       = "nasnet-panel"
+	legacyContainerName = "nnc"
+	containerImagesDir  = "images/nasnet-panel"
 
 	lanBridge      = "LANBridgeSplit"
 	lanBridgeIP    = "192.168.10.1"
@@ -280,6 +282,20 @@ func (e *Engine) removeObj(label, path, selector string) {
 		return
 	}
 	_, _ = e.cl.RunRaw(fmt.Sprintf("%s/remove [find %s]", path, selector), 15*time.Second)
+}
+
+func (e *Engine) removeRemoteFile(name string) {
+	if name == "" {
+		return
+	}
+	if e.opts.DryRun {
+		e.log("[dry-run] would remove %s from the router", name)
+		return
+	}
+	e.log("removing %s from the router", name)
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/file/remove [find name=%q]", name), 15*time.Second); err != nil {
+		e.log("could not remove %s from the router: %v (%s)", name, err, strings.TrimSpace(out))
+	}
 }
 
 func (e *Engine) moveToTop(path, selector string) {

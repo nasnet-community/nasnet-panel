@@ -10,6 +10,8 @@ sign cert-server-{{ .CurrentTimestamp }} ca=cert-ca-{{ .CurrentTimestamp }}
 /certificate
 add name=cert-client-{{ .CurrentTimestamp }} common-name=cert-client-{{ .CurrentTimestamp }} key-size=2048 days-valid=3650 trusted=yes key-usage=tls-client
 sign cert-client-{{ .CurrentTimestamp }} ca=cert-ca-{{ .CurrentTimestamp }}
+/file add name=cert-client-{{ .CurrentTimestamp }}-password.txt contents="{{ .OvpnServer.ClientCertificatePassword }}"
+
 :global WizardProgress "89"
 /certificate
 export-certificate cert-ca-{{ .CurrentTimestamp }} file-name=cert-ca-{{ .CurrentTimestamp }} type=pem

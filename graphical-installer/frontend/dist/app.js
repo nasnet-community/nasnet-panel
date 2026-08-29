@@ -1,9 +1,12 @@
 (function () {
   'use strict';
 
+  var PANEL_READY_DELAY_MS = 3000;
+
   var App = null;
   var tarPath = '';
   var running = false;
+  var panelReadyTimer = null;
 
   function $(id) {
     return document.getElementById(id);
@@ -190,6 +193,7 @@
 
   function beginRun(uninstall, steps) {
     running = true;
+    clearTimeout(panelReadyTimer);
     $('run-title').textContent = uninstall ? 'Uninstalling' : 'Installing';
     var list = $('steps');
     list.innerHTML = '';
@@ -220,6 +224,7 @@
 
   function backToForm() {
     running = false;
+    clearTimeout(panelReadyTimer);
     setFormBusy(false);
     hide('view-run');
     hide('modal-device');
@@ -326,7 +331,8 @@
       $('done-note').textContent = data.note || '';
       var urlsEl = $('done-urls');
       urlsEl.innerHTML = '';
-      (data.urls || []).forEach(function (url) {
+      var urls = data.urls || [];
+      urls.forEach(function (url) {
         var btn = document.createElement('button');
         btn.textContent = url;
         btn.addEventListener('click', function () {
@@ -335,6 +341,18 @@
         urlsEl.appendChild(btn);
       });
       show('done');
+      clearTimeout(panelReadyTimer);
+      if (urls.length) {
+        hide('done-urls');
+        show('done-wait');
+        panelReadyTimer = setTimeout(function () {
+          hide('done-wait');
+          show('done-urls');
+        }, PANEL_READY_DELAY_MS);
+      } else {
+        hide('done-wait');
+        show('done-urls');
+      }
     });
 
     window.runtime.EventsOn('install:error', function (message) {

@@ -2,6 +2,7 @@ package install
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -27,19 +28,26 @@ func (e *Engine) RunUninstall() error {
 }
 
 func (e *Engine) stepRemoveContainer() error {
-	if !e.exists("/container", "name="+containerName) {
+	var removed []string
+	for _, name := range []string{containerName, legacyContainerName} {
+		if !e.exists("/container", "name="+name) {
+			continue
+		}
+		e.log("stopping container %s", name)
+		if !e.opts.DryRun {
+			_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", name), 30*time.Second)
+			if err := e.sleep(2 * time.Second); err != nil {
+				return err
+			}
+		}
+		e.removeObj("container "+name, "/container", "name="+name)
+		removed = append(removed, name)
+	}
+	if len(removed) == 0 {
 		e.note = "no container named " + containerName
 		return nil
 	}
-	e.log("stopping container %s", containerName)
-	if !e.opts.DryRun {
-		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", containerName), 30*time.Second)
-		if err := e.sleep(2 * time.Second); err != nil {
-			return err
-		}
-	}
-	e.removeObj("container "+containerName, "/container", "name="+containerName)
-	e.note = containerName + " removed"
+	e.note = strings.Join(removed, ", ") + " removed"
 	return nil
 }
 
@@ -50,9 +58,11 @@ func (e *Engine) stepRemoveNetwork() error {
 	e.removeObj("filter forward", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward"))
 	e.removeObj("filter forward-https", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward-https"))
 	e.removeObj("bridge port "+vethName, "/interface/bridge/port", "interface="+vethName)
+	e.removeObj("bridge port "+legacyVethName, "/interface/bridge/port", "interface="+legacyVethName)
 	e.removeObj("ip "+bridgeIPCIDR, "/ip/address", fmt.Sprintf("address=%q", bridgeIPCIDR))
 	e.removeObj("bridge "+bridgeName, "/interface/bridge", "name="+bridgeName)
 	e.removeObj("veth "+vethName, "/interface/veth", "name="+vethName)
+	e.removeObj("veth "+legacyVethName, "/interface/veth", "name="+legacyVethName)
 	return nil
 }
 
