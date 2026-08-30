@@ -47,7 +47,7 @@ export interface ConnectivityCardProps {
 }
 
 export const ConnectivityCard: React.FC<ConnectivityCardProps> = React.memo(
-  function ConnectivityCard({ creds }) {
+  function ConnectivityCardInner({ creds }) {
     const [entries, setEntries] = useState<NetStatusEntry[]>([]);
 
     usePolling(
