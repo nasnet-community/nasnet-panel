@@ -286,11 +286,10 @@ test.describe('WAN VPN clients section', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    await dialog.getByRole('combobox', { name: 'VPN type' }).click();
-    await expect(page.getByRole('option', { name: 'L2TP' })).toBeVisible();
-    await expect(page.getByRole('option', { name: 'WireGuard' })).toBeVisible();
-    await expect(page.getByRole('option', { name: 'OpenVPN' })).toBeHidden();
-    await page.getByRole('option', { name: 'L2TP' }).click();
+    const types = dialog.getByRole('radiogroup', { name: 'VPN client type' });
+    await expect(types.getByRole('radio', { name: 'L2TP' })).toBeEnabled();
+    await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeEnabled();
+    await types.getByRole('radio', { name: 'L2TP' }).click();
 
     const submit = dialog.getByRole('button', { name: 'Add client' });
     await expect(submit).toBeDisabled();
@@ -313,6 +312,74 @@ test.describe('WAN VPN clients section', () => {
     await dialog.getByLabel('Password', { exact: true }).fill('s3cret');
 
     await expect(submit).toBeEnabled();
+  });
+
+  test('switches form via type tiles and keeps unsupported types disabled', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await page.getByRole('button', { name: 'New' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const types = dialog.getByRole('radiogroup', { name: 'VPN client type' });
+    await expect(types.getByRole('radio')).toHaveCount(4);
+    await expect(types.getByRole('radio', { name: 'L2TP' })).toBeChecked();
+    await expect(dialog.getByLabel('Connect to')).toBeVisible();
+
+    await types.getByRole('radio', { name: 'WireGuard' }).click();
+    await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeChecked();
+    await expect(types.getByRole('radio', { name: 'L2TP' })).not.toBeChecked();
+    await expect(dialog.getByRole('textbox', { name: 'Config' })).toBeVisible();
+    await expect(dialog.getByLabel('Connect to')).toHaveCount(0);
+
+    const openvpn = types.getByRole('radio', { name: 'OpenVPN' });
+    const sstp = types.getByRole('radio', { name: 'SSTP' });
+    await expect(openvpn).toBeDisabled();
+    await expect(sstp).toBeDisabled();
+    await expect(openvpn).not.toBeChecked();
+    await expect(sstp).not.toBeChecked();
+
+    await openvpn.click({ force: true });
+    await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeChecked();
+    await expect(dialog.getByRole('textbox', { name: 'Config' })).toBeVisible();
   });
 
   test('submits L2TP client via POST and refreshes the list', async ({

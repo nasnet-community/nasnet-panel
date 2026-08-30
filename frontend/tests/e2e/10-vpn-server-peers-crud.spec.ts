@@ -111,6 +111,75 @@ test.describe('VPN servers tab', () => {
     await expect(dialog.getByText('alice123')).toBeVisible();
   });
 
+  test('switches server form via type tiles and keeps unsupported types disabled', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Server Router', host: '10.0.0.20' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+
+    await context.route('**/api/vpn/users', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+
+    await context.route('**/api/vpn/servers', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ ovpnServers: [], wireguards: [], pptp: null, l2tp: null, sstp: null }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+
+    await page.getByRole('button', { name: 'Add server' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const types = dialog.getByRole('radiogroup', { name: 'VPN server type' });
+    await expect(types.getByRole('radio')).toHaveCount(4);
+    await expect(types.getByRole('radio', { name: 'OpenVPN' })).toBeChecked();
+    await expect(dialog.getByRole('button', { name: 'Create OpenVPN server' })).toBeVisible();
+
+    await types.getByRole('radio', { name: 'WireGuard' }).click();
+    await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeChecked();
+    await expect(types.getByRole('radio', { name: 'OpenVPN' })).not.toBeChecked();
+    await expect(dialog.getByRole('button', { name: 'Create WireGuard server' })).toBeVisible();
+    await expect(dialog.getByLabel('Listen port')).toBeVisible();
+
+    const l2tp = types.getByRole('radio', { name: 'L2TP' });
+    const sstp = types.getByRole('radio', { name: 'SSTP' });
+    await expect(l2tp).toBeDisabled();
+    await expect(sstp).toBeDisabled();
+    await expect(l2tp).not.toBeChecked();
+    await expect(sstp).not.toBeChecked();
+
+    await l2tp.click({ force: true });
+    await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeChecked();
+    await expect(dialog.getByRole('button', { name: 'Create WireGuard server' })).toBeVisible();
+  });
+
   test('creates an OpenVPN server without inline user fields', async ({
     page,
     context,
@@ -185,7 +254,11 @@ test.describe('VPN servers tab', () => {
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole('combobox', { name: 'VPN type' })).toContainText('OpenVPN');
+    await expect(
+      dialog
+        .getByRole('radiogroup', { name: 'VPN server type' })
+        .getByRole('radio', { name: 'OpenVPN' }),
+    ).toBeChecked();
     await expect(dialog.getByLabel(/Username/)).toHaveCount(0);
     await expect(dialog.getByRole('button', { name: 'Add user' })).toHaveCount(0);
 

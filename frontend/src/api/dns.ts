@@ -6,15 +6,35 @@ export interface DnsCredentials {
   password: string;
 }
 
-export interface DnsInfoResponse {
-  servers: string[];
-  dynamicServers: string[];
-  dohServer: string;
+export type DnsForwarderType = 'Domestic' | 'Foreign' | 'VPN';
+
+export interface DnsForwarderListItem {
+  name: string;
+  ip: string;
+  comment: string;
 }
 
-export interface UpdateDnsRequest {
-  servers?: string;
-  dohServer?: string;
+export interface DnsSuggestion {
+  ip: string;
+  description: string;
+}
+
+export interface DnsSuggestResponse {
+  domestic?: DnsSuggestion[];
+  foreign?: DnsSuggestion[];
+}
+
+export interface DnsValidateResponse {
+  oldIp: string;
+  newIp: string;
+  oldIpType: string;
+  suitable: boolean;
+  message?: string;
+}
+
+export interface ChangeDnsRequest {
+  oldIp: string;
+  newIp: string;
 }
 
 function authHeaders({ host, username, password }: DnsCredentials): Record<string, string> {
@@ -24,34 +44,64 @@ function authHeaders({ host, username, password }: DnsCredentials): Record<strin
   };
 }
 
-export async function fetchDnsInfo(
+export async function fetchDnsForwarders(
   creds: DnsCredentials,
   signal?: AbortSignal,
-): Promise<DnsInfoResponse> {
-  const data = await apiRequest<DnsInfoResponse | null>('/api/dns/info', {
+): Promise<DnsForwarderListItem[]> {
+  const data = await apiRequest<DnsForwarderListItem[] | null>('/api/dns/list', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
     signal,
   });
-  return (
-    data ?? {
-      servers: [],
-      dynamicServers: [],
-      dohServer: '',
-    }
-  );
+  return data ?? [];
 }
 
-export async function updateDnsConfig(
+export async function fetchDnsSuggestions(
   creds: DnsCredentials,
-  body: UpdateDnsRequest,
+  signal?: AbortSignal,
+): Promise<DnsSuggestResponse> {
+  const data = await apiRequest<DnsSuggestResponse | null>('/api/dns/suggest', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return data ?? {};
+}
+
+export async function validateDnsChange(
+  creds: DnsCredentials,
+  oldIp: string,
+  newIp: string,
+  signal?: AbortSignal,
+): Promise<DnsValidateResponse> {
+  const query = new URLSearchParams({ oldIP: oldIp, newIP: newIp });
+  return apiRequest<DnsValidateResponse>(`/api/dns/validate?${query.toString()}`, {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function changeDns(
+  creds: DnsCredentials,
+  body: ChangeDnsRequest,
   signal?: AbortSignal,
 ): Promise<void> {
-  await apiRequest('/api/dns/info', {
-    method: 'PUT',
+  await apiRequest('/api/dns/change', {
+    method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function resetDns(creds: DnsCredentials, signal?: AbortSignal): Promise<void> {
+  await apiRequest('/api/dns/reset', {
+    method: 'POST',
+    headers: authHeaders(creds),
     signal,
   });
 }

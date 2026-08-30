@@ -71,11 +71,18 @@ export {
   type LogSeverity,
 } from './logs';
 export {
-  fetchDnsInfo,
-  updateDnsConfig,
+  fetchDnsForwarders,
+  fetchDnsSuggestions,
+  validateDnsChange,
+  changeDns,
+  resetDns,
   type DnsCredentials,
-  type DnsInfoResponse,
-  type UpdateDnsRequest,
+  type DnsForwarderType,
+  type DnsForwarderListItem,
+  type DnsSuggestion,
+  type DnsSuggestResponse,
+  type DnsValidateResponse,
+  type ChangeDnsRequest,
 } from './dns';
 export {
   fetchDhcpLeases,

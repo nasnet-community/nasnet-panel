@@ -16,6 +16,7 @@
 
 /interface/bridge/port remove [find bridge!="containers"]
 /interface/bridge remove [find name!="containers"]
+/interface bridge port remove [find where interface~"\\*"]
 
 /interface bonding remove [find]
 /interface macvlan remove [find]

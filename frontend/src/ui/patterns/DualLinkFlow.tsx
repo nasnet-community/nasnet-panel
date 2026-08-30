@@ -17,7 +17,6 @@ interface NodeProps {
   sublabel?: string;
   sublabelIcon?: React.ReactNode;
   badge?: NodeBadge;
-  labelAbove?: boolean;
   selected?: boolean;
   branch?: 'domestic' | 'starlink' | 'common';
   focus?: DualLinkFlowProps['focus'];
@@ -39,15 +38,11 @@ const Node: React.FC<NodeProps> = ({
   sublabel,
   sublabelIcon,
   badge,
-  labelAbove,
   selected,
   branch,
   focus,
 }) => (
-  <div
-    className={cx(styles.node, labelAbove && styles.nodeAbove, emphasisClass(branch, focus))}
-    style={{ left, top }}
-  >
+  <div className={cx(styles.node, emphasisClass(branch, focus))} style={{ left, top }}>
     <div className={cx(styles.nodeIcon, selected && styles.nodeIconSelected)}>{icon}</div>
     <div className={styles.labelGroup}>
       <div className={styles.nodeLabel}>{label}</div>
@@ -144,7 +139,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
           className={styles.track}
           markerEnd="url(#dual-arrow)"
         />
-        <g className={domesticEmph}>
+        <g className={starlinkEmph}>
           <path
             id="dl-top-arm"
             d="M 178 92 L 280 52"
@@ -160,7 +155,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
           <Dots pathId="dl-top-arm" prefix="topArm" />
           <Dots pathId="dl-top-row" prefix="topRow" />
         </g>
-        <g className={starlinkEmph}>
+        <g className={domesticEmph}>
           <path
             id="dl-bottom-arm"
             d="M 178 108 L 280 148"
@@ -198,27 +193,6 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
       <Node
         left="61%"
         top="24%"
-        icon={<Globe size={32} strokeWidth={1.75} />}
-        label="Domestic WAN"
-        sublabel={domesticInterface}
-        sublabelIcon={domesticInterfaceIcon}
-        selected={Boolean(domesticInterface)}
-        labelAbove
-        branch="domestic"
-        focus={focus}
-      />
-      <Node
-        left="88%"
-        top="24%"
-        icon={<Server size={32} strokeWidth={1.75} />}
-        label="Domestic Site"
-        labelAbove
-        branch="domestic"
-        focus={focus}
-      />
-      <Node
-        left="61%"
-        top="76%"
         icon={<SatelliteDish size={32} strokeWidth={1.75} />}
         label="Starlink"
         sublabel={starlinkInterface}
@@ -230,10 +204,29 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
       />
       <Node
         left="88%"
-        top="76%"
+        top="24%"
         icon={<Server size={32} strokeWidth={1.75} />}
         label="Foreign Site"
         branch="starlink"
+        focus={focus}
+      />
+      <Node
+        left="61%"
+        top="76%"
+        icon={<Globe size={32} strokeWidth={1.75} />}
+        label="Domestic WAN"
+        sublabel={domesticInterface}
+        sublabelIcon={domesticInterfaceIcon}
+        selected={Boolean(domesticInterface)}
+        branch="domestic"
+        focus={focus}
+      />
+      <Node
+        left="88%"
+        top="76%"
+        icon={<Server size={32} strokeWidth={1.75} />}
+        label="Domestic Site"
+        branch="domestic"
         focus={focus}
       />
     </div>
