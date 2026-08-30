@@ -621,6 +621,27 @@ footer {
   margin-bottom: 8px;
 }
 
+.storage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.storage-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.storage-option:hover {
+  background: var(--muted);
+}
+
 .figure {
   margin-bottom: 12px;
   text-align: center;

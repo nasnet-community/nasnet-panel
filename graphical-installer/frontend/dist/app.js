@@ -32,14 +32,14 @@
     $(id).classList.add('hidden');
   }
 
-  function applyRebootImage() {
+  function applyButtonImage(prefix) {
     var board = routerBoard.replace(/\u00b2/g, '2').replace(/\u00b3/g, '3');
     var ax2 = /hap/i.test(board) && /ax\D*2/i.test(board);
-    $('reboot-button-img').src = ax2 ? 'hap_ax2_button.jpg' : 'hap_ax3_button.jpg';
-    $('reboot-button-img').alt = ax2
+    $(prefix + '-button-img').src = ax2 ? 'hap_ax2_button.jpg' : 'hap_ax3_button.jpg';
+    $(prefix + '-button-img').alt = ax2
       ? 'Pressing the MODE button on the top of a hAP ax2'
       : 'Pressing the MODE button on the front of a hAP ax3';
-    $('reboot-button-caption').textContent = ax2
+    $(prefix + '-button-caption').textContent = ax2
       ? 'hAP ax2, MODE button on top of the case'
       : 'hAP ax3, MODE button on the front panel next to the USB port';
   }
@@ -116,6 +116,15 @@
     $('btn-device-no').addEventListener('click', function () {
       hide('modal-device');
       App.ConfirmDeviceMode(false);
+    });
+    $('btn-storage-ok').addEventListener('click', function () {
+      var picked = document.querySelector('#storage-list input[name="storage"]:checked');
+      hide('modal-storage');
+      App.ConfirmStorage(picked ? picked.value : '');
+    });
+    $('btn-storage-no').addEventListener('click', function () {
+      hide('modal-storage');
+      App.ConfirmStorage('');
     });
     $('btn-reboot-ok').addEventListener('click', function () {
       hide('reboot-ask');
@@ -274,6 +283,7 @@
     hide('view-run');
     hide('modal-device');
     hide('modal-reboot');
+    hide('modal-storage');
     stopRebootTimer();
     show('view-form');
   }
@@ -300,6 +310,7 @@
     }
     if (id === 'check' && status !== 'running') {
       hide('modal-reboot');
+      hide('modal-storage');
       stopRebootTimer();
     }
   }
@@ -311,6 +322,7 @@
     show('btn-back');
     hide('modal-device');
     hide('modal-reboot');
+    hide('modal-storage');
     stopRebootTimer();
   }
 
@@ -368,6 +380,7 @@
     });
 
     window.runtime.EventsOn('install:device-mode', function () {
+      applyButtonImage('device');
       show('device-ask');
       hide('device-wait');
       show('modal-device');
@@ -378,11 +391,46 @@
       $('device-state').textContent = data.state;
     });
 
-    window.runtime.EventsOn('install:reboot', function () {
-      applyRebootImage();
+    window.runtime.EventsOn('install:reboot', function (data) {
+      if (data && data.reason) {
+        $('reboot-reason').textContent = data.reason;
+      }
+      applyButtonImage('reboot');
       show('reboot-ask');
       hide('reboot-wait');
       show('modal-reboot');
+    });
+
+    window.runtime.EventsOn('install:storage', function (data) {
+      var list = $('storage-list');
+      list.textContent = '';
+      var choices = (data && data.choices) || [];
+      choices.forEach(function (choice, index) {
+        var label = document.createElement('label');
+        label.className = 'storage-option';
+        var radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'storage';
+        radio.value = choice.name;
+        radio.checked = index === 0;
+        var text = document.createElement('span');
+        text.textContent =
+          choice.freeMb >= 0 ? choice.label + ' (' + choice.freeMb + ' MB free)' : choice.label;
+        label.appendChild(radio);
+        label.appendChild(text);
+        list.appendChild(label);
+      });
+      show('modal-storage');
+    });
+
+    window.runtime.EventsOn('install:reboot-auto', function (data) {
+      if (data && data.reason) {
+        $('reboot-reason').textContent = data.reason;
+      }
+      hide('reboot-ask');
+      show('reboot-wait');
+      show('modal-reboot');
+      startRebootTimer();
     });
 
     window.runtime.EventsOn('install:reboot-tick', function (data) {

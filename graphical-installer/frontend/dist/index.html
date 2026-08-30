@@ -226,6 +226,10 @@
                 plug back in).
               </li>
             </ol>
+            <figure class="figure">
+              <img id="device-button-img" src="hap_ax3_button.jpg" alt="" />
+              <figcaption id="device-button-caption"></figcaption>
+            </figure>
             <div class="actions">
               <button id="btn-device-ok" class="primary">Proceed</button>
               <button id="btn-device-no">Abort</button>
@@ -245,9 +249,9 @@
         <div class="modal-box">
           <h3>Router restart required</h3>
           <div id="reboot-ask">
-            <p>
-              Container mode is not enabled yet. The container package is now enabled, and the
-              router has to restart before it can run containers.
+            <p id="reboot-reason">
+              The container package is now enabled, and the router has to restart before it can run
+              containers.
             </p>
             <p>Restart the router yourself, then confirm below.</p>
             <p>Use the MODE button while the router is powered on:</p>
@@ -271,6 +275,21 @@
               <span id="reboot-elapsed">0</span>s elapsed, router is
               <span id="reboot-state">restarting</span>
             </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-storage" class="modal hidden">
+        <div class="modal-box">
+          <h3>Pick a disk for the container</h3>
+          <p id="storage-reason">
+            The internal flash does not have enough free space for the container image. Pick one of
+            the disks connected to the router.
+          </p>
+          <div id="storage-list" class="storage-list"></div>
+          <div class="actions">
+            <button id="btn-storage-ok" class="primary">Use this disk</button>
+            <button id="btn-storage-no">Abort</button>
           </div>
         </div>
       </div>

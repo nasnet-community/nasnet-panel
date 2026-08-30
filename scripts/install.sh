@@ -24,8 +24,10 @@ VETH_GW="192.168.50.1"
 
 CONTAINER_NAME="nasnet-panel"
 LEGACY_CONTAINER_NAME="nnc"
-CONTAINER_ROOT_DIR="disk1/images/nasnet-panel"
-TAR_REMOTE_DIR="disk1"
+CONTAINER_IMAGES_DIR="images/nasnet-panel"
+CONTAINER_ROOT_DIR="${CONTAINER_IMAGES_DIR}"
+STORAGE_DIR=""
+MIN_STORAGE_MB=32
 
 LAN_BRIDGE="LANBridgeSplit"
 LAN_BRIDGE_IP="192.168.10.1"
@@ -34,6 +36,9 @@ LAN_BASELINE_RSC="nasnet-lan-baseline.rsc"
 COMMENT_TAG="nasnet-panel-installer"
 MIN_FREE_MB=30
 DEVICE_MODE_TIMEOUT=120
+BASELINE_TIMEOUT=30
+REBOOT_SETTLE=15
+REBOOT_TIMEOUT=300
 START_TIMEOUT=120
 
 # ---- args ------------------------------------------------------------------
@@ -46,6 +51,7 @@ LAN_BASELINE_APPLIED=0
 CONFIG_FILE=""
 VERSION=""
 IMAGE_TAR=""
+STORAGE_CHOICE=""
 LAN_PORT=8080
 HTTPS_LAN_PORT=8443
 
@@ -64,6 +70,7 @@ Usage: install.sh [options]
   --config <file>      env-style file: ROUTER_IP=, ROUTER_USER=, ROUTER_PASS=
   --version <tag>      Release tag to install (default: snapshot).
   --image-tar <path>   Use a local tar instead of downloading a release asset.
+  --storage <name>     Router storage for the container (disk slot name, or "internal").
   --lan-port <port>    LAN port for dstnat to panel HTTP (default: 8080).
   --https-lan-port <port>  LAN port for dstnat to panel HTTPS (default: 8443).
   --no-lan-baseline    Skip the baseline LAN setup (LANBridgeSplit, 192.168.10.0/24).
@@ -102,6 +109,7 @@ while [[ $# -gt 0 ]]; do
     --config)      CONFIG_FILE="${2:?--config requires a path}"; shift ;;
     --version)     VERSION="${2:?--version requires a tag}"; shift ;;
     --image-tar)   IMAGE_TAR="${2:?--image-tar requires a path}"; shift ;;
+    --storage)     STORAGE_CHOICE="${2:?--storage requires a name}"; shift ;;
     --lan-port)       LAN_PORT="${2:?--lan-port requires a port}"; shift ;;
     --https-lan-port) HTTPS_LAN_PORT="${2:?--https-lan-port requires a port}"; shift ;;
     --no-lan-baseline) NO_LAN_BASELINE=1 ;;
@@ -448,28 +456,265 @@ probe() {
   fi
 }
 
-ensure_device_mode() {
+CONTAINER_PKG_PROBE=':put ("P=" . [:len [/system/package/find name=container]]); :do {:put ("I=" . [/system/package/get [find name=container] installed])} on-error={}; :do {:put ("D=" . [/system/package/get [find name=container] disabled])} on-error={}'
+
+PKG_PRESENT=0
+PKG_INSTALLED=0
+PKG_DISABLED=0
+
+probe_container_package() {
+  local out line key value
+  PKG_PRESENT=0; PKG_INSTALLED=1; PKG_DISABLED=0
+  out="$(ros_cmd "$CONTAINER_PKG_PROBE" 2>/dev/null || true)"
+  while IFS= read -r line; do
+    line="$(trim "$line")"
+    key="${line%%=*}"; value="${line#*=}"
+    case "$key" in
+      P) if [[ "$value" =~ ^[1-9] ]]; then PKG_PRESENT=1; fi ;;
+      I) if [[ "$value" == "true" || "$value" == "yes" ]]; then PKG_INSTALLED=1; else PKG_INSTALLED=0; fi ;;
+      D) if [[ "$value" == "true" ]]; then PKG_DISABLED=1; fi ;;
+    esac
+  done <<< "$out"
+  return 0
+}
+
+ensure_container_package() {
+  probe_container_package
+  if (( PKG_PRESENT && PKG_INSTALLED && ! PKG_DISABLED )); then
+    return 0
+  fi
+  if (( ! PKG_PRESENT )); then
+    log "  container package is not listed, asking the router for the available packages"
+    if (( DRY_RUN )); then
+      log "  [dry-run] /system/package/update/check-for-updates"
+    else
+      spin "checking for available packages" ros_cmd '/system/package/update/check-for-updates' || true
+      probe_container_package
+    fi
+  fi
+  if (( PKG_PRESENT )); then
+    enable_container_package
+  else
+    install_container_package
+  fi
+}
+
+enable_container_package() {
+  log "  container package is on the router but not active, enabling it"
+  if (( DRY_RUN )); then
+    log "  [dry-run] /system/package/enable container, then /system/package/apply-changes"
+    return 0
+  fi
+  if ! spin "enabling the container package" ros_cmd '/system/package/enable container'; then
+    err "failed to enable the container package"; return 1
+  fi
+
+  restart_router '/system/package/apply-changes' '/system/reboot' || return 1
+
+  probe_container_package
+  if (( ! PKG_PRESENT || ! PKG_INSTALLED || PKG_DISABLED )); then
+    err "the container package is still not active after the restart"
+    err "install it from System > Packages in WebFig or Winbox, then run the installer again"
+    return 1
+  fi
+  log "  container package installed"
+}
+
+container_package_name() {
+  local version="${ROUTEROS_VERSION%% *}"
+  version="${version%%(*}"
+  if [[ -z "$version" ]]; then
+    err "could not read the RouterOS version to pick a container package"; return 1
+  fi
+  case "$ROUTEROS_ARCH" in
+    x86_64) printf 'container-%s.npk' "$version" ;;
+    arm|arm64) printf 'container-%s-%s.npk' "$version" "$ROUTEROS_ARCH" ;;
+    *) err "no container package for architecture ${ROUTEROS_ARCH}"; return 1 ;;
+  esac
+}
+
+install_container_package() {
+  local name url out_dir local_npk version
+  name="$(container_package_name)" || return 1
+  version="${ROUTEROS_VERSION%% *}"; version="${version%%(*}"
+  url="https://download.mikrotik.com/routeros/${version}/${name}"
+
+  log "  container package is missing, installing ${name}"
+  if (( DRY_RUN )); then
+    log "  [dry-run] download ${url}, upload it to the router, then restart"
+    return 0
+  fi
+
+  out_dir="${TMPDIR:-/tmp}/nasnet-panel-installer"
+  mkdir -p "$out_dir"
+  local_npk="${out_dir}/${name}"
+  if ! curl -fL --progress-bar "$url" -o "$local_npk"; then
+    err "could not download the container package for RouterOS ${version} (${ROUTEROS_ARCH}): ${url}"
+    err "install it via WebFig/Winbox 'System > Packages' instead"
+    return 1
+  fi
+  if ! spin "uploading ${name}" scp_pw "$local_npk" "${ROUTER_USER}@${ROUTER_IP}:${name}"; then
+    err "could not upload the container package to the router"; return 1
+  fi
+
+  restart_router '/system/reboot' || return 1
+
+  probe_container_package
+  if (( ! PKG_PRESENT )); then
+    remove_remote_file "$name"
+    err "the container package is still not installed after the restart"
+    err "${name} may not match RouterOS ${ROUTEROS_VERSION} on ${ROUTEROS_ARCH}"
+    return 1
+  fi
+  if (( ! PKG_INSTALLED || PKG_DISABLED )); then
+    enable_container_package || return 1
+    return 0
+  fi
+  log "  container package installed"
+}
+
+restart_router() {
+  local cmd started=0
+  for cmd in "$@"; do
+    if ros_cmd ":execute {:delay 2s; ${cmd}}" >/dev/null 2>&1; then
+      log "  restarting the router with ${cmd}"
+      started=1
+      break
+    fi
+    log "  could not run ${cmd} over SSH"
+  done
+  if (( ! started )); then
+    log ""
+    log "  \033[33m⚠  Restart the router now\033[0m (System > Reboot, or unplug the power and plug it back in)"
+  fi
+
+  sleep "$REBOOT_SETTLE"
+  local i=0 elapsed="$REBOOT_SETTLE"
+  tput civis 2>/dev/null || true
+  while (( elapsed < REBOOT_TIMEOUT )); do
+    printf '\r  %s waiting for the router to come back ... %3ds elapsed ' \
+           "${SPIN_FRAMES[i % ${#SPIN_FRAMES[@]}]}" "$elapsed"
+    i=$(( i + 1 ))
+    if ros_cmd ':put ok' >/dev/null 2>&1; then
+      tput cnorm 2>/dev/null || true
+      printf '\r\033[K'
+      log "  router is back online"
+      return 0
+    fi
+    sleep 3
+    elapsed=$(( elapsed + 3 ))
+  done
+  tput cnorm 2>/dev/null || true
+  printf '\r\033[K'
+  err "router did not come back within ${REBOOT_TIMEOUT}s after the restart"
+  return 1
+}
+
+DISK_PROBE_SCRIPT=':foreach i in=[/disk/find] do={:local n ""; :do {:set n [:tostr [/disk/get $i slot]]} on-error={}; :if ([:len $n] = 0) do={:do {:set n [:tostr [/disk/get $i name]]} on-error={}}; :local f ""; :do {:set f [:tostr [/disk/get $i free]]} on-error={}; :if ([:len $f] = 0) do={:do {:set f [:tostr [/disk/get $i free-space]]} on-error={}}; :if ([:len $f] = 0) do={:set f "-"}; :if ([:len $n] > 0) do={:put ("S=" . $f . " " . $n)}}'
+FILE_PROBE_SCRIPT=':foreach i in=[/file/find where type="disk"] do={:put ("S=- " . [/file/get $i name])}'
+
+storage_path() {
+  if [[ -z "$STORAGE_DIR" ]]; then
+    printf '%s' "$1"
+  else
+    printf '%s/%s' "$STORAGE_DIR" "$1"
+  fi
+}
+
+storage_label() {
+  if [[ -z "${1-}" ]]; then printf 'internal flash'; else printf '%s' "$1"; fi
+}
+
+internal_free_mb() {
+  local out bytes
+  out="$(ros_cmd ':put ("H=" . [/system/resource/get free-hdd-space])' 2>/dev/null || true)"
+  bytes="$(printf '%s' "$out" | sed -nE 's/^[[:space:]]*H=([0-9]+).*/\1/p' | head -1)"
+  if [[ -z "$bytes" ]]; then printf -- '-1'; else printf '%s' $(( bytes / 1024 / 1024 )); fi
+}
+
+list_disks() {
+  local out
+  out="$(ros_cmd "$DISK_PROBE_SCRIPT" 2>/dev/null || true)"
+  if ! printf '%s' "$out" | grep -q '^[[:space:]]*S='; then
+    out="$(ros_cmd "$FILE_PROBE_SCRIPT" 2>/dev/null || true)"
+  fi
+  printf '%s' "$out" | sed -nE 's/^[[:space:]]*S=([^ ]+) (.+)$/\1 \2/p' | sort -k1,1nr
+}
+
+detect_storage() {
+  log ""
+  log "Checking router storage ..."
+
+  if [[ -n "$STORAGE_CHOICE" ]]; then
+    case "$STORAGE_CHOICE" in
+      internal|flash) STORAGE_DIR="" ;;
+      *) STORAGE_DIR="$STORAGE_CHOICE" ;;
+    esac
+    log "  using router storage $(storage_label "$STORAGE_DIR") (picked with --storage)"
+    apply_storage
+    return 0
+  fi
+
+  local internal_mb
+  internal_mb="$(internal_free_mb)"
+  if (( internal_mb < 0 || internal_mb >= MIN_STORAGE_MB )); then
+    STORAGE_DIR=""
+    log "  using internal flash (${internal_mb} MB free)"
+    apply_storage
+    return 0
+  fi
+  log "  internal flash has ${internal_mb} MB free, less than the ${MIN_STORAGE_MB} MB the container image needs"
+
+  local names=() frees=() line name free mb
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    free="${line%% *}"; name="${line#* }"
+    mb=-1
+    [[ "$free" =~ ^[0-9]+$ ]] && mb=$(( free / 1024 / 1024 ))
+    if (( mb < 0 || mb >= MIN_STORAGE_MB )); then
+      names+=("$name"); frees+=("$mb")
+    fi
+  done <<< "$(list_disks)"
+
+  if (( ${#names[@]} == 0 )); then
+    err "no router storage has the ${MIN_STORAGE_MB} MB of free space the container image needs"
+    err "free up space or attach a disk (USB, NVMe or an internal drive) that is formatted and listed under /disk"
+    exit 1
+  fi
+
+  local pick=1 i
+  if (( ${#names[@]} > 1 )) && [[ -t 0 ]]; then
+    log ""
+    log "  Pick a disk for the container:"
+    for (( i = 0; i < ${#names[@]}; i++ )); do
+      if (( frees[i] >= 0 )); then
+        log "    $(( i + 1 )). ${names[i]} (${frees[i]} MB free)"
+      else
+        log "    $(( i + 1 )). ${names[i]}"
+      fi
+    done
+    read -r -p "  Disk [1-${#names[@]}]: " pick
+    [[ "$pick" =~ ^[0-9]+$ ]] || pick=1
+    (( pick >= 1 && pick <= ${#names[@]} )) || pick=1
+  fi
+
+  STORAGE_DIR="${names[pick - 1]}"
+  log "  using router storage ${STORAGE_DIR}"
+  apply_storage
+}
+
+apply_storage() {
+  CONTAINER_ROOT_DIR="$(storage_path "$CONTAINER_IMAGES_DIR")"
+}
+
+ensure_container_support() {
+  enable_device_mode
+  ensure_container_package || exit 1
+}
+
+enable_device_mode() {
   log ""
   log "Checking container support ..."
-
-  local out
-  spin_out "container package present" out \
-    ros_cmd ':put [:len [/system/package/find name=container]]' || true
-  out="$(trim "$out")"
-  if [[ -z "$out" || ! "$out" =~ ^[1-9] ]]; then
-    err "container package is not installed on this router."
-    err "install via WebFig/Winbox 'System > Packages' or download the matching arch from mikrotik.com"
-    exit 1
-  fi
-
-  spin_out "container package enabled" out \
-    ros_cmd ':put [/system/package/get [find name=container] disabled]' || true
-  out="$(trim "$out")"
-  if [[ "$out" == "true" ]]; then
-    err "container package is installed but disabled."
-    err "run on the router: /system/package/enable container ; /system/reboot"
-    exit 1
-  fi
 
   spin_out "device-mode container" out \
     ros_cmd ':put [/system/device-mode/get container]' || true
@@ -591,7 +836,7 @@ download_asset() {
 # ---- upload ----------------------------------------------------------------
 upload_tar() {
   local local_path="$1"
-  local remote_path="${TAR_REMOTE_DIR}/${ASSET_NAME}"
+  local remote_path; remote_path="$(storage_path "$ASSET_NAME")"
   REMOTE_TAR="$remote_path"
 
   local local_size remote_size
@@ -613,7 +858,9 @@ upload_tar() {
     log "[dry-run] scp upload"
     return 0
   fi
-  ros_ensure_dir "$TAR_REMOTE_DIR"
+  if [[ -n "$STORAGE_DIR" ]]; then
+    ros_ensure_dir "$STORAGE_DIR"
+  fi
   scp_pw "$local_path" "${ROUTER_USER}@${ROUTER_IP}:${remote_path}"
   push_rollback "remove_remote_file '${remote_path}'"
 }
@@ -624,9 +871,30 @@ remove_remote_file() {
 }
 
 # ---- network + container ---------------------------------------------------
+check_veth_menu() {
+  if ros_cmd ':put [:len [/interface/veth/find]]' >/dev/null 2>&1; then
+    return 0
+  fi
+  local mode
+  mode="$(trim "$(ros_cmd ':put [/system/device-mode/get container]' 2>/dev/null || true)")"
+  err "the router has no /interface/veth menu, so the container package is not active"
+  case "$mode" in
+    no|false)
+      err "device-mode container is ${mode}, enable it with /system/device-mode/update container=yes"
+      err "confirm it with the reset button or a cold power-cycle, then run the installer again"
+      ;;
+    *)
+      err "check the container package under System > Packages, restart the router, then run the installer again"
+      ;;
+  esac
+  return 1
+}
+
 configure_network() {
   log ""
   log "Configuring network ..."
+
+  check_veth_menu || exit 1
 
   ros_ensure "veth ${VETH_NAME} (${VETH_ADDR_CIDR})" \
     /interface/veth "name=${VETH_NAME}" \
@@ -824,7 +1092,31 @@ setup_lan_baseline() {
     err "LAN baseline job failed to start; run the wizard from a wired connection or re-run install.sh"
     return 0
   fi
-  LAN_BASELINE_APPLIED=1
+  if baseline_took_effect; then
+    LAN_BASELINE_APPLIED=1
+  else
+    log "  LAN baseline did not bring up ${LAN_BRIDGE_IP}, the panel stays on ${ROUTER_IP}"
+  fi
+}
+
+baseline_took_effect() {
+  local elapsed=0 out
+  while (( elapsed < BASELINE_TIMEOUT )); do
+    sleep 3
+    elapsed=$(( elapsed + 3 ))
+    if ! out="$(ros_cmd ":put [:len [/ip/address/find address~\"^${LAN_BRIDGE_IP}\"]]" 2>/dev/null)"; then
+      if ! ros_cmd ':put ok' >/dev/null 2>&1; then
+        log "  router no longer answers on ${ROUTER_IP}, the new LAN is taking over"
+        return 0
+      fi
+      continue
+    fi
+    out="$(trim "$out")"
+    if [[ -n "$out" && "$out" != "0" ]]; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 # ---- uninstall -------------------------------------------------------------
@@ -856,9 +1148,9 @@ uninstall_path() {
   ros_remove "veth ${VETH_NAME}"          /interface/veth      "name=${VETH_NAME}"
   ros_remove "veth ${LEGACY_VETH_NAME}"   /interface/veth      "name=${LEGACY_VETH_NAME}"
 
-  log "  remove: tar(s) under ${TAR_REMOTE_DIR}/${ASSET_PREFIX}-*.tar"
+  log "  remove: ${ASSET_PREFIX}-*.tar from router storage"
   if (( ! DRY_RUN )); then
-    ros_cmd "/file/remove [find where (name~\"^${TAR_REMOTE_DIR}/${ASSET_PREFIX}-\") and (name~\"\\.tar\$\")]" \
+    ros_cmd "/file/remove [find where (name~\"(^|/)${ASSET_PREFIX}-\") and (name~\"\\.tar\$\")]" \
       >/dev/null 2>&1 || true
     remove_remote_file "$LAN_BASELINE_RSC"
   fi
@@ -880,7 +1172,8 @@ main() {
     return 0
   fi
 
-  ensure_device_mode
+  ensure_container_support
+  detect_storage
 
   if [[ -n "$IMAGE_TAR" ]]; then
     [[ -r "$IMAGE_TAR" ]] || { err "image tar not readable: $IMAGE_TAR"; exit 2; }
