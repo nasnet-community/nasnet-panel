@@ -171,10 +171,14 @@ test.describe('VPN servers tab', () => {
     const l2tp = types.getByRole('radio', { name: 'L2TP' });
     const sstp = types.getByRole('radio', { name: 'SSTP' });
     await expect(l2tp).toBeDisabled();
-    await expect(sstp).toBeDisabled();
     await expect(l2tp).not.toBeChecked();
-    await expect(sstp).not.toBeChecked();
 
+    await expect(sstp).toBeEnabled();
+    await sstp.click();
+    await expect(sstp).toBeChecked();
+    await expect(dialog.getByRole('button', { name: 'Enable SSTP server' })).toBeVisible();
+
+    await types.getByRole('radio', { name: 'WireGuard' }).click();
     await l2tp.click({ force: true });
     await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeChecked();
     await expect(dialog.getByRole('button', { name: 'Create WireGuard server' })).toBeVisible();
