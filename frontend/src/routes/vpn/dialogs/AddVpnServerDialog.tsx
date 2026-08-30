@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Cable, Globe, KeyRound, Shield } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Cable, Globe, Info, KeyRound, Shield, TriangleAlert } from 'lucide-react';
 import {
   Button,
   Dialog,
@@ -218,6 +218,19 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
   );
 }
 
+function InlineAlert({ tone, children }: { tone: 'info' | 'danger'; children: ReactNode }) {
+  const Icon = tone === 'danger' ? TriangleAlert : Info;
+  return (
+    <div
+      className={`${styles.alert} ${tone === 'danger' ? styles.alertDanger : styles.alertInfo}`}
+      role={tone === 'danger' ? 'alert' : undefined}
+    >
+      <Icon size={16} className={styles.alertIcon} aria-hidden />
+      <span>{children}</span>
+    </div>
+  );
+}
+
 function SstpServerForm({ creds, onCancel, onCreated }: FormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -286,7 +299,7 @@ function SstpServerForm({ creds, onCancel, onCreated }: FormProps) {
           label={failed ? 'Failed' : (progress.currentStep ?? 'Working…')}
           tone={failed ? 'danger' : 'success'}
         />
-        {error ? <FormError role="alert">{error}</FormError> : null}
+        {error ? <InlineAlert tone="danger">{error}</InlineAlert> : null}
         <FieldRow>
           <Button variant="ghost" onClick={onCancel} disabled={!failed}>
             Close
@@ -298,13 +311,11 @@ function SstpServerForm({ creds, onCancel, onCreated }: FormProps) {
 
   return (
     <FieldStack>
-      <FieldRow>
-        <p style={{ color: 'var(--color-muted)' }}>
-          Enabling SSTP issues a server certificate, starts the SSTP server on port 4433 and adds a
-          firewall rule accepting inbound connections. Existing VPN users can sign in over SSTP.
-        </p>
-      </FieldRow>
-      {error ? <FormError role="alert">{error}</FormError> : null}
+      <InlineAlert tone="info">
+        Enabling SSTP issues a server certificate, starts the SSTP server on port 4433 and adds a
+        firewall rule accepting inbound connections. Existing VPN users can sign in over SSTP.
+      </InlineAlert>
+      {error ? <InlineAlert tone="danger">{error}</InlineAlert> : null}
       <FieldRow>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
           Cancel
