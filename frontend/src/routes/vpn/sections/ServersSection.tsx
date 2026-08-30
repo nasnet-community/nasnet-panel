@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
+  createSstpServer,
   deleteOvpnServer,
   deleteWireguardInterface,
   type VPNCredentials,
@@ -12,6 +13,7 @@ import { EditWgInterfaceDialog } from '../dialogs/EditWgInterfaceDialog';
 import { ServerDetailsDialog } from '../dialogs/ServerDetailsDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
+import { pollSstpServerTask } from '../sstpTask';
 import { PAGE_SIZE } from '../utils';
 import { ServersTable } from './ServersTable';
 import { SectionHeader } from './SectionHeader';
@@ -37,6 +39,8 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
   const [editingWg, setEditingWg] = useState<VPNServer | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNServer | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [pendingDisable, setPendingDisable] = useState<VPNServer | null>(null);
+  const [disableSubmitting, setDisableSubmitting] = useState(false);
 
   const onCreated = () => {
     toast.notify({ title: 'VPN server created', tone: 'success' });
@@ -75,6 +79,37 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
     onChanged();
   };
 
+  const onConfirmDisable = async () => {
+    if (!creds || !pendingDisable) return;
+    const target = pendingDisable;
+    setDisableSubmitting(true);
+    try {
+      const res = await createSstpServer(creds, { enabled: false });
+      const status = await pollSstpServerTask(creds, res.taskId).done;
+      if (status.status !== 'completed') {
+        throw new Error(status.error ?? 'SSTP server could not be disabled.');
+      }
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to disable SSTP server.';
+      toast.notify({
+        title: 'Failed to disable server',
+        description: message,
+        tone: 'danger',
+      });
+      setDisableSubmitting(false);
+      return;
+    }
+    setDisableSubmitting(false);
+    setPendingDisable(null);
+    toast.notify({ title: `Server "${target.name}" disabled`, tone: 'info' });
+    onChanged();
+  };
+
   return (
     <Stack>
       <Card>
@@ -101,6 +136,7 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
             onRowClick={setSelected}
             onEdit={(s) => setEditingWg(s)}
             onDelete={(s) => setPendingDelete(s)}
+            onDisable={(s) => setPendingDisable(s)}
             canMutate={!!creds}
           />
           <PaginationControls
@@ -145,6 +181,15 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
         destructive
         onConfirm={onConfirmDelete}
         onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+      />
+      <ConfirmDialog
+        open={!!pendingDisable}
+        title="Disable SSTP server"
+        description="Stop the SSTP server on this router? Firewall rules added for it are removed and clients can no longer connect over SSTP. The server certificate is kept, so it can be enabled again later."
+        confirmLabel={disableSubmitting ? 'Disabling…' : 'Disable'}
+        destructive
+        onConfirm={onConfirmDisable}
+        onCancel={() => (disableSubmitting ? undefined : setPendingDisable(null))}
       />
     </Stack>
   );
