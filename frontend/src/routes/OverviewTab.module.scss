@@ -353,3 +353,13 @@
   color: var(--color-text-muted);
   font-size: var(--font-sm);
 }
+
+.connectivityDot {
+  flex: 0 0 auto;
+}
+
+.connectivityHealth {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
