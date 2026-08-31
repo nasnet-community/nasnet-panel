@@ -55,6 +55,7 @@ import { useRouter, useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useThemeColors } from '../utils/theme-colors';
 import { matchesWanCategory } from './wan/types';
+import { ConnectivityCard } from './overview-panel/ConnectivityCard';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
 import { UplinkIpCard } from './overview-panel/UplinkIpCard';
 import { resolveModelStrict } from './overview-panel/resolveModel';
@@ -129,6 +130,13 @@ export function OverviewTab() {
   const colors = useThemeColors();
   const toast = useToast();
   const { upsertRouter } = useRouterStore();
+
+  const netCreds = useMemo(() => {
+    const host = router?.host;
+    if (!id || !host) return null;
+    const creds = getCredentials(id);
+    return creds ? { host, ...creds } : null;
+  }, [id, router?.host, getCredentials]);
 
   const openRename = () => {
     setRenameInput(router?.name ?? '');
@@ -557,6 +565,8 @@ export function OverviewTab() {
           </Card>
 
           <UplinkIpCard interfaces={interfaces} addresses={ipAddresses} />
+
+          <ConnectivityCard creds={netCreds} />
 
           <Card className={styles.networkCard}>
             <div className={styles.networkCardHeader}>

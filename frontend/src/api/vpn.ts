@@ -218,6 +218,26 @@ export interface OvpnServerTaskStatus {
   result?: Record<string, unknown>;
 }
 
+export interface CreateSstpServerRequest {
+  enabled: boolean;
+}
+
+export interface CreateSstpServerResponse {
+  taskId: string;
+  status: string;
+}
+
+export interface SstpServerTaskStatus {
+  taskId: string;
+  status: 'running' | 'completed' | 'error';
+  progress: number;
+  currentStep: string;
+  startTime: number;
+  completedTime?: number;
+  error?: string;
+  result?: Record<string, unknown>;
+}
+
 export interface CreateWireguardServerRequest {
   name: string;
   localAddress?: string;
@@ -694,6 +714,35 @@ export async function deleteOvpnServer(
     headers: authHeaders(creds),
     signal,
   });
+}
+
+export async function createSstpServer(
+  creds: VPNCredentials,
+  body: CreateSstpServerRequest,
+  signal?: AbortSignal,
+): Promise<CreateSstpServerResponse> {
+  return apiRequest<CreateSstpServerResponse>('/api/vpn/sstp/server', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function fetchSstpServerTaskStatus(
+  creds: VPNCredentials,
+  taskId: string,
+  signal?: AbortSignal,
+): Promise<SstpServerTaskStatus> {
+  return apiRequest<SstpServerTaskStatus>(
+    `/api/vpn/sstp/server/status/${encodeURIComponent(taskId)}`,
+    {
+      method: 'GET',
+      headers: authHeaders(creds),
+      cache: 'no-store',
+      signal,
+    },
+  );
 }
 
 export async function createWireguardServer(

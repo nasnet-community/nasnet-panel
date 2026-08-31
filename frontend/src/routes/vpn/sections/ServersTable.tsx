@@ -1,5 +1,5 @@
 import { Badge, Button, DataTable } from '@nasnet/ui';
-import { Pencil, Server as ServerIcon, Trash2 } from 'lucide-react';
+import { Pencil, Power, Server as ServerIcon, Trash2 } from 'lucide-react';
 import type { VPNServer } from '../../../api';
 
 interface Props {
@@ -8,11 +8,13 @@ interface Props {
   onRowClick?: (server: VPNServer) => void;
   onEdit?: (server: VPNServer) => void;
   onDelete?: (server: VPNServer) => void;
+  onDisable?: (server: VPNServer) => void;
   canMutate?: boolean;
 }
 
 const isDeletable = (s: VPNServer) => s.protocol === 'openvpn' || s.protocol === 'wireguard';
 const isEditable = (s: VPNServer) => s.protocol === 'wireguard';
+const isDisableable = (s: VPNServer) => s.protocol === 'sstp' && s.running;
 
 export function ServersTable({
   rows,
@@ -20,6 +22,7 @@ export function ServersTable({
   onRowClick,
   onEdit,
   onDelete,
+  onDisable,
   canMutate = false,
 }: Props) {
   return (
@@ -57,7 +60,8 @@ export function ServersTable({
           render: (s: VPNServer) => {
             const editable = isEditable(s);
             const deletable = isDeletable(s);
-            if (!editable && !deletable) return null;
+            const disableable = isDisableable(s);
+            if (!editable && !deletable && !disableable) return null;
             return (
               <span style={{ display: 'inline-flex', gap: 8 }}>
                 {editable && onEdit ? (
@@ -88,6 +92,21 @@ export function ServersTable({
                     }}
                   >
                     <Trash2 size={14} aria-hidden />
+                  </Button>
+                ) : null}
+                {disableable && onDisable ? (
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={!canMutate}
+                    title={`Disable ${s.name}`}
+                    aria-label={`Disable ${s.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDisable(s);
+                    }}
+                  >
+                    <Power size={14} aria-hidden />
                   </Button>
                 ) : null}
               </span>
