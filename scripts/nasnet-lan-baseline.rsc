@@ -1,3 +1,25 @@
+:log info "nasnet-panel: making sure a DNS server is set so NTP server names resolve"
+:do {
+  :local staticDNS [/ip/dns get servers]
+  :local dynamicDNS ""
+  :do { :set dynamicDNS [/ip/dns get dynamic-servers] } on-error={}
+  :if ([:len $staticDNS] = 0 && [:len $dynamicDNS] = 0) do={
+    /ip/dns set servers=1.1.1.1,1.0.0.1
+  }
+} on-error={
+  :log warning "nasnet-panel: could not set a DNS server, NTP server names may not resolve"
+}
+:log info "nasnet-panel: enabling the NTP client so the clock is correct for TLS"
+:do {
+  /system/ntp/client set enabled=yes
+  :foreach s in=[:toarray "pool.ntp.org,time.cloudflare.com,time.google.com"] do={
+    :if ([:len [/system/ntp/client/servers find address=$s]] = 0) do={
+      /system/ntp/client/servers add address=$s
+    }
+  }
+} on-error={
+  :log warning "nasnet-panel: could not configure the NTP client, check the router clock manually"
+}
 :if ([:len [/interface/bridge find name="LANBridgeSplit"]] > 0) do={
   :log info "nasnet-panel: LANBridgeSplit already exists, skipping LAN baseline"
 } else={
