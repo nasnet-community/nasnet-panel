@@ -50,16 +50,15 @@ func NewClient(cfg Config) *Client {
 	}
 }
 
-// Connect establishes SSH and SFTP connections to the remote server.
+// Connect establishes SSH and SFTP connections to the remote server. Password
+// is optional: an empty password is still attempted (RouterOS accounts may
+// legitimately have none), left for the server to accept or reject.
 func (c *Client) Connect() error {
 	if c.host == "" {
 		return fmt.Errorf("host is required")
 	}
 	if c.username == "" {
 		return fmt.Errorf("username is required")
-	}
-	if c.password == "" {
-		return fmt.Errorf("password is required")
 	}
 
 	sshConfig := &ssh.ClientConfig{
