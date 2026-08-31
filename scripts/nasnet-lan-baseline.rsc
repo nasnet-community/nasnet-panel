@@ -1,3 +1,14 @@
+:log info "nasnet-panel: making sure a DNS server is set so NTP server names resolve"
+:do {
+  :local staticDNS [/ip/dns get servers]
+  :local dynamicDNS ""
+  :do { :set dynamicDNS [/ip/dns get dynamic-servers] } on-error={}
+  :if ([:len $staticDNS] = 0 && [:len $dynamicDNS] = 0) do={
+    /ip/dns set servers=1.1.1.1,1.0.0.1
+  }
+} on-error={
+  :log warning "nasnet-panel: could not set a DNS server, NTP server names may not resolve"
+}
 :log info "nasnet-panel: enabling the NTP client so the clock is correct for TLS"
 :do {
   /system/ntp/client set enabled=yes
