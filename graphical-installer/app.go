@@ -17,11 +17,12 @@ import (
 type App struct {
 	ctx context.Context
 
-	mu       sync.Mutex
-	running  bool
-	cancel   context.CancelFunc
-	deviceCh chan bool
-	rebootCh chan bool
+	mu        sync.Mutex
+	running   bool
+	cancel    context.CancelFunc
+	deviceCh  chan bool
+	rebootCh  chan bool
+	storageCh chan string
 }
 
 func NewApp() *App {
@@ -96,6 +97,7 @@ func (a *App) start(opts install.Options, uninstall bool) error {
 	a.cancel = cancel
 	a.deviceCh = make(chan bool, 1)
 	a.rebootCh = make(chan bool, 1)
+	a.storageCh = make(chan string, 1)
 
 	eng := install.New(ctx, opts, a.events(ctx))
 	go func() {
@@ -143,8 +145,20 @@ func (a *App) events(ctx context.Context) install.Events {
 		DeviceModeTick: func(remaining int, routerState string) {
 			runtime.EventsEmit(a.ctx, "install:device-mode-tick", map[string]any{"remaining": remaining, "state": routerState})
 		},
-		RebootPrompt: func() bool {
-			runtime.EventsEmit(a.ctx, "install:reboot", map[string]any{"timeout": 300})
+		StoragePrompt: func(choices []install.StorageChoice) string {
+			runtime.EventsEmit(a.ctx, "install:storage", map[string]any{"choices": choices})
+			select {
+			case v := <-a.storageCh:
+				return v
+			case <-ctx.Done():
+				return ""
+			}
+		},
+		RebootNotice: func(reason string) {
+			runtime.EventsEmit(a.ctx, "install:reboot-auto", map[string]any{"reason": reason})
+		},
+		RebootPrompt: func(reason string) bool {
+			runtime.EventsEmit(a.ctx, "install:reboot", map[string]any{"timeout": 300, "reason": reason})
 			select {
 			case v := <-a.rebootCh:
 				return v
@@ -168,6 +182,18 @@ func (a *App) ConfirmDeviceMode(accept bool) {
 	if ch != nil {
 		select {
 		case ch <- accept:
+		default:
+		}
+	}
+}
+
+func (a *App) ConfirmStorage(name string) {
+	a.mu.Lock()
+	ch := a.storageCh
+	a.mu.Unlock()
+	if ch != nil {
+		select {
+		case ch <- name:
 		default:
 		}
 	}

@@ -44,6 +44,7 @@ const (
 	minROSMinor       = 24
 	deviceModeTimeout = 120 * time.Second
 	startTimeout      = 120 * time.Second
+	baselineTimeout   = 30 * time.Second
 	rebootSettle      = 15 * time.Second
 	rebootTimeout     = 5 * time.Minute
 )
@@ -71,6 +72,12 @@ type SystemInfo struct {
 	StorageFreeMB int64  `json:"storageFreeMb"`
 }
 
+type StorageChoice struct {
+	Name   string `json:"name"`
+	Label  string `json:"label"`
+	FreeMB int64  `json:"freeMb"`
+}
+
 type StepInfo struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
@@ -83,7 +90,9 @@ type Events struct {
 	SysInfo          func(info SystemInfo)
 	DeviceModePrompt func() bool
 	DeviceModeTick   func(remaining int, routerState string)
-	RebootPrompt     func() bool
+	RebootNotice     func(reason string)
+	StoragePrompt    func(choices []StorageChoice) string
+	RebootPrompt     func(reason string) bool
 	RebootTick       func(elapsed int, routerState string)
 	Done             func(urls []string, note string)
 }
@@ -108,8 +117,9 @@ type Engine struct {
 	assetName string
 	localTar  string
 	remoteTar string
-	storage   string
+	storage   storageInfo
 
+	pkgInstalled    bool
 	finalPort       int
 	baselineApplied bool
 }
@@ -134,7 +144,7 @@ func InstallStepList() []StepInfo {
 	return []StepInfo{
 		{ID: "connect", Title: "Connect to router"},
 		{ID: "check", Title: "Check system"},
-		{ID: "device-mode", Title: "Enable container device-mode"},
+		{ID: "device-mode", Title: "Enable container support"},
 		{ID: "download", Title: "Download image"},
 		{ID: "upload", Title: "Upload to router"},
 		{ID: "network", Title: "Configure network"},
@@ -269,7 +279,9 @@ func (e *Engine) ensure(label, path, selector, addArgs string) error {
 		e.log("[dry-run] would add %s", label)
 		return nil
 	}
-	if out, err := e.cl.Run(fmt.Sprintf("%s/add %s", path, addArgs)); err != nil {
+	cmd := fmt.Sprintf("%s/add %s", path, addArgs)
+	if out, err := e.cl.Run(cmd); err != nil {
+		e.log("command failed: %s", cmd)
 		return fmt.Errorf("failed to add %s: %w (%s)", label, err, strings.TrimSpace(out))
 	}
 	e.log("added %s", label)
@@ -316,6 +328,9 @@ func (e *Engine) moveToTop(path, selector string) {
 var filePrintRow = regexp.MustCompile(`(?m)^\s*\d+`)
 
 func (e *Engine) ensureDir(dir string) {
+	if dir == "" {
+		return
+	}
 	if e.opts.DryRun {
 		e.log("[dry-run] mkdir %s", dir)
 		return
