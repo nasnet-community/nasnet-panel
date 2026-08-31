@@ -123,3 +123,14 @@
   }
   :log info "nasnet-panel: LAN baseline applied, gateway is 192.168.10.1"
 }
+:log info "nasnet-panel: routing container DNS (192.168.50.0/24) to 1.0.0.1"
+:do {
+  :if ([:len [/ip/firewall/nat find comment="nasnet-panel-installer-container-dns-tcp"]] = 0) do={
+    /ip/firewall/nat add chain=dstnat action=dst-nat protocol=tcp dst-port=53 src-address="192.168.50.0/24" to-addresses="1.0.0.1" comment="nasnet-panel-installer-container-dns-tcp"
+  }
+  :if ([:len [/ip/firewall/nat find comment="nasnet-panel-installer-container-dns-udp"]] = 0) do={
+    /ip/firewall/nat add chain=dstnat action=dst-nat protocol=udp dst-port=53 src-address="192.168.50.0/24" to-addresses="1.0.0.1" comment="nasnet-panel-installer-container-dns-udp"
+  }
+} on-error={
+  :log warning "nasnet-panel: could not add container DNS dst-nat rules"
+}
