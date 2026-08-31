@@ -298,7 +298,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 	sftpConfig := sftp.Config{
 		Host:     creds.RouterOSHost,
 		Username: creds.Username,
-		Password: creds.Password,
+	}
+	if creds.Password != "" {
+		sftpConfig.Password = creds.Password
 	}
 	sftpClient := sftp.NewClient(sftpConfig)
 	err = sftpClient.Connect()
