@@ -206,6 +206,8 @@ export function InternetPage() {
                         effectiveActive={effectiveActive}
                         d={layout.edges.get(hop.id)}
                         pathId={`edge-${hop.id}`}
+                        fromId={hop.fromId}
+                        toId={hop.toId}
                       />
                     ))}
                   {positioned.map((node) => {

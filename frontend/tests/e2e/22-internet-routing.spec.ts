@@ -141,6 +141,100 @@ test.describe('Internet routing page', () => {
     expect(await dots.count()).toBeGreaterThan(0);
   });
 
+  test('hangs the VPN off the foreign WAN and never off the domestic one', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context);
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveAttribute(
+      'data-from',
+      'wan_ether1',
+    );
+    await expect(svg.locator('path[data-from="wan_ether3"][data-to^="vpn_"]')).toHaveCount(0);
+    await expect(svg.locator('path[data-from="wan_ether3"][data-to="internet"]')).toHaveCount(1);
+    await expect(svg.locator('path[data-from="wan_ether1"][data-to="internet"]')).toHaveCount(0);
+  });
+
+  test('picks the foreign WAN even when a running domestic WAN is listed first', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      interfaces: [
+        {
+          id: '*1',
+          name: 'ether1',
+          type: 'ether',
+          running: true,
+          disabled: false,
+          comment: 'WAN - Domestic Link',
+        },
+        {
+          id: '*2',
+          name: 'ether2',
+          type: 'ether',
+          running: true,
+          disabled: false,
+          comment: 'WAN - Foreign Link',
+        },
+        wgMaskIface,
+      ],
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveAttribute(
+      'data-from',
+      'wan_ether2',
+    );
+    await expect(svg.locator('path[data-from="wan_ether1"][data-to^="vpn_"]')).toHaveCount(0);
+    await expect(svg.locator('path#edge-h_internet_wan_ether1')).toHaveCount(1);
+  });
+
+  test('keeps the VPN on an idle foreign WAN instead of a running domestic one', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Net Router', host: '10.0.0.10' });
+    await seedCredentials(context, ROUTER_ID);
+    await mockTopologyApi(context, {
+      interfaces: defaultInterfaces.filter((i) => i.name !== 'ether1'),
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/internet`);
+
+    const svg = page.getByRole('img', { name: 'Routing topology' });
+    await expect(svg).toBeVisible();
+
+    await expect(svg.locator('path#edge-h_vpn_wg-client-mask')).toHaveAttribute(
+      'data-from',
+      'wan_ether2',
+    );
+    await expect(svg.locator('path[data-from="wan_ether3"][data-to^="vpn_"]')).toHaveCount(0);
+  });
+
   test('renders column headers for each populated column', async ({
     page,
     context,
