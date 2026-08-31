@@ -215,8 +215,8 @@ jobs:
             - `nasnet-panel-${{ steps.pkg.outputs.version }}-armv7.tar` (RouterOS arm)
 
             Graphical installers:
-            - `nasnet-panel-installer-windows-amd64.exe` (Windows)
-            - `nasnet-panel-installer-macos-universal.dmg` (macOS)
+            - `nasnet-panel-installer-windows-${{ steps.pkg.outputs.version }}.exe` (Windows)
+            - `nasnet-panel-installer-macos-${{ steps.pkg.outputs.version }}.dmg` (macOS)
 
             Container image: `${{ env.IMAGE }}:${{ steps.pkg.outputs.version }}`
           files: |
@@ -239,6 +239,9 @@ jobs:
           go-version-file: graphical-installer/go.mod
           cache-dependency-path: graphical-installer/go.sum
 
+      - name: Resolve asset version
+        run: echo "ASSET_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
       - name: Stage LAN baseline script
         run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
 
@@ -253,8 +256,8 @@ jobs:
           GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
             go build -trimpath -tags desktop,production \
             -ldflags "-s -w -H windowsgui -X nasnet-panel-installer/internal/buildinfo.Version=$APP_VERSION" \
-            -o dist/nasnet-panel-installer-windows-amd64.exe .
-          ( cd dist && sha256sum nasnet-panel-installer-windows-amd64.exe > nasnet-panel-installer-windows-amd64.exe.sha256 )
+            -o "dist/nasnet-panel-installer-windows-${ASSET_VERSION}.exe" .
+          ( cd dist && sha256sum "nasnet-panel-installer-windows-${ASSET_VERSION}.exe" > "nasnet-panel-installer-windows-${ASSET_VERSION}.exe.sha256" )
 
       - name: Publish installer to release
         uses: softprops/action-gh-release@v2
@@ -280,6 +283,9 @@ jobs:
         with:
           go-version-file: graphical-installer/go.mod
           cache-dependency-path: graphical-installer/go.sum
+
+      - name: Resolve asset version
+        run: echo "ASSET_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
 
       - name: Stage LAN baseline script
         run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
@@ -321,8 +327,8 @@ jobs:
           cp -R "dist/Nasnet Panel Installer.app" "$STAGE/"
           ln -s /Applications "$STAGE/Applications"
           hdiutil create -volname "Nasnet Panel Installer" -srcfolder "$STAGE" -ov -format UDZO \
-            dist/nasnet-panel-installer-macos-universal.dmg
-          ( cd dist && shasum -a 256 nasnet-panel-installer-macos-universal.dmg > nasnet-panel-installer-macos-universal.dmg.sha256 )
+            "dist/nasnet-panel-installer-macos-${ASSET_VERSION}.dmg"
+          ( cd dist && shasum -a 256 "nasnet-panel-installer-macos-${ASSET_VERSION}.dmg" > "nasnet-panel-installer-macos-${ASSET_VERSION}.dmg.sha256" )
 
       - name: Publish installer to release
         uses: softprops/action-gh-release@v2
