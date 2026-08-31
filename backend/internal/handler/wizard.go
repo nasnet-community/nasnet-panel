@@ -119,6 +119,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("==================================================>", creds)
 
 	domesticEnabled := req.Domestic != nil && req.Domestic.Interface != ""
 
