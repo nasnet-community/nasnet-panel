@@ -712,34 +712,62 @@ ensure_container_support() {
   ensure_container_package || exit 1
 }
 
+DEVICE_MODE_FLAGS="mode=advanced flagging-enabled=no scheduler=yes socks=yes fetch=yes bandwidth-test=yes traffic-gen=yes sniffer=yes romon=yes proxy=yes hotspot=yes email=yes zerotier=yes container=yes install-any-version=yes partitions=yes routerboard=yes"
+DM_ALL=""
+DM_PENDING=""
+
+device_mode_value() {
+  local raw="$1" key="$2" field value
+  local IFS=$';\n'
+  for field in $raw; do
+    field="$(trim "$field")"
+    [[ "${field%%=*}" == "$key" ]] || continue
+    value="${field#*=}"
+    case "$value" in true) value=yes ;; false) value=no ;; esac
+    printf '%s' "$value"
+    return 0
+  done
+  return 1
+}
+
+device_mode_plan() {
+  local raw="$1" flag key want have
+  DM_ALL=""; DM_PENDING=""
+  device_mode_value "$raw" container >/dev/null || return 1
+  for flag in $DEVICE_MODE_FLAGS; do
+    key="${flag%%=*}"; want="${flag#*=}"
+    have="$(device_mode_value "$raw" "$key")" || continue
+    DM_ALL="${DM_ALL:+$DM_ALL }$flag"
+    [[ "$have" == "$want" ]] || DM_PENDING="${DM_PENDING:+$DM_PENDING }$flag"
+  done
+}
+
 enable_device_mode() {
   log ""
   log "Checking container support ..."
 
-  spin_out "device-mode container" out \
-    ros_cmd ':put [/system/device-mode/get container]' || true
-  local mode; mode="$(trim "$out")"
+  spin_out "device-mode flags" out \
+    ros_cmd ':put [/system/device-mode/get]' || true
+  local raw; raw="$(trim "$out")"
 
-  case "$mode" in
-    yes|true)
-      log "  device-mode container is already enabled"
-      return 0
-      ;;
-    no|false) ;;
-    *)
-      err "could not read /system/device-mode container (got: '${mode}'). Run '/system device-mode print' on the router to inspect."
-      exit 1
-      ;;
-  esac
+  if ! device_mode_plan "$raw"; then
+    err "could not read /system/device-mode (got: '${raw}'). Run '/system device-mode print' on the router to inspect."
+    exit 1
+  fi
 
-  log "  \033[31m✗ device-mode container=no (needs enabling)\033[0m"
+  if [[ -z "$DM_PENDING" ]]; then
+    log "  device-mode is already set for container support"
+    return 0
+  fi
+
+  log "  \033[31m✗ device-mode needs ${DM_PENDING}\033[0m"
   log ""
-  log "RouterOS requires physical confirmation when enabling container mode."
+  log "RouterOS requires physical confirmation when changing device mode."
   read -r -p "Proceed? [y/N]: " ans
   [[ "$ans" =~ ^[yY] ]] || { err "aborted by user"; exit 1; }
 
   if (( DRY_RUN )); then
-    log "[dry-run] /system/device-mode/update container=yes"
+    log "[dry-run] /system/device-mode/update ${DM_ALL}"
     return 0
   fi
 
@@ -755,10 +783,10 @@ enable_device_mode() {
   log "       perform a cold power-cycle (unplug power, plug back in)."
   log ""
 
-  ( ros_cmd '/system/device-mode/update container=yes' >/dev/null 2>&1 ) &
+  ( ros_cmd "/system/device-mode/update ${DM_ALL}" >/dev/null 2>&1 ) &
   local update_pid=$!
 
-  local i=0 elapsed=0 mode router_state="online"
+  local i=0 elapsed=0 router_state="online"
   tput civis 2>/dev/null || true
   while (( elapsed < DEVICE_MODE_TIMEOUT )); do
     printf '\r  %s waiting for physical confirmation ... %3ds left  [router: %-7s] ' \
@@ -768,14 +796,14 @@ enable_device_mode() {
     elapsed=$(( elapsed + 1 ))
 
     if (( elapsed % 4 == 0 )); then
-      if mode="$(ros_cmd ':put [/system/device-mode/get container]' 2>/dev/null)"; then
+      if raw="$(ros_cmd ':put [/system/device-mode/get]' 2>/dev/null)"; then
         router_state="online"
-        mode="$(trim "$mode")"
-        if [[ "$mode" == "yes" || "$mode" == "true" ]]; then
+        raw="$(trim "$raw")"
+        if device_mode_plan "$raw" && [[ -z "$DM_PENDING" ]]; then
           kill "$update_pid" 2>/dev/null || true
           wait "$update_pid" 2>/dev/null || true
           tput cnorm 2>/dev/null || true
-          printf '\r  \033[32m✓ device-mode container=yes confirmed                                                  \033[0m\n'
+          printf '\r  \033[32m✓ device-mode confirmed and applied                                                    \033[0m\n'
           return 0
         fi
       else

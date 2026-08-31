@@ -300,33 +300,99 @@ func (e *Engine) stepDeviceMode() error {
 	return nil
 }
 
-func (e *Engine) enableDeviceMode() error {
-	out, err := e.cl.Run(":put [/system/device-mode/get container]")
-	if err != nil {
-		return fmt.Errorf("could not read /system/device-mode container: %w", err)
+var deviceModeFlags = [][2]string{
+	{"mode", "advanced"},
+	{"flagging-enabled", "no"},
+	{"scheduler", "yes"},
+	{"socks", "yes"},
+	{"fetch", "yes"},
+	{"bandwidth-test", "yes"},
+	{"traffic-gen", "yes"},
+	{"sniffer", "yes"},
+	{"romon", "yes"},
+	{"proxy", "yes"},
+	{"hotspot", "yes"},
+	{"email", "yes"},
+	{"zerotier", "yes"},
+	{"container", "yes"},
+	{"install-any-version", "yes"},
+	{"partitions", "yes"},
+	{"routerboard", "yes"},
+}
+
+func normalizeDeviceModeValue(v string) string {
+	switch strings.TrimSpace(v) {
+	case "true":
+		return "yes"
+	case "false":
+		return "no"
+	default:
+		return strings.TrimSpace(v)
 	}
-	mode := strings.TrimSpace(out)
-	switch mode {
-	case "yes", "true":
+}
+
+func parseDeviceMode(out string) map[string]string {
+	current := map[string]string{}
+	for _, field := range strings.Split(strings.TrimSpace(out), ";") {
+		key, value, ok := strings.Cut(strings.TrimSpace(field), "=")
+		if !ok {
+			continue
+		}
+		current[strings.TrimSpace(key)] = normalizeDeviceModeValue(value)
+	}
+	return current
+}
+
+func supportedDeviceModeFlags(current map[string]string) (all []string, pending []string) {
+	for _, flag := range deviceModeFlags {
+		want, ok := current[flag[0]]
+		if !ok {
+			continue
+		}
+		all = append(all, flag[0]+"="+flag[1])
+		if want != flag[1] {
+			pending = append(pending, flag[0]+"="+flag[1])
+		}
+	}
+	return all, pending
+}
+
+func (e *Engine) readDeviceMode(timeout time.Duration) (map[string]string, error) {
+	out, err := e.cl.RunRaw(":put [/system/device-mode/get]", timeout)
+	if err != nil {
+		return nil, err
+	}
+	current := parseDeviceMode(out)
+	if _, ok := current["container"]; !ok {
+		return nil, fmt.Errorf("could not read device-mode container (got %q), run '/system device-mode print' on the router to inspect", strings.TrimSpace(out))
+	}
+	return current, nil
+}
+
+func (e *Engine) enableDeviceMode() error {
+	current, err := e.readDeviceMode(15 * time.Second)
+	if err != nil {
+		return fmt.Errorf("could not read /system/device-mode: %w", err)
+	}
+	all, pending := supportedDeviceModeFlags(current)
+	if len(pending) == 0 {
 		e.note = "already enabled"
 		return nil
-	case "no", "false":
-	default:
-		return fmt.Errorf("could not read device-mode container (got %q), run '/system device-mode print' on the router to inspect", mode)
 	}
 
-	e.log("device-mode container=no, physical confirmation required")
+	e.log("device-mode needs %s, physical confirmation required", strings.Join(pending, " "))
 	if !e.ev.DeviceModePrompt() {
 		return errors.New("device-mode enable declined by user")
 	}
+	update := "/system/device-mode/update " + strings.Join(all, " ")
 	if e.opts.DryRun {
-		e.log("[dry-run] /system/device-mode/update container=yes")
+		e.log("[dry-run] %s", update)
 		e.note = "dry-run, not changed"
 		return nil
 	}
 
 	go func() {
-		_, _ = e.cl.RunRaw("/system/device-mode/update container=yes", deviceModeTimeout+30*time.Second)
+		_, _ = e.cl.RunRaw(update, deviceModeTimeout+30*time.Second)
 	}()
 
 	total := int(deviceModeTimeout / time.Second)
@@ -335,13 +401,13 @@ func (e *Engine) enableDeviceMode() error {
 		if err := e.sleep(2 * time.Second); err != nil {
 			return err
 		}
-		out, err := e.cl.RunRaw(":put [/system/device-mode/get container]", 8*time.Second)
+		current, err := e.readDeviceMode(8 * time.Second)
 		if err != nil {
 			state = "offline"
 			_ = e.cl.Reconnect()
 		} else {
 			state = "online"
-			if v := strings.TrimSpace(out); v == "yes" || v == "true" {
+			if _, pending := supportedDeviceModeFlags(current); len(pending) == 0 {
 				e.note = "confirmed and enabled"
 				return nil
 			}
