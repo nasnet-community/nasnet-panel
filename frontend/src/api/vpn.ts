@@ -218,6 +218,15 @@ export interface OvpnServerTaskStatus {
   result?: Record<string, unknown>;
 }
 
+export interface UpdateOvpnServerEnabledRequest {
+  enabled: boolean;
+}
+
+export interface UpdateOvpnServerEnabledResponse {
+  name: string;
+  enabled: boolean;
+}
+
 export interface CreateSstpServerRequest {
   enabled: boolean;
 }
@@ -697,6 +706,23 @@ export async function fetchOvpnServerTaskStatus(
       method: 'GET',
       headers: authHeaders(creds),
       cache: 'no-store',
+      signal,
+    },
+  );
+}
+
+export async function updateOvpnServerEnabled(
+  creds: VPNCredentials,
+  name: string,
+  body: UpdateOvpnServerEnabledRequest,
+  signal?: AbortSignal,
+): Promise<UpdateOvpnServerEnabledResponse> {
+  return apiRequest<UpdateOvpnServerEnabledResponse>(
+    `/api/vpn/ovpn/server/${encodeURIComponent(name)}`,
+    {
+      method: 'PUT',
+      headers: authHeaders(creds),
+      body: JSON.stringify(body),
       signal,
     },
   );

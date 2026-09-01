@@ -22,10 +22,10 @@ export-certificate cert-client-{{ .CurrentTimestamp }} file-name=cert-client-{{ 
 add name="ovpn-server-{{ .CurrentTimestamp }}-tcp" default-profile="default" disabled=no \
 port="1194" protocol="tcp" mode="ip" certificate=cert-server-{{ .CurrentTimestamp }} \
 require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
-redirect-gateway=def1 keepalive-timeout=60
+redirect-gateway=def1 keepalive-timeout=60 comment="Client Certificate Password: {{ .OvpnServer.ClientCertificatePassword }}"
 add name="ovpn-server-{{ .CurrentTimestamp }}-udp" default-profile="default" disabled=no port="1194" protocol="udp" \
 mode="ip" certificate=cert-server-{{ .CurrentTimestamp }} require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
-redirect-gateway=def1 keepalive-timeout=60
+redirect-gateway=def1 keepalive-timeout=60 comment="Client Certificate Password: {{ .OvpnServer.ClientCertificatePassword }}"
 :global WizardProgress "92"
 /ppp secret{{range .OvpnServer.Users}}
 add name="{{ .Username }}" password="{{ .Password }}" profile=VPN-VPN service=any
