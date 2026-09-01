@@ -906,7 +906,11 @@ func (e *Engine) stepBaseline() error {
 		e.removeRemoteFile(lanBaselineRsc)
 		return nil
 	}
-	if !e.baselineTookEffect() {
+	applied, err := e.baselineTookEffect()
+	if err != nil {
+		return err
+	}
+	if !applied {
 		e.log("LAN baseline did not move the LAN to %s, the panel stays on %s", lanBridgeIP, e.opts.Host)
 		e.note = "not applied, panel stays on the router address"
 		return nil
@@ -916,12 +920,12 @@ func (e *Engine) stepBaseline() error {
 	return nil
 }
 
-func (e *Engine) baselineTookEffect() bool {
+func (e *Engine) baselineTookEffect() (bool, error) {
 	deadline := time.Now().Add(baselineTimeout)
 	unreachable := false
 	for time.Now().Before(deadline) {
 		if err := e.sleep(3 * time.Second); err != nil {
-			return true
+			return false, err
 		}
 		if _, err := e.cl.RunRaw(":put ok", 8*time.Second); err != nil {
 			if rerr := e.cl.Reconnect(); rerr != nil {
@@ -931,20 +935,20 @@ func (e *Engine) baselineTookEffect() bool {
 		}
 		unreachable = false
 		if e.baselineLANReady() {
-			return true
+			return true, nil
 		}
 	}
 	if unreachable {
 		e.log("router no longer answers on %s, the new LAN is taking over", e.opts.Host)
-		return true
+		return true, nil
 	}
-	if e.exists("/ip/address", fmt.Sprintf("address~%q", "^"+lanBridgeIP)) {
+	if e.exists("/ip/address", fmt.Sprintf("address~%q interface=%q", "^"+lanBridgeIP, lanBridge)) {
 		e.log("%s is up but has no member ports, the LAN did not move", lanBridge)
 	}
-	return false
+	return false, nil
 }
 
 func (e *Engine) baselineLANReady() bool {
-	return e.exists("/ip/address", fmt.Sprintf("address~%q", "^"+lanBridgeIP)) &&
+	return e.exists("/ip/address", fmt.Sprintf("address~%q interface=%q", "^"+lanBridgeIP, lanBridge)) &&
 		e.exists("/interface/bridge/port", fmt.Sprintf("bridge=%q", lanBridge))
 }
