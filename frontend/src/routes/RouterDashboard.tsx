@@ -48,7 +48,7 @@ export function RouterDashboard() {
         return t.path === '' ? location.pathname === full : location.pathname.startsWith(full);
       })?.id ?? 'overview');
 
-  if (wizardStatus === 'unreachable') {
+  if (wizardStatus === 'unreachable' && !onWizard) {
     return (
       <div className={styles.contentShell}>
         <div className={styles.unreachable} role="alert">
