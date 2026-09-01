@@ -1,5 +1,5 @@
 import { Badge, Button, DataTable } from '@nasnet/ui';
-import { Pencil, Power, Server as ServerIcon, Trash2 } from 'lucide-react';
+import { Pencil, Power, PowerOff, Server as ServerIcon, Trash2 } from 'lucide-react';
 import type { VPNServer } from '../../../api';
 
 interface Props {
@@ -9,12 +9,14 @@ interface Props {
   onEdit?: (server: VPNServer) => void;
   onDelete?: (server: VPNServer) => void;
   onDisable?: (server: VPNServer) => void;
+  onToggleEnabled?: (server: VPNServer) => void;
   canMutate?: boolean;
 }
 
 const isDeletable = (s: VPNServer) => s.protocol === 'openvpn' || s.protocol === 'wireguard';
 const isEditable = (s: VPNServer) => s.protocol === 'wireguard';
 const isDisableable = (s: VPNServer) => s.protocol === 'sstp' && s.running;
+const isToggleable = (s: VPNServer) => s.protocol === 'openvpn';
 
 export function ServersTable({
   rows,
@@ -23,6 +25,7 @@ export function ServersTable({
   onEdit,
   onDelete,
   onDisable,
+  onToggleEnabled,
   canMutate = false,
 }: Props) {
   return (
@@ -61,7 +64,9 @@ export function ServersTable({
             const editable = isEditable(s);
             const deletable = isDeletable(s);
             const disableable = isDisableable(s);
-            if (!editable && !deletable && !disableable) return null;
+            const toggleable = isToggleable(s);
+            if (!editable && !deletable && !disableable && !toggleable) return null;
+            const toggleLabel = `${s.running ? 'Disable' : 'Enable'} ${s.name}`;
             return (
               <span style={{ display: 'inline-flex', gap: 8 }}>
                 {editable && onEdit ? (
@@ -77,6 +82,25 @@ export function ServersTable({
                     }}
                   >
                     <Pencil size={14} aria-hidden />
+                  </Button>
+                ) : null}
+                {toggleable && onToggleEnabled ? (
+                  <Button
+                    size="sm"
+                    variant={s.running ? 'danger' : 'secondary'}
+                    disabled={!canMutate}
+                    title={toggleLabel}
+                    aria-label={toggleLabel}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleEnabled(s);
+                    }}
+                  >
+                    {s.running ? (
+                      <PowerOff size={14} aria-hidden />
+                    ) : (
+                      <Power size={14} aria-hidden />
+                    )}
                   </Button>
                 ) : null}
                 {deletable && onDelete ? (
@@ -112,7 +136,7 @@ export function ServersTable({
               </span>
             );
           },
-          width: '120px',
+          width: '160px',
         },
       ]}
       rows={rows}

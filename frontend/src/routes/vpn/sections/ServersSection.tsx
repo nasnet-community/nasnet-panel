@@ -5,6 +5,7 @@ import {
   createSstpServer,
   deleteOvpnServer,
   deleteWireguardInterface,
+  updateOvpnServerEnabled,
   type VPNCredentials,
   type VPNServer,
 } from '../../../api';
@@ -41,6 +42,9 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [pendingDisable, setPendingDisable] = useState<VPNServer | null>(null);
   const [disableSubmitting, setDisableSubmitting] = useState(false);
+  const [pendingToggle, setPendingToggle] = useState<VPNServer | null>(null);
+  const [toggleSubmitting, setToggleSubmitting] = useState(false);
+  const toggleEnable = pendingToggle ? !pendingToggle.running : false;
 
   const onCreated = () => {
     toast.notify({ title: 'VPN server created', tone: 'success' });
@@ -110,6 +114,37 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
     onChanged();
   };
 
+  const onConfirmToggle = async () => {
+    if (!creds || !pendingToggle) return;
+    const target = pendingToggle;
+    const enable = !target.running;
+    setToggleSubmitting(true);
+    try {
+      await updateOvpnServerEnabled(creds, target.name, { enabled: enable });
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : `Failed to ${enable ? 'enable' : 'disable'} OpenVPN server.`;
+      toast.notify({
+        title: `Failed to ${enable ? 'enable' : 'disable'} server`,
+        description: message,
+        tone: 'danger',
+      });
+      setToggleSubmitting(false);
+      return;
+    }
+    setToggleSubmitting(false);
+    setPendingToggle(null);
+    toast.notify({
+      title: `Server "${target.name}" ${enable ? 'enabled' : 'disabled'}`,
+      tone: 'info',
+    });
+    onChanged();
+  };
+
   return (
     <Stack>
       <Card>
@@ -137,6 +172,7 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
             onEdit={(s) => setEditingWg(s)}
             onDelete={(s) => setPendingDelete(s)}
             onDisable={(s) => setPendingDisable(s)}
+            onToggleEnabled={(s) => setPendingToggle(s)}
             canMutate={!!creds}
           />
           <PaginationControls
@@ -181,6 +217,29 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
         destructive
         onConfirm={onConfirmDelete}
         onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+      />
+      <ConfirmDialog
+        open={!!pendingToggle}
+        title={toggleEnable ? 'Enable OpenVPN server' : 'Disable OpenVPN server'}
+        description={
+          pendingToggle
+            ? toggleEnable
+              ? `Start "${pendingToggle.name}" on this router? Clients can connect again with their existing profiles.`
+              : `Stop "${pendingToggle.name}" on this router? Connected clients are dropped and cannot reconnect until it is enabled again.`
+            : undefined
+        }
+        confirmLabel={
+          toggleEnable
+            ? toggleSubmitting
+              ? 'Enabling…'
+              : 'Enable'
+            : toggleSubmitting
+              ? 'Disabling…'
+              : 'Disable'
+        }
+        destructive={!toggleEnable}
+        onConfirm={onConfirmToggle}
+        onCancel={() => (toggleSubmitting ? undefined : setPendingToggle(null))}
       />
       <ConfirmDialog
         open={!!pendingDisable}
