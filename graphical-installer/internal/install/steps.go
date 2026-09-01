@@ -60,7 +60,7 @@ func (e *Engine) stepCheck() error {
 		return err
 	}
 	if versionBelow(e.sys.Version, minROSMajor, minROSMinor) {
-		return fmt.Errorf("RouterOS %s is too old, %d.%d or newer is required. Update the router (System > Packages > Check For Updates), then run the installer again", e.sys.Version, minROSMajor, minROSMinor)
+		e.log("RouterOS %s is below %d.%d, the installer updates the router first", e.sys.Version, minROSMajor, minROSMinor)
 	}
 	if e.sys.FreeMB < minFreeMB {
 		return fmt.Errorf("free memory %d MB below threshold %d MB", e.sys.FreeMB, minFreeMB)
@@ -84,8 +84,134 @@ func (e *Engine) stepCheck() error {
 	if err := e.verifyStorageWritable(st); err != nil {
 		return err
 	}
+	e.removeContainerFiles(true)
 
 	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.label())
+	return nil
+}
+
+func (e *Engine) stepUpdateROS() error {
+	if !versionBelow(e.sys.Version, minROSMajor, minROSMinor) {
+		e.note = "RouterOS " + e.sys.Version
+		return errSkipped
+	}
+	if e.opts.DryRun {
+		e.log("[dry-run] check for updates, download RouterOS, then restart the router")
+		e.note = "dry-run, not updated"
+		return errSkipped
+	}
+
+	e.log("RouterOS %s is below %d.%d, checking the router update channel", e.sys.Version, minROSMajor, minROSMinor)
+	latest, channel, err := e.availableROSUpdate()
+	if err != nil {
+		return err
+	}
+	if versionBelow(latest, minROSMajor, minROSMinor) {
+		return fmt.Errorf("the router is on the %s update channel, which only offers RouterOS %s, and %d.%d or newer is required. The installer cannot go forward. Switch the router to a channel that carries %d.%d under System > Packages > Check For Updates, update it, then run the installer again",
+			channel, latest, minROSMajor, minROSMinor, minROSMajor, minROSMinor)
+	}
+
+	e.log("downloading RouterOS %s from the %s channel", latest, channel)
+	if out, err := e.cl.RunChecked("/system/package/update/download", 60*time.Second); err != nil {
+		return fmt.Errorf("could not start the RouterOS download: %w (%s)", err, strings.TrimSpace(out))
+	}
+	if err := e.waitForUpdateDownload(); err != nil {
+		return err
+	}
+
+	if !e.ev.RebootPrompt(fmt.Sprintf("RouterOS %s has been downloaded, and the router has to restart to install it.", latest)) {
+		return errors.New("router restart declined by user")
+	}
+	if err := e.waitForReboot(); err != nil {
+		return err
+	}
+	if err := e.refreshVersion(); err != nil {
+		return err
+	}
+	if versionBelow(e.sys.Version, minROSMajor, minROSMinor) {
+		return fmt.Errorf("the router restarted but still runs RouterOS %s, and %d.%d or newer is required. Update it from System > Packages in WebFig or Winbox, then run the installer again", e.sys.Version, minROSMajor, minROSMinor)
+	}
+	e.note = "updated to RouterOS " + e.sys.Version
+	return nil
+}
+
+func (e *Engine) availableROSUpdate() (string, string, error) {
+	if _, err := e.cl.RunChecked("/system/package/update/check-for-updates", 90*time.Second); err != nil {
+		return "", "", fmt.Errorf("could not reach the MikroTik update server: %w. Check the router internet connection and DNS, then run the installer again", err)
+	}
+	var latest, channel string
+	deadline := time.Now().Add(30 * time.Second)
+	for latest == "" && time.Now().Before(deadline) {
+		out, err := e.cl.RunRaw(`:put ("C=" . [/system/package/update/get channel]); :put ("L=" . [/system/package/update/get latest-version])`, 30*time.Second)
+		if err != nil {
+			return "", "", fmt.Errorf("could not read /system/package/update: %w", err)
+		}
+		for _, line := range strings.Split(out, "\n") {
+			key, value, ok := strings.Cut(strings.TrimSpace(line), "=")
+			if !ok {
+				continue
+			}
+			switch key {
+			case "C":
+				channel = strings.TrimSpace(value)
+			case "L":
+				latest = strings.TrimSpace(value)
+			}
+		}
+		if latest == "" {
+			if err := e.sleep(3 * time.Second); err != nil {
+				return "", "", err
+			}
+		}
+	}
+	if latest == "" {
+		return "", "", errors.New("the router did not report an available RouterOS version. Check its internet connection and DNS, then run the installer again")
+	}
+	if channel == "" {
+		channel = "current"
+	}
+	return latest, channel, nil
+}
+
+func (e *Engine) waitForUpdateDownload() error {
+	deadline := time.Now().Add(updateTimeout)
+	last := ""
+	for time.Now().Before(deadline) {
+		if err := e.sleep(5 * time.Second); err != nil {
+			return err
+		}
+		out, err := e.cl.RunRaw(":put [/system/package/update/get status]", 15*time.Second)
+		if err != nil {
+			continue
+		}
+		status := strings.TrimSpace(out)
+		if status != "" && status != last {
+			e.log("update status: %s", status)
+			last = status
+		}
+		lower := strings.ToLower(status)
+		switch {
+		case strings.Contains(lower, "reboot"), strings.Contains(lower, "downloaded"):
+			return nil
+		case strings.Contains(lower, "error"), strings.Contains(lower, "fail"):
+			return fmt.Errorf("the RouterOS download failed: %s", status)
+		}
+	}
+	return fmt.Errorf("the RouterOS update did not finish downloading within %s", updateTimeout)
+}
+
+func (e *Engine) refreshVersion() error {
+	out, err := e.cl.RunRaw(":put [/system/resource/get version]", 20*time.Second)
+	if err != nil {
+		return fmt.Errorf("could not read the RouterOS version after the restart: %w", err)
+	}
+	version := strings.TrimSpace(out)
+	if version == "" {
+		return errors.New("the router did not report its RouterOS version after the restart")
+	}
+	e.sys.Version = version
+	e.ev.SysInfo(e.sys)
+	e.log("router is running RouterOS %s", version)
 	return nil
 }
 
@@ -106,13 +232,13 @@ func (e *Engine) installContainerPackage() error {
 	}
 	local := filepath.Join(outDir, name)
 	e.log("downloading %s", url)
-	if _, err := e.download(url, local, "check"); err != nil {
+	if _, err := e.download(url, local, "device-mode"); err != nil {
 		return fmt.Errorf("could not download the container package for RouterOS %s (%s): %w. Install it via WebFig/Winbox (System > Packages) instead", e.sys.Version, e.sys.Arch, err)
 	}
 
 	e.log("uploading %s to the router", name)
 	if err := e.cl.Upload(local, name, func(done, total int64) {
-		e.ev.Progress("check", float64(done)*100/float64(total),
+		e.ev.Progress("device-mode", float64(done)*100/float64(total),
 			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
 	}); err != nil {
 		return fmt.Errorf("could not upload the container package: %w", err)
@@ -261,6 +387,7 @@ func (e *Engine) restartRouter(reason string, cmds ...string) error {
 }
 
 func (e *Engine) waitForReboot() error {
+	defer e.ev.RebootDone()
 	e.log("waiting for the router to restart")
 	e.cl.Close()
 	if err := e.sleep(rebootSettle); err != nil {
@@ -288,7 +415,9 @@ func (e *Engine) waitForReboot() error {
 }
 
 func (e *Engine) stepDeviceMode() error {
-	if err := e.enableDeviceMode(); err != nil {
+	err := e.enableDeviceMode()
+	e.ev.DeviceModeDone()
+	if err != nil {
 		return err
 	}
 	if err := e.ensureContainerPackage(); err != nil {
@@ -777,8 +906,12 @@ func (e *Engine) stepBaseline() error {
 		e.removeRemoteFile(lanBaselineRsc)
 		return nil
 	}
-	if !e.baselineTookEffect() {
-		e.log("LAN baseline did not bring up %s, the panel stays on %s", lanBridgeIP, e.opts.Host)
+	applied, err := e.baselineTookEffect()
+	if err != nil {
+		return err
+	}
+	if !applied {
+		e.log("LAN baseline did not move the LAN to %s, the panel stays on %s", lanBridgeIP, e.opts.Host)
 		e.note = "not applied, panel stays on the router address"
 		return nil
 	}
@@ -787,24 +920,35 @@ func (e *Engine) stepBaseline() error {
 	return nil
 }
 
-func (e *Engine) baselineTookEffect() bool {
-	probe := fmt.Sprintf(`:put [:len [/ip/address/find address~"^%s"]]`, lanBridgeIP)
+func (e *Engine) baselineTookEffect() (bool, error) {
 	deadline := time.Now().Add(baselineTimeout)
+	unreachable := false
 	for time.Now().Before(deadline) {
 		if err := e.sleep(3 * time.Second); err != nil {
-			return true
+			return false, err
 		}
-		out, err := e.cl.RunRaw(probe, 8*time.Second)
-		if err != nil {
+		if _, err := e.cl.RunRaw(":put ok", 8*time.Second); err != nil {
 			if rerr := e.cl.Reconnect(); rerr != nil {
-				e.log("router no longer answers on %s, the new LAN is taking over", e.opts.Host)
-				return true
+				unreachable = true
+				continue
 			}
-			continue
 		}
-		if v := strings.TrimSpace(out); v != "" && v != "0" {
-			return true
+		unreachable = false
+		if e.baselineLANReady() {
+			return true, nil
 		}
 	}
-	return false
+	if unreachable {
+		e.log("router no longer answers on %s, the new LAN is taking over", e.opts.Host)
+		return true, nil
+	}
+	if e.exists("/ip/address", fmt.Sprintf("address~%q interface=%q", "^"+lanBridgeIP, lanBridge)) {
+		e.log("%s is up but has no member ports, the LAN did not move", lanBridge)
+	}
+	return false, nil
+}
+
+func (e *Engine) baselineLANReady() bool {
+	return e.exists("/ip/address", fmt.Sprintf("address~%q interface=%q", "^"+lanBridgeIP, lanBridge)) &&
+		e.exists("/interface/bridge/port", fmt.Sprintf("bridge=%q", lanBridge))
 }

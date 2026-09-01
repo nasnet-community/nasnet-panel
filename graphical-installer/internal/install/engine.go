@@ -43,6 +43,7 @@ const (
 	minROSMajor       = 7
 	minROSMinor       = 24
 	deviceModeTimeout = 120 * time.Second
+	updateTimeout     = 10 * time.Minute
 	startTimeout      = 120 * time.Second
 	baselineTimeout   = 30 * time.Second
 	rebootSettle      = 15 * time.Second
@@ -90,10 +91,12 @@ type Events struct {
 	SysInfo          func(info SystemInfo)
 	DeviceModePrompt func() bool
 	DeviceModeTick   func(remaining int, routerState string)
+	DeviceModeDone   func()
 	RebootNotice     func(reason string)
 	StoragePrompt    func(choices []StorageChoice) string
 	RebootPrompt     func(reason string) bool
 	RebootTick       func(elapsed int, routerState string)
+	RebootDone       func()
 	Done             func(urls []string, note string)
 }
 
@@ -144,6 +147,7 @@ func InstallStepList() []StepInfo {
 	return []StepInfo{
 		{ID: "connect", Title: "Connect to router"},
 		{ID: "check", Title: "Check system"},
+		{ID: "update-ros", Title: "Update RouterOS"},
 		{ID: "device-mode", Title: "Enable container support"},
 		{ID: "download", Title: "Download image"},
 		{ID: "upload", Title: "Upload to router"},
@@ -167,6 +171,7 @@ func (e *Engine) Run() error {
 	steps := []step{
 		{"connect", e.stepConnect},
 		{"check", e.stepCheck},
+		{"update-ros", e.stepUpdateROS},
 		{"device-mode", e.stepDeviceMode},
 		{"download", e.stepDownload},
 		{"upload", e.stepUpload},
@@ -180,6 +185,7 @@ func (e *Engine) Run() error {
 		e.doRollback()
 	}
 	if err == nil {
+		e.removeContainerFiles(false)
 		e.finish()
 	}
 	if e.cl != nil {
@@ -300,6 +306,27 @@ func (e *Engine) removeObj(label, path, selector string) {
 		return
 	}
 	_, _ = e.cl.RunRaw(fmt.Sprintf("%s/remove [find %s]", path, selector), 15*time.Second)
+}
+
+func (e *Engine) removeContainerFiles(includeImageDir bool) {
+	if e.opts.DryRun {
+		e.log("[dry-run] would remove leftover %s-*.tar files from the router", assetPrefix)
+		return
+	}
+	e.log("removing leftover %s-*.tar files from the router", assetPrefix)
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\.tar$"]`, assetPrefix), 30*time.Second)
+	if !includeImageDir {
+		return
+	}
+	if e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName) {
+		return
+	}
+	dir := e.storage.path(containerImagesDir)
+	if !e.exists("/file", fmt.Sprintf("name=%q", dir)) {
+		return
+	}
+	e.log("removing the stale container image directory %s", dir)
+	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", dir), 60*time.Second)
 }
 
 func (e *Engine) removeRemoteFile(name string) {

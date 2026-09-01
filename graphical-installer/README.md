@@ -10,13 +10,14 @@ The engine (`internal/install/engine.go`) runs these in order, with rollback on 
 
 1. Connect to router
 2. Check system
-3. Enable container device-mode
-4. Download image
-5. Upload to router
-6. Configure network
-7. Deploy container
-8. Start and health check
-9. LAN baseline
+3. Update RouterOS, when the router runs below the required version
+4. Enable container device-mode
+5. Download image
+6. Upload to router
+7. Configure network
+8. Deploy container
+9. Start and health check
+10. LAN baseline
 
 Uninstall reverses the container, network config, and uploaded files.
 
