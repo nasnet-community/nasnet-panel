@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Cable, Globe, Info, KeyRound, Shield, TriangleAlert } from 'lucide-react';
 import {
   Button,
@@ -44,11 +44,12 @@ const POLL_INTERVAL_MS = 1000;
 
 interface Props {
   creds: VPNCredentials | null;
+  sstpEnabled: boolean;
   onCancel: () => void;
   onCreated: () => void;
 }
 
-export function AddVpnServerDialog({ creds, onCancel, onCreated }: Props) {
+export function AddVpnServerDialog({ creds, sstpEnabled, onCancel, onCreated }: Props) {
   const [type, setType] = useState<AddVpnServerType>('openvpn');
 
   return (
@@ -65,7 +66,12 @@ export function AddVpnServerDialog({ creds, onCancel, onCreated }: Props) {
         {type === 'openvpn' ? (
           <OvpnServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
         ) : type === 'sstp' ? (
-          <SstpServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
+          <SstpServerForm
+            creds={creds}
+            sstpEnabled={sstpEnabled}
+            onCancel={onCancel}
+            onCreated={onCreated}
+          />
         ) : (
           <WireguardServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
         )}
@@ -218,10 +224,19 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
   );
 }
 
-function InlineAlert({ tone, children }: { tone: 'info' | 'danger'; children: ReactNode }) {
+function InlineAlert({
+  tone,
+  id,
+  children,
+}: {
+  tone: 'info' | 'danger';
+  id?: string;
+  children: ReactNode;
+}) {
   const Icon = tone === 'danger' ? TriangleAlert : Info;
   return (
     <div
+      id={id}
       className={`${styles.alert} ${tone === 'danger' ? styles.alertDanger : styles.alertInfo}`}
       role={tone === 'danger' ? 'alert' : undefined}
     >
@@ -231,7 +246,12 @@ function InlineAlert({ tone, children }: { tone: 'info' | 'danger'; children: Re
   );
 }
 
-function SstpServerForm({ creds, onCancel, onCreated }: FormProps) {
+interface SstpFormProps extends FormProps {
+  sstpEnabled: boolean;
+}
+
+function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormProps) {
+  const alertId = useId();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -311,9 +331,10 @@ function SstpServerForm({ creds, onCancel, onCreated }: FormProps) {
 
   return (
     <FieldStack>
-      <InlineAlert tone="info">
-        Enabling SSTP issues a server certificate, starts the SSTP server on port 4433 and adds a
-        firewall rule accepting inbound connections. Existing VPN users can sign in over SSTP.
+      <InlineAlert tone="info" id={alertId}>
+        {sstpEnabled
+          ? 'The SSTP server is already enabled on this router. Disable it from the VPN servers list before enabling it again.'
+          : 'Enabling SSTP issues a server certificate, starts the SSTP server on port 4433 and adds a firewall rule accepting inbound connections. Existing VPN users can sign in over SSTP.'}
       </InlineAlert>
       {error ? <InlineAlert tone="danger">{error}</InlineAlert> : null}
       <FieldRow>
