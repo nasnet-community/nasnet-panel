@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 import styles from './Tabs.module.scss';
@@ -26,13 +26,31 @@ export interface TabsProps {
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
 
+const MENU_MIN_WIDTH = 180;
+const VIEWPORT_MARGIN = 8;
+const HOVER_CLOSE_DELAY = 140;
+
 export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel }) => {
   const [openId, setOpenId] = useState<string | null>(null);
-  const [menuPos, setMenuPos] = useState<{ left: number; top: number; minWidth: number } | null>(
-    null,
-  );
-  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null);
+  const groupRefs = useRef<Record<string, HTMLSpanElement | null>>({});
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const closeTimer = useRef<number | null>(null);
+  const openedByHover = useRef(false);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current !== null) {
+      window.clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }, []);
+
+  const scheduleClose = useCallback(() => {
+    cancelClose();
+    closeTimer.current = window.setTimeout(() => setOpenId(null), HOVER_CLOSE_DELAY);
+  }, [cancelClose]);
+
+  useEffect(() => cancelClose, [cancelClose]);
 
   useLayoutEffect(() => {
     if (!openId) {
@@ -40,19 +58,20 @@ export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel
       return;
     }
     const reposition = () => {
-      const r = triggerRefs.current[openId]?.getBoundingClientRect();
-      if (r) {
-        setMenuPos({
-          left: r.right + window.scrollX,
-          top: r.bottom + window.scrollY + 4,
-          minWidth: 180,
-        });
-      }
+      const anchor = groupRefs.current[openId]?.getBoundingClientRect();
+      if (!anchor) return;
+      const width = Math.max(menuRef.current?.offsetWidth ?? 0, MENU_MIN_WIDTH);
+      const maxLeft = window.innerWidth - width - VIEWPORT_MARGIN;
+      const left = Math.max(VIEWPORT_MARGIN, Math.min(anchor.left, maxLeft)) + window.scrollX;
+      const top = anchor.bottom + window.scrollY;
+      setMenuPos((prev) => (prev && prev.left === left && prev.top === top ? prev : { left, top }));
     };
     reposition();
+    const frame = window.requestAnimationFrame(reposition);
     window.addEventListener('scroll', reposition, true);
     window.addEventListener('resize', reposition);
     return () => {
+      window.cancelAnimationFrame(frame);
       window.removeEventListener('scroll', reposition, true);
       window.removeEventListener('resize', reposition);
     };
@@ -63,7 +82,7 @@ export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel
     const handlePointer = (e: PointerEvent) => {
       const target = e.target as Node;
       if (menuRef.current?.contains(target)) return;
-      if (triggerRefs.current[openId]?.contains(target)) return;
+      if (groupRefs.current[openId]?.contains(target)) return;
       setOpenId(null);
     };
     const handleKey = (e: KeyboardEvent) => {
@@ -110,18 +129,42 @@ export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel
         if (!hasMenu) return tab;
         const open = openId === t.id;
         return (
-          <span key={t.id} role="presentation" className={styles.tabGroup}>
+          <span
+            key={t.id}
+            role="presentation"
+            className={cx(styles.tabGroup, open && styles.tabGroupOpen)}
+            ref={(el) => {
+              groupRefs.current[t.id] = el;
+            }}
+            onPointerEnter={(e) => {
+              if (e.pointerType !== 'mouse') return;
+              cancelClose();
+              if (openId !== t.id) {
+                openedByHover.current = true;
+                setOpenId(t.id);
+              }
+            }}
+            onPointerLeave={(e) => {
+              if (e.pointerType !== 'mouse') return;
+              if (openId === t.id) scheduleClose();
+            }}
+          >
             {tab}
             <button
               type="button"
-              ref={(el) => {
-                triggerRefs.current[t.id] = el;
-              }}
               className={cx(styles.menuTrigger, active && styles.menuTriggerActive)}
               aria-haspopup="menu"
               aria-expanded={open}
               aria-label={`Show ${t.label} menu`}
-              onClick={() => setOpenId(open ? null : t.id)}
+              onClick={() => {
+                cancelClose();
+                if (open && !openedByHover.current) {
+                  setOpenId(null);
+                  return;
+                }
+                openedByHover.current = false;
+                setOpenId(t.id);
+              }}
             >
               <ChevronDown
                 size={14}
@@ -143,9 +186,17 @@ export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel
                 position: 'absolute',
                 left: menuPos.left,
                 top: menuPos.top,
-                minWidth: menuPos.minWidth,
-                transform: 'translateX(-100%)',
+                minWidth: MENU_MIN_WIDTH,
+                maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
                 zIndex: 1100,
+              }}
+              onPointerEnter={(e) => {
+                if (e.pointerType !== 'mouse') return;
+                cancelClose();
+              }}
+              onPointerLeave={(e) => {
+                if (e.pointerType !== 'mouse') return;
+                scheduleClose();
               }}
             >
               {openItem.menu?.map((m) => (

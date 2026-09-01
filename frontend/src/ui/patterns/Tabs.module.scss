@@ -61,10 +61,22 @@
   display: inline-flex;
   align-items: stretch;
   flex-shrink: 0;
+
+  &:hover .tab,
+  &:hover .menuTrigger {
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+  }
+}
+
+.tabGroupOpen .tab,
+.tabGroupOpen .menuTrigger {
+  color: var(--color-text);
+  background: var(--color-surface-alt);
 }
 
 .tabWithMenu {
-  padding-right: 4px;
+  padding-right: 2px;
 }
 
 .menuTrigger {
@@ -72,8 +84,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  padding: 0 8px;
+  min-width: 28px;
+  padding: 0 6px;
   border: none;
   background: transparent;
   color: var(--color-text-muted);
