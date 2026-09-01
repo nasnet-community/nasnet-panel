@@ -66,62 +66,198 @@ func (e *Engine) stepCheck() error {
 		return fmt.Errorf("free memory %d MB below threshold %d MB", e.sys.FreeMB, minFreeMB)
 	}
 
-	out, err = e.cl.RunRaw(":put [:len [/system/package/find name=container]]", 15*time.Second)
-	if err != nil || !strings.HasPrefix(strings.TrimSpace(out), "1") {
-		return errors.New("container package is not installed on this router. Install it via WebFig/Winbox (System > Packages) or download the matching arch package from mikrotik.com")
-	}
-	out, err = e.cl.RunRaw(":put [/system/package/get [find name=container] disabled]", 15*time.Second)
-	if err == nil && strings.TrimSpace(out) == "true" {
-		if err := e.enableContainerPackage(); err != nil {
-			return err
-		}
-	}
+	e.inspectContainerPackage()
 
 	st, err := e.detectStorage()
 	if err != nil {
 		return err
 	}
-	e.storage = st.name
-	e.sys.Storage = st.name
+	e.storage = st
+	e.sys.Storage = st.label()
 	e.sys.StorageFreeMB = st.freeMB
 	e.ev.SysInfo(e.sys)
 	if st.freeMB >= 0 {
-		e.log("using router storage %s (%d MB free)", st.name, st.freeMB)
+		e.log("using router storage %s (%d MB free)", st.label(), st.freeMB)
 	} else {
-		e.log("using router storage %s", st.name)
+		e.log("using router storage %s", st.label())
 	}
-	if err := e.verifyStorageWritable(st.name); err != nil {
+	if err := e.verifyStorageWritable(st); err != nil {
 		return err
 	}
 
-	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.name)
+	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.label())
 	return nil
 }
 
-func (e *Engine) enableContainerPackage() error {
-	e.log("container package is disabled, enabling it")
+func (e *Engine) installContainerPackage() error {
+	name, url, err := containerPackageURL(e.sys.Version, e.sys.Arch)
+	if err != nil {
+		return err
+	}
+	e.log("container package is missing, installing %s", name)
 	if e.opts.DryRun {
-		e.log("[dry-run] /system/package/enable container, then restart the router")
+		e.log("[dry-run] download %s, upload it to the router, then restart", url)
+		return nil
+	}
+
+	outDir := filepath.Join(os.TempDir(), "nasnet-panel-installer")
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return err
+	}
+	local := filepath.Join(outDir, name)
+	e.log("downloading %s", url)
+	if _, err := e.download(url, local, "check"); err != nil {
+		return fmt.Errorf("could not download the container package for RouterOS %s (%s): %w. Install it via WebFig/Winbox (System > Packages) instead", e.sys.Version, e.sys.Arch, err)
+	}
+
+	e.log("uploading %s to the router", name)
+	if err := e.cl.Upload(local, name, func(done, total int64) {
+		e.ev.Progress("check", float64(done)*100/float64(total),
+			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
+	}); err != nil {
+		return fmt.Errorf("could not upload the container package: %w", err)
+	}
+
+	if err := e.restartRouter("The container package has been uploaded to the router, and the router has to restart to install it.",
+		"/system/reboot"); err != nil {
+		return err
+	}
+
+	pkg := e.containerPackage()
+	if !pkg.present {
+		_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", name), 15*time.Second)
+		return fmt.Errorf("the container package is still not installed after the restart, %s may not match RouterOS %s on %s", name, e.sys.Version, e.sys.Arch)
+	}
+	if !pkg.installed || pkg.disabled {
+		return e.enableContainerPackage()
+	}
+	e.pkgInstalled = true
+	e.log("container package installed")
+	return nil
+}
+
+func containerPackageURL(version, arch string) (string, string, error) {
+	v := strings.TrimSpace(version)
+	if i := strings.IndexAny(v, " \t("); i > 0 {
+		v = v[:i]
+	}
+	if v == "" {
+		return "", "", errors.New("could not read the RouterOS version to pick a container package")
+	}
+	var name string
+	switch arch {
+	case "x86_64":
+		name = fmt.Sprintf("container-%s.npk", v)
+	case "arm", "arm64":
+		name = fmt.Sprintf("container-%s-%s.npk", v, arch)
+	default:
+		return "", "", fmt.Errorf("no container package for architecture %s", arch)
+	}
+	return name, fmt.Sprintf("https://download.mikrotik.com/routeros/%s/%s", v, name), nil
+}
+
+func (e *Engine) inspectContainerPackage() {
+	pkg := e.containerPackage()
+	if pkg.active() {
+		e.log("container package is installed")
+		return
+	}
+	if !pkg.present {
+		e.log("container package is not listed, asking the router for the available packages")
+		if e.opts.DryRun {
+			e.log("[dry-run] /system/package/update/check-for-updates")
+		} else {
+			_, _ = e.cl.RunRaw("/system/package/update/check-for-updates", 60*time.Second)
+		}
+	}
+	e.log("container package is not active yet, installing it once device-mode is set")
+}
+
+func (e *Engine) ensureContainerPackage() error {
+	pkg := e.containerPackage()
+	if pkg.active() {
+		return nil
+	}
+	if !pkg.present && !e.opts.DryRun {
+		_, _ = e.cl.RunRaw("/system/package/update/check-for-updates", 60*time.Second)
+		pkg = e.containerPackage()
+	}
+	if pkg.present {
+		return e.enableContainerPackage()
+	}
+	return e.installContainerPackage()
+}
+
+type containerPkg struct {
+	present   bool
+	installed bool
+	disabled  bool
+}
+
+func (p containerPkg) active() bool {
+	return p.present && p.installed && !p.disabled
+}
+
+func (e *Engine) containerPackage() containerPkg {
+	out, err := e.cl.RunRaw(`:put ("P=" . [:len [/system/package/find name=container]]); :do {:put ("I=" . [/system/package/get [find name=container] installed])} on-error={}; :do {:put ("D=" . [/system/package/get [find name=container] disabled])} on-error={}`, 20*time.Second)
+	if err != nil {
+		return containerPkg{}
+	}
+	pkg := containerPkg{installed: true}
+	for _, line := range strings.Split(out, "\n") {
+		key, value, ok := strings.Cut(strings.TrimSpace(line), "=")
+		if !ok {
+			continue
+		}
+		switch key {
+		case "P":
+			pkg.present = value != "" && value != "0"
+		case "I":
+			pkg.installed = value == "true" || value == "yes"
+		case "D":
+			pkg.disabled = value == "true"
+		}
+	}
+	return pkg
+}
+
+func (e *Engine) enableContainerPackage() error {
+	e.log("container package is on the router but not active, enabling it")
+	if e.opts.DryRun {
+		e.log("[dry-run] /system/package/enable container, then /system/package/apply-changes")
 		return nil
 	}
 	if out, err := e.cl.Run("/system/package/enable container"); err != nil {
 		return fmt.Errorf("failed to enable the container package: %w (%s)", err, strings.TrimSpace(out))
 	}
-	if !e.ev.RebootPrompt() {
-		return errors.New("router restart declined by user")
-	}
-	if err := e.waitForReboot(); err != nil {
+	if err := e.restartRouter("The container package is now enabled, and the router has to restart to install it.",
+		"/system/package/apply-changes", "/system/reboot"); err != nil {
 		return err
 	}
-	out, err := e.cl.RunRaw(":put [/system/package/get [find name=container] disabled]", 15*time.Second)
-	if err != nil {
-		return fmt.Errorf("could not read the container package state after the restart: %w", err)
+	pkg := e.containerPackage()
+	if !pkg.present || !pkg.installed || pkg.disabled {
+		return errors.New("the container package is still not active after the restart. Install it from System > Packages in WebFig or Winbox, then run the installer again")
 	}
-	if strings.TrimSpace(out) == "true" {
-		return errors.New("the container package is still disabled after the restart")
-	}
-	e.log("container package enabled")
+	e.pkgInstalled = true
+	e.log("container package installed")
 	return nil
+}
+
+func (e *Engine) restartRouter(reason string, cmds ...string) error {
+	for _, cmd := range cmds {
+		if _, err := e.cl.RunChecked(fmt.Sprintf(":execute {:delay 2s; %s}", cmd), 15*time.Second); err != nil {
+			e.log("could not run %s over SSH (%v)", cmd, err)
+			continue
+		}
+		e.log("restarting the router with %s", cmd)
+		e.ev.RebootNotice(reason)
+		return e.waitForReboot()
+	}
+	e.log("asking for a manual restart")
+	if !e.ev.RebootPrompt(reason) {
+		return errors.New("router restart declined by user")
+	}
+	return e.waitForReboot()
 }
 
 func (e *Engine) waitForReboot() error {
@@ -152,32 +288,111 @@ func (e *Engine) waitForReboot() error {
 }
 
 func (e *Engine) stepDeviceMode() error {
-	out, err := e.cl.Run(":put [/system/device-mode/get container]")
-	if err != nil {
-		return fmt.Errorf("could not read /system/device-mode container: %w", err)
+	if err := e.enableDeviceMode(); err != nil {
+		return err
 	}
-	mode := strings.TrimSpace(out)
-	switch mode {
-	case "yes", "true":
+	if err := e.ensureContainerPackage(); err != nil {
+		return err
+	}
+	if e.pkgInstalled {
+		e.note = strings.TrimSpace(e.note + ", container package installed")
+	}
+	return nil
+}
+
+var deviceModeFlags = [][2]string{
+	{"mode", "advanced"},
+	{"flagging-enabled", "no"},
+	{"scheduler", "yes"},
+	{"socks", "yes"},
+	{"fetch", "yes"},
+	{"bandwidth-test", "yes"},
+	{"traffic-gen", "yes"},
+	{"sniffer", "yes"},
+	{"romon", "yes"},
+	{"proxy", "yes"},
+	{"hotspot", "yes"},
+	{"email", "yes"},
+	{"zerotier", "yes"},
+	{"container", "yes"},
+	{"install-any-version", "yes"},
+	{"partitions", "yes"},
+	{"routerboard", "yes"},
+}
+
+func normalizeDeviceModeValue(v string) string {
+	switch strings.TrimSpace(v) {
+	case "true":
+		return "yes"
+	case "false":
+		return "no"
+	default:
+		return strings.TrimSpace(v)
+	}
+}
+
+func parseDeviceMode(out string) map[string]string {
+	current := map[string]string{}
+	for _, field := range strings.Split(strings.TrimSpace(out), ";") {
+		key, value, ok := strings.Cut(strings.TrimSpace(field), "=")
+		if !ok {
+			continue
+		}
+		current[strings.TrimSpace(key)] = normalizeDeviceModeValue(value)
+	}
+	return current
+}
+
+func supportedDeviceModeFlags(current map[string]string) (all []string, pending []string) {
+	for _, flag := range deviceModeFlags {
+		want, ok := current[flag[0]]
+		if !ok {
+			continue
+		}
+		all = append(all, flag[0]+"="+flag[1])
+		if want != flag[1] {
+			pending = append(pending, flag[0]+"="+flag[1])
+		}
+	}
+	return all, pending
+}
+
+func (e *Engine) readDeviceMode(timeout time.Duration) (map[string]string, error) {
+	out, err := e.cl.RunRaw(":put [/system/device-mode/get]", timeout)
+	if err != nil {
+		return nil, err
+	}
+	current := parseDeviceMode(out)
+	if _, ok := current["container"]; !ok {
+		return nil, fmt.Errorf("could not read device-mode container (got %q), run '/system device-mode print' on the router to inspect", strings.TrimSpace(out))
+	}
+	return current, nil
+}
+
+func (e *Engine) enableDeviceMode() error {
+	current, err := e.readDeviceMode(15 * time.Second)
+	if err != nil {
+		return fmt.Errorf("could not read /system/device-mode: %w", err)
+	}
+	all, pending := supportedDeviceModeFlags(current)
+	if len(pending) == 0 {
 		e.note = "already enabled"
 		return nil
-	case "no", "false":
-	default:
-		return fmt.Errorf("could not read device-mode container (got %q), run '/system device-mode print' on the router to inspect", mode)
 	}
 
-	e.log("device-mode container=no, physical confirmation required")
+	e.log("device-mode needs %s, physical confirmation required", strings.Join(pending, " "))
 	if !e.ev.DeviceModePrompt() {
 		return errors.New("device-mode enable declined by user")
 	}
+	update := "/system/device-mode/update " + strings.Join(all, " ")
 	if e.opts.DryRun {
-		e.log("[dry-run] /system/device-mode/update container=yes")
+		e.log("[dry-run] %s", update)
 		e.note = "dry-run, not changed"
 		return nil
 	}
 
 	go func() {
-		_, _ = e.cl.RunRaw("/system/device-mode/update container=yes", deviceModeTimeout+30*time.Second)
+		_, _ = e.cl.RunRaw(update, deviceModeTimeout+30*time.Second)
 	}()
 
 	total := int(deviceModeTimeout / time.Second)
@@ -186,13 +401,13 @@ func (e *Engine) stepDeviceMode() error {
 		if err := e.sleep(2 * time.Second); err != nil {
 			return err
 		}
-		out, err := e.cl.RunRaw(":put [/system/device-mode/get container]", 8*time.Second)
+		current, err := e.readDeviceMode(8 * time.Second)
 		if err != nil {
 			state = "offline"
 			_ = e.cl.Reconnect()
 		} else {
 			state = "online"
-			if v := strings.TrimSpace(out); v == "yes" || v == "true" {
+			if _, pending := supportedDeviceModeFlags(current); len(pending) == 0 {
 				e.note = "confirmed and enabled"
 				return nil
 			}
@@ -232,7 +447,7 @@ func (e *Engine) stepDownload() error {
 	outPath := filepath.Join(outDir, asset)
 
 	e.log("downloading %s", url)
-	actual, err := e.download(url, outPath)
+	actual, err := e.download(url, outPath, "download")
 	if err != nil {
 		return err
 	}
@@ -250,7 +465,7 @@ func (e *Engine) stepDownload() error {
 	return nil
 }
 
-func (e *Engine) download(url, dest string) (string, error) {
+func (e *Engine) download(url, dest, stepID string) (string, error) {
 	req, err := http.NewRequestWithContext(e.ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", err
@@ -283,7 +498,7 @@ func (e *Engine) download(url, dest string) (string, error) {
 			_, _ = h.Write(buf[:n])
 			done += int64(n)
 			if total > 0 {
-				e.ev.Progress("download", float64(done)*100/float64(total),
+				e.ev.Progress(stepID, float64(done)*100/float64(total),
 					fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
 			}
 		}
@@ -322,7 +537,7 @@ func (e *Engine) fetchChecksum(url string) (string, error) {
 }
 
 func (e *Engine) stepUpload() error {
-	remote := e.storage + "/" + e.assetName
+	remote := e.storage.path(e.assetName)
 	e.remoteTar = remote
 
 	info, err := os.Stat(e.localTar)
@@ -350,7 +565,7 @@ func (e *Engine) stepUpload() error {
 		e.log("[dry-run] sftp upload")
 		return nil
 	}
-	e.ensureDir(e.storage)
+	e.ensureDir(e.storage.name)
 	err = e.cl.Upload(e.localTar, remote, func(done, total int64) {
 		e.ev.Progress("upload", float64(done)*100/float64(total),
 			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
@@ -365,7 +580,26 @@ func (e *Engine) stepUpload() error {
 	return nil
 }
 
+func (e *Engine) checkVethMenu() error {
+	if _, err := e.cl.RunChecked(":put [:len [/interface/veth/find]]", 15*time.Second); err == nil {
+		return nil
+	}
+	state := "unknown"
+	if out, err := e.cl.RunRaw(":put [/system/device-mode/get container]", 15*time.Second); err == nil {
+		if v := strings.TrimSpace(out); v != "" {
+			state = v
+		}
+	}
+	if state == "no" || state == "false" {
+		return errors.New("the router has no /interface/veth menu because device-mode container is off. Enable it with /system/device-mode/update container=yes, confirm it with the reset button or a cold power-cycle, then run the installer again")
+	}
+	return fmt.Errorf("the router has no /interface/veth menu, so the container package is not active (device-mode container is %s). Check the container package under System > Packages, restart the router, then run the installer again", state)
+}
+
 func (e *Engine) stepNetwork() error {
+	if err := e.checkVethMenu(); err != nil {
+		return err
+	}
 	if err := e.ensure(fmt.Sprintf("veth %s (%s)", vethName, vethAddrCIDR),
 		"/interface/veth", "name="+vethName,
 		fmt.Sprintf("name=%s address=%s gateway=%s", vethName, vethAddrCIDR, vethGW)); err != nil {
@@ -433,7 +667,7 @@ func (e *Engine) stepContainer() error {
 	}
 	e.log("extracting tar and adding container %s (this can take a few minutes)", containerName)
 	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s start-on-boot=yes logging=yes",
-		e.remoteTar, vethName, e.storage+"/"+containerImagesDir, containerName), 5*time.Minute); err != nil {
+		e.remoteTar, vethName, e.storage.path(containerImagesDir), containerName), 5*time.Minute); err != nil {
 		return fmt.Errorf("failed to add container: %w (%s)", err, strings.TrimSpace(out))
 	}
 	e.pushRollback(func() {
@@ -543,7 +777,34 @@ func (e *Engine) stepBaseline() error {
 		e.removeRemoteFile(lanBaselineRsc)
 		return nil
 	}
+	if !e.baselineTookEffect() {
+		e.log("LAN baseline did not bring up %s, the panel stays on %s", lanBridgeIP, e.opts.Host)
+		e.note = "not applied, panel stays on the router address"
+		return nil
+	}
 	e.baselineApplied = true
 	e.note = fmt.Sprintf("%s %s/24 applied", lanBridge, lanBridgeIP)
 	return nil
+}
+
+func (e *Engine) baselineTookEffect() bool {
+	probe := fmt.Sprintf(`:put [:len [/ip/address/find address~"^%s"]]`, lanBridgeIP)
+	deadline := time.Now().Add(baselineTimeout)
+	for time.Now().Before(deadline) {
+		if err := e.sleep(3 * time.Second); err != nil {
+			return true
+		}
+		out, err := e.cl.RunRaw(probe, 8*time.Second)
+		if err != nil {
+			if rerr := e.cl.Reconnect(); rerr != nil {
+				e.log("router no longer answers on %s, the new LAN is taking over", e.opts.Host)
+				return true
+			}
+			continue
+		}
+		if v := strings.TrimSpace(out); v != "" && v != "0" {
+			return true
+		}
+	}
+	return false
 }

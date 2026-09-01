@@ -127,6 +127,9 @@ jobs:
             ( cd dist && sha256sum "${OUT}" > "${OUT}.sha256" )
           done
 
+      - name: Resolve version
+        run: echo "APP_VERSION=dev-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
       - name: Publish to rolling snapshot release
         uses: softprops/action-gh-release@v2
         with:
@@ -143,8 +146,8 @@ jobs:
             - `nasnet-panel-dev-armv7.tar` (RouterOS arm)
 
             Graphical installers:
-            - `nasnet-panel-installer-windows-amd64.exe` (Windows)
-            - `nasnet-panel-installer-macos-universal.dmg` (macOS)
+            - `nasnet-panel-installer-windows-${{ env.APP_VERSION }}.exe` (Windows)
+            - `nasnet-panel-installer-macos-${{ env.APP_VERSION }}.dmg` (macOS)
           files: |
             dist/*.tar
             dist/*.tar.sha256
@@ -179,8 +182,13 @@ jobs:
           GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
             go build -trimpath -tags desktop,production \
             -ldflags "-s -w -H windowsgui -X nasnet-panel-installer/internal/buildinfo.Version=$APP_VERSION" \
-            -o dist/nasnet-panel-installer-windows-amd64.exe .
-          ( cd dist && sha256sum nasnet-panel-installer-windows-amd64.exe > nasnet-panel-installer-windows-amd64.exe.sha256 )
+            -o "dist/nasnet-panel-installer-windows-${APP_VERSION}.exe" .
+          ( cd dist && sha256sum "nasnet-panel-installer-windows-${APP_VERSION}.exe" > "nasnet-panel-installer-windows-${APP_VERSION}.exe.sha256" )
+
+      - name: Drop installers from earlier snapshots
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/prune-snapshot-installers.sh windows "$APP_VERSION"
 
       - name: Publish installer to snapshot release
         uses: softprops/action-gh-release@v2
@@ -247,8 +255,13 @@ jobs:
           cp -R "dist/Nasnet Panel Installer.app" "$STAGE/"
           ln -s /Applications "$STAGE/Applications"
           hdiutil create -volname "Nasnet Panel Installer" -srcfolder "$STAGE" -ov -format UDZO \
-            dist/nasnet-panel-installer-macos-universal.dmg
-          ( cd dist && shasum -a 256 nasnet-panel-installer-macos-universal.dmg > nasnet-panel-installer-macos-universal.dmg.sha256 )
+            "dist/nasnet-panel-installer-macos-${APP_VERSION}.dmg"
+          ( cd dist && shasum -a 256 "nasnet-panel-installer-macos-${APP_VERSION}.dmg" > "nasnet-panel-installer-macos-${APP_VERSION}.dmg.sha256" )
+
+      - name: Drop installers from earlier snapshots
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/prune-snapshot-installers.sh macos "$APP_VERSION"
 
       - name: Publish installer to snapshot release
         uses: softprops/action-gh-release@v2

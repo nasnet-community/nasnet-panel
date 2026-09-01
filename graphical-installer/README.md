@@ -43,7 +43,7 @@ Run from this directory, after staging the baseline script above.
 # Windows
 GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags desktop,production \
   -ldflags "-s -w -H windowsgui" \
-  -o dist/nasnet-panel-installer-windows-amd64.exe .
+  -o dist/nasnet-panel-installer-windows.exe .
 
 # macOS (requires cgo and a macOS host)
 export CGO_LDFLAGS="-framework UniformTypeIdentifiers"
@@ -63,8 +63,10 @@ go build -ldflags "-X nasnet-panel-installer/internal/buildinfo.Version=v1.2.3" 
 ```
 
 The UI reads it through `AppVersion` and shows it in the header. CI passes the release tag, or
-`dev-<short sha>` for snapshot builds, and stamps the same value into the macOS bundle
-(`CFBundleShortVersionString`) and the Windows version resource:
+`dev-<short sha>` for snapshot builds, stamps the same value into the macOS bundle
+(`CFBundleShortVersionString`) and the Windows version resource, and carries it in the published
+asset names (`nasnet-panel-installer-macos-1.2.3.dmg`,
+`nasnet-panel-installer-windows-dev-1a2b3c4.exe`):
 
 ```bash
 ../scripts/installer-windows-resource.sh v1.2.3 0
