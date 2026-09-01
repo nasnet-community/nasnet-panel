@@ -423,13 +423,18 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 	return client, nil
 }
 
-// cleanupIdleConnections closes connections that haven't been used in 20 minutes.
+// cleanupIdleConnections closes connections that haven't been used in 20
+// minutes. Clients are removed from the cache first, while holding c.mu;
+// each removed client's own connection is then closed and cleared after
+// releasing c.mu, while holding that client's own mu, so the transition is
+// serialized against any request concurrently using that same client (which
+// always holds its mu while touching its conn).
 func (c *ClientConnectionCache) cleanupIdleConnections() {
 	for range c.cleanupTk.C {
 		c.mu.Lock()
 
 		now := time.Now()
-		var keysToDelete []string
+		var toClose []*Client
 
 		for key, cachedConn := range c.clients {
 			cachedConn.mu.Lock()
@@ -437,34 +442,48 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 			cachedConn.mu.Unlock()
 
 			if now.Sub(lastUsed) > clientCacheIdleTimeout {
-				_ = cachedConn.Client.Close()
-				keysToDelete = append(keysToDelete, key)
+				toClose = append(toClose, cachedConn.Client)
+				delete(c.clients, key)
 			}
 		}
 
-		for _, key := range keysToDelete {
-			delete(c.clients, key)
-		}
-
 		c.mu.Unlock()
+
+		for _, client := range toClose {
+			client.mu.Lock()
+			_ = client.Close()
+			client.conn = nil
+			client.mu.Unlock()
+		}
 	}
 }
 
 // ClearConnectionCache closes every cached RouterOS connection and empties
 // both the client cache and the credential cache entirely, regardless of
 // idle timeout. Useful when credentials rotate or every open connection
-// needs to be forced closed (e.g. on logout).
+// needs to be forced closed (e.g. on logout). Clients are removed from the
+// cache first, while holding clientCache.mu; each one's connection is then
+// closed and cleared after releasing clientCache.mu, while holding that
+// client's own mu, so the transition is serialized against any request
+// concurrently using that same client (which always holds its mu while
+// touching its conn).
 func ClearConnectionCache() {
 	clientCache.mu.Lock()
-	defer clientCache.mu.Unlock()
-
+	clients := make([]*Client, 0, len(clientCache.clients))
 	for key, cachedConn := range clientCache.clients {
-		_ = cachedConn.Client.Close()
-		cachedConn.Client.conn = nil
+		clients = append(clients, cachedConn.Client)
 		delete(clientCache.clients, key)
 	}
 	for key := range clientCache.config {
 		delete(clientCache.config, key)
+	}
+	clientCache.mu.Unlock()
+
+	for _, client := range clients {
+		client.mu.Lock()
+		_ = client.Close()
+		client.conn = nil
+		client.mu.Unlock()
 	}
 }
 
