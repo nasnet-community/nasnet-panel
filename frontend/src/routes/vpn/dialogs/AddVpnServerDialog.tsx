@@ -42,6 +42,8 @@ const TYPE_TILES: Array<VpnTypeTile<AddVpnServerTileType>> = [
 
 const POLL_INTERVAL_MS = 1000;
 
+const ADVANCED_WG_SERVER_FIELDS_ID = 'wg-server-advanced-fields';
+
 interface Props {
   creds: VPNCredentials | null;
   onCancel: () => void;
@@ -329,6 +331,7 @@ function SstpServerForm({ creds, onCancel, onCreated }: FormProps) {
 }
 
 function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
+  const [advanced, setAdvanced] = useState(false);
   const [name, setName] = useState('');
   const [localAddress, setLocalAddress] = useState('');
   const [listenPort, setListenPort] = useState('');
@@ -344,16 +347,19 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
     () => ({
       name: validateIdentifier(name),
       localAddress:
-        localAddress.trim() === '' || isCIDR(localAddress)
+        !advanced || localAddress.trim() === '' || isCIDR(localAddress)
           ? null
           : 'Enter a CIDR like 10.8.0.1/24, or leave empty to auto-assign.',
-      listenPort: listenPort.trim() === '' || isPort(listenPort) ? null : 'Port must be 1-65535.',
+      listenPort:
+        !advanced || listenPort.trim() === '' || isPort(listenPort)
+          ? null
+          : 'Port must be 1-65535.',
       mtu:
-        mtu.trim() === '' || (Number.isInteger(Number(mtu)) && Number(mtu) > 0)
+        !advanced || mtu.trim() === '' || (Number.isInteger(Number(mtu)) && Number(mtu) > 0)
           ? null
           : 'MTU must be a positive integer.',
     }),
-    [name, localAddress, listenPort, mtu],
+    [advanced, name, localAddress, listenPort, mtu],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -364,15 +370,17 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
     if (!canSubmit || !creds || hasErrors) return;
     setError(null);
     setSubmitting(true);
-    const body: CreateWireguardServerRequest = {
-      name: name.trim(),
-      localAddress: localAddress.trim() || undefined,
-      listenPort: listenPort.trim() ? Number(listenPort) : undefined,
-      mtu: mtu.trim() ? Number(mtu) : undefined,
-      comment: comment.trim() || undefined,
-      privateKey: privateKey.trim() || undefined,
-      disabled: disabled || undefined,
-    };
+    const body: CreateWireguardServerRequest = advanced
+      ? {
+          name: name.trim(),
+          localAddress: localAddress.trim() || undefined,
+          listenPort: listenPort.trim() ? Number(listenPort) : undefined,
+          mtu: mtu.trim() ? Number(mtu) : undefined,
+          comment: comment.trim() || undefined,
+          privateKey: privateKey.trim() || undefined,
+          disabled: disabled || undefined,
+        }
+      : { name: name.trim() };
     try {
       await createWireguardServer(creds, body);
       onCreated();
@@ -403,80 +411,103 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
           />
           {submitAttempted && errors.name ? <FormError>{errors.name}</FormError> : null}
         </Label>
-        <Label>
-          <span>Listen port</span>
-          <Input
-            value={listenPort}
-            onChange={(e) => setListenPort(e.target.value)}
-            placeholder="51820"
-            inputMode="numeric"
-            autoComplete="off"
-            aria-label="Listen port"
-            aria-invalid={submitAttempted && !!errors.listenPort}
-          />
-          {submitAttempted && errors.listenPort ? <FormError>{errors.listenPort}</FormError> : null}
-        </Label>
-      </FieldRow>
-      <FieldRow>
-        <Label>
-          <span>Local address (CIDR)</span>
-          <Input
-            value={localAddress}
-            onChange={(e) => setLocalAddress(e.target.value)}
-            placeholder="10.8.0.1/24 (auto if empty)"
-            autoComplete="off"
-            aria-label="Local address"
-            aria-invalid={submitAttempted && !!errors.localAddress}
-          />
-          {submitAttempted && errors.localAddress ? (
-            <FormError>{errors.localAddress}</FormError>
-          ) : null}
-        </Label>
-        <Label>
-          <span>MTU</span>
-          <Input
-            value={mtu}
-            onChange={(e) => setMtu(e.target.value)}
-            placeholder="1420"
-            inputMode="numeric"
-            autoComplete="off"
-            aria-label="MTU"
-            aria-invalid={submitAttempted && !!errors.mtu}
-          />
-          {submitAttempted && errors.mtu ? <FormError>{errors.mtu}</FormError> : null}
-        </Label>
-      </FieldRow>
-      <FieldRow>
-        <Label>
-          <span>Private key</span>
-          <PasswordInput
-            value={privateKey}
-            onChange={(e) => setPrivateKey(e.target.value)}
-            placeholder="auto-generated if empty"
-            aria-label="Private key"
-            autoComplete="new-password"
-          />
-        </Label>
-        <Label>
-          <span>Comment</span>
-          <Input
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="optional"
-            autoComplete="off"
-            aria-label="Comment"
-          />
-        </Label>
       </FieldRow>
       <FieldRow>
         <Label as="div">
           <Switch
-            label="Enabled on creation"
-            checked={!disabled}
-            onChange={(e) => setDisabled(!e.target.checked)}
+            label="Advanced mode"
+            checked={advanced}
+            onChange={(e) => setAdvanced(e.target.checked)}
+            aria-expanded={advanced}
+            aria-controls={ADVANCED_WG_SERVER_FIELDS_ID}
           />
         </Label>
       </FieldRow>
+      {advanced ? (
+        <FieldStack
+          id={ADVANCED_WG_SERVER_FIELDS_ID}
+          role="group"
+          aria-label="Advanced WireGuard server settings"
+        >
+          <FieldRow>
+            <Label>
+              <span>Listen port</span>
+              <Input
+                value={listenPort}
+                onChange={(e) => setListenPort(e.target.value)}
+                placeholder="51820"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label="Listen port"
+                aria-invalid={submitAttempted && !!errors.listenPort}
+              />
+              {submitAttempted && errors.listenPort ? (
+                <FormError>{errors.listenPort}</FormError>
+              ) : null}
+            </Label>
+            <Label>
+              <span>Local address (CIDR)</span>
+              <Input
+                value={localAddress}
+                onChange={(e) => setLocalAddress(e.target.value)}
+                placeholder="10.8.0.1/24 (auto if empty)"
+                autoComplete="off"
+                aria-label="Local address"
+                aria-invalid={submitAttempted && !!errors.localAddress}
+              />
+              {submitAttempted && errors.localAddress ? (
+                <FormError>{errors.localAddress}</FormError>
+              ) : null}
+            </Label>
+          </FieldRow>
+          <FieldRow>
+            <Label>
+              <span>MTU</span>
+              <Input
+                value={mtu}
+                onChange={(e) => setMtu(e.target.value)}
+                placeholder="1420"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label="MTU"
+                aria-invalid={submitAttempted && !!errors.mtu}
+              />
+              {submitAttempted && errors.mtu ? <FormError>{errors.mtu}</FormError> : null}
+            </Label>
+            <Label>
+              <span>Comment</span>
+              <Input
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="optional"
+                autoComplete="off"
+                aria-label="Comment"
+              />
+            </Label>
+          </FieldRow>
+          <FieldRow>
+            <Label>
+              <span>Private key</span>
+              <PasswordInput
+                value={privateKey}
+                onChange={(e) => setPrivateKey(e.target.value)}
+                placeholder="auto-generated if empty"
+                aria-label="Private key"
+                autoComplete="new-password"
+              />
+            </Label>
+          </FieldRow>
+          <FieldRow>
+            <Label as="div">
+              <Switch
+                label="Enabled on creation"
+                checked={!disabled}
+                onChange={(e) => setDisabled(!e.target.checked)}
+              />
+            </Label>
+          </FieldRow>
+        </FieldStack>
+      ) : null}
       {error ? <FormError role="alert">{error}</FormError> : null}
       <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
