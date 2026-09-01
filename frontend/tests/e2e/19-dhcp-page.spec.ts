@@ -53,4 +53,55 @@ test.describe('LAN page (DHCP + port diagram)', () => {
     await expect(page.getByTestId('port-ether2')).toHaveAttribute('data-status', 'up');
     await expect(page.getByTestId('port-ether2')).toHaveAttribute('aria-label', /ether2.*up/i);
   });
+
+  test('asks for confirmation before making a lease static', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockOverviewBackend,
+    mockDhcpBackend,
+  }) => {
+    await resetMocks();
+    await seedRouter({
+      id: 'rtr_static',
+      name: 'Static Router',
+      host: '10.10.10.3',
+      model: 'hAP ax3',
+    });
+    await mockOverviewBackend({ id: 'rtr_static', model: 'hAP ax3' });
+    await mockDhcpBackend({ id: 'rtr_static' });
+
+    const makeStaticCalls: string[] = [];
+    page.on('request', (req) => {
+      if (req.method() === 'POST' && req.url().includes('/api/dhcp/leases/make-static')) {
+        makeStaticCalls.push(req.url());
+      }
+    });
+
+    await page.goto('/router/rtr_static/lan');
+
+    const leases = page.getByTestId('dhcp-leases');
+    await expect(leases.getByRole('heading', { name: 'DHCP Leases' })).toBeVisible();
+
+    const makeStaticButton = leases.getByRole('button', {
+      name: 'Make static AA:BB:CC:DD:EE:01',
+    });
+
+    await makeStaticButton.click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toContainText('Make DHCP lease static');
+    await expect(dialog).toContainText('192.168.88.101');
+
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    expect(makeStaticCalls).toHaveLength(0);
+
+    await makeStaticButton.click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Make static', exact: true })
+      .click();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect.poll(() => makeStaticCalls.length).toBeGreaterThan(0);
+  });
 });
