@@ -118,6 +118,7 @@ export interface OvpnServerDetailsResponse {
   certificate: string;
   requireClientCertificate: boolean;
   enabled: boolean;
+  comment?: string;
 }
 
 export interface L2TPUserSecret {

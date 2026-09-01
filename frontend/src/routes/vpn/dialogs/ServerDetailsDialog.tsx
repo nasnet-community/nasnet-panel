@@ -322,6 +322,7 @@ function DetailsBody({
             label="Require client cert"
             value={<BoolBadge value={d.requireClientCertificate} />}
           />
+          <Row label="Comment" value={d.comment ? <strong>{d.comment}</strong> : '–'} wide />
         </DList>
       );
     }
