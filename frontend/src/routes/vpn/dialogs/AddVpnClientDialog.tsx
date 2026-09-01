@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Cable, Globe, KeyRound, Shield } from 'lucide-react';
+import { Cable, Globe, KeyRound, Shield, Sparkles } from 'lucide-react';
 import {
   Button,
   Dialog,
@@ -14,6 +14,10 @@ import {
   Textarea,
 } from '@nasnet/ui';
 import { VpnTypeTilePicker, type VpnTypeTile } from './VpnTypeTilePicker';
+import {
+  HyperSpeedClaimDialog,
+  type ClaimedVpnCredentials,
+} from '../../easy-config/steps/ipmask/HyperSpeedClaimDialog';
 import type {
   AddL2TPClientRequest,
   CreateWireguardClientRequest,
@@ -243,6 +247,14 @@ export function AddVpnClientDialog({
             errors={errors}
             touched={touched}
             markTouched={markTouched}
+            onClaimed={(creds) =>
+              setDraft((d) => ({
+                ...d,
+                connectTo: creds.server,
+                user: creds.username,
+                password: creds.password,
+              }))
+            }
           />
         ) : null}
 
@@ -319,23 +331,37 @@ interface L2tpFieldsProps {
   errors: Record<string, string | null>;
   touched: Record<string, boolean>;
   markTouched: (key: string) => void;
+  onClaimed: (creds: ClaimedVpnCredentials) => void;
 }
 
-function L2tpFields({ draft, set, errors, touched, markTouched }: L2tpFieldsProps) {
+function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2tpFieldsProps) {
+  const [claimOpen, setClaimOpen] = useState(false);
   return (
     <>
       <FieldRow>
         <Label>
           <span>Connect to</span>
-          <Input
-            value={draft.connectTo}
-            onChange={(e) => set('connectTo', e.target.value)}
-            onBlur={() => markTouched('connectTo')}
-            placeholder="192.168.1.1"
-            aria-label="Connect to"
-            autoComplete="off"
-            aria-invalid={touched.connectTo && !!errors.connectTo}
-          />
+          <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
+            <Input
+              value={draft.connectTo}
+              onChange={(e) => set('connectTo', e.target.value)}
+              onBlur={() => markTouched('connectTo')}
+              placeholder="192.168.1.1"
+              aria-label="Connect to"
+              autoComplete="off"
+              aria-invalid={touched.connectTo && !!errors.connectTo}
+              style={{ flex: 1 }}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setClaimOpen(true)}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              <Sparkles size={16} strokeWidth={2} />
+              Claim free VPN
+            </Button>
+          </div>
           {touched.connectTo && errors.connectTo ? <FormError>{errors.connectTo}</FormError> : null}
         </Label>
         <Label>
@@ -377,6 +403,11 @@ function L2tpFields({ draft, set, errors, touched, markTouched }: L2tpFieldsProp
           />
         </Label>
       </FieldRow>
+      <HyperSpeedClaimDialog
+        open={claimOpen}
+        onClose={() => setClaimOpen(false)}
+        onClaimed={onClaimed}
+      />
     </>
   );
 }
