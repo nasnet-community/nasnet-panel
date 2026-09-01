@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Tabs } from '@nasnet/ui';
+import { Button, Tabs } from '@nasnet/ui';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useWizardGate } from '../state/WizardGateContext';
@@ -14,7 +14,7 @@ export function RouterDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const { setActiveRouterId, getCredentials } = useSession();
-  const { statusFor } = useWizardGate();
+  const { statusFor, retry } = useWizardGate();
 
   useEffect(() => {
     setActiveRouterId(id ?? null);
@@ -47,6 +47,23 @@ export function RouterDashboard() {
         const full = `/router/${router.id}${t.path ? `/${t.path}` : ''}`;
         return t.path === '' ? location.pathname === full : location.pathname.startsWith(full);
       })?.id ?? 'overview');
+
+  if (wizardStatus === 'unreachable') {
+    return (
+      <div className={styles.contentShell}>
+        <div className={styles.unreachable} role="alert">
+          <h2 className={styles.unreachableTitle}>Router unreachable</h2>
+          <p>
+            Nasnet Panel got no response from {router.name || router.host}. Check that the router is
+            powered on and reachable, then try again.
+          </p>
+          <Button variant="success" onClick={retry}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (wizardStatus === 'fresh' && !onWizard) {
     return <Navigate to={`/router/${router.id}/config`} replace />;
