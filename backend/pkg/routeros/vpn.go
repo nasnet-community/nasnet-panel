@@ -1632,6 +1632,37 @@ func (c *Client) GetWireGuardPeers(interfaceName string) ([]WireGuardPeerInfo, e
 	return peers, nil
 }
 
+// CountWireGuardPeers returns the number of /interface/wireguard/peers
+// entries for interfaceName, using RouterOS's count-only query so the full
+// peer list isn't transferred just to count it.
+func (c *Client) CountWireGuardPeers(interfaceName string) (int, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.conn == nil {
+		return 0, fmt.Errorf("connection is closed")
+	}
+
+	reply, err := c.Run([]string{
+		"/interface/wireguard/peers/print",
+		"=count-only",
+		"?=interface=" + interfaceName,
+	})
+	if err != nil {
+		return 0, fmt.Errorf("failed to count WireGuard peers for interface %s: %w", interfaceName, err)
+	}
+	if reply == nil || reply.Done == nil {
+		return 0, nil
+	}
+
+	count, err := strconv.Atoi(reply.Done.Map["ret"])
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse WireGuard peer count for interface %s: %w", interfaceName, err)
+	}
+
+	return count, nil
+}
+
 // GetWireGuardPeerByNameOrID returns a WireGuard peer by its name or ID.
 func (c *Client) GetWireGuardPeerByNameOrID(nameOrID string) (*WireGuardPeerInfo, error) {
 	if nameOrID == "" {
