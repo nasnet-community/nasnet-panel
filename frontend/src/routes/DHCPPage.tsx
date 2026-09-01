@@ -387,7 +387,7 @@ export function DHCPPage() {
 
       <Card data-testid="dhcp-leases">
         <CardHeader>
-          <CardTitle>Leases</CardTitle>
+          <CardTitle>DHCP Leases</CardTitle>
           <CardDescription>Active DHCP leases issued to clients on the LAN.</CardDescription>
         </CardHeader>
         {leases.error ? <div className={styles.errorBanner}>{leases.error}</div> : null}
