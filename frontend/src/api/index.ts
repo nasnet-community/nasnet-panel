@@ -219,7 +219,7 @@ export {
   type UpdateVPNUserRequest,
   type VPNProfileResponse,
 } from './vpn';
-export { ApiError } from './http';
+export { ApiError, setUnauthorizedHandler } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
 export { loadChatwoot, toggleChatwoot } from './chatwoot';

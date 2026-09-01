@@ -18,8 +18,21 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+export interface ApiRequestInit extends RequestInit {
+  skipAuthRedirect?: boolean;
+}
+
+type UnauthorizedHandler = () => void;
+
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): void {
+  unauthorizedHandler = handler;
+}
+
+export async function apiRequest<T>(path: string, init: ApiRequestInit = {}): Promise<T> {
   const url = path.startsWith('http') ? path : `${BACKEND_URL}${path}`;
+  const { skipAuthRedirect, ...requestInit } = init;
   const headers = new Headers(init.headers);
   if (init.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
@@ -28,7 +41,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   let response: Response;
   try {
-    response = await fetch(url, { ...init, headers });
+    response = await fetch(url, { ...requestInit, headers });
   } catch (err) {
     if (isAbortError(err)) throw err;
     throw new ApiError(err instanceof Error ? err.message : 'Network request failed', 0);
@@ -43,6 +56,9 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   if (!response.ok) {
     const message = body?.error || body?.message || `Request failed (${response.status})`;
+    if (response.status === 401 && !skipAuthRedirect) {
+      unauthorizedHandler?.();
+    }
     throw new ApiError(message, response.status);
   }
 
