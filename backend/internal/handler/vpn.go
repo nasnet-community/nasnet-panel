@@ -2148,15 +2148,41 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
+	ovpnServerComment := "Client Certificate Password: " + req.ClientCertificatePassword
+
 	serverConfigNameTCP := serverConfigName + "-tcp"
-	_, err = client.AddOvpnServer(serverConfigNameTCP, tcpPort, "ip", "tcp", serverName, true, "sha256", "aes256-cbc", "default")
+	_, err = client.AddOvpnServer(routeros.AddOvpnServerConfig{
+		Name:              serverConfigNameTCP,
+		Port:              tcpPort,
+		Mode:              "ip",
+		Protocol:          "tcp",
+		Certificate:       serverName,
+		RequireClientCert: true,
+		Auth:              "sha256",
+		Cipher:            "aes256-cbc",
+		DefaultProfile:    "default",
+		RedirectGateway:   "def1",
+		Comment:           ovpnServerComment,
+	})
 	if err != nil {
 		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigNameTCP, "", "default", []string{caName, serverName, clientName})
 		return
 	}
 
 	serverConfigNameUDP := serverConfigName + "-udp"
-	_, err = client.AddOvpnServer(serverConfigNameUDP, udpPort, "ip", "udp", serverName, true, "sha256", "aes256-cbc", "default")
+	_, err = client.AddOvpnServer(routeros.AddOvpnServerConfig{
+		Name:              serverConfigNameUDP,
+		Port:              udpPort,
+		Mode:              "ip",
+		Protocol:          "udp",
+		Certificate:       serverName,
+		RequireClientCert: true,
+		Auth:              "sha256",
+		Cipher:            "aes256-cbc",
+		DefaultProfile:    "default",
+		RedirectGateway:   "def1",
+		Comment:           ovpnServerComment,
+	})
 	if err != nil {
 		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
 		return

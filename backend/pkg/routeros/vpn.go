@@ -88,6 +88,32 @@ type OvpnServerInfo struct {
 	Comment           string
 }
 
+// AddOvpnServerConfig represents every field that can be set when creating a
+// new OpenVPN server via AddOvpnServer. Name, Port, Mode, Protocol and
+// Certificate are always sent; every other field is optional and, left at
+// its zero value, is omitted from the request so RouterOS applies its own
+// default for that property.
+type AddOvpnServerConfig struct {
+	Name              string
+	Port              int
+	Mode              string
+	Protocol          string
+	Certificate       string
+	Disabled          bool
+	UserAuthMethod    string
+	Key               string
+	Auth              string
+	Cipher            string
+	RequireClientCert bool
+	RequireEncryption bool
+	KeepAliveTimeout  int
+	DefaultGateway    bool
+	RedirectGateway   string
+	MacAddress        string
+	DefaultProfile    string
+	Comment           string
+}
+
 // OvpnServerUpdateConfig represents every field that can be changed on an
 // existing OpenVPN server via UpdateOvpnServer. Only non-nil fields are
 // applied; everything else on the server is left as it was.
@@ -629,25 +655,55 @@ func (c *Client) GetOvpnServer(idOrName string) (*OvpnServerInfo, error) {
 }
 
 // AddOvpnServer creates a new OpenVPN server configuration.
-func (c *Client) AddOvpnServer(name string, port int, mode, protocol, certificate string, requireClientCert bool, auth, cipher, profile string) (string, error) {
+func (c *Client) AddOvpnServer(config AddOvpnServerConfig) (string, error) {
 	args := []string{
-		"=name=" + name,
-		"=port=" + strconv.Itoa(port),
-		"=mode=" + mode,
-		"=protocol=" + protocol,
-		"=certificate=" + certificate,
-		"=auth=" + auth,
-		"=cipher=" + cipher,
-		"=redirect-gateway=def1",
-		"=disabled=no",
+		"=name=" + config.Name,
+		"=port=" + strconv.Itoa(config.Port),
+		"=mode=" + config.Mode,
+		"=protocol=" + config.Protocol,
+		"=certificate=" + config.Certificate,
 	}
 
-	if profile != "" {
-		args = append(args, "=default-profile="+profile)
+	if config.Disabled {
+		args = append(args, "=disabled=yes")
+	} else {
+		args = append(args, "=disabled=no")
 	}
-
-	if requireClientCert {
+	if config.UserAuthMethod != "" {
+		args = append(args, "=user-auth-method="+config.UserAuthMethod)
+	}
+	if config.Key != "" {
+		args = append(args, "=key="+config.Key)
+	}
+	if config.Auth != "" {
+		args = append(args, "=auth="+config.Auth)
+	}
+	if config.Cipher != "" {
+		args = append(args, "=cipher="+config.Cipher)
+	}
+	if config.RequireClientCert {
 		args = append(args, "=require-client-certificate=true")
+	}
+	if config.RequireEncryption {
+		args = append(args, "=require-encryption=true")
+	}
+	if config.KeepAliveTimeout > 0 {
+		args = append(args, "=keepalive-timeout="+strconv.Itoa(config.KeepAliveTimeout))
+	}
+	if config.DefaultGateway {
+		args = append(args, "=default-gateway=true")
+	}
+	if config.RedirectGateway != "" {
+		args = append(args, "=redirect-gateway="+config.RedirectGateway)
+	}
+	if config.MacAddress != "" {
+		args = append(args, "=mac-address="+config.MacAddress)
+	}
+	if config.DefaultProfile != "" {
+		args = append(args, "=default-profile="+config.DefaultProfile)
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/interface/ovpn-server/server", args...)
