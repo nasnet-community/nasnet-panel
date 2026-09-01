@@ -4,7 +4,8 @@ import { Tabs } from '@nasnet/ui';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useWizardGate } from '../state/WizardGateContext';
-import { ROUTER_SECTIONS as TABS } from '../layout/routerSections';
+import { useInstalledPlugins } from '../state/InstalledPluginsContext';
+import { routerSectionsWithPlugins } from '../layout/routerSections';
 import { RouterCredentialsDialog } from './RouterCredentialsDialog';
 import styles from './RouterDashboard.module.scss';
 
@@ -15,6 +16,8 @@ export function RouterDashboard() {
   const navigate = useNavigate();
   const { setActiveRouterId, getCredentials } = useSession();
   const { statusFor } = useWizardGate();
+  const { plugins } = useInstalledPlugins();
+  const TABS = routerSectionsWithPlugins(plugins);
 
   useEffect(() => {
     setActiveRouterId(id ?? null);

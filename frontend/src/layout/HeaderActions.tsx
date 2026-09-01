@@ -26,6 +26,7 @@ export function HeaderActions({
   const location = useLocation();
   const hideSessionActions = location.pathname === '/' || location.pathname === '/routers/new';
   const [open, setOpen] = useState(false);
+  const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -43,6 +44,10 @@ export function HeaderActions({
       document.removeEventListener('pointerdown', handlePointer);
       document.removeEventListener('keydown', handleKey);
     };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) setExpandedSectionId(null);
   }, [open]);
 
   const isLight = preference === 'light' || (preference === 'system' && resolved === 'light');
@@ -92,19 +97,63 @@ export function HeaderActions({
         <div className={styles.menuPanel} role="menu">
           {sections && routerId ? (
             <div className={styles.sectionsMobile}>
-              {sections.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  role="menuitem"
-                  disabled={s.disabled}
-                  className={cx(styles.menuItem, s.id === activeSectionId && styles.menuItemActive)}
-                  onClick={goAndClose(`/router/${routerId}${s.path ? `/${s.path}` : ''}`)}
-                >
-                  {s.icon}
-                  <span>{s.label}</span>
-                </button>
-              ))}
+              {sections.map((s) => {
+                const item = (
+                  <button
+                    key={s.id}
+                    type="button"
+                    role="menuitem"
+                    disabled={s.disabled}
+                    className={cx(
+                      styles.menuItem,
+                      s.id === activeSectionId && styles.menuItemActive,
+                    )}
+                    onClick={goAndClose(`/router/${routerId}${s.path ? `/${s.path}` : ''}`)}
+                  >
+                    {s.icon}
+                    <span>{s.label}</span>
+                  </button>
+                );
+                if (!s.menu?.length) return item;
+                const expanded = expandedSectionId === s.id;
+                return (
+                  <div key={s.id} role="presentation" className={styles.sectionGroup}>
+                    <div role="presentation" className={styles.sectionRow}>
+                      {item}
+                      <button
+                        type="button"
+                        className={styles.subMenuToggle}
+                        aria-expanded={expanded}
+                        aria-label={`Show ${s.label} menu`}
+                        onClick={() => setExpandedSectionId(expanded ? null : s.id)}
+                      >
+                        <ChevronDown
+                          size={16}
+                          aria-hidden
+                          className={expanded ? styles.chevronOpen : undefined}
+                        />
+                      </button>
+                    </div>
+                    {expanded ? (
+                      <div role="presentation" className={styles.subMenu}>
+                        {s.menu.map((m) => (
+                          <a
+                            key={m.id}
+                            role="menuitem"
+                            href={m.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.subMenuItem}
+                            onClick={() => setOpen(false)}
+                          >
+                            {m.label}
+                          </a>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
               <div className={styles.menuDivider} role="separator" />
             </div>
           ) : null}
