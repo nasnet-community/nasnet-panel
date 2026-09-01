@@ -478,4 +478,35 @@ test.describe('WAN tab', () => {
     await dialog.getByRole('radio', { name: 'WireGuard' }).click();
     await expect(dialog.getByRole('button', { name: 'Claim free VPN' })).toBeHidden();
   });
+
+  test('the claim button shares a full-width row with the connect-to field', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router', host: '10.0.0.10' });
+    await setSessionCreds(context, ROUTER_ID);
+    await setupWanRoutes(context, blankState());
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await newClientButton(page).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const connectTo = dialog.getByLabel('Connect to');
+    const claim = dialog.getByRole('button', { name: 'Claim free VPN' });
+    const user = dialog.getByLabel('User');
+
+    const connectToBox = await connectTo.boundingBox();
+    const claimBox = await claim.boundingBox();
+    const userBox = await user.boundingBox();
+    if (!connectToBox || !claimBox || !userBox) throw new Error('missing layout boxes');
+
+    expect(Math.abs(connectToBox.y - claimBox.y)).toBeLessThan(connectToBox.height / 2);
+    expect(claimBox.x).toBeGreaterThan(connectToBox.x + connectToBox.width - 1);
+    expect(connectToBox.width).toBeGreaterThan(claimBox.width);
+    expect(userBox.y).toBeGreaterThan(connectToBox.y + connectToBox.height);
+  });
 });

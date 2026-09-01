@@ -364,6 +364,8 @@ function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2t
           </div>
           {touched.connectTo && errors.connectTo ? <FormError>{errors.connectTo}</FormError> : null}
         </Label>
+      </FieldRow>
+      <FieldRow>
         <Label>
           <span>User</span>
           <Input
@@ -377,8 +379,6 @@ function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2t
           />
           {touched.user && errors.user ? <FormError>{errors.user}</FormError> : null}
         </Label>
-      </FieldRow>
-      <FieldRow>
         <Label>
           <span>Password</span>
           <PasswordInput
@@ -391,6 +391,8 @@ function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2t
           />
           {touched.password && errors.password ? <FormError>{errors.password}</FormError> : null}
         </Label>
+      </FieldRow>
+      <FieldRow>
         <Label>
           <span>IPsec secret</span>
           <PasswordInput
