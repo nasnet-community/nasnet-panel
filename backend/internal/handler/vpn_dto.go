@@ -93,10 +93,11 @@ type L2TPClientResponse struct {
 
 // ServerStatusItem represents a server with name and enabled status.
 type ServerStatusItem struct {
-	Name     string `json:"name"`
-	Enabled  bool   `json:"enabled"`
-	Port     int    `json:"port,omitempty"`
-	Protocol string `json:"protocol,omitempty"`
+	Name      string `json:"name"`
+	Enabled   bool   `json:"enabled"`
+	Port      int    `json:"port,omitempty"`
+	Protocol  string `json:"protocol,omitempty"`
+	PeerCount int    `json:"peerCount,omitempty"`
 }
 
 // SingleServerStatus represents a single server with enabled status.

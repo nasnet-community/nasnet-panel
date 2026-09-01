@@ -595,11 +595,13 @@ func HandleListVPNServers(c echo.Context) error {
 			if !strings.HasSuffix(wg.Name, "-server") {
 				continue
 			}
+			peerCount, _ := client.CountWireGuardPeers(wg.Name)
 			response.WireGuards = append(response.WireGuards, ServerStatusItem{
-				Name:     wg.Name,
-				Enabled:  !wg.Disabled,
-				Port:     wg.ListenPort,
-				Protocol: "udp",
+				Name:      wg.Name,
+				Enabled:   !wg.Disabled,
+				Port:      wg.ListenPort,
+				Protocol:  "udp",
+				PeerCount: peerCount,
 			})
 		}
 	}
