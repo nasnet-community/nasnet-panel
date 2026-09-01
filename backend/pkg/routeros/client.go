@@ -389,7 +389,7 @@ func startClientCacheCleanup() {
 // GetOrCreateClient gets an existing cached connection or creates a new one.
 func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 	startClientCacheCleanup()
-	key := fmt.Sprintf("%s@%s:%d", config.Username, config.Address, config.Port)
+	key := fmt.Sprintf("%s:%s@%s:%d", config.Username, config.Password, config.Address, config.Port)
 
 	clientCache.mu.Lock()
 	cachedConn, exists := clientCache.clients[key]
@@ -447,6 +447,24 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 		}
 
 		c.mu.Unlock()
+	}
+}
+
+// ClearConnectionCache closes every cached RouterOS connection and empties
+// both the client cache and the credential cache entirely, regardless of
+// idle timeout. Useful when credentials rotate or every open connection
+// needs to be forced closed (e.g. on logout).
+func ClearConnectionCache() {
+	clientCache.mu.Lock()
+	defer clientCache.mu.Unlock()
+
+	for key, cachedConn := range clientCache.clients {
+		_ = cachedConn.Client.Close()
+		cachedConn.Client.conn = nil
+		delete(clientCache.clients, key)
+	}
+	for key := range clientCache.config {
+		delete(clientCache.config, key)
 	}
 }
 
