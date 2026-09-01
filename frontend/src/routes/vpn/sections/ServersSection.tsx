@@ -29,10 +29,11 @@ const matches = (s: VPNServer, q: string) =>
 interface Props {
   creds: VPNCredentials | null;
   servers: VPNServer[];
+  peerCounts?: Record<string, number>;
   onChanged: () => void;
 }
 
-export function ServersSection({ creds, servers, onChanged }: Props) {
+export function ServersSection({ creds, servers, peerCounts, onChanged }: Props) {
   const paged = usePagedFilter(servers, matches);
   const toast = useToast();
   const [selected, setSelected] = useState<VPNServer | null>(null);
@@ -176,6 +177,7 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
             onDisable={(s) => setPendingDisable(s)}
             onToggleEnabled={(s) => setPendingToggle(s)}
             canMutate={!!creds}
+            peerCounts={peerCounts}
           />
           <PaginationControls
             page={paged.page}
