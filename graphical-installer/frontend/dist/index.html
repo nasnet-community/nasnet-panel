@@ -213,28 +213,22 @@
       <div id="modal-device" class="modal hidden">
         <div class="modal-box">
           <h3>Physical confirmation required</h3>
-          <div id="device-ask">
-            <p>RouterOS requires physical confirmation to enable container mode.</p>
-            <p>After you press Proceed, within 120 seconds do one of the following:</p>
-            <ol>
-              <li>
-                If your router has a reset/mode button: press it briefly while the router is powered
-                on.
-              </li>
-              <li>
-                If your router has no button (x86 / CHR): perform a cold power-cycle (unplug power,
-                plug back in).
-              </li>
-            </ol>
-            <figure class="figure">
-              <img id="device-button-img" src="hap_ax3_button.jpg" alt="" />
-              <figcaption id="device-button-caption"></figcaption>
-            </figure>
-            <div class="actions">
-              <button id="btn-device-ok" class="primary">Proceed</button>
-              <button id="btn-device-no">Abort</button>
-            </div>
-          </div>
+          <p>RouterOS requires physical confirmation to enable container mode.</p>
+          <p id="device-lead">After you press Proceed, within 120 seconds do one of the following:</p>
+          <ol>
+            <li>
+              If your router has a reset/mode button: press it briefly while the router is powered
+              on.
+            </li>
+            <li>
+              If your router has no button (x86 / CHR): perform a cold power-cycle (unplug power,
+              plug back in).
+            </li>
+          </ol>
+          <figure class="figure">
+            <img id="device-button-img" src="hap_ax3_button.jpg" alt="" />
+            <figcaption id="device-button-caption"></figcaption>
+          </figure>
           <div id="device-wait" class="hidden">
             <p><span class="spinner"></span> Waiting for physical confirmation...</p>
             <p class="mono">
@@ -242,32 +236,22 @@
               <span id="device-state">online</span>
             </p>
           </div>
+          <div id="device-actions" class="actions">
+            <button id="btn-device-ok" class="primary">Proceed</button>
+            <button id="btn-device-no">Abort</button>
+          </div>
         </div>
       </div>
 
       <div id="modal-reboot" class="modal hidden">
         <div class="modal-box">
           <h3>Router restart required</h3>
+          <p id="reboot-reason">
+            The container package is now enabled, and the router has to restart before it can run
+            containers.
+          </p>
           <div id="reboot-ask">
-            <p id="reboot-reason">
-              The container package is now enabled, and the router has to restart before it can run
-              containers.
-            </p>
             <p>Restart the router yourself, then confirm below.</p>
-            <p>Use the MODE button while the router is powered on:</p>
-            <figure class="figure">
-              <img id="reboot-button-img" src="hap_ax3_button.jpg" alt="" />
-              <figcaption id="reboot-button-caption"></figcaption>
-            </figure>
-            <p>
-              On other models, use System &gt; Reboot in Winbox or WebFig, or unplug the power and
-              plug it back in.
-            </p>
-            <p>The installer waits for the router to come back and carries on by itself.</p>
-            <div class="actions">
-              <button id="btn-reboot-ok" class="primary">I restarted the router</button>
-              <button id="btn-reboot-no">Abort</button>
-            </div>
           </div>
           <div id="reboot-wait" class="hidden">
             <p><span class="spinner"></span> Waiting for the router to come back...</p>
@@ -275,6 +259,20 @@
               <span id="reboot-elapsed">0</span>s elapsed, router is
               <span id="reboot-state">restarting</span>
             </p>
+          </div>
+          <p id="reboot-lead">Use the MODE button while the router is powered on:</p>
+          <figure class="figure">
+            <img id="reboot-button-img" src="hap_ax3_button.jpg" alt="" />
+            <figcaption id="reboot-button-caption"></figcaption>
+          </figure>
+          <p>
+            On other models, use System &gt; Reboot in Winbox or WebFig, or unplug the power and
+            plug it back in.
+          </p>
+          <p>The installer waits for the router to come back and carries on by itself.</p>
+          <div id="reboot-actions" class="actions">
+            <button id="btn-reboot-ok" class="primary">I restarted the router</button>
+            <button id="btn-reboot-no">Abort</button>
           </div>
         </div>
       </div>
