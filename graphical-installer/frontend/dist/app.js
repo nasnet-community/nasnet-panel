@@ -2,6 +2,11 @@
   'use strict';
 
   var PANEL_READY_DELAY_MS = 3000;
+  var DEVICE_LEAD_ASK = 'After you press Proceed, within 120 seconds do one of the following:';
+  var DEVICE_LEAD_WAIT = 'Within 120 seconds do one of the following:';
+  var REBOOT_LEAD_ASK = 'Use the MODE button while the router is powered on:';
+  var REBOOT_LEAD_WAIT =
+    'If the router does not come back on its own, restart it with the MODE button while it is powered on:';
 
   var App = null;
   var tarPath = '';
@@ -42,6 +47,26 @@
     $(prefix + '-button-caption').textContent = ax2
       ? 'hAP ax2, MODE button on top of the case'
       : 'hAP ax3, MODE button on the front panel next to the USB port';
+  }
+
+  function setDeviceWaiting(waiting) {
+    $('device-lead').textContent = waiting ? DEVICE_LEAD_WAIT : DEVICE_LEAD_ASK;
+    $('device-wait').classList.toggle('hidden', !waiting);
+    $('device-actions').classList.toggle('hidden', waiting);
+  }
+
+  function setRebootWaiting(waiting) {
+    $('reboot-lead').textContent = waiting ? REBOOT_LEAD_WAIT : REBOOT_LEAD_ASK;
+    $('reboot-ask').classList.toggle('hidden', waiting);
+    $('reboot-wait').classList.toggle('hidden', !waiting);
+    $('reboot-actions').classList.toggle('hidden', waiting);
+  }
+
+  function hideModals() {
+    hide('modal-device');
+    hide('modal-reboot');
+    hide('modal-storage');
+    stopRebootTimer();
   }
 
   function startRebootTimer() {
@@ -109,8 +134,7 @@
     $('btn-back').addEventListener('click', backToForm);
     $('btn-again').addEventListener('click', backToForm);
     $('btn-device-ok').addEventListener('click', function () {
-      hide('device-ask');
-      show('device-wait');
+      setDeviceWaiting(true);
       App.ConfirmDeviceMode(true);
     });
     $('btn-device-no').addEventListener('click', function () {
@@ -127,8 +151,7 @@
       App.ConfirmStorage('');
     });
     $('btn-reboot-ok').addEventListener('click', function () {
-      hide('reboot-ask');
-      show('reboot-wait');
+      setRebootWaiting(true);
       startRebootTimer();
       App.ConfirmReboot(true);
     });
@@ -189,14 +212,9 @@
 
   function startFlow(uninstall) {
     var host = val('host');
-    var password = $('password').value;
     showFormError('');
     if (!host) {
       showFormError('Router IP is required.');
-      return;
-    }
-    if (!password) {
-      showFormError('Router password is required.');
       return;
     }
     var source = document.querySelector('input[name="source"]:checked').value;
@@ -281,10 +299,7 @@
     clearTimeout(panelReadyTimer);
     setFormBusy(false);
     hide('view-run');
-    hide('modal-device');
-    hide('modal-reboot');
-    hide('modal-storage');
-    stopRebootTimer();
+    hideModals();
     show('view-form');
   }
 
@@ -305,13 +320,8 @@
     if (status === 'success' || status === 'failed' || status === 'skipped') {
       li.querySelector('.step-bar').classList.add('hidden');
     }
-    if (id === 'device-mode' && status !== 'running') {
-      hide('modal-device');
-    }
-    if (id === 'check' && status !== 'running') {
-      hide('modal-reboot');
-      hide('modal-storage');
-      stopRebootTimer();
+    if (status !== 'running') {
+      hideModals();
     }
   }
 
@@ -320,10 +330,7 @@
     show('run-error');
     hide('btn-cancel');
     show('btn-back');
-    hide('modal-device');
-    hide('modal-reboot');
-    hide('modal-storage');
-    stopRebootTimer();
+    hideModals();
   }
 
   function appendLog(line) {
@@ -381,9 +388,12 @@
 
     window.runtime.EventsOn('install:device-mode', function () {
       applyButtonImage('device');
-      show('device-ask');
-      hide('device-wait');
+      setDeviceWaiting(false);
       show('modal-device');
+    });
+
+    window.runtime.EventsOn('install:device-mode-done', function () {
+      hide('modal-device');
     });
 
     window.runtime.EventsOn('install:device-mode-tick', function (data) {
@@ -396,8 +406,7 @@
         $('reboot-reason').textContent = data.reason;
       }
       applyButtonImage('reboot');
-      show('reboot-ask');
-      hide('reboot-wait');
+      setRebootWaiting(false);
       show('modal-reboot');
     });
 
@@ -427,10 +436,15 @@
       if (data && data.reason) {
         $('reboot-reason').textContent = data.reason;
       }
-      hide('reboot-ask');
-      show('reboot-wait');
+      applyButtonImage('reboot');
+      setRebootWaiting(true);
       show('modal-reboot');
       startRebootTimer();
+    });
+
+    window.runtime.EventsOn('install:reboot-done', function () {
+      hide('modal-reboot');
+      stopRebootTimer();
     });
 
     window.runtime.EventsOn('install:reboot-tick', function (data) {
@@ -442,9 +456,7 @@
     window.runtime.EventsOn('install:done', function (data) {
       running = false;
       hide('btn-cancel');
-      hide('modal-device');
-      hide('modal-reboot');
-      stopRebootTimer();
+      hideModals();
       $('done-note').textContent = data.note || '';
       var urlsEl = $('done-urls');
       urlsEl.innerHTML = '';
