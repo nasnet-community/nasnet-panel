@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"nasnet-panel/pkg/routeros"
 	"net/http"
+
+	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
 )
