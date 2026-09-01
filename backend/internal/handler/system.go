@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"nasnet-panel/pkg/routeros"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -266,6 +268,7 @@ func HandleChangeUserPassword(c echo.Context) error {
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to change user password", err)
 	}
+	routeros.ClearConnectionCache()
 
 	return SimpleSuccessResponse(c, http.StatusOK, "User password changed")
 }
