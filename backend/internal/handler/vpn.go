@@ -2586,6 +2586,52 @@ func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
 	return removed, nil
 }
 
+// HandleUpdateOvpnServerEnabled enables or disables an OpenVPN server.
+// @Summary Enable/Disable OpenVPN Server
+// @Description Enable or disable an existing OpenVPN server by name
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "OpenVPN server name"
+// @Param request body UpdateOvpnServerEnabledRequest true "Enabled state to apply"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/ovpn/server/{name} [put].
+func HandleUpdateOvpnServerEnabled(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	serverName := c.Param("name")
+	if serverName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "serverName parameter is required", nil)
+	}
+
+	var req UpdateOvpnServerEnabledRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if _, err := client.GetOvpnServer(serverName); err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
+	}
+
+	disabled := !req.Enabled
+	if err := client.UpdateOvpnServer(serverName, routeros.OvpnServerUpdateConfig{Disabled: &disabled}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update OpenVPN server", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "OpenVPN server updated successfully", map[string]interface{}{
+		"name":    serverName,
+		"enabled": req.Enabled,
+	})
+}
+
 // HandleDeleteOvpnServer deletes an OpenVPN server and all related items.
 // @Summary Delete OpenVPN Server
 // @Description Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)

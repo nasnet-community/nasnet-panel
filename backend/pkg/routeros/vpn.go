@@ -88,6 +88,29 @@ type OvpnServerInfo struct {
 	Comment           string
 }
 
+// OvpnServerUpdateConfig represents every field that can be changed on an
+// existing OpenVPN server via UpdateOvpnServer. Only non-nil fields are
+// applied; everything else on the server is left as it was.
+type OvpnServerUpdateConfig struct {
+	Name              *string
+	Disabled          *bool
+	Mode              *string
+	UserAuthMethod    *string
+	Certificate       *string
+	Key               *string
+	Protocol          *string
+	Port              *int
+	Cipher            *string
+	Auth              *string
+	RequireClientCert *bool
+	RequireEncryption *bool
+	KeepAliveTimeout  *int
+	DefaultGateway    *bool
+	MacAddress        *string
+	DefaultProfile    *string
+	Comment           *string
+}
+
 // CreatePppSecretParams represents parameters for creating a PPP secret.
 type CreatePppSecretParams struct {
 	Name          string
@@ -153,6 +176,18 @@ type SstpServerInfo struct {
 	PFS                     string
 	TLSVersion              string
 	Ciphers                 string
+}
+
+// SstpServerConfig represents configuration to apply to RouterOS's single SSTP
+// server instance.
+type SstpServerConfig struct {
+	Enabled                 bool
+	Port                    int
+	DefaultProfile          string
+	Authentication          string // comma-separated, e.g. "pap,chap,mschap1,mschap2"
+	Certificate             string
+	VerifyClientCertificate bool
+	Ciphers                 string // comma-separated, e.g. "aes256-sha,aes256-gcm-sha384"
 }
 
 // WireGuardInfo represents a WireGuard interface configuration.
@@ -741,18 +776,6 @@ func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 	}, nil
 }
 
-// SstpServerConfig represents configuration to apply to RouterOS's single SSTP
-// server instance.
-type SstpServerConfig struct {
-	Enabled                 bool
-	Port                    int
-	DefaultProfile          string
-	Authentication          string // comma-separated, e.g. "pap,chap,mschap1,mschap2"
-	Certificate             string
-	VerifyClientCertificate bool
-	Ciphers                 string // comma-separated, e.g. "aes256-sha,aes256-gcm-sha384"
-}
-
 // SetSstpServer configures RouterOS's SSTP server. Unlike OVPN, RouterOS
 // exposes a single /interface/sstp-server/server config item rather than a
 // list of named servers, so this always updates that one instance in place
@@ -1098,6 +1121,90 @@ func (c *Client) RemoveOvpnServer(nameOrID string) error {
 	_, err = c.Remove("/interface/ovpn-server/server", "=.id="+id)
 	if err != nil {
 		return fmt.Errorf("failed to remove OpenVPN server %s: %w", nameOrID, err)
+	}
+	return nil
+}
+
+// UpdateOvpnServer applies config's non-nil fields to the OpenVPN server
+// identified by name or .id.
+func (c *Client) UpdateOvpnServer(nameOrID string, config OvpnServerUpdateConfig) error {
+	var id string
+	result, err := c.GetFirst("/interface/ovpn-server/server", "?=name="+nameOrID)
+	if err == nil {
+		id = result[".id"]
+	} else {
+		result, err = c.GetFirst("/interface/ovpn-server/server", "?=.id="+nameOrID)
+		if err != nil {
+			return fmt.Errorf("failed to find OpenVPN server %s: %w", nameOrID, err)
+		}
+		id = result[".id"]
+	}
+
+	args := []string{"=.id=" + id}
+
+	if config.Name != nil {
+		args = append(args, "=name="+*config.Name)
+	}
+	if config.Disabled != nil {
+		disabled := "no"
+		if *config.Disabled {
+			disabled = "yes"
+		}
+		args = append(args, "=disabled="+disabled)
+	}
+	if config.Mode != nil {
+		args = append(args, "=mode="+*config.Mode)
+	}
+	if config.UserAuthMethod != nil {
+		args = append(args, "=user-auth-method="+*config.UserAuthMethod)
+	}
+	if config.Certificate != nil {
+		args = append(args, "=certificate="+*config.Certificate)
+	}
+	if config.Key != nil {
+		args = append(args, "=key="+*config.Key)
+	}
+	if config.Protocol != nil {
+		args = append(args, "=protocol="+*config.Protocol)
+	}
+	if config.Port != nil {
+		args = append(args, "=port="+strconv.Itoa(*config.Port))
+	}
+	if config.Cipher != nil {
+		args = append(args, "=cipher="+*config.Cipher)
+	}
+	if config.Auth != nil {
+		args = append(args, "=auth="+*config.Auth)
+	}
+	if config.RequireClientCert != nil {
+		args = append(args, fmt.Sprintf("=require-client-certificate=%t", *config.RequireClientCert))
+	}
+	if config.RequireEncryption != nil {
+		args = append(args, fmt.Sprintf("=require-encryption=%t", *config.RequireEncryption))
+	}
+	if config.KeepAliveTimeout != nil {
+		args = append(args, "=keepalive-timeout="+strconv.Itoa(*config.KeepAliveTimeout))
+	}
+	if config.DefaultGateway != nil {
+		args = append(args, fmt.Sprintf("=default-gateway=%t", *config.DefaultGateway))
+	}
+	if config.MacAddress != nil {
+		args = append(args, "=mac-address="+*config.MacAddress)
+	}
+	if config.DefaultProfile != nil {
+		args = append(args, "=default-profile="+*config.DefaultProfile)
+	}
+	if config.Comment != nil {
+		args = append(args, "=comment="+*config.Comment)
+	}
+
+	if len(args) == 1 {
+		return nil
+	}
+
+	_, err = c.Set("/interface/ovpn-server/server", args...)
+	if err != nil {
+		return fmt.Errorf("failed to update OpenVPN server %s: %w", nameOrID, err)
 	}
 	return nil
 }

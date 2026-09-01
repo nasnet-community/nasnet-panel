@@ -193,6 +193,23 @@ type PluginInstallStatusResponse struct {
 	Interface   string `json:"interface,omitempty"`
 }
 
+// EnvVar is one entry in the GET /api/plugin/envs/{pluginId} response.
+// Changeable reports whether Key can be edited: env-current reports every
+// variable actually in effect, including ones pulled in from resolved
+// /container/envs lists, but only a variable set directly on the container's
+// own env property can be changed (e.g. via EditContainer).
+type EnvVar struct {
+	Key        string `json:"key"`
+	Value      string `json:"value"`
+	Changeable bool   `json:"changeable"`
+}
+
+// SetPluginEnvVarRequest is the request body for PUT /api/plugin/env/{pluginId}.
+type SetPluginEnvVarRequest struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 // finalizePlugins fills in fields plugins.json itself doesn't carry before a
 // plugin list is returned to the client: Icon (derived from each entry's id),
 // and Installed/Running/Installing/Failed/Note by matching each plugin's id
@@ -265,17 +282,6 @@ func joinEnvPairs(env map[string]string) string {
 	return strings.Join(pairs, ",")
 }
 
-// EnvVar is one entry in the GET /api/plugin/envs/{pluginId} response.
-// Changeable reports whether Key can be edited: env-current reports every
-// variable actually in effect, including ones pulled in from resolved
-// /container/envs lists, but only a variable set directly on the container's
-// own env property can be changed (e.g. via EditContainer).
-type EnvVar struct {
-	Key        string `json:"key"`
-	Value      string `json:"value"`
-	Changeable bool   `json:"changeable"`
-}
-
 // parseEnvPairs parses envCurrent, a RouterOS container's `KEY=VALUE,KEY2=VALUE2`
 // env-current string (falling back to env if envCurrent is empty), into an
 // ordered list of EnvVar, one per comma-separated entry, with Changeable set
@@ -330,12 +336,6 @@ func envToMap(env string) map[string]string {
 		values[key] = value
 	}
 	return values
-}
-
-// SetPluginEnvVarRequest is the request body for PUT /api/plugin/env/{pluginId}.
-type SetPluginEnvVarRequest struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
 }
 
 // settingsDefaults renders each setting's default value as a string, keyed by
