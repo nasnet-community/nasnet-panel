@@ -2588,7 +2588,8 @@ func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
 
 // HandleUpdateOvpnServerEnabled enables or disables an OpenVPN server.
 // @Summary Enable/Disable OpenVPN Server
-// @Description Enable or disable an existing OpenVPN server by name
+// @Description Enable or disable an existing OpenVPN server by name. Rejects the request if the
+// @Description server is already in the requested state.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -2599,6 +2600,7 @@ func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/ovpn/server/{name} [put].
 func HandleUpdateOvpnServerEnabled(c echo.Context) error {
@@ -2617,8 +2619,18 @@ func HandleUpdateOvpnServerEnabled(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
-	if _, err := client.GetOvpnServer(serverName); err != nil {
+	server, err := client.GetOvpnServer(serverName)
+	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
+	}
+
+	currentlyEnabled := !server.Disabled
+	if currentlyEnabled == req.Enabled {
+		state := "disabled"
+		if req.Enabled {
+			state = "enabled"
+		}
+		return ErrorResponse(c, http.StatusConflict, "OpenVPN server is already "+state, nil)
 	}
 
 	disabled := !req.Enabled
