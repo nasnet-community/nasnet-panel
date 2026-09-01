@@ -89,8 +89,8 @@ func (a *App) start(opts install.Options, uninstall bool) error {
 	if a.running {
 		return errors.New("an operation is already running")
 	}
-	if opts.Host == "" || opts.Password == "" {
-		return errors.New("router IP and password are required")
+	if opts.Host == "" {
+		return errors.New("router IP is required")
 	}
 	ctx, cancel := context.WithCancel(a.ctx)
 	a.running = true
@@ -145,6 +145,9 @@ func (a *App) events(ctx context.Context) install.Events {
 		DeviceModeTick: func(remaining int, routerState string) {
 			runtime.EventsEmit(a.ctx, "install:device-mode-tick", map[string]any{"remaining": remaining, "state": routerState})
 		},
+		DeviceModeDone: func() {
+			runtime.EventsEmit(a.ctx, "install:device-mode-done", nil)
+		},
 		StoragePrompt: func(choices []install.StorageChoice) string {
 			runtime.EventsEmit(a.ctx, "install:storage", map[string]any{"choices": choices})
 			select {
@@ -168,6 +171,9 @@ func (a *App) events(ctx context.Context) install.Events {
 		},
 		RebootTick: func(elapsed int, routerState string) {
 			runtime.EventsEmit(a.ctx, "install:reboot-tick", map[string]any{"elapsed": elapsed, "state": routerState})
+		},
+		RebootDone: func() {
+			runtime.EventsEmit(a.ctx, "install:reboot-done", nil)
 		},
 		Done: func(urls []string, note string) {
 			runtime.EventsEmit(a.ctx, "install:done", map[string]any{"urls": urls, "note": note})

@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	ros "github.com/go-routeros/routeros/v3"
@@ -54,6 +55,19 @@ var clientCache = ClientConnectionCache{
 }
 var cleanupOnce sync.Once
 
+// cacheGeneration is bumped every time ClearConnectionCache runs. A client
+// creation in flight in GetOrCreateClient captures the generation before
+// dialing and re-checks it right before inserting into the cache; a mismatch
+// means a clear happened while the (possibly now-stale-credentialed)
+// connection was being established, so it's closed instead of cached.
+var cacheGeneration atomic.Uint64
+
+// dialRouterOS establishes the underlying RouterOS API connection. It's a
+// var, not a direct call to ros.DialTimeout, so tests can substitute a fake
+// dialer to control connection-establishment timing without a real network
+// round trip.
+var dialRouterOS = ros.DialTimeout
+
 func NewClient(config ConnectionConfig) (*Client, error) {
 	if config.Port == 0 {
 		config.Port = 8728
@@ -62,7 +76,7 @@ func NewClient(config ConnectionConfig) (*Client, error) {
 
 	address := fmt.Sprintf("%s:%d", config.Address, config.Port)
 
-	conn, err := ros.DialTimeout(address, config.Username, config.Password, time.Second*time.Duration(config.Timeout))
+	conn, err := dialRouterOS(address, config.Username, config.Password, time.Second*time.Duration(config.Timeout))
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to RouterOS: %w", err)
 	}
@@ -387,49 +401,63 @@ func startClientCacheCleanup() {
 }
 
 // GetOrCreateClient gets an existing cached connection or creates a new one.
+// If ClearConnectionCache runs while a new connection is being dialed here,
+// the freshly dialed connection is discarded (closed, never inserted) and
+// creation is retried, rather than risk caching a connection established
+// around an intentional invalidation (see cacheGeneration).
 func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 	startClientCacheCleanup()
-	key := fmt.Sprintf("%s@%s:%d", config.Username, config.Address, config.Port)
+	key := fmt.Sprintf("%s:%s@%s:%d", config.Username, config.Password, config.Address, config.Port)
 
-	clientCache.mu.Lock()
-	cachedConn, exists := clientCache.clients[key]
-	clientCache.mu.Unlock()
+	for {
+		clientCache.mu.Lock()
+		cachedConn, exists := clientCache.clients[key]
+		generation := cacheGeneration.Load()
+		clientCache.mu.Unlock()
 
-	if exists && cachedConn.Client.IsConnected() {
-		cachedConn.mu.Lock()
-		cachedConn.LastUsed = time.Now()
-		cachedConn.mu.Unlock()
-		return cachedConn.Client, nil
+		if exists && cachedConn.Client.IsConnected() {
+			cachedConn.mu.Lock()
+			cachedConn.LastUsed = time.Now()
+			cachedConn.mu.Unlock()
+			return cachedConn.Client, nil
+		}
+
+		// Connection doesn't exist or is dead, create new one
+		client, err := NewClient(config)
+		if err != nil {
+			return nil, err
+		}
+
+		client.cacheKey = key
+
+		clientCache.mu.Lock()
+		if cacheGeneration.Load() != generation {
+			// A clear ran while this connection was being established;
+			// discard it and retry against the now-current cache state.
+			clientCache.mu.Unlock()
+			_ = client.Close()
+			continue
+		}
+		clientCache.clients[key] = &CachedConnection{Client: client, LastUsed: time.Now()}
+		clientCache.config[key] = config
+		clientCache.mu.Unlock()
+
+		return client, nil
 	}
-
-	// Connection doesn't exist or is dead, create new one
-	client, err := NewClient(config)
-	if err != nil {
-		return nil, err
-	}
-
-	client.cacheKey = key
-
-	newCachedConn := &CachedConnection{
-		Client:   client,
-		LastUsed: time.Now(),
-	}
-
-	clientCache.mu.Lock()
-	clientCache.clients[key] = newCachedConn
-	clientCache.config[key] = config
-	clientCache.mu.Unlock()
-
-	return client, nil
 }
 
-// cleanupIdleConnections closes connections that haven't been used in 20 minutes.
+// cleanupIdleConnections closes connections that haven't been used in 20
+// minutes. Clients are removed from the cache first, while holding c.mu;
+// each removed client's own connection is then closed and cleared after
+// releasing c.mu, while holding that client's own mu, so the transition is
+// serialized against any request concurrently using that same client (which
+// always holds its mu while touching its conn).
 func (c *ClientConnectionCache) cleanupIdleConnections() {
 	for range c.cleanupTk.C {
 		c.mu.Lock()
 
 		now := time.Now()
-		var keysToDelete []string
+		var toClose []*Client
 
 		for key, cachedConn := range c.clients {
 			cachedConn.mu.Lock()
@@ -437,16 +465,52 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 			cachedConn.mu.Unlock()
 
 			if now.Sub(lastUsed) > clientCacheIdleTimeout {
-				_ = cachedConn.Client.Close()
-				keysToDelete = append(keysToDelete, key)
+				toClose = append(toClose, cachedConn.Client)
+				delete(c.clients, key)
 			}
 		}
 
-		for _, key := range keysToDelete {
-			delete(c.clients, key)
-		}
-
 		c.mu.Unlock()
+
+		for _, client := range toClose {
+			client.mu.Lock()
+			_ = client.Close()
+			client.conn = nil
+			client.mu.Unlock()
+		}
+	}
+}
+
+// ClearConnectionCache closes every cached RouterOS connection and empties
+// both the client cache and the credential cache entirely, regardless of
+// idle timeout. Useful when credentials rotate or every open connection
+// needs to be forced closed (e.g. on logout). Clients are removed from the
+// cache first, while holding clientCache.mu; each one's connection is then
+// closed and cleared after releasing clientCache.mu, while holding that
+// client's own mu, so the transition is serialized against any request
+// concurrently using that same client (which always holds its mu while
+// touching its conn). Also bumps cacheGeneration, while still holding
+// clientCache.mu, so a GetOrCreateClient call whose dial is in flight right
+// now discards its result instead of re-populating the cache behind this
+// clear; see GetOrCreateClient.
+func ClearConnectionCache() {
+	clientCache.mu.Lock()
+	cacheGeneration.Add(1)
+	clients := make([]*Client, 0, len(clientCache.clients))
+	for key, cachedConn := range clientCache.clients {
+		clients = append(clients, cachedConn.Client)
+		delete(clientCache.clients, key)
+	}
+	for key := range clientCache.config {
+		delete(clientCache.config, key)
+	}
+	clientCache.mu.Unlock()
+
+	for _, client := range clients {
+		client.mu.Lock()
+		_ = client.Close()
+		client.conn = nil
+		client.mu.Unlock()
 	}
 }
 
