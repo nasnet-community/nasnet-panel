@@ -42,6 +42,8 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
   const [pendingDisable, setPendingDisable] = useState<VPNServer | null>(null);
   const [disableSubmitting, setDisableSubmitting] = useState(false);
 
+  const sstpEnabled = servers.some((s) => s.protocol === 'sstp' && s.running);
+
   const onCreated = () => {
     toast.notify({ title: 'VPN server created', tone: 'success' });
     setAdding(false);
@@ -150,7 +152,12 @@ export function ServersSection({ creds, servers, onChanged }: Props) {
         </div>
       </Card>
       {adding ? (
-        <AddVpnServerDialog creds={creds} onCancel={() => setAdding(false)} onCreated={onCreated} />
+        <AddVpnServerDialog
+          creds={creds}
+          sstpEnabled={sstpEnabled}
+          onCancel={() => setAdding(false)}
+          onCreated={onCreated}
+        />
       ) : null}
       {editingWg && editingWg.protocol === 'wireguard' ? (
         <EditWgInterfaceDialog
