@@ -381,13 +381,13 @@ test.describe('SSTP server', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    await expect(dialog.getByText('Enabled', { exact: true })).toBeVisible();
-    await expect(dialog.getByText('Port', { exact: true })).toBeVisible();
-    await expect(dialog.getByText('Certificate', { exact: true })).toBeVisible();
-    await expect(dialog.getByText('sstp-server-cert')).toBeVisible();
-    await expect(dialog.getByText('Verify client cert', { exact: true })).toBeVisible();
-    await expect(dialog.getByText('TLS version', { exact: true })).toBeVisible();
-    await expect(dialog.getByText('only-1.2')).toBeVisible();
+    const valueOf = (label: string) => dialog.locator(`dt:text-is("${label}") + dd`);
+
+    await expect(valueOf('Enabled')).toHaveText('Yes');
+    await expect(valueOf('Port')).toHaveText('4433');
+    await expect(valueOf('Certificate')).toHaveText('sstp-server-cert');
+    await expect(valueOf('Verify client cert')).toHaveText('No');
+    await expect(valueOf('TLS version')).toHaveText('only-1.2');
 
     for (const label of [
       'Auth',
@@ -408,5 +408,6 @@ test.describe('SSTP server', () => {
 
     await expect(dialog.getByText('9.9.9.9')).toHaveCount(0);
     await expect(dialog.getByText('carol', { exact: true })).toHaveCount(0);
+    await expect(dialog.getByText('carol123', { exact: true })).toHaveCount(0);
   });
 });
