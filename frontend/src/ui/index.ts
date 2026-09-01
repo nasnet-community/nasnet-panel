@@ -34,7 +34,7 @@ export type { FileDropProps } from './patterns/FileDrop';
 export { Progress } from './patterns/Progress';
 export type { ProgressProps } from './patterns/Progress';
 export { Tabs } from './patterns/Tabs';
-export type { TabItem, TabsProps } from './patterns/Tabs';
+export type { TabItem, TabMenuItem, TabsProps } from './patterns/Tabs';
 export { EmptyState } from './patterns/EmptyState';
 export type { EmptyStateProps } from './patterns/EmptyState';
 export { ThemeToggle } from './patterns/ThemeToggle';
