@@ -287,7 +287,7 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
     return () => poll.cancel();
   }, [taskId]);
 
-  const canSubmit = !!creds && !submitting;
+  const canSubmit = !!creds && !submitting && !sstpEnabled;
 
   const submit = async () => {
     if (!canSubmit || !creds) return;
@@ -341,8 +341,17 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
           Cancel
         </Button>
-        <Button variant="success" onClick={submit} disabled={!canSubmit}>
-          {submitting ? 'Enabling…' : 'Enable SSTP server'}
+        <Button
+          variant="success"
+          onClick={submit}
+          disabled={!canSubmit}
+          aria-describedby={sstpEnabled ? alertId : undefined}
+        >
+          {sstpEnabled
+            ? 'SSTP server already enabled'
+            : submitting
+              ? 'Enabling…'
+              : 'Enable SSTP server'}
         </Button>
       </FieldRow>
     </FieldStack>
