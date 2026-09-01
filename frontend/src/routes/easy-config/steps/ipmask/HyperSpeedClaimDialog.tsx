@@ -5,16 +5,21 @@ import { Button, Dialog, useToast } from '@nasnet/ui';
 import { fetchNasnetVpnCredentials } from '../../../../api';
 import { useSession } from '../../../../state/SessionContext';
 import { useRouter } from '../../../../state/RouterStoreContext';
-import type { Action } from '../../state';
 import styles from './HyperSpeedClaimDialog.module.scss';
+
+export interface ClaimedVpnCredentials {
+  server: string;
+  username: string;
+  password: string;
+}
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  dispatch: React.Dispatch<Action>;
+  onClaimed: (creds: ClaimedVpnCredentials) => void;
 }
 
-export function HyperSpeedClaimDialog({ open, onClose, dispatch }: Props) {
+export function HyperSpeedClaimDialog({ open, onClose, onClaimed }: Props) {
   const { id: routerId } = useParams<{ id: string }>();
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
@@ -36,9 +41,7 @@ export function HyperSpeedClaimDialog({ open, onClose, dispatch }: Props) {
     setLoading(true);
     try {
       const data = await fetchNasnetVpnCredentials({ host, ...creds });
-      dispatch({ type: 'setField', field: 'l2tpServer', value: data.server });
-      dispatch({ type: 'setField', field: 'l2tpUsername', value: data.username });
-      dispatch({ type: 'setField', field: 'l2tpPassword', value: data.password });
+      onClaimed({ server: data.server, username: data.username, password: data.password });
       toast.notify({
         title: 'Free VPN credentials applied',
         description: data.expiryDate ? `Valid until ${data.expiryDate}.` : undefined,
