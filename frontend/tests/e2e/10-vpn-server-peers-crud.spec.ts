@@ -111,6 +111,78 @@ test.describe('VPN servers tab', () => {
     await expect(dialog.getByText('alice123')).toBeVisible();
   });
 
+  test('shows the peer count of a WireGuard server in the servers list', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+    seedCredentials,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'Server Router', host: '10.0.0.20' });
+    await seedCredentials(ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+
+    await context.route('**/api/vpn/users', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+
+    await context.route('**/api/vpn/servers', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          ovpnServers: [],
+          wireguards: [{ name: 'office-wg', enabled: true, port: 51820, protocol: 'udp' }],
+          pptp: { enabled: true, port: 1723 },
+          l2tp: null,
+          sstp: null,
+        }),
+      });
+    });
+
+    await context.route('**/api/vpn/wireguard/peers/office-wg', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope(
+          ['phone', 'laptop', 'tablet'].map((name, i) => ({
+            id: `*${i + 1}`,
+            name,
+            interfaceName: 'office-wg',
+            publicKey: `key-${i + 1}`,
+            endpointAddress: '',
+            endpointPort: 0,
+            currentEndpointAddress: '',
+            currentEndpointPort: 0,
+            allowedAddresses: `10.10.0.${i + 2}/32`,
+            persistentKeepalive: '',
+            lastHandshake: '',
+            rxBytes: 0,
+            txBytes: 0,
+            rx: '0',
+            tx: '0',
+            dynamic: false,
+            disabled: false,
+          })),
+        ),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+
+    await expect(page.getByRole('columnheader', { name: 'Peers' })).toBeVisible();
+
+    const wgRow = page.getByRole('row', { name: /office-wg/ });
+    await expect(wgRow.getByLabel('3 peers on office-wg')).toHaveText('3');
+
+    const pptpRow = page.getByRole('row', { name: /PPTP/ });
+    await expect(pptpRow.getByLabel(/peers on/)).toHaveCount(0);
+  });
+
   test('switches server form via type tiles and keeps unsupported types disabled', async ({
     page,
     context,
