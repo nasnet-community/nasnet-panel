@@ -65,6 +65,7 @@ export function DHCPPage() {
   const [ethernetRates, setEthernetRates] = useState<Record<string, string>>({});
   const [busyMac, setBusyMac] = useState<string | null>(null);
   const [leaseToRemove, setLeaseToRemove] = useState<DhcpLease | null>(null);
+  const [leaseToMakeStatic, setLeaseToMakeStatic] = useState<DhcpLease | null>(null);
   const inFlightRef = useRef(false);
 
   const reload = useCallback(
@@ -137,33 +138,32 @@ export function DHCPPage() {
     return () => window.clearInterval(interval);
   }, [reload]);
 
-  const handleMakeStatic = useCallback(
-    async (lease: DhcpLease) => {
-      if (!id) return;
-      const creds = getCredentials(id);
-      const host = router?.host;
-      if (!creds || !host) return;
-      setBusyMac(lease.macAddress);
-      try {
-        await makeDhcpLeaseStatic({ host, ...creds }, lease.macAddress);
-        toast.notify({
-          title: 'Lease made static',
-          description: `${lease.address} · ${lease.macAddress}`,
-          tone: 'success',
-        });
-        await reload();
-      } catch (err) {
-        toast.notify({
-          title: 'Failed to make lease static',
-          description: errorMessage(err, 'Unknown error'),
-          tone: 'danger',
-        });
-      } finally {
-        setBusyMac(null);
-      }
-    },
-    [id, router?.host, getCredentials, reload, toast],
-  );
+  const handleMakeStatic = useCallback(async () => {
+    const lease = leaseToMakeStatic;
+    if (!id || !lease) return;
+    const creds = getCredentials(id);
+    const host = router?.host;
+    if (!creds || !host) return;
+    setBusyMac(lease.macAddress);
+    setLeaseToMakeStatic(null);
+    try {
+      await makeDhcpLeaseStatic({ host, ...creds }, lease.macAddress);
+      toast.notify({
+        title: 'Lease made static',
+        description: `${lease.address} · ${lease.macAddress}`,
+        tone: 'success',
+      });
+      await reload();
+    } catch (err) {
+      toast.notify({
+        title: 'Failed to make lease static',
+        description: errorMessage(err, 'Unknown error'),
+        tone: 'danger',
+      });
+    } finally {
+      setBusyMac(null);
+    }
+  }, [id, router?.host, getCredentials, leaseToMakeStatic, reload, toast]);
 
   const handleRemove = useCallback(async () => {
     const lease = leaseToRemove;
@@ -254,9 +254,7 @@ export function DHCPPage() {
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => {
-                handleMakeStatic(r);
-              }}
+              onClick={() => setLeaseToMakeStatic(r)}
               disabled={busyMac === r.macAddress}
               aria-label={`Make static ${r.macAddress}`}
               title="Make static"
@@ -387,7 +385,7 @@ export function DHCPPage() {
 
       <Card data-testid="dhcp-leases">
         <CardHeader>
-          <CardTitle>Leases</CardTitle>
+          <CardTitle>DHCP Leases</CardTitle>
           <CardDescription>Active DHCP leases issued to clients on the LAN.</CardDescription>
         </CardHeader>
         {leases.error ? <div className={styles.errorBanner}>{leases.error}</div> : null}
@@ -420,6 +418,20 @@ export function DHCPPage() {
         destructive
         onConfirm={handleRemove}
         onCancel={() => setLeaseToRemove(null)}
+      />
+
+      <ConfirmDialog
+        open={!!leaseToMakeStatic}
+        title="Make DHCP lease static"
+        description={
+          leaseToMakeStatic
+            ? `Make the lease for ${leaseToMakeStatic.address} (${leaseToMakeStatic.macAddress}) static? The client will keep this address.`
+            : undefined
+        }
+        confirmLabel="Make static"
+        cancelLabel="Cancel"
+        onConfirm={handleMakeStatic}
+        onCancel={() => setLeaseToMakeStatic(null)}
       />
     </Stack>
   );
