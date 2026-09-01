@@ -576,7 +576,7 @@ export function OverviewTab() {
                 </div>
                 VPN Clients
               </div>
-              <Button variant="secondary" size="sm" onClick={() => navigate(`/router/${id}/vpn`)}>
+              <Button variant="secondary" size="sm" onClick={() => navigate(`/router/${id}/wan`)}>
                 View
               </Button>
             </div>

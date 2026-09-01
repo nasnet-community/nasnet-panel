@@ -540,6 +540,12 @@ type CreateSstpServerRequest struct {
 	Enabled bool `json:"enabled" example:"true"`
 }
 
+// UpdateOvpnServerEnabledRequest represents a request to enable or disable an
+// OpenVPN server.
+type UpdateOvpnServerEnabledRequest struct {
+	Enabled bool `json:"enabled" example:"true"`
+}
+
 // ExportOvpnClientRequest represents a request to export OVPN client configuration.
 type ExportOvpnClientRequest struct {
 	ServerName    string `query:"serverName" binding:"required" example:"OpenVPN-Server-1779215157"`
