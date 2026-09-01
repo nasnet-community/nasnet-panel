@@ -26,6 +26,15 @@ const matches = (s: VPNServer, q: string) =>
   (s.dns ?? '').toLowerCase().includes(q) ||
   String(s.listenPort).includes(q);
 
+const ovpnPairedServer = (s: VPNServer, all: VPNServer[]) => {
+  if (s.protocol !== 'openvpn') return null;
+  let paired: string | null = null;
+  if (s.name.endsWith('-tcp')) paired = `${s.name.slice(0, -4)}-udp`;
+  else if (s.name.endsWith('-udp')) paired = `${s.name.slice(0, -4)}-tcp`;
+  if (!paired) return null;
+  return all.find((o) => o.protocol === 'openvpn' && o.name === paired) ?? null;
+};
+
 interface Props {
   creds: VPNCredentials | null;
   servers: VPNServer[];
@@ -47,6 +56,8 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
   const [toggleSubmitting, setToggleSubmitting] = useState(false);
   const toggleEnable = pendingToggle ? !pendingToggle.running : false;
 
+  const deletePaired = pendingDelete ? ovpnPairedServer(pendingDelete, servers) : null;
+
   const sstpEnabled = servers.some((s) => s.protocol === 'sstp' && s.running);
 
   const onCreated = () => {
@@ -58,6 +69,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
   const onConfirmDelete = async () => {
     if (!creds || !pendingDelete) return;
     const target = pendingDelete;
+    const paired = deletePaired;
     setDeleteSubmitting(true);
     try {
       if (target.protocol === 'openvpn') {
@@ -82,7 +94,12 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     }
     setDeleteSubmitting(false);
     setPendingDelete(null);
-    toast.notify({ title: `Server "${target.name}" deleted`, tone: 'info' });
+    toast.notify({
+      title: paired
+        ? `Servers "${target.name}" and "${paired.name}" deleted`
+        : `Server "${target.name}" deleted`,
+      tone: 'info',
+    });
     onChanged();
   };
 
@@ -212,12 +229,16 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       <ServerDetailsDialog server={selected} creds={creds} onClose={() => setSelected(null)} />
       <ConfirmDialog
         open={!!pendingDelete}
-        title="Delete VPN server"
+        title={deletePaired ? 'Delete OpenVPN server pair' : 'Delete VPN server'}
         description={
           pendingDelete
             ? `Remove "${pendingDelete.name}" from this router? ${
                 pendingDelete.protocol === 'openvpn'
-                  ? 'Associated users, IP pool, profile and certificates will also be removed.'
+                  ? `${
+                      deletePaired
+                        ? `The paired server "${deletePaired.name}" is removed together with it, because both share the same certificates. `
+                        : ''
+                    }Associated users, IP pool, profile and certificates will also be removed.`
                   : 'Associated peers and IP address will also be removed.'
               } This cannot be undone.`
             : undefined

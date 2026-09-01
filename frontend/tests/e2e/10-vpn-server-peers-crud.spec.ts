@@ -238,6 +238,8 @@ test.describe('VPN servers tab', () => {
     await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeChecked();
     await expect(types.getByRole('radio', { name: 'OpenVPN' })).not.toBeChecked();
     await expect(dialog.getByRole('button', { name: 'Create WireGuard server' })).toBeVisible();
+    await expect(dialog.getByLabel('Listen port')).toHaveCount(0);
+    await dialog.getByRole('switch', { name: 'Advanced mode' }).check();
     await expect(dialog.getByLabel('Listen port')).toBeVisible();
 
     const l2tp = types.getByRole('radio', { name: 'L2TP' });
