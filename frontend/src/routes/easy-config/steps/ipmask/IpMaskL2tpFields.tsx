@@ -87,7 +87,11 @@ export function IpMaskL2tpFields({ state, dispatch }: Props) {
       <HyperSpeedClaimDialog
         open={claimOpen}
         onClose={() => setClaimOpen(false)}
-        dispatch={dispatch}
+        onClaimed={(creds) => {
+          dispatch({ type: 'setField', field: 'l2tpServer', value: creds.server });
+          dispatch({ type: 'setField', field: 'l2tpUsername', value: creds.username });
+          dispatch({ type: 'setField', field: 'l2tpPassword', value: creds.password });
+        }}
       />
     </FieldStack>
   );
