@@ -726,7 +726,7 @@ func (e *Engine) checkVethMenu() error {
 }
 
 func (e *Engine) ensureDNS() error {
-	out, err := e.cl.RunChecked(`:local d ""; :do { :set d [/ip/dns/get dynamic-servers] } on-error={}; :put ([:len [/ip/dns/get servers]] + [:len $d])`, 15*time.Second)
+	out, err := e.cl.RunChecked(":put ([:len [/ip/dns/get servers]] + [:len [/ip/dns/get dynamic-servers]])", 15*time.Second)
 	if err != nil {
 		return fmt.Errorf("failed to read DNS servers: %w", err)
 	}
