@@ -923,7 +923,7 @@ check_veth_menu() {
 
 ensure_dns() {
   local count
-  count="$(trim "$(ros_cmd ':local d ""; :do { :set d [/ip/dns/get dynamic-servers] } on-error={}; :put ([:len [/ip/dns/get servers]] + [:len $d])' 2>/dev/null || true)")"
+  count="$(trim "$(ros_cmd ':local d ""; :do { :set d [/ip/dns/get dynamic-servers] } on-error={}; :local h ""; :do { :set h [/ip/dns/get use-doh-server] } on-error={}; :put ([:len [/ip/dns/get servers]] + [:len $d] + [:len $h])' 2>/dev/null || true)")"
   if [[ "$count" =~ ^[1-9] ]]; then
     printf '  \033[32m✓\033[0m DNS servers already configured\n'
     return 0
