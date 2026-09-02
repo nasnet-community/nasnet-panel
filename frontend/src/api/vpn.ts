@@ -161,21 +161,9 @@ export interface L2tpServerDetailsResponse {
 export interface SstpServerDetailsResponse {
   enabled: boolean;
   port: number;
-  profile: string;
-  auth: string;
   certificate: string;
   verifyClientCertificate: boolean;
   tlsVersion: string;
-  ciphers: string;
-  pfs: string;
-  localAddress: string;
-  remoteAddress: string;
-  useCompression: string;
-  useEncryption: string;
-  onlyOne: string;
-  changeTcpMss: string;
-  dnsServer: string;
-  secrets: L2TPUserSecret[];
 }
 
 export interface WireguardServerDetailsResponse {

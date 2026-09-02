@@ -405,21 +405,9 @@ function DetailsBody({
           <SummaryRows server={server} />
           <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
           {server.listenPort ? null : <Row label="Port" value={d.port} />}
-          <Row label="Auth" value={d.auth} />
-          <Row label="Profile" value={d.profile} />
           <Row label="Certificate" value={d.certificate} />
           <Row label="Verify client cert" value={<BoolBadge value={d.verifyClientCertificate} />} />
           <Row label="TLS version" value={d.tlsVersion} />
-          <Row label="Ciphers" value={d.ciphers} />
-          <Row label="PFS" value={d.pfs} />
-          {server.localIp ? null : <Row label="Local address" value={d.localAddress} />}
-          {server.remoteIp ? null : <Row label="Remote address" value={d.remoteAddress} />}
-          <Row label="DNS server" value={d.dnsServer} />
-          <Row label="Use compression" value={d.useCompression} />
-          <Row label="Use encryption" value={d.useEncryption} />
-          <Row label="Only one" value={d.onlyOne} />
-          <Row label="Change TCP MSS" value={d.changeTcpMss} />
-          <SecretsRow secrets={d.secrets} />
         </DList>
       );
     }
