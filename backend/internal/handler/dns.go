@@ -403,6 +403,35 @@ func respondDNSChangeStepError(c echo.Context, err error) error {
 	return ErrorResponse(c, http.StatusInternalServerError, "Failed to change DNS IP", err)
 }
 
+// respondDNSChangeStepErrorWithData behaves like respondDNSChangeStepError,
+// but also includes data in the response body. Used when an earlier step
+// already mutated the router before the one that failed (e.g. the Foreign
+// swap in HandleSetFamilyDNS succeeding before the VPN swap fails), so the
+// caller can see what was actually applied rather than assuming nothing was.
+func respondDNSChangeStepErrorWithData(c echo.Context, err error, data interface{}) error {
+	status := http.StatusInternalServerError
+	message := "Failed to change DNS IP"
+	errText := ""
+
+	var stepErr *dnsChangeStepError
+	if errors.As(err, &stepErr) {
+		status = stepErr.status
+		message = stepErr.message
+		if stepErr.err != nil {
+			errText = cleanErrorMessage(stepErr.err.Error())
+		}
+	} else {
+		errText = cleanErrorMessage(err.Error())
+	}
+
+	return c.JSON(status, Response{
+		Status:  status,
+		Message: message,
+		Data:    data,
+		Error:   errText,
+	})
+}
+
 // changeDNSIP replaces oldIP with newIP across /ip/dns servers, the
 // dns-servers list of every DNS forwarder that contains it, the "DNS"
 // firewall address list, every dst-nat NAT rule whose to-addresses is oldIP,
@@ -570,7 +599,10 @@ func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*DNSChangeRespon
 // @Description replaced with the Cloudflare Family Secondary IP (1.0.0.3), across /ip/dns
 // @Description servers, DNS forwarders, the "DNS" firewall address list, dst-nat NAT rules, IP
 // @Description routes, and netwatch probes. A forwarder already set to its target family IP is
-// @Description left unchanged rather than erroring. No request body is required.
+// @Description left unchanged rather than erroring. No request body is required. If the Foreign
+// @Description swap succeeds but the VPN swap then fails, the error response's data still
+// @Description includes the completed Foreign result, so the caller can see what was actually
+// @Description applied to the router.
 // @Tags DNS
 // @Produce json
 // @Security BasicAuth
@@ -607,7 +639,10 @@ func HandleSetFamilyDNS(c echo.Context) error {
 
 	vpnResult, err := changeDNSIPOrNoop(client, vpnIP, dnsFamilySecondaryIP)
 	if err != nil {
-		return respondDNSChangeStepError(c, err)
+		// Foreign was already changed on the router by this point; report it
+		// alongside the error rather than leaving the caller to assume
+		// nothing was applied.
+		return respondDNSChangeStepErrorWithData(c, err, DNSFamilyResponse{Foreign: *foreignResult})
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Cloudflare Family DNS applied successfully", DNSFamilyResponse{
