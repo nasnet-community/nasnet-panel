@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -19,6 +20,11 @@ const (
 	dnsDefaultDomesticIP = "217.218.127.127"
 	dnsDefaultForeignIP  = "1.1.1.1"
 	dnsDefaultVPNIP      = "1.0.0.1"
+
+	// Cloudflare Family DNS IPs applied by POST /api/dns/family: Primary to
+	// the Foreign forwarder, Secondary to the VPN forwarder.
+	dnsFamilyPrimaryIP   = "1.1.1.3"
+	dnsFamilySecondaryIP = "1.0.0.3"
 
 	defaultRouteDstAddress = "0.0.0.0/0"
 	wanDomesticLinkComment = "WAN - Domestic Link"
@@ -61,7 +67,8 @@ func HandleGetDNSInfo(c echo.Context) error {
 // HandleListDNSForwarders godoc
 // @Summary List DNS forwarders
 // @Description Lists every /ip/dns/forwarders entry except "General", with its name, IP
-// @Description address(es) and comment.
+// @Description address(es) and comment. If any of the forwarder's IPs is a known suggestion
+// @Description from GET /api/dns/suggest, its description is included too.
 // @Tags DNS
 // @Accept json
 // @Produce json
@@ -90,10 +97,24 @@ func HandleListDNSForwarders(c echo.Context) error {
 		if forwarders[i].Name == "General" {
 			continue
 		}
+
+		description := ""
+		for _, ip := range forwarders[i].DNSServers {
+			if d := dnsSuggestionDescription(ip, domesticDNSSuggestions); d != "" {
+				description = d
+				break
+			}
+			if d := dnsSuggestionDescription(ip, foreignDNSSuggestions); d != "" {
+				description = d
+				break
+			}
+		}
+
 		items = append(items, DNSForwarderListItem{
-			Name:    forwarders[i].Name,
-			IP:      strings.Join(forwarders[i].DNSServers, ","),
-			Comment: forwarders[i].Comment,
+			Name:        forwarders[i].Name,
+			IP:          strings.Join(forwarders[i].DNSServers, ","),
+			Description: description,
+			Comment:     forwarders[i].Comment,
 		})
 	}
 
@@ -352,31 +373,68 @@ func HandleChangeDNS(c echo.Context) error {
 		return err
 	}
 
-	newIPForwarders, err := client.FindDNSForwarders(routeros.DNSForwarderFilter{DNSServers: req.NewIP})
+	result, err := changeDNSIP(client, req.OldIP, req.NewIP)
+	if err != nil {
+		return respondDNSChangeStepError(c, err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "DNS forwarder IP changed successfully", result)
+}
+
+// dnsChangeStepError carries the HTTP status/message a caller of
+// changeDNSIP should respond with for a failure at one of its steps.
+type dnsChangeStepError struct {
+	status  int
+	message string
+	err     error
+}
+
+func (e *dnsChangeStepError) Error() string { return e.message }
+func (e *dnsChangeStepError) Unwrap() error { return e.err }
+
+// respondDNSChangeStepError translates an error from changeDNSIP into an
+// echo response, preserving the specific status/message dnsChangeStepError
+// carries, and falling back to a generic 500 for anything else.
+func respondDNSChangeStepError(c echo.Context, err error) error {
+	var stepErr *dnsChangeStepError
+	if errors.As(err, &stepErr) {
+		return ErrorResponse(c, stepErr.status, stepErr.message, stepErr.err)
+	}
+	return ErrorResponse(c, http.StatusInternalServerError, "Failed to change DNS IP", err)
+}
+
+// changeDNSIP replaces oldIP with newIP across /ip/dns servers, the
+// dns-servers list of every DNS forwarder that contains it, the "DNS"
+// firewall address list, every dst-nat NAT rule whose to-addresses is oldIP,
+// every /ip/route entry whose dst-address or gateway is oldIP, and every
+// /tool/netwatch probe whose host is oldIP. Callers must ensure oldIP and
+// newIP differ before calling.
+func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*DNSChangeResponse, error) {
+	newIPForwarders, err := client.FindDNSForwarders(routeros.DNSForwarderFilter{DNSServers: newIP})
 	if err != nil {
 		if IsCredentialError(err) {
-			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+			return nil, &dnsChangeStepError{http.StatusUnauthorized, "Invalid RouterOS credentials", err}
 		}
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to search DNS forwarders", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to search DNS forwarders", err}
 	}
 	if len(newIPForwarders) > 0 {
-		return ErrorResponse(c, http.StatusConflict,
-			fmt.Sprintf("New IP %s is already used by DNS forwarder %q", req.NewIP, newIPForwarders[0].Name), nil)
+		return nil, &dnsChangeStepError{http.StatusConflict,
+			fmt.Sprintf("New IP %s is already used by DNS forwarder %q", newIP, newIPForwarders[0].Name), nil}
 	}
 
 	info, err := client.GetDNSInfo()
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get DNS info", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to get DNS info", err}
 	}
-	if !slices.Contains(info.Servers, req.OldIP) {
-		return ErrorResponse(c, http.StatusNotFound,
-			fmt.Sprintf("Old IP %s not found in /ip/dns servers", req.OldIP), nil)
+	if !slices.Contains(info.Servers, oldIP) {
+		return nil, &dnsChangeStepError{http.StatusNotFound,
+			fmt.Sprintf("Old IP %s not found in /ip/dns servers", oldIP), nil}
 	}
 
 	newServers := make([]string, len(info.Servers))
 	for i, server := range info.Servers {
-		if server == req.OldIP {
-			newServers[i] = req.NewIP
+		if server == oldIP {
+			newServers[i] = newIP
 		} else {
 			newServers[i] = server
 		}
@@ -384,116 +442,116 @@ func HandleChangeDNS(c echo.Context) error {
 
 	serversStr := strings.Join(newServers, ",")
 	if err := client.UpdateDNSConfig(routeros.DNSUpdateConfig{Servers: &serversStr}); err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update DNS configuration", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to update DNS configuration", err}
 	}
 
 	forwarders, err := client.ListDNSForwarders()
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS forwarders", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list DNS forwarders", err}
 	}
 
 	updatedForwarders := make([]string, 0)
 	for i := range forwarders {
 		forwarder := &forwarders[i]
-		if !slices.Contains(forwarder.DNSServers, req.OldIP) {
+		if !slices.Contains(forwarder.DNSServers, oldIP) {
 			continue
 		}
 
 		newForwarderServers := make([]string, len(forwarder.DNSServers))
 		for j, server := range forwarder.DNSServers {
-			if server == req.OldIP {
-				newForwarderServers[j] = req.NewIP
+			if server == oldIP {
+				newForwarderServers[j] = newIP
 			} else {
 				newForwarderServers[j] = server
 			}
 		}
 
 		if err := client.SetDNSForwarderServers(forwarder.ID, strings.Join(newForwarderServers, ",")); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update DNS forwarder %q", forwarder.Name), err)
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update DNS forwarder %q", forwarder.Name), err}
 		}
 		updatedForwarders = append(updatedForwarders, forwarder.Name)
 	}
 
 	addressListItems, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
 		ListName: dnsAddressListName,
-		Address:  req.OldIP,
+		Address:  oldIP,
 	})
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS address list items", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list DNS address list items", err}
 	}
 	updatedAddressListItems := make([]string, 0, len(addressListItems))
 	for i := range addressListItems {
 		item := &addressListItems[i]
-		if err := client.UpdateFirewallAddressListItem(item.ID, req.NewIP); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update DNS address list item %s", item.ID), err)
+		if err := client.UpdateFirewallAddressListItem(item.ID, newIP); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update DNS address list item %s", item.ID), err}
 		}
 		updatedAddressListItems = append(updatedAddressListItems, item.ID)
 	}
 
 	natRules, err := client.ListNATRules(routeros.NATRuleFilter{
 		Action:      "dst-nat",
-		ToAddresses: req.OldIP,
+		ToAddresses: oldIP,
 	})
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list NAT rules", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list NAT rules", err}
 	}
 	updatedNATRules := make([]string, 0, len(natRules))
 	for i := range natRules {
 		rule := &natRules[i]
-		if err := client.UpdateNATRule(rule.ID, req.NewIP); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update NAT rule %s", rule.ID), err)
+		if err := client.UpdateNATRule(rule.ID, newIP); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update NAT rule %s", rule.ID), err}
 		}
 		updatedNATRules = append(updatedNATRules, rule.ID)
 	}
 
-	dstAddressRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{DstAddress: req.OldIP})
+	dstAddressRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{DstAddress: oldIP})
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP routes by dst-address", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list IP routes by dst-address", err}
 	}
 	updatedDstAddressRoutes := make([]string, 0, len(dstAddressRoutes))
 	for i := range dstAddressRoutes {
 		route := &dstAddressRoutes[i]
-		if err := client.UpdateIPRoute(route.ID, routeros.IPRouteConfig{DstAddress: req.NewIP}); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update route %s dst-address", route.ID), err)
+		if err := client.UpdateIPRoute(route.ID, routeros.IPRouteConfig{DstAddress: newIP}); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update route %s dst-address", route.ID), err}
 		}
 		updatedDstAddressRoutes = append(updatedDstAddressRoutes, route.ID)
 	}
 
-	gatewayRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Gateway: req.OldIP})
+	gatewayRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Gateway: oldIP})
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP routes by gateway", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list IP routes by gateway", err}
 	}
 	updatedGatewayRoutes := make([]string, 0, len(gatewayRoutes))
 	for i := range gatewayRoutes {
 		route := &gatewayRoutes[i]
-		if err := client.UpdateIPRoute(route.ID, routeros.IPRouteConfig{Gateway: req.NewIP}); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update route %s gateway", route.ID), err)
+		if err := client.UpdateIPRoute(route.ID, routeros.IPRouteConfig{Gateway: newIP}); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update route %s gateway", route.ID), err}
 		}
 		updatedGatewayRoutes = append(updatedGatewayRoutes, route.ID)
 	}
 
-	netwatchProbes, err := client.ListNetwatch(routeros.NetwatchFilter{Host: &req.OldIP})
+	netwatchProbes, err := client.ListNetwatch(routeros.NetwatchFilter{Host: &oldIP})
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list netwatch probes", err)
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list netwatch probes", err}
 	}
 	updatedNetwatchProbes := make([]string, 0, len(netwatchProbes))
 	for i := range netwatchProbes {
 		probe := &netwatchProbes[i]
-		if _, err := client.UpdateNetwatch(probe.ID, routeros.UpdateNetwatchParams{Host: &req.NewIP}); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update netwatch probe %s", probe.ID), err)
+		if _, err := client.UpdateNetwatch(probe.ID, routeros.UpdateNetwatchParams{Host: &newIP}); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update netwatch probe %s", probe.ID), err}
 		}
 		updatedNetwatchProbes = append(updatedNetwatchProbes, probe.ID)
 	}
 
-	return SuccessResponse(c, http.StatusOK, "DNS forwarder IP changed successfully", DNSChangeResponse{
-		OldIP:                   req.OldIP,
-		NewIP:                   req.NewIP,
+	return &DNSChangeResponse{
+		OldIP:                   oldIP,
+		NewIP:                   newIP,
 		Servers:                 newServers,
 		UpdatedForwarders:       updatedForwarders,
 		UpdatedDstAddressRoutes: updatedDstAddressRoutes,
@@ -501,7 +559,85 @@ func HandleChangeDNS(c echo.Context) error {
 		UpdatedNetwatchProbes:   updatedNetwatchProbes,
 		UpdatedAddressListItems: updatedAddressListItems,
 		UpdatedNATRules:         updatedNATRules,
+	}, nil
+}
+
+// HandleSetFamilyDNS godoc
+// @Summary Apply Cloudflare Family DNS to the Foreign and VPN forwarders
+// @Description Finds the current DNS server IP of the "Foreign" and "VPN" DNS forwarders, then
+// @Description runs the same change as POST /api/dns/change for each: Foreign's current IP is
+// @Description replaced with the Cloudflare Family Primary IP (1.1.1.3), and VPN's current IP is
+// @Description replaced with the Cloudflare Family Secondary IP (1.0.0.3), across /ip/dns
+// @Description servers, DNS forwarders, the "DNS" firewall address list, dst-nat NAT rules, IP
+// @Description routes, and netwatch probes. A forwarder already set to its target family IP is
+// @Description left unchanged rather than erroring. No request body is required.
+// @Tags DNS
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} Response{data=DNSFamilyResponse}
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/dns/family [post].
+func HandleSetFamilyDNS(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	forwarders, err := client.ListDNSForwarders()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS forwarders", err)
+	}
+
+	foreignIP, ok := dnsForwarderCurrentIP(forwarders, dnsForwarderTypeForeign)
+	if !ok {
+		return ErrorResponse(c, http.StatusNotFound, "Foreign DNS forwarder not found or has no server configured", nil)
+	}
+	vpnIP, ok := dnsForwarderCurrentIP(forwarders, dnsForwarderTypeVPN)
+	if !ok {
+		return ErrorResponse(c, http.StatusNotFound, "VPN DNS forwarder not found or has no server configured", nil)
+	}
+
+	foreignResult, err := changeDNSIPOrNoop(client, foreignIP, dnsFamilyPrimaryIP)
+	if err != nil {
+		return respondDNSChangeStepError(c, err)
+	}
+
+	vpnResult, err := changeDNSIPOrNoop(client, vpnIP, dnsFamilySecondaryIP)
+	if err != nil {
+		return respondDNSChangeStepError(c, err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Cloudflare Family DNS applied successfully", DNSFamilyResponse{
+		Foreign: *foreignResult,
+		VPN:     *vpnResult,
 	})
+}
+
+// dnsForwarderCurrentIP returns the first DNS server IP configured on the
+// DNS forwarder named name, and whether such a forwarder with at least one
+// server was found.
+func dnsForwarderCurrentIP(forwarders []routeros.DNSForwarder, name string) (string, bool) {
+	for i := range forwarders {
+		if strings.TrimSpace(forwarders[i].Name) != name || len(forwarders[i].DNSServers) == 0 {
+			continue
+		}
+		return forwarders[i].DNSServers[0], true
+	}
+	return "", false
+}
+
+// changeDNSIPOrNoop calls changeDNSIP, except when oldIP already equals
+// newIP: RouterOS's own "New IP already used by forwarder" conflict check
+// inside changeDNSIP would otherwise reject re-applying an already-current
+// IP, so that case is treated as a successful no-op instead.
+func changeDNSIPOrNoop(client *routeros.Client, oldIP, newIP string) (*DNSChangeResponse, error) {
+	if oldIP == newIP {
+		return &DNSChangeResponse{OldIP: oldIP, NewIP: newIP}, nil
+	}
+	return changeDNSIP(client, oldIP, newIP)
 }
 
 // HandleResetDNS godoc

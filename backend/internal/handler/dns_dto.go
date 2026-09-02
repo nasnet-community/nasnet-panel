@@ -21,9 +21,10 @@ type UpdateDNSRequest struct {
 
 // DNSForwarderListItem is one entry in the GET /api/dns/list response.
 type DNSForwarderListItem struct {
-	Name    string `json:"name"`
-	IP      string `json:"ip"`
-	Comment string `json:"comment"`
+	Name        string `json:"name"`
+	IP          string `json:"ip"`
+	Description string `json:"description,omitempty"`
+	Comment     string `json:"comment"`
 }
 
 // dnsForwarderType names the three recognized DNS forwarder roles, carried in
@@ -134,6 +135,12 @@ type DNSChangeResponse struct {
 	UpdatedNATRules         []string `json:"updatedNatRules"`
 }
 
+// DNSFamilyResponse is the response for POST /api/dns/family.
+type DNSFamilyResponse struct {
+	Foreign DNSChangeResponse `json:"foreign"`
+	VPN     DNSChangeResponse `json:"vpn"`
+}
+
 // DNSForwarderResult describes one DNS forwarder created by POST /api/dns/reset.
 type DNSForwarderResult struct {
 	ID         string   `json:"id"`
@@ -221,6 +228,8 @@ var foreignDNSSuggestions = []DNSSuggestion{
 	{IP: "1.0.0.1", Description: "Cloudflare Secondary"},
 	{IP: "8.8.8.8", Description: "Google Primary"},
 	{IP: "8.8.4.4", Description: "Google Secondary"},
+	{IP: "1.1.1.3", Description: "Cloudflare Family Primary"},
+	{IP: "1.0.0.3", Description: "Cloudflare Family Secondary"},
 	{IP: "4.2.2.1", Description: "Level3 DNS"},
 	{IP: "4.2.2.2", Description: "Level3 DNS"},
 	{IP: "4.2.2.3", Description: "Level3 DNS"},
@@ -250,6 +259,17 @@ func isKnownDNSSuggestion(ip string, suggestions []DNSSuggestion) bool {
 		}
 	}
 	return false
+}
+
+// dnsSuggestionDescription returns the description of ip in suggestions, or
+// "" if ip isn't one of them.
+func dnsSuggestionDescription(ip string, suggestions []DNSSuggestion) string {
+	for i := range suggestions {
+		if suggestions[i].IP == ip {
+			return suggestions[i].Description
+		}
+	}
+	return ""
 }
 
 func convertDNSInfoResponse(info *routeros.DNSInfo) *DNSInfoResponse {
