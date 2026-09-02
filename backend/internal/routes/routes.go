@@ -104,6 +104,7 @@ func RegisterRoutes(e *echo.Echo) {
 	dnsGroup.GET("/suggest", handler.HandleSuggestDNS)
 	dnsGroup.GET("/validate", handler.HandleValidateDNS)
 	dnsGroup.POST("/change", handler.HandleChangeDNS)
+	dnsGroup.POST("/family", handler.HandleSetFamilyDNS)
 	dnsGroup.POST("/reset", handler.HandleResetDNS)
 
 	vpnGroup := e.Group("/api/vpn")

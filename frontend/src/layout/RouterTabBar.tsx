@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs } from '@nasnet/ui';
 import { useSession } from '../state/SessionContext';
 import { useRouterStore } from '../state/RouterStoreContext';
-import { ROUTER_SECTIONS } from './routerSections';
+import { useInstalledPlugins } from '../state/InstalledPluginsContext';
+import { routerSectionsWithPlugins } from './routerSections';
 import styles from './RouterTabBar.module.scss';
 
 export function RouterTabBar({
@@ -15,6 +16,8 @@ export function RouterTabBar({
   const navigate = useNavigate();
   const { activeRouterId } = useSession();
   const { routers, lastConnectedRouterId, selectedRouterId } = useRouterStore();
+  const { plugins } = useInstalledPlugins();
+  const sections = routerSectionsWithPlugins(plugins);
   const targetId =
     routerId ??
     activeRouterId ??
@@ -29,10 +32,10 @@ export function RouterTabBar({
     <div className={styles.tabBarBand}>
       <div className={styles.tabBarInner}>
         <Tabs
-          items={ROUTER_SECTIONS}
+          items={sections}
           activeId={activeId ?? ''}
           onChange={(tabId) => {
-            const item = ROUTER_SECTIONS.find((t) => t.id === tabId);
+            const item = sections.find((t) => t.id === tabId);
             if (!item) return;
             navigate(`/router/${targetId}${item.path ? `/${item.path}` : ''}`);
           }}

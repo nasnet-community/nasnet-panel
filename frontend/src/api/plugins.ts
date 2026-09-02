@@ -1,3 +1,4 @@
+import { BACKEND_URL } from './config';
 import { apiRequest } from './http';
 import type { SystemCredentials } from './system';
 
@@ -18,6 +19,11 @@ export interface PluginInfoResponse {
   installing: boolean;
   failed: boolean;
   note?: string;
+}
+
+export interface InstalledPluginResponse {
+  id: string;
+  name: string;
 }
 
 export type PluginInstallPhase =
@@ -70,6 +76,22 @@ export async function fetchPlugins(
     cache: 'no-store',
     signal,
   });
+}
+
+export async function fetchInstalledPlugins(
+  creds: PluginCredentials,
+  signal?: AbortSignal,
+): Promise<InstalledPluginResponse[]> {
+  return apiRequest<InstalledPluginResponse[]>('/api/plugin/installed', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export function pluginViewUrl(pluginId: string): string {
+  return `${BACKEND_URL}/api/plugin/view/${encodeURIComponent(pluginId)}`;
 }
 
 export async function installPlugin(

@@ -11,6 +11,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import type { TabItem } from '@nasnet/ui';
+import { pluginViewUrl, type InstalledPluginResponse } from '../api';
 
 export type RouterSection = TabItem & { path: string };
 
@@ -26,6 +27,24 @@ export const ROUTER_SECTIONS: RouterSection[] = [
   { id: 'diagnostics', label: 'Diagnostics', path: 'diagnostics', icon: <Activity size={16} /> },
   { id: 'help', label: 'Help', path: 'help', icon: <CircleHelp size={16} /> },
 ];
+
+export function routerSectionsWithPlugins(
+  installedPlugins: InstalledPluginResponse[],
+): RouterSection[] {
+  if (installedPlugins.length === 0) return ROUTER_SECTIONS;
+  return ROUTER_SECTIONS.map((section) =>
+    section.id === 'plugins'
+      ? {
+          ...section,
+          menu: installedPlugins.map((plugin) => ({
+            id: plugin.id,
+            label: plugin.name,
+            href: pluginViewUrl(plugin.id),
+          })),
+        }
+      : section,
+  );
+}
 
 export function activeRouterSectionId(pathname: string, routerId: string): string | undefined {
   return ROUTER_SECTIONS.find((t) => {

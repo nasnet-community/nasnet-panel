@@ -114,11 +114,14 @@ export {
 } from './updates';
 export {
   fetchPlugins,
+  fetchInstalledPlugins,
+  pluginViewUrl,
   installPlugin,
   fetchPluginInstallStatus,
   uninstallPlugin,
   type PluginCredentials,
   type PluginInfoResponse,
+  type InstalledPluginResponse,
   type PluginInstallPhase,
   type InstallPluginResponse,
   type PluginInstallStatusResponse,
