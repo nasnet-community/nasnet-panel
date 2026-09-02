@@ -1985,7 +1985,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 				}
 			}
 		}
-		if profileName != "" {
+		if profileName != "" && profileName != "default" {
 			_ = client.RemovePppProfile(profileName)
 		}
 		if poolName != "" {
