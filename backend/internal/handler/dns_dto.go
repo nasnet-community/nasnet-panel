@@ -238,8 +238,6 @@ var foreignDNSSuggestions = []DNSSuggestion{
 	{IP: "149.112.112.112", Description: "Quad9 DNS"},
 	{IP: "208.67.222.222", Description: "OpenDNS"},
 	{IP: "208.67.220.220", Description: "OpenDNS"},
-	{IP: "8.26.56.26", Description: "Google Secondary"},
-	{IP: "8.20.247.20", Description: "Google Secondary"},
 	{IP: "64.6.64.6", Description: "Verisign Public DNS"},
 	{IP: "64.6.65.6", Description: "Verisign Public DNS"},
 	{IP: "84.200.69.80", Description: "DNS.Watch"},
