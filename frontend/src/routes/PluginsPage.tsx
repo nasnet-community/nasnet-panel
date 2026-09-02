@@ -21,6 +21,7 @@ import {
   type PluginCredentials,
   type PluginInfoResponse,
 } from '../api';
+import { useInstalledPlugins } from '../state/InstalledPluginsContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
@@ -133,6 +134,7 @@ export function PluginsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
   const { getCredentials } = useSession();
+  const { markInstalled, markUninstalled } = useInstalledPlugins();
   const toast = useToast();
 
   const [plugins, setPlugins] = useState<PluginInfoResponse[]>([]);
@@ -231,6 +233,7 @@ export function PluginsPage() {
         }
         if (status?.phase === 'done') {
           stopWatching(pluginId);
+          markInstalled({ id: pluginId, name });
           toast.notify({ title: `${name} installed`, tone: 'success' });
           void reload(true);
           return;
@@ -266,6 +269,7 @@ export function PluginsPage() {
     setUninstallingId(plugin.id);
     try {
       const result = await uninstallPlugin(creds, plugin.id);
+      markUninstalled(plugin.id);
       if (result.warnings?.length) {
         toast.notify({
           title: `${plugin.name} uninstalled with warnings`,
