@@ -730,11 +730,11 @@ func (e *Engine) ensureDNS() error {
 	if err != nil {
 		return fmt.Errorf("failed to read DNS servers: %w", err)
 	}
-	count := strings.TrimSpace(out)
-	if count == "" {
-		return fmt.Errorf("could not read DNS servers from the router")
+	count, err := strconv.Atoi(strings.TrimSpace(out))
+	if err != nil {
+		return fmt.Errorf("could not read DNS servers from the router: %q", strings.TrimSpace(out))
 	}
-	if count[0] >= '1' && count[0] <= '9' {
+	if count > 0 {
 		e.log("router already has DNS servers configured")
 		return nil
 	}
