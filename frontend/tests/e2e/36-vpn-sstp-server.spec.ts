@@ -310,4 +310,104 @@ test.describe('SSTP server', () => {
       page.getByRole('row', { name: /SSTP/ }).getByRole('button', { name: /disable SSTP/i }),
     ).toHaveCount(0);
   });
+
+  test('shows only the essential fields in the SSTP details dialog', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'SSTP Router', host: '10.0.0.30' });
+    await context.addInitScript(seedSession, ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+    await context.route('**/api/vpn/users', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+
+    await context.route('**/api/vpn/servers', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          ovpnServers: [],
+          wireguards: [],
+          pptp: null,
+          l2tp: null,
+          sstp: SSTP_ENABLED,
+        }),
+      });
+    });
+
+    await context.route('**/api/vpn/sstp/server', async (route) => {
+      if (route.request().method() !== 'GET') {
+        await route.fallback();
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          enabled: true,
+          port: 4433,
+          profile: 'sstp-profile',
+          auth: 'mschap2',
+          certificate: 'sstp-server-cert',
+          verifyClientCertificate: false,
+          tlsVersion: 'only-1.2',
+          ciphers: 'aes256-sha',
+          pfs: 'no',
+          localAddress: '172.30.0.1',
+          remoteAddress: '172.30.0.2-172.30.0.50',
+          useCompression: 'no',
+          useEncryption: 'required',
+          onlyOne: 'yes',
+          changeTcpMss: 'yes',
+          dnsServer: '9.9.9.9',
+          secrets: [{ username: 'carol', password: 'carol123' }],
+        }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+
+    const row = page.getByRole('row', { name: /SSTP/ });
+    await expect(row).toBeVisible();
+    await row.getByRole('cell').first().click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const valueOf = (label: string) => dialog.locator(`dt:text-is("${label}") + dd`);
+
+    await expect(valueOf('Enabled')).toHaveText('Yes');
+    await expect(valueOf('Port')).toHaveText('4433');
+    await expect(valueOf('Certificate')).toHaveText('sstp-server-cert');
+    await expect(valueOf('Verify client cert')).toHaveText('No');
+    await expect(valueOf('TLS version')).toHaveText('only-1.2');
+
+    for (const label of [
+      'Auth',
+      'Profile',
+      'Ciphers',
+      'PFS',
+      'Local address',
+      'Remote address',
+      'DNS server',
+      'Use compression',
+      'Use encryption',
+      'Only one',
+      'Change TCP MSS',
+      'Secrets',
+    ]) {
+      await expect(dialog.getByText(label, { exact: true })).toHaveCount(0);
+    }
+
+    await expect(dialog.getByText('9.9.9.9')).toHaveCount(0);
+    await expect(dialog.getByText('carol', { exact: true })).toHaveCount(0);
+    await expect(dialog.getByText('carol123', { exact: true })).toHaveCount(0);
+  });
 });

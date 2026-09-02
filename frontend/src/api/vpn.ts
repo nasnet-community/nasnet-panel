@@ -114,15 +114,11 @@ export interface VPNServersStatusResponse {
 export interface OvpnServerDetailsResponse {
   name: string;
   port: number;
-  mode: string;
   protocol: string;
-  macAddress: string;
   certificate: string;
   requireClientCertificate: boolean;
-  auth: string;
-  cipher: string;
-  userAuthMethod: string;
   enabled: boolean;
+  comment?: string;
 }
 
 export interface L2TPUserSecret {
@@ -165,21 +161,9 @@ export interface L2tpServerDetailsResponse {
 export interface SstpServerDetailsResponse {
   enabled: boolean;
   port: number;
-  profile: string;
-  auth: string;
   certificate: string;
   verifyClientCertificate: boolean;
   tlsVersion: string;
-  ciphers: string;
-  pfs: string;
-  localAddress: string;
-  remoteAddress: string;
-  useCompression: string;
-  useEncryption: string;
-  onlyOne: string;
-  changeTcpMss: string;
-  dnsServer: string;
-  secrets: L2TPUserSecret[];
 }
 
 export interface WireguardServerDetailsResponse {
