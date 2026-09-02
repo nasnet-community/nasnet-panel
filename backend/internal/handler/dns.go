@@ -31,6 +31,9 @@ const (
 
 	domesticAddressListFreshWindow    = 30 * 24 * time.Hour
 	domesticAddressListMinHealthySize = 1000
+
+	// The adlist URL POST /api/dns/adblock enables/disables.
+	dnsAdBlockURL = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 )
 
 // HandleGetDNSInfo godoc
@@ -62,6 +65,89 @@ func HandleGetDNSInfo(c echo.Context) error {
 
 	response := convertDNSInfoResponse(info)
 	return SuccessResponse(c, http.StatusOK, "DNS information retrieved", response)
+}
+
+// HandleSetAdBlock godoc
+// @Summary Enable or disable the StevenBlack hosts adlist ad-blocker
+// @Description Checks the current status of the /ip/dns/adlist entry whose url is
+// @Description https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts, and returns a
+// @Description conflict error if it's already in the requested state. If enabled is true: enables
+// @Description the entry if it exists, or creates it (with ssl-verify=no) and enables it if it
+// @Description doesn't. If enabled is false: disables the entry if it exists, or does nothing if
+// @Description it doesn't.
+// @Tags DNS
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body AdBlockRequest true "Desired ad-block state"
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/dns/adblock [post].
+func HandleSetAdBlock(c echo.Context) error {
+	var req AdBlockRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	adLists, err := client.ListDNSAdLists()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS adlist entries", err)
+	}
+
+	var existing *routeros.DNSAdList
+	for i := range adLists {
+		if adLists[i].URL == dnsAdBlockURL {
+			existing = &adLists[i]
+			break
+		}
+	}
+
+	currentlyEnabled := existing != nil && !existing.Disabled
+	if currentlyEnabled == req.Enabled {
+		state := "disabled"
+		if req.Enabled {
+			state = "enabled"
+		}
+		return ErrorResponse(c, http.StatusConflict, "Ad-block is already "+state, nil)
+	}
+
+	if req.Enabled {
+		disabled := false
+		if existing != nil {
+			if err := client.UpdateDNSAdList(existing.ID, routeros.DNSAdListUpdateConfig{Disabled: &disabled}); err != nil {
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to enable ad-block adlist", err)
+			}
+		} else {
+			sslVerify := false
+			if _, err := client.AddDNSAdList(routeros.AddDNSAdListConfig{
+				URL:       dnsAdBlockURL,
+				SSLVerify: &sslVerify,
+				Disabled:  false,
+			}); err != nil {
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to create ad-block adlist", err)
+			}
+		}
+	} else if existing != nil {
+		disabled := true
+		if err := client.UpdateDNSAdList(existing.ID, routeros.DNSAdListUpdateConfig{Disabled: &disabled}); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to disable ad-block adlist", err)
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Ad-block state updated successfully", map[string]interface{}{
+		"enabled": req.Enabled,
+	})
 }
 
 // HandleListDNSForwarders godoc
