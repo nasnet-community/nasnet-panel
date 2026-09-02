@@ -231,10 +231,10 @@ func (c *Client) ListDNSAdLists() ([]DNSAdList, error) {
 			ID:         result[".id"],
 			URL:        result["url"],
 			File:       result["file"],
-			SSLVerify:  result["ssl-verify"] == "yes",
+			SSLVerify:  parseRouterOSBool(result["ssl-verify"]),
 			MatchCount: matchCount,
 			NameCount:  nameCount,
-			Disabled:   result["disabled"] == "yes",
+			Disabled:   parseRouterOSBool(result["disabled"]),
 			Comment:    result["comment"],
 		})
 	}
