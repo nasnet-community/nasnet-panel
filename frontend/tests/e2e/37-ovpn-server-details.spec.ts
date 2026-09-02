@@ -130,7 +130,10 @@ test.describe('OpenVPN server details', () => {
       .click();
 
     const dialog = page.getByRole('dialog');
-    await expect(dialog.getByText('Comment', { exact: true })).toBeVisible();
-    await expect(dialog.locator('strong')).toHaveCount(0);
+    const commentValue = dialog
+      .getByText('Comment', { exact: true })
+      .locator('xpath=following-sibling::dd[1]');
+    await expect(commentValue).toHaveText('–');
+    await expect(commentValue.locator('strong')).toHaveCount(0);
   });
 });
