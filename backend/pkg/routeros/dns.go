@@ -2,6 +2,7 @@ package routeros
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -28,6 +29,40 @@ type DNSForwarder struct {
 	DOHServers    []string `json:"dohServers"`
 	VerifyDOHCert bool     `json:"verifyDohCert"`
 	Comment       string   `json:"comment"`
+}
+
+// AddDNSAdListConfig represents every field that can be set when creating a
+// new /ip/dns/adlist entry. An adlist is either URL-based (URL) or backed by
+// a locally stored file (File); exactly one of them should be supplied.
+type AddDNSAdListConfig struct {
+	URL       string
+	File      string
+	SSLVerify *bool
+	Disabled  bool
+	Comment   string
+}
+
+// DNSAdList represents an /ip/dns/adlist entry.
+type DNSAdList struct {
+	ID         string `json:"id"`
+	URL        string `json:"url"`
+	File       string `json:"file"`
+	SSLVerify  bool   `json:"sslVerify"`
+	MatchCount int    `json:"matchCount"`
+	NameCount  int    `json:"nameCount"`
+	Disabled   bool   `json:"disabled"`
+	Comment    string `json:"comment"`
+}
+
+// DNSAdListUpdateConfig represents every field that can be changed on an
+// existing /ip/dns/adlist entry via UpdateDNSAdList. Only non-nil fields are
+// applied; everything else on the entry is left as it was.
+type DNSAdListUpdateConfig struct {
+	URL       *string
+	File      *string
+	SSLVerify *bool
+	Disabled  *bool
+	Comment   *string
 }
 
 // GetDNSInfo retrieves DNS configuration from RouterOS.
@@ -139,6 +174,132 @@ func (c *Client) AddDNSForwarder(name, dnsServers string, verifyDOHCert bool) (s
 	}
 
 	return id, nil
+}
+
+// AddDNSAdList creates a new /ip/dns/adlist entry and returns its RouterOS
+// .id.
+func (c *Client) AddDNSAdList(config AddDNSAdListConfig) (string, error) {
+	if config.URL == "" && config.File == "" {
+		return "", fmt.Errorf("either URL or File is required")
+	}
+
+	args := []string{}
+
+	if config.URL != "" {
+		args = append(args, "=url="+config.URL)
+	}
+	if config.File != "" {
+		args = append(args, "=file="+config.File)
+	}
+	if config.SSLVerify != nil {
+		if *config.SSLVerify {
+			args = append(args, "=ssl-verify=yes")
+		} else {
+			args = append(args, "=ssl-verify=no")
+		}
+	}
+	if config.Disabled {
+		args = append(args, "=disabled=yes")
+	} else {
+		args = append(args, "=disabled=no")
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	id, err := c.Add("/ip/dns/adlist", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add DNS adlist entry: %w", err)
+	}
+
+	return id, nil
+}
+
+// ListDNSAdLists retrieves every /ip/dns/adlist entry from RouterOS.
+func (c *Client) ListDNSAdLists() ([]DNSAdList, error) {
+	results, err := c.GetAll("/ip/dns/adlist")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list DNS adlist entries: %w", err)
+	}
+
+	adLists := make([]DNSAdList, 0, len(results))
+	for _, result := range results {
+		matchCount, _ := strconv.Atoi(result["match-count"])
+		nameCount, _ := strconv.Atoi(result["name-count"])
+
+		adLists = append(adLists, DNSAdList{
+			ID:         result[".id"],
+			URL:        result["url"],
+			File:       result["file"],
+			SSLVerify:  result["ssl-verify"] == "yes",
+			MatchCount: matchCount,
+			NameCount:  nameCount,
+			Disabled:   result["disabled"] == "yes",
+			Comment:    result["comment"],
+		})
+	}
+
+	return adLists, nil
+}
+
+// UpdateDNSAdList updates the /ip/dns/adlist entry identified by id (its
+// RouterOS .id) with the non-nil fields of config.
+func (c *Client) UpdateDNSAdList(id string, config DNSAdListUpdateConfig) error {
+	if id == "" {
+		return fmt.Errorf("DNS adlist ID is required")
+	}
+
+	args := []string{"=.id=" + id}
+
+	if config.URL != nil {
+		args = append(args, "=url="+*config.URL)
+	}
+	if config.File != nil {
+		args = append(args, "=file="+*config.File)
+	}
+	if config.SSLVerify != nil {
+		if *config.SSLVerify {
+			args = append(args, "=ssl-verify=yes")
+		} else {
+			args = append(args, "=ssl-verify=no")
+		}
+	}
+	if config.Disabled != nil {
+		if *config.Disabled {
+			args = append(args, "=disabled=yes")
+		} else {
+			args = append(args, "=disabled=no")
+		}
+	}
+	if config.Comment != nil {
+		args = append(args, "=comment="+*config.Comment)
+	}
+
+	if len(args) == 1 {
+		return fmt.Errorf("no configuration parameters provided")
+	}
+
+	_, err := c.Set("/ip/dns/adlist", args...)
+	if err != nil {
+		return fmt.Errorf("failed to update DNS adlist entry %s: %w", id, err)
+	}
+
+	return nil
+}
+
+// RemoveDNSAdList deletes the /ip/dns/adlist entry identified by id (its
+// RouterOS .id).
+func (c *Client) RemoveDNSAdList(id string) error {
+	if id == "" {
+		return fmt.Errorf("DNS adlist ID is required")
+	}
+
+	_, err := c.Remove("/ip/dns/adlist", "=.id="+id)
+	if err != nil {
+		return fmt.Errorf("failed to remove DNS adlist entry %s: %w", id, err)
+	}
+
+	return nil
 }
 
 // RemoveDNSForwarder deletes the /ip/dns/forwarders entry identified by id
