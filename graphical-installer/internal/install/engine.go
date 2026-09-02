@@ -38,6 +38,9 @@ const (
 	lanDstNet      = "192.168.0.0/16"
 	lanBaselineRsc = "nasnet-lan-baseline.rsc"
 
+	fallbackDNSServers = "1.1.1.1,1.0.0.1"
+	dnsSettleDelay     = 3 * time.Second
+
 	commentTag        = "nasnet-panel-installer"
 	minFreeMB         = 30
 	minROSMajor       = 7

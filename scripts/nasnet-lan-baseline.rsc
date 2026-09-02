@@ -121,6 +121,13 @@
   :if ([:len [/interface/bridge/port find bridge="LANBridgeSplit"]] = 0) do={
     :log warning "nasnet-panel: LANBridgeSplit has no member ports (single-bridge/AP-mode router); reach the panel at the router's current address until the wizard runs"
   }
+  :log info "nasnet-panel: allowing MAC server and neighbor discovery on all interfaces"
+  :do {
+    /ip/neighbor/discovery-settings set discover-interface-list=all
+    /tool/mac-server set allowed-interface-list=all
+  } on-error={
+    :log warning "nasnet-panel: could not allow MAC server and neighbor discovery, Winbox MAC access may be unavailable"
+  }
   :log info "nasnet-panel: LAN baseline applied, gateway is 192.168.10.1"
 }
 :log info "nasnet-panel: routing container DNS (192.168.50.0/24) to 1.0.0.1"
