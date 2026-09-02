@@ -670,7 +670,17 @@ func dnsForwarderCurrentIP(forwarders []routeros.DNSForwarder, name string) (str
 // IP, so that case is treated as a successful no-op instead.
 func changeDNSIPOrNoop(client *routeros.Client, oldIP, newIP string) (*DNSChangeResponse, error) {
 	if oldIP == newIP {
-		return &DNSChangeResponse{OldIP: oldIP, NewIP: newIP}, nil
+		return &DNSChangeResponse{
+			OldIP:                   oldIP,
+			NewIP:                   newIP,
+			Servers:                 []string{},
+			UpdatedForwarders:       []string{},
+			UpdatedDstAddressRoutes: []string{},
+			UpdatedGatewayRoutes:    []string{},
+			UpdatedNetwatchProbes:   []string{},
+			UpdatedAddressListItems: []string{},
+			UpdatedNATRules:         []string{},
+		}, nil
 	}
 	return changeDNSIP(client, oldIP, newIP)
 }
