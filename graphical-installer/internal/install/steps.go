@@ -726,12 +726,16 @@ func (e *Engine) checkVethMenu() error {
 }
 
 func (e *Engine) ensureDNS() error {
-	out, err := e.cl.RunRaw(":put [/ip/dns/get servers]", 15*time.Second)
+	out, err := e.cl.RunChecked(`:local d ""; :do { :set d [/ip/dns/get dynamic-servers] } on-error={}; :put ([:len [/ip/dns/get servers]] + [:len $d])`, 15*time.Second)
 	if err != nil {
 		return fmt.Errorf("failed to read DNS servers: %w", err)
 	}
-	if strings.TrimSpace(out) != "" {
-		e.log("DNS servers %s (exists)", strings.TrimSpace(out))
+	count := strings.TrimSpace(out)
+	if count == "" {
+		return fmt.Errorf("could not read DNS servers from the router")
+	}
+	if count[0] >= '1' && count[0] <= '9' {
+		e.log("router already has DNS servers configured")
 		return nil
 	}
 	if e.opts.DryRun {

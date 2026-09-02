@@ -922,11 +922,14 @@ check_veth_menu() {
 }
 
 ensure_dns() {
-  local servers
-  servers="$(trim "$(ros_cmd ':put [/ip/dns/get servers]' 2>/dev/null || true)")"
-  if [[ -n "$servers" ]]; then
-    printf '  \033[32m✓\033[0m DNS servers %s (exists)\n' "$servers"
+  local count
+  count="$(trim "$(ros_cmd ':local d ""; :do { :set d [/ip/dns/get dynamic-servers] } on-error={}; :put ([:len [/ip/dns/get servers]] + [:len $d])' 2>/dev/null || true)")"
+  if [[ "$count" =~ ^[1-9] ]]; then
+    printf '  \033[32m✓\033[0m DNS servers already configured\n'
     return 0
+  fi
+  if [[ ! "$count" =~ ^0 ]]; then
+    err "could not read DNS servers from the router"; return 1
   fi
   if (( DRY_RUN )); then
     printf '  + DNS servers %s (would set)\n' "$FALLBACK_DNS_SERVERS"
