@@ -4,6 +4,7 @@ import { AppThemeProvider } from './state/ThemeContext';
 import { RouterStoreProvider } from './state/RouterStoreContext';
 import { SessionProvider } from './state/SessionContext';
 import { WizardGateProvider } from './state/WizardGateContext';
+import { AuthErrorRedirect } from './state/AuthErrorRedirect';
 import { InstalledPluginsProvider } from './state/InstalledPluginsContext';
 import { AppShell } from './layout/AppShell';
 import { RouterListPage } from './routes/RouterListPage';
@@ -40,6 +41,7 @@ export function App() {
             <InstalledPluginsProvider>
               <ToastProvider>
                 <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                  <AuthErrorRedirect />
                   <Routes>
                     <Route path="/" element={<RouterListPage />} />
                     <Route

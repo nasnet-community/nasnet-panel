@@ -65,6 +65,7 @@ export async function testCredentials(
       'X-RouterOS-Host': host,
     },
     signal,
+    skipAuthRedirect: true,
   });
 }
 
