@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Info, TriangleAlert } from 'lucide-react';
 import {
   Button,
   Dialog,
@@ -22,8 +23,24 @@ import {
   type VPNProfileResponse,
   type VPNUserResponse,
 } from '../../../api';
+import styles from './UserFormDialog.module.scss';
 
 const PREFERRED_PROFILE = 'VPN-VPN';
+
+const PROFILE_HINTS: Record<string, { tone: 'info' | 'danger'; text: string }> = {
+  'VPN-VPN': {
+    tone: 'info',
+    text: 'All of the user’s traffic is routed through the outbound VPN.',
+  },
+  'VPN-Split': {
+    tone: 'info',
+    text: 'Foreign traffic is routed through the outbound VPN and domestic traffic through the domestic link.',
+  },
+  'VPN-Foreign': {
+    tone: 'danger',
+    text: 'All of the user’s traffic is routed through Starlink, which can expose your identity and Starlink usage. Use with caution.',
+  },
+};
 
 interface Draft {
   name: string;
@@ -104,6 +121,8 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
     return options;
   }, [profiles, user?.profile]);
 
+  const profileHint = PROFILE_HINTS[draft.profile];
+
   const errors = useMemo(
     () => ({
       name: draft.name.trim() === '' ? 'Name is required.' : null,
@@ -182,6 +201,30 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
         <FormError role="alert">{loadError}</FormError>
       ) : (
         <FieldStack>
+          <div className={`${styles.alert} ${styles.alertInfo}`}>
+            <Info size={16} aria-hidden className={styles.alertIcon} />
+            <span>
+              VPN users apply to OpenVPN, L2TP and SSTP. For WireGuard, open the WireGuard server
+              and add a peer instead.
+            </span>
+          </div>
+          {profileHint ? (
+            <div
+              className={`${styles.alert} ${
+                profileHint.tone === 'danger' ? styles.alertDanger : styles.alertInfo
+              }`}
+              role={profileHint.tone === 'danger' ? 'alert' : undefined}
+            >
+              {profileHint.tone === 'danger' ? (
+                <TriangleAlert size={16} aria-hidden className={styles.alertIcon} />
+              ) : (
+                <Info size={16} aria-hidden className={styles.alertIcon} />
+              )}
+              <span>
+                <strong>{draft.profile}</strong> {profileHint.text}
+              </span>
+            </div>
+          ) : null}
           <FieldRow>
             <Label>
               <span>Name</span>
