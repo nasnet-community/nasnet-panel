@@ -22,7 +22,7 @@ export interface ApiRequestInit extends RequestInit {
   skipAuthRedirect?: boolean;
 }
 
-type UnauthorizedHandler = () => void;
+type UnauthorizedHandler = (host: string | null) => void;
 
 let unauthorizedHandler: UnauthorizedHandler | null = null;
 
@@ -57,7 +57,7 @@ export async function apiRequest<T>(path: string, init: ApiRequestInit = {}): Pr
   if (!response.ok) {
     const message = body?.error || body?.message || `Request failed (${response.status})`;
     if (response.status === 401 && !skipAuthRedirect) {
-      unauthorizedHandler?.();
+      unauthorizedHandler?.(headers.get('X-RouterOS-Host'));
     }
     throw new ApiError(message, response.status);
   }
