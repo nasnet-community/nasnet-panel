@@ -114,15 +114,11 @@ export interface VPNServersStatusResponse {
 export interface OvpnServerDetailsResponse {
   name: string;
   port: number;
-  mode: string;
   protocol: string;
-  macAddress: string;
   certificate: string;
   requireClientCertificate: boolean;
-  auth: string;
-  cipher: string;
-  userAuthMethod: string;
   enabled: boolean;
+  comment?: string;
 }
 
 export interface L2TPUserSecret {

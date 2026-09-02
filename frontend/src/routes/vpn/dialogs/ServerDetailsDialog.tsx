@@ -316,17 +316,13 @@ function DetailsBody({
           <Row label="Name" value={d.name} />
           <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
           {server.listenPort ? null : <Row label="Port" value={d.port} />}
-          <Row label="Mode" value={d.mode} />
           <Row label="Protocol" value={d.protocol} />
-          <Row label="MAC address" value={d.macAddress} />
           <Row label="Certificate" value={d.certificate} />
           <Row
             label="Require client cert"
             value={<BoolBadge value={d.requireClientCertificate} />}
           />
-          <Row label="Auth" value={d.auth} />
-          <Row label="Cipher" value={d.cipher} />
-          <Row label="User auth method" value={d.userAuthMethod} />
+          <Row label="Comment" value={d.comment ? <strong>{d.comment}</strong> : '–'} wide />
         </DList>
       );
     }
