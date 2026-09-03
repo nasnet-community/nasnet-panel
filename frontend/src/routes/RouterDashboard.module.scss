@@ -36,3 +36,19 @@
   text-align: center;
   color: var(--color-text-muted);
 }
+
+.unreachable {
+  padding: var(--space-2xl);
+  text-align: center;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.unreachableTitle {
+  margin: 0;
+  font-size: var(--font-lg);
+  color: var(--color-text);
+}

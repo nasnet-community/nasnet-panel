@@ -33,6 +33,9 @@ LAN_BRIDGE="LANBridgeSplit"
 LAN_BRIDGE_IP="192.168.10.1"
 LAN_BASELINE_RSC="nasnet-lan-baseline.rsc"
 
+FALLBACK_DNS_SERVERS="1.1.1.1,1.0.0.1"
+DNS_SETTLE_DELAY=3
+
 COMMENT_TAG="nasnet-panel-installer"
 MIN_FREE_MB=30
 DEVICE_MODE_TIMEOUT=120
@@ -918,11 +921,33 @@ check_veth_menu() {
   return 1
 }
 
+ensure_dns() {
+  local count
+  count="$(trim "$(ros_cmd ':put ([:len [/ip/dns/get servers]] + [:len [/ip/dns/get dynamic-servers]])' 2>/dev/null || true)")"
+  if [[ "$count" =~ ^[1-9] ]]; then
+    printf '  \033[32m✓\033[0m DNS servers already configured\n'
+    return 0
+  fi
+  if [[ ! "$count" =~ ^0 ]]; then
+    err "could not read DNS servers from the router"; return 1
+  fi
+  if (( DRY_RUN )); then
+    printf '  + DNS servers %s (would set)\n' "$FALLBACK_DNS_SERVERS"
+    return 0
+  fi
+  if ! spin "DNS servers ${FALLBACK_DNS_SERVERS}" ros_cmd "/ip/dns/set servers=${FALLBACK_DNS_SERVERS}"; then
+    err "failed to set DNS servers"; return 1
+  fi
+  sleep "$DNS_SETTLE_DELAY"
+}
+
 configure_network() {
   log ""
   log "Configuring network ..."
 
   check_veth_menu || exit 1
+
+  ensure_dns || exit 1
 
   ros_ensure "veth ${VETH_NAME} (${VETH_ADDR_CIDR})" \
     /interface/veth "name=${VETH_NAME}" \

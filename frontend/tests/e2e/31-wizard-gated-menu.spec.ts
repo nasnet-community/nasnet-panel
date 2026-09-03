@@ -29,7 +29,7 @@ test.describe('Wizard-gated navigation', () => {
     await expect(page).toHaveURL(/\/router\/rtr_fresh\/config$/);
   });
 
-  test('treats a failing status check as a fresh router', async ({
+  test('shows an unreachable notice instead of the wizard when the status check fails', async ({
     page,
     resetMocks,
     seedRouter,
@@ -44,7 +44,8 @@ test.describe('Wizard-gated navigation', () => {
     });
 
     await page.goto('/router/rtr_err');
-    await expect(page).toHaveURL(/\/router\/rtr_err\/config$/);
+    await expect(page.getByRole('heading', { name: 'Router unreachable' })).toBeVisible();
+    await expect(page).toHaveURL(/\/router\/rtr_err$/);
     await expect(page.locator('[role="tablist"][aria-label="Router sections"]')).toHaveCount(0);
   });
 
