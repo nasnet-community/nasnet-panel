@@ -1627,6 +1627,14 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		clientEndpointResponse = *clientEndpoint
 	}
 
+	// req.Disabled reflects what was actually sent to RouterOS; when it's
+	// nil the disabled property was omitted from the add call, so the
+	// created peer's disabled state is RouterOS's own default (enabled).
+	disabledResponse := false
+	if req.Disabled != nil {
+		disabledResponse = *req.Disabled
+	}
+
 	response := WireGuardServerPeerCreateResponse{
 		Name:                 peerName,
 		InterfaceName:        interfaceName,
@@ -1642,7 +1650,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		ClientAllowedAddress: clientAllowedAddress,
 		ClientListenPort:     clientListenPort,
 		ClientEndpoint:       clientEndpointResponse,
-		Disabled:             false,
+		Disabled:             disabledResponse,
 	}
 
 	if req.PersistentKeepalive != nil {
