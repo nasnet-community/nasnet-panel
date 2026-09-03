@@ -1390,18 +1390,17 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WireGuard peers retrieved successfully", response)
 }
 
-// nextWireGuardClientAddress returns the IPv4 address offset addresses after
-// the WireGuard interface's own address (given as a CIDR, e.g. "10.0.0.1/24"),
-// staying within that address's subnet. Offset is typically the 1-based
-// position of the client being created (peer count + 1), so the first client
-// lands right after the interface's own address. Returns an error once the
+// nextWireGuardClientAddress returns the first unused IPv4 address after the
+// WireGuard interface's own address (given as a CIDR, e.g. "10.0.0.1/24"),
+// staying within that address's subnet. Used holds the addresses already
+// assigned to existing peers (as plain IPs, no CIDR suffix); walking the
+// range and skipping those already in use, rather than deriving an address
+// solely from the peer count, keeps addresses correct even after peers in
+// the middle of the range have been deleted. If used is empty, the result is
+// simply the interface's own address + 1. Returns an error once the
 // subnet's usable range (up to, but excluding, its broadcast address) is
 // exhausted.
-func nextWireGuardClientAddress(interfaceCIDR string, offset int) (string, error) {
-	if offset < 0 {
-		return "", fmt.Errorf("offset must be non-negative")
-	}
-
+func nextWireGuardClientAddress(interfaceCIDR string, used map[string]struct{}) (string, error) {
 	ip, ipNet, err := net.ParseCIDR(interfaceCIDR)
 	if err != nil {
 		return "", fmt.Errorf("invalid interface address %q: %w", interfaceCIDR, err)
@@ -1414,18 +1413,23 @@ func nextWireGuardClientAddress(interfaceCIDR string, offset int) (string, error
 	ones, _ := ipNet.Mask.Size() // guaranteed 0-32 by net.ParseCIDR
 	networkAddr := binary.BigEndian.Uint32(ipNet.IP.To4())
 	broadcastAddr := networkAddr | (^uint32(0) >> uint(ones)) //nolint:gosec // G115: ones is 0-32, guaranteed by net.ParseCIDR
+	base := uint64(binary.BigEndian.Uint32(ip4))
 
-	// Do the arithmetic in a wider type so a large offset can't silently wrap
-	// uint32 and land back inside the subnet's valid range.
-	candidate64 := uint64(binary.BigEndian.Uint32(ip4)) + uint64(offset)
-	if candidate64 > uint64(math.MaxUint32) || candidate64 >= uint64(broadcastAddr) {
-		return "", fmt.Errorf("no available client IP addresses left in the %s subnet", interfaceCIDR)
+	// Arithmetic is done in a wider type so a large offset can't silently
+	// wrap uint32 and land back inside the subnet's valid range.
+	for offset := uint64(1); ; offset++ {
+		candidate64 := base + offset
+		if candidate64 > uint64(math.MaxUint32) || candidate64 >= uint64(broadcastAddr) {
+			return "", fmt.Errorf("no available client IP addresses left in the %s subnet", interfaceCIDR)
+		}
+
+		clientIP := make(net.IP, 4)
+		binary.BigEndian.PutUint32(clientIP, uint32(candidate64))
+		candidateAddr := clientIP.String()
+		if _, taken := used[candidateAddr]; !taken {
+			return candidateAddr, nil
+		}
 	}
-	candidate := uint32(candidate64)
-
-	clientIP := make(net.IP, 4)
-	binary.BigEndian.PutUint32(clientIP, candidate)
-	return clientIP.String(), nil
 }
 
 // HandleCreateWireGuardServerPeer creates a new peer on a WireGuard server interface.
@@ -1507,12 +1511,24 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	}
 	clientDNS := interfaceIP.String()
 
-	peerCount, err := client.CountWireGuardPeers(interfaceName)
+	existingPeers, err := client.GetWireGuardPeers(interfaceName)
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to count WireGuard peers", err)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list WireGuard peers", err)
 	}
 
-	clientAddress, err := nextWireGuardClientAddress(interfaceAddresses[0].Address, peerCount+1)
+	usedAddresses := make(map[string]struct{}, len(existingPeers))
+	for i := range existingPeers {
+		addr := strings.TrimSpace(existingPeers[i].ClientAddress)
+		if addr == "" {
+			continue
+		}
+		if parsedIP, _, err := net.ParseCIDR(addr); err == nil {
+			addr = parsedIP.String()
+		}
+		usedAddresses[addr] = struct{}{}
+	}
+
+	clientAddress, err := nextWireGuardClientAddress(interfaceAddresses[0].Address, usedAddresses)
 	if err != nil {
 		return ErrorResponse(c, http.StatusConflict, "Failed to determine client IP address", err)
 	}
