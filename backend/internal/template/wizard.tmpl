@@ -472,11 +472,14 @@ add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 ga
 {{ if .DomesticEnabled}}
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic-Domestic Link"
+add comment="Domestic DNS leak guard" blackhole dst-address=217.218.127.127/32 routing-table=main distance=254 scope=30
 {{ end }}
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN"
-add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign-Foreign Link"
+add comment="Blackhole" blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign-Foreign Link"
+add comment="VPN DNS leak guard" blackhole dst-address=1.0.0.1/32 routing-table=main distance=254 scope=30
+add comment="Foreign DNS leak guard" blackhole dst-address=1.1.1.1/32 routing-table=main distance=254 scope=30
 
 :global WizardProgress "70"
 
