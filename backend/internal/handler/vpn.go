@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 	"net"
 	"net/http"
 	"strings"
@@ -1413,10 +1414,13 @@ func nextWireGuardClientAddress(interfaceCIDR string, offset int) (string, error
 	networkAddr := binary.BigEndian.Uint32(ipNet.IP.To4())
 	broadcastAddr := networkAddr | (^uint32(0) >> uint(ones)) //nolint:gosec // G115: ones is 0-32, guaranteed by net.ParseCIDR
 
-	candidate := binary.BigEndian.Uint32(ip4) + uint32(offset) //nolint:gosec // G115: offset is validated non-negative above
-	if candidate >= broadcastAddr {
+	// Do the arithmetic in a wider type so a large offset can't silently wrap
+	// uint32 and land back inside the subnet's valid range.
+	candidate64 := uint64(binary.BigEndian.Uint32(ip4)) + uint64(offset)
+	if candidate64 > uint64(math.MaxUint32) || candidate64 >= uint64(broadcastAddr) {
 		return "", fmt.Errorf("no available client IP addresses left in the %s subnet", interfaceCIDR)
 	}
+	candidate := uint32(candidate64)
 
 	clientIP := make(net.IP, 4)
 	binary.BigEndian.PutUint32(clientIP, candidate)
