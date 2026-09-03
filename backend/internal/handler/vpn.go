@@ -6,6 +6,7 @@ import (
 	"math"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -1485,7 +1486,10 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 
 	clientEndpoint := req.ClientEndpoint
 	if req.ClientEndpointIP != nil && *req.ClientEndpointIP != "" {
-		derived := fmt.Sprintf("%s:%d", *req.ClientEndpointIP, wg.ListenPort)
+		if net.ParseIP(*req.ClientEndpointIP) == nil {
+			return ErrorResponse(c, http.StatusBadRequest, "clientEndpointIp must be a valid IP address", nil)
+		}
+		derived := net.JoinHostPort(*req.ClientEndpointIP, strconv.Itoa(wg.ListenPort))
 		clientEndpoint = &derived
 	}
 
