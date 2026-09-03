@@ -4,6 +4,7 @@ import { Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
   fetchVPNServersStatus,
+  fetchWireguardPeers,
   listVPNClients,
   listVPNUsers,
   type VPNClient,
@@ -32,6 +33,7 @@ export function VPNPage() {
   const [clients, setClients] = useState<VPNClient[]>([]);
   const [servers, setServers] = useState<VPNServer[]>([]);
   const [users, setUsers] = useState<VPNUserResponse[]>([]);
+  const [peerCounts, setPeerCounts] = useState<Record<string, number>>({});
   const [loaded, setLoaded] = useState(false);
   const peers: VPNPeer[] = [];
 
@@ -51,10 +53,30 @@ export function VPNPage() {
         fetchVPNServersStatus(creds),
         listVPNUsers(creds),
       ]);
+      const mappedServers = mapServersStatusToList(serversStatus, id);
       setClients(rawClients.map((c) => mapClientFromBE(c, id)));
-      setServers(mapServersStatusToList(serversStatus, id));
+      setServers(mappedServers);
       setUsers(rawUsers);
       setLoaded(true);
+      const counted = await Promise.all(
+        mappedServers
+          .filter((s) => s.protocol === 'wireguard')
+          .map(async (s): Promise<[string, number] | null> => {
+            try {
+              const wgPeers = await fetchWireguardPeers(creds, s.name);
+              return [s.id, wgPeers.length];
+            } catch {
+              return null;
+            }
+          }),
+      );
+      setPeerCounts((prev) => {
+        const next = { ...prev };
+        for (const entry of counted) {
+          if (entry) next[entry[0]] = entry[1];
+        }
+        return next;
+      });
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -86,7 +108,7 @@ export function VPNPage() {
         protocols={protocols}
         loading={!loaded}
       />
-      <ServersSection creds={creds} servers={servers} onChanged={reload} />
+      <ServersSection creds={creds} servers={servers} peerCounts={peerCounts} onChanged={reload} />
       <UsersSection creds={creds} users={users} onChanged={reload} />
       {/* <PeersSection routerId={id} peers={peers} servers={servers} onChanged={reload} /> */}
     </Stack>

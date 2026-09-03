@@ -11,6 +11,7 @@ interface Props {
   onDisable?: (server: VPNServer) => void;
   onToggleEnabled?: (server: VPNServer) => void;
   canMutate?: boolean;
+  peerCounts?: Record<string, number>;
 }
 
 const isDeletable = (s: VPNServer) => s.protocol === 'openvpn' || s.protocol === 'wireguard';
@@ -27,6 +28,7 @@ export function ServersTable({
   onDisable,
   onToggleEnabled,
   canMutate = false,
+  peerCounts = {},
 }: Props) {
   return (
     <DataTable
@@ -55,6 +57,21 @@ export function ServersTable({
             const transport = s.transport.toLowerCase();
             const tone = transport === 'tcp' ? 'primary' : transport === 'udp' ? 'info' : 'neutral';
             return <Badge tone={tone}>{`${transport}:${s.listenPort}`}</Badge>;
+          },
+        },
+        {
+          key: 'peers',
+          header: 'Peers',
+          render: (s: VPNServer) => {
+            if (s.protocol !== 'wireguard') return '–';
+            const count = peerCounts[s.id];
+            if (count === undefined) return '–';
+            const label = `${count} ${count === 1 ? 'peer' : 'peers'} on ${s.name}`;
+            return (
+              <Badge tone="neutral" title={label} aria-label={label}>
+                {count}
+              </Badge>
+            );
           },
         },
         {
