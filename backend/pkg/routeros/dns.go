@@ -115,6 +115,16 @@ func (c *Client) UpdateDNSConfig(config DNSUpdateConfig) error {
 	return nil
 }
 
+// FlushDNSCache clears the RouterOS DNS cache (/ip/dns/cache/flush).
+func (c *Client) FlushDNSCache() error {
+	_, err := c.Execute("/ip/dns/cache/flush")
+	if err != nil {
+		return fmt.Errorf("failed to flush DNS cache: %w", err)
+	}
+
+	return nil
+}
+
 // ListDNSForwarders retrieves every named DNS forwarder from /ip/dns/forwarders.
 func (c *Client) ListDNSForwarders() ([]DNSForwarder, error) {
 	results, err := c.GetAll("/ip/dns/forwarders")

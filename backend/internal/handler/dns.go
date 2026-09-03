@@ -67,6 +67,33 @@ func HandleGetDNSInfo(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "DNS information retrieved", response)
 }
 
+// HandleFlushDNSCache godoc
+// @Summary Clear the RouterOS DNS cache
+// @Description Runs /ip/dns/cache/flush on the RouterOS device
+// @Tags DNS
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} Response
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/dns/cache [delete].
+func HandleFlushDNSCache(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if err := client.FlushDNSCache(); err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to flush DNS cache", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "DNS cache cleared successfully", nil)
+}
+
 // HandleSetAdBlock godoc
 // @Summary Enable or disable the StevenBlack hosts adlist ad-blocker
 // @Description Checks the current status of the /ip/dns/adlist entry whose url is
