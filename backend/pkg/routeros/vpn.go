@@ -333,6 +333,7 @@ type WireGuardPeerInfo struct {
 	PreSharedKey           string
 	PersistentKeepalive    string
 	ClientEndpoint         string
+	ClientAddress          string
 	ClientAllowedAddress   string
 	LastHandshake          string
 	RxBytes                int64
@@ -1549,6 +1550,14 @@ func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 		args = append(args, "=private-key="+*config.PrivateKey)
 	}
 
+	if config.Disabled != nil {
+		if *config.Disabled {
+			args = append(args, "=disabled=yes")
+		} else {
+			args = append(args, "=disabled=no")
+		}
+	}
+
 	if config.ClientEndpoint != nil && *config.ClientEndpoint != "" {
 		args = append(args, "=client-endpoint="+*config.ClientEndpoint)
 	}
@@ -1619,6 +1628,7 @@ func (c *Client) GetWireGuardPeers(interfaceName string) ([]WireGuardPeerInfo, e
 			PreSharedKey:           result["preshared-key"],
 			PersistentKeepalive:    result["persistent-keepalive"],
 			ClientEndpoint:         result["client-endpoint"],
+			ClientAddress:          result["client-address"],
 			ClientAllowedAddress:   result["client-allowed-address"],
 			LastHandshake:          result["last-handshake"],
 			RxBytes:                rxBytes,

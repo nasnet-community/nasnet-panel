@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"encoding/binary"
 	"fmt"
+	"math"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -1387,9 +1390,98 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WireGuard peers retrieved successfully", response)
 }
 
+// wireGuardUsedClientAddresses collects every client address already in use
+// across peers, as plain IPs (no CIDR suffix), so nextWireGuardClientAddress
+// can avoid reassigning one. A peer's ClientAddress may itself hold more than
+// one comma-separated value; each is split, trimmed, and reserved on its own,
+// with empty entries ignored.
+func wireGuardUsedClientAddresses(peers []routeros.WireGuardPeerInfo) map[string]struct{} {
+	used := make(map[string]struct{}, len(peers))
+	for i := range peers {
+		for _, addr := range strings.Split(peers[i].ClientAddress, ",") {
+			addr = strings.TrimSpace(addr)
+			if addr == "" {
+				continue
+			}
+			if parsedIP, _, err := net.ParseCIDR(addr); err == nil {
+				addr = parsedIP.String()
+			}
+			used[addr] = struct{}{}
+		}
+	}
+	return used
+}
+
+// wireGuardPeerCreationLocks holds one *sync.Mutex per WireGuard interface
+// name, lazily created. Locking on the interface name (rather than a single
+// global lock) serializes peer creation for that interface only, so
+// concurrent requests for the same interface can't race to pick and create
+// the same clientAddress, while requests against different interfaces still
+// proceed independently.
+var wireGuardPeerCreationLocks sync.Map
+
+// lockWireGuardInterfacePeers acquires the per-interface lock for
+// interfaceName and returns a func that releases it.
+func lockWireGuardInterfacePeers(interfaceName string) func() {
+	lockAny, _ := wireGuardPeerCreationLocks.LoadOrStore(interfaceName, &sync.Mutex{})
+	lock, ok := lockAny.(*sync.Mutex)
+	if !ok {
+		lock = &sync.Mutex{}
+	}
+	lock.Lock()
+	return lock.Unlock
+}
+
+// nextWireGuardClientAddress returns the first unused IPv4 address after the
+// WireGuard interface's own address (given as a CIDR, e.g. "10.0.0.1/24"),
+// staying within that address's subnet. Used holds the addresses already
+// assigned to existing peers (as plain IPs, no CIDR suffix); walking the
+// range and skipping those already in use, rather than deriving an address
+// solely from the peer count, keeps addresses correct even after peers in
+// the middle of the range have been deleted. If used is empty, the result is
+// simply the interface's own address + 1. Returns an error once the
+// subnet's usable range (up to, but excluding, its broadcast address) is
+// exhausted.
+func nextWireGuardClientAddress(interfaceCIDR string, used map[string]struct{}) (string, error) {
+	ip, ipNet, err := net.ParseCIDR(interfaceCIDR)
+	if err != nil {
+		return "", fmt.Errorf("invalid interface address %q: %w", interfaceCIDR, err)
+	}
+	ip4 := ip.To4()
+	if ip4 == nil {
+		return "", fmt.Errorf("interface address %q is not an IPv4 address", interfaceCIDR)
+	}
+
+	ones, _ := ipNet.Mask.Size() // guaranteed 0-32 by net.ParseCIDR
+	networkAddr := binary.BigEndian.Uint32(ipNet.IP.To4())
+	broadcastAddr := networkAddr | (^uint32(0) >> uint(ones)) //nolint:gosec // G115: ones is 0-32, guaranteed by net.ParseCIDR
+	base := uint64(binary.BigEndian.Uint32(ip4))
+
+	// Arithmetic is done in a wider type so a large offset can't silently
+	// wrap uint32 and land back inside the subnet's valid range.
+	for offset := uint64(1); ; offset++ {
+		candidate64 := base + offset
+		if candidate64 > uint64(math.MaxUint32) || candidate64 >= uint64(broadcastAddr) {
+			return "", fmt.Errorf("no available client IP addresses left in the %s subnet", interfaceCIDR)
+		}
+
+		clientIP := make(net.IP, 4)
+		binary.BigEndian.PutUint32(clientIP, uint32(candidate64))
+		candidateAddr := clientIP.String()
+		if _, taken := used[candidateAddr]; !taken {
+			return candidateAddr, nil
+		}
+	}
+}
+
 // HandleCreateWireGuardServerPeer creates a new peer on a WireGuard server interface.
 // @Summary Create WireGuard Server Peer
-// @Description Add a new peer to an existing WireGuard server interface with auto-generated keys
+// @Description Add a new peer to an existing WireGuard server interface with auto-generated keys.
+// @Description The client's address, DNS, keepalive, allowed-address and listen-port are all
+// @Description derived automatically: address is the next free IP after the interface's own
+// @Description address within its subnet, DNS is the interface's own address, keepalive is 30,
+// @Description allowed-address matches the peer's own allowedAddresses, and listen-port matches
+// @Description the interface's listen port. Only the client endpoint may be supplied by the caller.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -1398,6 +1490,7 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 // @Success 200 {object} Response{data=WireGuardServerPeerCreateResponse}
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/wireguard/peer [post].
 func HandleCreateWireGuardServerPeer(c echo.Context) error {
@@ -1415,13 +1508,72 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
 	}
 
+	if req.AllowedAddresses == "" {
+		req.AllowedAddresses = "0.0.0.0/0"
+	}
+
+	if req.ClientEndpoint != nil && req.ClientEndpointIP != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Only one of clientEndpoint or clientEndpointIp may be supplied", nil)
+	}
+
+	if req.ClientEndpoint != nil {
+		if err := utils.ValidateIPPort(*req.ClientEndpoint); err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "clientEndpoint must be in ip:port format", err)
+		}
+	}
+
 	interfaceName := req.InterfaceName
 
 	// Verify the WireGuard interface exists
-	_, err = client.GetWireGuard(interfaceName)
+	wg, err := client.GetWireGuard(interfaceName)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
 	}
+
+	clientEndpoint := req.ClientEndpoint
+	if req.ClientEndpointIP != nil && *req.ClientEndpointIP != "" {
+		if net.ParseIP(*req.ClientEndpointIP) == nil {
+			return ErrorResponse(c, http.StatusBadRequest, "clientEndpointIp must be a valid IP address", nil)
+		}
+		derived := net.JoinHostPort(*req.ClientEndpointIP, strconv.Itoa(wg.ListenPort))
+		clientEndpoint = &derived
+	}
+
+	interfaceAddresses, err := client.GetIPAddressesByInterface(interfaceName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get WireGuard interface IP address", err)
+	}
+	if len(interfaceAddresses) == 0 {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface has no IP address configured", nil)
+	}
+
+	interfaceIP, _, err := net.ParseCIDR(interfaceAddresses[0].Address)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to parse WireGuard interface IP address", err)
+	}
+	clientDNS := interfaceIP.String()
+
+	// Serialize the read-allocate-create sequence below per interface, so
+	// concurrent requests for the same interface can't both allocate the
+	// same clientAddress before either has created its peer.
+	unlockInterfacePeers := lockWireGuardInterfacePeers(interfaceName)
+	defer unlockInterfacePeers()
+
+	existingPeers, err := client.GetWireGuardPeers(interfaceName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list WireGuard peers", err)
+	}
+
+	usedAddresses := wireGuardUsedClientAddresses(existingPeers)
+
+	clientAddress, err := nextWireGuardClientAddress(interfaceAddresses[0].Address, usedAddresses)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Failed to determine client IP address", err)
+	}
+
+	clientKeepalive := 30
+	clientListenPort := wg.ListenPort
+	clientAllowedAddress := req.AllowedAddresses
 
 	// Determine peer name
 	var peerName string
@@ -1487,12 +1639,12 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		PersistentKeepalive:  req.PersistentKeepalive,
 		SavePrivateKey:       req.SavePrivateKey != nil && *req.SavePrivateKey,
 		Disabled:             req.Disabled,
-		ClientEndpoint:       req.ClientEndpoint,
-		ClientAddress:        req.ClientAddress,
-		ClientKeepalive:      req.ClientKeepalive,
-		ClientAllowedAddress: req.ClientAllowedAddress,
-		ClientListenPort:     req.ClientListenPort,
-		ClientDNS:            req.ClientDNS,
+		ClientEndpoint:       clientEndpoint,
+		ClientAddress:        &clientAddress,
+		ClientKeepalive:      &clientKeepalive,
+		ClientAllowedAddress: &clientAllowedAddress,
+		ClientListenPort:     &clientListenPort,
+		ClientDNS:            &clientDNS,
 		Comment:              req.Comment,
 		Responder:            req.Responder,
 	}
@@ -1508,16 +1660,35 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		preSharedKeyResponse = *preSharedKey
 	}
 
+	var clientEndpointResponse string
+	if clientEndpoint != nil {
+		clientEndpointResponse = *clientEndpoint
+	}
+
+	// req.Disabled reflects what was actually sent to RouterOS; when it's
+	// nil the disabled property was omitted from the add call, so the
+	// created peer's disabled state is RouterOS's own default (enabled).
+	disabledResponse := false
+	if req.Disabled != nil {
+		disabledResponse = *req.Disabled
+	}
+
 	response := WireGuardServerPeerCreateResponse{
-		Name:             peerName,
-		InterfaceName:    interfaceName,
-		PublicKey:        publicKey,
-		PrivateKey:       privateKey,
-		PreSharedKey:     preSharedKeyResponse,
-		EndpointAddress:  req.EndpointAddress,
-		EndpointPort:     req.EndpointPort,
-		AllowedAddresses: req.AllowedAddresses,
-		Disabled:         false,
+		Name:                 peerName,
+		InterfaceName:        interfaceName,
+		PublicKey:            publicKey,
+		PrivateKey:           privateKey,
+		PreSharedKey:         preSharedKeyResponse,
+		EndpointAddress:      req.EndpointAddress,
+		EndpointPort:         req.EndpointPort,
+		AllowedAddresses:     req.AllowedAddresses,
+		ClientAddress:        clientAddress,
+		ClientDNS:            clientDNS,
+		ClientKeepalive:      clientKeepalive,
+		ClientAllowedAddress: clientAllowedAddress,
+		ClientListenPort:     clientListenPort,
+		ClientEndpoint:       clientEndpointResponse,
+		Disabled:             disabledResponse,
 	}
 
 	if req.PersistentKeepalive != nil {
