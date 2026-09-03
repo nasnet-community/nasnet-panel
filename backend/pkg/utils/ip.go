@@ -2,8 +2,10 @@ package utils
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net"
 	"sort"
+	"strconv"
 )
 
 type IPSortable struct {
@@ -21,6 +23,22 @@ func ParseIPToNumeric(ipStr string) uint32 {
 		return 0
 	}
 	return binary.BigEndian.Uint32(ip)
+}
+
+// ValidateIPPort reports an error unless value is a valid "ip:port" pair.
+func ValidateIPPort(value string) error {
+	host, portStr, err := net.SplitHostPort(value)
+	if err != nil {
+		return fmt.Errorf("invalid ip:port %q: %w", value, err)
+	}
+	if net.ParseIP(host) == nil {
+		return fmt.Errorf("invalid IP address: %s", host)
+	}
+	port, err := strconv.Atoi(portStr)
+	if err != nil || port < 1 || port > 65535 {
+		return fmt.Errorf("invalid port: %s", portStr)
+	}
+	return nil
 }
 
 func SortIPsByNumeric(ips []string) []string {

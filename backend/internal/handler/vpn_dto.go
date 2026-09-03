@@ -476,39 +476,41 @@ func ToWireGuardDetailedResponse(wg *routeros.WireGuardInfo, peers []routeros.Wi
 
 // CreateWireGuardServerPeerRequest represents a request to add a peer to a WireGuard server.
 type CreateWireGuardServerPeerRequest struct {
-	InterfaceName        string  `json:"interfaceName" binding:"required" example:"wg-server"`
-	Name                 *string `json:"name" example:"office-peer-1"`
-	EndpointAddress      string  `json:"endpointAddress" example:"203.0.113.50" binding:"required"`
-	EndpointPort         int     `json:"endpointPort" example:"51820" binding:"required"`
-	AllowedAddresses     string  `json:"allowedAddresses" example:"192.168.1.0/24" binding:"required"`
-	PrivateKey           *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
-	PublicKey            *string `json:"publicKey" example:"wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="`
-	PreSharedKey         *string `json:"preSharedKey" example:"qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="`
-	PersistentKeepalive  *int    `json:"persistentKeepalive" example:"25"`
-	SavePrivateKey       *bool   `json:"savePrivateKey" example:"false"`
-	Disabled             *bool   `json:"disabled" example:"false"`
-	ClientEndpoint       *string `json:"clientEndpoint" example:"10.0.0.1:51820"`
-	ClientAddress        *string `json:"clientAddress" example:"10.0.0.2/32"`
-	ClientKeepalive      *int    `json:"clientKeepalive" example:"10"`
-	ClientAllowedAddress *string `json:"clientAllowedAddress" example:"10.0.0.0/24"`
-	ClientListenPort     *int    `json:"clientListenPort" example:"51820"`
-	ClientDNS            *string `json:"clientDNS" example:"8.8.8.8,8.8.4.4"`
-	Comment              *string `json:"comment" example:"Office VPN Peer"`
-	Responder            *bool   `json:"responder" example:"false"`
+	InterfaceName       string  `json:"interfaceName" binding:"required" example:"wg-server"`
+	Name                *string `json:"name" example:"office-peer-1"`
+	EndpointAddress     string  `json:"endpointAddress" example:"203.0.113.50" binding:"required"`
+	EndpointPort        int     `json:"endpointPort" example:"51820" binding:"required"`
+	AllowedAddresses    string  `json:"allowedAddresses" example:"192.168.1.0/24"`
+	PrivateKey          *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
+	PublicKey           *string `json:"publicKey" example:"wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="`
+	PreSharedKey        *string `json:"preSharedKey" example:"qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="`
+	PersistentKeepalive *int    `json:"persistentKeepalive" example:"25"`
+	SavePrivateKey      *bool   `json:"savePrivateKey" example:"false"`
+	Disabled            *bool   `json:"disabled" example:"false"`
+	ClientEndpoint      *string `json:"clientEndpoint" example:"10.0.0.1:51820"`
+	ClientEndpointIP    *string `json:"clientEndpointIp" example:"10.0.0.1"`
+	Comment             *string `json:"comment" example:"Office VPN Peer"`
+	Responder           *bool   `json:"responder" example:"false"`
 }
 
 // WireGuardServerPeerCreateResponse represents the response after creating a peer on a WireGuard server.
 type WireGuardServerPeerCreateResponse struct {
-	Name                string `json:"name"`
-	InterfaceName       string `json:"interfaceName"`
-	PublicKey           string `json:"publicKey"`
-	PrivateKey          string `json:"privateKey"`
-	PreSharedKey        string `json:"preSharedKey"`
-	EndpointAddress     string `json:"endpointAddress"`
-	EndpointPort        int    `json:"endpointPort"`
-	AllowedAddresses    string `json:"allowedAddresses"`
-	PersistentKeepalive int    `json:"persistentKeepalive"`
-	Disabled            bool   `json:"disabled"`
+	Name                 string `json:"name"`
+	InterfaceName        string `json:"interfaceName"`
+	PublicKey            string `json:"publicKey"`
+	PrivateKey           string `json:"privateKey"`
+	PreSharedKey         string `json:"preSharedKey"`
+	EndpointAddress      string `json:"endpointAddress"`
+	EndpointPort         int    `json:"endpointPort"`
+	AllowedAddresses     string `json:"allowedAddresses"`
+	PersistentKeepalive  int    `json:"persistentKeepalive"`
+	ClientAddress        string `json:"clientAddress"`
+	ClientDNS            string `json:"clientDNS"`
+	ClientKeepalive      int    `json:"clientKeepalive"`
+	ClientAllowedAddress string `json:"clientAllowedAddress"`
+	ClientListenPort     int    `json:"clientListenPort"`
+	ClientEndpoint       string `json:"clientEndpoint,omitempty"`
+	Disabled             bool   `json:"disabled"`
 }
 
 // ImportWireGuardConfigRequest represents a request to import a WireGuard configuration.
