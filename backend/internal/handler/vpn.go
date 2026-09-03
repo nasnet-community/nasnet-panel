@@ -1390,6 +1390,26 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WireGuard peers retrieved successfully", response)
 }
 
+// wireGuardPeerCreationLocks holds one *sync.Mutex per WireGuard interface
+// name, lazily created. Locking on the interface name (rather than a single
+// global lock) serializes peer creation for that interface only, so
+// concurrent requests for the same interface can't race to pick and create
+// the same clientAddress, while requests against different interfaces still
+// proceed independently.
+var wireGuardPeerCreationLocks sync.Map
+
+// lockWireGuardInterfacePeers acquires the per-interface lock for
+// interfaceName and returns a func that releases it.
+func lockWireGuardInterfacePeers(interfaceName string) func() {
+	lockAny, _ := wireGuardPeerCreationLocks.LoadOrStore(interfaceName, &sync.Mutex{})
+	lock, ok := lockAny.(*sync.Mutex)
+	if !ok {
+		lock = &sync.Mutex{}
+	}
+	lock.Lock()
+	return lock.Unlock
+}
+
 // nextWireGuardClientAddress returns the first unused IPv4 address after the
 // WireGuard interface's own address (given as a CIDR, e.g. "10.0.0.1/24"),
 // staying within that address's subnet. Used holds the addresses already
@@ -1510,6 +1530,12 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to parse WireGuard interface IP address", err)
 	}
 	clientDNS := interfaceIP.String()
+
+	// Serialize the read-allocate-create sequence below per interface, so
+	// concurrent requests for the same interface can't both allocate the
+	// same clientAddress before either has created its peer.
+	unlockInterfacePeers := lockWireGuardInterfacePeers(interfaceName)
+	defer unlockInterfacePeers()
 
 	existingPeers, err := client.GetWireGuardPeers(interfaceName)
 	if err != nil {
