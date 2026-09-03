@@ -83,9 +83,9 @@ export function HyperSpeedClaimDialog({ open, onClose, onClaimed }: Props) {
           <span>Available now</span>
         </span>
         <h3 id="hyper-speed-title" className={styles.title}>
-          FREE Hyper Speed VPN powered by NasNet Connect
+          FREE Hyper Speed VPN powered by Nasnet Panel
         </h3>
-        <p className={styles.subtitle}>Optimized for Starlink & built for NasNet Connect users.</p>
+        <p className={styles.subtitle}>Optimized for Starlink & built for Nasnet Panel users.</p>
       </div>
       <div className={styles.body}>
         <ul className={styles.bullets}>

@@ -725,8 +725,35 @@ func (e *Engine) checkVethMenu() error {
 	return fmt.Errorf("the router has no /interface/veth menu, so the container package is not active (device-mode container is %s). Check the container package under System > Packages, restart the router, then run the installer again", state)
 }
 
+func (e *Engine) ensureDNS() error {
+	out, err := e.cl.RunChecked(":put ([:len [/ip/dns/get servers]] + [:len [/ip/dns/get dynamic-servers]])", 15*time.Second)
+	if err != nil {
+		return fmt.Errorf("failed to read DNS servers: %w", err)
+	}
+	count, err := strconv.Atoi(strings.TrimSpace(out))
+	if err != nil {
+		return fmt.Errorf("could not read DNS servers from the router: %q", strings.TrimSpace(out))
+	}
+	if count > 0 {
+		e.log("router already has DNS servers configured")
+		return nil
+	}
+	if e.opts.DryRun {
+		e.log("[dry-run] would set DNS servers to %s", fallbackDNSServers)
+		return nil
+	}
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/ip/dns/set servers=%s", fallbackDNSServers), 15*time.Second); err != nil {
+		return fmt.Errorf("failed to set DNS servers: %w (%s)", err, strings.TrimSpace(out))
+	}
+	e.log("set DNS servers to %s", fallbackDNSServers)
+	return e.sleep(dnsSettleDelay)
+}
+
 func (e *Engine) stepNetwork() error {
 	if err := e.checkVethMenu(); err != nil {
+		return err
+	}
+	if err := e.ensureDNS(); err != nil {
 		return err
 	}
 	if err := e.ensure(fmt.Sprintf("veth %s (%s)", vethName, vethAddrCIDR),

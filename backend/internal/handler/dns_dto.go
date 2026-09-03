@@ -107,6 +107,11 @@ var (
 	}
 )
 
+// AdBlockRequest is the request body for POST /api/dns/adblock.
+type AdBlockRequest struct {
+	Enabled bool `json:"enabled" example:"true"`
+}
+
 // DNSCheckResponse is the response for GET /api/dns/validate.
 type DNSCheckResponse struct {
 	OldIP     string `json:"oldIp"`
