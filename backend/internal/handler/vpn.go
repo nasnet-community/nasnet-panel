@@ -1390,6 +1390,28 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WireGuard peers retrieved successfully", response)
 }
 
+// wireGuardUsedClientAddresses collects every client address already in use
+// across peers, as plain IPs (no CIDR suffix), so nextWireGuardClientAddress
+// can avoid reassigning one. A peer's ClientAddress may itself hold more than
+// one comma-separated value; each is split, trimmed, and reserved on its own,
+// with empty entries ignored.
+func wireGuardUsedClientAddresses(peers []routeros.WireGuardPeerInfo) map[string]struct{} {
+	used := make(map[string]struct{}, len(peers))
+	for i := range peers {
+		for _, addr := range strings.Split(peers[i].ClientAddress, ",") {
+			addr = strings.TrimSpace(addr)
+			if addr == "" {
+				continue
+			}
+			if parsedIP, _, err := net.ParseCIDR(addr); err == nil {
+				addr = parsedIP.String()
+			}
+			used[addr] = struct{}{}
+		}
+	}
+	return used
+}
+
 // wireGuardPeerCreationLocks holds one *sync.Mutex per WireGuard interface
 // name, lazily created. Locking on the interface name (rather than a single
 // global lock) serializes peer creation for that interface only, so
@@ -1542,17 +1564,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list WireGuard peers", err)
 	}
 
-	usedAddresses := make(map[string]struct{}, len(existingPeers))
-	for i := range existingPeers {
-		addr := strings.TrimSpace(existingPeers[i].ClientAddress)
-		if addr == "" {
-			continue
-		}
-		if parsedIP, _, err := net.ParseCIDR(addr); err == nil {
-			addr = parsedIP.String()
-		}
-		usedAddresses[addr] = struct{}{}
-	}
+	usedAddresses := wireGuardUsedClientAddresses(existingPeers)
 
 	clientAddress, err := nextWireGuardClientAddress(interfaceAddresses[0].Address, usedAddresses)
 	if err != nil {
@@ -1568,7 +1580,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	if req.Name != nil && *req.Name != "" {
 		peerName = *req.Name
 	} else {
-		peerName = fmt.Sprintf("%s-peer%d", interfaceName, len(existingPeers)+1)
+		peerName = utils.GenerateName(2, " ", utils.PascalCase)
 	}
 
 	// Determine private key

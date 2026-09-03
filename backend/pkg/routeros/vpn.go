@@ -1550,6 +1550,14 @@ func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 		args = append(args, "=private-key="+*config.PrivateKey)
 	}
 
+	if config.Disabled != nil {
+		if *config.Disabled {
+			args = append(args, "=disabled=yes")
+		} else {
+			args = append(args, "=disabled=no")
+		}
+	}
+
 	if config.ClientEndpoint != nil && *config.ClientEndpoint != "" {
 		args = append(args, "=client-endpoint="+*config.ClientEndpoint)
 	}
