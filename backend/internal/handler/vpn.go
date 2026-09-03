@@ -1542,7 +1542,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	if req.Name != nil && *req.Name != "" {
 		peerName = *req.Name
 	} else {
-		peerName = utils.GenerateName(2, " ", utils.PascalCase)
+		peerName = fmt.Sprintf("%s-peer%d", interfaceName, len(existingPeers)+1)
 	}
 
 	// Determine private key
