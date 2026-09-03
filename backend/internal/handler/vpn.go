@@ -898,7 +898,11 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
 	}
 
-	peerName := wireguard.Name + "-peer"
+	peerCount, err := client.CountWireGuardPeers(wireguard.Name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to count WireGuard peers", err)
+	}
+	peerName := fmt.Sprintf("%s-peer%d", wireguard.Name, peerCount+1)
 
 	var publicKey *string
 	if req.PeerPublicKey == nil {
@@ -1423,7 +1427,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	if req.Name != nil && *req.Name != "" {
 		peerName = *req.Name
 	} else {
-		peerName = utils.RandString(8)
+		peerName = utils.GenerateName(2, " ", utils.PascalCase)
 	}
 
 	// Determine private key
@@ -1755,7 +1759,7 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		}
 
 		persistentKeepalive := int(peer.PersistentKeepalive)
-		peerName := publicKey[:8]
+		peerName := fmt.Sprintf("%s-peer%d", wg.Name, i+1)
 
 		config := routeros.WireGuardPeerConfig{
 			InterfaceName:       wg.Name,
