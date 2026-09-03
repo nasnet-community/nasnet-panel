@@ -802,9 +802,11 @@ func changeDNSIPOrNoop(client *routeros.Client, oldIP, newIP string) (*DNSChange
 // @Summary Reset all DNS-related settings to their default configuration
 // @Description Replaces /ip/dns's servers with 1.0.0.1, 217.218.127.127 and 1.1.1.1, sets its
 // @Description DoH server to https://cloudflare-dns.com/dns-query with certificate verification
-// @Description disabled, removes every existing /ip/dns/forwarders entry, and recreates exactly
-// @Description four, each with certificate verification disabled: Domestic (217.218.127.127),
-// @Description Foreign (1.1.1.1), General (1.0.0.1, 217.218.127.127, 1.1.1.1) and VPN (1.0.0.1).
+// @Description disabled, and finds the existing Domestic, Foreign, General and VPN /ip/dns/forwarders
+// @Description entries by name, updating each one's dns-servers to its default: Domestic
+// @Description (217.218.127.127), Foreign (1.1.1.1), General (1.0.0.1, 217.218.127.127, 1.1.1.1) and
+// @Description VPN (1.0.0.1). A forwarder that doesn't already exist is left uncreated and skipped,
+// @Description rather than being treated as an error.
 // @Description Also resets the gateway of every /ip/route entry commented CheckIP-Route-to-
 // @Description Domestic-Domestic Link to 217.218.127.127, CheckIP-Route-to-Foreign-Foreign Link
 // @Description to 1.1.1.1, and CheckIP-Route-to-VPN-Client to 1.0.0.1. And, unless its
@@ -859,28 +861,30 @@ func HandleResetDNS(c echo.Context) error {
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list DNS forwarders", err)
 	}
-	for i := range existingForwarders {
-		if !hasDomesticLink && existingForwarders[i].Name == dnsForwarderTypeDomestic {
-			continue
-		}
-		if err := client.RemoveDNSForwarder(existingForwarders[i].ID); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to remove DNS forwarder %q", existingForwarders[i].Name), err)
-		}
-	}
 
-	createdForwarders := make([]DNSForwarderResult, 0, len(dnsResetForwarders))
+	updatedForwarders := make([]DNSForwarderResult, 0, len(dnsResetForwarders))
 	for _, forwarder := range dnsResetForwarders {
 		if !hasDomesticLink && forwarder.Domestic {
 			continue
 		}
-		id, err := client.AddDNSForwarder(forwarder.Name, forwarder.DNSServers, false)
-		if err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError,
-				fmt.Sprintf("Failed to create DNS forwarder %q", forwarder.Name), err)
+
+		var existing *routeros.DNSForwarder
+		for i := range existingForwarders {
+			if strings.TrimSpace(existingForwarders[i].Name) == forwarder.Name {
+				existing = &existingForwarders[i]
+				break
+			}
 		}
-		createdForwarders = append(createdForwarders, DNSForwarderResult{
-			ID:         id,
+		if existing == nil {
+			continue
+		}
+
+		if err := client.SetDNSForwarderServers(existing.ID, forwarder.DNSServers); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update DNS forwarder %q", forwarder.Name), err)
+		}
+		updatedForwarders = append(updatedForwarders, DNSForwarderResult{
+			ID:         existing.ID,
 			Name:       forwarder.Name,
 			DNSServers: strings.Split(forwarder.DNSServers, ","),
 		})
@@ -1002,7 +1006,7 @@ func HandleResetDNS(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "DNS settings reset successfully", DNSResetResponse{
 		Servers:                  strings.Split(dnsResetServers, ","),
 		DOHServer:                dnsResetDOHServer,
-		Forwarders:               createdForwarders,
+		Forwarders:               updatedForwarders,
 		UpdatedCheckIPRoutes:     updatedCheckIPRoutes,
 		UpdatedRouteDstAddresses: updatedRouteDstAddresses,
 		UpdatedNetwatchProbes:    updatedNetwatchProbes,
