@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
+import { Globe, Pencil, RefreshCw, RotateCcw, SearchX, ShieldCheck } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -21,6 +21,7 @@ import { DNSChangeDialog } from './DNSChangeDialog';
 import {
   fetchDnsForwarders,
   resetDns,
+  setFamilyDns,
   type DnsCredentials,
   type DnsForwarderListItem,
 } from '../api';
@@ -45,6 +46,8 @@ export function DNSPage() {
   const [editing, setEditing] = useState<DnsForwarderListItem | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [confirmingFamily, setConfirmingFamily] = useState(false);
+  const [applyingFamily, setApplyingFamily] = useState(false);
 
   const creds = useMemo<DnsCredentials | null>(() => {
     if (!id) return null;
@@ -93,6 +96,26 @@ export function DNSPage() {
     }
   };
 
+  const runFamilyDns = async () => {
+    if (!creds) return;
+    setConfirmingFamily(false);
+    setApplyingFamily(true);
+    try {
+      await setFamilyDns(creds);
+      toast.notify({ title: 'Cloudflare Family DNS enabled', tone: 'success' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to enable Family DNS.';
+      toast.notify({
+        title: 'Failed to enable Family DNS',
+        description: `${message} Some forwarders may already have been switched, so check the list before retrying.`,
+        tone: 'danger',
+      });
+    } finally {
+      setApplyingFamily(false);
+      await reload();
+    }
+  };
+
   const columns: DataTableColumn<DnsForwarderListItem>[] = [
     {
       key: 'type',
@@ -132,7 +155,7 @@ export function DNSPage() {
           size="sm"
           variant="secondary"
           onClick={() => setEditing(row)}
-          disabled={!creds || resetting}
+          disabled={!creds || resetting || applyingFamily}
           aria-label={`Edit ${row.name} DNS server`}
         >
           <Pencil size={14} aria-hidden /> Edit
@@ -194,6 +217,34 @@ export function DNSPage() {
         )}
       </Card>
 
+      <Card data-testid="family-dns-card">
+        <CardHeader className={styles.cardHeader}>
+          <div>
+            <CardTitle>
+              <Inline>
+                <ShieldCheck size={16} aria-hidden /> Family DNS
+              </Inline>
+            </CardTitle>
+            <CardDescription>
+              Cloudflare Family DNS (1.1.1.3 and 1.0.0.3) filters malware and adult content before a
+              device ever reaches it. Enabling it points the Foreign and VPN forwarders at
+              Cloudflare Family.
+            </CardDescription>
+          </div>
+          <div className={styles.headerActions}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setConfirmingFamily(true)}
+              disabled={loading || resetting || applyingFamily || !creds}
+            >
+              <ShieldCheck size={14} aria-hidden />{' '}
+              {applyingFamily ? 'Enabling…' : 'Enable Family DNS'}
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+
       {editing && creds ? (
         <DNSChangeDialog
           open
@@ -214,6 +265,15 @@ export function DNSPage() {
         destructive
         onConfirm={runReset}
         onCancel={() => setConfirmingReset(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmingFamily}
+        title="Enable Family DNS?"
+        description="The Foreign DNS forwarder switches to Cloudflare Family Primary 1.1.1.3 and the VPN forwarder to Cloudflare Family Secondary 1.0.0.3. Matching firewall entries, routes and netwatch probes follow. There is no one-click way back, so restore the previous servers by editing each forwarder."
+        confirmLabel="Enable"
+        onConfirm={runFamilyDns}
+        onCancel={() => setConfirmingFamily(false)}
       />
     </Stack>
   );
