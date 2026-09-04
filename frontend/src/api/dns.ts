@@ -98,6 +98,14 @@ export async function changeDns(
   });
 }
 
+export async function flushDnsCache(creds: DnsCredentials, signal?: AbortSignal): Promise<void> {
+  await apiRequest('/api/dns/cache', {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
+
 export async function resetDns(creds: DnsCredentials, signal?: AbortSignal): Promise<void> {
   await apiRequest('/api/dns/reset', {
     method: 'POST',
