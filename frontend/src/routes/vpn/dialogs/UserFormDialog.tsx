@@ -23,6 +23,7 @@ import {
   type VPNProfileResponse,
   type VPNUserResponse,
 } from '../../../api';
+import { validateOvpnSecret } from '../../../utils/validators';
 import styles from './UserFormDialog.module.scss';
 
 const PREFERRED_PROFILE = 'VPN-VPN';
@@ -126,7 +127,7 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
   const errors = useMemo(
     () => ({
       name: draft.name.trim() === '' ? 'Name is required.' : null,
-      password: draft.password === '' ? 'Password is required.' : null,
+      password: validateOvpnSecret(draft.password),
       profile: draft.profile === '' ? 'Profile is required.' : null,
     }),
     [draft],
