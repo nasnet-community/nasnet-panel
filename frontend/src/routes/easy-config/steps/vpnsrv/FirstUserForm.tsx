@@ -1,5 +1,6 @@
 import React from 'react';
-import { FieldRow, Input, Label, PasswordInput } from '@nasnet/ui';
+import { FieldRow, FormError, Input, Label, PasswordInput } from '@nasnet/ui';
+import { validateOvpnSecret } from '../../../../utils/validators';
 import type { Action, State, VpnServerProtocol } from '../../state';
 
 interface Props {
@@ -14,6 +15,8 @@ function keyLabel(protocol: VpnServerProtocol): string {
 
 export function FirstUserForm({ state, dispatch }: Props) {
   const isPassword = state.vpnServerProtocol !== 'wireguard';
+  const passwordError =
+    isPassword && state.firstUserKey ? validateOvpnSecret(state.firstUserKey) : null;
   return (
     <FieldRow>
       <Label>
@@ -35,6 +38,7 @@ export function FirstUserForm({ state, dispatch }: Props) {
               dispatch({ type: 'setField', field: 'firstUserKey', value: e.target.value })
             }
             aria-label="First user password"
+            aria-invalid={!!passwordError}
           />
         ) : (
           <Input
@@ -45,6 +49,7 @@ export function FirstUserForm({ state, dispatch }: Props) {
             aria-label="First user public key"
           />
         )}
+        {passwordError ? <FormError>{passwordError}</FormError> : null}
       </Label>
     </FieldRow>
   );

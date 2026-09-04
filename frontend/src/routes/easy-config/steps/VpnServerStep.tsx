@@ -5,12 +5,14 @@ import {
   CardHeader,
   CardTitle,
   FieldRow,
+  FormError,
   Input,
   Label,
   PasswordInput,
   Stack,
   Switch,
 } from '@nasnet/ui';
+import { validateOvpnSecret } from '../../../utils/validators';
 import wizardStyles from '../../EasyConfigWizard.module.scss';
 import type { Action, State } from '../state';
 import { Collapsible } from './components/Collapsible';
@@ -25,6 +27,11 @@ interface Props {
 export function VpnServerStep({ state, dispatch, footer }: Props) {
   const set = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: 'setField', field, value: e.target.value });
+
+  const certPassphraseError = state.vpnServerCertPassphrase
+    ? validateOvpnSecret(state.vpnServerCertPassphrase, 'Certificate passphrase')
+    : null;
+  const firstUserKeyError = state.firstUserKey ? validateOvpnSecret(state.firstUserKey) : null;
 
   return (
     <Card>
@@ -52,7 +59,9 @@ export function VpnServerStep({ state, dispatch, footer }: Props) {
                     value={state.vpnServerCertPassphrase}
                     onChange={set('vpnServerCertPassphrase')}
                     aria-label="Certificate passphrase"
+                    aria-invalid={!!certPassphraseError}
                   />
+                  {certPassphraseError ? <FormError>{certPassphraseError}</FormError> : null}
                 </Label>
               </FieldRow>
               <FieldRow>
@@ -72,7 +81,9 @@ export function VpnServerStep({ state, dispatch, footer }: Props) {
                     value={state.firstUserKey}
                     onChange={set('firstUserKey')}
                     aria-label="Password"
+                    aria-invalid={!!firstUserKeyError}
                   />
+                  {firstUserKeyError ? <FormError>{firstUserKeyError}</FormError> : null}
                 </Label>
               </FieldRow>
             </Stack>
