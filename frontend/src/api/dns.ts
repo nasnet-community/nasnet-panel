@@ -98,6 +98,19 @@ export async function changeDns(
   });
 }
 
+export async function setDnsAdBlock(
+  creds: DnsCredentials,
+  enabled: boolean,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest('/api/dns/adblock', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify({ enabled }),
+    signal,
+  });
+}
+
 export async function resetDns(creds: DnsCredentials, signal?: AbortSignal): Promise<void> {
   await apiRequest('/api/dns/reset', {
     method: 'POST',
