@@ -70,6 +70,8 @@ export interface DhcpBackendOptions {
 export interface DnsBackendOptions {
   id?: string;
   familyStatus?: number;
+  adBlockStatus?: number;
+  flushFails?: boolean;
 }
 
 export interface DiagBackendOptions {
@@ -895,6 +897,49 @@ export const test = base.extend<TestFixtures>({
             foreign: { oldIp: '1.1.1.1', newIp: '1.1.1.3', servers: ['1.1.1.3'] },
             vpn: { oldIp: '1.0.0.1', newIp: '1.0.0.3', servers: ['1.0.0.3'] },
           }),
+        });
+      });
+
+      const adBlockStatus = options.adBlockStatus ?? 200;
+      await context.route('**/api/dns/adblock', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        const body = route.request().postDataJSON() as { enabled?: boolean } | null;
+        const enabled = body?.enabled ?? false;
+        if (adBlockStatus !== 200) {
+          await route.fulfill({
+            status: adBlockStatus,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: adBlockStatus,
+              message: `Ad-block is already ${enabled ? 'enabled' : 'disabled'}`,
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ enabled }),
+        });
+      });
+
+      await context.route('**/api/dns/cache', async (route) => {
+        if (route.request().method() !== 'DELETE') return route.fallback();
+        if (options.flushFails) {
+          return route.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: 500,
+              message: 'Failed to flush DNS cache',
+              error: 'Failed to flush DNS cache',
+            }),
+          });
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ status: 200, message: 'DNS cache cleared successfully' }),
         });
       });
     });
