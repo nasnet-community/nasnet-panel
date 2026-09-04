@@ -76,6 +76,7 @@ export {
   validateDnsChange,
   changeDns,
   resetDns,
+  setDnsAdBlock,
   type DnsCredentials,
   type DnsForwarderType,
   type DnsForwarderListItem,
