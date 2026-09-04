@@ -280,10 +280,10 @@ func HandleListBridges(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Bridges retrieved successfully", response)
 }
 
-// HandleListBridgePorts lists every bridge port other than those on the
-// "containers" bridge.
+// HandleListBridgePorts lists every bridge port whose bridge name starts
+// with "LANBridge".
 // @Summary List bridge ports
-// @Description Get every /interface/bridge/port entry, excluding ports on the "containers" bridge
+// @Description Get every /interface/bridge/port entry whose bridge name starts with "LANBridge"
 // @Tags Interface
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -308,7 +308,7 @@ func HandleListBridgePorts(c echo.Context) error {
 
 	response := make([]BridgePortResponse, 0, len(ports))
 	for i := range ports {
-		if ports[i].Bridge == pluginContainersBridge {
+		if !strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
 			continue
 		}
 		response = append(response, toBridgePortResponse(&ports[i]))
