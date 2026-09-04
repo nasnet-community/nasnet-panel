@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
+import { Eraser, Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -20,6 +20,7 @@ import styles from './DNSPage.module.scss';
 import { DNSChangeDialog } from './DNSChangeDialog';
 import {
   fetchDnsForwarders,
+  flushDnsCache,
   resetDns,
   type DnsCredentials,
   type DnsForwarderListItem,
@@ -45,6 +46,7 @@ export function DNSPage() {
   const [editing, setEditing] = useState<DnsForwarderListItem | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [flushing, setFlushing] = useState(false);
 
   const creds = useMemo<DnsCredentials | null>(() => {
     if (!id) return null;
@@ -93,6 +95,20 @@ export function DNSPage() {
     }
   };
 
+  const runFlushCache = async () => {
+    if (!creds) return;
+    setFlushing(true);
+    try {
+      await flushDnsCache(creds);
+      toast.notify({ title: 'DNS cache cleared', tone: 'success' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to clear the DNS cache.';
+      toast.notify({ title: 'Failed to clear DNS cache', description: message, tone: 'danger' });
+    } finally {
+      setFlushing(false);
+    }
+  };
+
   const columns: DataTableColumn<DnsForwarderListItem>[] = [
     {
       key: 'type',
@@ -126,7 +142,7 @@ export function DNSPage() {
           size="sm"
           variant="secondary"
           onClick={() => setEditing(row)}
-          disabled={!creds || resetting}
+          disabled={!creds || resetting || flushing}
           aria-label={`Edit ${row.name} DNS server`}
         >
           <Pencil size={14} aria-hidden /> Edit
@@ -150,14 +166,29 @@ export function DNSPage() {
             </CardDescription>
           </div>
           <div className={styles.headerActions}>
-            <Button size="sm" variant="secondary" onClick={reload} disabled={loading || resetting}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={reload}
+              disabled={loading || resetting || flushing}
+            >
               <RefreshCw size={14} aria-hidden /> Refresh
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={runFlushCache}
+              disabled={loading || resetting || flushing || !creds}
+              aria-label="Flush DNS cache"
+              data-testid="dns-flush-cache"
+            >
+              <Eraser size={14} aria-hidden /> {flushing ? 'Flushing…' : 'Flush cache'}
             </Button>
             <Button
               size="sm"
               variant="danger"
               onClick={() => setConfirmingReset(true)}
-              disabled={loading || resetting || !creds}
+              disabled={loading || resetting || flushing || !creds}
             >
               <RotateCcw size={14} aria-hidden /> {resetting ? 'Resetting…' : 'Reset'}
             </Button>
