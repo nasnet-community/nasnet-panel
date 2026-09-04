@@ -88,3 +88,24 @@
   grid-template-columns: 180px 1fr;
   gap: var(--space-sm) var(--space-md);
 }
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  font-size: var(--font-sm);
+
+  p {
+    margin: 0;
+  }
+}
+
+.warningIcon {
+  color: var(--color-warning);
+  flex-shrink: 0;
+  margin-top: 2px;
+}

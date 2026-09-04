@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
+import {
+  Globe,
+  Pencil,
+  RefreshCw,
+  RotateCcw,
+  SearchX,
+  ShieldBan,
+  TriangleAlert,
+} from 'lucide-react';
 import {
   Badge,
   Button,
@@ -13,14 +21,17 @@ import {
   Inline,
   Skeleton,
   Stack,
+  Switch,
   useToast,
   type DataTableColumn,
 } from '@nasnet/ui';
 import styles from './DNSPage.module.scss';
 import { DNSChangeDialog } from './DNSChangeDialog';
 import {
+  ApiError,
   fetchDnsForwarders,
   resetDns,
+  setDnsAdBlock,
   type DnsCredentials,
   type DnsForwarderListItem,
 } from '../api';
@@ -32,6 +43,26 @@ const TYPE_TONES: Record<string, 'info' | 'primary' | 'success'> = {
   Foreign: 'primary',
   VPN: 'success',
 };
+
+const ADBLOCK_STORAGE_PREFIX = 'nasnet-panel.dns-adblock.';
+
+function readStoredAdBlock(routerId: string | undefined): boolean {
+  if (!routerId || typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(`${ADBLOCK_STORAGE_PREFIX}${routerId}`) === 'on';
+  } catch {
+    return false;
+  }
+}
+
+function storeAdBlock(routerId: string | undefined, enabled: boolean): void {
+  if (!routerId || typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(`${ADBLOCK_STORAGE_PREFIX}${routerId}`, enabled ? 'on' : 'off');
+  } catch {
+    /* ignore */
+  }
+}
 
 export function DNSPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +76,8 @@ export function DNSPage() {
   const [editing, setEditing] = useState<DnsForwarderListItem | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [adBlockEnabled, setAdBlockEnabled] = useState(false);
+  const [adBlockBusy, setAdBlockBusy] = useState(false);
 
   const creds = useMemo<DnsCredentials | null>(() => {
     if (!id) return null;
@@ -76,6 +109,38 @@ export function DNSPage() {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    setAdBlockEnabled(readStoredAdBlock(id));
+  }, [id]);
+
+  const toggleAdBlock = async (next: boolean) => {
+    if (!creds) return;
+    setAdBlockBusy(true);
+    try {
+      await setDnsAdBlock(creds, next);
+      setAdBlockEnabled(next);
+      storeAdBlock(id, next);
+      toast.notify({
+        title: next ? 'Ad-block enabled' : 'Ad-block disabled',
+        tone: 'success',
+      });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setAdBlockEnabled(next);
+        storeAdBlock(id, next);
+        toast.notify({
+          title: next ? 'Ad-block was already on' : 'Ad-block was already off',
+          tone: 'info',
+        });
+        return;
+      }
+      const message = err instanceof Error ? err.message : 'Failed to update ad-block.';
+      toast.notify({ title: 'Failed to update ad-block', description: message, tone: 'danger' });
+    } finally {
+      setAdBlockBusy(false);
+    }
+  };
 
   const runReset = async () => {
     if (!creds) return;
@@ -186,6 +251,40 @@ export function DNSPage() {
             emptyMessage="No DNS servers configured"
           />
         )}
+      </Card>
+
+      <Card data-testid="dns-adblock">
+        <CardHeader className={styles.cardHeader}>
+          <div>
+            <CardTitle>
+              <Inline>
+                <ShieldBan size={16} aria-hidden /> Ad-block
+              </Inline>
+            </CardTitle>
+            <CardDescription>
+              Filters known advertising and tracking domains at the router, so ads are blocked on
+              every device on the network without installing anything on them.
+            </CardDescription>
+          </div>
+          <div className={styles.headerActions}>
+            <Switch
+              label="Enable ad-block"
+              checked={adBlockEnabled}
+              onChange={(e) => {
+                void toggleAdBlock(e.target.checked);
+              }}
+              disabled={!creds || adBlockBusy}
+              aria-describedby="dns-adblock-warning"
+            />
+          </div>
+        </CardHeader>
+        <div className={styles.warning} id="dns-adblock-warning" role="note">
+          <TriangleAlert size={16} aria-hidden className={styles.warningIcon} />
+          <p>
+            Some websites stop working while an ad-blocker is active and ask visitors to turn it off
+            before they show their content. Turn ad-block off again if a site you need breaks.
+          </p>
+        </div>
       </Card>
 
       {editing && creds ? (
