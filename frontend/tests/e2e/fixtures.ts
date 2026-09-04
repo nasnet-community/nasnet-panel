@@ -69,7 +69,9 @@ export interface DhcpBackendOptions {
 
 export interface DnsBackendOptions {
   id?: string;
+  familyStatus?: number;
   adBlockStatus?: number;
+  flushFails?: boolean;
 }
 
 export interface DiagBackendOptions {
@@ -840,9 +842,9 @@ export const test = base.extend<TestFixtures>({
         JSON.stringify({ status, message: 'OK', data });
 
       const forwarders = [
-        { name: 'Domestic', ip: '217.218.127.127', comment: '' },
-        { name: 'Foreign', ip: '1.1.1.1', comment: '' },
-        { name: 'VPN', ip: '1.0.0.1', comment: '' },
+        { name: 'Domestic', ip: '217.218.127.127', description: 'ICT DNS', comment: '' },
+        { name: 'Foreign', ip: '1.1.1.1', description: 'Cloudflare Primary', comment: '' },
+        { name: 'VPN', ip: '1.0.0.1', description: 'Cloudflare Secondary', comment: '' },
       ];
 
       await context.route('**/api/dns/list', async (route) => {
@@ -853,11 +855,48 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
-      await context.route('**/api/dns/suggest', async (route) => {
+      await context.route('**/api/dns/suggest**', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: envelope({ domestic: [], foreign: [] }),
+        });
+      });
+
+      const familyStatus = options.familyStatus ?? 200;
+      await context.route('**/api/dns/family', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        if (familyStatus !== 200) {
+          await route.fulfill({
+            status: familyStatus,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: familyStatus,
+              message: 'VPN DNS forwarder not found',
+              error: 'VPN DNS forwarder not found',
+            }),
+          });
+          return;
+        }
+        forwarders[1] = {
+          name: 'Foreign',
+          ip: '1.1.1.3',
+          description: 'Cloudflare Family Primary',
+          comment: '',
+        };
+        forwarders[2] = {
+          name: 'VPN',
+          ip: '1.0.0.3',
+          description: 'Cloudflare Family Secondary',
+          comment: '',
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({
+            foreign: { oldIp: '1.1.1.1', newIp: '1.1.1.3', servers: ['1.1.1.3'] },
+            vpn: { oldIp: '1.0.0.1', newIp: '1.0.0.3', servers: ['1.0.0.3'] },
+          }),
         });
       });
 
@@ -881,6 +920,26 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           contentType: 'application/json',
           body: envelope({ enabled }),
+        });
+      });
+
+      await context.route('**/api/dns/cache', async (route) => {
+        if (route.request().method() !== 'DELETE') return route.fallback();
+        if (options.flushFails) {
+          return route.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: 500,
+              message: 'Failed to flush DNS cache',
+              error: 'Failed to flush DNS cache',
+            }),
+          });
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ status: 200, message: 'DNS cache cleared successfully' }),
         });
       });
     });

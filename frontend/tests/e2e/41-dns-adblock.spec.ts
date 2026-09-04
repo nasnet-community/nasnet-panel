@@ -1,6 +1,6 @@
 import { test, expect } from './fixtures';
 
-test.describe('DNS page — ad-block', () => {
+test.describe('DNS page ad-block', () => {
   test('explains what ad-block does and warns about broken sites', async ({
     page,
     resetMocks,
