@@ -2848,6 +2848,17 @@ func HandleUpdateOvpnServerEnabled(c echo.Context) error {
 	})
 }
 
+func extractOvpnServerTimestamp(name string) string {
+	rest, ok := strings.CutPrefix(name, "ovpn-server-")
+	if !ok {
+		return ""
+	}
+	if _, err := strconv.Atoi(rest); err != nil {
+		return ""
+	}
+	return rest
+}
+
 // HandleDeleteOvpnServer deletes an OpenVPN server and all related items.
 // @Summary Delete OpenVPN Server
 // @Description Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)
@@ -2886,15 +2897,7 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		baseName = strings.TrimSuffix(baseName, "-udp")
 	}
 
-	extractTimestamp := func(name string) string {
-		parts := strings.Split(name, "-")
-		if len(parts) >= 3 {
-			return parts[len(parts)-1]
-		}
-		return ""
-	}
-
-	timestamp := extractTimestamp(baseName)
+	timestamp := extractOvpnServerTimestamp(baseName)
 	deleteErrors := []string{}
 
 	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
@@ -2935,7 +2938,9 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 			if err := client.RemoveCertificate(certName); err != nil {
 				deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete certificate %s: %v", certName, err))
 			} else if deleteCertFiles {
-				_ = client.RemoveCertificateFiles(certName)
+				if err := client.RemoveCertificateFiles(certName); err != nil {
+					deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete certificate files for %s: %v", certName, err))
+				}
 			}
 		}
 	}
