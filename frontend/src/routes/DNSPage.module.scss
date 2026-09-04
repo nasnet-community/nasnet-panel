@@ -64,6 +64,10 @@
   word-break: normal;
 }
 
+.muted {
+  color: var(--color-text-muted);
+}
+
 .errorNote {
   display: flex;
   flex-direction: column;

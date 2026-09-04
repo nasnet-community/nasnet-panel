@@ -118,6 +118,12 @@ export function DNSPage() {
       ),
     },
     {
+      key: 'description',
+      header: 'Provider',
+      render: (row) =>
+        row.description ? <span>{row.description}</span> : <span className={styles.muted}>-</span>,
+    },
+    {
       key: 'actions',
       header: '',
       width: '110px',
