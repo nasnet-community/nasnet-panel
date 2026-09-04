@@ -71,11 +71,10 @@ type dnsResetNetwatchProbe struct {
 	Domestic bool
 }
 
-// dnsResetServers, dnsResetDOHServer and dnsResetForwarders define the fixed
-// state GET /api/dns/reset restores /ip/dns and /ip/dns/forwarders to.
+// dnsResetServers and dnsResetForwarders define the fixed state GET
+// /api/dns/reset restores /ip/dns and /ip/dns/forwarders to.
 var (
-	dnsResetServers   = strings.Join([]string{dnsDefaultVPNIP, dnsDefaultDomesticIP, dnsDefaultForeignIP}, ",")
-	dnsResetDOHServer = "https://cloudflare-dns.com/dns-query"
+	dnsResetServers = strings.Join([]string{dnsDefaultVPNIP, dnsDefaultDomesticIP, dnsDefaultForeignIP}, ",")
 
 	dnsResetForwarders = []dnsResetForwarder{
 		{Name: dnsForwarderTypeDomestic, DNSServers: dnsDefaultDomesticIP, Domestic: true},
@@ -156,7 +155,6 @@ type DNSForwarderResult struct {
 // DNSResetResponse is the response for POST /api/dns/reset.
 type DNSResetResponse struct {
 	Servers                  []string             `json:"servers"`
-	DOHServer                string               `json:"dohServer"`
 	Forwarders               []DNSForwarderResult `json:"forwarders"`
 	UpdatedCheckIPRoutes     []string             `json:"updatedCheckIpRoutes"`
 	UpdatedRouteDstAddresses []string             `json:"updatedRouteDstAddresses"`
