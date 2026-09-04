@@ -800,9 +800,8 @@ func changeDNSIPOrNoop(client *routeros.Client, oldIP, newIP string) (*DNSChange
 
 // HandleResetDNS godoc
 // @Summary Reset all DNS-related settings to their default configuration
-// @Description Replaces /ip/dns's servers with 1.0.0.1, 217.218.127.127 and 1.1.1.1, sets its
-// @Description DoH server to https://cloudflare-dns.com/dns-query with certificate verification
-// @Description disabled, and finds the existing Domestic, Foreign, General and VPN /ip/dns/forwarders
+// @Description Replaces /ip/dns's servers with 1.0.0.1, 217.218.127.127 and 1.1.1.1, and finds
+// @Description the existing Domestic, Foreign, General and VPN /ip/dns/forwarders
 // @Description entries by name, updating each one's dns-servers to its default: Domestic
 // @Description (217.218.127.127), Foreign (1.1.1.1), General (1.0.0.1, 217.218.127.127, 1.1.1.1) and
 // @Description VPN (1.0.0.1). A forwarder that doesn't already exist is left uncreated and skipped,
@@ -845,11 +844,8 @@ func HandleResetDNS(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check for domestic WAN interface", err)
 	}
 
-	verifyDOHCert := false
 	if err := client.UpdateDNSConfig(routeros.DNSUpdateConfig{
-		Servers:       &dnsResetServers,
-		DOHServer:     &dnsResetDOHServer,
-		VerifyDOHCert: &verifyDOHCert,
+		Servers: &dnsResetServers,
 	}); err != nil {
 		if IsCredentialError(err) {
 			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
@@ -1005,7 +1001,6 @@ func HandleResetDNS(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusOK, "DNS settings reset successfully", DNSResetResponse{
 		Servers:                  strings.Split(dnsResetServers, ","),
-		DOHServer:                dnsResetDOHServer,
 		Forwarders:               updatedForwarders,
 		UpdatedCheckIPRoutes:     updatedCheckIPRoutes,
 		UpdatedRouteDstAddresses: updatedRouteDstAddresses,
