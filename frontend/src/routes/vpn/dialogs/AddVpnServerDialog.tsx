@@ -26,7 +26,7 @@ import {
   type SstpServerTaskStatus,
   type VPNCredentials,
 } from '../../../api';
-import { isCIDR, isPort, validateIdentifier } from '../../../utils/validators';
+import { isCIDR, isPort, validateIdentifier, validateOvpnSecret } from '../../../utils/validators';
 import { pollSstpServerTask } from '../sstpTask';
 
 export type AddVpnServerType = 'openvpn' | 'wireguard' | 'sstp';
@@ -144,7 +144,7 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
 
   const errors = useMemo(
     () => ({
-      certPassphrase: certPassphrase ? null : 'Certificate passphrase is required.',
+      certPassphrase: validateOvpnSecret(certPassphrase, 'Certificate passphrase'),
     }),
     [certPassphrase],
   );

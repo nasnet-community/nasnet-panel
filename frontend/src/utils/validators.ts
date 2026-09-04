@@ -35,6 +35,16 @@ export const isWifiPassword = (value: string): boolean => value.length >= 8 && v
 export const isRequired = (value: string | undefined | null): boolean =>
   typeof value === 'string' && value.trim().length > 0;
 
+export const OVPN_PASSWORD_MIN_LENGTH = 8;
+
+export function validateOvpnSecret(value: string, label = 'Password'): string | null {
+  if (!isRequired(value)) return `${label} is required.`;
+  if (value.length < OVPN_PASSWORD_MIN_LENGTH) {
+    return `${label} must be at least ${OVPN_PASSWORD_MIN_LENGTH} characters.`;
+  }
+  return null;
+}
+
 const IDENTIFIER_RE = /^[A-Za-z0-9_-]+$/;
 const HOSTNAME_RE =
   /^(?=.{1,253}$)(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*$/;

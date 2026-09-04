@@ -43,10 +43,22 @@ AllowedIPs = 0.0.0.0/0`);
     await page.getByRole('switch', { name: /enabled|disabled/i }).check();
     await page.getByLabel(/certificate passphrase/i).fill('super-secret');
     await page.getByLabel(/^username$/i).fill('alice');
-    await page.getByLabel(/^password$/i).fill('alice-pass');
+
+    const password = page.getByLabel(/^password$/i);
+    const apply = page.getByRole('button', { name: /^apply$/i });
+
+    // a password shorter than 8 characters blocks the step
+    await password.fill('short12');
+    await expect(page.getByText('Password must be at least 8 characters.')).toBeVisible();
+    await expect(password).toHaveAttribute('aria-invalid', 'true');
+    await expect(apply).toBeDisabled();
+
+    await password.fill('alice-pass');
+    await expect(page.getByText('Password must be at least 8 characters.')).toBeHidden();
 
     // Apply from the VPN Server step (last step)
-    await page.getByRole('button', { name: /^apply$/i }).click();
+    await expect(apply).toBeEnabled();
+    await apply.click();
     await expect(page.getByText(/configuration applied/i).first()).toBeVisible();
   });
 });
