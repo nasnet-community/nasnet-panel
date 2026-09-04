@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"math/big"
 	"strconv"
@@ -685,8 +686,10 @@ func (c *Client) RemoveCertificateFiles(name string) error {
 		name + ".pem",
 		name + ".key",
 		name + ".crt",
+		name + "-password.txt",
 	}
 
+	var errs []error
 	for _, filename := range filesToDelete {
 		results, err := c.GetAll("/file", "?=name="+filename)
 		if err != nil || len(results) == 0 {
@@ -694,11 +697,10 @@ func (c *Client) RemoveCertificateFiles(name string) error {
 		}
 
 		fileID := results[0][".id"]
-		_, err = c.Remove("/file", "=.id="+fileID)
-		if err != nil {
-			continue
+		if _, err := c.Remove("/file", "=.id="+fileID); err != nil {
+			errs = append(errs, fmt.Errorf("failed to remove file %s: %w", filename, err))
 		}
 	}
 
-	return nil
+	return errors.Join(errs...)
 }
