@@ -2182,9 +2182,9 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		task.mu.Unlock()
 	}
 
-	caName := "cert-ca-" + timestamp
-	serverName := "cert-server-" + timestamp
-	clientName := "cert-client-" + timestamp
+	caName := "ovpn-ca-" + timestamp
+	serverName := "ovpn-server-" + timestamp
+	clientName := "ovpn-client-" + timestamp
 
 	updateTask(5, "Creating CA certificate")
 	caCertParams := routeros.AddCertificateParams{
@@ -2930,9 +2930,9 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 
 	if timestamp != "" {
 		certNames := []string{
-			"cert-client-" + ovpnServerName,
-			"cert-server-" + ovpnServerName,
-			"cert-ca-" + ovpnServerName,
+			"ovpn-client-" + ovpnServerName,
+			"ovpn-server-" + ovpnServerName,
+			"ovpn-ca-" + ovpnServerName,
 		}
 		for _, certName := range certNames {
 			if err := client.RemoveCertificate(certName); err != nil {
