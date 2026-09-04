@@ -685,6 +685,7 @@ func (c *Client) RemoveCertificateFiles(name string) error {
 		name + ".pem",
 		name + ".key",
 		name + ".crt",
+		name + "-password.txt",
 	}
 
 	for _, filename := range filesToDelete {

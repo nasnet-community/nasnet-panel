@@ -32,9 +32,9 @@ add name="{{ .Username }}" password="{{ .Password }}" profile=VPN-VPN service=an
 {{end}}
 :global WizardProgress "93"
 /ip firewall filter
-add action=accept chain=input comment="OpenVPN Server ovpn-tcp (tcp)" dst-port="1194" \
+add action=accept chain=input comment="ovpn-server-{{ .CurrentTimestamp }}-tcp" dst-port="1194" \
 in-interface-list="Domestic-WAN" protocol="tcp"
-add action=accept chain=input comment="OpenVPN Server ovpn-udp (udp)" dst-port="1194" \
+add action=accept chain=input comment="ovpn-server-{{ .CurrentTimestamp }}-udp" dst-port="1194" \
 in-interface-list="Domestic-WAN" protocol="udp"
 :global WizardProgress "94"
 /ip firewall mangle
