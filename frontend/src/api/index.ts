@@ -75,6 +75,7 @@ export {
   fetchDnsSuggestions,
   validateDnsChange,
   changeDns,
+  flushDnsCache,
   resetDns,
   type DnsCredentials,
   type DnsForwarderType,
