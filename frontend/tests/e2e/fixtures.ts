@@ -72,6 +72,11 @@ export interface DiagBackendOptions {
   initialProgress?: number;
 }
 
+export interface DnsBackendOptions {
+  id?: string;
+  flushFails?: boolean;
+}
+
 export interface EasyConfigBackendInterface {
   id?: string;
   name: string;
@@ -116,6 +121,7 @@ export interface TestFixtures {
   mockLogsBackend: (options?: LogsBackendOptions) => Promise<void>;
   mockDhcpBackend: (options?: DhcpBackendOptions) => Promise<void>;
   mockDiagBackend: (options?: DiagBackendOptions) => Promise<void>;
+  mockDnsBackend: (options?: DnsBackendOptions) => Promise<void>;
   mockEasyConfigBackend: (options: EasyConfigBackendOptions) => Promise<void>;
 }
 
@@ -870,6 +876,62 @@ export const test = base.extend<TestFixtures>({
             'Content-Disposition': 'attachment; filename="nasnet-diagnostic-report.txt"',
           },
           body: 'NasNet Panel Diagnostic Report',
+        });
+      });
+    });
+  },
+  mockDnsBackend: async ({ context }, use) => {
+    await use(async (options = {}) => {
+      if (options.id) {
+        await context.addInitScript((routerId) => {
+          try {
+            const key = 'nasnet-panel.session-credentials.v1';
+            const raw = window.sessionStorage.getItem(key);
+            const map = (raw ? JSON.parse(raw) : {}) as Record<
+              string,
+              { username: string; password: string }
+            >;
+            map[routerId] = { username: 'admin', password: 'test' };
+            window.sessionStorage.setItem(key, JSON.stringify(map));
+          } catch {
+            /* ignore */
+          }
+        }, options.id);
+      }
+
+      const envelope = <T>(data: T, status = 200) =>
+        JSON.stringify({ status, message: 'OK', data });
+
+      const forwarders = [
+        { name: 'Domestic', ip: '78.157.42.100,78.157.42.101', comment: 'domestic' },
+        { name: 'Foreign', ip: '1.1.1.1,8.8.8.8', comment: 'foreign' },
+      ];
+
+      await context.route('**/api/dns/list', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(forwarders),
+        });
+      });
+
+      await context.route('**/api/dns/cache', async (route) => {
+        if (route.request().method() !== 'DELETE') return route.fallback();
+        if (options.flushFails) {
+          return route.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: 500,
+              message: 'Failed to flush DNS cache',
+              error: 'Failed to flush DNS cache',
+            }),
+          });
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ status: 200, message: 'DNS cache cleared successfully' }),
         });
       });
     });
