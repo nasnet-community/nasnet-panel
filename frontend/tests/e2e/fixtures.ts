@@ -1,4 +1,5 @@
 import { test as base } from '@playwright/test';
+import type { DnsFamilyResponse } from '../../src/api/dns';
 import type { Router } from '../../src/mocks/types';
 
 export interface SeedInput extends Partial<Router> {
@@ -893,9 +894,29 @@ export const test = base.extend<TestFixtures>({
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope({
-            foreign: { oldIp: '1.1.1.1', newIp: '1.1.1.3', servers: ['1.1.1.3'] },
-            vpn: { oldIp: '1.0.0.1', newIp: '1.0.0.3', servers: ['1.0.0.3'] },
+          body: envelope<DnsFamilyResponse>({
+            foreign: {
+              oldIp: '1.1.1.1',
+              newIp: '1.1.1.3',
+              servers: ['1.1.1.3'],
+              updatedForwarders: [],
+              updatedDstAddressRoutes: [],
+              updatedGatewayRoutes: [],
+              updatedNetwatchProbes: [],
+              updatedAddressListItems: [],
+              updatedNatRules: [],
+            },
+            vpn: {
+              oldIp: '1.0.0.1',
+              newIp: '1.0.0.3',
+              servers: ['1.0.0.3'],
+              updatedForwarders: [],
+              updatedDstAddressRoutes: [],
+              updatedGatewayRoutes: [],
+              updatedNetwatchProbes: [],
+              updatedAddressListItems: [],
+              updatedNatRules: [],
+            },
           }),
         });
       });

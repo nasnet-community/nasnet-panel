@@ -186,7 +186,7 @@ export function DNSPage() {
               size="sm"
               variant="danger"
               onClick={() => setConfirmingReset(true)}
-              disabled={loading || resetting || !creds}
+              disabled={loading || resetting || applyingFamily || !creds}
             >
               <RotateCcw size={14} aria-hidden /> {resetting ? 'Resetting…' : 'Reset'}
             </Button>
