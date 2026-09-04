@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
+import { Globe, Pencil, PersonStanding, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -13,14 +13,17 @@ import {
   Inline,
   Skeleton,
   Stack,
+  Switch,
   useToast,
   type DataTableColumn,
 } from '@nasnet/ui';
 import styles from './DNSPage.module.scss';
 import { DNSChangeDialog } from './DNSChangeDialog';
 import {
+  changeDns,
   fetchDnsForwarders,
   resetDns,
+  setFamilyDns,
   type DnsCredentials,
   type DnsForwarderListItem,
 } from '../api';
@@ -32,6 +35,27 @@ const TYPE_TONES: Record<string, 'info' | 'primary' | 'success'> = {
   Foreign: 'primary',
   VPN: 'success',
 };
+
+const FAMILY_PROVIDER_PREFIX = 'Cloudflare Family';
+const FAMILY_FOREIGN_IP = '1.1.1.3';
+const FAMILY_VPN_IP = '1.0.0.3';
+const PLAIN_FOREIGN_IP = '1.1.1.1';
+const PLAIN_VPN_IP = '1.0.0.1';
+
+function firstIp(ip: string): string {
+  return ip.split(',')[0]?.trim() ?? '';
+}
+
+function isFamilyForwarder(
+  forwarders: DnsForwarderListItem[],
+  name: string,
+  familyIp: string,
+): boolean {
+  const forwarder = forwarders.find((row) => row.name === name);
+  if (!forwarder) return false;
+  if (forwarder.description?.startsWith(FAMILY_PROVIDER_PREFIX)) return true;
+  return firstIp(forwarder.ip) === familyIp;
+}
 
 export function DNSPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +69,12 @@ export function DNSPage() {
   const [editing, setEditing] = useState<DnsForwarderListItem | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [confirmingFamily, setConfirmingFamily] = useState<'enable' | 'disable' | null>(null);
+  const [applyingFamily, setApplyingFamily] = useState(false);
+
+  const familyEnabled =
+    isFamilyForwarder(forwarders, 'Foreign', FAMILY_FOREIGN_IP) &&
+    isFamilyForwarder(forwarders, 'VPN', FAMILY_VPN_IP);
 
   const creds = useMemo<DnsCredentials | null>(() => {
     if (!id) return null;
@@ -93,6 +123,49 @@ export function DNSPage() {
     }
   };
 
+  const runFamilyDns = async () => {
+    if (!creds) return;
+    setConfirmingFamily(null);
+    setApplyingFamily(true);
+    try {
+      await setFamilyDns(creds);
+      toast.notify({ title: 'Family DNS enabled', tone: 'success' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to enable Family DNS.';
+      toast.notify({
+        title: 'Failed to enable Family DNS',
+        description: `${message} Some forwarders may already have been switched, so check the list before retrying.`,
+        tone: 'danger',
+      });
+    } finally {
+      setApplyingFamily(false);
+      await reload();
+    }
+  };
+
+  const stopFamilyDns = async () => {
+    if (!creds) return;
+    setConfirmingFamily(null);
+    setApplyingFamily(true);
+    try {
+      await changeDns(creds, { oldIp: FAMILY_FOREIGN_IP, newIp: PLAIN_FOREIGN_IP });
+      await changeDns(creds, { oldIp: FAMILY_VPN_IP, newIp: PLAIN_VPN_IP });
+      toast.notify({ title: 'Family DNS disabled', tone: 'success' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to disable Family DNS.';
+      toast.notify({
+        title: 'Failed to disable Family DNS',
+        description: `${message} Some forwarders may already have been switched, so check the list before retrying.`,
+        tone: 'danger',
+      });
+    } finally {
+      setApplyingFamily(false);
+      await reload();
+    }
+  };
+
+  const familyToggleLabel = familyEnabled ? 'Disabling…' : 'Enabling…';
+
   const columns: DataTableColumn<DnsForwarderListItem>[] = [
     {
       key: 'type',
@@ -118,6 +191,12 @@ export function DNSPage() {
       ),
     },
     {
+      key: 'description',
+      header: 'Provider',
+      render: (row) =>
+        row.description ? <span>{row.description}</span> : <span className={styles.muted}>-</span>,
+    },
+    {
       key: 'actions',
       header: '',
       width: '110px',
@@ -126,7 +205,7 @@ export function DNSPage() {
           size="sm"
           variant="secondary"
           onClick={() => setEditing(row)}
-          disabled={!creds || resetting}
+          disabled={!creds || resetting || applyingFamily}
           aria-label={`Edit ${row.name} DNS server`}
         >
           <Pencil size={14} aria-hidden /> Edit
@@ -137,56 +216,82 @@ export function DNSPage() {
 
   return (
     <Stack>
-      <Card>
-        <CardHeader className={styles.cardHeader}>
-          <div>
-            <CardTitle>
-              <Inline>
-                <Globe size={16} aria-hidden /> DNS
-              </Inline>
-            </CardTitle>
-            <CardDescription>
-              DNS servers configured on this router, grouped by domestic, foreign and VPN traffic.
-            </CardDescription>
-          </div>
-          <div className={styles.headerActions}>
-            <Button size="sm" variant="secondary" onClick={reload} disabled={loading || resetting}>
-              <RefreshCw size={14} aria-hidden /> Refresh
-            </Button>
-            <Button
-              size="sm"
-              variant="danger"
-              onClick={() => setConfirmingReset(true)}
-              disabled={loading || resetting || !creds}
-            >
-              <RotateCcw size={14} aria-hidden /> {resetting ? 'Resetting…' : 'Reset'}
-            </Button>
-          </div>
-        </CardHeader>
+      <div className={styles.layout}>
+        <Card>
+          <CardHeader className={styles.cardHeader}>
+            <div>
+              <CardTitle>
+                <Inline>
+                  <Globe size={16} aria-hidden /> DNS
+                </Inline>
+              </CardTitle>
+              <CardDescription>
+                DNS servers configured on this router, grouped by domestic, foreign and VPN traffic.
+              </CardDescription>
+            </div>
+            <div className={styles.headerActions}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={reload}
+                disabled={loading || resetting}
+              >
+                <RefreshCw size={14} aria-hidden /> Refresh
+              </Button>
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={() => setConfirmingReset(true)}
+                disabled={loading || resetting || applyingFamily || !creds}
+              >
+                <RotateCcw size={14} aria-hidden /> {resetting ? 'Resetting…' : 'Reset'}
+              </Button>
+            </div>
+          </CardHeader>
 
-        {loading && forwarders.length === 0 ? (
-          <div className={styles.skeletonGrid} data-testid="dns-skeleton">
-            <Skeleton width={140} height={14} />
-            <Skeleton height={36} />
-            <Skeleton width={140} height={14} />
-            <Skeleton height={36} />
-            <Skeleton width={140} height={14} />
-            <Skeleton height={36} />
-          </div>
-        ) : error ? (
-          <div className={styles.errorNote}>
-            <SearchX size={28} aria-hidden className={styles.errorIcon} />
-            <p>{error}</p>
-          </div>
-        ) : (
-          <DataTable
-            columns={columns}
-            rows={forwarders}
-            rowKey={(row) => row.name}
-            emptyMessage="No DNS servers configured"
-          />
-        )}
-      </Card>
+          {loading && forwarders.length === 0 ? (
+            <div className={styles.skeletonGrid} data-testid="dns-skeleton">
+              <Skeleton width={140} height={14} />
+              <Skeleton height={36} />
+              <Skeleton width={140} height={14} />
+              <Skeleton height={36} />
+              <Skeleton width={140} height={14} />
+              <Skeleton height={36} />
+            </div>
+          ) : error ? (
+            <div className={styles.errorNote}>
+              <SearchX size={28} aria-hidden className={styles.errorIcon} />
+              <p>{error}</p>
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              rows={forwarders}
+              rowKey={(row) => row.name}
+              emptyMessage="No DNS servers configured"
+            />
+          )}
+        </Card>
+
+        <aside className={styles.sidebar}>
+          <Card data-testid="family-dns-card">
+            <div className={styles.settingRow}>
+              <span className={styles.settingTitle}>
+                <PersonStanding size={16} aria-hidden /> Family DNS
+              </span>
+              <Switch
+                aria-label="Family DNS"
+                checked={familyEnabled}
+                onChange={(e) =>
+                  setConfirmingFamily(e.currentTarget.checked ? 'enable' : 'disable')
+                }
+                disabled={loading || resetting || applyingFamily || !creds}
+              />
+            </div>
+            {applyingFamily ? <p className={styles.settingStatus}>{familyToggleLabel}</p> : null}
+          </Card>
+        </aside>
+      </div>
 
       {editing && creds ? (
         <DNSChangeDialog
@@ -208,6 +313,25 @@ export function DNSPage() {
         destructive
         onConfirm={runReset}
         onCancel={() => setConfirmingReset(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmingFamily === 'enable'}
+        title="Enable Family DNS?"
+        description="The Foreign and VPN forwarders switch to filtering servers."
+        confirmLabel="Enable"
+        confirmVariant="success"
+        onConfirm={runFamilyDns}
+        onCancel={() => setConfirmingFamily(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmingFamily === 'disable'}
+        title="Disable Family DNS?"
+        description="The Foreign and VPN forwarders go back to their standard servers, and filtering stops."
+        confirmLabel="Disable"
+        onConfirm={stopFamilyDns}
+        onCancel={() => setConfirmingFamily(null)}
       />
     </Stack>
   );
