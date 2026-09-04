@@ -67,6 +67,11 @@ export interface DhcpBackendOptions {
   id?: string;
 }
 
+export interface DnsBackendOptions {
+  id?: string;
+  familyStatus?: number;
+}
+
 export interface DiagBackendOptions {
   id?: string;
   initialProgress?: number;
@@ -115,6 +120,7 @@ export interface TestFixtures {
   mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
   mockLogsBackend: (options?: LogsBackendOptions) => Promise<void>;
   mockDhcpBackend: (options?: DhcpBackendOptions) => Promise<void>;
+  mockDnsBackend: (options?: DnsBackendOptions) => Promise<void>;
   mockDiagBackend: (options?: DiagBackendOptions) => Promise<void>;
   mockEasyConfigBackend: (options: EasyConfigBackendOptions) => Promise<void>;
 }
@@ -807,6 +813,88 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           contentType: 'application/json',
           body: envelope({ macAddress: 'AA:BB:CC:DD:EE:02', id: '*2', address: '192.168.88.102' }),
+        });
+      });
+    });
+  },
+  mockDnsBackend: async ({ context }, use) => {
+    await use(async (options = {}) => {
+      if (options.id) {
+        await context.addInitScript((routerId) => {
+          try {
+            const key = 'nasnet-panel.session-credentials.v1';
+            const raw = window.sessionStorage.getItem(key);
+            const map = (raw ? JSON.parse(raw) : {}) as Record<
+              string,
+              { username: string; password: string }
+            >;
+            map[routerId] = { username: 'admin', password: 'test' };
+            window.sessionStorage.setItem(key, JSON.stringify(map));
+          } catch {
+            /* ignore */
+          }
+        }, options.id);
+      }
+
+      const envelope = <T>(data: T, status = 200) =>
+        JSON.stringify({ status, message: 'OK', data });
+
+      const forwarders = [
+        { name: 'Domestic', ip: '217.218.127.127', description: 'ICT DNS', comment: '' },
+        { name: 'Foreign', ip: '1.1.1.1', description: 'Cloudflare Primary', comment: '' },
+        { name: 'VPN', ip: '1.0.0.1', description: 'Cloudflare Secondary', comment: '' },
+      ];
+
+      await context.route('**/api/dns/list', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(forwarders),
+        });
+      });
+
+      await context.route('**/api/dns/suggest**', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ domestic: [], foreign: [] }),
+        });
+      });
+
+      const familyStatus = options.familyStatus ?? 200;
+      await context.route('**/api/dns/family', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        if (familyStatus !== 200) {
+          await route.fulfill({
+            status: familyStatus,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: familyStatus,
+              message: 'VPN DNS forwarder not found',
+              error: 'VPN DNS forwarder not found',
+            }),
+          });
+          return;
+        }
+        forwarders[1] = {
+          name: 'Foreign',
+          ip: '1.1.1.3',
+          description: 'Cloudflare Family Primary',
+          comment: '',
+        };
+        forwarders[2] = {
+          name: 'VPN',
+          ip: '1.0.0.3',
+          description: 'Cloudflare Family Secondary',
+          comment: '',
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({
+            foreign: { oldIp: '1.1.1.1', newIp: '1.1.1.3', servers: ['1.1.1.3'] },
+            vpn: { oldIp: '1.0.0.1', newIp: '1.0.0.3', servers: ['1.0.0.3'] },
+          }),
         });
       });
     });
