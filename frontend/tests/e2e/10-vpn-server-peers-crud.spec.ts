@@ -344,7 +344,16 @@ test.describe('VPN servers tab', () => {
     await expect(dialog.getByText('Certificate passphrase is required.')).toBeVisible();
     expect(lastPostBody).toBeNull();
 
-    await dialog.getByLabel('Client certificate passphrase', { exact: true }).fill('certpass123');
+    const passphrase = dialog.getByLabel('Client certificate passphrase', { exact: true });
+    await passphrase.fill('short12');
+    await dialog.getByRole('button', { name: 'Create OpenVPN server' }).click();
+    await expect(
+      dialog.getByText('Certificate passphrase must be at least 8 characters.'),
+    ).toBeVisible();
+    await expect(passphrase).toHaveAttribute('aria-invalid', 'true');
+    expect(lastPostBody).toBeNull();
+
+    await passphrase.fill('certpass123');
     await dialog.getByRole('button', { name: 'Create OpenVPN server' }).click();
 
     await expect

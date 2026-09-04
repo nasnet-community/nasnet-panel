@@ -175,7 +175,7 @@ test.describe('VPN users section', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope({ ...baseUsers[1], disabled: false, password: 'bob456' }),
+          body: envelope({ ...baseUsers[1], disabled: false, password: 'bob45678' }),
         });
         return;
       }
@@ -199,11 +199,11 @@ test.describe('VPN users section', () => {
     await expect(dialog).toBeVisible();
     await expect(dialog.getByLabel('Name')).toHaveValue('bob');
 
-    await dialog.getByLabel('Password', { exact: true }).fill('bob456');
+    await dialog.getByLabel('Password', { exact: true }).fill('bob45678');
     await dialog.getByRole('switch', { name: /enabled/i }).click();
     await dialog.getByRole('button', { name: 'Save changes' }).click();
 
-    await expect.poll(() => lastPutBody).toEqual({ password: 'bob456', disabled: false });
+    await expect.poll(() => lastPutBody).toEqual({ password: 'bob45678', disabled: false });
     await expect(dialog).toBeHidden();
 
     await page.getByRole('button', { name: 'Delete alice' }).click();
@@ -211,5 +211,66 @@ test.describe('VPN users section', () => {
     await page.getByRole('button', { name: 'Delete', exact: true }).click();
 
     await expect.poll(() => deletedUrl).toContain('/api/vpn/users/*1');
+  });
+
+  test('blocks a password shorter than 8 characters', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await setup(context, resetMocks, seedRouter);
+
+    let posted = false;
+    await context.route('**/api/vpn/users', async (route) => {
+      if (route.request().method() === 'POST') {
+        posted = true;
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          body: envelope({
+            id: '*3',
+            name: 'dave',
+            service: 'any',
+            profile: 'VPN-VPN',
+            password: 'dave1234',
+            disabled: false,
+            limitBytesIn: 0,
+            limitBytesOut: 0,
+          }),
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope(baseUsers),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    await page.getByRole('button', { name: 'Add user' }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const password = dialog.getByLabel('Password', { exact: true });
+    const submit = dialog.getByRole('button', { name: 'Create user' });
+    await dialog.getByLabel('Name').fill('dave');
+    await password.fill('short12');
+    await password.press('Tab');
+
+    await expect(dialog.getByText('Password must be at least 8 characters.')).toBeVisible();
+    await expect(password).toHaveAttribute('aria-invalid', 'true');
+    await expect(submit).toBeDisabled();
+    expect(posted).toBe(false);
+
+    await password.fill('dave1234');
+    await expect(dialog.getByText('Password must be at least 8 characters.')).toBeHidden();
+    await expect(submit).toBeEnabled();
+    await submit.click();
+
+    await expect.poll(() => posted).toBe(true);
+    await expect(dialog).toBeHidden();
   });
 });
