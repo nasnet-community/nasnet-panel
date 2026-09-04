@@ -864,6 +864,28 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
+      const providerNames: Record<string, string> = {
+        '1.1.1.1': 'Cloudflare Primary',
+        '1.0.0.1': 'Cloudflare Secondary',
+        '1.1.1.3': 'Cloudflare Family Primary',
+        '1.0.0.3': 'Cloudflare Family Secondary',
+      };
+
+      await context.route('**/api/dns/change', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        const body = route.request().postDataJSON() as { oldIp?: string; newIp?: string } | null;
+        const target = forwarders.find((row) => row.ip === body?.oldIp);
+        if (target && body?.newIp) {
+          target.ip = body.newIp;
+          target.description = providerNames[body.newIp] ?? '';
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(null),
+        });
+      });
+
       const familyStatus = options.familyStatus ?? 200;
       await context.route('**/api/dns/family', async (route) => {
         if (route.request().method() !== 'POST') return route.fallback();
