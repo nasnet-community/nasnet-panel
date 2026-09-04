@@ -2182,9 +2182,9 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		task.mu.Unlock()
 	}
 
-	caName := "cert-ca-" + timestamp
-	serverName := "cert-server-" + timestamp
-	clientName := "cert-client-" + timestamp
+	caName := "ovpn-ca-" + timestamp
+	serverName := "ovpn-server-" + timestamp
+	clientName := "ovpn-client-" + timestamp
 
 	updateTask(5, "Creating CA certificate")
 	caCertParams := routeros.AddCertificateParams{
@@ -2371,7 +2371,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		Action:   "accept",
 		Protocol: "tcp",
 		DstPort:  fmt.Sprintf("%d", tcpPort),
-		Comment:  "openvpn-" + serverConfigNameTCP,
+		Comment:  serverConfigNameTCP,
 	}
 	_, err = client.AddFirewallRule(tcpFwRuleConfig)
 	if err != nil {
@@ -2385,7 +2385,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		Action:   "accept",
 		Protocol: "udp",
 		DstPort:  fmt.Sprintf("%d", udpPort),
-		Comment:  "openvpn-" + serverConfigNameUDP,
+		Comment:  serverConfigNameUDP,
 	}
 	_, err = client.AddFirewallRule(udpFwRuleConfig)
 	if err != nil {
@@ -2848,6 +2848,17 @@ func HandleUpdateOvpnServerEnabled(c echo.Context) error {
 	})
 }
 
+func extractOvpnServerTimestamp(name string) string {
+	rest, ok := strings.CutPrefix(name, "ovpn-server-")
+	if !ok {
+		return ""
+	}
+	if _, err := strconv.Atoi(rest); err != nil {
+		return ""
+	}
+	return rest
+}
+
 // HandleDeleteOvpnServer deletes an OpenVPN server and all related items.
 // @Summary Delete OpenVPN Server
 // @Description Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)
@@ -2886,15 +2897,7 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		baseName = strings.TrimSuffix(baseName, "-udp")
 	}
 
-	extractTimestamp := func(name string) string {
-		parts := strings.Split(name, "-")
-		if len(parts) >= 3 {
-			return parts[len(parts)-1]
-		}
-		return ""
-	}
-
-	timestamp := extractTimestamp(baseName)
+	timestamp := extractOvpnServerTimestamp(baseName)
 	deleteErrors := []string{}
 
 	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
@@ -2902,7 +2905,6 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete OpenVPN server: %v", err))
 	}
 
-	ovpnServerName := "ovpn-server-" + timestamp
 	otherServer := ""
 	if strings.HasSuffix(serverName, "-tcp") {
 		otherServer = strings.TrimSuffix(serverName, "-tcp") + "-udp"
@@ -2917,10 +2919,8 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 	// Delete associated firewall rules
 	rules, err := client.GetFirewallRulesByChain("input")
 	if err == nil {
-		// Search for firewall rules associated with this OpenVPN server
 		for i := range rules {
-			// Check if the rule comment starts with "openvpn-" and contains the server config names
-			if strings.HasPrefix(rules[i].Comment, "openvpn-"+baseName) {
+			if strings.HasPrefix(rules[i].Comment, baseName) {
 				if err := client.RemoveFirewallRule(rules[i].ID); err != nil {
 					deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete firewall rule %s: %v", rules[i].Comment, err))
 				}
@@ -2930,15 +2930,17 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 
 	if timestamp != "" {
 		certNames := []string{
-			"cert-client-" + ovpnServerName,
-			"cert-server-" + ovpnServerName,
-			"cert-ca-" + ovpnServerName,
+			"ovpn-client-" + timestamp,
+			"ovpn-server-" + timestamp,
+			"ovpn-ca-" + timestamp,
 		}
 		for _, certName := range certNames {
 			if err := client.RemoveCertificate(certName); err != nil {
 				deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete certificate %s: %v", certName, err))
 			} else if deleteCertFiles {
-				_ = client.RemoveCertificateFiles(certName)
+				if err := client.RemoveCertificateFiles(certName); err != nil {
+					deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete certificate files for %s: %v", certName, err))
+				}
 			}
 		}
 	}
