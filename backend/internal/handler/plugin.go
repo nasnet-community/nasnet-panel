@@ -189,12 +189,29 @@ func (p *pluginInstallPool) start(pluginID string) (*pluginInstallTask, error) {
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
 // @Success 200 {object} Response{data=[]PluginInfo}
+// @Failure 422 {object} Response
 // @Failure 502 {object} Response
 // @Router /api/plugin/plugins [get].
 func HandleListPlugins(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
+	}
+
+	containerModeEnabled, err := client.IsDeviceModeFeatureEnabled("container")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container mode", err)
+	}
+	if !containerModeEnabled {
+		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container mode is not enabled on this device", nil)
+	}
+
+	containerPackageInstalled, err := client.IsPackageInstalled("container")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container package", err)
+	}
+	if !containerPackageInstalled {
+		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container package is not installed on this device", nil)
 	}
 
 	registry, err := fetchPluginRegistry(c.Request().Context())
