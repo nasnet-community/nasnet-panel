@@ -172,7 +172,7 @@ export function PluginsPage() {
       }
       try {
         const data = await fetchPlugins(creds);
-        setPlugins(data);
+        setPlugins(data.plugins);
         if (silent) setError(null);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load plugins.';

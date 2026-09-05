@@ -43,6 +43,44 @@ var (
 	pluginViewTargetsMu sync.RWMutex
 )
 
+// pluginRegistryCache holds the most recent plugin registry fetched by
+// HandleListPlugins, reused by HandleListInstalledPlugins so it isn't forced
+// to fetch the registry itself when a fresh one is already available.
+var (
+	pluginRegistryCache   *PluginRegistry
+	pluginRegistryCacheMu sync.RWMutex
+)
+
+// cachePluginRegistry stores registry as the shared plugin registry cache.
+func cachePluginRegistry(registry *PluginRegistry) {
+	pluginRegistryCacheMu.Lock()
+	defer pluginRegistryCacheMu.Unlock()
+	pluginRegistryCache = registry
+}
+
+// cachedPluginRegistry returns the shared plugin registry cache, or nil if
+// it hasn't been populated yet.
+func cachedPluginRegistry() *PluginRegistry {
+	pluginRegistryCacheMu.RLock()
+	defer pluginRegistryCacheMu.RUnlock()
+	return pluginRegistryCache
+}
+
+// getCachedPluginRegistry returns the cached plugin registry, fetching and caching
+// a fresh one if the cache is empty.
+func getCachedPluginRegistry(ctx context.Context) (*PluginRegistry, error) {
+	if registry := cachedPluginRegistry(); registry != nil {
+		return registry, nil
+	}
+
+	registry, err := fetchPluginRegistry(ctx)
+	if err != nil {
+		return nil, err
+	}
+	cachePluginRegistry(registry)
+	return registry, nil
+}
+
 const (
 	pluginInstallPollInterval = 3 * time.Second
 	pluginInstallTimeout      = 5 * time.Minute
@@ -188,8 +226,8 @@ func (p *pluginInstallPool) start(pluginID string) (*pluginInstallTask, error) {
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
-// @Success 200 {object} Response{data=[]PluginInfo}
-// @Failure 422 {object} Response
+// @Success 200 {object} Response{data=PluginListResponse}
+// @Failure 500 {object} Response
 // @Failure 502 {object} Response
 // @Router /api/plugin/plugins [get].
 func HandleListPlugins(c echo.Context) error {
@@ -198,33 +236,35 @@ func HandleListPlugins(c echo.Context) error {
 		return err
 	}
 
-	containerModeEnabled, err := client.IsDeviceModeFeatureEnabled("container")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container mode", err)
-	}
-	if !containerModeEnabled {
-		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container mode is not enabled on this device", nil)
-	}
-
-	containerPackageInstalled, err := client.IsPackageInstalled("container")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container package", err)
-	}
-	if !containerPackageInstalled {
-		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container package is not installed or disabled", nil)
-	}
-
 	registry, err := fetchPluginRegistry(c.Request().Context())
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin registry", err)
 	}
+	cachePluginRegistry(registry)
 
-	containers, err := client.ListContainers()
+	containerModeEnabled, err := client.IsDeviceModeFeatureEnabled("container")
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list containers", err)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container mode", err)
+	}
+	containerPackageInstalled, err := client.IsPackageInstalled("container")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container package", err)
 	}
 
-	return SuccessResponse(c, http.StatusOK, "Plugins retrieved", finalizePlugins(registry.Plugins, containers))
+	containerSupport := containerModeEnabled && containerPackageInstalled
+
+	var containers []routeros.ContainerInfo
+	if containerSupport {
+		containers, err = client.ListContainers()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to list containers", err)
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Plugins retrieved", PluginListResponse{
+		ContainerSupport: containerSupport,
+		Plugins:          finalizePlugins(registry.Plugins, containers),
+	})
 }
 
 // HandleListInstalledPlugins godoc
@@ -236,7 +276,10 @@ func HandleListPlugins(c echo.Context) error {
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
+// @Description Returns an empty list without touching the registry if container mode isn't
+// @Description enabled or the container package isn't installed on the device.
 // @Success 200 {object} Response{data=[]InstalledPluginInfo}
+// @Failure 500 {object} Response
 // @Failure 502 {object} Response
 // @Router /api/plugin/installed [get].
 func HandleListInstalledPlugins(c echo.Context) error {
@@ -245,7 +288,19 @@ func HandleListInstalledPlugins(c echo.Context) error {
 		return err
 	}
 
-	registry, err := fetchPluginRegistry(c.Request().Context())
+	containerModeEnabled, err := client.IsDeviceModeFeatureEnabled("container")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container mode", err)
+	}
+	containerPackageInstalled, err := client.IsPackageInstalled("container")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container package", err)
+	}
+	if !containerModeEnabled || !containerPackageInstalled {
+		return SuccessResponse(c, http.StatusOK, "Installed plugins retrieved", []InstalledPluginInfo{})
+	}
+
+	registry, err := getCachedPluginRegistry(c.Request().Context())
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin registry", err)
 	}
@@ -455,6 +510,8 @@ func HandleViewPlugin(c echo.Context) error {
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Failure 409 {object} Response
+// @Failure 422 {object} Response
+// @Failure 500 {object} Response
 // @Failure 502 {object} Response
 // @Router /api/plugin/install [post].
 func HandleInstallPlugin(c echo.Context) error {
@@ -471,12 +528,28 @@ func HandleInstallPlugin(c echo.Context) error {
 		return err
 	}
 
+	containerModeEnabled, err := client.IsDeviceModeFeatureEnabled("container")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container mode", err)
+	}
+	if !containerModeEnabled {
+		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container mode is not enabled on this device", nil)
+	}
+
+	containerPackageInstalled, err := client.IsPackageInstalled("container")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container package", err)
+	}
+	if !containerPackageInstalled {
+		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container package is not installed or disabled", nil)
+	}
+
 	if _, err := client.GetContainer(req.ID); err == nil {
 		return ErrorResponse(c, http.StatusConflict, "Plugin is already installed",
 			fmt.Errorf("a container named %s already exists", req.ID))
 	}
 
-	registry, err := fetchPluginRegistry(c.Request().Context())
+	registry, err := getCachedPluginRegistry(c.Request().Context())
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin registry", err)
 	}
@@ -765,7 +838,7 @@ func HandleUninstallPlugin(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	registry, err := fetchPluginRegistry(ctx)
+	registry, err := getCachedPluginRegistry(ctx)
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin registry", err)
 	}
