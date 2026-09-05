@@ -331,7 +331,7 @@ type UpdateWireGuardPeerRequest struct {
 	PersistentKeepalive  *int    `json:"persistentKeepalive" example:"25"`
 	Disabled             *bool   `json:"disabled" example:"false"`
 	ClientEndpoint       *string `json:"clientEndpoint" example:"10.0.0.1"`
-	IP                   *string `json:"ip" example:"10.0.0.2"`
+	ClientAddress        *string `json:"clientAddress" example:"10.0.0.2"`
 	ClientKeepalive      *int    `json:"clientKeepalive" example:"10"`
 	ClientAllowedAddress *string `json:"clientAllowedAddress" example:"10.0.0.0/24"`
 	ClientListenPort     *int    `json:"clientListenPort" example:"51820"`
@@ -488,7 +488,10 @@ type CreateWireGuardServerPeerRequest struct {
 	SavePrivateKey      *bool   `json:"savePrivateKey" example:"false"`
 	Disabled            *bool   `json:"disabled" example:"false"`
 	ClientEndpoint      *string `json:"clientEndpoint" example:"10.0.0.1"`
-	ClientEndpointIP    *string `json:"clientEndpointIp" example:"10.0.0.1"`
+	ClientAddress       *string `json:"clientAddress" example:"10.0.0.2"`
+	ClientDNS           *string `json:"clientDNS" example:"8.8.8.8,8.8.4.4"`
+	ClientKeepalive     *int    `json:"clientKeepalive" example:"30"`
+	ClientListenPort    *int    `json:"clientListenPort" example:"51820"`
 	Comment             *string `json:"comment" example:"Office VPN Peer"`
 	Responder           *bool   `json:"responder" example:"false"`
 }
@@ -508,7 +511,7 @@ type WireGuardServerPeerCreateResponse struct {
 	ClientDNS            string `json:"clientDNS"`
 	ClientKeepalive      int    `json:"clientKeepalive"`
 	ClientAllowedAddress string `json:"clientAllowedAddress"`
-	ClientListenPort     int    `json:"clientListenPort"`
+	ClientListenPort     int    `json:"clientListenPort,omitempty"`
 	ClientEndpoint       string `json:"clientEndpoint,omitempty"`
 	Disabled             bool   `json:"disabled"`
 }
