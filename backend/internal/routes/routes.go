@@ -144,6 +144,7 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/wireguard/detailed/:name", handler.HandleGetWireGuardDetailed)
 	vpnGroup.GET("/wireguard/interface/:nameOrID", handler.HandleGetWireGuardInterface)
 	vpnGroup.GET("/wireguard/peers/:name", handler.HandleGetWireGuardPeers)
+	vpnGroup.GET("/wireguard/peer/export", handler.HandleExportWireGuardPeerConfig)
 	vpnGroup.GET("/profiles", handler.HandleListVPNProfiles)
 	vpnGroup.GET("/users", handler.HandleListVPNUsers)
 	vpnGroup.POST("/users", handler.HandleCreateVPNUser)
