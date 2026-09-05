@@ -211,7 +211,7 @@ func HandleListPlugins(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check container package", err)
 	}
 	if !containerPackageInstalled {
-		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container package is not installed on this device", nil)
+		return ErrorResponse(c, http.StatusUnprocessableEntity, "Container package is not installed or disabled", nil)
 	}
 
 	registry, err := fetchPluginRegistry(c.Request().Context())
