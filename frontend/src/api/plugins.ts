@@ -21,6 +21,11 @@ export interface PluginInfoResponse {
   note?: string;
 }
 
+export interface GetPluginsResponse {
+  containerSupport: boolean;
+  plugins: PluginInfoResponse[];
+}
+
 export interface InstalledPluginResponse {
   id: string;
   name: string;
@@ -69,8 +74,8 @@ function authHeaders({ host, username, password }: PluginCredentials): Record<st
 export async function fetchPlugins(
   creds: PluginCredentials,
   signal?: AbortSignal,
-): Promise<PluginInfoResponse[]> {
-  return apiRequest<PluginInfoResponse[]>('/api/plugin/plugins', {
+): Promise<GetPluginsResponse> {
+  return apiRequest<GetPluginsResponse>('/api/plugin/plugins', {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',

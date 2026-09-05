@@ -38,7 +38,10 @@ async function mockPlugins(
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: envelope(installed.map((p) => ({ ...basePlugin, ...p }))),
+      body: envelope({
+        containerSupport: true,
+        plugins: installed.map((p) => ({ ...basePlugin, ...p })),
+      }),
     });
   });
 }
