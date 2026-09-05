@@ -1230,13 +1230,20 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 	}
 
+	// req.ClientAddress == nil means the field was omitted entirely: leave
+	// clientAddress nil so UpdateWireGuardPeer doesn't touch the peer's
+	// existing client-address. An explicit empty string means the caller
+	// wants a new address allocated; a non-empty string is used as-is.
 	var clientAddress *string
-	if req.ClientAddress != nil && *req.ClientAddress != "" {
+	switch {
+	case req.ClientAddress == nil:
+		// leave clientAddress nil
+	case *req.ClientAddress != "":
 		if net.ParseIP(*req.ClientAddress) == nil {
 			return ErrorResponse(c, http.StatusBadRequest, "clientAddress must be a valid IP address", nil)
 		}
 		clientAddress = req.ClientAddress
-	} else {
+	default:
 		unlockInterfacePeers := lockWireGuardInterfacePeers(peer.InterfaceName)
 		defer unlockInterfacePeers()
 
