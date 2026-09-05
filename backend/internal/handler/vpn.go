@@ -1240,7 +1240,7 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 		PreSharedKey:         req.PreSharedKey,
 		PersistentKeepalive:  req.PersistentKeepalive,
 		ClientEndpoint:       req.ClientEndpoint,
-		ClientAddress:        req.ClientAddress,
+		ClientAddress:        req.IP,
 		ClientKeepalive:      req.ClientKeepalive,
 		ClientAllowedAddress: req.ClientAllowedAddress,
 		ClientListenPort:     req.ClientListenPort,
@@ -1430,14 +1430,8 @@ func HandleExportWireGuardPeerConfig(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 	}
 
-	wg, err := client.GetWireGuard(peer.InterfaceName)
-	if err != nil {
-		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
-	}
-
-	clientEndpoint := net.JoinHostPort(publicAddress, strconv.Itoa(wg.ListenPort))
 	if err := client.UpdateWireGuardPeer(peer.ID, routeros.UpdateWireGuardPeerConfig{
-		ClientEndpoint: &clientEndpoint,
+		ClientEndpoint: &publicAddress,
 	}); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WireGuard peer client endpoint", err)
 	}
@@ -1582,10 +1576,8 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Only one of clientEndpoint or clientEndpointIp may be supplied", nil)
 	}
 
-	if req.ClientEndpoint != nil {
-		if err := utils.ValidateIPPort(*req.ClientEndpoint); err != nil {
-			return ErrorResponse(c, http.StatusBadRequest, "clientEndpoint must be in ip:port format", err)
-		}
+	if req.ClientEndpoint != nil && net.ParseIP(*req.ClientEndpoint) == nil {
+		return ErrorResponse(c, http.StatusBadRequest, "clientEndpoint must be a valid IP address", nil)
 	}
 
 	interfaceName := req.InterfaceName
