@@ -57,6 +57,7 @@ test.describe('DNS page flush cache', () => {
 
     const notifications = page.getByRole('region', { name: 'Notifications' });
     await expect(notifications).toContainText('Failed to clear DNS cache');
+    await expect(notifications).toContainText('Failed to flush DNS cache');
     await expect(page.getByRole('button', { name: 'Flush DNS cache' })).toBeEnabled();
   });
 });
