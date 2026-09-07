@@ -81,12 +81,6 @@ export function InternetPage() {
         await updateVPNClient(creds, vpnName, { disabled: !isActive });
         if (isActive) {
           await updateForeignGateway(creds, vpnName);
-          const others = topology.nodes.filter((n) => n.kind === 'vpn' && n.id !== target.id);
-          await Promise.all(
-            others.map((n) =>
-              updateVPNClient(creds, n.id.replace(/^vpn_/, ''), { disabled: true }),
-            ),
-          );
         }
         await reload();
         toast.notify({ title: 'VPN tunnel updated', tone: 'success' });
