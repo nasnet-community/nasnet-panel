@@ -93,6 +93,7 @@ export interface ConfirmDialogProps {
   cancelLabel?: string;
   destructive?: boolean;
   confirmVariant?: React.ComponentProps<typeof Button>['variant'];
+  children?: React.ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -105,6 +106,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   cancelLabel = 'Cancel',
   destructive,
   confirmVariant,
+  children,
   onConfirm,
   onCancel,
 }) => (
@@ -127,5 +129,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </Button>
       </>
     }
-  />
+  >
+    {children}
+  </Dialog>
 );
