@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
+import { Card, Checkbox, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
   createSstpServer,
@@ -50,6 +50,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
   const [editingWg, setEditingWg] = useState<VPNServer | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNServer | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [deleteCertFiles, setDeleteCertFiles] = useState(false);
   const [pendingDisable, setPendingDisable] = useState<VPNServer | null>(null);
   const [disableSubmitting, setDisableSubmitting] = useState(false);
   const [pendingToggle, setPendingToggle] = useState<VPNServer | null>(null);
@@ -73,7 +74,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     setDeleteSubmitting(true);
     try {
       if (target.protocol === 'openvpn') {
-        await deleteOvpnServer(creds, target.name);
+        await deleteOvpnServer(creds, target.name, deleteCertFiles);
       } else if (target.protocol === 'wireguard') {
         await deleteWireguardInterface(creds, target.name);
       }
@@ -94,6 +95,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     }
     setDeleteSubmitting(false);
     setPendingDelete(null);
+    setDeleteCertFiles(false);
     toast.notify({
       title: paired
         ? `Servers "${target.name}" and "${paired.name}" deleted`
@@ -232,22 +234,33 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
         title={deletePaired ? 'Delete OpenVPN server pair' : 'Delete VPN server'}
         description={
           pendingDelete
-            ? `Remove "${pendingDelete.name}" from this router? ${
+            ? `Remove "${pendingDelete.name}" from this router?${
                 pendingDelete.protocol === 'openvpn'
                   ? `${
-                      deletePaired
-                        ? `The paired server "${deletePaired.name}" is removed together with it, because both share the same certificates. `
-                        : ''
-                    }Associated users, IP pool, profile and certificates will also be removed.`
-                  : 'Associated peers and IP address will also be removed.'
+                      deletePaired ? ` The paired server "${deletePaired.name}" goes with it.` : ''
+                    } Users, IP pool, profile and certificates go too.`
+                  : ' Peers and IP address go too.'
               } This cannot be undone.`
             : undefined
         }
         confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
         destructive
         onConfirm={onConfirmDelete}
-        onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
-      />
+        onCancel={() => {
+          if (deleteSubmitting) return;
+          setPendingDelete(null);
+          setDeleteCertFiles(false);
+        }}
+      >
+        {pendingDelete?.protocol === 'openvpn' ? (
+          <Checkbox
+            label="Also delete certificate files from device storage"
+            checked={deleteCertFiles}
+            disabled={deleteSubmitting}
+            onChange={(e) => setDeleteCertFiles(e.target.checked)}
+          />
+        ) : null}
+      </ConfirmDialog>
       <ConfirmDialog
         open={!!pendingToggle}
         title={toggleEnable ? 'Enable OpenVPN server' : 'Disable OpenVPN server'}
