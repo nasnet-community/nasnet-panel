@@ -132,3 +132,20 @@
   grid-template-columns: 180px 1fr;
   gap: var(--space-sm) var(--space-md);
 }
+
+.settingDivider {
+  margin: var(--space-md) 0;
+}
+
+.purgeButton.purgeButton {
+  transition:
+    background var(--transition-fast),
+    border var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger);
+    border-color: var(--color-danger);
+    color: #fff;
+  }
+}
