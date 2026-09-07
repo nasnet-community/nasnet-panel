@@ -94,6 +94,9 @@ func RegisterRoutes(e *echo.Echo) {
 	interfaceGroup.GET("/ethernets", handler.HandleGetEthernetInterfaces)
 	interfaceGroup.GET("/ethernet/:nameOrID", handler.HandleGetEthernetInterface)
 	interfaceGroup.GET("/graph/:nameOrID", handler.HandleGetInterfaceGraph)
+	interfaceGroup.GET("/bridges", handler.HandleListBridges)
+	interfaceGroup.GET("/bridge/ports", handler.HandleListBridgePorts)
+	interfaceGroup.PUT("/bridge/port", handler.HandleUpdateInterfaceBridge)
 	interfaceGroup.PUT("/wan", handler.HandleUpdateWANInterface)
 
 	dnsGroup := e.Group("/api/dns")
