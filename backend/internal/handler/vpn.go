@@ -76,9 +76,9 @@ func cleanupOvpnServerTasks() {
 	}
 }
 
-// sstpAllowedInterfaceList is the interface list SSTP's firewall accept rule
-// restricts connections to.
-const sstpAllowedInterfaceList = "Domestic-WAN"
+// vpnServerAllowedInterfaceList is the interface list every VPN server's
+// firewall accept rule restricts connections to.
+const vpnServerAllowedInterfaceList = "Domestic-WAN"
 
 // SstpServerTask tracks the status and progress of an SSTP server creation task.
 type SstpServerTask struct {
@@ -1071,11 +1071,12 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 	// Add firewall filter rule for the listening port using the created interface info
 	fwComment := "wireguard-" + wireguard.Name
 	fwRuleConfig := routeros.FirewallRuleConfig{
-		Chain:    "input",
-		Action:   "accept",
-		Protocol: "udp",
-		DstPort:  fmt.Sprintf("%d", wireguard.ListenPort),
-		Comment:  fwComment,
+		Chain:           "input",
+		Action:          "accept",
+		Protocol:        "udp",
+		DstPort:         fmt.Sprintf("%d", wireguard.ListenPort),
+		InInterfaceList: vpnServerAllowedInterfaceList,
+		Comment:         fwComment,
 	}
 	_, err = client.AddFirewallRule(fwRuleConfig)
 	if err != nil {
@@ -1173,11 +1174,12 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 
 		// Add new firewall rule with the new port
 		fwRuleConfig := routeros.FirewallRuleConfig{
-			Chain:    "input",
-			Action:   "accept",
-			Protocol: "udp",
-			DstPort:  fmt.Sprintf("%d", newPort),
-			Comment:  fwComment,
+			Chain:           "input",
+			Action:          "accept",
+			Protocol:        "udp",
+			DstPort:         fmt.Sprintf("%d", newPort),
+			InInterfaceList: vpnServerAllowedInterfaceList,
+			Comment:         fwComment,
 		}
 		_, err = client.AddFirewallRule(fwRuleConfig)
 		if err != nil {
@@ -2824,7 +2826,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask, req Cr
 		Action:          "accept",
 		Protocol:        "tcp",
 		DstPort:         fmt.Sprintf("%d", sstpConfig.Port),
-		InInterfaceList: sstpAllowedInterfaceList,
+		InInterfaceList: vpnServerAllowedInterfaceList,
 		Comment:         "sstp-" + serverName,
 	}
 	if _, err := client.AddFirewallRule(fwRuleConfig); err != nil {
