@@ -46,6 +46,10 @@
   color: var(--color-text);
 }
 
+.settingRowSpaced {
+  margin-top: var(--space-md);
+}
+
 .settingStatus {
   margin: var(--space-sm) 0 0;
   font-size: var(--font-sm);
@@ -131,4 +135,72 @@
   display: grid;
   grid-template-columns: 180px 1fr;
   gap: var(--space-sm) var(--space-md);
+}
+
+.hint {
+  position: relative;
+  display: inline-flex;
+}
+
+.hintTrigger {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.hintPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  width: 260px;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-text);
+  color: var(--color-surface);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-regular);
+  line-height: 1.45;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.hint:hover .hintPopover,
+.hint:focus-within .hintPopover {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hintWarning {
+  color: var(--color-warning);
+}
+
+.settingDivider {
+  margin: var(--space-sm) 0;
+}
+
+.purgeButton.purgeButton {
+  transition:
+    background var(--transition-fast),
+    border var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-danger);
+    border-color: var(--color-danger);
+    color: #fff;
+  }
 }

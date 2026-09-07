@@ -1,4 +1,11 @@
-import { isIPv4, isPort, isRequired, isSsid, isWifiPassword } from '../../utils/validators';
+import {
+  isIPv4,
+  isPort,
+  isRequired,
+  isSsid,
+  isWifiPassword,
+  validateOvpnSecret,
+} from '../../utils/validators';
 import type { State } from './state';
 
 const FORBIDDEN_SSID_WORDS = ['star', 'starlink', 'vpn', 'iran'];
@@ -69,14 +76,16 @@ export function canAdvance(state: State): string | null {
       }
       return null;
     }
-    case 'vpnsrv':
+    case 'vpnsrv': {
       if (!state.vpnServerEnabled) return null;
-      if (!isRequired(state.vpnServerCertPassphrase)) {
-        return 'Certificate passphrase is required.';
-      }
+      const passphraseProblem = validateOvpnSecret(
+        state.vpnServerCertPassphrase,
+        'Certificate passphrase',
+      );
+      if (passphraseProblem) return passphraseProblem;
       if (!isRequired(state.firstUserName)) return 'Username is required.';
-      if (!isRequired(state.firstUserKey)) return 'Password is required.';
-      return null;
+      return validateOvpnSecret(state.firstUserKey);
+    }
     default:
       return null;
   }

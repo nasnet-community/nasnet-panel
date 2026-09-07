@@ -378,7 +378,6 @@ add action=mark-routing chain=output comment="VPN Endpoint" \
 dst-address-list="VPNE" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" content="s4i.co" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" src-address=192.168.39.12 new-routing-mark="to-Foreign" passthrough=no
-add action=mark-routing chain=output comment="Router Foreign" new-routing-mark=to-Foreign passthrough=no
 {{ if .DomesticEnabled}}
 add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \
 new-routing-mark="to-Domestic" passthrough=no \
