@@ -533,6 +533,31 @@ func (c *Client) ListPackages() ([]PackageInfo, error) {
 	return packages, nil
 }
 
+// IsPackageInstalled reports whether the named system package is installed
+// and enabled.
+func (c *Client) IsPackageInstalled(name string) (bool, error) {
+	results, err := c.GetAll("/system/package", "?=name="+name)
+	if err != nil {
+		return false, fmt.Errorf("failed to check %s package: %w", name, err)
+	}
+	if len(results) == 0 {
+		return false, nil
+	}
+
+	return !parseRouterOSBool(results[0]["disabled"]), nil
+}
+
+// IsDeviceModeFeatureEnabled reports whether the named RouterOS device-mode
+// feature (e.g. "container") is enabled.
+func (c *Client) IsDeviceModeFeatureEnabled(feature string) (bool, error) {
+	result, err := c.GetFirst("/system/device-mode")
+	if err != nil {
+		return false, fmt.Errorf("failed to check device-mode feature %s: %w", feature, err)
+	}
+
+	return parseRouterOSBool(result[feature]), nil
+}
+
 func (c *Client) GetSystemUpdates() (*UpdateInfo, error) {
 	result, err := c.GetFirst("/system/package/update")
 	if err != nil {
