@@ -270,4 +270,33 @@ test.describe('Plugins page', () => {
     await expect(page.getByText('Failed to remove veth interface veth-xray')).toBeVisible();
     await expect(xrayCard.getByRole('button', { name: /^install$/i })).toBeVisible();
   });
+
+  test('catalog stays browsable but installs are blocked without container support', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+    seedCredentials,
+  }) => {
+    await resetMocks();
+    await seedRouter(ROUTER);
+    await seedCredentials(ROUTER.id);
+
+    await context.route('**/api/plugin/plugins', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ containerSupport: false, plugins: CATALOG }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER.id}/plugins`);
+
+    await expect(
+      page.getByRole('alert').filter({ hasText: 'This router cannot run plugins' }),
+    ).toBeVisible();
+    await expect(page.getByRole('article')).toHaveCount(2);
+    await expect(page.getByRole('button', { name: 'Unavailable' })).toHaveCount(2);
+    await expect(page.getByRole('button', { name: /^install$/i })).toHaveCount(0);
+  });
 });
