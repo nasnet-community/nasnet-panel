@@ -373,10 +373,10 @@ test.describe('Internet routing page', () => {
       });
     });
 
-    let otherPutBody: { disabled?: boolean } | null = null;
+    let otherPutSeen = false;
     await context.route('**/api/vpn/clients/wg-client-alt', async (route) => {
       if (route.request().method() === 'PUT') {
-        otherPutBody = route.request().postDataJSON() as typeof otherPutBody;
+        otherPutSeen = true;
       }
       await route.fulfill({
         status: 200,
@@ -412,7 +412,7 @@ test.describe('Internet routing page', () => {
     await expect.poll(() => targetPutBody?.disabled).toBe(false);
     await expect.poll(() => gatewayPutBody?.gateway).toBe('wg-client-mask');
     await expect(page.getByText('VPN tunnel updated')).toBeVisible();
-    expect(otherPutBody).toBeNull();
+    expect(otherPutSeen).toBe(false);
   });
 
   test('marks no VPN path as active when no gateway route exists', async ({
