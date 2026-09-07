@@ -1700,6 +1700,32 @@ func (c *Client) GetWireGuardPeerByNameOrID(nameOrID string) (*WireGuardPeerInfo
 	return nil, fmt.Errorf("WireGuard peer not found: %s", nameOrID)
 }
 
+// GetWireGuardPeerClientConfig runs
+// /interface/wireguard/peers/show-client-config for the peer identified by
+// its RouterOS .id, returning the generated client configuration text.
+func (c *Client) GetWireGuardPeerClientConfig(peerID string) (string, error) {
+	if peerID == "" {
+		return "", fmt.Errorf("peer ID is required")
+	}
+
+	reply, err := c.Execute("/interface/wireguard/peers/show-client-config",
+		"=.id="+peerID,
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to get WireGuard peer client config: %w", err)
+	}
+	if reply == nil || len(reply.Re) == 0 {
+		return "", fmt.Errorf("show-client-config returned no response")
+	}
+
+	config, ok := reply.Re[0].Map["conf"]
+	if !ok || config == "" {
+		return "", fmt.Errorf("show-client-config returned no configuration")
+	}
+
+	return strings.Trim(config, "\n"), nil
+}
+
 // DeleteWireGuardPeer deletes a WireGuard peer by name or ID.
 func (c *Client) DeleteWireGuardPeer(nameOrID string) error {
 	if nameOrID == "" {
