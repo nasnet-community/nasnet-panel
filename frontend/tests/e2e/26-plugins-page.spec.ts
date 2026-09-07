@@ -53,10 +53,13 @@ test.describe('Plugins page', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope([
-          { ...CATALOG[0], canInstall: false },
-          { ...CATALOG[1], installed: true, running: true },
-        ]),
+        body: envelope({
+          containerSupport: true,
+          plugins: [
+            { ...CATALOG[0], canInstall: false },
+            { ...CATALOG[1], installed: true, running: true },
+          ],
+        }),
       });
     });
 
@@ -106,7 +109,10 @@ test.describe('Plugins page', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope([{ ...CATALOG[0], installed, running: installed }, CATALOG[1]]),
+        body: envelope({
+          containerSupport: true,
+          plugins: [{ ...CATALOG[0], installed, running: installed }, CATALOG[1]],
+        }),
       });
     });
 
@@ -156,15 +162,18 @@ test.describe('Plugins page', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope([
-          {
-            ...CATALOG[0],
-            installed: failed,
-            failed,
-            note: failed ? 'Errc: failed to pull image' : undefined,
-          },
-          CATALOG[1],
-        ]),
+        body: envelope({
+          containerSupport: true,
+          plugins: [
+            {
+              ...CATALOG[0],
+              installed: failed,
+              failed,
+              note: failed ? 'Errc: failed to pull image' : undefined,
+            },
+            CATALOG[1],
+          ],
+        }),
       });
     });
 
@@ -224,7 +233,10 @@ test.describe('Plugins page', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope([{ ...CATALOG[0], installed, running: installed }, CATALOG[1]]),
+        body: envelope({
+          containerSupport: true,
+          plugins: [{ ...CATALOG[0], installed, running: installed }, CATALOG[1]],
+        }),
       });
     });
 
