@@ -89,7 +89,7 @@ test.describe('OpenVPN paired server deletion', () => {
     const confirm = page.getByRole('dialog');
     await expect(confirm).toBeVisible();
     await expect(confirm.getByText('Delete OpenVPN server pair')).toBeVisible();
-    await expect(confirm).toContainText(`The paired server "${TCP_NAME}" is removed together`);
+    await expect(confirm).toContainText(`The paired server "${TCP_NAME}" goes with it.`);
     await expect(confirm).toContainText(UDP_NAME);
 
     await confirm.getByRole('button', { name: 'Delete', exact: true }).click();
