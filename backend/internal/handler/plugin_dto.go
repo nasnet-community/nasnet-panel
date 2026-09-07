@@ -32,6 +32,12 @@ type PluginInfo struct {
 	Note       string `json:"note,omitempty"`
 }
 
+// PluginListResponse is the response for GET /api/plugin/plugins.
+type PluginListResponse struct {
+	ContainerSupport bool         `json:"containerSupport"`
+	Plugins          []PluginInfo `json:"plugins"`
+}
+
 // InstalledPluginInfo is one entry in the GET /api/plugin/installed response.
 type InstalledPluginInfo struct {
 	ID   string `json:"id"`
