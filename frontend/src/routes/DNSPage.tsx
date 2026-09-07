@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
 import {
@@ -96,6 +96,7 @@ export function DNSPage() {
   const [resetting, setResetting] = useState(false);
   const [adBlockEnabled, setAdBlockEnabled] = useState(false);
   const [adBlockBusy, setAdBlockBusy] = useState(false);
+  const activeRouterRef = useRef(id);
   const [flushing, setFlushing] = useState(false);
   const [confirmingFamily, setConfirmingFamily] = useState<'enable' | 'disable' | null>(null);
   const [applyingFamily, setApplyingFamily] = useState(false);
@@ -136,34 +137,42 @@ export function DNSPage() {
   }, [reload]);
 
   useEffect(() => {
+    activeRouterRef.current = id;
     setAdBlockEnabled(readStoredAdBlock(id));
+    setAdBlockBusy(false);
   }, [id]);
 
   const toggleAdBlock = async (next: boolean) => {
     if (!creds) return;
+    const requestId = id;
     setAdBlockBusy(true);
     try {
       await setDnsAdBlock(creds, next);
+      storeAdBlock(requestId, next);
+      if (activeRouterRef.current !== requestId) return;
       setAdBlockEnabled(next);
-      storeAdBlock(id, next);
       toast.notify({
         title: next ? 'Ad-block enabled' : 'Ad-block disabled',
         tone: 'success',
       });
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
+        storeAdBlock(requestId, next);
+        if (activeRouterRef.current !== requestId) return;
         setAdBlockEnabled(next);
-        storeAdBlock(id, next);
         toast.notify({
           title: next ? 'Ad-block was already on' : 'Ad-block was already off',
           tone: 'info',
         });
         return;
       }
+      if (activeRouterRef.current !== requestId) return;
       const message = err instanceof Error ? err.message : 'Failed to update ad-block.';
       toast.notify({ title: 'Failed to update ad-block', description: message, tone: 'danger' });
     } finally {
-      setAdBlockBusy(false);
+      if (activeRouterRef.current === requestId) {
+        setAdBlockBusy(false);
+      }
     }
   };
 
