@@ -17,10 +17,10 @@ test.describe('DNS page ad-block', () => {
 
     const card = page.getByTestId('dns-adblock');
     await expect(card).toBeVisible();
-    await expect(card).toContainText(/advertising and tracking domains/i);
-    await expect(card).toContainText(/some websites stop working/i);
+    await expect(card).toContainText(/every device on the network/i);
+    await expect(card).toContainText(/some sites stop working/i);
 
-    const toggle = page.getByRole('switch', { name: 'Enable ad-block' });
+    const toggle = page.getByRole('switch', { name: 'Ad-block' });
     await expect(toggle).toBeVisible();
     await expect(toggle).not.toBeChecked();
   });
@@ -47,7 +47,7 @@ test.describe('DNS page ad-block', () => {
 
     await page.goto('/router/rtr_ab2/dns');
 
-    const toggle = page.getByRole('switch', { name: 'Enable ad-block' });
+    const toggle = page.getByRole('switch', { name: 'Ad-block' });
     await toggle.click();
 
     await expect(page.getByText('Ad-block enabled')).toBeVisible();
@@ -55,7 +55,7 @@ test.describe('DNS page ad-block', () => {
     expect(requests).toEqual([true]);
 
     await page.reload();
-    await expect(page.getByRole('switch', { name: 'Enable ad-block' })).toBeChecked();
+    await expect(page.getByRole('switch', { name: 'Ad-block' })).toBeChecked();
   });
 
   test('reconciles the toggle when the router is already in that state', async ({
@@ -72,7 +72,7 @@ test.describe('DNS page ad-block', () => {
 
     await page.goto('/router/rtr_ab3/dns');
 
-    const toggle = page.getByRole('switch', { name: 'Enable ad-block' });
+    const toggle = page.getByRole('switch', { name: 'Ad-block' });
     await toggle.click();
 
     await expect(page.getByText('Ad-block was already on')).toBeVisible();
@@ -80,6 +80,6 @@ test.describe('DNS page ad-block', () => {
     await expect(toggle).toBeChecked();
 
     await page.reload();
-    await expect(page.getByRole('switch', { name: 'Enable ad-block' })).toBeChecked();
+    await expect(page.getByRole('switch', { name: 'Ad-block' })).toBeChecked();
   });
 });

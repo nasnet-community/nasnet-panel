@@ -262,6 +262,22 @@ func (c *Client) RemoveBridge(id string) error {
 	return nil
 }
 
+// ListAllBridgePorts retrieves every /interface/bridge/port entry, across
+// all bridges.
+func (c *Client) ListAllBridgePorts() ([]BridgePort, error) {
+	results, err := c.GetAll("/interface/bridge/port")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list bridge ports: %w", err)
+	}
+
+	ports := make([]BridgePort, 0, len(results))
+	for _, result := range results {
+		ports = append(ports, parseBridgePort(result))
+	}
+
+	return ports, nil
+}
+
 // ListBridgePorts retrieves all ports of a specific bridge.
 func (c *Client) ListBridgePorts(bridge string) ([]BridgePort, error) {
 	results, err := c.GetAll("/interface/bridge/port", "?=bridge="+bridge)

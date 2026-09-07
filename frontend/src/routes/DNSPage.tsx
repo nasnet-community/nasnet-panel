@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  Globe,
-  Pencil,
-  RefreshCw,
-  RotateCcw,
-  SearchX,
-  ShieldBan,
-  TriangleAlert,
-} from 'lucide-react';
+import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -18,6 +10,7 @@ import {
   CardTitle,
   ConfirmDialog,
   DataTable,
+  Divider,
   Inline,
   Skeleton,
   Stack,
@@ -29,9 +22,12 @@ import styles from './DNSPage.module.scss';
 import { DNSChangeDialog } from './DNSChangeDialog';
 import {
   ApiError,
+  changeDns,
   fetchDnsForwarders,
+  flushDnsCache,
   resetDns,
   setDnsAdBlock,
+  setFamilyDns,
   type DnsCredentials,
   type DnsForwarderListItem,
 } from '../api';
@@ -64,6 +60,28 @@ function storeAdBlock(routerId: string | undefined, enabled: boolean): void {
   }
 }
 
+const FAMILY_PROVIDER_PREFIX = 'Cloudflare Family';
+const FAMILY_FOREIGN_IP = '1.1.1.3';
+const FAMILY_VPN_IP = '1.0.0.3';
+const PLAIN_FOREIGN_IP = '1.1.1.1';
+const PLAIN_VPN_IP = '1.0.0.1';
+const FLUSH_MIN_DURATION_MS = 1000;
+
+function firstIp(ip: string): string {
+  return ip.split(',')[0]?.trim() ?? '';
+}
+
+function isFamilyForwarder(
+  forwarders: DnsForwarderListItem[],
+  name: string,
+  familyIp: string,
+): boolean {
+  const forwarder = forwarders.find((row) => row.name === name);
+  if (!forwarder) return false;
+  if (forwarder.description?.startsWith(FAMILY_PROVIDER_PREFIX)) return true;
+  return firstIp(forwarder.ip) === familyIp;
+}
+
 export function DNSPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
@@ -78,6 +96,13 @@ export function DNSPage() {
   const [resetting, setResetting] = useState(false);
   const [adBlockEnabled, setAdBlockEnabled] = useState(false);
   const [adBlockBusy, setAdBlockBusy] = useState(false);
+  const [flushing, setFlushing] = useState(false);
+  const [confirmingFamily, setConfirmingFamily] = useState<'enable' | 'disable' | null>(null);
+  const [applyingFamily, setApplyingFamily] = useState(false);
+
+  const familyEnabled =
+    isFamilyForwarder(forwarders, 'Foreign', FAMILY_FOREIGN_IP) &&
+    isFamilyForwarder(forwarders, 'VPN', FAMILY_VPN_IP);
 
   const creds = useMemo<DnsCredentials | null>(() => {
     if (!id) return null;
@@ -158,6 +183,69 @@ export function DNSPage() {
     }
   };
 
+  const runFlushCache = async () => {
+    if (!creds) return;
+    setFlushing(true);
+    const startedAt = Date.now();
+    let result: Parameters<typeof toast.notify>[0];
+    try {
+      await flushDnsCache(creds);
+      result = { title: 'DNS cache cleared', tone: 'success' };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to clear the DNS cache.';
+      result = { title: 'Failed to clear DNS cache', description: message, tone: 'danger' };
+    }
+    const elapsed = Date.now() - startedAt;
+    if (elapsed < FLUSH_MIN_DURATION_MS) {
+      await new Promise((resolve) => setTimeout(resolve, FLUSH_MIN_DURATION_MS - elapsed));
+    }
+    setFlushing(false);
+    toast.notify(result);
+  };
+
+  const runFamilyDns = async () => {
+    if (!creds) return;
+    setConfirmingFamily(null);
+    setApplyingFamily(true);
+    try {
+      await setFamilyDns(creds);
+      toast.notify({ title: 'Family DNS enabled', tone: 'success' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to enable Family DNS.';
+      toast.notify({
+        title: 'Failed to enable Family DNS',
+        description: `${message} Some forwarders may already have been switched, so check the list before retrying.`,
+        tone: 'danger',
+      });
+    } finally {
+      setApplyingFamily(false);
+      await reload();
+    }
+  };
+
+  const stopFamilyDns = async () => {
+    if (!creds) return;
+    setConfirmingFamily(null);
+    setApplyingFamily(true);
+    try {
+      await changeDns(creds, { oldIp: FAMILY_FOREIGN_IP, newIp: PLAIN_FOREIGN_IP });
+      await changeDns(creds, { oldIp: FAMILY_VPN_IP, newIp: PLAIN_VPN_IP });
+      toast.notify({ title: 'Family DNS disabled', tone: 'success' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to disable Family DNS.';
+      toast.notify({
+        title: 'Failed to disable Family DNS',
+        description: `${message} Some forwarders may already have been switched, so check the list before retrying.`,
+        tone: 'danger',
+      });
+    } finally {
+      setApplyingFamily(false);
+      await reload();
+    }
+  };
+
+  const familyToggleLabel = familyEnabled ? 'Disabling…' : 'Enabling…';
+
   const columns: DataTableColumn<DnsForwarderListItem>[] = [
     {
       key: 'type',
@@ -183,6 +271,12 @@ export function DNSPage() {
       ),
     },
     {
+      key: 'description',
+      header: 'Provider',
+      render: (row) =>
+        row.description ? <span>{row.description}</span> : <span className={styles.muted}>-</span>,
+    },
+    {
       key: 'actions',
       header: '',
       width: '110px',
@@ -191,7 +285,7 @@ export function DNSPage() {
           size="sm"
           variant="secondary"
           onClick={() => setEditing(row)}
-          disabled={!creds || resetting}
+          disabled={!creds || resetting || flushing || applyingFamily}
           aria-label={`Edit ${row.name} DNS server`}
         >
           <Pencil size={14} aria-hidden /> Edit
@@ -202,90 +296,130 @@ export function DNSPage() {
 
   return (
     <Stack>
-      <Card>
-        <CardHeader className={styles.cardHeader}>
-          <div>
-            <CardTitle>
-              <Inline>
-                <Globe size={16} aria-hidden /> DNS
-              </Inline>
-            </CardTitle>
-            <CardDescription>
-              DNS servers configured on this router, grouped by domestic, foreign and VPN traffic.
-            </CardDescription>
-          </div>
-          <div className={styles.headerActions}>
-            <Button size="sm" variant="secondary" onClick={reload} disabled={loading || resetting}>
-              <RefreshCw size={14} aria-hidden /> Refresh
-            </Button>
-            <Button
-              size="sm"
-              variant="danger"
-              onClick={() => setConfirmingReset(true)}
-              disabled={loading || resetting || !creds}
-            >
-              <RotateCcw size={14} aria-hidden /> {resetting ? 'Resetting…' : 'Reset'}
-            </Button>
-          </div>
-        </CardHeader>
+      <div className={styles.layout}>
+        <Card>
+          <CardHeader className={styles.cardHeader}>
+            <div>
+              <CardTitle>
+                <Inline>
+                  <Globe size={16} aria-hidden /> DNS
+                </Inline>
+              </CardTitle>
+              <CardDescription>
+                DNS servers configured on this router, grouped by domestic, foreign and VPN traffic.
+              </CardDescription>
+            </div>
+            <div className={styles.headerActions}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={reload}
+                disabled={loading || resetting || flushing}
+              >
+                <RefreshCw size={14} aria-hidden /> Refresh
+              </Button>
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={() => setConfirmingReset(true)}
+                disabled={loading || resetting || flushing || applyingFamily || !creds}
+              >
+                <RotateCcw size={14} aria-hidden /> {resetting ? 'Resetting…' : 'Reset'}
+              </Button>
+            </div>
+          </CardHeader>
 
-        {loading && forwarders.length === 0 ? (
-          <div className={styles.skeletonGrid} data-testid="dns-skeleton">
-            <Skeleton width={140} height={14} />
-            <Skeleton height={36} />
-            <Skeleton width={140} height={14} />
-            <Skeleton height={36} />
-            <Skeleton width={140} height={14} />
-            <Skeleton height={36} />
-          </div>
-        ) : error ? (
-          <div className={styles.errorNote}>
-            <SearchX size={28} aria-hidden className={styles.errorIcon} />
-            <p>{error}</p>
-          </div>
-        ) : (
-          <DataTable
-            columns={columns}
-            rows={forwarders}
-            rowKey={(row) => row.name}
-            emptyMessage="No DNS servers configured"
-          />
-        )}
-      </Card>
-
-      <Card data-testid="dns-adblock">
-        <CardHeader className={styles.cardHeader}>
-          <div>
-            <CardTitle>
-              <Inline>
-                <ShieldBan size={16} aria-hidden /> Ad-block
-              </Inline>
-            </CardTitle>
-            <CardDescription>
-              Filters known advertising and tracking domains at the router, so ads are blocked on
-              every device on the network without installing anything on them.
-            </CardDescription>
-          </div>
-          <div className={styles.headerActions}>
-            <Switch
-              label="Enable ad-block"
-              checked={adBlockEnabled}
-              onChange={(e) => {
-                void toggleAdBlock(e.target.checked);
-              }}
-              disabled={!creds || adBlockBusy}
-              aria-describedby="dns-adblock-warning"
+          {loading && forwarders.length === 0 ? (
+            <div className={styles.skeletonGrid} data-testid="dns-skeleton">
+              <Skeleton width={140} height={14} />
+              <Skeleton height={36} />
+              <Skeleton width={140} height={14} />
+              <Skeleton height={36} />
+              <Skeleton width={140} height={14} />
+              <Skeleton height={36} />
+            </div>
+          ) : error ? (
+            <div className={styles.errorNote}>
+              <SearchX size={28} aria-hidden className={styles.errorIcon} />
+              <p>{error}</p>
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              rows={forwarders}
+              rowKey={(row) => row.name}
+              emptyMessage="No DNS servers configured"
             />
-          </div>
-        </CardHeader>
-        <div className={styles.warning} id="dns-adblock-warning" role="note">
-          <TriangleAlert size={16} aria-hidden className={styles.warningIcon} />
-          <p>
-            Some websites stop working while an ad-blocker is active and ask visitors to turn it off
-            before they show their content. Turn ad-block off again if a site you need breaks.
-          </p>
-        </div>
-      </Card>
+          )}
+        </Card>
+
+        <aside className={styles.sidebar}>
+          <Card data-testid="family-dns-card">
+            <div className={styles.settingRow}>
+              <span className={styles.settingTitle}>DNS cache</span>
+              <Button
+                size="sm"
+                variant="secondary"
+                className={styles.purgeButton}
+                onClick={runFlushCache}
+                loading={flushing}
+                disabled={loading || resetting || applyingFamily || !creds}
+                aria-label="Purge DNS cache"
+                data-testid="dns-flush-cache"
+              >
+                {flushing ? 'Purging…' : 'Purge cache'}
+              </Button>
+            </div>
+
+            <Divider className={styles.settingDivider} />
+
+            <div className={styles.settingRow}>
+              <span className={styles.settingTitle}>Family DNS</span>
+              <Switch
+                aria-label="Family DNS"
+                checked={familyEnabled}
+                onChange={(e) =>
+                  setConfirmingFamily(e.currentTarget.checked ? 'enable' : 'disable')
+                }
+                disabled={loading || resetting || flushing || applyingFamily || !creds}
+              />
+            </div>
+            {applyingFamily ? <p className={styles.settingStatus}>{familyToggleLabel}</p> : null}
+
+            <div
+              className={`${styles.settingRow} ${styles.settingRowSpaced}`}
+              data-testid="dns-adblock"
+            >
+              <span className={styles.settingTitle}>
+                <span className={styles.hint}>
+                  <button
+                    type="button"
+                    className={styles.hintTrigger}
+                    aria-describedby="dns-adblock-details"
+                  >
+                    Ad-block
+                  </button>
+                  <span className={styles.hintPopover} id="dns-adblock-details" role="note">
+                    <span>Blocks ad and tracker domains for every device on the network.</span>
+                    <span className={styles.hintWarning}>
+                      Some sites stop working while it is on.
+                    </span>
+                  </span>
+                </span>
+              </span>
+              <Switch
+                aria-label="Ad-block"
+                checked={adBlockEnabled}
+                onChange={(e) => {
+                  void toggleAdBlock(e.target.checked);
+                }}
+                disabled={!creds || adBlockBusy}
+                aria-describedby="dns-adblock-details"
+              />
+            </div>
+          </Card>
+        </aside>
+      </div>
 
       {editing && creds ? (
         <DNSChangeDialog
@@ -307,6 +441,25 @@ export function DNSPage() {
         destructive
         onConfirm={runReset}
         onCancel={() => setConfirmingReset(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmingFamily === 'enable'}
+        title="Enable Family DNS?"
+        description="The Foreign and VPN forwarders switch to filtering servers."
+        confirmLabel="Enable"
+        confirmVariant="success"
+        onConfirm={runFamilyDns}
+        onCancel={() => setConfirmingFamily(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmingFamily === 'disable'}
+        title="Disable Family DNS?"
+        description="The Foreign and VPN forwarders go back to their standard servers, and filtering stops."
+        confirmLabel="Disable"
+        onConfirm={stopFamilyDns}
+        onCancel={() => setConfirmingFamily(null)}
       />
     </Stack>
   );
