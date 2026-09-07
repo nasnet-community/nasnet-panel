@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -153,6 +154,167 @@ func parseInterfaceTypes(raw string) (interfaceTypes []string, includeSFP bool, 
 	}
 
 	return interfaceTypes, includeSFP, invalidTypes
+}
+
+// HandleUpdateInterfaceBridge moves an interface to a different bridge.
+// @Summary Change an interface's bridge
+// @Description Edits the interface's existing bridge port to move it to the given bridge, setting
+// @Description the port's comment to the bridge's own comment, then disables the interface, waits
+// @Description 100ms, and re-enables it. The bridge name must start with "LANBridge". Rejects the
+// @Description request if the interface is already a port on the given bridge.
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body UpdateInterfaceBridgeRequest true "Interface and target bridge"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/interface/bridge/port [put].
+func HandleUpdateInterfaceBridge(c echo.Context) error {
+	var req UpdateInterfaceBridgeRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	if req.Interface == "" || req.Bridge == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "interface and bridge are both required", nil)
+	}
+	if !strings.HasPrefix(req.Bridge, lanBridgeNamePrefix) {
+		return ErrorResponse(c, http.StatusBadRequest, "bridge must start with \""+lanBridgeNamePrefix+"\"", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	bridge, err := client.GetBridge(req.Bridge)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Bridge not found", err)
+	}
+
+	ports, err := client.ListAllBridgePorts()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list bridge ports", err)
+	}
+	var currentPort *routeros.BridgePort
+	for i := range ports {
+		if ports[i].Interface == req.Interface {
+			currentPort = &ports[i]
+			break
+		}
+	}
+	if currentPort == nil {
+		return ErrorResponse(c, http.StatusNotFound, "Interface is not a bridge port", nil)
+	}
+	if currentPort.Bridge == req.Bridge {
+		return ErrorResponse(c, http.StatusConflict, "Interface is already a port on this bridge", nil)
+	}
+
+	comment := ""
+	if bridge.Comment != nil {
+		comment = *bridge.Comment
+	}
+
+	script := fmt.Sprintf(
+		"/interface bridge port set [find interface=\"%s\"] bridge=\"%s\" comment=\"%s\"\n"+
+			"/interface disable [find name=\"%s\"]\n"+
+			":delay 100ms\n"+
+			"/interface enable [find name=\"%s\"]",
+		utils.EscapeQuotes(req.Interface),
+		utils.EscapeQuotes(req.Bridge),
+		utils.EscapeQuotes(comment),
+		utils.EscapeQuotes(req.Interface),
+		utils.EscapeQuotes(req.Interface),
+	)
+	if err := client.ExecuteScriptString(script); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update interface bridge", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Interface bridge updated successfully", map[string]interface{}{
+		"interface": req.Interface,
+		"bridge":    req.Bridge,
+	})
+}
+
+// lanBridgeNamePrefix is the prefix GET /api/interface/bridges filters
+// bridge names by.
+const lanBridgeNamePrefix = "LANBridge"
+
+// HandleListBridges lists every bridge whose name starts with "LANBridge".
+// @Summary List LAN bridges
+// @Description Get every /interface/bridge entry whose name starts with "LANBridge"
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=[]BridgeResponse}
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/interface/bridges [get].
+func HandleListBridges(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	bridges, err := client.ListBridges()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list bridges", err)
+	}
+
+	response := make([]BridgeResponse, 0, len(bridges))
+	for i := range bridges {
+		if !strings.HasPrefix(bridges[i].Name, lanBridgeNamePrefix) {
+			continue
+		}
+		response = append(response, toBridgeResponse(&bridges[i]))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Bridges retrieved successfully", response)
+}
+
+// HandleListBridgePorts lists every bridge port whose bridge name starts
+// with "LANBridge".
+// @Summary List bridge ports
+// @Description Get every /interface/bridge/port entry whose bridge name starts with "LANBridge"
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=[]BridgePortResponse}
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/interface/bridge/ports [get].
+func HandleListBridgePorts(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	ports, err := client.ListAllBridgePorts()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list bridge ports", err)
+	}
+
+	response := make([]BridgePortResponse, 0, len(ports))
+	for i := range ports {
+		if !strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
+			continue
+		}
+		response = append(response, toBridgePortResponse(&ports[i]))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Bridge ports retrieved successfully", response)
 }
 
 // HandleUpdateWANInterface reconfigures a physical interface as a foreign or domestic WAN.

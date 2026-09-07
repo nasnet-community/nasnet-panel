@@ -75,7 +75,10 @@ export {
   fetchDnsSuggestions,
   validateDnsChange,
   changeDns,
+  flushDnsCache,
+  setFamilyDns,
   resetDns,
+  setDnsAdBlock,
   type DnsCredentials,
   type DnsForwarderType,
   type DnsForwarderListItem,
@@ -83,6 +86,8 @@ export {
   type DnsSuggestResponse,
   type DnsValidateResponse,
   type ChangeDnsRequest,
+  type DnsChangeResult,
+  type DnsFamilyResponse,
 } from './dns';
 export {
   fetchDhcpLeases,

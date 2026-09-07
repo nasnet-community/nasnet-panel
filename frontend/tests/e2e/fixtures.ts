@@ -1,4 +1,5 @@
 import { test as base } from '@playwright/test';
+import type { DnsFamilyResponse } from '../../src/api/dns';
 import type { Router } from '../../src/mocks/types';
 
 export interface SeedInput extends Partial<Router> {
@@ -67,6 +68,13 @@ export interface DhcpBackendOptions {
   id?: string;
 }
 
+export interface DnsBackendOptions {
+  id?: string;
+  familyStatus?: number;
+  adBlockStatus?: number;
+  flushFails?: boolean;
+}
+
 export interface DiagBackendOptions {
   id?: string;
   initialProgress?: number;
@@ -115,6 +123,7 @@ export interface TestFixtures {
   mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
   mockLogsBackend: (options?: LogsBackendOptions) => Promise<void>;
   mockDhcpBackend: (options?: DhcpBackendOptions) => Promise<void>;
+  mockDnsBackend: (options?: DnsBackendOptions) => Promise<void>;
   mockDiagBackend: (options?: DiagBackendOptions) => Promise<void>;
   mockEasyConfigBackend: (options: EasyConfigBackendOptions) => Promise<void>;
 }
@@ -807,6 +816,173 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           contentType: 'application/json',
           body: envelope({ macAddress: 'AA:BB:CC:DD:EE:02', id: '*2', address: '192.168.88.102' }),
+        });
+      });
+    });
+  },
+  mockDnsBackend: async ({ context }, use) => {
+    await use(async (options = {}) => {
+      if (options.id) {
+        await context.addInitScript((routerId) => {
+          try {
+            const key = 'nasnet-panel.session-credentials.v1';
+            const raw = window.sessionStorage.getItem(key);
+            const map = (raw ? JSON.parse(raw) : {}) as Record<
+              string,
+              { username: string; password: string }
+            >;
+            map[routerId] = { username: 'admin', password: 'test' };
+            window.sessionStorage.setItem(key, JSON.stringify(map));
+          } catch {
+            /* ignore */
+          }
+        }, options.id);
+      }
+
+      const envelope = <T>(data: T, status = 200) =>
+        JSON.stringify({ status, message: 'OK', data });
+
+      const forwarders = [
+        { name: 'Domestic', ip: '217.218.127.127', description: 'ICT DNS', comment: '' },
+        { name: 'Foreign', ip: '1.1.1.1', description: 'Cloudflare Primary', comment: '' },
+        { name: 'VPN', ip: '1.0.0.1', description: 'Cloudflare Secondary', comment: '' },
+      ];
+
+      await context.route('**/api/dns/list', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(forwarders),
+        });
+      });
+
+      await context.route('**/api/dns/suggest**', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ domestic: [], foreign: [] }),
+        });
+      });
+
+      const providerNames: Record<string, string> = {
+        '1.1.1.1': 'Cloudflare Primary',
+        '1.0.0.1': 'Cloudflare Secondary',
+        '1.1.1.3': 'Cloudflare Family Primary',
+        '1.0.0.3': 'Cloudflare Family Secondary',
+      };
+
+      await context.route('**/api/dns/change', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        const body = route.request().postDataJSON() as { oldIp?: string; newIp?: string } | null;
+        const target = forwarders.find((row) => row.ip === body?.oldIp);
+        if (target && body?.newIp) {
+          target.ip = body.newIp;
+          target.description = providerNames[body.newIp] ?? '';
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(null),
+        });
+      });
+
+      const familyStatus = options.familyStatus ?? 200;
+      await context.route('**/api/dns/family', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        if (familyStatus !== 200) {
+          await route.fulfill({
+            status: familyStatus,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: familyStatus,
+              message: 'VPN DNS forwarder not found',
+              error: 'VPN DNS forwarder not found',
+            }),
+          });
+          return;
+        }
+        forwarders[1] = {
+          name: 'Foreign',
+          ip: '1.1.1.3',
+          description: 'Cloudflare Family Primary',
+          comment: '',
+        };
+        forwarders[2] = {
+          name: 'VPN',
+          ip: '1.0.0.3',
+          description: 'Cloudflare Family Secondary',
+          comment: '',
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope<DnsFamilyResponse>({
+            foreign: {
+              oldIp: '1.1.1.1',
+              newIp: '1.1.1.3',
+              servers: ['1.1.1.3'],
+              updatedForwarders: [],
+              updatedDstAddressRoutes: [],
+              updatedGatewayRoutes: [],
+              updatedNetwatchProbes: [],
+              updatedAddressListItems: [],
+              updatedNatRules: [],
+            },
+            vpn: {
+              oldIp: '1.0.0.1',
+              newIp: '1.0.0.3',
+              servers: ['1.0.0.3'],
+              updatedForwarders: [],
+              updatedDstAddressRoutes: [],
+              updatedGatewayRoutes: [],
+              updatedNetwatchProbes: [],
+              updatedAddressListItems: [],
+              updatedNatRules: [],
+            },
+          }),
+        });
+      });
+
+      const adBlockStatus = options.adBlockStatus ?? 200;
+      await context.route('**/api/dns/adblock', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        const body = route.request().postDataJSON() as { enabled?: boolean } | null;
+        const enabled = body?.enabled ?? false;
+        if (adBlockStatus !== 200) {
+          await route.fulfill({
+            status: adBlockStatus,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: adBlockStatus,
+              message: `Ad-block is already ${enabled ? 'enabled' : 'disabled'}`,
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ enabled }),
+        });
+      });
+
+      await context.route('**/api/dns/cache', async (route) => {
+        if (route.request().method() !== 'DELETE') return route.fallback();
+        if (options.flushFails) {
+          return route.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: 500,
+              message: 'Failed to flush DNS cache',
+              error: 'Failed to flush DNS cache',
+            }),
+          });
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ status: 200, message: 'DNS cache cleared successfully' }),
         });
       });
     });

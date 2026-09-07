@@ -5,6 +5,52 @@ import (
 	"nasnet-panel/pkg/utils"
 )
 
+// UpdateInterfaceBridgeRequest is the request body for PUT /api/interface/bridge/port.
+type UpdateInterfaceBridgeRequest struct {
+	Interface string `json:"interface" binding:"required" example:"ether1"`
+	Bridge    string `json:"bridge" binding:"required" example:"LANBridge1"`
+}
+
+// BridgeResponse represents an /interface/bridge entry.
+type BridgeResponse struct {
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	Disabled *bool   `json:"disabled,omitempty"`
+	Comment  *string `json:"comment,omitempty"`
+}
+
+func toBridgeResponse(bridge *routeros.BridgeInfo) BridgeResponse {
+	return BridgeResponse{
+		ID:       bridge.ID,
+		Name:     bridge.Name,
+		Disabled: bridge.Disabled,
+		Comment:  bridge.Comment,
+	}
+}
+
+// BridgePortResponse represents a /interface/bridge/port entry.
+type BridgePortResponse struct {
+	ID        string  `json:"id"`
+	Bridge    string  `json:"bridge"`
+	Interface string  `json:"interface"`
+	Disabled  *bool   `json:"disabled,omitempty"`
+	Edge      *string `json:"edge,omitempty"`
+	PathCost  *int64  `json:"pathCost,omitempty"`
+	Comment   *string `json:"comment,omitempty"`
+}
+
+func toBridgePortResponse(port *routeros.BridgePort) BridgePortResponse {
+	return BridgePortResponse{
+		ID:        port.ID,
+		Bridge:    port.Bridge,
+		Interface: port.Interface,
+		Disabled:  port.Disabled,
+		Edge:      port.Edge,
+		PathCost:  port.PathCost,
+		Comment:   port.Comment,
+	}
+}
+
 // InterfaceResponse represents a generic RouterOS interface.
 type InterfaceResponse struct {
 	ID               string  `json:"id,omitempty"`

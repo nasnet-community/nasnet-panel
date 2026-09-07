@@ -11,6 +11,7 @@ export type DnsForwarderType = 'Domestic' | 'Foreign' | 'VPN';
 export interface DnsForwarderListItem {
   name: string;
   ip: string;
+  description?: string;
   comment: string;
 }
 
@@ -35,6 +36,23 @@ export interface DnsValidateResponse {
 export interface ChangeDnsRequest {
   oldIp: string;
   newIp: string;
+}
+
+export interface DnsChangeResult {
+  oldIp: string;
+  newIp: string;
+  servers: string[];
+  updatedForwarders: string[];
+  updatedDstAddressRoutes: string[];
+  updatedGatewayRoutes: string[];
+  updatedNetwatchProbes: string[];
+  updatedAddressListItems: string[];
+  updatedNatRules: string[];
+}
+
+export interface DnsFamilyResponse {
+  foreign: DnsChangeResult;
+  vpn: DnsChangeResult;
 }
 
 function authHeaders({ host, username, password }: DnsCredentials): Record<string, string> {
@@ -94,6 +112,38 @@ export async function changeDns(
     method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function setDnsAdBlock(
+  creds: DnsCredentials,
+  enabled: boolean,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest('/api/dns/adblock', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify({ enabled }),
+    signal,
+  });
+}
+
+export async function flushDnsCache(creds: DnsCredentials, signal?: AbortSignal): Promise<void> {
+  await apiRequest('/api/dns/cache', {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
+
+export async function setFamilyDns(
+  creds: DnsCredentials,
+  signal?: AbortSignal,
+): Promise<DnsFamilyResponse> {
+  return apiRequest<DnsFamilyResponse>('/api/dns/family', {
+    method: 'POST',
+    headers: authHeaders(creds),
     signal,
   });
 }
