@@ -345,7 +345,7 @@ test.describe('Internet routing page', () => {
     );
   });
 
-  test('activating a tunnel from the hop dialog points routes at it and disables others', async ({
+  test('activating a tunnel from the hop dialog points routes at it and leaves others alone', async ({
     page,
     context,
     resetMocks,
@@ -375,7 +375,9 @@ test.describe('Internet routing page', () => {
 
     let otherPutBody: { disabled?: boolean } | null = null;
     await context.route('**/api/vpn/clients/wg-client-alt', async (route) => {
-      otherPutBody = route.request().postDataJSON() as typeof otherPutBody;
+      if (route.request().method() === 'PUT') {
+        otherPutBody = route.request().postDataJSON() as typeof otherPutBody;
+      }
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -409,7 +411,8 @@ test.describe('Internet routing page', () => {
 
     await expect.poll(() => targetPutBody?.disabled).toBe(false);
     await expect.poll(() => gatewayPutBody?.gateway).toBe('wg-client-mask');
-    await expect.poll(() => otherPutBody?.disabled).toBe(true);
+    await expect(page.getByText('VPN tunnel updated')).toBeVisible();
+    expect(otherPutBody).toBeNull();
   });
 
   test('marks no VPN path as active when no gateway route exists', async ({
