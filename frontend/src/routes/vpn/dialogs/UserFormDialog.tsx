@@ -58,12 +58,13 @@ interface Props {
 }
 
 export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
+  const isEdit = !!user;
   const [profiles, setProfiles] = useState<VPNProfileResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>({
     name: user?.name ?? '',
-    password: user?.password ?? '',
+    password: '',
     profile: user?.profile ?? '',
     disabled: user?.disabled ?? false,
   });
@@ -127,10 +128,10 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
   const errors = useMemo(
     () => ({
       name: draft.name.trim() === '' ? 'Name is required.' : null,
-      password: validateOvpnSecret(draft.password),
+      password: isEdit && draft.password === '' ? null : validateOvpnSecret(draft.password),
       profile: draft.profile === '' ? 'Profile is required.' : null,
     }),
-    [draft],
+    [draft, isEdit],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -148,7 +149,7 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
         const body: UpdateVPNUserRequest = {};
         const name = draft.name.trim();
         if (name !== user.name) body.name = name;
-        if (draft.password !== user.password) body.password = draft.password;
+        if (draft.password !== '') body.password = draft.password;
         if (draft.profile !== user.profile) body.profile = draft.profile;
         if (draft.disabled !== user.disabled) body.disabled = draft.disabled;
         if (Object.keys(body).length > 0) {
@@ -248,6 +249,7 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
                 aria-label="Password"
                 aria-invalid={touched.password && !!errors.password}
                 autoComplete="new-password"
+                placeholder={isEdit ? 'Leave blank to keep the current password' : undefined}
               />
               {touched.password && errors.password ? (
                 <FormError>{errors.password}</FormError>

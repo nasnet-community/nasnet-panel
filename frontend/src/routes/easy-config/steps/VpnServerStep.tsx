@@ -28,10 +28,11 @@ export function VpnServerStep({ state, dispatch, footer }: Props) {
   const set = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: 'setField', field, value: e.target.value });
 
-  const certPassphraseError = state.vpnServerCertPassphrase
-    ? validateOvpnSecret(state.vpnServerCertPassphrase, 'Certificate passphrase')
-    : null;
-  const firstUserKeyError = state.firstUserKey ? validateOvpnSecret(state.firstUserKey) : null;
+  const certPassphraseError = validateOvpnSecret(
+    state.vpnServerCertPassphrase,
+    'Certificate passphrase',
+  );
+  const firstUserKeyError = validateOvpnSecret(state.firstUserKey);
 
   return (
     <Card>

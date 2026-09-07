@@ -41,11 +41,20 @@ AllowedIPs = 0.0.0.0/0`);
 
     // Step 5 — VPN Server
     await page.getByRole('switch', { name: /enabled|disabled/i }).check();
-    await page.getByLabel(/certificate passphrase/i).fill('super-secret');
-    await page.getByLabel(/^username$/i).fill('alice');
 
+    const passphrase = page.getByLabel(/certificate passphrase/i);
     const password = page.getByLabel(/^password$/i);
     const apply = page.getByRole('button', { name: /^apply$/i });
+
+    await expect(page.getByText('Certificate passphrase is required.')).toBeVisible();
+    await expect(passphrase).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByText('Password is required.')).toBeVisible();
+    await expect(password).toHaveAttribute('aria-invalid', 'true');
+    await expect(apply).toBeDisabled();
+
+    await passphrase.fill('super-secret');
+    await expect(page.getByText('Certificate passphrase is required.')).toBeHidden();
+    await page.getByLabel(/^username$/i).fill('alice');
 
     // a password shorter than 8 characters blocks the step
     await password.fill('short12');

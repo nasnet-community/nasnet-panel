@@ -213,6 +213,71 @@ test.describe('VPN users section', () => {
     await expect.poll(() => deletedUrl).toContain('/api/vpn/users/*1');
   });
 
+  test('edits a user with a short stored password without resending it', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await setup(context, resetMocks, seedRouter);
+
+    await context.route('**/api/vpn/users', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope(baseUsers),
+      });
+    });
+
+    let lastPutBody: {
+      name?: string;
+      password?: string;
+      profile?: string;
+      disabled?: boolean;
+    } | null = null;
+    await context.route('**/api/vpn/users/*', async (route) => {
+      if (route.request().method() === 'PUT') {
+        lastPutBody = route.request().postDataJSON() as typeof lastPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ ...baseUsers[1], disabled: false }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+
+    await page.getByRole('button', { name: 'Edit bob' }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    const password = dialog.getByLabel('Password', { exact: true });
+    const submit = dialog.getByRole('button', { name: 'Save changes' });
+    await expect(password).toHaveValue('');
+    await expect(password).toHaveAttribute('placeholder', /keep the current password/i);
+    await expect(submit).toBeEnabled();
+
+    await password.fill('short12');
+    await password.press('Tab');
+    await expect(dialog.getByText('Password must be at least 8 characters.')).toBeVisible();
+    await expect(submit).toBeDisabled();
+
+    await password.fill('');
+    await expect(dialog.getByText('Password must be at least 8 characters.')).toBeHidden();
+    await expect(submit).toBeEnabled();
+
+    await dialog.getByLabel('Name').fill('bobby');
+    await dialog.getByRole('switch', { name: /enabled/i }).click();
+    await submit.click();
+
+    await expect.poll(() => lastPutBody).toEqual({ name: 'bobby', disabled: false });
+    await expect(dialog).toBeHidden();
+  });
+
   test('blocks a password shorter than 8 characters', async ({
     page,
     context,

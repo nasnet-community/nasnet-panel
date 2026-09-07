@@ -15,8 +15,7 @@ function keyLabel(protocol: VpnServerProtocol): string {
 
 export function FirstUserForm({ state, dispatch }: Props) {
   const isPassword = state.vpnServerProtocol !== 'wireguard';
-  const passwordError =
-    isPassword && state.firstUserKey ? validateOvpnSecret(state.firstUserKey) : null;
+  const passwordError = isPassword ? validateOvpnSecret(state.firstUserKey) : null;
   return (
     <FieldRow>
       <Label>
