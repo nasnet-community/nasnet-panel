@@ -1990,12 +1990,11 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	// Add firewall filter rule for the listening port using the created interface info
 	fwComment := "wireguard-" + wg.Name
 	fwRuleConfig := routeros.FirewallRuleConfig{
-		Chain:           "input",
-		Action:          "accept",
-		Protocol:        "udp",
-		DstPort:         fmt.Sprintf("%d", wg.ListenPort),
-		InInterfaceList: vpnServerAllowedInterfaceList,
-		Comment:         fwComment,
+		Chain:    "input",
+		Action:   "accept",
+		Protocol: "udp",
+		DstPort:  fmt.Sprintf("%d", wg.ListenPort),
+		Comment:  fwComment,
 	}
 	_, err = client.AddFirewallRule(fwRuleConfig)
 	if err != nil {
