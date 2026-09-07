@@ -78,6 +78,7 @@ export {
   flushDnsCache,
   setFamilyDns,
   resetDns,
+  setDnsAdBlock,
   type DnsCredentials,
   type DnsForwarderType,
   type DnsForwarderListItem,

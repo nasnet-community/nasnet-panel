@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
 import {
@@ -21,10 +21,12 @@ import {
 import styles from './DNSPage.module.scss';
 import { DNSChangeDialog } from './DNSChangeDialog';
 import {
+  ApiError,
   changeDns,
   fetchDnsForwarders,
   flushDnsCache,
   resetDns,
+  setDnsAdBlock,
   setFamilyDns,
   type DnsCredentials,
   type DnsForwarderListItem,
@@ -37,6 +39,26 @@ const TYPE_TONES: Record<string, 'info' | 'primary' | 'success'> = {
   Foreign: 'primary',
   VPN: 'success',
 };
+
+const ADBLOCK_STORAGE_PREFIX = 'nasnet-panel.dns-adblock.';
+
+function readStoredAdBlock(routerId: string | undefined): boolean {
+  if (!routerId || typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(`${ADBLOCK_STORAGE_PREFIX}${routerId}`) === 'on';
+  } catch {
+    return false;
+  }
+}
+
+function storeAdBlock(routerId: string | undefined, enabled: boolean): void {
+  if (!routerId || typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(`${ADBLOCK_STORAGE_PREFIX}${routerId}`, enabled ? 'on' : 'off');
+  } catch {
+    /* ignore */
+  }
+}
 
 const FAMILY_PROVIDER_PREFIX = 'Cloudflare Family';
 const FAMILY_FOREIGN_IP = '1.1.1.3';
@@ -72,6 +94,9 @@ export function DNSPage() {
   const [editing, setEditing] = useState<DnsForwarderListItem | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [adBlockEnabled, setAdBlockEnabled] = useState(false);
+  const [adBlockBusy, setAdBlockBusy] = useState(false);
+  const activeRouterRef = useRef(id);
   const [flushing, setFlushing] = useState(false);
   const [confirmingFamily, setConfirmingFamily] = useState<'enable' | 'disable' | null>(null);
   const [applyingFamily, setApplyingFamily] = useState(false);
@@ -110,6 +135,46 @@ export function DNSPage() {
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    activeRouterRef.current = id;
+    setAdBlockEnabled(readStoredAdBlock(id));
+    setAdBlockBusy(false);
+  }, [id]);
+
+  const toggleAdBlock = async (next: boolean) => {
+    if (!creds) return;
+    const requestId = id;
+    setAdBlockBusy(true);
+    try {
+      await setDnsAdBlock(creds, next);
+      storeAdBlock(requestId, next);
+      if (activeRouterRef.current !== requestId) return;
+      setAdBlockEnabled(next);
+      toast.notify({
+        title: next ? 'Ad-block enabled' : 'Ad-block disabled',
+        tone: 'success',
+      });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        storeAdBlock(requestId, next);
+        if (activeRouterRef.current !== requestId) return;
+        setAdBlockEnabled(next);
+        toast.notify({
+          title: next ? 'Ad-block was already on' : 'Ad-block was already off',
+          tone: 'info',
+        });
+        return;
+      }
+      if (activeRouterRef.current !== requestId) return;
+      const message = err instanceof Error ? err.message : 'Failed to update ad-block.';
+      toast.notify({ title: 'Failed to update ad-block', description: message, tone: 'danger' });
+    } finally {
+      if (activeRouterRef.current === requestId) {
+        setAdBlockBusy(false);
+      }
+    }
+  };
 
   const runReset = async () => {
     if (!creds) return;
@@ -329,6 +394,38 @@ export function DNSPage() {
               />
             </div>
             {applyingFamily ? <p className={styles.settingStatus}>{familyToggleLabel}</p> : null}
+
+            <div
+              className={`${styles.settingRow} ${styles.settingRowSpaced}`}
+              data-testid="dns-adblock"
+            >
+              <span className={styles.settingTitle}>
+                <span className={styles.hint}>
+                  <button
+                    type="button"
+                    className={styles.hintTrigger}
+                    aria-describedby="dns-adblock-details"
+                  >
+                    Ad-block
+                  </button>
+                  <span className={styles.hintPopover} id="dns-adblock-details" role="note">
+                    <span>Blocks ad and tracker domains for every device on the network.</span>
+                    <span className={styles.hintWarning}>
+                      Some sites stop working while it is on.
+                    </span>
+                  </span>
+                </span>
+              </span>
+              <Switch
+                aria-label="Ad-block"
+                checked={adBlockEnabled}
+                onChange={(e) => {
+                  void toggleAdBlock(e.target.checked);
+                }}
+                disabled={!creds || adBlockBusy}
+                aria-describedby="dns-adblock-details"
+              />
+            </div>
           </Card>
         </aside>
       </div>
