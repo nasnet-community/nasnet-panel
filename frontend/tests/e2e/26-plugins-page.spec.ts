@@ -296,7 +296,10 @@ test.describe('Plugins page', () => {
       page.getByRole('alert').filter({ hasText: 'This router cannot run plugins' }),
     ).toBeVisible();
     await expect(page.getByRole('article')).toHaveCount(2);
-    await expect(page.getByRole('button', { name: 'Unavailable' })).toHaveCount(2);
+    const unavailable = page.getByRole('button', { name: 'Unavailable' });
+    await expect(unavailable).toHaveCount(2);
+    await expect(unavailable.first()).toBeDisabled();
+    await expect(unavailable.last()).toBeDisabled();
     await expect(page.getByRole('button', { name: /^install$/i })).toHaveCount(0);
   });
 });
