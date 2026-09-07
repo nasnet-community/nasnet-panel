@@ -190,11 +190,15 @@ jobs:
         run: GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -tags desktop,production -ldflags "-H windowsgui" -o /dev/null .
 
   e2e:
-    name: E2E (Playwright)
+    name: E2E (Playwright) shard ${{ matrix.shard }}/3
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: [up-to-date, changes]
     if: needs.changes.outputs.frontend == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v5
 
@@ -218,13 +222,13 @@ jobs:
         run: npx playwright install-deps chromium
 
       - name: Run Playwright tests
-        run: npm run e2e
+        run: npm run e2e -- --shard=${{ matrix.shard }}/3
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: playwright-report
+          name: playwright-report-shard-${{ matrix.shard }}
           path: playwright-report/
           retention-days: 7
 
