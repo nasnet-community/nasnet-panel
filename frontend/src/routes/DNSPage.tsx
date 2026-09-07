@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Eraser, Globe, Pencil, PersonStanding, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
+import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -10,6 +10,7 @@ import {
   CardTitle,
   ConfirmDialog,
   DataTable,
+  Divider,
   Inline,
   Skeleton,
   Stack,
@@ -42,6 +43,7 @@ const FAMILY_FOREIGN_IP = '1.1.1.3';
 const FAMILY_VPN_IP = '1.0.0.3';
 const PLAIN_FOREIGN_IP = '1.1.1.1';
 const PLAIN_VPN_IP = '1.0.0.1';
+const FLUSH_MIN_DURATION_MS = 1000;
 
 function firstIp(ip: string): string {
   return ip.split(',')[0]?.trim() ?? '';
@@ -128,15 +130,21 @@ export function DNSPage() {
   const runFlushCache = async () => {
     if (!creds) return;
     setFlushing(true);
+    const startedAt = Date.now();
+    let result: Parameters<typeof toast.notify>[0];
     try {
       await flushDnsCache(creds);
-      toast.notify({ title: 'DNS cache cleared', tone: 'success' });
+      result = { title: 'DNS cache cleared', tone: 'success' };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to clear the DNS cache.';
-      toast.notify({ title: 'Failed to clear DNS cache', description: message, tone: 'danger' });
-    } finally {
-      setFlushing(false);
+      result = { title: 'Failed to clear DNS cache', description: message, tone: 'danger' };
     }
+    const elapsed = Date.now() - startedAt;
+    if (elapsed < FLUSH_MIN_DURATION_MS) {
+      await new Promise((resolve) => setTimeout(resolve, FLUSH_MIN_DURATION_MS - elapsed));
+    }
+    setFlushing(false);
+    toast.notify(result);
   };
 
   const runFamilyDns = async () => {
@@ -256,16 +264,6 @@ export function DNSPage() {
               </Button>
               <Button
                 size="sm"
-                variant="secondary"
-                onClick={runFlushCache}
-                disabled={loading || resetting || flushing || applyingFamily || !creds}
-                aria-label="Flush DNS cache"
-                data-testid="dns-flush-cache"
-              >
-                <Eraser size={14} aria-hidden /> {flushing ? 'Flushing…' : 'Flush cache'}
-              </Button>
-              <Button
-                size="sm"
                 variant="danger"
                 onClick={() => setConfirmingReset(true)}
                 disabled={loading || resetting || flushing || applyingFamily || !creds}
@@ -302,9 +300,25 @@ export function DNSPage() {
         <aside className={styles.sidebar}>
           <Card data-testid="family-dns-card">
             <div className={styles.settingRow}>
-              <span className={styles.settingTitle}>
-                <PersonStanding size={16} aria-hidden /> Family DNS
-              </span>
+              <span className={styles.settingTitle}>DNS cache</span>
+              <Button
+                size="sm"
+                variant="secondary"
+                className={styles.purgeButton}
+                onClick={runFlushCache}
+                loading={flushing}
+                disabled={loading || resetting || applyingFamily || !creds}
+                aria-label="Purge DNS cache"
+                data-testid="dns-flush-cache"
+              >
+                {flushing ? 'Purging…' : 'Purge cache'}
+              </Button>
+            </div>
+
+            <Divider className={styles.settingDivider} />
+
+            <div className={styles.settingRow}>
+              <span className={styles.settingTitle}>Family DNS</span>
               <Switch
                 aria-label="Family DNS"
                 checked={familyEnabled}
