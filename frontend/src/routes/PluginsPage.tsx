@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Blocks, Download, Trash2 } from 'lucide-react';
+import { Blocks, Download, Trash2, TriangleAlert } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -138,6 +138,7 @@ export function PluginsPage() {
   const toast = useToast();
 
   const [plugins, setPlugins] = useState<PluginInfoResponse[]>([]);
+  const [containerSupport, setContainerSupport] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [installs, setInstalls] = useState<Record<string, { value: number; label: string }>>({});
@@ -145,6 +146,7 @@ export function PluginsPage() {
   const [uninstallingId, setUninstallingId] = useState<string | null>(null);
   const inFlightRef = useRef(false);
   const watchingRef = useRef(new Set<string>());
+  const activeRouterRef = useRef(id);
 
   useEffect(() => {
     const watching = watchingRef.current;
@@ -152,6 +154,14 @@ export function PluginsPage() {
       watching.clear();
     };
   }, []);
+
+  useEffect(() => {
+    activeRouterRef.current = id;
+    inFlightRef.current = false;
+    setPlugins([]);
+    setContainerSupport(null);
+    setLoading(true);
+  }, [id]);
 
   const creds = useMemo<PluginCredentials | null>(() => {
     if (!id) return null;
@@ -172,27 +182,32 @@ export function PluginsPage() {
       }
       try {
         const data = await fetchPlugins(creds);
+        if (activeRouterRef.current !== id) return;
         setPlugins(data.plugins);
+        setContainerSupport(data.containerSupport);
         if (silent) setError(null);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load plugins.';
+        if (activeRouterRef.current !== id) return;
         if (!silent) {
           setError(message);
           setPlugins([]);
         }
       } finally {
-        inFlightRef.current = false;
-        setLoading(false);
+        if (activeRouterRef.current === id) {
+          inFlightRef.current = false;
+          setLoading(false);
+        }
       }
     },
-    [creds],
+    [creds, id],
   );
 
   useEffect(() => {
     void reload();
   }, [reload]);
 
-  usePolling(() => reload(true), 5000, Boolean(creds));
+  usePolling(() => reload(true), 5000, Boolean(creds) && containerSupport !== false);
 
   const stopWatching = (pluginId: string) => {
     watchingRef.current.delete(pluginId);
@@ -293,6 +308,15 @@ export function PluginsPage() {
 
   return (
     <PageShell>
+      {containerSupport === false ? (
+        <div className={styles.unsupported} role="alert">
+          <TriangleAlert size={16} aria-hidden className={styles.unsupportedIcon} />
+          <p>
+            This router cannot run plugins. Container mode is disabled or the container package is
+            not installed, so plugins can be browsed but not installed.
+          </p>
+        </div>
+      ) : null}
       {loading && plugins.length === 0 ? (
         <div className={styles.grid}>
           {Array.from({ length: 4 }, (_, i) => (
@@ -368,6 +392,10 @@ export function PluginsPage() {
                           <Trash2 size={14} aria-hidden /> Uninstall
                         </>
                       )}
+                    </Button>
+                  ) : containerSupport === false ? (
+                    <Button variant="secondary" size="sm" disabled>
+                      Unavailable
                     </Button>
                   ) : plugin.canInstall ? (
                     <Button variant="primary" size="sm" onClick={() => install(plugin)}>

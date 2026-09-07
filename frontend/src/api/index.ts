@@ -126,6 +126,7 @@ export {
   uninstallPlugin,
   type PluginCredentials,
   type PluginInfoResponse,
+  type GetPluginsResponse,
   type InstalledPluginResponse,
   type PluginInstallPhase,
   type InstallPluginResponse,
