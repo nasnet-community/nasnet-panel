@@ -818,6 +818,48 @@ export const test = base.extend<TestFixtures>({
           body: envelope({ macAddress: 'AA:BB:CC:DD:EE:02', id: '*2', address: '192.168.88.102' }),
         });
       });
+
+      const bridges = [
+        { id: '*1', name: 'LANBridgeSplit', disabled: false, comment: 'Split' },
+        { id: '*2', name: 'LANBridgeDomestic', disabled: false, comment: 'Domestic' },
+        { id: '*3', name: 'LANBridgeForeign', disabled: false, comment: 'Foreign' },
+        { id: '*4', name: 'LANBridgeVPN-wg-client', disabled: false, comment: 'VPN-wg-client' },
+        { id: '*5', name: 'LANBridgeVPN-L2TP-Client', disabled: true, comment: 'VPN-L2TP-Client' },
+      ];
+
+      const bridgePorts = [
+        { id: '*1', bridge: 'LANBridgeSplit', interface: 'ether2', disabled: false },
+        { id: '*2', bridge: 'LANBridgeDomestic', interface: 'ether4', disabled: false },
+      ];
+
+      await context.route('**/api/interface/bridges', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(bridges),
+        });
+      });
+      await context.route('**/api/interface/bridge/ports', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(bridgePorts),
+        });
+      });
+      await context.route('**/api/interface/bridge/port', async (route) => {
+        if (route.request().method() !== 'PUT') return route.fallback();
+        const body = route.request().postDataJSON() as {
+          interface?: string;
+          bridge?: string;
+        } | null;
+        const target = bridgePorts.find((row) => row.interface === body?.interface);
+        if (target && body?.bridge) target.bridge = body.bridge;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ interface: body?.interface, bridge: body?.bridge }),
+        });
+      });
     });
   },
   mockDnsBackend: async ({ context }, use) => {

@@ -10,6 +10,7 @@ export interface RouterPortDiagramCardProps {
   model: string;
   interfaces: InterfaceResponse[];
   onPower?: (action: PowerAction) => void;
+  onPortSelect?: (ifaceName: string) => void;
   showPowerControls?: boolean;
   ifaceRates?: Readonly<Record<string, string>>;
 }
@@ -19,6 +20,7 @@ export const RouterPortDiagramCard: React.FC<RouterPortDiagramCardProps> = React
     model,
     interfaces,
     onPower,
+    onPortSelect,
     showPowerControls = true,
     ifaceRates,
   }) {
@@ -35,9 +37,13 @@ export const RouterPortDiagramCard: React.FC<RouterPortDiagramCardProps> = React
     const handleSlot = useCallback(
       (slot: ResolvedSlot) => {
         const action = POWER_ACTION[slot.kind];
-        if (action) onPower?.(action);
+        if (action) {
+          onPower?.(action);
+          return;
+        }
+        if (slot.ifaceName) onPortSelect?.(slot.ifaceName);
       },
-      [onPower],
+      [onPower, onPortSelect],
     );
 
     return (

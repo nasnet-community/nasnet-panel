@@ -188,6 +188,68 @@ export async function updateWanInterface(
   });
 }
 
+export interface BridgeResponse {
+  id: string;
+  name: string;
+  disabled?: boolean;
+  comment?: string;
+}
+
+export interface BridgePortResponse {
+  id: string;
+  bridge: string;
+  interface: string;
+  disabled?: boolean;
+  edge?: string;
+  pathCost?: number;
+  comment?: string;
+}
+
+export interface UpdateInterfaceBridgeRequest {
+  interface: string;
+  bridge: string;
+}
+
+export async function fetchBridges(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<BridgeResponse[]> {
+  const list = await apiRequest<BridgeResponse[] | null>('/api/interface/bridges', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return list ?? [];
+}
+
+export async function fetchBridgePorts(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<BridgePortResponse[]> {
+  const list = await apiRequest<BridgePortResponse[] | null>('/api/interface/bridge/ports', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return list ?? [];
+}
+
+export async function updateInterfaceBridge(
+  creds: SystemCredentials,
+  request: UpdateInterfaceBridgeRequest,
+): Promise<void> {
+  await apiRequest<unknown>('/api/interface/bridge/port', {
+    method: 'PUT',
+    headers: {
+      ...authHeaders(creds),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+}
+
 export interface ForeignGatewayResponse {
   gateway: string | null;
 }
