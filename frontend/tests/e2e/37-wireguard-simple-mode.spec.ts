@@ -206,6 +206,18 @@ test.describe('WireGuard simple mode', () => {
       });
     });
 
+    await context.route('**/api/vpn/wireguard/peer/export*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          filename: 'wg1-ab12cd34-wg.conf',
+          config:
+            '[Interface]\nPrivateKey = peer-private-key\n\n[Peer]\nPublicKey = server-public-key\n',
+        }),
+      });
+    });
+
     let lastPeerBody: WgPeerBody | null = null;
     await context.route('**/api/vpn/wireguard/peer', async (route) => {
       if (route.request().method() !== 'POST') {
@@ -282,8 +294,8 @@ test.describe('WireGuard simple mode', () => {
 
     const configDialog = page.getByRole('dialog').filter({ hasText: 'Client config - ab12cd34' });
     await expect(configDialog).toBeVisible();
+    await expect(configDialog.getByLabel('Server public address')).toHaveValue('10.0.0.30');
     await expect(configDialog.getByText('PrivateKey = peer-private-key')).toBeVisible();
     await expect(configDialog.getByText('PublicKey = server-public-key')).toBeVisible();
-    await expect(configDialog.getByLabel('Server endpoint')).toHaveValue('10.0.0.30:13231');
   });
 });

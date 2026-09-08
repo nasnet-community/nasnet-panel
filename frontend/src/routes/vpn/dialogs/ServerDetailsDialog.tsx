@@ -27,13 +27,8 @@ import { WgClientConfigDialog } from './WgClientConfigDialog';
 
 interface PeerClientConfig {
   peerName: string;
-  privateKey: string;
-  serverPublicKey: string;
-  presharedKey?: string;
-  defaultEndpoint?: string;
-  defaultAddress?: string;
-  defaultAllowedIps?: string;
-  persistentKeepalive?: string;
+  peerNameOrID: string;
+  defaultPublicAddress?: string;
 }
 
 type Details =
@@ -122,15 +117,8 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
     if (details?.kind !== 'wireguard' || !p.privateKey) return;
     setConfigPeer({
       peerName: p.name,
-      privateKey: p.privateKey,
-      serverPublicKey: details.data.publicKey,
-      presharedKey: p.preSharedKey,
-      defaultEndpoint:
-        p.clientEndpoint || (creds ? `${creds.host}:${details.data.listenPort}` : ''),
-      defaultAddress:
-        p.allowedAddresses && p.allowedAddresses !== '0.0.0.0/0' ? p.allowedAddresses : '',
-      defaultAllowedIps: p.clientAllowedAddress || undefined,
-      persistentKeepalive: p.persistentKeepalive || undefined,
+      peerNameOrID: p.id || p.name,
+      defaultPublicAddress: p.clientEndpoint?.split(':')[0] || creds?.host || '',
     });
   };
 
@@ -189,17 +177,8 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
             if (created.privateKey && details.kind === 'wireguard') {
               setConfigPeer({
                 peerName: created.name,
-                privateKey: created.privateKey,
-                serverPublicKey: details.data.publicKey,
-                presharedKey: created.preSharedKey,
-                defaultEndpoint: creds ? `${creds.host}:${details.data.listenPort}` : '',
-                defaultAddress:
-                  created.allowedAddresses && created.allowedAddresses !== '0.0.0.0/0'
-                    ? created.allowedAddresses
-                    : '',
-                persistentKeepalive: created.persistentKeepalive
-                  ? String(created.persistentKeepalive)
-                  : undefined,
+                peerNameOrID: created.name,
+                defaultPublicAddress: creds?.host || '',
               });
             }
             reload();
@@ -209,14 +188,10 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
 
       {configPeer ? (
         <WgClientConfigDialog
+          creds={creds}
           peerName={configPeer.peerName}
-          privateKey={configPeer.privateKey}
-          serverPublicKey={configPeer.serverPublicKey}
-          presharedKey={configPeer.presharedKey}
-          defaultEndpoint={configPeer.defaultEndpoint}
-          defaultAddress={configPeer.defaultAddress}
-          defaultAllowedIps={configPeer.defaultAllowedIps}
-          persistentKeepalive={configPeer.persistentKeepalive}
+          peerNameOrID={configPeer.peerNameOrID}
+          defaultPublicAddress={configPeer.defaultPublicAddress}
           onClose={() => setConfigPeer(null)}
         />
       ) : null}
