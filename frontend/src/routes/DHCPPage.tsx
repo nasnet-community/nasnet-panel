@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Cable, Inbox, Pin, Trash2 } from 'lucide-react';
 import {
@@ -31,6 +31,7 @@ import {
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
+import { BridgePortsCard } from './lan/BridgePortsCard';
 
 interface SectionState<T> {
   data: T[];
@@ -66,7 +67,13 @@ export function DHCPPage() {
   const [busyMac, setBusyMac] = useState<string | null>(null);
   const [leaseToRemove, setLeaseToRemove] = useState<DhcpLease | null>(null);
   const [leaseToMakeStatic, setLeaseToMakeStatic] = useState<DhcpLease | null>(null);
+  const [bridgeRequest, setBridgeRequest] = useState<string | null>(null);
   const inFlightRef = useRef(false);
+
+  const bridgeCreds = useMemo(() => {
+    const stored = id ? getCredentials(id) : undefined;
+    return stored && router?.host ? { host: router.host, ...stored } : null;
+  }, [id, router?.host, getCredentials]);
 
   const reload = useCallback(
     async (silent = false) => {
@@ -191,6 +198,8 @@ export function DHCPPage() {
       setBusyMac(null);
     }
   }, [id, router?.host, getCredentials, leaseToRemove, reload, toast]);
+
+  const clearBridgeRequest = useCallback(() => setBridgeRequest(null), []);
 
   const leaseColumns: DataTableColumn<DhcpLease>[] = [
     {
@@ -355,6 +364,7 @@ export function DHCPPage() {
                 interfaces={interfaces}
                 ifaceRates={ethernetRates}
                 showPowerControls={false}
+                onPortSelect={setBridgeRequest}
               />
             ) : (
               <Skeleton width="min(320px, 100%)" height={56} />
@@ -362,6 +372,12 @@ export function DHCPPage() {
           </div>
         </div>
       </Card>
+
+      <BridgePortsCard
+        creds={bridgeCreds}
+        openForInterface={bridgeRequest}
+        onOpenHandled={clearBridgeRequest}
+      />
 
       <Card data-testid="dhcp-clients">
         <CardHeader>
