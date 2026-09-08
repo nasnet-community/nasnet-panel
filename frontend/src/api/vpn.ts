@@ -898,6 +898,28 @@ export async function importWireguardConfig(
   });
 }
 
+export interface ExportWireguardPeerResponse {
+  filename: string;
+  config: string;
+}
+
+export async function exportWireguardPeerConfig(
+  creds: VPNCredentials,
+  nameOrID: string,
+  publicAddress: string,
+  signal?: AbortSignal,
+): Promise<ExportWireguardPeerResponse> {
+  const params = new URLSearchParams({ nameOrID, publicAddress });
+  return apiRequest<ExportWireguardPeerResponse>(
+    `/api/vpn/wireguard/peer/export?${params.toString()}`,
+    {
+      method: 'GET',
+      headers: authHeaders(creds),
+      signal,
+    },
+  );
+}
+
 export async function exportOvpnClient(
   creds: VPNCredentials,
   serverName: string,
