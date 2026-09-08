@@ -226,6 +226,7 @@ type pluginUpdatePhase string
 
 const (
 	pluginUpdatePhaseCheckingVersion   pluginUpdatePhase = "checking_version"
+	pluginUpdatePhaseStoppingContainer pluginUpdatePhase = "stopping_container"
 	pluginUpdatePhaseRepulling         pluginUpdatePhase = "repulling"
 	pluginUpdatePhaseStartingContainer pluginUpdatePhase = "starting_container"
 	pluginUpdatePhaseUpdatingComment   pluginUpdatePhase = "updating_comment"
@@ -969,7 +970,7 @@ func HandleUpdatePlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusConflict, "Plugin update already in progress", err)
 	}
 
-	go updatePluginAsync(client, task)
+	go updatePluginAsync(client, task, manifest)
 
 	return SuccessResponse(c, http.StatusOK, "Plugin update started", UpdatePluginResponse{
 		PluginID: pluginID,
@@ -977,20 +978,47 @@ func HandleUpdatePlugin(c echo.Context) error {
 }
 
 // updatePluginAsync performs the actual update steps for task, updating its
-// phase/message as it progresses. Runs detached from the HTTP request that
-// triggered it, so it takes a background context rather than the request's,
-// which would be cancelled the moment that request returned.
-func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask) {
+// phase/message as it progresses. The manifest passed in is the one
+// HandleUpdatePlugin already fetched and validated as newer than the
+// installed version, reused here rather than re-fetched. Runs detached from
+// the HTTP request that triggered it, in its own goroutine.
+func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest *PluginManifest) {
 	pluginID := task.pluginID
-	ctx := context.Background()
+	task.setVersion(manifest.Version)
 
-	manifest, err := fetchPluginManifest(ctx, pluginID)
+	before, err := client.GetContainer(pluginID)
 	if err != nil {
-		task.set(pluginUpdatePhaseError, "failed to fetch plugin manifest: "+err.Error())
-		log.Printf("[plugin-update %s] failed to fetch manifest: %v", pluginID, err)
+		task.set(pluginUpdatePhaseError, "failed to inspect container before repull: "+err.Error())
+		log.Printf("[plugin-update %s] failed to get container: %v", pluginID, err)
 		return
 	}
-	task.setVersion(manifest.Version)
+
+	if before.Running || before.Healthy {
+		task.set(pluginUpdatePhaseStoppingContainer, "stopping container "+pluginID)
+		if err := client.StopContainer(pluginID); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to stop container: "+err.Error())
+			log.Printf("[plugin-update %s] failed to stop container: %v", pluginID, err)
+			return
+		}
+
+		stopDeadline := time.Now().Add(pluginInstallTimeout)
+		for {
+			info, err := client.GetContainer(pluginID)
+			if err != nil {
+				task.set(pluginUpdatePhaseError, "lost track of container while stopping: "+err.Error())
+				log.Printf("[plugin-update %s] failed to poll container while stopping: %v", pluginID, err)
+				return
+			}
+			if info.Stopped {
+				break
+			}
+			if !time.Now().Before(stopDeadline) {
+				task.set(pluginUpdatePhaseError, "timed out waiting for container to stop")
+				return
+			}
+			time.Sleep(pluginInstallPollInterval)
+		}
+	}
 
 	task.set(pluginUpdatePhaseRepulling, "repulling "+manifest.Container.Image)
 	if err := client.RepullContainer(pluginID, manifest.Container.Image, ""); err != nil {
@@ -1022,6 +1050,14 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask) {
 
 		if info.DownloadingExtracting {
 			task.set(pluginUpdatePhaseRepulling, "repulling "+info.RemoteImage)
+			continue
+		}
+
+		// RouterOS clears the pulling flag as soon as the transfer finishes but
+		// the container settles into Stopped a moment later; without waiting
+		// for it too, StartContainer below can race a container RouterOS
+		// hasn't finished settling from the repull.
+		if !info.Stopped {
 			continue
 		}
 
