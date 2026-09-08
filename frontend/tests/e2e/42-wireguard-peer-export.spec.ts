@@ -189,4 +189,48 @@ test.describe('WireGuard peer export', () => {
     await expect(dialog.getByRole('button', { name: 'Copy' })).toBeDisabled();
     await expect(dialog.getByRole('button', { name: 'Download .conf' })).toBeDisabled();
   });
+
+  test('retries the same address after a failure', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+    seedCredentials,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WG Router', host: '10.0.0.30' });
+    await seedCredentials(ROUTER_ID);
+    await stubServerDetails(context);
+
+    let attempts = 0;
+    await context.route('**/api/vpn/wireguard/peer/export*', async (route) => {
+      attempts += 1;
+      if (attempts === 1) {
+        await route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 500,
+            message: 'Internal Server Error',
+            error: 'Failed to export WireGuard peer client config',
+          }),
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ filename: 'office-laptop-wg.conf', config: PEER_CONFIG }),
+      });
+    });
+
+    const dialog = await openPeerConfigDialog(page);
+    await expect(dialog.getByText('Failed to export WireGuard peer client config')).toBeVisible();
+
+    await dialog.getByRole('button', { name: 'Generate' }).click();
+
+    await expect.poll(() => attempts).toBe(2);
+    await expect(dialog.getByText('PrivateKey = peer-private-key')).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Download .conf' })).toBeEnabled();
+  });
 });

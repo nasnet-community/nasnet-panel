@@ -36,6 +36,7 @@ export function WgClientConfigDialog({
 }: Props) {
   const [publicAddress, setPublicAddress] = useState(defaultPublicAddress ?? '');
   const [requestedAddress, setRequestedAddress] = useState(defaultPublicAddress?.trim() ?? '');
+  const [requestNonce, setRequestNonce] = useState(0);
   const [config, setConfig] = useState('');
   const [filename, setFilename] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,6 +52,7 @@ export function WgClientConfigDialog({
     const controller = new AbortController();
     setLoading(true);
     setError(null);
+    setConfig('');
 
     (async () => {
       try {
@@ -78,12 +80,13 @@ export function WgClientConfigDialog({
     })();
 
     return () => controller.abort();
-  }, [creds, peerNameOrID, requestedAddress]);
+  }, [creds, peerNameOrID, requestedAddress, requestNonce]);
 
   const load = () => {
     setTouched(true);
     if (!canLoad) return;
     setRequestedAddress(publicAddress.trim());
+    setRequestNonce((n) => n + 1);
   };
 
   const download = () => {
@@ -118,10 +121,10 @@ export function WgClientConfigDialog({
           <Button variant="ghost" onClick={onClose}>
             Close
           </Button>
-          <Button variant="secondary" onClick={copy} disabled={!config}>
+          <Button variant="secondary" onClick={copy} disabled={!config || loading}>
             Copy
           </Button>
-          <Button onClick={download} disabled={!config}>
+          <Button onClick={download} disabled={!config || loading}>
             Download .conf
           </Button>
         </>

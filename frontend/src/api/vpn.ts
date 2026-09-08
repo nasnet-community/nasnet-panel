@@ -915,6 +915,7 @@ export async function exportWireguardPeerConfig(
     {
       method: 'GET',
       headers: authHeaders(creds),
+      cache: 'no-store',
       signal,
     },
   );
