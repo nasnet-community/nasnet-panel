@@ -1,70 +1,100 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Button, Code, Dialog, FieldRow, FieldStack, Input, Label, useToast } from '@nasnet/ui';
 import {
-  buildWireguardClientConfig,
-  wireguardConfigFilename,
-} from '../../../utils/wireguard-client-config';
+  Button,
+  Code,
+  Dialog,
+  FieldRow,
+  FieldStack,
+  FormError,
+  Input,
+  Label,
+  useToast,
+} from '@nasnet/ui';
+import {
+  ApiError,
+  exportWireguardPeerConfig,
+  isAbortError,
+  type VPNCredentials,
+} from '../../../api';
+import { validateHostOrIp } from '../../../utils/validators';
 
 interface Props {
+  creds: VPNCredentials | null;
   peerName: string;
-  privateKey: string;
-  serverPublicKey: string;
-  presharedKey?: string;
-  defaultEndpoint?: string;
-  defaultAddress?: string;
-  defaultAllowedIps?: string;
-  persistentKeepalive?: string;
+  peerNameOrID: string;
+  defaultPublicAddress?: string;
   onClose: () => void;
 }
 
 export function WgClientConfigDialog({
+  creds,
   peerName,
-  privateKey,
-  serverPublicKey,
-  presharedKey,
-  defaultEndpoint,
-  defaultAddress,
-  defaultAllowedIps,
-  persistentKeepalive,
+  peerNameOrID,
+  defaultPublicAddress,
   onClose,
 }: Props) {
-  const [endpoint, setEndpoint] = useState(defaultEndpoint ?? '');
-  const [address, setAddress] = useState(defaultAddress ?? '');
-  const [dns, setDns] = useState('');
-  const [allowedIps, setAllowedIps] = useState(defaultAllowedIps ?? '0.0.0.0/0');
+  const [publicAddress, setPublicAddress] = useState(defaultPublicAddress ?? '');
+  const [requestedAddress, setRequestedAddress] = useState(defaultPublicAddress?.trim() ?? '');
+  const [requestNonce, setRequestNonce] = useState(0);
+  const [config, setConfig] = useState('');
+  const [filename, setFilename] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [touched, setTouched] = useState(false);
   const toast = useToast();
 
-  const config = useMemo(
-    () =>
-      buildWireguardClientConfig({
-        privateKey,
-        address,
-        dns,
-        serverPublicKey,
-        presharedKey,
-        allowedIps,
-        endpoint,
-        persistentKeepalive: normalizeKeepalive(persistentKeepalive),
-      }),
-    [
-      privateKey,
-      address,
-      dns,
-      serverPublicKey,
-      presharedKey,
-      allowedIps,
-      endpoint,
-      persistentKeepalive,
-    ],
-  );
+  const addressError = useMemo(() => validateHostOrIp(publicAddress), [publicAddress]);
+  const canLoad = !!creds && !loading && !addressError;
+
+  useEffect(() => {
+    if (!creds || !requestedAddress) return;
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    setConfig('');
+
+    (async () => {
+      try {
+        const result = await exportWireguardPeerConfig(
+          creds,
+          peerNameOrID,
+          requestedAddress,
+          controller.signal,
+        );
+        setConfig(result.config);
+        setFilename(result.filename);
+      } catch (err) {
+        if (isAbortError(err)) return;
+        const message =
+          err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : 'Failed to export client config.';
+        setConfig('');
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    return () => controller.abort();
+  }, [creds, peerNameOrID, requestedAddress, requestNonce]);
+
+  const load = () => {
+    setTouched(true);
+    if (!canLoad) return;
+    setRequestedAddress(publicAddress.trim());
+    setRequestNonce((n) => n + 1);
+  };
 
   const download = () => {
     const blob = new Blob([config], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = wireguardConfigFilename(peerName);
+    a.download = filename || `${peerName}.conf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -91,66 +121,45 @@ export function WgClientConfigDialog({
           <Button variant="ghost" onClick={onClose}>
             Close
           </Button>
-          <Button variant="secondary" onClick={copy}>
+          <Button variant="secondary" onClick={copy} disabled={!config || loading}>
             Copy
           </Button>
-          <Button onClick={download}>Download .conf</Button>
+          <Button onClick={download} disabled={!config || loading}>
+            Download .conf
+          </Button>
         </>
       }
     >
       <FieldStack>
         <FieldRow>
           <Label>
-            <span>Server endpoint</span>
+            <span>Server public address</span>
             <Input
-              value={endpoint}
-              onChange={(e) => setEndpoint(e.target.value)}
-              placeholder="vpn.example.com:13231"
-              aria-label="Server endpoint"
+              value={publicAddress}
+              onChange={(e) => setPublicAddress(e.target.value)}
+              onBlur={() => setTouched(true)}
+              placeholder="203.0.113.10"
+              aria-label="Server public address"
+              aria-invalid={touched && !!addressError}
             />
+            {touched && addressError ? <FormError>{addressError}</FormError> : null}
           </Label>
-          <Label>
-            <span>Client address</span>
-            <Input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="10.8.0.2/24"
-              aria-label="Client address"
-            />
-          </Label>
+          <Button variant="secondary" onClick={load} disabled={!canLoad}>
+            {loading ? 'Generating…' : 'Generate'}
+          </Button>
         </FieldRow>
-        <FieldRow>
-          <Label>
-            <span>DNS (optional)</span>
-            <Input
-              value={dns}
-              onChange={(e) => setDns(e.target.value)}
-              placeholder="1.1.1.1"
-              aria-label="DNS"
-            />
-          </Label>
-          <Label>
-            <span>Allowed IPs (client)</span>
-            <Input
-              value={allowedIps}
-              onChange={(e) => setAllowedIps(e.target.value)}
-              placeholder="0.0.0.0/0"
-              aria-label="Allowed IPs"
-            />
-          </Label>
-        </FieldRow>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', padding: 12, borderRadius: 8 }}>
-            <QRCodeSVG value={config} size={216} marginSize={0} />
-          </div>
-        </div>
-        <Code style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{config}</Code>
+        {error ? <FormError role="alert">{error}</FormError> : null}
+        {config ? (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div style={{ background: '#fff', padding: 12, borderRadius: 8 }}>
+                <QRCodeSVG value={config} size={216} marginSize={0} />
+              </div>
+            </div>
+            <Code style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{config}</Code>
+          </>
+        ) : null}
       </FieldStack>
     </Dialog>
   );
-}
-
-function normalizeKeepalive(value?: string): string | undefined {
-  const match = value?.trim().match(/^\d+/);
-  return match ? match[0] : undefined;
 }
