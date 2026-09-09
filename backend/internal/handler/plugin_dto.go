@@ -173,7 +173,7 @@ type InstallPluginRequest struct {
 }
 
 // InstallPluginResponse is the response for POST /api/plugin/install.
-// Installation runs asynchronously; poll GET /api/plugin/status/{pluginId} for
+// Installation runs asynchronously; poll GET /api/plugin/install/status/{pluginId} for
 // progress and the resulting container details.
 type InstallPluginResponse struct {
 	ID       string `json:"id"`
@@ -191,7 +191,7 @@ type UninstallPluginResponse struct {
 	Warnings   []string `json:"warnings,omitempty"`
 }
 
-// PluginInstallStatusResponse is the response for GET /api/plugin/status/{pluginId}.
+// PluginInstallStatusResponse is the response for GET /api/plugin/install/status/{pluginId}.
 type PluginInstallStatusResponse struct {
 	PluginID    string `json:"pluginId"`
 	Phase       string `json:"phase"` // preparing, creating_interface, creating_mounts, running_pre_install_script, creating_container, pulling, starting_container, running_post_install_script, done, error

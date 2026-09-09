@@ -33,7 +33,7 @@ func RegisterRoutes(e *echo.Echo) {
 	pluginGroup.GET("/installed", handler.HandleListInstalledPlugins)
 	pluginGroup.POST("/install", handler.HandleInstallPlugin)
 	pluginGroup.DELETE("/plugin/:name", handler.HandleUninstallPlugin)
-	pluginGroup.GET("/status/:pluginId", handler.HandleGetPluginInstallStatus)
+	pluginGroup.GET("/install/status/:pluginId", handler.HandleGetPluginInstallStatus)
 	pluginGroup.POST("/update/:pluginId", handler.HandleUpdatePlugin)
 	pluginGroup.GET("/update/status/:pluginId", handler.HandleGetPluginUpdateStatus)
 	pluginGroup.GET("/envs/:pluginId", handler.HandleListPluginEnvVars)
