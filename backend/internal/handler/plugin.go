@@ -98,6 +98,11 @@ const (
 	// phase, and the plugin could not be installed again until the panel
 	// restarts.
 	pluginFetchTimeout = 30 * time.Second
+
+	// How long a plugin update's repull poll waits for ImageID/ConfigJSON to
+	// confirm a changed image once the container has settled into Stopped,
+	// before giving up on that confirmation and proceeding anyway.
+	pluginUpdateImageChangeGrace = 15 * time.Second
 )
 
 // pluginHTTPClient fetches from the plugin registry. Deliberately not
@@ -992,6 +997,7 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 		log.Printf("[plugin-update %s] failed to get container: %v", pluginID, err)
 		return
 	}
+	previousImageID := before.ImageID
 
 	if before.Running || before.Healthy {
 		task.set(pluginUpdatePhaseStoppingContainer, "stopping container "+pluginID)
@@ -1027,6 +1033,15 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 		return
 	}
 
+	// Once the pull flags clear and the container has settled into Stopped,
+	// ImageID/ConfigJSON would confirm the repull actually replaced the
+	// image — but a mutable tag (e.g. ":main") can legitimately repull to a
+	// digest RouterOS already has cached, in which case neither ever
+	// changes even though the repull genuinely succeeded. So that check is
+	// only given a grace window to confirm a change before this proceeds
+	// anyway, rather than blocking forever on it.
+	var settledAt time.Time
+
 	deadline := time.Now().Add(pluginInstallTimeout)
 	for time.Now().Before(deadline) {
 		time.Sleep(pluginInstallPollInterval)
@@ -1059,6 +1074,18 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 		// hasn't finished settling from the repull.
 		if !info.Stopped {
 			continue
+		}
+
+		imageChanged := info.ImageID != previousImageID || info.ConfigJSON != before.ConfigJSON
+		if !imageChanged {
+			if settledAt.IsZero() {
+				settledAt = time.Now()
+			}
+			if time.Since(settledAt) < pluginUpdateImageChangeGrace {
+				continue
+			}
+			log.Printf("[plugin-update %s] proceeding without a confirmed image change after %s (likely a repull to an already-cached digest)",
+				pluginID, pluginUpdateImageChangeGrace)
 		}
 
 		task.set(pluginUpdatePhaseStartingContainer, "starting container "+pluginID)
