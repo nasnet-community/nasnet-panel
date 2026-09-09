@@ -196,13 +196,6 @@ func (p *pluginInstallPool) activeLocked(pluginID string) bool {
 	return task != nil && !task.terminal()
 }
 
-// active reports whether pluginID is currently being installed.
-func (p *pluginInstallPool) active(pluginID string) bool {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	return p.activeLocked(pluginID)
-}
-
 // start registers a new task for pluginID, rejecting it if pluginID already
 // has a non-terminal task in flight.
 func (p *pluginInstallPool) start(pluginID string) (*pluginInstallTask, error) {
@@ -307,13 +300,6 @@ func (p *pluginUpdatePool) activeLocked(pluginID string) bool {
 	return task != nil && !task.terminal()
 }
 
-// active reports whether pluginID is currently being updated.
-func (p *pluginUpdatePool) active(pluginID string) bool {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	return p.activeLocked(pluginID)
-}
-
 // start registers a new task for pluginID, rejecting it if pluginID already
 // has a non-terminal task in flight.
 func (p *pluginUpdatePool) start(pluginID string) (*pluginUpdateTask, error) {
@@ -332,6 +318,52 @@ func (p *pluginUpdatePool) start(pluginID string) (*pluginUpdateTask, error) {
 	}
 	p.tasks[pluginID] = task
 	return task, nil
+}
+
+// pluginLifecycleOp names one of the three operations pluginLifecycles
+// serializes: an install, update or uninstall in progress for a plugin id.
+type pluginLifecycleOp string
+
+const (
+	pluginLifecycleOpInstall   pluginLifecycleOp = "installed"
+	pluginLifecycleOpUpdate    pluginLifecycleOp = "updated"
+	pluginLifecycleOpUninstall pluginLifecycleOp = "uninstalled"
+)
+
+// pluginLifecycle serializes install/update/uninstall operations per plugin
+// id: at most one of the three may be in flight for a given plugin at a
+// time. The pluginInstalls and pluginUpdates pools each guard against a
+// second instance of their own operation, but that alone leaves install,
+// update and uninstall free to run concurrently against each other, since
+// each is tracked by a different pool (or, for uninstall, not tracked at
+// all). A single reservation, acquired before any of the three does its
+// real work and released only once that operation reaches a terminal state
+// (or, for uninstall, completes), closes that gap.
+type pluginLifecycle struct {
+	mu   sync.Mutex
+	busy map[string]pluginLifecycleOp
+}
+
+var pluginLifecycles = &pluginLifecycle{busy: make(map[string]pluginLifecycleOp)}
+
+// acquire reserves pluginID for op, rejecting the reservation if another
+// lifecycle operation already holds it. The returned release func must be
+// called exactly once, when op reaches a terminal state, to free pluginID
+// for its next lifecycle operation.
+func (l *pluginLifecycle) acquire(pluginID string, op pluginLifecycleOp) (func(), error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if existing, ok := l.busy[pluginID]; ok {
+		return nil, fmt.Errorf("plugin %s is currently being %s", pluginID, existing)
+	}
+
+	l.busy[pluginID] = op
+	return func() {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+		delete(l.busy, pluginID)
+	}, nil
 }
 
 // HandleListPlugins godoc
@@ -640,6 +672,17 @@ func HandleInstallPlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
 	}
 
+	release, err := pluginLifecycles.acquire(req.ID, pluginLifecycleOpInstall)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Plugin installation already in progress", err)
+	}
+	releaseOnReturn := true
+	defer func() {
+		if releaseOnReturn {
+			release()
+		}
+	}()
+
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
@@ -680,7 +723,11 @@ func HandleInstallPlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusConflict, "Plugin installation already in progress", err)
 	}
 
-	go installPluginAsync(client, task)
+	releaseOnReturn = false
+	go func() {
+		installPluginAsync(client, task)
+		release()
+	}()
 
 	return SuccessResponse(c, http.StatusOK, "Plugin installation started", InstallPluginResponse{
 		ID:       req.ID,
@@ -950,6 +997,17 @@ func HandleUpdatePlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
 	}
 
+	release, err := pluginLifecycles.acquire(pluginID, pluginLifecycleOpUpdate)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Plugin update already in progress", err)
+	}
+	releaseOnReturn := true
+	defer func() {
+		if releaseOnReturn {
+			release()
+		}
+	}()
+
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
@@ -960,11 +1018,6 @@ func HandleUpdatePlugin(c echo.Context) error {
 	container, err := client.GetContainer(pluginID)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
-	}
-
-	if pluginInstalls.active(pluginID) {
-		return ErrorResponse(c, http.StatusConflict, "Plugin installation is still in progress",
-			fmt.Errorf("plugin %s is currently being installed", pluginID))
 	}
 
 	manifest, err := fetchPluginManifest(ctx, pluginID)
@@ -982,7 +1035,11 @@ func HandleUpdatePlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusConflict, "Plugin update already in progress", err)
 	}
 
-	go updatePluginAsync(client, task, manifest)
+	releaseOnReturn = false
+	go func() {
+		updatePluginAsync(client, task, manifest)
+		release()
+	}()
 
 	return SuccessResponse(c, http.StatusOK, "Plugin update started", UpdatePluginResponse{
 		PluginID: pluginID,
@@ -1178,6 +1235,17 @@ func HandleUninstallPlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "plugin name is required", nil)
 	}
 
+	// Reserved for the rest of this handler, which runs synchronously: an
+	// install or update goroutine still creating/polling or repulling the
+	// very container about to be removed (or vice versa, a new install/update
+	// starting against a container this handler is mid-removal on) is
+	// rejected until this uninstall fully completes and releases it.
+	release, err := pluginLifecycles.acquire(name, pluginLifecycleOpUninstall)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Plugin uninstall already in progress", err)
+	}
+	defer release()
+
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
@@ -1197,17 +1265,6 @@ func HandleUninstallPlugin(c echo.Context) error {
 	container, err := client.GetContainer(name)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
-	}
-
-	// An install goroutine for this plugin is still creating and polling the
-	// very container about to be removed, so let it finish first.
-	if pluginInstalls.active(name) {
-		return ErrorResponse(c, http.StatusConflict, "Plugin installation is still in progress",
-			fmt.Errorf("plugin %s is currently being installed", name))
-	}
-	if pluginUpdates.active(name) {
-		return ErrorResponse(c, http.StatusConflict, "Plugin update is still in progress",
-			fmt.Errorf("plugin %s is currently being updated", name))
 	}
 
 	manifest, err := fetchPluginManifest(ctx, name)
