@@ -232,9 +232,10 @@ const (
 	// A terminal phase, like Done and Error: the repull's pull flags cleared
 	// and the container settled, but RouterOS never reported a changed
 	// ImageID/ConfigJSON to confirm the image actually changed. The
-	// container is left stopped, not started, and its comment is left
-	// untouched, rather than recording manifest.Version against a repull
-	// that was never confirmed to have replaced anything.
+	// container is started again regardless, so the plugin doesn't stay
+	// down over an unconfirmed check, but its comment is left untouched
+	// rather than recording manifest.Version against a repull that was
+	// never confirmed to have replaced anything.
 	pluginUpdatePhaseUnconfirmed pluginUpdatePhase = "unconfirmed"
 	pluginUpdatePhaseError       pluginUpdatePhase = "error"
 )
@@ -1148,24 +1149,27 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 			if time.Since(settledAt) < pluginUpdateImageChangeGrace {
 				continue
 			}
-
-			// The repull's own pull/failure flags never reported a problem, but
-			// RouterOS also never reported a changed ImageID/ConfigJSON, so
-			// there is nothing to confirm the container's image actually
-			// changed. Recording manifest.Version here would claim a repull
-			// this code could not verify, so the container is left stopped
-			// instead of started, and its comment is left untouched.
-			task.set(pluginUpdatePhaseUnconfirmed,
-				"repull finished but could not confirm the image changed; container left stopped")
-			log.Printf("[plugin-update %s] repull settled without a confirmed image change after %s; leaving container stopped",
-				pluginID, pluginUpdateImageChangeGrace)
-			return
 		}
 
 		task.set(pluginUpdatePhaseStartingContainer, "starting container "+pluginID)
 		if err := client.StartContainer(pluginID); err != nil {
 			task.set(pluginUpdatePhaseError, "failed to start container: "+err.Error())
 			log.Printf("[plugin-update %s] failed to start container: %v", pluginID, err)
+			return
+		}
+
+		if !imageChanged {
+			// The repull's own pull/failure flags never reported a problem, but
+			// RouterOS also never reported a changed ImageID/ConfigJSON, so
+			// there is nothing to confirm the container's image actually
+			// changed. Recording manifest.Version here would claim a repull
+			// this code could not verify, so the container is started again
+			// (the plugin must not stay down over an unconfirmed check) but
+			// its comment is left untouched.
+			task.set(pluginUpdatePhaseUnconfirmed,
+				"container restarted but could not confirm the image changed; version not recorded")
+			log.Printf("[plugin-update %s] repull settled without a confirmed image change after %s; container restarted, comment left untouched",
+				pluginID, pluginUpdateImageChangeGrace)
 			return
 		}
 
