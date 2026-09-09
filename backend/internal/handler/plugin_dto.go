@@ -211,7 +211,7 @@ type UpdatePluginResponse struct {
 // PluginUpdateStatusResponse is the response for GET /api/plugin/update/status/{pluginId}.
 type PluginUpdateStatusResponse struct {
 	PluginID  string `json:"pluginId"`
-	Phase     string `json:"phase"` // checking_version, stopping_container, repulling, starting_container, updating_comment, done, error
+	Phase     string `json:"phase"` // checking_version, stopping_container, repulling, starting_container, updating_comment, done, unconfirmed, error
 	Message   string `json:"message,omitempty"`
 	StartedAt string `json:"startedAt,omitempty"`
 	Version   string `json:"version,omitempty"`

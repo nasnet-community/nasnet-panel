@@ -236,7 +236,14 @@ const (
 	pluginUpdatePhaseStartingContainer pluginUpdatePhase = "starting_container"
 	pluginUpdatePhaseUpdatingComment   pluginUpdatePhase = "updating_comment"
 	pluginUpdatePhaseDone              pluginUpdatePhase = "done"
-	pluginUpdatePhaseError             pluginUpdatePhase = "error"
+	// A terminal phase, like Done and Error: the repull's pull flags cleared
+	// and the container settled, but RouterOS never reported a changed
+	// ImageID/ConfigJSON to confirm the image actually changed. The
+	// container is left stopped, not started, and its comment is left
+	// untouched, rather than recording manifest.Version against a repull
+	// that was never confirmed to have replaced anything.
+	pluginUpdatePhaseUnconfirmed pluginUpdatePhase = "unconfirmed"
+	pluginUpdatePhaseError       pluginUpdatePhase = "error"
 )
 
 // pluginUpdateTask tracks one in-flight (or completed) async update,
@@ -267,7 +274,7 @@ func (t *pluginUpdateTask) setVersion(version string) {
 func (t *pluginUpdateTask) terminal() bool {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
-	return t.phase == pluginUpdatePhaseDone || t.phase == pluginUpdatePhaseError
+	return t.phase == pluginUpdatePhaseDone || t.phase == pluginUpdatePhaseError || t.phase == pluginUpdatePhaseUnconfirmed
 }
 
 func (t *pluginUpdateTask) snapshot() PluginUpdateStatusResponse {
@@ -1084,8 +1091,18 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 			if time.Since(settledAt) < pluginUpdateImageChangeGrace {
 				continue
 			}
-			log.Printf("[plugin-update %s] proceeding without a confirmed image change after %s (likely a repull to an already-cached digest)",
+
+			// The repull's own pull/failure flags never reported a problem, but
+			// RouterOS also never reported a changed ImageID/ConfigJSON, so
+			// there is nothing to confirm the container's image actually
+			// changed. Recording manifest.Version here would claim a repull
+			// this code could not verify, so the container is left stopped
+			// instead of started, and its comment is left untouched.
+			task.set(pluginUpdatePhaseUnconfirmed,
+				"repull finished but could not confirm the image changed; container left stopped")
+			log.Printf("[plugin-update %s] repull settled without a confirmed image change after %s; leaving container stopped",
 				pluginID, pluginUpdateImageChangeGrace)
+			return
 		}
 
 		task.set(pluginUpdatePhaseStartingContainer, "starting container "+pluginID)
