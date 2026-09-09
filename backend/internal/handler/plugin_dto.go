@@ -16,20 +16,22 @@ const pluginAssetsBaseURL = "https://raw.githubusercontent.com/nasnet-community/
 
 // PluginInfo represents a single plugin entry from the community plugin registry.
 type PluginInfo struct {
-	ID         string `json:"id"`
-	Version    string `json:"version"`
-	Name       string `json:"name"`
-	Author     string `json:"author"`
-	Category   string `json:"category"`
-	Tagline    string `json:"tagline"`
-	URL        string `json:"url"`
-	CanInstall bool   `json:"canInstall"`
-	Icon       string `json:"icon"`
-	Installed  bool   `json:"installed"`
-	Running    bool   `json:"running"`
-	Installing bool   `json:"installing"`
-	Failed     bool   `json:"failed"`
-	Note       string `json:"note,omitempty"`
+	ID               string `json:"id"`
+	Version          string `json:"version"`
+	Name             string `json:"name"`
+	Author           string `json:"author"`
+	Category         string `json:"category"`
+	Tagline          string `json:"tagline"`
+	URL              string `json:"url"`
+	CanInstall       bool   `json:"canInstall"`
+	Icon             string `json:"icon"`
+	Installed        bool   `json:"installed"`
+	InstalledVersion string `json:"installedVersion,omitempty"`
+	UpdateAvailable  bool   `json:"updateAvailable"`
+	Running          bool   `json:"running"`
+	Installing       bool   `json:"installing"`
+	Failed           bool   `json:"failed"`
+	Note             string `json:"note,omitempty"`
 }
 
 // PluginListResponse is the response for GET /api/plugin/plugins.
@@ -199,6 +201,22 @@ type PluginInstallStatusResponse struct {
 	Interface   string `json:"interface,omitempty"`
 }
 
+// UpdatePluginResponse is the response for POST /api/plugin/update/{pluginId}.
+// Updating runs asynchronously; poll GET /api/plugin/update/status/{pluginId}
+// for progress and the resulting version.
+type UpdatePluginResponse struct {
+	PluginID string `json:"pluginId"`
+}
+
+// PluginUpdateStatusResponse is the response for GET /api/plugin/update/status/{pluginId}.
+type PluginUpdateStatusResponse struct {
+	PluginID  string `json:"pluginId"`
+	Phase     string `json:"phase"` // checking_version, stopping_container, repulling, starting_container, updating_comment, done, unconfirmed, error
+	Message   string `json:"message,omitempty"`
+	StartedAt string `json:"startedAt,omitempty"`
+	Version   string `json:"version,omitempty"`
+}
+
 // EnvVar is one entry in the GET /api/plugin/envs/{pluginId} response.
 // Changeable reports whether Key can be edited: env-current reports every
 // variable actually in effect, including ones pulled in from resolved
@@ -241,6 +259,8 @@ func finalizePlugins(plugins []PluginInfo, containers []routeros.ContainerInfo) 
 
 		if container, ok := byName[result[i].ID]; ok {
 			result[i].Installed = true
+			result[i].InstalledVersion = container.Comment
+			result[i].UpdateAvailable = utils.IsNewerVersion(result[i].Version, container.Comment)
 			result[i].Running = container.Running || container.Healthy
 			result[i].Installing = container.DownloadingExtracting
 			result[i].Failed = container.DownloadExtractFailed

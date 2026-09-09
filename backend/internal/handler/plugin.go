@@ -14,6 +14,7 @@ import (
 
 	"nasnet-panel/pkg/proxy"
 	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -97,6 +98,11 @@ const (
 	// phase, and the plugin could not be installed again until the panel
 	// restarts.
 	pluginFetchTimeout = 30 * time.Second
+
+	// How long a plugin update's repull poll waits for ImageID/ConfigJSON to
+	// confirm a changed image once the container has settled into Stopped,
+	// before giving up on that confirmation and proceeding anyway.
+	pluginUpdateImageChangeGrace = 15 * time.Second
 )
 
 // pluginHTTPClient fetches from the plugin registry. Deliberately not
@@ -190,13 +196,6 @@ func (p *pluginInstallPool) activeLocked(pluginID string) bool {
 	return task != nil && !task.terminal()
 }
 
-// active reports whether pluginID is currently being installed.
-func (p *pluginInstallPool) active(pluginID string) bool {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	return p.activeLocked(pluginID)
-}
-
 // start registers a new task for pluginID, rejecting it if pluginID already
 // has a non-terminal task in flight.
 func (p *pluginInstallPool) start(pluginID string) (*pluginInstallTask, error) {
@@ -215,6 +214,157 @@ func (p *pluginInstallPool) start(pluginID string) (*pluginInstallTask, error) {
 	}
 	p.tasks[pluginID] = task
 	return task, nil
+}
+
+// pluginUpdatePhase enumerates the stages of an async plugin update, tracked
+// in-process so GET /api/plugin/update/status/{pluginId} has something to
+// report while the background goroutine runs independently of the request
+// that started it.
+type pluginUpdatePhase string
+
+const (
+	pluginUpdatePhaseCheckingVersion   pluginUpdatePhase = "checking_version"
+	pluginUpdatePhaseStoppingContainer pluginUpdatePhase = "stopping_container"
+	pluginUpdatePhaseRepulling         pluginUpdatePhase = "repulling"
+	pluginUpdatePhaseStartingContainer pluginUpdatePhase = "starting_container"
+	pluginUpdatePhaseUpdatingComment   pluginUpdatePhase = "updating_comment"
+	pluginUpdatePhaseDone              pluginUpdatePhase = "done"
+	// A terminal phase, like Done and Error: the repull's pull flags cleared
+	// and the container settled, but RouterOS never reported a changed
+	// ImageID/ConfigJSON to confirm the image actually changed. The
+	// container is started again regardless, so the plugin doesn't stay
+	// down over an unconfirmed check, but its comment is left untouched
+	// rather than recording manifest.Version against a repull that was
+	// never confirmed to have replaced anything.
+	pluginUpdatePhaseUnconfirmed pluginUpdatePhase = "unconfirmed"
+	pluginUpdatePhaseError       pluginUpdatePhase = "error"
+)
+
+// pluginUpdateTask tracks one in-flight (or completed) async update,
+// identified by the id of the plugin being updated.
+type pluginUpdateTask struct {
+	mu        sync.RWMutex
+	pluginID  string
+	phase     pluginUpdatePhase
+	message   string
+	startedAt time.Time
+	version   string
+}
+
+func (t *pluginUpdateTask) set(phase pluginUpdatePhase, message string) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.phase = phase
+	t.message = message
+}
+
+func (t *pluginUpdateTask) setVersion(version string) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.version = version
+}
+
+// terminal reports whether the task has finished, one way or another.
+func (t *pluginUpdateTask) terminal() bool {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return t.phase == pluginUpdatePhaseDone || t.phase == pluginUpdatePhaseError || t.phase == pluginUpdatePhaseUnconfirmed
+}
+
+func (t *pluginUpdateTask) snapshot() PluginUpdateStatusResponse {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+
+	return PluginUpdateStatusResponse{
+		PluginID:  t.pluginID,
+		Phase:     string(t.phase),
+		Message:   t.message,
+		StartedAt: t.startedAt.Format(time.RFC3339),
+		Version:   t.version,
+	}
+}
+
+// pluginUpdatePool tracks every plugin update task, keyed by plugin id. Kept
+// separate from pluginInstalls so an in-flight install and an in-flight
+// update for the same plugin id are never conflated with one another.
+type pluginUpdatePool struct {
+	mu    sync.RWMutex
+	tasks map[string]*pluginUpdateTask
+}
+
+var pluginUpdates = &pluginUpdatePool{tasks: make(map[string]*pluginUpdateTask)}
+
+// activeLocked reports whether pluginID has a non-terminal task in flight.
+// Callers must already hold p.mu, since sync.RWMutex is not reentrant.
+func (p *pluginUpdatePool) activeLocked(pluginID string) bool {
+	task := p.tasks[pluginID]
+	return task != nil && !task.terminal()
+}
+
+// start registers a new task for pluginID, rejecting it if pluginID already
+// has a non-terminal task in flight.
+func (p *pluginUpdatePool) start(pluginID string) (*pluginUpdateTask, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if p.activeLocked(pluginID) {
+		return nil, fmt.Errorf("plugin %s is already being updated", pluginID)
+	}
+
+	task := &pluginUpdateTask{
+		pluginID:  pluginID,
+		phase:     pluginUpdatePhaseCheckingVersion,
+		message:   "checking for update",
+		startedAt: time.Now(),
+	}
+	p.tasks[pluginID] = task
+	return task, nil
+}
+
+// pluginLifecycleOp names one of the three operations pluginLifecycles
+// serializes: an install, update or uninstall in progress for a plugin id.
+type pluginLifecycleOp string
+
+const (
+	pluginLifecycleOpInstall   pluginLifecycleOp = "installed"
+	pluginLifecycleOpUpdate    pluginLifecycleOp = "updated"
+	pluginLifecycleOpUninstall pluginLifecycleOp = "uninstalled"
+)
+
+// pluginLifecycle serializes install/update/uninstall operations per plugin
+// id: at most one of the three may be in flight for a given plugin at a
+// time. The pluginInstalls and pluginUpdates pools each guard against a
+// second instance of their own operation, but that alone leaves install,
+// update and uninstall free to run concurrently against each other, since
+// each is tracked by a different pool (or, for uninstall, not tracked at
+// all). A single reservation, acquired before any of the three does its
+// real work and released only once that operation reaches a terminal state
+// (or, for uninstall, completes), closes that gap.
+type pluginLifecycle struct {
+	mu   sync.Mutex
+	busy map[string]pluginLifecycleOp
+}
+
+var pluginLifecycles = &pluginLifecycle{busy: make(map[string]pluginLifecycleOp)}
+
+// acquire reserves pluginID for op, rejecting the reservation if another
+// lifecycle operation already holds it. The returned release func must be
+// called exactly once, when op reaches a terminal state, to free pluginID
+// for its next lifecycle operation.
+func (l *pluginLifecycle) acquire(pluginID string, op pluginLifecycleOp) (func(), error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	if existing, ok := l.busy[pluginID]; ok {
+		return nil, fmt.Errorf("plugin %s is currently being %s", pluginID, existing)
+	}
+
+	l.busy[pluginID] = op
+	return func() {
+		l.mu.Lock()
+		defer l.mu.Unlock()
+		delete(l.busy, pluginID)
+	}, nil
 }
 
 // HandleListPlugins godoc
@@ -523,6 +673,17 @@ func HandleInstallPlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
 	}
 
+	release, err := pluginLifecycles.acquire(req.ID, pluginLifecycleOpInstall)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Plugin installation already in progress", err)
+	}
+	releaseOnReturn := true
+	defer func() {
+		if releaseOnReturn {
+			release()
+		}
+	}()
+
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
@@ -563,7 +724,11 @@ func HandleInstallPlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusConflict, "Plugin installation already in progress", err)
 	}
 
-	go installPluginAsync(client, task)
+	releaseOnReturn = false
+	go func() {
+		installPluginAsync(client, task)
+		release()
+	}()
 
 	return SuccessResponse(c, http.StatusOK, "Plugin installation started", InstallPluginResponse{
 		ID:       req.ID,
@@ -806,6 +971,249 @@ func HandleGetPluginInstallStatus(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Installation status retrieved", task.snapshot())
 }
 
+// HandleUpdatePlugin godoc
+// @Summary Update an installed plugin
+// @Description Checks the community registry's version for pluginId against the
+// @Description version recorded in its container's comment; if the registry version
+// @Description is newer, starts an async update: repulls the container's image from
+// @Description the registry-declared image, restarts the container, then records the
+// @Description new version in the container's comment. Poll
+// @Description GET /api/plugin/update/status/{pluginId} for progress.
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param pluginId path string true "Plugin id, which is also its container name"
+// @Produce json
+// @Success 200 {object} Response{data=UpdatePluginResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 422 {object} Response
+// @Failure 500 {object} Response
+// @Failure 502 {object} Response
+// @Router /api/plugin/update/{pluginId} [post].
+func HandleUpdatePlugin(c echo.Context) error {
+	pluginID := c.Param("pluginId")
+	if pluginID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "plugin id is required", nil)
+	}
+
+	release, err := pluginLifecycles.acquire(pluginID, pluginLifecycleOpUpdate)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Plugin update already in progress", err)
+	}
+	releaseOnReturn := true
+	defer func() {
+		if releaseOnReturn {
+			release()
+		}
+	}()
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	ctx := c.Request().Context()
+
+	container, err := client.GetContainer(pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
+	}
+
+	manifest, err := fetchPluginManifest(ctx, pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
+	}
+
+	if !utils.IsNewerVersion(manifest.Version, container.Comment) {
+		return ErrorResponse(c, http.StatusUnprocessableEntity, "Plugin is already up to date",
+			fmt.Errorf("installed version %s is not older than registry version %s", container.Comment, manifest.Version))
+	}
+
+	task, err := pluginUpdates.start(pluginID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Plugin update already in progress", err)
+	}
+
+	releaseOnReturn = false
+	go func() {
+		updatePluginAsync(client, task, manifest)
+		release()
+	}()
+
+	return SuccessResponse(c, http.StatusOK, "Plugin update started", UpdatePluginResponse{
+		PluginID: pluginID,
+	})
+}
+
+// updatePluginAsync performs the actual update steps for task, updating its
+// phase/message as it progresses. The manifest passed in is the one
+// HandleUpdatePlugin already fetched and validated as newer than the
+// installed version, reused here rather than re-fetched. Runs detached from
+// the HTTP request that triggered it, in its own goroutine.
+func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest *PluginManifest) {
+	pluginID := task.pluginID
+	task.setVersion(manifest.Version)
+
+	before, err := client.GetContainer(pluginID)
+	if err != nil {
+		task.set(pluginUpdatePhaseError, "failed to inspect container before repull: "+err.Error())
+		log.Printf("[plugin-update %s] failed to get container: %v", pluginID, err)
+		return
+	}
+	previousImageID := before.ImageID
+
+	if before.Running || before.Healthy {
+		task.set(pluginUpdatePhaseStoppingContainer, "stopping container "+pluginID)
+		if err := client.StopContainer(pluginID); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to stop container: "+err.Error())
+			log.Printf("[plugin-update %s] failed to stop container: %v", pluginID, err)
+			return
+		}
+
+		stopDeadline := time.Now().Add(pluginInstallTimeout)
+		for {
+			info, err := client.GetContainer(pluginID)
+			if err != nil {
+				task.set(pluginUpdatePhaseError, "lost track of container while stopping: "+err.Error())
+				log.Printf("[plugin-update %s] failed to poll container while stopping: %v", pluginID, err)
+				return
+			}
+			if info.Stopped {
+				break
+			}
+			if !time.Now().Before(stopDeadline) {
+				task.set(pluginUpdatePhaseError, "timed out waiting for container to stop")
+				return
+			}
+			time.Sleep(pluginInstallPollInterval)
+		}
+	}
+
+	task.set(pluginUpdatePhaseRepulling, "repulling "+manifest.Container.Image)
+	if err := client.RepullContainer(pluginID, manifest.Container.Image, ""); err != nil {
+		task.set(pluginUpdatePhaseError, "failed to repull plugin image: "+err.Error())
+		log.Printf("[plugin-update %s] failed to repull image: %v", pluginID, err)
+		return
+	}
+
+	// Once the pull flags clear and the container has settled into Stopped,
+	// ImageID/ConfigJSON would confirm the repull actually replaced the
+	// image — but a mutable tag (e.g. ":main") can legitimately repull to a
+	// digest RouterOS already has cached, in which case neither ever
+	// changes even though the repull genuinely succeeded. So that check is
+	// only given a grace window to confirm a change before this proceeds
+	// anyway, rather than blocking forever on it.
+	var settledAt time.Time
+
+	deadline := time.Now().Add(pluginInstallTimeout)
+	for time.Now().Before(deadline) {
+		time.Sleep(pluginInstallPollInterval)
+
+		info, err := client.GetContainer(pluginID)
+		if err != nil {
+			task.set(pluginUpdatePhaseError, "lost track of container during repull: "+err.Error())
+			log.Printf("[plugin-update %s] failed to poll container: %v", pluginID, err)
+			return
+		}
+
+		if info.DownloadExtractFailed {
+			msg := info.About
+			if msg == "" {
+				msg = "image repull failed"
+			}
+			task.set(pluginUpdatePhaseError, msg)
+			log.Printf("[plugin-update %s] repull failed: %s", pluginID, msg)
+			return
+		}
+
+		if info.DownloadingExtracting {
+			task.set(pluginUpdatePhaseRepulling, "repulling "+info.RemoteImage)
+			continue
+		}
+
+		// RouterOS clears the pulling flag as soon as the transfer finishes but
+		// the container settles into Stopped a moment later; without waiting
+		// for it too, StartContainer below can race a container RouterOS
+		// hasn't finished settling from the repull.
+		if !info.Stopped {
+			continue
+		}
+
+		imageChanged := info.ImageID != previousImageID || info.ConfigJSON != before.ConfigJSON
+		if !imageChanged {
+			if settledAt.IsZero() {
+				settledAt = time.Now()
+			}
+			if time.Since(settledAt) < pluginUpdateImageChangeGrace {
+				continue
+			}
+		}
+
+		task.set(pluginUpdatePhaseStartingContainer, "starting container "+pluginID)
+		if err := client.StartContainer(pluginID); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to start container: "+err.Error())
+			log.Printf("[plugin-update %s] failed to start container: %v", pluginID, err)
+			return
+		}
+
+		if !imageChanged {
+			// The repull's own pull/failure flags never reported a problem, but
+			// RouterOS also never reported a changed ImageID/ConfigJSON, so
+			// there is nothing to confirm the container's image actually
+			// changed. Recording manifest.Version here would claim a repull
+			// this code could not verify, so the container is started again
+			// (the plugin must not stay down over an unconfirmed check) but
+			// its comment is left untouched.
+			task.set(pluginUpdatePhaseUnconfirmed,
+				"container restarted but could not confirm the image changed; version not recorded")
+			log.Printf("[plugin-update %s] repull settled without a confirmed image change after %s; container restarted, comment left untouched",
+				pluginID, pluginUpdateImageChangeGrace)
+			return
+		}
+
+		task.set(pluginUpdatePhaseUpdatingComment, "recording updated version")
+		if err := client.EditContainer(pluginID, map[string]string{"comment": manifest.Version}); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to record updated version: "+err.Error())
+			log.Printf("[plugin-update %s] failed to update container comment: %v", pluginID, err)
+			return
+		}
+
+		task.set(pluginUpdatePhaseDone, "plugin updated")
+		return
+	}
+
+	task.set(pluginUpdatePhaseError, "timed out waiting for image repull to finish")
+}
+
+// HandleGetPluginUpdateStatus godoc
+// @Summary Get plugin update status
+// @Description Returns the current phase of an in-progress or completed plugin
+// @Description update task.
+// @Tags Plugin
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param pluginId path string true "Plugin id passed to POST /api/plugin/update/{pluginId}"
+// @Produce json
+// @Success 200 {object} Response{data=PluginUpdateStatusResponse}
+// @Failure 404 {object} Response
+// @Router /api/plugin/update/status/{pluginId} [get].
+func HandleGetPluginUpdateStatus(c echo.Context) error {
+	pluginID := c.Param("pluginId")
+
+	pluginUpdates.mu.RLock()
+	task, ok := pluginUpdates.tasks[pluginID]
+	pluginUpdates.mu.RUnlock()
+
+	if !ok {
+		return ErrorResponse(c, http.StatusNotFound, "Unknown update task",
+			fmt.Errorf("no update task for plugin %s", pluginID))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Update status retrieved", task.snapshot())
+}
+
 // HandleUninstallPlugin godoc
 // @Summary Uninstall a plugin
 // @Description Removes an installed plugin: runs the preUninstall script from its
@@ -831,6 +1239,17 @@ func HandleUninstallPlugin(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "plugin name is required", nil)
 	}
 
+	// Reserved for the rest of this handler, which runs synchronously: an
+	// install or update goroutine still creating/polling or repulling the
+	// very container about to be removed (or vice versa, a new install/update
+	// starting against a container this handler is mid-removal on) is
+	// rejected until this uninstall fully completes and releases it.
+	release, err := pluginLifecycles.acquire(name, pluginLifecycleOpUninstall)
+	if err != nil {
+		return ErrorResponse(c, http.StatusConflict, "Plugin uninstall already in progress", err)
+	}
+	defer release()
+
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
@@ -850,13 +1269,6 @@ func HandleUninstallPlugin(c echo.Context) error {
 	container, err := client.GetContainer(name)
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
-	}
-
-	// An install goroutine for this plugin is still creating and polling the
-	// very container about to be removed, so let it finish first.
-	if pluginInstalls.active(name) {
-		return ErrorResponse(c, http.StatusConflict, "Plugin installation is still in progress",
-			fmt.Errorf("plugin %s is currently being installed", name))
 	}
 
 	manifest, err := fetchPluginManifest(ctx, name)
