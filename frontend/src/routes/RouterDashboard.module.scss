@@ -52,3 +52,20 @@
   font-size: var(--font-lg);
   color: var(--color-text);
 }
+
+.guideFooter {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: var(--font-sm);
+}
+
+.guideLink {
+  color: var(--color-primary);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}

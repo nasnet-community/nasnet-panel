@@ -7,6 +7,7 @@ import { useWizardGate } from '../state/WizardGateContext';
 import { useInstalledPlugins } from '../state/InstalledPluginsContext';
 import { routerSectionsWithPlugins } from '../layout/routerSections';
 import { RouterCredentialsDialog } from './RouterCredentialsDialog';
+import { USER_GUIDE_SECTIONS, USER_GUIDE_URL } from './help/links';
 import styles from './RouterDashboard.module.scss';
 
 export function RouterDashboard() {
@@ -43,6 +44,9 @@ export function RouterDashboard() {
   const wizardStatus = statusFor(router.id);
 
   const onWizard = location.pathname.startsWith(`/router/${router.id}/config`);
+  const guideSection = USER_GUIDE_SECTIONS.get(
+    location.pathname.slice(`/router/${router.id}`.length).split('/')[1] ?? '',
+  );
 
   const activeTab = onWizard
     ? 'diagnostics'
@@ -92,6 +96,18 @@ export function RouterDashboard() {
       ) : null}
       <div className={styles.contentShell}>
         <Outlet />
+        {guideSection ? (
+          <footer className={styles.guideFooter}>
+            <a
+              className={styles.guideLink}
+              href={`${USER_GUIDE_URL}/${guideSection}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read the user guide for this section
+            </a>
+          </footer>
+        ) : null}
       </div>
     </>
   );
