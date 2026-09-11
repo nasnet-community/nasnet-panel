@@ -235,6 +235,7 @@
         :if ([/ip/dhcp-server get $dhcpID address-pool] != $poolName) do={
             :error "nasnet-panel: DHCP pool switch verification failed"
         }
+        /interface/bridge set [find name=$lanIface] dhcp-snooping=yes
 
         # Last disruptive operation. Only currently enabled members of this LAN.
         # Do not touch WAN interfaces, move ports, or delete the original bridge.
