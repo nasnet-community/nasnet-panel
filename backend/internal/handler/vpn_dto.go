@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strings"
+
 	"nasnet-panel/pkg/utils"
 
 	"nasnet-panel/pkg/routeros"
@@ -612,6 +614,124 @@ type UpdateVPNUserByIDRequest struct {
 	LimitBytesIn  *int64  `json:"limitBytesIn,omitempty"`
 	LimitBytesOut *int64  `json:"limitBytesOut,omitempty"`
 	Comment       *string `json:"comment,omitempty"`
+}
+
+// PPPActiveSessionResponse represents one active (connected) PPP-based VPN
+// session in the API response — PPTP, L2TP, SSTP, OVPN and PPPoE all
+// authenticate through PPP and are reported here, distinguished by service.
+type PPPActiveSessionResponse struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Service   string `json:"service" example:"sstp"`
+	Address   string `json:"address,omitempty"`
+	CallerID  string `json:"callerID,omitempty"`
+	Uptime    string `json:"uptime"`
+	Encoding  string `json:"encoding,omitempty"`
+	SessionID string `json:"sessionID,omitempty"`
+}
+
+// ActiveVPNConnectionsResponse represents every currently active VPN
+// connection across all VPN types: PPPSessions covers PPP-based VPN types
+// (PPTP, L2TP, SSTP, OVPN, PPPoE) from /ppp/active, and WireGuardPeers
+// covers WireGuard peers that have completed at least one handshake.
+type ActiveVPNConnectionsResponse struct {
+	PPPSessions    []PPPActiveSessionResponse    `json:"pppSessions"`
+	WireGuardPeers []ActiveWireGuardPeerResponse `json:"wireguardPeers"`
+}
+
+// ActiveWireGuardPeerResponse represents one active WireGuard peer in the
+// GET /api/vpn/active response — a reduced field set compared to
+// WireGuardPeerResponse, scoped to what's relevant for an active-connection
+// listing.
+type ActiveWireGuardPeerResponse struct {
+	ID               string `json:"id"`
+	Name             string `json:"name"`
+	InterfaceName    string `json:"interfaceName"`
+	PublicKey        string `json:"publicKey"`
+	AllowedAddresses string `json:"allowedAddresses"`
+	ClientAddress    string `json:"clientAddress"`
+	LastHandshake    string `json:"lastHandshake" example:"1d 12:12:12"`
+	RxBytes          int64  `json:"rxBytes"`
+	TxBytes          int64  `json:"txBytes"`
+	Rx               string `json:"rx"`
+	Tx               string `json:"tx"`
+	Dynamic          bool   `json:"dynamic"`
+	Disabled         bool   `json:"disabled"`
+}
+
+// ToPPPActiveSessionResponse converts a RouterOS PPPActiveSessionInfo to API PPPActiveSessionResponse.
+func ToPPPActiveSessionResponse(session *routeros.PPPActiveSessionInfo) PPPActiveSessionResponse {
+	return PPPActiveSessionResponse{
+		ID:        session.ID,
+		Name:      session.Name,
+		Service:   session.Service,
+		Address:   session.Address,
+		CallerID:  session.CallerID,
+		Uptime:    session.Uptime,
+		Encoding:  session.Encoding,
+		SessionID: session.SessionID,
+	}
+}
+
+// ToPPPActiveSessionResponseList converts a list of RouterOS PPPActiveSessionInfo to API responses.
+func ToPPPActiveSessionResponseList(sessions []routeros.PPPActiveSessionInfo) []PPPActiveSessionResponse {
+	response := make([]PPPActiveSessionResponse, len(sessions))
+	for i := range sessions {
+		response[i] = ToPPPActiveSessionResponse(&sessions[i])
+	}
+	return response
+}
+
+// ToActiveWireGuardPeerResponse converts a RouterOS WireGuardPeerInfo to API ActiveWireGuardPeerResponse.
+func ToActiveWireGuardPeerResponse(peer *routeros.WireGuardPeerInfo) ActiveWireGuardPeerResponse {
+	return ActiveWireGuardPeerResponse{
+		ID:               peer.ID,
+		Name:             peer.Name,
+		InterfaceName:    peer.InterfaceName,
+		PublicKey:        peer.PublicKey,
+		AllowedAddresses: peer.AllowedAddresses,
+		LastHandshake:    utils.FormatRouterOSDuration(peer.LastHandshake),
+		RxBytes:          peer.RxBytes,
+		TxBytes:          peer.TxBytes,
+		Rx:               utils.BytesToSizeString(peer.RxBytes),
+		Tx:               utils.BytesToSizeString(peer.TxBytes),
+		Dynamic:          peer.Dynamic,
+		Disabled:         peer.Disabled,
+		ClientAddress:    peer.ClientAddress,
+	}
+}
+
+// activeWireGuardPeerHandshakeMaxAgeSeconds bounds how stale a WireGuard
+// peer's last handshake may be for ToActiveVPNConnectionsResponse to still
+// consider it actively connected.
+const activeWireGuardPeerHandshakeMaxAgeSeconds = 5 * 60
+
+// ToActiveVPNConnectionsResponse converts active PPP sessions and all
+// WireGuard peers into an ActiveVPNConnectionsResponse. A WireGuard peer is
+// included only if its interface name ends in "-server" (a server-side
+// interface accepting incoming peers, matching the PPP side's "incoming
+// connections only" semantics) and its last handshake is no older than
+// activeWireGuardPeerHandshakeMaxAgeSeconds — a peer with no handshake yet,
+// or whose handshake is stale, isn't actively connected right now.
+func ToActiveVPNConnectionsResponse(sessions []routeros.PPPActiveSessionInfo, peers []routeros.WireGuardPeerInfo) ActiveVPNConnectionsResponse {
+	activePeers := make([]ActiveWireGuardPeerResponse, 0, len(peers))
+	for i := range peers {
+		if !strings.HasSuffix(peers[i].InterfaceName, "-server") {
+			continue
+		}
+		if peers[i].LastHandshake == "" {
+			continue
+		}
+		if utils.RouterOSDurationSeconds(peers[i].LastHandshake) > activeWireGuardPeerHandshakeMaxAgeSeconds {
+			continue
+		}
+		activePeers = append(activePeers, ToActiveWireGuardPeerResponse(&peers[i]))
+	}
+
+	return ActiveVPNConnectionsResponse{
+		PPPSessions:    ToPPPActiveSessionResponseList(sessions),
+		WireGuardPeers: activePeers,
+	}
 }
 
 // VPNProfileResponse represents a PPP profile in the API response.
