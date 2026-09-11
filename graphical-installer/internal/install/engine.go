@@ -290,7 +290,6 @@ func (e *Engine) ensure(label, path, selector, addArgs string) error {
 	}
 	cmd := fmt.Sprintf("%s/add %s", path, addArgs)
 	if out, err := e.cl.Run(cmd); err != nil {
-		e.log("command failed: %s", cmd)
 		return fmt.Errorf("failed to add %s: %w (%s)", label, err, strings.TrimSpace(out))
 	}
 	e.log("added %s", label)
@@ -317,7 +316,7 @@ func (e *Engine) removeContainerFiles(includeImageDir bool) {
 		return
 	}
 	e.log("removing leftover %s-*.tar files from the router", assetPrefix)
-	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\.tar$"]`, assetPrefix), 30*time.Second)
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\\.tar\$"]`, assetPrefix), 30*time.Second)
 	if !includeImageDir {
 		return
 	}
