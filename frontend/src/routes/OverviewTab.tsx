@@ -59,6 +59,7 @@ import { ConnectivityCard } from './overview-panel/ConnectivityCard';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
 import { UplinkIpCard } from './overview-panel/UplinkIpCard';
 import { resolveModelStrict } from './overview-panel/resolveModel';
+import type { IfaceLink } from './overview-panel/types';
 import styles from './OverviewTab.module.scss';
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
@@ -117,7 +118,7 @@ export function OverviewTab() {
   const [vpnClients, setVpnClients] = useState<VPNActiveClient[]>([]);
   const [dhcpLeaseList, setDhcpLeaseList] = useState<DHCPLeaseResponse[]>([]);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
-  const [ethernetRates, setEthernetRates] = useState<Record<string, string>>({});
+  const [ethernetRates, setEthernetRates] = useState<Record<string, IfaceLink>>({});
   const [dhcpClients, setDhcpClients] = useState<DhcpClient[]>([]);
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
   const ifaceDefaultApplied = useRef(false);
@@ -217,7 +218,9 @@ export function OverviewTab() {
         setEthernetRates(
           Object.fromEntries(
             ethernets.flatMap((e) =>
-              e.name && e.rate ? [[e.name.toLowerCase(), e.rate] as const] : [],
+              e.name && e.rate
+                ? [[e.name.toLowerCase(), { rate: e.rate, fullDuplex: e.fullDuplex }] as const]
+                : [],
             ),
           ),
         );

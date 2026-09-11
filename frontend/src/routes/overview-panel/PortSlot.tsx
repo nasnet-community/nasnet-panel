@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Antenna,
   ArrowDown,
+  ArrowLeftRight,
   ArrowUp,
   Cable,
   EthernetPort,
@@ -90,6 +91,12 @@ export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
             {STATUS_LABEL[slot.status]}
             {slot.mtu ? ` · ${slot.mtu} MTU` : ''}
           </span>
+          {slot.linkSpeed ? (
+            <span className={styles.hoverRow}>
+              <ArrowLeftRight size={13} aria-hidden />
+              {slot.linkSpeed}
+            </span>
+          ) : null}
           {slot.rxLabel ? (
             <span className={cx(styles.hoverRow, styles.rxRow)}>
               <ArrowDown size={13} aria-hidden />
