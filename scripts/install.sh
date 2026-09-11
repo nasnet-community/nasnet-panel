@@ -43,6 +43,7 @@ BASELINE_TIMEOUT=30
 REBOOT_SETTLE=15
 REBOOT_TIMEOUT=300
 START_TIMEOUT=120
+STOP_TIMEOUT=60
 
 # ---- args ------------------------------------------------------------------
 DRY_RUN=0
@@ -990,6 +991,28 @@ configure_network() {
   ros_move_to_top /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
 }
 
+remove_existing_container() {
+  ros_exists /container "name=${CONTAINER_NAME}" || return 0
+  log ""
+  log "Removing existing container ${CONTAINER_NAME} ..."
+  if (( DRY_RUN )); then
+    printf '  - container %s (would stop and remove)\n' "$CONTAINER_NAME"
+    return 0
+  fi
+  ros_cmd "/container/stop [find name=${CONTAINER_NAME}]" >/dev/null 2>&1 || true
+  local waited=0
+  while ros_exists /container "name=${CONTAINER_NAME}"; do
+    if (( waited >= STOP_TIMEOUT )); then
+      err "could not stop and remove the existing container ${CONTAINER_NAME} within ${STOP_TIMEOUT}s"
+      exit 1
+    fi
+    sleep 2
+    waited=$(( waited + 2 ))
+    ros_cmd "/container/remove [find name=${CONTAINER_NAME}]" >/dev/null 2>&1 || true
+  done
+  printf '  \033[32m✓\033[0m container %s removed\n' "$CONTAINER_NAME"
+}
+
 deploy_container() {
   log ""
   log "Configuring container ..."
@@ -1002,7 +1025,7 @@ deploy_container() {
     return 0
   fi
   if ! spin "extracting tar and adding container ${CONTAINER_NAME}" \
-       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} start-on-boot=yes logging=yes"; then
+       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} dns=${FALLBACK_DNS_SERVERS} start-on-boot=yes logging=yes"; then
     err "failed to add container"; exit 1
   fi
   push_rollback "ros_cmd '/container/remove [find name=${CONTAINER_NAME}]' >/dev/null 2>&1 || true"
@@ -1225,6 +1248,7 @@ main() {
     return 0
   fi
 
+  remove_existing_container
   ensure_container_support
   detect_storage
 

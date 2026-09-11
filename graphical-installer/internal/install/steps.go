@@ -84,9 +84,35 @@ func (e *Engine) stepCheck() error {
 	if err := e.verifyStorageWritable(st); err != nil {
 		return err
 	}
+	if err := e.removeExistingContainer(); err != nil {
+		return err
+	}
 	e.removeContainerFiles(true)
 
 	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.label())
+	return nil
+}
+
+func (e *Engine) removeExistingContainer() error {
+	if !e.exists("/container", "name="+containerName) {
+		return nil
+	}
+	if e.opts.DryRun {
+		e.log("[dry-run] would stop and remove the existing container %s", containerName)
+		return nil
+	}
+	e.log("stopping and removing the existing container %s", containerName)
+	_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", containerName), 30*time.Second)
+	deadline := time.Now().Add(stopTimeout)
+	for e.exists("/container", "name="+containerName) {
+		if time.Now().After(deadline) {
+			return fmt.Errorf("could not stop and remove the existing container %s within %s. Remove it from the router, then run the installer again", containerName, stopTimeout)
+		}
+		if err := e.sleep(2 * time.Second); err != nil {
+			return err
+		}
+		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/remove [find name=%s]", containerName), 30*time.Second)
+	}
 	return nil
 }
 
@@ -822,8 +848,8 @@ func (e *Engine) stepContainer() error {
 		return nil
 	}
 	e.log("extracting tar and adding container %s (this can take a few minutes)", containerName)
-	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s start-on-boot=yes logging=yes",
-		e.remoteTar, vethName, e.storage.path(containerImagesDir), containerName), 5*time.Minute); err != nil {
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s dns=%s start-on-boot=yes logging=yes",
+		e.remoteTar, vethName, e.storage.path(containerImagesDir), containerName, fallbackDNSServers), 5*time.Minute); err != nil {
 		return fmt.Errorf("failed to add container: %w (%s)", err, strings.TrimSpace(out))
 	}
 	e.pushRollback(func() {
