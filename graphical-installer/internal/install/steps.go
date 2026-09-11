@@ -231,8 +231,10 @@ func (e *Engine) installContainerPackage() error {
 		return err
 	}
 	local := filepath.Join(outDir, name)
-	e.log("downloading %s", url)
-	if _, err := e.download(url, local, "device-mode"); err != nil {
+	if err := e.withRetries("downloading "+url, func() error {
+		_, err := e.download(url, local, "device-mode")
+		return err
+	}); err != nil {
 		return fmt.Errorf("could not download the container package for RouterOS %s (%s): %w. Install it via WebFig/Winbox (System > Packages) instead", e.sys.Version, e.sys.Arch, err)
 	}
 
@@ -575,23 +577,45 @@ func (e *Engine) stepDownload() error {
 	}
 	outPath := filepath.Join(outDir, asset)
 
-	e.log("downloading %s", url)
-	actual, err := e.download(url, outPath, "download")
-	if err != nil {
-		return err
-	}
 	expected, err := e.fetchChecksum(url + ".sha256")
 	if err != nil {
 		return err
 	}
-	if !strings.EqualFold(expected, actual) {
-		return fmt.Errorf("checksum mismatch for %s: got %s, expected %s", asset, actual, expected)
+	if err := e.withRetries("downloading "+url, func() error {
+		actual, err := e.download(url, outPath, "download")
+		if err != nil {
+			return err
+		}
+		if !strings.EqualFold(expected, actual) {
+			return fmt.Errorf("checksum mismatch for %s: got %s, expected %s", asset, actual, expected)
+		}
+		return nil
+	}); err != nil {
+		return err
 	}
 	e.log("checksum OK")
 	e.assetName = asset
 	e.localTar = outPath
 	e.note = asset
 	return nil
+}
+
+func (e *Engine) withRetries(what string, fn func() error) error {
+	for attempt := 1; ; attempt++ {
+		e.log("%s (attempt %d/%d)", what, attempt, downloadAttempts)
+		err := fn()
+		if err == nil || e.ctx.Err() != nil {
+			return err
+		}
+		if attempt == downloadAttempts {
+			e.log("attempt %d/%d failed: %v", attempt, downloadAttempts, err)
+			return err
+		}
+		e.log("attempt %d/%d failed: %v, retrying in %s", attempt, downloadAttempts, err, downloadRetryWait)
+		if err := e.sleep(downloadRetryWait); err != nil {
+			return err
+		}
+	}
 }
 
 func (e *Engine) download(url, dest, stepID string) (string, error) {

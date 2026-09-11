@@ -51,6 +51,8 @@ const (
 	baselineTimeout   = 30 * time.Second
 	rebootSettle      = 15 * time.Second
 	rebootTimeout     = 5 * time.Minute
+	downloadAttempts  = 3
+	downloadRetryWait = 3 * time.Second
 )
 
 type Options struct {
