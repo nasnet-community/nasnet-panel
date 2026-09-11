@@ -338,37 +338,43 @@ function AppUpdateCard() {
                   ) : null}
                 </div>
 
-                <div className={styles.versionTrack}>
-                  <div className={styles.versionStop}>
-                    <span className={styles.versionStopLabel}>
-                      <Tag size={12} aria-hidden /> Current
-                    </span>
-                    <span className={styles.versionStopValue} data-testid="app-current-version">
-                      {check.appVersion}
-                    </span>
+                {check.updateAvailable ? (
+                  <div className={styles.versionTrack}>
+                    <div className={styles.versionStop}>
+                      <span className={styles.versionStopLabel}>
+                        <Tag size={12} aria-hidden /> Current
+                      </span>
+                      <span className={styles.versionStopValue} data-testid="app-current-version">
+                        {check.appVersion}
+                      </span>
+                    </div>
+                    <ArrowRight
+                      size={20}
+                      aria-hidden
+                      className={`${styles.versionArrow} ${styles.versionArrowActive}`}
+                    />
+                    <div className={`${styles.versionStop} ${styles.versionStopHighlight}`}>
+                      <span className={styles.versionStopLabel}>
+                        <Sparkles size={12} aria-hidden /> Latest
+                      </span>
+                      <span className={styles.versionStopValue} data-testid="app-latest-version">
+                        {check.latestVersion}
+                      </span>
+                    </div>
                   </div>
-                  <ArrowRight
-                    size={20}
-                    aria-hidden
-                    className={`${styles.versionArrow} ${
-                      check.updateAvailable ? styles.versionArrowActive : ''
-                    }`}
-                  />
-                  <div
-                    className={`${styles.versionStop} ${
-                      check.updateAvailable
-                        ? styles.versionStopHighlight
-                        : styles.versionStopMatched
-                    }`}
-                  >
-                    <span className={styles.versionStopLabel}>
-                      <Sparkles size={12} aria-hidden /> Latest
-                    </span>
-                    <span className={styles.versionStopValue} data-testid="app-latest-version">
-                      {check.latestVersion}
-                    </span>
+                ) : (
+                  <div className={styles.upToDate}>
+                    <CheckCircle2 size={22} aria-hidden className={styles.upToDateIcon} />
+                    <div className={styles.upToDateBody}>
+                      <span className={styles.versionStopLabel}>
+                        <Tag size={12} aria-hidden /> Current
+                      </span>
+                      <span className={styles.versionStopValue} data-testid="app-current-version">
+                        {check.appVersion}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             ) : null}
 
@@ -523,6 +529,7 @@ function FirmwareUpdateCard() {
   };
 
   const channel = meta?.channel || check?.channel;
+  const downloaded = /^downloaded/i.test(check?.status ?? '');
 
   return (
     <Card>
@@ -592,44 +599,56 @@ function FirmwareUpdateCard() {
                   ) : null}
                 </div>
 
-                <div className={styles.versionTrack}>
-                  <div className={styles.versionStop}>
-                    <span className={styles.versionStopLabel}>
-                      <Tag size={12} aria-hidden /> Current
-                    </span>
-                    <span className={styles.versionStopValue}>{check.installedVersion || '—'}</span>
+                {check.updateAvailable ? (
+                  <div className={styles.versionTrack}>
+                    <div className={styles.versionStop}>
+                      <span className={styles.versionStopLabel}>
+                        <Tag size={12} aria-hidden /> Current
+                      </span>
+                      <span className={styles.versionStopValue}>
+                        {check.installedVersion || '—'}
+                      </span>
+                    </div>
+                    <ArrowRight
+                      size={20}
+                      aria-hidden
+                      className={`${styles.versionArrow} ${styles.versionArrowActive}`}
+                    />
+                    <div className={`${styles.versionStop} ${styles.versionStopHighlight}`}>
+                      <span className={styles.versionStopLabel}>
+                        <Sparkles size={12} aria-hidden /> Latest
+                      </span>
+                      <span className={styles.versionStopValue}>{check.latestVersion || '—'}</span>
+                    </div>
                   </div>
-                  <ArrowRight
-                    size={20}
-                    aria-hidden
-                    className={`${styles.versionArrow} ${
-                      check.updateAvailable ? styles.versionArrowActive : ''
-                    }`}
-                  />
-                  <div
-                    className={`${styles.versionStop} ${
-                      check.updateAvailable
-                        ? styles.versionStopHighlight
-                        : styles.versionStopMatched
-                    }`}
-                  >
-                    <span className={styles.versionStopLabel}>
-                      <Sparkles size={12} aria-hidden /> Latest
-                    </span>
-                    <span className={styles.versionStopValue}>{check.latestVersion || '—'}</span>
+                ) : (
+                  <div className={styles.upToDate}>
+                    <CheckCircle2 size={22} aria-hidden className={styles.upToDateIcon} />
+                    <div className={styles.upToDateBody}>
+                      <span className={styles.versionStopLabel}>
+                        <Tag size={12} aria-hidden /> Current
+                      </span>
+                      <span className={styles.versionStopValue}>
+                        {check.installedVersion || '—'}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             ) : null}
 
-            {check?.updateAvailable ? (
+            {check?.updateAvailable || downloaded ? (
               <div className={styles.actions}>
-                <Button variant="success" onClick={() => setConfirming(true)} disabled={installing}>
+                <Button
+                  variant="success"
+                  onClick={() => setConfirming(true)}
+                  disabled={installing || downloaded}
+                >
                   {installing ? (
                     <>
                       <Loader2 size={14} aria-hidden /> Installing…
                     </>
-                  ) : complete ? (
+                  ) : complete || downloaded ? (
                     <>
                       <CheckCircle2 size={14} aria-hidden /> Done
                     </>
