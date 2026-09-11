@@ -27,6 +27,7 @@ func main() {
 		Bind: []any{
 			app,
 		},
+		EnableDefaultContextMenu: true,
 	})
 	if err != nil {
 		log.Fatal(err)
