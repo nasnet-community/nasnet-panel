@@ -314,15 +314,19 @@
   }
 }
 
-.vpnName,
-.vpnAddress {
+.addressRow {
+  flex-wrap: wrap;
+
+  .vpnName {
+    flex: 1 1 0;
+  }
+}
+
+.vpnName {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.vpnName {
   font-weight: var(--weight-medium);
   flex: 0 1 auto;
 }
@@ -349,7 +353,9 @@
 }
 
 .vpnAddress {
-  flex: 1 1 auto;
+  flex: 0 0 100%;
+  padding-left: calc(8px + var(--space-sm));
+  overflow-wrap: anywhere;
   color: var(--color-text-muted);
   font-size: var(--font-sm);
 }
