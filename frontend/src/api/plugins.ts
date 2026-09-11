@@ -116,7 +116,7 @@ export async function fetchPluginInstallStatus(
   signal?: AbortSignal,
 ): Promise<PluginInstallStatusResponse> {
   return apiRequest<PluginInstallStatusResponse>(
-    `/api/plugin/status/${encodeURIComponent(pluginId)}`,
+    `/api/plugin/install/status/${encodeURIComponent(pluginId)}`,
     {
       method: 'GET',
       headers: authHeaders(creds),
