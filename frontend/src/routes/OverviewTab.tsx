@@ -549,7 +549,7 @@ export function OverviewTab() {
             ) : (
               <div className={styles.vpnList}>
                 {dhcpLeaseList.map((l) => (
-                  <div key={l.id} className={styles.vpnRow}>
+                  <div key={l.id} className={cx(styles.vpnRow, styles.addressRow)}>
                     <StatusDot $status="online" className={styles.vpnDot} aria-hidden />
                     <span className={styles.vpnName} title={l.hostName || l.macAddress}>
                       {l.hostName || l.macAddress}
@@ -590,7 +590,10 @@ export function OverviewTab() {
             ) : (
               <div className={styles.vpnList}>
                 {vpnClients.map((c) => (
-                  <div key={`${c.protocol}-${c.id}`} className={styles.vpnRow}>
+                  <div
+                    key={`${c.protocol}-${c.id}`}
+                    className={cx(styles.vpnRow, styles.addressRow)}
+                  >
                     <StatusDot $status="online" className={styles.vpnDot} aria-hidden />
                     <span className={styles.vpnName} title={c.name}>
                       {c.name}

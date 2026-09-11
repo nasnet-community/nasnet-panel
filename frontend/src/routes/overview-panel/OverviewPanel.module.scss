@@ -239,6 +239,7 @@
 
 .uplinkRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-sm);
 }
@@ -248,18 +249,20 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .uplinkIps {
   display: flex;
-  flex-wrap: wrap;
+  flex: 0 0 100%;
+  flex-direction: column;
   gap: var(--space-xs);
-  margin-left: auto;
-  justify-content: flex-end;
+  padding-left: calc(8px + var(--space-sm));
 }
 
 .uplinkIp {
+  overflow-wrap: anywhere;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: var(--font-xs);
   color: var(--color-text-muted);
