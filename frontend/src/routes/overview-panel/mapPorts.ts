@@ -1,5 +1,5 @@
 import type { InterfaceResponse } from '../../api';
-import type { PortSlot, PortStatus, RateTone, ResolvedSlot, SlotKind } from './types';
+import type { IfaceLink, PortSlot, PortStatus, RateTone, ResolvedSlot, SlotKind } from './types';
 
 const PORT_KINDS: SlotKind[] = ['ethernet', 'sfp'];
 
@@ -51,6 +51,12 @@ const deriveRateTone = (
   return actual >= nominal / 10 ? 'degraded' : 'bad';
 };
 
+const formatLinkSpeed = (link: IfaceLink | undefined): string | undefined => {
+  if (!link) return undefined;
+  if (link.fullDuplex === undefined) return link.rate;
+  return `${link.rate} ${link.fullDuplex ? 'full' : 'half'} duplex`;
+};
+
 const deriveStatus = (iface: InterfaceResponse | undefined): PortStatus => {
   if (!iface) return 'absent';
   if (iface.disabled) return 'disabled';
@@ -60,7 +66,7 @@ const deriveStatus = (iface: InterfaceResponse | undefined): PortStatus => {
 export function mapPorts(
   slots: PortSlot[],
   interfaces: InterfaceResponse[],
-  ifaceRates?: Readonly<Record<string, string>>,
+  ifaceRates?: Readonly<Record<string, IfaceLink>>,
 ): ResolvedSlot[] {
   return slots.map((slot) => {
     if (!PORT_KINDS.includes(slot.kind)) {
@@ -79,14 +85,16 @@ export function mapPorts(
     const rxLabel = iface?.rx;
     const txLabel = iface?.tx;
     const mtu = iface?.actualMtu;
-    const rate = status === 'up' ? ifaceRates?.[name.toLowerCase()] : undefined;
+    const link = status === 'up' ? ifaceRates?.[name.toLowerCase()] : undefined;
+    const rate = link?.rate;
+    const linkSpeed = formatLinkSpeed(link);
     const rateTone = deriveRateTone(rate, slot.nominalSpeed);
     let tooltip: string;
     if (status === 'absent') {
       tooltip = `${name} · not detected`;
     } else {
       const parts = [name, STATUS_LABEL[status]];
-      if (rate) parts.push(rate);
+      if (linkSpeed) parts.push(linkSpeed);
       if (rxLabel) parts.push(`↓ ${rxLabel}`);
       if (txLabel) parts.push(`↑ ${txLabel}`);
       if (mtu) parts.push(`${mtu} MTU`);
@@ -101,6 +109,7 @@ export function mapPorts(
       txLabel,
       mtu,
       rate,
+      linkSpeed,
       rateTone,
     };
   });

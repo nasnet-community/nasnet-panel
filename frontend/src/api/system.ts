@@ -150,6 +150,7 @@ export interface EthernetInterfaceResponse {
   disabled?: boolean;
   status?: string;
   rate?: string;
+  fullDuplex?: boolean;
 }
 
 export async function fetchEthernetInterfaces(
