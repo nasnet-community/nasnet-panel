@@ -119,19 +119,10 @@ func isTimeFormat(s string) bool {
 	return true
 }
 
-// FormatRouterOSDuration converts RouterOS duration format (e.g., "1d12h30m") to human-readable format.
-func FormatRouterOSDuration(routerOSTime string) string {
-	routerOSTime = strings.TrimSpace(routerOSTime)
-	if routerOSTime == "" {
-		return ""
-	}
-
-	days := 0
-	hours := 0
-	minutes := 0
-	seconds := 0
-	milliseconds := 0
-
+// parseRouterOSDurationParts breaks a RouterOS duration string (e.g.,
+// "1d12h30m", "12s", "500ms") into its component parts, shared by
+// FormatRouterOSDuration and RouterOSDurationSeconds.
+func parseRouterOSDurationParts(routerOSTime string) (days, hours, minutes, seconds, milliseconds int) {
 	if strings.Contains(routerOSTime, "w") {
 		weeksPattern := regexp.MustCompile(`(\d+)w`)
 		if match := weeksPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
@@ -180,12 +171,38 @@ func FormatRouterOSDuration(routerOSTime string) string {
 		}
 	}
 
+	return days, hours, minutes, seconds, milliseconds
+}
+
+// FormatRouterOSDuration converts RouterOS duration format (e.g., "1d12h30m") to human-readable format.
+func FormatRouterOSDuration(routerOSTime string) string {
+	routerOSTime = strings.TrimSpace(routerOSTime)
+	if routerOSTime == "" {
+		return ""
+	}
+
+	days, hours, minutes, seconds, milliseconds := parseRouterOSDurationParts(routerOSTime)
+
 	hasOtherParts := days > 0 || hours > 0 || minutes > 0 || seconds > 0
 	if !hasOtherParts && milliseconds > 0 {
 		return fmt.Sprintf("%.2f", float64(milliseconds)/1000.0)
 	}
 
 	return formatDaysAndTime(days, hours, minutes, seconds)
+}
+
+// RouterOSDurationSeconds converts a RouterOS duration string (e.g.,
+// "1d12h30m", "12s") to its total length in whole seconds. An empty or
+// unparsable string returns 0.
+func RouterOSDurationSeconds(routerOSTime string) int64 {
+	routerOSTime = strings.TrimSpace(routerOSTime)
+	if routerOSTime == "" {
+		return 0
+	}
+
+	days, hours, minutes, seconds, _ := parseRouterOSDurationParts(routerOSTime)
+
+	return int64(days)*86400 + int64(hours)*3600 + int64(minutes)*60 + int64(seconds)
 }
 
 // ToYesNo converts a boolean to RouterOS yes/no format.
