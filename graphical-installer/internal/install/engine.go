@@ -48,6 +48,7 @@ const (
 	deviceModeTimeout = 120 * time.Second
 	updateTimeout     = 10 * time.Minute
 	startTimeout      = 120 * time.Second
+	stopTimeout       = 60 * time.Second
 	baselineTimeout   = 30 * time.Second
 	rebootSettle      = 15 * time.Second
 	rebootTimeout     = 5 * time.Minute
