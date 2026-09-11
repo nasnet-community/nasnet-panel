@@ -23,17 +23,17 @@ export const InstalledPluginsProvider: React.FC<{ children: React.ReactNode }> =
   const { activeRouterId, getCredentials } = useSession();
   const router = useRouter(activeRouterId ?? undefined);
   const host = router?.host;
+  const creds = activeRouterId ? getCredentials(activeRouterId) : undefined;
   const [plugins, setPlugins] = useState<InstalledPluginResponse[]>([]);
   const loadedRef = useRef<string | null>(null);
   const mutationRef = useRef(0);
 
   useEffect(() => {
-    if (!activeRouterId || !host) return;
-    if (loadedRef.current === activeRouterId) return;
-    const creds = getCredentials(activeRouterId);
-    if (!creds) return;
-    if (loadedRef.current !== null) setPlugins([]);
-    loadedRef.current = activeRouterId;
+    if (!activeRouterId || !host || !creds) return;
+    if (loadedRef.current !== activeRouterId) {
+      if (loadedRef.current !== null) setPlugins([]);
+      loadedRef.current = activeRouterId;
+    }
     const mutation = mutationRef.current;
     const controller = new AbortController();
     void fetchInstalledPlugins({ host, ...creds }, controller.signal)
@@ -41,11 +41,9 @@ export const InstalledPluginsProvider: React.FC<{ children: React.ReactNode }> =
         if (controller.signal.aborted || mutation !== mutationRef.current) return;
         setPlugins(installed);
       })
-      .catch(() => {
-        if (!controller.signal.aborted) loadedRef.current = null;
-      });
+      .catch(() => {});
     return () => controller.abort();
-  }, [activeRouterId, host, getCredentials]);
+  }, [activeRouterId, host, creds]);
 
   const markInstalled = useCallback((plugin: InstalledPluginResponse) => {
     mutationRef.current += 1;
