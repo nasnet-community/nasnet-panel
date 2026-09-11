@@ -111,7 +111,7 @@ const (
 var pluginHTTPClient = &http.Client{Timeout: pluginFetchTimeout}
 
 // pluginInstallPhase enumerates the stages of an async plugin installation,
-// tracked in-process so GET /api/plugin/status/{pluginId} has something to
+// tracked in-process so GET /api/plugin/install/status/{pluginId} has something to
 // report while the background goroutine runs independently of the request
 // that started it.
 type pluginInstallPhase string
@@ -647,7 +647,7 @@ func HandleViewPlugin(c echo.Context) error {
 // @Description Starts an async install of a plugin from the community registry:
 // @Description creates the veth interface its manifest specifies (if not already
 // @Description present), creates its mounts, and adds its container, then waits for
-// @Description the image to finish pulling. Poll GET /api/plugin/status/{pluginId} for
+// @Description the image to finish pulling. Poll GET /api/plugin/install/status/{pluginId} for
 // @Description progress. At most one install per plugin id may run at a time;
 // @Description different plugins may install concurrently.
 // @Tags Plugin
@@ -955,7 +955,7 @@ func startPluginContainer(ctx context.Context, client *routeros.Client, task *pl
 // @Produce json
 // @Success 200 {object} Response{data=PluginInstallStatusResponse}
 // @Failure 404 {object} Response
-// @Router /api/plugin/status/{pluginId} [get].
+// @Router /api/plugin/install/status/{pluginId} [get].
 func HandleGetPluginInstallStatus(c echo.Context) error {
 	pluginID := c.Param("pluginId")
 
