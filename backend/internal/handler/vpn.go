@@ -312,7 +312,12 @@ func HandleAddL2TPClient(c echo.Context) error {
 		name = utils.GenerateName(2, "-", utils.LowerCase)
 	}
 
-	_, err = client.GetVPNClient(name)
+	interfaceName := name
+	if !strings.HasSuffix(interfaceName, "-l2tp-client") {
+		interfaceName += "-l2tp-client"
+	}
+
+	_, err = client.GetVPNClient(interfaceName)
 	if err == nil {
 		return ErrorResponse(c, http.StatusConflict, "L2TP client with this name already exists", nil)
 	}
@@ -329,11 +334,6 @@ func HandleAddL2TPClient(c echo.Context) error {
 	disabled := false
 	if req.Disabled != nil {
 		disabled = *req.Disabled
-	}
-
-	interfaceName := name
-	if !strings.HasSuffix(interfaceName, "-l2tp-client") {
-		interfaceName += "-l2tp-client"
 	}
 
 	if err := client.AddL2TPClient(routeros.AddL2TPClientConfig{
@@ -432,7 +432,11 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
 	}
 
-	useIPsecValue := req.IPsecSecret != nil && *req.IPsecSecret != ""
+	var useIPsec *bool
+	if req.IPsecSecret != nil {
+		useIPsecValue := *req.IPsecSecret != ""
+		useIPsec = &useIPsecValue
+	}
 
 	if err := client.UpdateL2TPClient(nameOrID, routeros.UpdateL2TPClientConfig{
 		ConnectTo:   req.ConnectTo,
@@ -441,7 +445,7 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		Disabled:    req.Disabled,
 		IPsecSecret: req.IPsecSecret,
 		Comment:     req.Comment,
-		UseIPsec:    &useIPsecValue,
+		UseIPsec:    useIPsec,
 	}); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update L2TP client", err)
 	}
