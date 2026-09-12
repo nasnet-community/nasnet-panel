@@ -60,6 +60,8 @@ set [ find name="{{ .NameToSet }}" ] steering="Steering"
 /interface bridge
 :if ([:len [/interface/bridge find name="LANBridgeSplit"]] = 0) do={
 add name="LANBridgeSplit" comment="Split"
+} else={
+set [find name="LANBridgeSplit"] dhcp-snooping=no
 }
 {{ if .DomesticEnabled}}
 add name="LANBridgeDomestic" comment="Domestic"
