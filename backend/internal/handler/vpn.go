@@ -303,11 +303,16 @@ func HandleAddL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
-	if req.Name == "" || req.ConnectTo == "" || req.User == "" || req.Password == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "name, connectTo, user, and password are required", nil)
+	if req.ConnectTo == "" || req.User == "" || req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "connectTo, user, and password are required", nil)
 	}
 
-	_, err = client.GetVPNClient(req.Name)
+	name := req.Name
+	if name == "" {
+		name = utils.GenerateName(2, "-", utils.LowerCase)
+	}
+
+	_, err = client.GetVPNClient(name)
 	if err == nil {
 		return ErrorResponse(c, http.StatusConflict, "L2TP client with this name already exists", nil)
 	}
@@ -326,12 +331,22 @@ func HandleAddL2TPClient(c echo.Context) error {
 		disabled = *req.Disabled
 	}
 
-	interfaceName := req.Name
+	interfaceName := name
 	if !strings.HasSuffix(interfaceName, "-l2tp-client") {
 		interfaceName += "-l2tp-client"
 	}
 
-	if err := client.AddL2TPClient(interfaceName, req.ConnectTo, req.User, req.Password, profileName, ipsecSecret, useIPsec, disabled); err != nil {
+	if err := client.AddL2TPClient(routeros.AddL2TPClientConfig{
+		Name:        interfaceName,
+		ConnectTo:   req.ConnectTo,
+		User:        req.User,
+		Password:    req.Password,
+		ProfileName: profileName,
+		IPsecSecret: ipsecSecret,
+		Comment:     req.Comment,
+		UseIPsec:    useIPsec,
+		Disabled:    disabled,
+	}); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
 	}
 
@@ -419,7 +434,15 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 
 	useIPsecValue := req.IPsecSecret != nil && *req.IPsecSecret != ""
 
-	if err := client.UpdateL2TPClient(nameOrID, req.ConnectTo, req.User, req.Password, req.Disabled, req.IPsecSecret, &useIPsecValue); err != nil {
+	if err := client.UpdateL2TPClient(nameOrID, routeros.UpdateL2TPClientConfig{
+		ConnectTo:   req.ConnectTo,
+		User:        req.User,
+		Password:    req.Password,
+		Disabled:    req.Disabled,
+		IPsecSecret: req.IPsecSecret,
+		Comment:     req.Comment,
+		UseIPsec:    &useIPsecValue,
+	}); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update L2TP client", err)
 	}
 
