@@ -40,12 +40,13 @@ set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 {{if gt (len .WifiAPs) 0 }}
 /interface wifi
 {{ range .WifiAPs}}
-set [ find default-name={{ .DefaultName }} ] disabled=no configuration.country="United States" \
-.mode=ap .ssid="{{ .SSID }}" .installation=indoor \
-name="{{ .NameToSet }}" comment="SplitLAN" \
+set [ find default-name={{ .DefaultName }} ] disabled=no \
+configuration.mode=ap .ssid="{{ .SSID }}" .installation=indoor \
+name="{{ .NameToSet }}" channel.skip-dfs-channels=all \
 configuration.hide-ssid=no security.authentication-types=wpa2-psk,wpa3-psk \
 .passphrase="{{ .Password }}" security.ft=yes \
 .ft-over-ds=yes
+unset [ find default-name={{ .DefaultName }} ] configuration.country
 {{ end }}
 {{if and (eq .WifiSplit false) (gt (len .WifiAPs) 1) }}
 steering add comment="Steering" disabled=no \
