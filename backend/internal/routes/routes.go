@@ -116,6 +116,8 @@ func RegisterRoutes(e *echo.Echo) {
 
 	vpnGroup := e.Group("/api/vpn")
 	vpnGroup.Use(middleware.RouterOSAuth)
+	vpnGroup.GET("/active", handler.HandleListActiveVPNConnections)
+	vpnGroup.DELETE("/active/:id", handler.HandleRemovePPPActiveSession)
 	vpnGroup.GET("/clients", handler.HandleListVPNClients)
 	vpnGroup.GET("/clients/:name", handler.HandleGetVPNClient)
 	vpnGroup.PUT("/clients/:name", handler.HandleUpdateVPNClient)
