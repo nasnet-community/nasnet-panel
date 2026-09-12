@@ -33,7 +33,8 @@ type UpdateVPNClientRequest struct {
 	Comment  *string `json:"comment" example:"Updated comment"`
 }
 
-// AddL2TPClientRequest represents a request to add an L2TP client.
+// AddL2TPClientRequest represents a request to add an L2TP client. If Name
+// is empty, a random two-word lowercase name is generated for it.
 type AddL2TPClientRequest struct {
 	Name        string  `json:"name" example:"my-l2tp/client"`
 	ConnectTo   string  `json:"connectTo" example:"192.168.1.1"`
@@ -41,6 +42,7 @@ type AddL2TPClientRequest struct {
 	Password    string  `json:"password" example:"password123"`
 	Disabled    *bool   `json:"disabled" example:"false"`
 	IPsecSecret *string `json:"ipsecSecret" example:"secretpassphrase123"`
+	Comment     string  `json:"comment,omitempty" example:"Office L2TP client"`
 }
 
 // UpdateL2TPClientRequest represents a request to update an L2TP client.
@@ -52,6 +54,7 @@ type UpdateL2TPClientRequest struct {
 	Password    *string `json:"password" example:"newpassword123"`
 	Disabled    *bool   `json:"disabled" example:"true"`
 	IPsecSecret *string `json:"ipsecSecret" example:"newupdasecretpassphrase123"`
+	Comment     *string `json:"comment" example:"Office L2TP client"`
 }
 
 // L2TPClientResponse represents L2TP client details in the API response.
