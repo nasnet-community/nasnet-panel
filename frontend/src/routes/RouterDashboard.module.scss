@@ -54,13 +54,14 @@
 }
 
 .guideFooter {
-  padding-top: var(--space-lg);
-  border-top: 1px solid var(--color-border);
   text-align: center;
   font-size: var(--font-sm);
 }
 
 .guideLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
   color: var(--color-primary);
 
   &:focus-visible {

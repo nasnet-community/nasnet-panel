@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 import { Button, Tabs } from '@nasnet/ui';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
@@ -104,7 +105,8 @@ export function RouterDashboard() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Read the user guide for this section
+              <BookOpen size={16} aria-hidden />
+              Read the user guide
             </a>
           </footer>
         ) : null}
