@@ -393,7 +393,7 @@ function AppUpdateCard() {
                     </>
                   ) : (
                     <>
-                      <Download size={14} aria-hidden /> Install app
+                      <Download size={14} aria-hidden /> Update app
                     </>
                   )}
                 </Button>
@@ -654,7 +654,7 @@ function FirmwareUpdateCard() {
                     </>
                   ) : (
                     <>
-                      <Download size={14} aria-hidden /> Install firmware
+                      <Download size={14} aria-hidden /> Update firmware
                     </>
                   )}
                 </Button>
