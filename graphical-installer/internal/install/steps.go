@@ -287,6 +287,7 @@ func containerPackageURL(version, arch string) (string, string, error) {
 
 func (e *Engine) inspectContainerPackage() {
 	pkg := e.containerPackage()
+	e.containerActive = pkg.active()
 	if pkg.active() {
 		e.log("container package is installed")
 		return

@@ -126,6 +126,7 @@ type Engine struct {
 	storage   storageInfo
 
 	pkgInstalled    bool
+	containerActive bool
 	finalPort       int
 	baselineApplied bool
 }
@@ -320,7 +321,7 @@ func (e *Engine) removeContainerFiles(includeImageDir bool) {
 	if !includeImageDir {
 		return
 	}
-	if e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName) {
+	if e.containerActive && (e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName)) {
 		return
 	}
 	dir := e.storage.path(containerImagesDir)
