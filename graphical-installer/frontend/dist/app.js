@@ -169,7 +169,7 @@
       this.setAttribute('aria-label', wasHidden ? 'Hide password' : 'Show password');
     });
     $('btn-help').addEventListener('click', function () {
-      App.OpenURL('https://docs.s4i.co/hc/nasnet/fa');
+      App.OpenURL('https://www.joinnasnet.com/en/guides/nasnet-panel/');
     });
     $('btn-telegram').addEventListener('click', function () {
       App.OpenURL('https://t.me/joinNASNETGroup');
@@ -326,8 +326,10 @@
   }
 
   function onRunError(message) {
-    $('run-error').textContent = message;
-    show('run-error');
+    if (!document.querySelector('#steps li.failed')) {
+      $('run-error').textContent = message;
+      show('run-error');
+    }
     hide('btn-cancel');
     show('btn-back');
     hideModals();

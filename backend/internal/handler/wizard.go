@@ -157,12 +157,12 @@ func HandleFinalizeWizard(c echo.Context) error {
 			if iface.Type == string(routeros.InterfaceTypeWiFi) && defaultName != "" && req.WiFiAP != nil {
 				ssid := req.WiFiAP.SSID
 				if req.WiFiAP.Split {
-					ssid = fmt.Sprintf("%s_%sGHz", req.WiFiAP.SSID, getWifiBandFromRadios(wifiRadios, iface.Name))
+					ssid = fmt.Sprintf("%s-%sGHz", req.WiFiAP.SSID, getWifiBandFromRadios(wifiRadios, iface.Name))
 				}
 				wifiAPs = append(wifiAPs, WiFiAP{
 					Name:        iface.Name,
 					DefaultName: defaultName,
-					NameToSet:   fmt.Sprintf("wifi%s-SplitLAN", getWifiBandFromRadios(wifiRadios, iface.Name)),
+					NameToSet:   fmt.Sprintf("wifi-%sGhz", getWifiBandFromRadios(wifiRadios, iface.Name)),
 					SSID:        ssid,
 					Password:    req.WiFiAP.Password,
 				})
