@@ -856,7 +856,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		Env:         joinEnvPairs(resolveEnvPlaceholders(manifest.Container.Env, settingsValues)),
 		MountLists:  strings.Join(mountListNames, ","),
 		Logging:     true,
-		StartOnBoot: false,
+		StartOnBoot: true,
 		Comment:     manifest.Version,
 	})
 	if err != nil {
