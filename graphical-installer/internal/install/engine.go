@@ -48,6 +48,7 @@ const (
 	deviceModeTimeout = 120 * time.Second
 	updateTimeout     = 10 * time.Minute
 	startTimeout      = 120 * time.Second
+	stopTimeout       = 60 * time.Second
 	baselineTimeout   = 30 * time.Second
 	rebootSettle      = 15 * time.Second
 	rebootTimeout     = 5 * time.Minute
@@ -189,7 +190,7 @@ func (e *Engine) Run() error {
 		e.doRollback()
 	}
 	if err == nil {
-		e.removeContainerFiles(false)
+		e.removeContainerFiles()
 		e.finish()
 	}
 	if e.cl != nil {
@@ -311,14 +312,18 @@ func (e *Engine) removeObj(label, path, selector string) {
 	_, _ = e.cl.RunRaw(fmt.Sprintf("%s/remove [find %s]", path, selector), 15*time.Second)
 }
 
-func (e *Engine) removeContainerFiles(includeImageDir bool) {
+func (e *Engine) removeContainerFiles() {
 	if e.opts.DryRun {
 		e.log("[dry-run] would remove leftover %s-*.tar files from the router", assetPrefix)
 		return
 	}
 	e.log("removing leftover %s-*.tar files from the router", assetPrefix)
 	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\\.tar\$"]`, assetPrefix), 30*time.Second)
-	if !includeImageDir {
+}
+
+func (e *Engine) removeStaleImageDir() {
+	if e.opts.DryRun {
+		e.log("[dry-run] would remove the stale container image directory")
 		return
 	}
 	if e.containerActive && (e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName)) {
