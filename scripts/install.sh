@@ -1016,10 +1016,7 @@ remove_existing_container() {
 deploy_container() {
   log ""
   log "Configuring container ..."
-  if ros_exists /container "name=${CONTAINER_NAME}"; then
-    printf '  \033[32m✓\033[0m container %s (exists)\n' "$CONTAINER_NAME"
-    return 0
-  fi
+  remove_existing_container
   if (( DRY_RUN )); then
     printf '  + container %s (would add from %s)\n' "$CONTAINER_NAME" "$REMOTE_TAR"
     return 0
@@ -1248,7 +1245,6 @@ main() {
     return 0
   fi
 
-  remove_existing_container
   ensure_container_support
   detect_storage
 

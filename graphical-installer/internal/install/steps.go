@@ -87,10 +87,7 @@ func (e *Engine) stepCheck() error {
 	if err := e.verifyStorageWritable(st); err != nil {
 		return err
 	}
-	if err := e.removeExistingContainer(); err != nil {
-		return err
-	}
-	e.removeContainerFiles(true)
+	e.removeContainerFiles()
 
 	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.label())
 	return nil
@@ -842,11 +839,10 @@ func (e *Engine) stepNetwork() error {
 }
 
 func (e *Engine) stepContainer() error {
-	if e.exists("/container", "name="+containerName) {
-		e.note = "container " + containerName + " already exists"
-		e.removeRemoteFile(e.remoteTar)
-		return nil
+	if err := e.removeExistingContainer(); err != nil {
+		return err
 	}
+	e.removeStaleImageDir()
 	if e.opts.DryRun {
 		e.log("[dry-run] would add container %s from %s", containerName, e.remoteTar)
 		return nil
