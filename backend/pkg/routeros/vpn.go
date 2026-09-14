@@ -350,6 +350,21 @@ type PingResult struct {
 	Loss     float64
 }
 
+// PPPActiveSessionInfo represents one active (connected) PPP-based VPN
+// session, as reported by /ppp/active — this single table covers every VPN
+// type that authenticates through PPP (PPTP, L2TP, SSTP, OVPN and PPPoE),
+// distinguished by Service.
+type PPPActiveSessionInfo struct {
+	ID        string
+	Name      string
+	Service   string // async | isdn | l2tp | pppoe | pptp | ovpn | sstp
+	Address   string
+	CallerID  string
+	Uptime    string
+	Encoding  string
+	SessionID string
+}
+
 // VPN client interface types.
 const (
 	VPNTypeL2TPOut   = "l2tp-out"
@@ -870,6 +885,47 @@ func (c *Client) SetSstpServer(config SstpServerConfig) error {
 	_, err := c.Set("/interface/sstp-server/server", args...)
 	if err != nil {
 		return fmt.Errorf("failed to configure SSTP server: %w", err)
+	}
+
+	return nil
+}
+
+// GetPPPActiveSessions returns every currently active (connected) PPP-based
+// VPN session. PPTP, L2TP, SSTP, OVPN and PPPoE all authenticate through PPP
+// and share this one table, distinguished by each session's Service.
+func (c *Client) GetPPPActiveSessions() ([]PPPActiveSessionInfo, error) {
+	results, err := c.GetAll("/ppp/active")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list active PPP sessions: %w", err)
+	}
+
+	sessions := make([]PPPActiveSessionInfo, 0)
+	for _, result := range results {
+		sessions = append(sessions, PPPActiveSessionInfo{
+			ID:        result[".id"],
+			Name:      result["name"],
+			Service:   result["service"],
+			Address:   result["address"],
+			CallerID:  result["caller-id"],
+			Uptime:    utils.FormatRouterOSDuration(result["uptime"]),
+			Encoding:  result["encoding"],
+			SessionID: result["session-id"],
+		})
+	}
+
+	return sessions, nil
+}
+
+// RemovePPPActiveSession disconnects an active PPP-based VPN session (PPTP,
+// L2TP, SSTP, OVPN or PPPoE) identified by its /ppp/active .id, dropping
+// that client's connection without touching its underlying PPP secret.
+func (c *Client) RemovePPPActiveSession(id string) error {
+	if id == "" {
+		return fmt.Errorf("active session id is required")
+	}
+
+	if _, err := c.Remove("/ppp/active", "=.id="+id); err != nil {
+		return fmt.Errorf("failed to remove active PPP session %s: %w", id, err)
 	}
 
 	return nil
@@ -1637,6 +1693,26 @@ func (c *Client) GetWireGuardPeers(interfaceName string) ([]WireGuardPeerInfo, e
 			Disabled:               disabled,
 			Comment:                result["comment"],
 		})
+	}
+
+	return peers, nil
+}
+
+// ListAllWireGuardPeers returns every WireGuard peer across every WireGuard
+// interface, unlike GetWireGuardPeers which is scoped to one interface.
+func (c *Client) ListAllWireGuardPeers() ([]WireGuardPeerInfo, error) {
+	interfaces, err := c.ListWireGuards()
+	if err != nil {
+		return nil, err
+	}
+
+	peers := make([]WireGuardPeerInfo, 0)
+	for _, iface := range interfaces {
+		ifacePeers, err := c.GetWireGuardPeers(iface.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get WireGuard peers for interface %s: %w", iface.Name, err)
+		}
+		peers = append(peers, ifacePeers...)
 	}
 
 	return peers, nil

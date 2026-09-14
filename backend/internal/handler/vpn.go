@@ -179,6 +179,70 @@ func HandleListVPNClients(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "VPN clients retrieved successfully", response)
 }
 
+// HandleListActiveVPNConnections lists every currently active VPN connection
+// @Summary List Active VPN Connections
+// @Description Returns every currently active (connected) VPN connection across all VPN
+// @Description types: PPP-based sessions (PPTP, L2TP, SSTP, OVPN, PPPoE) from /ppp/active,
+// @Description and WireGuard peers that have completed at least one handshake.
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=ActiveVPNConnectionsResponse}
+// @Failure 500 {object} Response
+// @Router /api/vpn/active [get].
+func HandleListActiveVPNConnections(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	sessions, err := client.GetPPPActiveSessions()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve active PPP sessions", err)
+	}
+
+	peers, err := client.ListAllWireGuardPeers()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve WireGuard peers", err)
+	}
+
+	response := ToActiveVPNConnectionsResponse(sessions, peers)
+
+	return SuccessResponse(c, http.StatusOK, "Active VPN connections retrieved successfully", response)
+}
+
+// HandleRemovePPPActiveSession disconnects an active PPP-based VPN session
+// @Summary Remove Active VPN Connection
+// @Description Disconnects an active PPP-based VPN session (PPTP, L2TP, SSTP, OVPN or PPPoE),
+// @Description identified by its /ppp/active id, without touching its underlying PPP secret.
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param id path string true "Active PPP session id"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/active/{id} [delete].
+func HandleRemovePPPActiveSession(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "active session id is required", nil)
+	}
+
+	if err := client.RemovePPPActiveSession(id); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove active PPP session", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Active VPN connection removed successfully", nil)
+}
+
 // HandleGetVPNClient gets a specific VPN client by name or ID
 // @Summary Get VPN Client
 // @Description Get details of a specific VPN client interface
