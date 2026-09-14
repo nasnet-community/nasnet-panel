@@ -64,6 +64,7 @@
 /ppp secret remove [find]
 /interface ovpn-server server remove [find]
 /interface wifi steering remove [find]
+/interface sstp-server server set disabled=yes certificate=none port=443
 
 :foreach i in=[/ip/nat-pmp/interfaces find] do={
   :local interface [/ip/nat-pmp/interfaces get $i interface]
