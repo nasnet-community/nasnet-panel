@@ -66,6 +66,32 @@ type L2TPClientInfo struct {
 	RemoteIPv6Address string
 }
 
+// AddL2TPClientConfig represents the parameters for adding a new L2TP client.
+type AddL2TPClientConfig struct {
+	Name        string
+	ConnectTo   string
+	User        string
+	Password    string
+	ProfileName string
+	IPsecSecret string
+	Comment     string
+	UseIPsec    bool
+	Disabled    bool
+}
+
+// UpdateL2TPClientConfig represents every field that can be changed on an
+// existing L2TP client via UpdateL2TPClient. Only non-nil fields are
+// applied; everything else on the client is left as it was.
+type UpdateL2TPClientConfig struct {
+	ConnectTo   *string
+	User        *string
+	Password    *string
+	Disabled    *bool
+	IPsecSecret *string
+	Comment     *string
+	UseIPsec    *bool
+}
+
 // OvpnServerInfo represents an OpenVPN server configuration.
 type OvpnServerInfo struct {
 	ID                string
@@ -348,6 +374,21 @@ type PingResult struct {
 	Sent     int
 	Received int
 	Loss     float64
+}
+
+// PPPActiveSessionInfo represents one active (connected) PPP-based VPN
+// session, as reported by /ppp/active — this single table covers every VPN
+// type that authenticates through PPP (PPTP, L2TP, SSTP, OVPN and PPPoE),
+// distinguished by Service.
+type PPPActiveSessionInfo struct {
+	ID        string
+	Name      string
+	Service   string // async | isdn | l2tp | pppoe | pptp | ovpn | sstp
+	Address   string
+	CallerID  string
+	Uptime    string
+	Encoding  string
+	SessionID string
 }
 
 // VPN client interface types.
@@ -875,6 +916,47 @@ func (c *Client) SetSstpServer(config SstpServerConfig) error {
 	return nil
 }
 
+// GetPPPActiveSessions returns every currently active (connected) PPP-based
+// VPN session. PPTP, L2TP, SSTP, OVPN and PPPoE all authenticate through PPP
+// and share this one table, distinguished by each session's Service.
+func (c *Client) GetPPPActiveSessions() ([]PPPActiveSessionInfo, error) {
+	results, err := c.GetAll("/ppp/active")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list active PPP sessions: %w", err)
+	}
+
+	sessions := make([]PPPActiveSessionInfo, 0)
+	for _, result := range results {
+		sessions = append(sessions, PPPActiveSessionInfo{
+			ID:        result[".id"],
+			Name:      result["name"],
+			Service:   result["service"],
+			Address:   result["address"],
+			CallerID:  result["caller-id"],
+			Uptime:    utils.FormatRouterOSDuration(result["uptime"]),
+			Encoding:  result["encoding"],
+			SessionID: result["session-id"],
+		})
+	}
+
+	return sessions, nil
+}
+
+// RemovePPPActiveSession disconnects an active PPP-based VPN session (PPTP,
+// L2TP, SSTP, OVPN or PPPoE) identified by its /ppp/active .id, dropping
+// that client's connection without touching its underlying PPP secret.
+func (c *Client) RemovePPPActiveSession(id string) error {
+	if id == "" {
+		return fmt.Errorf("active session id is required")
+	}
+
+	if _, err := c.Remove("/ppp/active", "=.id="+id); err != nil {
+		return fmt.Errorf("failed to remove active PPP session %s: %w", id, err)
+	}
+
+	return nil
+}
+
 // ListWireGuards returns all WireGuard interfaces.
 func (c *Client) ListWireGuards() ([]WireGuardInfo, error) {
 	results, err := c.GetAll("/interface/wireguard")
@@ -1320,32 +1402,35 @@ func (c *Client) CreateVPNProfile(profileName string) error {
 	return nil
 }
 
-// AddL2TPClient adds a new L2TP client with the given parameters.
-func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ipsecSecret string, useIPsec, disabled bool) error {
+// AddL2TPClient adds a new L2TP client with the given configuration.
+func (c *Client) AddL2TPClient(config AddL2TPClientConfig) error {
 	args := []string{
-		"=name=" + name,
-		"=connect-to=" + connectTo,
-		"=user=" + user,
-		"=password=" + password,
-		"=profile=" + profileName,
-		"=use-ipsec=" + utils.ToYesNo(useIPsec),
-		"=disabled=" + utils.ToYesNo(disabled),
+		"=name=" + config.Name,
+		"=connect-to=" + config.ConnectTo,
+		"=user=" + config.User,
+		"=password=" + config.Password,
+		"=profile=" + config.ProfileName,
+		"=use-ipsec=" + utils.ToYesNo(config.UseIPsec),
+		"=disabled=" + utils.ToYesNo(config.Disabled),
 	}
 
-	if useIPsec && ipsecSecret != "" {
-		args = append(args, "=ipsec-secret="+ipsecSecret)
+	if config.UseIPsec && config.IPsecSecret != "" {
+		args = append(args, "=ipsec-secret="+config.IPsecSecret)
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	_, err := c.Add("/interface/l2tp-client", args...)
 	if err != nil {
-		return fmt.Errorf("failed to add L2TP client %s: %w", name, err)
+		return fmt.Errorf("failed to add L2TP client %s: %w", config.Name, err)
 	}
 
 	return nil
 }
 
 // UpdateL2TPClient updates L2TP client settings.
-func (c *Client) UpdateL2TPClient(nameOrID string, connectTo, user, password *string, disabled *bool, ipsecSecret *string, useIPsec *bool) error {
+func (c *Client) UpdateL2TPClient(nameOrID string, config UpdateL2TPClientConfig) error {
 	// Get the L2TP client to find its ID
 	vpnClient, err := c.GetVPNClient(nameOrID)
 	if err != nil {
@@ -1354,28 +1439,32 @@ func (c *Client) UpdateL2TPClient(nameOrID string, connectTo, user, password *st
 
 	args := []string{"=.id=" + vpnClient.ID}
 
-	if connectTo != nil && *connectTo != "" {
-		args = append(args, "=connect-to="+*connectTo)
+	if config.ConnectTo != nil && *config.ConnectTo != "" {
+		args = append(args, "=connect-to="+*config.ConnectTo)
 	}
 
-	if user != nil && *user != "" {
-		args = append(args, "=user="+*user)
+	if config.User != nil && *config.User != "" {
+		args = append(args, "=user="+*config.User)
 	}
 
-	if password != nil && *password != "" {
-		args = append(args, "=password="+*password)
+	if config.Password != nil && *config.Password != "" {
+		args = append(args, "=password="+*config.Password)
 	}
 
-	if disabled != nil {
-		args = append(args, "=disabled="+utils.ToYesNo(*disabled))
+	if config.Disabled != nil {
+		args = append(args, "=disabled="+utils.ToYesNo(*config.Disabled))
 	}
 
-	if useIPsec != nil {
-		args = append(args, "=use-ipsec="+utils.ToYesNo(*useIPsec))
+	if config.UseIPsec != nil {
+		args = append(args, "=use-ipsec="+utils.ToYesNo(*config.UseIPsec))
 	}
 
-	if ipsecSecret != nil && *ipsecSecret != "" {
-		args = append(args, "=ipsec-secret="+*ipsecSecret)
+	if config.IPsecSecret != nil && *config.IPsecSecret != "" {
+		args = append(args, "=ipsec-secret="+*config.IPsecSecret)
+	}
+
+	if config.Comment != nil {
+		args = append(args, "=comment="+*config.Comment)
 	}
 
 	// If only the ID is provided, nothing to update
@@ -1637,6 +1726,26 @@ func (c *Client) GetWireGuardPeers(interfaceName string) ([]WireGuardPeerInfo, e
 			Disabled:               disabled,
 			Comment:                result["comment"],
 		})
+	}
+
+	return peers, nil
+}
+
+// ListAllWireGuardPeers returns every WireGuard peer across every WireGuard
+// interface, unlike GetWireGuardPeers which is scoped to one interface.
+func (c *Client) ListAllWireGuardPeers() ([]WireGuardPeerInfo, error) {
+	interfaces, err := c.ListWireGuards()
+	if err != nil {
+		return nil, err
+	}
+
+	peers := make([]WireGuardPeerInfo, 0)
+	for _, iface := range interfaces {
+		ifacePeers, err := c.GetWireGuardPeers(iface.Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get WireGuard peers for interface %s: %w", iface.Name, err)
+		}
+		peers = append(peers, ifacePeers...)
 	}
 
 	return peers, nil
