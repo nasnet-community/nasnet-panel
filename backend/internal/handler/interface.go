@@ -49,6 +49,45 @@ func HandleGetEthernetInterface(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Ethernet interface retrieved successfully", response)
 }
 
+// HandleTestEthernetCable runs a cable test against an ethernet interface.
+// @Summary Test ethernet cable
+// @Description Run /interface/ethernet/cable-test against an ethernet interface. RouterOS
+// @Description blocks for the duration of the test (a few seconds), so this request blocks
+// @Description accordingly. The response's cablePairs field is only present when status is
+// @Description "no-link".
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Interface name or ID"
+// @Produce json
+// @Success 200 {object} Response{data=CableTestResponse}
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/interface/ethernet/cable-test/{nameOrID} [post].
+func HandleTestEthernetCable(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	result, err := client.TestEthernetCable(nameOrID)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to test ethernet cable", err)
+	}
+
+	response := toCableTestResponse(result)
+	return SuccessResponse(c, http.StatusOK, "Cable test completed", response)
+}
+
 // HandleGetEthernetInterfaces retrieves all ethernet interfaces with detailed information including monitor data.
 // @Summary Get all ethernet interfaces
 // @Description Get detailed information for all ethernet interfaces including monitor data (link status, speed, etc.)

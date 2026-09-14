@@ -151,6 +151,16 @@ type EthernetMonitor struct {
 	LinkPartnerAdv  []string
 }
 
+// CableTestResult represents the result of /interface/ethernet/cable-test.
+// CablePairs is only present when Status is "no-link", listing each pair's
+// detected fault (e.g. "open:1,open:1,open:0,open:0") and the distance in
+// meters to the fault where RouterOS can determine one.
+type CableTestResult struct {
+	Name       string
+	Status     string
+	CablePairs string
+}
+
 // EthernetInfo represents detailed information about an ethernet interface from /interface/ethernet and monitor.
 type EthernetInfo struct {
 	ID                      string
@@ -948,9 +958,10 @@ func (c *Client) RemoveInterfaceList(id string) error {
 	return nil
 }
 
-// GetEthernetInterfaceDetailed retrieves detailed information for a single ethernet interface from /interface/ethernet and monitor.
-// Supports lookup by interface name or by ID (IDs start with "*").
-func (c *Client) GetEthernetInterfaceDetailed(nameOrID string) (*EthernetInfo, error) {
+// GetEthernetInterface returns a single ethernet interface from
+// /interface/ethernet, without monitor data (see GetEthernetInterfaceDetailed
+// for that). Supports lookup by interface name or by ID (IDs start with "*").
+func (c *Client) GetEthernetInterface(nameOrID string) (*EthernetInfo, error) {
 	if nameOrID == "" {
 		return nil, fmt.Errorf("interface name or ID is required")
 	}
@@ -969,12 +980,23 @@ func (c *Client) GetEthernetInterfaceDetailed(nameOrID string) (*EthernetInfo, e
 	}
 
 	ethInfo := parseEthernetInfo(result)
+	return &ethInfo, nil
+}
+
+// GetEthernetInterfaceDetailed retrieves detailed information for a single ethernet interface from /interface/ethernet and monitor.
+// Supports lookup by interface name or by ID (IDs start with "*").
+func (c *Client) GetEthernetInterfaceDetailed(nameOrID string) (*EthernetInfo, error) {
+	ethInfo, err := c.GetEthernetInterface(nameOrID)
+	if err != nil {
+		return nil, err
+	}
+
 	monitor, err := c.GetEthernetMonitor(ethInfo.Name)
 	if err == nil && monitor != nil {
 		ethInfo.Monitor = monitor
 	}
 
-	return &ethInfo, nil
+	return ethInfo, nil
 }
 
 // GetEthernetInterfacesDetailed retrieves detailed information for all ethernet interfaces from /interface/ethernet and monitor.
@@ -1013,6 +1035,40 @@ func (c *Client) GetEthernetMonitor(interfaceName string) (*EthernetMonitor, err
 	}
 
 	return parseEthernetMonitor(reply.Re[0].Map), nil
+}
+
+// TestEthernetCable runs /interface/ethernet/cable-test against nameOrID and
+// returns its result. RouterOS blocks for the duration of the test (a few
+// seconds), so this call blocks accordingly.
+func (c *Client) TestEthernetCable(nameOrID string) (*CableTestResult, error) {
+	if nameOrID == "" {
+		return nil, fmt.Errorf("interface name or ID is required")
+	}
+
+	id := nameOrID
+	if !strings.HasPrefix(nameOrID, "*") {
+		iface, err := c.GetEthernetInterface(nameOrID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to find ethernet interface %s: %w", nameOrID, err)
+		}
+		id = iface.ID
+	}
+
+	reply, err := c.Execute("/interface/ethernet/cable-test", "=.id="+id, "=once=yes")
+	if err != nil {
+		return nil, fmt.Errorf("failed to test cable for interface %s: %w", nameOrID, err)
+	}
+
+	if len(reply.Re) == 0 {
+		return nil, fmt.Errorf("no cable test result returned for interface %s", nameOrID)
+	}
+
+	result := reply.Re[0].Map
+	return &CableTestResult{
+		Name:       result["name"],
+		Status:     result["status"],
+		CablePairs: result["cable-pairs"],
+	}, nil
 }
 
 func parseEthernetMonitor(result map[string]string) *EthernetMonitor {
