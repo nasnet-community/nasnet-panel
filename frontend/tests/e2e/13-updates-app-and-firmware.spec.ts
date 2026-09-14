@@ -77,7 +77,7 @@ test.describe('Updates page', () => {
     await expect(page.getByTestId('app-current-version')).toHaveText('v1.0.0');
     await expect(page.getByTestId('app-latest-version')).toHaveText('v1.1.0');
 
-    await page.getByRole('button', { name: /install app/i }).click();
+    await page.getByRole('button', { name: /update app/i }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('button', { name: /^confirm$/i }).click();
     await expect(page.getByText(/update complete/i)).toBeVisible();
@@ -161,7 +161,7 @@ test.describe('Updates page', () => {
 
     await page.goto('/updates');
 
-    await page.getByRole('button', { name: /install firmware/i }).click();
+    await page.getByRole('button', { name: /update firmware/i }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('button', { name: /^confirm$/i }).click();
     await expect(page.getByText(/firmware update started/i)).toBeVisible();
