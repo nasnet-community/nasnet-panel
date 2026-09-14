@@ -116,6 +116,26 @@ func startSstpCleanupIfNeeded() {
 	go cleanupSstpServerTasks()
 }
 
+// sstpServerTaskActive reports whether an SSTP server creation task is
+// currently running. HandleDeleteSstpServer checks this before disabling so
+// it can't race a concurrent HandleCreateSstpServer task: without it, a
+// creation task's own SetSstpServer call could re-enable SSTP (and restore
+// its firewall rule) after DELETE had already disabled it.
+func sstpServerTaskActive() bool {
+	sstpServerPool.mu.RLock()
+	defer sstpServerPool.mu.RUnlock()
+
+	for _, task := range sstpServerPool.activeTasks {
+		task.mu.RLock()
+		running := task.Status == "running"
+		task.mu.RUnlock()
+		if running {
+			return true
+		}
+	}
+	return false
+}
+
 func cleanupSstpServerTasks() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -926,6 +946,51 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "SSTP server details retrieved successfully", response)
 }
 
+// wireGuardNameGenerationAttempts bounds how many random candidates
+// generateUniqueWireGuardInterfaceName tries before giving up.
+const wireGuardNameGenerationAttempts = 10
+
+// generateUniqueWireGuardInterfaceName generates a random two-word lowercase
+// name with suffix appended (e.g. "-wg-client", "-server"), retrying against
+// existing WireGuard interfaces until a non-colliding one is found or
+// wireGuardNameGenerationAttempts is exhausted. A lookup failure other than
+// "not found" (transport, timeout, authentication) aborts immediately rather
+// than being treated as "name available".
+func generateUniqueWireGuardInterfaceName(client *routeros.Client, suffix string) (string, error) {
+	for i := 0; i < wireGuardNameGenerationAttempts; i++ {
+		candidate := utils.GenerateName(2, "-", utils.LowerCase) + suffix
+		exists, err := wireGuardInterfaceExists(client, candidate)
+		if err != nil {
+			return "", err
+		}
+		if !exists {
+			return candidate, nil
+		}
+	}
+	return "", fmt.Errorf("failed to generate a unique WireGuard interface name after %d attempts", wireGuardNameGenerationAttempts)
+}
+
+// isWireGuardNotFound reports whether err is the "no results found" signal
+// GetWireGuard returns when no interface matches, as opposed to a transport,
+// timeout, or authentication failure.
+func isWireGuardNotFound(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "no results found")
+}
+
+// wireGuardInterfaceExists reports whether a WireGuard interface named name
+// already exists. A non-nil error means the lookup itself failed and
+// existence could not be determined.
+func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error) {
+	_, err := client.GetWireGuard(name)
+	if err == nil {
+		return true, nil
+	}
+	if isWireGuardNotFound(err) {
+		return false, nil
+	}
+	return false, err
+}
+
 // HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
 // @Description Create a new WireGuard client interface with the specified configuration
@@ -963,9 +1028,17 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	if req.PersistentKeepalive != nil && *req.PersistentKeepalive <= 0 {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
-	interfaceName := req.Name
-	if !strings.HasSuffix(interfaceName, "-wg-client") {
-		interfaceName += "-wg-client"
+	var interfaceName string
+	if req.Name != "" {
+		interfaceName = req.Name
+		if !strings.HasSuffix(interfaceName, "-wg-client") {
+			interfaceName += "-wg-client"
+		}
+	} else {
+		interfaceName, err = generateUniqueWireGuardInterfaceName(client, "-wg-client")
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
+		}
 	}
 
 	peerCount, err := client.CountWireGuardPeers(interfaceName)
@@ -1140,9 +1213,17 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		}
 	}
 
-	interfaceName := req.Name
-	if !strings.HasSuffix(interfaceName, "-server") {
-		interfaceName += "-server"
+	var interfaceName string
+	if req.Name != "" {
+		interfaceName = req.Name
+		if !strings.HasSuffix(interfaceName, "-server") {
+			interfaceName += "-server"
+		}
+	} else {
+		interfaceName, err = generateUniqueWireGuardInterfaceName(client, "-server")
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard server interface", err)
+		}
 	}
 
 	config := routeros.WireGuardClientConfig{
@@ -2205,20 +2286,6 @@ func LaunchOpenVpnServerCreation(client *routeros.Client, req CreateOvpnServerRe
 	return taskID
 }
 
-// GetOpenVpnServerTaskStatus retrieves the status of an OpenVPN server creation task.
-// Returns nil if the task is not found.
-func GetOpenVpnServerTaskStatus(taskID string) *OvpnServerTask {
-	ovpnServerPool.mu.RLock()
-	task, exists := ovpnServerPool.activeTasks[taskID]
-	ovpnServerPool.mu.RUnlock()
-
-	if !exists {
-		return nil
-	}
-
-	return task
-}
-
 // HandleCreateOvpnServer creates an OpenVPN server asynchronously with multiple users.
 // @Summary Create OpenVPN Server
 // @Description Start an asynchronous OpenVPN server creation task with an array of users
@@ -2630,7 +2697,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 // LaunchSstpServerCreation launches an async SSTP server configuration task and
 // returns the task ID. This is used internally by handlers to configure the
 // SSTP server asynchronously.
-func LaunchSstpServerCreation(client *routeros.Client, req CreateSstpServerRequest) string {
+func LaunchSstpServerCreation(client *routeros.Client) string {
 	startSstpCleanupIfNeeded()
 
 	taskID := fmt.Sprintf("%d", time.Now().Unix())
@@ -2645,46 +2712,27 @@ func LaunchSstpServerCreation(client *routeros.Client, req CreateSstpServerReque
 	sstpServerPool.activeTasks[taskID] = task
 	sstpServerPool.mu.Unlock()
 
-	go processSstpServerTask(client, task, req)
+	go processSstpServerTask(client, task)
 
 	return taskID
 }
 
-// GetSstpServerTaskStatus retrieves the status of an SSTP server creation task.
-// Returns nil if the task is not found.
-func GetSstpServerTaskStatus(taskID string) *SstpServerTask {
-	sstpServerPool.mu.RLock()
-	task, exists := sstpServerPool.activeTasks[taskID]
-	sstpServerPool.mu.RUnlock()
-
-	if !exists {
-		return nil
-	}
-
-	return task
-}
-
-// HandleCreateSstpServer creates (or disables) the SSTP server asynchronously.
+// HandleCreateSstpServer enables the SSTP server asynchronously.
 // @Summary Create SSTP Server
-// @Description Start an asynchronous SSTP server configuration task. When enabled is true, a CA
-// @Description and server certificate are created (the same way as for OpenVPN server creation),
-// @Description the SSTP server is enabled on port 4433 with the default profile, authentication
-// @Description pap/chap/mschap1/mschap2, verify-client-certificate disabled, and ciphers
-// @Description aes256-sha/aes256-gcm-sha384, and a firewall rule is added accepting TCP port 4433
-// @Description from the "Domestic-WAN" interface list. When enabled is false, the SSTP server
-// @Description is disabled and every firewall rule added for it is removed. If a certificate
-// @Description named starting with "sstp-server-" already exists (left over from an earlier
-// @Description enable), it's reused as-is instead of creating a new CA/server certificate pair.
-// @Description Rejects the request outright, before starting the task, if enabled is true and
-// @Description the SSTP server is already enabled.
+// @Description Start an asynchronous SSTP server enable task: a CA and server certificate are
+// @Description created (the same way as for OpenVPN server creation), the SSTP server is enabled
+// @Description on port 4433 with the default profile, authentication pap/chap/mschap1/mschap2,
+// @Description verify-client-certificate disabled, and ciphers aes256-sha/aes256-gcm-sha384, and a
+// @Description firewall rule is added accepting TCP port 4433 from the "Domestic-WAN" interface
+// @Description list. If a certificate named starting with "sstp-server-" already exists (left
+// @Description over from an earlier enable), it's reused as-is instead of creating a new CA/server
+// @Description certificate pair. Rejects the request outright, before starting the task, if the
+// @Description SSTP server is already enabled. Takes no request body.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param request body CreateSstpServerRequest true "SSTP server enable/disable request"
-// @Accept json
 // @Produce json
 // @Success 200 {object} Response
-// @Failure 400 {object} Response
 // @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/sstp/server [post].
@@ -2694,20 +2742,15 @@ func HandleCreateSstpServer(c echo.Context) error {
 		return err
 	}
 
-	var req CreateSstpServerRequest
-	if err := c.Bind(&req); err != nil {
-		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
-	}
-
 	currentStatus, err := client.GetSstpServer()
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check current SSTP server status", err)
 	}
-	if req.Enabled && currentStatus.Enabled {
+	if currentStatus.Enabled {
 		return ErrorResponse(c, http.StatusConflict, "SSTP server is already enabled", nil)
 	}
 
-	taskID := LaunchSstpServerCreation(client, req)
+	taskID := LaunchSstpServerCreation(client)
 
 	return SuccessResponse(c, http.StatusOK, "SSTP server configuration task started", map[string]interface{}{
 		"taskId": taskID,
@@ -2764,7 +2807,82 @@ func HandleGetSstpServerTaskStatus(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Task status retrieved", data)
 }
 
-func processSstpServerTask(client *routeros.Client, task *SstpServerTask, req CreateSstpServerRequest) {
+// HandleDeleteSstpServer disables the SSTP server and optionally removes its certificate.
+// @Summary Delete SSTP Server
+// @Description Disables RouterOS's SSTP server. If deleteCertificateFiles is true, also
+// @Description removes its certificate from the system and deletes the certificate's files
+// @Description from storage. Rejected while an SSTP server creation task is still running, so
+// @Description that task can't re-enable SSTP after this call disables it.
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param deleteCertificateFiles query boolean false "Also delete the certificate and its files (default: false)"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp/server [delete].
+func HandleDeleteSstpServer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if sstpServerTaskActive() {
+		return ErrorResponse(c, http.StatusConflict, "An SSTP server creation task is still in progress", nil)
+	}
+
+	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
+
+	sstpServer, err := client.GetSstpServer()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check current SSTP server status", err)
+	}
+
+	if err := client.DisableSstpServer(deleteCertFiles); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to disable SSTP server", err)
+	}
+
+	deleteErrors := []string{}
+
+	removedRules, err := removeSstpFirewallRules(client)
+	if err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP firewall rules: %v", err))
+	}
+
+	// Certificate/certificate-file removal failures aren't reported: the SSTP
+	// server is already disabled either way, and a leftover certificate or
+	// file is harmless, just logged for visibility.
+	if deleteCertFiles && sstpServer.Certificate != "" && sstpServer.Certificate != "none" {
+		certNames := []string{sstpServer.Certificate}
+		if caName := sstpCACertificateName(sstpServer.Certificate); caName != "" {
+			certNames = append(certNames, caName)
+		}
+		for _, certName := range certNames {
+			if err := client.RemoveCertificate(certName); err != nil {
+				c.Logger().Errorf("Failed to delete certificate %s: %v", certName, err)
+			}
+			if err := client.RemoveCertificateFiles(certName); err != nil {
+				c.Logger().Errorf("Failed to delete certificate files for %s: %v", certName, err)
+			}
+		}
+	}
+
+	if len(deleteErrors) > 0 {
+		return SuccessResponse(c, http.StatusOK, "SSTP server disabled with some errors", map[string]interface{}{
+			"disabled":             true,
+			"removedFirewallRules": removedRules,
+			"warnings":             deleteErrors,
+		})
+	}
+
+	return SuccessResponse(c, http.StatusOK, "SSTP server disabled successfully", map[string]interface{}{
+		"disabled":             true,
+		"removedFirewallRules": removedRules,
+	})
+}
+
+func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 	defer func() {
 		if r := recover(); r != nil {
 			task.mu.Lock()
@@ -2792,29 +2910,6 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask, req Cr
 		task.Progress = 0
 		task.CompletedTime = time.Now()
 		task.mu.Unlock()
-	}
-
-	if !req.Enabled {
-		updateTask(30, "Disabling SSTP server")
-		if err := client.SetSstpServer(routeros.SstpServerConfig{Enabled: false}); err != nil {
-			setError("Failed to disable SSTP server: "+err.Error(), []string{})
-			return
-		}
-
-		updateTask(70, "Removing SSTP firewall rules")
-		removedRules, err := removeSstpFirewallRules(client)
-		if err != nil {
-			setError("Failed to remove SSTP firewall rules: "+err.Error(), []string{})
-			return
-		}
-
-		task.mu.Lock()
-		task.Status = "completed"
-		task.Progress = 100
-		task.CompletedTime = time.Now()
-		task.Result = map[string]interface{}{"enabled": false, "removedFirewallRules": removedRules}
-		task.mu.Unlock()
-		return
 	}
 
 	updateTask(5, "Checking for an existing SSTP server certificate")
@@ -2885,6 +2980,16 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask, req Cr
 		updateTask(60, "Signing Server certificate")
 		if err := client.SignCertificate(serverName, caName); err != nil {
 			setError("Failed to sign Server certificate: "+err.Error(), []string{caName, serverName})
+			return
+		}
+
+		updateTask(65, "Exporting certificates")
+		if err := client.ExportCertificate(caName, ""); err != nil {
+			setError("Failed to export CA certificate: "+err.Error(), []string{caName, serverName})
+			return
+		}
+		if err := client.ExportCertificate(serverName, ""); err != nil {
+			setError("Failed to export Server certificate: "+err.Error(), []string{caName, serverName})
 			return
 		}
 	}
@@ -2960,6 +3065,21 @@ func findExistingSstpServerCertificate(client *routeros.Client) (string, error) 
 		}
 	}
 	return "", nil
+}
+
+// sstpCACertificateName derives the CA certificate name paired with an SSTP
+// server certificate at creation time (see processSstpServerTask), e.g.
+// "sstp-server-1700000000" -> "sstp-ca-1700000000". Returns "" if
+// serverCertName doesn't match the expected "sstp-server-<timestamp>" naming.
+func sstpCACertificateName(serverCertName string) string {
+	timestamp, ok := strings.CutPrefix(serverCertName, "sstp-server-")
+	if !ok {
+		return ""
+	}
+	if _, err := strconv.Atoi(timestamp); err != nil {
+		return ""
+	}
+	return "sstp-ca-" + timestamp
 }
 
 // removeSstpFirewallRules removes every /ip/firewall/filter input-chain rule

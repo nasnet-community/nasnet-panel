@@ -916,6 +916,24 @@ func (c *Client) SetSstpServer(config SstpServerConfig) error {
 	return nil
 }
 
+// DisableSstpServer disables RouterOS's SSTP server. If unsetCertificate is
+// true, its certificate is also reset to "none"; every other setting (port,
+// profile, authentication, ciphers, verify-client-certificate) is left as it
+// was.
+func (c *Client) DisableSstpServer(unsetCertificate bool) error {
+	args := []string{"=enabled=no"}
+	if unsetCertificate {
+		args = append(args, "=certificate=none")
+	}
+
+	_, err := c.Set("/interface/sstp-server/server", args...)
+	if err != nil {
+		return fmt.Errorf("failed to disable SSTP server: %w", err)
+	}
+
+	return nil
+}
+
 // GetPPPActiveSessions returns every currently active (connected) PPP-based
 // VPN session. PPTP, L2TP, SSTP, OVPN and PPPoE all authenticate through PPP
 // and share this one table, distinguished by each session's Service.
