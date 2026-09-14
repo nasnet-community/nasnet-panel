@@ -129,6 +129,8 @@ export {
   pluginViewUrl,
   installPlugin,
   fetchPluginInstallStatus,
+  updatePlugin,
+  fetchPluginUpdateStatus,
   uninstallPlugin,
   type PluginCredentials,
   type PluginInfoResponse,
@@ -137,6 +139,9 @@ export {
   type PluginInstallPhase,
   type InstallPluginResponse,
   type PluginInstallStatusResponse,
+  type PluginUpdatePhase,
+  type UpdatePluginResponse,
+  type PluginUpdateStatusResponse,
   type UninstallPluginResponse,
 } from './plugins';
 export {
