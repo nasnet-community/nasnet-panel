@@ -197,6 +197,25 @@ type EthernetResponse struct {
 	MonitorLinkPartnerAdv   []string `json:"linkPartnerAdvertising,omitempty"`
 }
 
+// CableTestResponse represents the result of an ethernet cable test.
+// CablePairs is only present when Status is "no-link".
+type CableTestResponse struct {
+	Name       string `json:"name"`
+	Status     string `json:"status"`
+	CablePairs string `json:"cablePairs,omitempty"`
+}
+
+func toCableTestResponse(result *routeros.CableTestResult) *CableTestResponse {
+	if result == nil {
+		return nil
+	}
+	return &CableTestResponse{
+		Name:       result.Name,
+		Status:     result.Status,
+		CablePairs: result.CablePairs,
+	}
+}
+
 func toEthernetResponse(iface *routeros.EthernetInfo) *EthernetResponse {
 	if iface == nil {
 		return nil
