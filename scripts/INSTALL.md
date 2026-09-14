@@ -89,7 +89,7 @@ SSHPASS=secret bash install.sh --config router.env
 
 ### The baseline LAN
 
-As its final step, the script moves the router's LAN onto the same bridge the setup wizard uses (`LANBridgeSplit`, `192.168.10.1/24`, with DHCP for `192.168.10.2-254`). This keeps you connected while the wizard later reconfigures the router: the wizard preserves this bridge, so your connection to the panel survives the process. The change runs as a detached RouterOS job, so it completes even though it briefly interrupts your session. Interfaces acting as WAN uplinks (DHCP client or PPPoE) are left out of the bridge. On a device in AP/bridge mode (all ports on one uplink bridge) the bridge is created but has no member ports, so the panel remains at the router's current address until the wizard runs.
+As its final step, the script prepares the router for the panel and moves the default LAN to `192.168.10.1/24`. It keeps your existing LAN bridge and its ports, adds `192.168.10.1/24` to that bridge, and switches its DHCP server to hand out `192.168.10.2-254`. The old `192.168.88.1` address stays on the bridge for clients that have not renewed yet. It also enables NTP, sets fallback DNS servers when the router has none, and adds the container DNS and container-to-router firewall rules. The change runs as a detached RouterOS job, so it completes even though it briefly interrupts your session. The LAN move needs the default `192.168.88.1/24` LAN with one DHCP server and no static leases; a router that already has `192.168.10.1/24` keeps its LAN as it is.
 
 The RouterOS commands live in `scripts/nasnet-lan-baseline.rsc`. The script uploads the copy sitting next to `install.sh`; if you downloaded `install.sh` on its own, the file is fetched from the repository automatically.
 
@@ -107,7 +107,7 @@ To remove the panel later:
 bash install.sh --uninstall --config router.env
 ```
 
-This removes the container, its networking, the installer firewall rules, and the uploaded files. It does not restore your original LAN: the baseline bridge (`LANBridgeSplit`, `192.168.10.1/24`) and its DHCP server stay in place, since that is now the router's LAN.
+This removes the container, its networking, the installer firewall rules, and the uploaded files. It does not restore your original LAN: `192.168.10.1/24` and its DHCP pool stay on your LAN bridge, since that is now the router's LAN.
 
 ## Route 2: Manual installation via Winbox or terminal
 

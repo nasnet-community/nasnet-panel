@@ -76,7 +76,7 @@ Usage: install.sh [options]
   --storage <name>     Router storage for the container (disk slot name, or "internal").
   --lan-port <port>    LAN port for dstnat to panel HTTP (default: 8080).
   --https-lan-port <port>  LAN port for dstnat to panel HTTPS (default: 8443).
-  --no-lan-baseline    Skip the baseline LAN setup (LANBridgeSplit, 192.168.10.0/24).
+  --no-lan-baseline    Skip the baseline LAN setup (192.168.10.1/24 on the existing LAN bridge).
   --no-rollback        Do not undo partial state on failure.
   -v, --verbose        Verbose output.
   -h, --help           This help.
@@ -1192,8 +1192,11 @@ uninstall_path() {
   ros_remove "nat ${COMMENT_TAG}-srcnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat-https" /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat-https\""
+  ros_remove "nat ${COMMENT_TAG}-container-dns-tcp" /ip/firewall/nat "comment=\"${COMMENT_TAG}-container-dns-tcp\""
+  ros_remove "nat ${COMMENT_TAG}-container-dns-udp" /ip/firewall/nat "comment=\"${COMMENT_TAG}-container-dns-udp\""
   ros_remove "filter forward"                  /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward\""
   ros_remove "filter forward-https"            /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
+  ros_remove "filter nasnet-panel-baseline-container-router" /ip/firewall/filter "comment=\"nasnet-panel-baseline-container-router\""
   ros_remove "bridge port ${VETH_NAME}"   /interface/bridge/port "interface=${VETH_NAME}"
   ros_remove "bridge port ${LEGACY_VETH_NAME}" /interface/bridge/port "interface=${LEGACY_VETH_NAME}"
   ros_remove "ip ${BRIDGE_IP_CIDR}"       /ip/address          "address=\"${BRIDGE_IP_CIDR}\""
