@@ -963,7 +963,12 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	if req.PersistentKeepalive != nil && *req.PersistentKeepalive <= 0 {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
-	interfaceName := req.Name
+	name := req.Name
+	if name == "" {
+		name = utils.GenerateName(2, "-", utils.LowerCase)
+	}
+
+	interfaceName := name
 	if !strings.HasSuffix(interfaceName, "-wg-client") {
 		interfaceName += "-wg-client"
 	}
@@ -1140,7 +1145,12 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		}
 	}
 
-	interfaceName := req.Name
+	name := req.Name
+	if name == "" {
+		name = utils.GenerateName(2, "-", utils.LowerCase)
+	}
+
+	interfaceName := name
 	if !strings.HasSuffix(interfaceName, "-server") {
 		interfaceName += "-server"
 	}
@@ -2205,20 +2215,6 @@ func LaunchOpenVpnServerCreation(client *routeros.Client, req CreateOvpnServerRe
 	return taskID
 }
 
-// GetOpenVpnServerTaskStatus retrieves the status of an OpenVPN server creation task.
-// Returns nil if the task is not found.
-func GetOpenVpnServerTaskStatus(taskID string) *OvpnServerTask {
-	ovpnServerPool.mu.RLock()
-	task, exists := ovpnServerPool.activeTasks[taskID]
-	ovpnServerPool.mu.RUnlock()
-
-	if !exists {
-		return nil
-	}
-
-	return task
-}
-
 // HandleCreateOvpnServer creates an OpenVPN server asynchronously with multiple users.
 // @Summary Create OpenVPN Server
 // @Description Start an asynchronous OpenVPN server creation task with an array of users
@@ -2648,20 +2644,6 @@ func LaunchSstpServerCreation(client *routeros.Client, req CreateSstpServerReque
 	go processSstpServerTask(client, task, req)
 
 	return taskID
-}
-
-// GetSstpServerTaskStatus retrieves the status of an SSTP server creation task.
-// Returns nil if the task is not found.
-func GetSstpServerTaskStatus(taskID string) *SstpServerTask {
-	sstpServerPool.mu.RLock()
-	task, exists := sstpServerPool.activeTasks[taskID]
-	sstpServerPool.mu.RUnlock()
-
-	if !exists {
-		return nil
-	}
-
-	return task
 }
 
 // HandleCreateSstpServer creates (or disables) the SSTP server asynchronously.
