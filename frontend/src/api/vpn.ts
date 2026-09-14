@@ -31,12 +31,13 @@ export interface UpdateVPNClientRequest {
 }
 
 export interface AddL2TPClientRequest {
-  name: string;
+  name?: string;
   connectTo: string;
   user: string;
   password: string;
   disabled?: boolean;
   ipsecSecret?: string;
+  comment?: string;
 }
 
 export interface UpdateL2TPClientRequest {
@@ -355,7 +356,7 @@ export interface UpdateWireguardPeerRequest {
 }
 
 export interface CreateWireguardClientRequest {
-  name: string;
+  name?: string;
   interfaceLocalAddress: string;
   endpointIP: string;
   endpointPort: number;
@@ -389,8 +390,9 @@ export interface CreateWireguardClientResponse {
 }
 
 export interface ImportWireguardConfigRequest {
-  interfaceName: string;
+  interfaceName?: string;
   config: string;
+  comment?: string;
 }
 
 export interface ImportWireguardConfigResponse {

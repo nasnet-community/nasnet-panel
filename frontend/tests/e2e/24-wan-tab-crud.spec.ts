@@ -132,11 +132,12 @@ const setupWanRoutes = async (
 
   await context.route('**/api/vpn/l2tp/client', async (route) => {
     if (route.request().method() !== 'POST') return route.fallback();
-    const body = route.request().postDataJSON() as { name: string };
+    const body = route.request().postDataJSON() as { name?: string; comment?: string };
     state.l2tpPosts.push(body);
     const client = {
       id: `*l2tp-${state.vpnClients.length + 1}`,
-      name: body.name,
+      name: `${body.name || 'swift-fox'}-l2tp-client`,
+      comment: body.comment,
       type: 'l2tp-out',
       running: false,
       disabled: false,
@@ -164,11 +165,10 @@ const setupWanRoutes = async (
 
   await context.route('**/api/vpn/wireguard/import-config', async (route) => {
     if (route.request().method() !== 'POST') return route.fallback();
-    const body = route.request().postDataJSON() as { interfaceName: string };
+    const body = route.request().postDataJSON() as { interfaceName?: string };
     state.wgImports.push(body);
-    const name = body.interfaceName.endsWith('-client')
-      ? body.interfaceName
-      : `${body.interfaceName}-client`;
+    const interfaceName = body.interfaceName || 'swift-fox';
+    const name = interfaceName.endsWith('-client') ? interfaceName : `${interfaceName}-client`;
     const client = {
       id: `*wg-${state.vpnClients.length + 1}`,
       name,
@@ -397,20 +397,23 @@ test.describe('WAN tab', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    await dialog.getByLabel('Name').fill('mask-one');
+    await dialog.getByLabel('Comment').fill('mask one');
     await dialog.getByLabel('Connect to').fill('vpn.example.com');
     await dialog.getByLabel('User').fill('user');
     await dialog.getByLabel('Password', { exact: true }).fill('secret');
     await dialog.getByRole('button', { name: 'Add client' }).click();
 
     await expect.poll(() => state.l2tpPosts.length).toBe(1);
+    expect(state.l2tpPosts[0].name).toBeUndefined();
     expect(state.l2tpPosts[0]).toMatchObject({
-      name: 'mask-one',
+      comment: 'mask one',
       connectTo: 'vpn.example.com',
       user: 'user',
       password: 'secret',
     });
-    await expect(page.getByRole('cell', { name: 'mask-one', exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('cell', { name: 'swift-fox-l2tp-client', exact: true }),
+    ).toBeVisible();
   });
 
   test('claims a free VPN into the L2TP add dialog', async ({
