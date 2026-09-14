@@ -3,7 +3,7 @@ import type { InterfaceResponse } from '../../api';
 import { PANEL_REGISTRY } from './panels';
 import { POWER_ACTION, type PowerAction, mapPorts } from './mapPorts';
 import { resolveModelStrict } from './resolveModel';
-import type { ResolvedSlot } from './types';
+import type { IfaceLink, ResolvedSlot } from './types';
 import styles from './OverviewPanel.module.scss';
 
 export interface RouterPortDiagramCardProps {
@@ -12,7 +12,7 @@ export interface RouterPortDiagramCardProps {
   onPower?: (action: PowerAction) => void;
   onPortSelect?: (ifaceName: string) => void;
   showPowerControls?: boolean;
-  ifaceRates?: Readonly<Record<string, string>>;
+  ifaceRates?: Readonly<Record<string, IfaceLink>>;
 }
 
 export const RouterPortDiagramCard: React.FC<RouterPortDiagramCardProps> = React.memo(

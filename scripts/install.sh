@@ -1203,7 +1203,7 @@ uninstall_path() {
 
   log "  remove: ${ASSET_PREFIX}-*.tar from router storage"
   if (( ! DRY_RUN )); then
-    ros_cmd "/file/remove [find where (name~\"(^|/)${ASSET_PREFIX}-\") and (name~\"\\.tar\$\")]" \
+    ros_cmd "/file/remove [find where (name~\"(^|/)${ASSET_PREFIX}-\") and (name~\"\\\\.tar\\\$\")]" \
       >/dev/null 2>&1 || true
     remove_remote_file "$LAN_BASELINE_RSC"
   fi
