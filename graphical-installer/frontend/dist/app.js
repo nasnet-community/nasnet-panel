@@ -326,8 +326,10 @@
   }
 
   function onRunError(message) {
-    $('run-error').textContent = message;
-    show('run-error');
+    if (!document.querySelector('#steps li.failed')) {
+      $('run-error').textContent = message;
+      show('run-error');
+    }
     hide('btn-cancel');
     show('btn-back');
     hideModals();
