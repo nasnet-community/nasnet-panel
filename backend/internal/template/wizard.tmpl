@@ -279,6 +279,10 @@ Foreign-Foreign Link 1\"]\
 \n    /ip route set [ find comment=\"Route-to-Foreign-Foreign Link 1\" gat\
 eway!=\$gw1 ] gateway=\$gw1\
 \n}\
+\n:local routeCount2 [/ip route print count-only where comment=\"Route-to-192.168.100.1\"]\
+\n:if (\$routeCount2 > 0) do={\
+\n    /ip route set [find comment=\"Route-to-192.168.100.1\" gateway!=\$gw] gateway=\$gw\
+\n}\
 \n}" use-peer-dns=no use-peer-ntp=no
 {{ if .DomesticEnabled}}
 add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" script=":if (\$bound=1) do={\r\
@@ -356,11 +360,15 @@ add address="192.168.121.0/24" list="Split-LAN" comment="VPN-Split subnet"
 add address="192.168.122.0/24" list="Foreign-LAN" comment="VPN-Foreign subnet"
 add list="MikroTik-Cloud-Services" address="cloud2.mikrotik.com" comment="Dynamic list for MikroTik Cloud DDNS"
 add list="MikroTik-Cloud-Services" address="cloud.mikrotik.com" comment="Legacy endpoint for completeness"
+add list="Safe" address="192.168.10.0/24" comment="Safe"
+add list="Safe" address="192.168.30.0/24" comment="Safe"
 
 /ip firewall filter
 add chain=input dst-port="53" in-interface-list="WAN" protocol="tcp" action=drop comment="Block Open Recursive DNS"
 add chain=input dst-port="53" in-interface-list="WAN" protocol="udp" action=drop comment="Block Open Recursive DNS"
 add chain=input dst-port="80,443,8080,8443,22" in-interface-list="WAN" protocol="tcp" action=drop comment="Block WAN access to management ports"
+add chain=forward dst-address=192.168.100.1 src-address-list=!Safe action=drop place-before=[find comment="nasnet-panel-installer-forward"] \
+comment="Block non-Safe access to 192.168.100.1"
 
 /ip firewall nat set [find comment="nasnet-panel-installer-dstnat"] in-interface-list="!WAN"
 /ip firewall nat set [find comment="nasnet-panel-installer-srcnat"] out-interface-list="WAN"
@@ -469,6 +477,8 @@ add dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Inter
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.1.1.1" routing-table="main" \
 distance="10" target-scope="11" comment="CheckIP-Route-to-Foreign-Foreign Link"
+add dst-address="192.168.100.1/32" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
+routing-table="main" comment="Route-to-192.168.100.1"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Split"
 {{ if .DomesticEnabled}}
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Domestic"
