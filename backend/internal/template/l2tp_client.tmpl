@@ -2,7 +2,7 @@
 add name="LANBridgeVPN-L2TP-Client" comment="VPN-L2TP-Client"
 
 /interface l2tp-client
-add name="l2tp-client-L2TP-Client" connect-to="{{ .L2tpClient.ConnectTo }}" comment="L2TP-Client L2TP" \
+add name="wizard-l2tp-client" connect-to="{{ .L2tpClient.ConnectTo }}" comment="L2TP-Client L2TP" \
 random-source-port=yes user="{{ .L2tpClient.User }}" password="{{ .L2tpClient.Password }}" \
 {{ if .L2tpClient.IPsecSecret }}use-ipsec=yes ipsec-secret={{.L2tpClient.IPsecSecret}}{{ else }}use-ipsec=no{{ end }} allow-fast-path=yes allow=mschap2,mschap1 \
 l2tp-proto-version=l2tpv2 dial-on-demand=no disabled=no
@@ -28,8 +28,8 @@ add action=lookup-only-in-table comment="Routing the VPN-L2TP-Client SRC Address
 add action=lookup-only-in-table comment="Routing the VPN-L2TP-Client Routing Mark" disabled=no routing-mark="to-VPN-Client" table="to-VPN-Client"
 
 /interface list member
-add interface="l2tp-client-L2TP-Client" list="WAN" comment="VPN-l2tp-client-L2TP-Client"
-add interface="l2tp-client-L2TP-Client" list="VPN-WAN" comment="VPN-l2tp-client-L2TP-Client"
+add interface="wizard-l2tp-client" list="WAN" comment="VPN-wizard-l2tp-client"
+add interface="wizard-l2tp-client" list="VPN-WAN" comment="VPN-wizard-l2tp-client"
 add interface="LANBridgeVPN-L2TP-Client" list="LAN" comment="VPN-L2TP-Client"
 add interface="LANBridgeVPN-L2TP-Client" list="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Client"
 
@@ -37,7 +37,7 @@ add interface="LANBridgeVPN-L2TP-Client" list="VPN-L2TP-Client-LAN" comment="VPN
 add address="192.168.41.1/24" interface="LANBridgeVPN-L2TP-Client" network="192.168.41.0" comment="VPN-L2TP-Client"
 
 /ip firewall address-list
-add address="{{ .L2tpClient.ConnectTo }}" list=VPNE comment="VPN-L2TP-Client Interface:l2tp-client-L2TP-Client WanInterface:Foreign-Foreign Link Endpoint:{{ .L2tpClient.ConnectTo }} - Endpoint for routing"
+add address="{{ .L2tpClient.ConnectTo }}" list=VPNE comment="VPN-L2TP-Client Interface:wizard-l2tp-client WanInterface:Foreign-Foreign Link Endpoint:{{ .L2tpClient.ConnectTo }} - Endpoint for routing"
 add address="192.168.41.0/24" list="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Client"
 
 /ip firewall mangle
@@ -51,13 +51,13 @@ add action=dst-nat chain=dstnat comment="DNS VPN-L2TP-Client" disabled=yes dst-p
 add interface="LANBridgeVPN-L2TP-Client" type=internal
 
 /ip route
-add dst-address="0.0.0.0/0" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN-Client" scope=30 target-scope=10  comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="1.0.0.1" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN-Client" \
+add dst-address="0.0.0.0/0" gateway="wizard-l2tp-client" routing-table="to-VPN-Client" scope=30 target-scope=10  comment="Route-to-VPN-Client"
+add check-gateway=ping dst-address="1.0.0.1" gateway="wizard-l2tp-client" routing-table="to-VPN-Client" \
 distance=1 target-scope="11" comment="Route-to-VPN-Client"
-add dst-address="0.0.0.0/0" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-Client"
-add check-gateway=ping dst-address="1.0.0.1" gateway="l2tp-client-L2TP-Client" routing-table="to-VPN" \
+add dst-address="0.0.0.0/0" gateway="wizard-l2tp-client" routing-table="to-VPN" distance=1 comment="Route-to-VPN-Client"
+add check-gateway=ping dst-address="1.0.0.1" gateway="wizard-l2tp-client" routing-table="to-VPN" \
 distance=1 target-scope="11" comment="Route-to-VPN-Client"
-add dst-address="1.0.0.1" gateway="l2tp-client-L2TP-Client" routing-table="main" scope="10" comment="Route-to-VPN-Client"
+add dst-address="1.0.0.1" gateway="wizard-l2tp-client" routing-table="main" scope="10" comment="Route-to-VPN-Client"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.0.0.1" routing-table="main" \
 distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-Client"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-Client"

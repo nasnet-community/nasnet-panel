@@ -163,9 +163,26 @@
     box-shadow 160ms ease;
 }
 
-.versionStopMatched {
-  border-color: rgba(62, 194, 141, 0.35);
-  background: rgba(62, 194, 141, 0.05);
+.upToDate {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.upToDateIcon {
+  flex-shrink: 0;
+  color: var(--color-success);
+}
+
+.upToDateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
 
 .versionStopHighlight {
