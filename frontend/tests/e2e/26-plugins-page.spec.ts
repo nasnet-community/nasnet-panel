@@ -126,7 +126,7 @@ test.describe('Plugins page', () => {
       });
     });
 
-    await context.route('**/api/plugin/status/*', async (route) => {
+    await context.route('**/api/plugin/install/status/*', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -187,7 +187,7 @@ test.describe('Plugins page', () => {
       });
     });
 
-    await context.route('**/api/plugin/status/*', async (route) => {
+    await context.route('**/api/plugin/install/status/*', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
