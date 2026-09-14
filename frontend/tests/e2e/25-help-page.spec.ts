@@ -3,7 +3,7 @@ import { test, expect } from './fixtures';
 const ROUTER = { id: 'rtr_help', name: 'Help Router', host: '10.0.0.5' };
 
 const GITHUB_ISSUES_URL = 'https://github.com/nasnet-community/nasnet-panel/issues/new';
-const KNOWLEDGE_BASE_URL = 'https://docs.s4i.co/hc/nasnet/fa';
+const KNOWLEDGE_BASE_URL = 'https://www.joinnasnet.com/en/guides/nasnet-panel/';
 
 test.describe('Help page', () => {
   test('Help tab is enabled and navigates to the help page', async ({
