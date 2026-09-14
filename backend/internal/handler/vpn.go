@@ -116,6 +116,26 @@ func startSstpCleanupIfNeeded() {
 	go cleanupSstpServerTasks()
 }
 
+// sstpServerTaskActive reports whether an SSTP server creation task is
+// currently running. HandleDeleteSstpServer checks this before disabling so
+// it can't race a concurrent HandleCreateSstpServer task: without it, a
+// creation task's own SetSstpServer call could re-enable SSTP (and restore
+// its firewall rule) after DELETE had already disabled it.
+func sstpServerTaskActive() bool {
+	sstpServerPool.mu.RLock()
+	defer sstpServerPool.mu.RUnlock()
+
+	for _, task := range sstpServerPool.activeTasks {
+		task.mu.RLock()
+		running := task.Status == "running"
+		task.mu.RUnlock()
+		if running {
+			return true
+		}
+	}
+	return false
+}
+
 func cleanupSstpServerTasks() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
@@ -2791,19 +2811,25 @@ func HandleGetSstpServerTaskStatus(c echo.Context) error {
 // @Summary Delete SSTP Server
 // @Description Disables RouterOS's SSTP server. If deleteCertificateFiles is true, also
 // @Description removes its certificate from the system and deletes the certificate's files
-// @Description from storage.
+// @Description from storage. Rejected while an SSTP server creation task is still running, so
+// @Description that task can't re-enable SSTP after this call disables it.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param deleteCertificateFiles query boolean false "Also delete the certificate and its files (default: false)"
 // @Produce json
 // @Success 200 {object} Response
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/sstp/server [delete].
 func HandleDeleteSstpServer(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
+	}
+
+	if sstpServerTaskActive() {
+		return ErrorResponse(c, http.StatusConflict, "An SSTP server creation task is still in progress", nil)
 	}
 
 	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
@@ -2835,7 +2861,8 @@ func HandleDeleteSstpServer(c echo.Context) error {
 		for _, certName := range certNames {
 			if err := client.RemoveCertificate(certName); err != nil {
 				c.Logger().Errorf("Failed to delete certificate %s: %v", certName, err)
-			} else if err := client.RemoveCertificateFiles(certName); err != nil {
+			}
+			if err := client.RemoveCertificateFiles(certName); err != nil {
 				c.Logger().Errorf("Failed to delete certificate files for %s: %v", certName, err)
 			}
 		}
