@@ -26,6 +26,9 @@ func (e *Engine) stepConnect() error {
 		return fmt.Errorf("SSH login failed, check user/password or SSH service policies: %w", err)
 	}
 	e.cl = cl
+	e.cl.OnFailure = func(cmd, out string) {
+		e.log("command failed: %s (%s)", cmd, strings.TrimSpace(out))
+	}
 	if _, err := e.cl.Run(":put ok"); err != nil {
 		return fmt.Errorf("SSH command test failed: %w", err)
 	}
@@ -84,9 +87,32 @@ func (e *Engine) stepCheck() error {
 	if err := e.verifyStorageWritable(st); err != nil {
 		return err
 	}
-	e.removeContainerFiles(true)
+	e.removeContainerFiles()
 
 	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.label())
+	return nil
+}
+
+func (e *Engine) removeExistingContainer() error {
+	if !e.exists("/container", "name="+containerName) {
+		return nil
+	}
+	if e.opts.DryRun {
+		e.log("[dry-run] would stop and remove the existing container %s", containerName)
+		return nil
+	}
+	e.log("stopping and removing the existing container %s", containerName)
+	_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", containerName), 30*time.Second)
+	deadline := time.Now().Add(stopTimeout)
+	for e.exists("/container", "name="+containerName) {
+		if time.Now().After(deadline) {
+			return fmt.Errorf("could not stop and remove the existing container %s within %s. Remove it from the router, then run the installer again", containerName, stopTimeout)
+		}
+		if err := e.sleep(2 * time.Second); err != nil {
+			return err
+		}
+		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/remove [find name=%s]", containerName), 30*time.Second)
+	}
 	return nil
 }
 
@@ -231,8 +257,10 @@ func (e *Engine) installContainerPackage() error {
 		return err
 	}
 	local := filepath.Join(outDir, name)
-	e.log("downloading %s", url)
-	if _, err := e.download(url, local, "device-mode"); err != nil {
+	if err := e.withRetries("downloading "+url, func() error {
+		_, err := e.download(url, local, "device-mode")
+		return err
+	}); err != nil {
 		return fmt.Errorf("could not download the container package for RouterOS %s (%s): %w. Install it via WebFig/Winbox (System > Packages) instead", e.sys.Version, e.sys.Arch, err)
 	}
 
@@ -284,6 +312,7 @@ func containerPackageURL(version, arch string) (string, string, error) {
 
 func (e *Engine) inspectContainerPackage() {
 	pkg := e.containerPackage()
+	e.containerActive = pkg.active()
 	if pkg.active() {
 		e.log("container package is installed")
 		return
@@ -575,23 +604,45 @@ func (e *Engine) stepDownload() error {
 	}
 	outPath := filepath.Join(outDir, asset)
 
-	e.log("downloading %s", url)
-	actual, err := e.download(url, outPath, "download")
-	if err != nil {
-		return err
-	}
 	expected, err := e.fetchChecksum(url + ".sha256")
 	if err != nil {
 		return err
 	}
-	if !strings.EqualFold(expected, actual) {
-		return fmt.Errorf("checksum mismatch for %s: got %s, expected %s", asset, actual, expected)
+	if err := e.withRetries("downloading "+url, func() error {
+		actual, err := e.download(url, outPath, "download")
+		if err != nil {
+			return err
+		}
+		if !strings.EqualFold(expected, actual) {
+			return fmt.Errorf("checksum mismatch for %s: got %s, expected %s", asset, actual, expected)
+		}
+		return nil
+	}); err != nil {
+		return err
 	}
 	e.log("checksum OK")
 	e.assetName = asset
 	e.localTar = outPath
 	e.note = asset
 	return nil
+}
+
+func (e *Engine) withRetries(what string, fn func() error) error {
+	for attempt := 1; ; attempt++ {
+		e.log("%s (attempt %d/%d)", what, attempt, downloadAttempts)
+		err := fn()
+		if err == nil || e.ctx.Err() != nil {
+			return err
+		}
+		if attempt == downloadAttempts {
+			e.log("attempt %d/%d failed: %v", attempt, downloadAttempts, err)
+			return err
+		}
+		e.log("attempt %d/%d failed: %v, retrying in %s", attempt, downloadAttempts, err, downloadRetryWait)
+		if err := e.sleep(downloadRetryWait); err != nil {
+			return err
+		}
+	}
 }
 
 func (e *Engine) download(url, dest, stepID string) (string, error) {
@@ -812,18 +863,17 @@ func (e *Engine) stepNetwork() error {
 }
 
 func (e *Engine) stepContainer() error {
-	if e.exists("/container", "name="+containerName) {
-		e.note = "container " + containerName + " already exists"
-		e.removeRemoteFile(e.remoteTar)
-		return nil
+	if err := e.removeExistingContainer(); err != nil {
+		return err
 	}
+	e.removeStaleImageDir()
 	if e.opts.DryRun {
 		e.log("[dry-run] would add container %s from %s", containerName, e.remoteTar)
 		return nil
 	}
 	e.log("extracting tar and adding container %s (this can take a few minutes)", containerName)
-	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s start-on-boot=yes logging=yes",
-		e.remoteTar, vethName, e.storage.path(containerImagesDir), containerName), 5*time.Minute); err != nil {
+	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s dns=%s start-on-boot=yes logging=yes",
+		e.remoteTar, vethName, e.storage.path(containerImagesDir), containerName, fallbackDNSServers), 5*time.Minute); err != nil {
 		return fmt.Errorf("failed to add container: %w (%s)", err, strings.TrimSpace(out))
 	}
 	e.pushRollback(func() {

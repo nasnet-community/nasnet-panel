@@ -43,6 +43,9 @@ BASELINE_TIMEOUT=30
 REBOOT_SETTLE=15
 REBOOT_TIMEOUT=300
 START_TIMEOUT=120
+STOP_TIMEOUT=60
+DOWNLOAD_ATTEMPTS=3
+DOWNLOAD_RETRY_WAIT=3
 
 # ---- args ------------------------------------------------------------------
 DRY_RUN=0
@@ -76,7 +79,7 @@ Usage: install.sh [options]
   --storage <name>     Router storage for the container (disk slot name, or "internal").
   --lan-port <port>    LAN port for dstnat to panel HTTP (default: 8080).
   --https-lan-port <port>  LAN port for dstnat to panel HTTPS (default: 8443).
-  --no-lan-baseline    Skip the baseline LAN setup (LANBridgeSplit, 192.168.10.0/24).
+  --no-lan-baseline    Skip the baseline LAN setup (192.168.10.1/24 on the existing LAN bridge).
   --no-rollback        Do not undo partial state on failure.
   -v, --verbose        Verbose output.
   -h, --help           This help.
@@ -551,7 +554,7 @@ install_container_package() {
   out_dir="${TMPDIR:-/tmp}/nasnet-panel-installer"
   mkdir -p "$out_dir"
   local_npk="${out_dir}/${name}"
-  if ! curl -fL --progress-bar "$url" -o "$local_npk"; then
+  if ! with_retries "  downloading ${name}" curl -fL --progress-bar "$url" -o "$local_npk"; then
     err "could not download the container package for RouterOS ${version} (${ROUTEROS_ARCH}): ${url}"
     err "install it via WebFig/Winbox 'System > Packages' instead"
     return 1
@@ -833,6 +836,33 @@ asset_suffix() {
   esac
 }
 
+with_retries() {
+  local what="$1" attempt; shift
+  for (( attempt = 1; attempt <= DOWNLOAD_ATTEMPTS; attempt++ )); do
+    log "${what} (attempt ${attempt}/${DOWNLOAD_ATTEMPTS})"
+    if "$@"; then
+      return 0
+    fi
+    if (( attempt < DOWNLOAD_ATTEMPTS )); then
+      log "  attempt ${attempt}/${DOWNLOAD_ATTEMPTS} failed, retrying in ${DOWNLOAD_RETRY_WAIT}s"
+      sleep "$DOWNLOAD_RETRY_WAIT"
+    else
+      log "  attempt ${attempt}/${DOWNLOAD_ATTEMPTS} failed"
+    fi
+  done
+  return 1
+}
+
+fetch_verified() {
+  local url="$1" out="$2" expected="$3" actual
+  curl -fL --progress-bar "$url" -o "$out" || return 1
+  actual="$($SHA256_BIN "$out" | awk '{print $1}')"
+  if [[ "$expected" != "$actual" ]]; then
+    err "checksum mismatch for $(basename "$out"): got ${actual}, expected ${expected}"
+    return 1
+  fi
+}
+
 download_asset() {
   local arch="$1" release channel suffix asset url sha_url out_dir out sha
   if [[ -n "$VERSION" ]]; then
@@ -849,16 +879,12 @@ download_asset() {
   out="${out_dir}/${asset}"
   sha="${out}.sha256"
 
-  log "Downloading ${asset} ..."
-  curl -fL --progress-bar "$url"     -o "$out" || { err "download failed: $url"; exit 1; }
-  curl -fsSL              "$sha_url" -o "$sha" || { err "checksum download failed: $sha_url"; exit 1; }
+  curl -fsSL "$sha_url" -o "$sha" || { err "checksum download failed: $sha_url"; exit 1; }
 
-  local expected actual
+  local expected
   expected="$(awk '{print $1; exit}' "$sha")"
-  actual="$($SHA256_BIN "$out" | awk '{print $1}')"
-  if [[ "$expected" != "$actual" ]]; then
-    err "checksum mismatch for ${asset}: got ${actual}, expected ${expected}"; exit 1
-  fi
+  with_retries "Downloading ${asset}" fetch_verified "$url" "$out" "$expected" \
+    || { err "download failed: $url"; exit 1; }
   log "  checksum OK"
   ASSET_NAME="$asset"
   LOCAL_TAR="$out"
@@ -990,19 +1016,38 @@ configure_network() {
   ros_move_to_top /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
 }
 
+remove_existing_container() {
+  ros_exists /container "name=${CONTAINER_NAME}" || return 0
+  log ""
+  log "Removing existing container ${CONTAINER_NAME} ..."
+  if (( DRY_RUN )); then
+    printf '  - container %s (would stop and remove)\n' "$CONTAINER_NAME"
+    return 0
+  fi
+  ros_cmd "/container/stop [find name=${CONTAINER_NAME}]" >/dev/null 2>&1 || true
+  local waited=0
+  while ros_exists /container "name=${CONTAINER_NAME}"; do
+    if (( waited >= STOP_TIMEOUT )); then
+      err "could not stop and remove the existing container ${CONTAINER_NAME} within ${STOP_TIMEOUT}s"
+      exit 1
+    fi
+    sleep 2
+    waited=$(( waited + 2 ))
+    ros_cmd "/container/remove [find name=${CONTAINER_NAME}]" >/dev/null 2>&1 || true
+  done
+  printf '  \033[32m✓\033[0m container %s removed\n' "$CONTAINER_NAME"
+}
+
 deploy_container() {
   log ""
   log "Configuring container ..."
-  if ros_exists /container "name=${CONTAINER_NAME}"; then
-    printf '  \033[32m✓\033[0m container %s (exists)\n' "$CONTAINER_NAME"
-    return 0
-  fi
+  remove_existing_container
   if (( DRY_RUN )); then
     printf '  + container %s (would add from %s)\n' "$CONTAINER_NAME" "$REMOTE_TAR"
     return 0
   fi
   if ! spin "extracting tar and adding container ${CONTAINER_NAME}" \
-       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} start-on-boot=yes logging=yes"; then
+       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} dns=${FALLBACK_DNS_SERVERS} start-on-boot=yes logging=yes"; then
     err "failed to add container"; exit 1
   fi
   push_rollback "ros_cmd '/container/remove [find name=${CONTAINER_NAME}]' >/dev/null 2>&1 || true"
@@ -1192,8 +1237,11 @@ uninstall_path() {
   ros_remove "nat ${COMMENT_TAG}-srcnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat-https" /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat-https\""
+  ros_remove "nat ${COMMENT_TAG}-container-dns-tcp" /ip/firewall/nat "comment=\"${COMMENT_TAG}-container-dns-tcp\""
+  ros_remove "nat ${COMMENT_TAG}-container-dns-udp" /ip/firewall/nat "comment=\"${COMMENT_TAG}-container-dns-udp\""
   ros_remove "filter forward"                  /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward\""
   ros_remove "filter forward-https"            /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
+  ros_remove "filter nasnet-panel-baseline-container-router" /ip/firewall/filter "comment=\"nasnet-panel-baseline-container-router\""
   ros_remove "bridge port ${VETH_NAME}"   /interface/bridge/port "interface=${VETH_NAME}"
   ros_remove "bridge port ${LEGACY_VETH_NAME}" /interface/bridge/port "interface=${LEGACY_VETH_NAME}"
   ros_remove "ip ${BRIDGE_IP_CIDR}"       /ip/address          "address=\"${BRIDGE_IP_CIDR}\""
@@ -1203,7 +1251,7 @@ uninstall_path() {
 
   log "  remove: ${ASSET_PREFIX}-*.tar from router storage"
   if (( ! DRY_RUN )); then
-    ros_cmd "/file/remove [find where (name~\"(^|/)${ASSET_PREFIX}-\") and (name~\"\\.tar\$\")]" \
+    ros_cmd "/file/remove [find where (name~\"(^|/)${ASSET_PREFIX}-\") and (name~\"\\\\.tar\\\$\")]" \
       >/dev/null 2>&1 || true
     remove_remote_file "$LAN_BASELINE_RSC"
   fi

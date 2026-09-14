@@ -48,9 +48,12 @@ const (
 	deviceModeTimeout = 120 * time.Second
 	updateTimeout     = 10 * time.Minute
 	startTimeout      = 120 * time.Second
+	stopTimeout       = 60 * time.Second
 	baselineTimeout   = 30 * time.Second
 	rebootSettle      = 15 * time.Second
 	rebootTimeout     = 5 * time.Minute
+	downloadAttempts  = 3
+	downloadRetryWait = 3 * time.Second
 )
 
 type Options struct {
@@ -126,6 +129,7 @@ type Engine struct {
 	storage   storageInfo
 
 	pkgInstalled    bool
+	containerActive bool
 	finalPort       int
 	baselineApplied bool
 }
@@ -188,7 +192,7 @@ func (e *Engine) Run() error {
 		e.doRollback()
 	}
 	if err == nil {
-		e.removeContainerFiles(false)
+		e.removeContainerFiles()
 		e.finish()
 	}
 	if e.cl != nil {
@@ -290,7 +294,6 @@ func (e *Engine) ensure(label, path, selector, addArgs string) error {
 	}
 	cmd := fmt.Sprintf("%s/add %s", path, addArgs)
 	if out, err := e.cl.Run(cmd); err != nil {
-		e.log("command failed: %s", cmd)
 		return fmt.Errorf("failed to add %s: %w (%s)", label, err, strings.TrimSpace(out))
 	}
 	e.log("added %s", label)
@@ -311,17 +314,21 @@ func (e *Engine) removeObj(label, path, selector string) {
 	_, _ = e.cl.RunRaw(fmt.Sprintf("%s/remove [find %s]", path, selector), 15*time.Second)
 }
 
-func (e *Engine) removeContainerFiles(includeImageDir bool) {
+func (e *Engine) removeContainerFiles() {
 	if e.opts.DryRun {
 		e.log("[dry-run] would remove leftover %s-*.tar files from the router", assetPrefix)
 		return
 	}
 	e.log("removing leftover %s-*.tar files from the router", assetPrefix)
-	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\.tar$"]`, assetPrefix), 30*time.Second)
-	if !includeImageDir {
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\\.tar\$"]`, assetPrefix), 30*time.Second)
+}
+
+func (e *Engine) removeStaleImageDir() {
+	if e.opts.DryRun {
+		e.log("[dry-run] would remove the stale container image directory")
 		return
 	}
-	if e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName) {
+	if e.containerActive && (e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName)) {
 		return
 	}
 	dir := e.storage.path(containerImagesDir)
