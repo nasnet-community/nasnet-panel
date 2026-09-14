@@ -926,6 +926,51 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "SSTP server details retrieved successfully", response)
 }
 
+// wireGuardNameGenerationAttempts bounds how many random candidates
+// generateUniqueWireGuardInterfaceName tries before giving up.
+const wireGuardNameGenerationAttempts = 10
+
+// generateUniqueWireGuardInterfaceName generates a random two-word lowercase
+// name with suffix appended (e.g. "-wg-client", "-server"), retrying against
+// existing WireGuard interfaces until a non-colliding one is found or
+// wireGuardNameGenerationAttempts is exhausted. A lookup failure other than
+// "not found" (transport, timeout, authentication) aborts immediately rather
+// than being treated as "name available".
+func generateUniqueWireGuardInterfaceName(client *routeros.Client, suffix string) (string, error) {
+	for i := 0; i < wireGuardNameGenerationAttempts; i++ {
+		candidate := utils.GenerateName(2, "-", utils.LowerCase) + suffix
+		exists, err := wireGuardInterfaceExists(client, candidate)
+		if err != nil {
+			return "", err
+		}
+		if !exists {
+			return candidate, nil
+		}
+	}
+	return "", fmt.Errorf("failed to generate a unique WireGuard interface name after %d attempts", wireGuardNameGenerationAttempts)
+}
+
+// isWireGuardNotFound reports whether err is the "no results found" signal
+// GetWireGuard returns when no interface matches, as opposed to a transport,
+// timeout, or authentication failure.
+func isWireGuardNotFound(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "no results found")
+}
+
+// wireGuardInterfaceExists reports whether a WireGuard interface named name
+// already exists. A non-nil error means the lookup itself failed and
+// existence could not be determined.
+func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error) {
+	_, err := client.GetWireGuard(name)
+	if err == nil {
+		return true, nil
+	}
+	if isWireGuardNotFound(err) {
+		return false, nil
+	}
+	return false, err
+}
+
 // HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
 // @Description Create a new WireGuard client interface with the specified configuration
@@ -963,14 +1008,17 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	if req.PersistentKeepalive != nil && *req.PersistentKeepalive <= 0 {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
-	name := req.Name
-	if name == "" {
-		name = utils.GenerateName(2, "-", utils.LowerCase)
-	}
-
-	interfaceName := name
-	if !strings.HasSuffix(interfaceName, "-wg-client") {
-		interfaceName += "-wg-client"
+	var interfaceName string
+	if req.Name != "" {
+		interfaceName = req.Name
+		if !strings.HasSuffix(interfaceName, "-wg-client") {
+			interfaceName += "-wg-client"
+		}
+	} else {
+		interfaceName, err = generateUniqueWireGuardInterfaceName(client, "-wg-client")
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
+		}
 	}
 
 	peerCount, err := client.CountWireGuardPeers(interfaceName)
@@ -1145,14 +1193,17 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		}
 	}
 
-	name := req.Name
-	if name == "" {
-		name = utils.GenerateName(2, "-", utils.LowerCase)
-	}
-
-	interfaceName := name
-	if !strings.HasSuffix(interfaceName, "-server") {
-		interfaceName += "-server"
+	var interfaceName string
+	if req.Name != "" {
+		interfaceName = req.Name
+		if !strings.HasSuffix(interfaceName, "-server") {
+			interfaceName += "-server"
+		}
+	} else {
+		interfaceName, err = generateUniqueWireGuardInterfaceName(client, "-server")
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard server interface", err)
+		}
 	}
 
 	config := routeros.WireGuardClientConfig{
