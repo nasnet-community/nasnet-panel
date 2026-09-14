@@ -31,6 +31,7 @@ import {
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
+import type { IfaceLink } from './overview-panel/types';
 import { BridgePortsCard } from './lan/BridgePortsCard';
 
 interface SectionState<T> {
@@ -63,7 +64,7 @@ export function DHCPPage() {
   const [clients, setClients] = useState<SectionState<DhcpClient>>(initial<DhcpClient>());
   const [model, setModel] = useState<string | null>(null);
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
-  const [ethernetRates, setEthernetRates] = useState<Record<string, string>>({});
+  const [ethernetRates, setEthernetRates] = useState<Record<string, IfaceLink>>({});
   const [busyMac, setBusyMac] = useState<string | null>(null);
   const [leaseToRemove, setLeaseToRemove] = useState<DhcpLease | null>(null);
   const [leaseToMakeStatic, setLeaseToMakeStatic] = useState<DhcpLease | null>(null);
@@ -109,7 +110,9 @@ export function DHCPPage() {
         setEthernetRates(
           Object.fromEntries(
             eResult.value.flatMap((e) =>
-              e.name && e.rate ? [[e.name.toLowerCase(), e.rate] as const] : [],
+              e.name && e.rate
+                ? [[e.name.toLowerCase(), { rate: e.rate, fullDuplex: e.fullDuplex }] as const]
+                : [],
             ),
           ),
         );
