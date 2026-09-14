@@ -28,6 +28,11 @@ func (e *Engine) RunUninstall() error {
 }
 
 func (e *Engine) stepRemoveContainer() error {
+	e.containerActive = e.containerPackage().active()
+	if !e.containerActive {
+		e.note = "container package is not active"
+		return nil
+	}
 	var removed []string
 	for _, name := range []string{containerName, legacyContainerName} {
 		if !e.exists("/container", "name="+name) {
@@ -63,8 +68,10 @@ func (e *Engine) stepRemoveNetwork() error {
 	e.removeObj("bridge port "+legacyVethName, "/interface/bridge/port", "interface="+legacyVethName)
 	e.removeObj("ip "+bridgeIPCIDR, "/ip/address", fmt.Sprintf("address=%q", bridgeIPCIDR))
 	e.removeObj("bridge "+bridgeName, "/interface/bridge", "name="+bridgeName)
-	e.removeObj("veth "+vethName, "/interface/veth", "name="+vethName)
-	e.removeObj("veth "+legacyVethName, "/interface/veth", "name="+legacyVethName)
+	if e.containerActive {
+		e.removeObj("veth "+vethName, "/interface/veth", "name="+vethName)
+		e.removeObj("veth "+legacyVethName, "/interface/veth", "name="+legacyVethName)
+	}
 	return nil
 }
 
@@ -73,7 +80,7 @@ func (e *Engine) stepRemoveFiles() error {
 	if e.opts.DryRun {
 		return nil
 	}
-	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\.tar$"]`, assetPrefix), 30*time.Second)
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\\.tar\$"]`, assetPrefix), 30*time.Second)
 	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", lanBaselineRsc), 15*time.Second)
 	e.note = "uploaded files removed"
 	return nil
