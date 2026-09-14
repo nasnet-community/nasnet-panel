@@ -36,6 +36,8 @@ type Client struct {
 
 	mu   sync.Mutex
 	conn *ssh.Client
+
+	OnFailure func(cmd, out string)
 }
 
 func Dial(host string, port int, user, pass string) (*Client, error) {
@@ -120,7 +122,11 @@ func (c *Client) RunRaw(cmd string, timeout time.Duration) (string, error) {
 	}()
 	select {
 	case r := <-done:
-		return strings.ReplaceAll(string(r.out), "\r", ""), r.err
+		out := strings.ReplaceAll(string(r.out), "\r", "")
+		if c.OnFailure != nil && hasErrorMarker(out) {
+			c.OnFailure(cmd, out)
+		}
+		return out, r.err
 	case <-time.After(timeout):
 		return "", fmt.Errorf("command timed out after %s", timeout)
 	}
@@ -138,13 +144,20 @@ func (c *Client) RunChecked(cmd string, timeout time.Duration) (string, error) {
 		}
 		return out, err
 	}
+	if hasErrorMarker(out) {
+		return out, errors.New(strings.TrimSpace(out))
+	}
+	return out, nil
+}
+
+func hasErrorMarker(out string) bool {
 	low := strings.ToLower(out)
 	for _, marker := range errorMarkers {
 		if strings.Contains(low, marker) {
-			return out, errors.New(strings.TrimSpace(out))
+			return true
 		}
 	}
-	return out, nil
+	return false
 }
 
 func (c *Client) Upload(localPath, remotePath string, progress func(done, total int64)) error {
