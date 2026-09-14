@@ -228,9 +228,11 @@ func ToWireGuardServerCreateResponse(wg *routeros.WireGuardInfo) WireGuardServer
 	}
 }
 
-// CreateWireGuardInterfaceRequest represents a request to create a WireGuard client interface.
+// CreateWireGuardInterfaceRequest represents a request to create a WireGuard
+// client interface. If Name is empty, a random two-word lowercase name is
+// generated for it.
 type CreateWireGuardInterfaceRequest struct {
-	Name                  string  `json:"name" example:"office" binding:"required"`
+	Name                  string  `json:"name" example:"office"`
 	MTU                   *int    `json:"mtu" example:"1420"`
 	ListenPort            *int    `json:"listenPort" example:"13231"`
 	InterfacePrivateKey   *string `json:"interfacePrivateKey" example:"KIEp..."`
@@ -265,10 +267,11 @@ type WireGuardClientCreateResponse struct {
 }
 
 // CreateWireGuardServerRequest represents a request to create a WireGuard server interface.
-// The name will have "-server" appended automatically.
+// The name will have "-server" appended automatically. If Name is empty, a
+// random two-word lowercase name is generated for it before that suffix is applied.
 // If localAddress is not provided, it will be auto-assigned as 10.100.x.1/24 where x is auto-incremented.
 type CreateWireGuardServerRequest struct {
-	Name         string  `json:"name" example:"office" binding:"required"`
+	Name         string  `json:"name" example:"office"`
 	LocalAddress *string `json:"localAddress" example:"10.8.0.1/24"`
 	MTU          *int    `json:"mtu" example:"1420"`
 	ListenPort   *int    `json:"listenPort" example:"51820"`
