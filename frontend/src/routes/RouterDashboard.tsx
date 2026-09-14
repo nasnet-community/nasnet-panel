@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 import { Button, Tabs } from '@nasnet/ui';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
@@ -7,6 +8,7 @@ import { useWizardGate } from '../state/WizardGateContext';
 import { useInstalledPlugins } from '../state/InstalledPluginsContext';
 import { routerSectionsWithPlugins } from '../layout/routerSections';
 import { RouterCredentialsDialog } from './RouterCredentialsDialog';
+import { USER_GUIDE_SECTIONS, USER_GUIDE_URL } from './help/links';
 import styles from './RouterDashboard.module.scss';
 
 export function RouterDashboard() {
@@ -43,6 +45,9 @@ export function RouterDashboard() {
   const wizardStatus = statusFor(router.id);
 
   const onWizard = location.pathname.startsWith(`/router/${router.id}/config`);
+  const guideSection = USER_GUIDE_SECTIONS.get(
+    location.pathname.slice(`/router/${router.id}`.length).split('/')[1] ?? '',
+  );
 
   const activeTab = onWizard
     ? 'diagnostics'
@@ -92,6 +97,19 @@ export function RouterDashboard() {
       ) : null}
       <div className={styles.contentShell}>
         <Outlet />
+        {guideSection ? (
+          <footer className={styles.guideFooter}>
+            <a
+              className={styles.guideLink}
+              href={`${USER_GUIDE_URL}/${guideSection}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <BookOpen size={16} aria-hidden />
+              Read the user guide
+            </a>
+          </footer>
+        ) : null}
       </div>
     </>
   );
