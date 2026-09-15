@@ -1,45 +1,172 @@
-# NasNet panel preparation baseline
-# Import this entire file; do not split it into independently executed lines.
-# Existing installer creates the container bridge/veth, image, NAT and web access.
-# Reserve this subnet for the container; change these three values together if needed.
 {
+    :local lanBridgeName "LANBridgeSplit"
+    :local lanIP "192.168.10.1"
+    :local lanCIDR "192.168.10.1/24"
+    :local lanNetwork "192.168.10.0"
+    :local lanNetworkCIDR "192.168.10.0/24"
+    :local lanNetworkPrefix 192.168.10.0/24
+    :local lanPoolName "DHCP-pool-Split"
+    :local lanPoolRanges "192.168.10.2-192.168.10.254"
+    :local lanDhcpName "DHCP-Split"
+    :local wanPort "ether1"
     :local containerSubnet "192.168.50.0/24"
-    :local containerIP "192.168.50.2"
-    :local containerGateway "192.168.50.1"
     :local containerDNS "1.0.0.1"
-    :local containerNetwork [:toip [:pick $containerSubnet 0 [:find $containerSubnet "/"]]]
+    :local tag "nasnet-panel-baseline"
     :local failed false
 
-    :log info "nasnet-panel: baseline v3 starting; preserving WAN; default LAN migration runs last"
+    :log info "nasnet-panel: baseline v4 starting"
 
-    # Reject a known subnet collision before changing settings.
-    # This catches the /24 used by this installer, not every possible overlapping prefix.
-    :foreach a in=[/ip/address find network=$containerNetwork] do={
-        :if ([/ip/address get $a interface] != "containers") do={
-            :error ("nasnet-panel: " . $containerSubnet . " belongs to another interface; choose an unused container subnet")
+    :local layoutPresent false
+    :local lanBridge ""
+    :onerror err in={
+        :if ([:len [/interface/bridge find name=$lanBridgeName]] > 0) do={
+            :set layoutPresent true
+            :set lanBridge $lanBridgeName
+            :log info "nasnet-panel: NasNet layout already present; LAN and WAN rewiring will be skipped"
+        } else={
+            :local candidates [:toarray ""]
+            :foreach b in=[/interface/bridge find] do={
+                :local bn [/interface/bridge get $b name]
+                :if ($bn != "containers") do={
+                    :if (([:len [/ip/address find interface=$bn dynamic=no]] > 0) && ([:len [/ip/dhcp-server find interface=$bn]] > 0)) do={
+                        :set candidates ($candidates, $bn)
+                    }
+                }
+            }
+            :if ([:len $candidates] = 1) do={
+                :set lanBridge ($candidates->0)
+            }
+            :if ([:len $candidates] > 1) do={
+                :foreach c in=$candidates do={
+                    :if (($lanBridge = "") && ([:len [/interface/list/member find list=LAN interface=$c]] > 0)) do={
+                        :set lanBridge $c
+                    }
+                }
+            }
+            :if ($lanBridge = "") do={
+                :error ("no unambiguous LAN bridge found (candidates: " . [:tostr $candidates] . ")")
+            }
+            :log info ("nasnet-panel: LAN bridge is " . $lanBridge)
+        }
+    } do={
+        :set failed true
+        :log error ("nasnet-panel: LAN bridge discovery failed: " . $err)
+    }
+
+    :onerror err in={
+        :local removed 0
+        :foreach r in=[/ip/firewall/filter find where (action=drop || action=reject || action=tarpit)] do={
+            :local c [:tostr [/ip/firewall/filter get $r comment]]
+            :local dp [:tostr [/ip/firewall/filter get $r dst-port]]
+            :local isDNS (($dp ~ "(^|,)53(-|,|\$)") || ($c ~ "DNS") || ($c ~ "dns") || ($c ~ "Dns"))
+            :local isDefconf ($c ~ "^defconf")
+            :if ((!$isDNS) && ((!$layoutPresent) || $isDefconf)) do={
+                /ip/firewall/filter remove $r
+                :set removed ($removed + 1)
+            }
+        }
+        :foreach r in=[/ip/firewall/raw find where (action=drop)] do={
+            :local c [:tostr [/ip/firewall/raw get $r comment]]
+            :local dp [:tostr [/ip/firewall/raw get $r dst-port]]
+            :local isDNS (($dp ~ "(^|,)53(-|,|\$)") || ($c ~ "DNS") || ($c ~ "dns") || ($c ~ "Dns"))
+            :local isDefconf ($c ~ "^defconf")
+            :if ((!$isDNS) && ((!$layoutPresent) || $isDefconf)) do={
+                /ip/firewall/raw remove $r
+                :set removed ($removed + 1)
+            }
+        }
+        :onerror v6err in={
+            :foreach r in=[/ipv6/firewall/filter find where (action=drop || action=reject)] do={
+                :local c [:tostr [/ipv6/firewall/filter get $r comment]]
+                :local dp [:tostr [/ipv6/firewall/filter get $r dst-port]]
+                :local isDNS (($dp ~ "(^|,)53(-|,|\$)") || ($c ~ "DNS") || ($c ~ "dns") || ($c ~ "Dns"))
+                :local isDefconf ($c ~ "^defconf")
+                :if ((!$isDNS) && ((!$layoutPresent) || $isDefconf)) do={
+                    /ipv6/firewall/filter remove $r
+                    :set removed ($removed + 1)
+                }
+            }
+            :foreach r in=[/ipv6/firewall/raw find where (action=drop)] do={
+                :local c [:tostr [/ipv6/firewall/raw get $r comment]]
+                :local isDefconf ($c ~ "^defconf")
+                :if ((!($c ~ "DNS")) && ((!$layoutPresent) || $isDefconf)) do={
+                    /ipv6/firewall/raw remove $r
+                    :set removed ($removed + 1)
+                }
+            }
+        } do={
+            :log info ("nasnet-panel: IPv6 firewall not available, skipped (" . $v6err . ")")
+        }
+        :log info ("nasnet-panel: removed " . $removed . " blocking firewall rules; DNS rules kept")
+    } do={
+        :set failed true
+        :log error ("nasnet-panel: firewall cleanup failed: " . $err)
+    }
+
+    :onerror err in={
+        :foreach ln in=[:toarray "WAN,LAN"] do={
+            :if ([:len [/interface/list find name=$ln]] = 0) do={
+                /interface/list add name=$ln comment=$tag
+            }
+        }
+    } do={
+        :set failed true
+        :log error ("nasnet-panel: interface list preparation failed: " . $err)
+    }
+
+    :if (!$layoutPresent) do={
+        :onerror err in={
+            :if ([:len [/interface find name=$wanPort]] = 0) do={
+                :error ($wanPort . " does not exist on this router")
+            }
+            :local alreadyWan false
+            :if ([:len [/ip/dhcp-client find interface=$wanPort]] > 0) do={ :set alreadyWan true }
+            :if ([:len [/interface/list/member find list=WAN interface=$wanPort]] > 0) do={ :set alreadyWan true }
+            :onerror ignore in={
+                :if ([:len [/interface/pppoe-client find interface=$wanPort]] > 0) do={ :set alreadyWan true }
+            } do={}
+            :onerror ignore in={
+                :if ([:len [/interface/macvlan find interface=$wanPort]] > 0) do={ :set alreadyWan true }
+            } do={}
+
+            :foreach p in=[/interface/bridge/port find interface=$wanPort] do={
+                :local pb [/interface/bridge/port get $p bridge]
+                :log info ("nasnet-panel: taking " . $wanPort . " out of bridge " . $pb . " to use it as WAN")
+                /interface/bridge/port remove $p
+            }
+            :if ([:len [/interface/list/member find list=LAN interface=$wanPort]] > 0) do={
+                /interface/list/member remove [find list=LAN interface=$wanPort]
+            }
+            :if ([:len [/ip/dhcp-client find interface=$wanPort]] = 0) do={
+                /ip/dhcp-client add interface=$wanPort add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment=($tag . ": WAN uplink")
+            }
+            :if ([:len [/interface/list/member find list=WAN interface=$wanPort]] = 0) do={
+                /interface/list/member add list=WAN interface=$wanPort comment=$tag
+            }
+            :if ($alreadyWan) do={
+                :log info ("nasnet-panel: " . $wanPort . " was already a WAN uplink")
+            } else={
+                :log info ("nasnet-panel: " . $wanPort . " is now the WAN uplink")
+            }
+
+            :if ([:len [/ip/firewall/nat find chain=srcnat action=masquerade out-interface-list=WAN]] = 0) do={
+                /ip/firewall/nat add chain=srcnat action=masquerade out-interface-list=WAN comment=($tag . ": masquerade WAN")
+                :log info "nasnet-panel: added masquerade for the WAN list"
+            }
+        } do={
+            :set failed true
+            :log error ("nasnet-panel: WAN preparation failed: " . $err)
         }
     }
 
-    # Independent operations: failure in one must not hide the result of the other.
     :onerror err in={
         /ip/neighbor/discovery-settings set discover-interface-list=all
-        :if ([/ip/neighbor/discovery-settings get discover-interface-list] != "all") do={
-            :error "setting verification failed"
-        }
-    } do={
-        :set failed true
-        :log error ("nasnet-panel: neighbor discovery failed: " . $err)
-    }
-    :onerror err in={
         /tool/mac-server set allowed-interface-list=all
-        :if ([/tool/mac-server get allowed-interface-list] != "all") do={
-            :error "setting verification failed"
-        }
+        /tool/mac-server/mac-winbox set allowed-interface-list=all
     } do={
         :set failed true
-        :log error ("nasnet-panel: MAC Telnet setting failed: " . $err)
+        :log error ("nasnet-panel: management access settings failed: " . $err)
     }
-    # MAC WinBox and LAN list membership remain valid because no LAN bridge is removed.
 
     :onerror err in={
         :local staticDNS [/ip/dns get servers]
@@ -48,32 +175,23 @@
         :if (([:len $staticDNS] = 0) && ([:len $dynamicDNS] = 0) && ([:len $dohServer] = 0)) do={
             /ip/dns set servers=1.1.1.1,1.0.0.1
         }
+        /ip/dns set allow-remote-requests=yes
     } do={
         :set failed true
         :log error ("nasnet-panel: router DNS preparation failed: " . $err)
     }
-
     :onerror err in={
         /system/ntp/client set enabled=yes
-    } do={
-        :set failed true
-        :log error ("nasnet-panel: enabling NTP failed: " . $err)
-    }
-    :foreach ntpHost in=[:toarray "pool.ntp.org,time.cloudflare.com,time.google.com"] do={
-        :onerror err in={
+        :foreach ntpHost in=[:toarray "pool.ntp.org,time.cloudflare.com,time.google.com"] do={
             :if ([:len [/system/ntp/client/servers find address=$ntpHost]] = 0) do={
                 /system/ntp/client/servers add address=$ntpHost
             }
-        } do={
-            :set failed true
-            :log error ("nasnet-panel: NTP server " . $ntpHost . " failed: " . $err)
         }
+    } do={
+        :set failed true
+        :log error ("nasnet-panel: NTP preparation failed: " . $err)
     }
 
-    # Rebuild only rules bearing these exact installer-owned comments.
-    # Add/position the replacement before removing previous entries. This repairs
-    # disabled, duplicate or edited rules, including unexpected extra match conditions.
-    # Move above existing DNS redirects; do not flush connection tracking.
     :foreach proto in=[:toarray "tcp,udp"] do={
         :local ownedComment ("nasnet-panel-installer-container-dns-" . $proto)
         :onerror err in={
@@ -91,176 +209,114 @@
             :foreach oldRule in=$previous do={
                 /ip/firewall/nat remove $oldRule
             }
-            :if ([:len [/ip/firewall/nat find comment=$ownedComment]] != 1) do={
-                :error "expected exactly one owned DNS rule"
-            }
-            :if ([/ip/firewall/nat get $replacement disabled]) do={
-                :error "DNS rule is disabled"
-            }
         } do={
             :set failed true
             :log error ("nasnet-panel: container DNS " . $proto . " failed: " . $err)
         }
     }
 
-    # The default input firewall rejects a new container network that is not LAN.
-    # Permit the panel to reach only its router-side gateway; leave existing rules intact.
-    :onerror err in={
-        :local ownedComment "nasnet-panel-baseline-container-router"
-        :local previous [/ip/firewall/filter find comment=$ownedComment]
-        :local replacement [/ip/firewall/filter add chain=input action=accept src-address=$containerIP dst-address=$containerGateway disabled=no comment=$ownedComment]
-        :onerror moveError in={
-            :local firstRule [:pick [/ip/firewall/filter find dynamic=no] 0]
-            :if ($firstRule != $replacement) do={
-                /ip/firewall/filter move $replacement destination=$firstRule
-            }
-        } do={
-            /ip/firewall/filter remove $replacement
-            :error $moveError
-        }
-        :foreach oldRule in=$previous do={
-            /ip/firewall/filter remove $oldRule
-        }
-        :if ([:len [/ip/firewall/filter find comment=$ownedComment]] != 1) do={
-            :error "expected exactly one container-to-router rule"
-        }
-    } do={
-        :set failed true
-        :log error ("nasnet-panel: container-to-router access failed: " . $err)
-    }
-
-    # Readiness checks do not reset ports, DHCP clients, routes or active connections.
     :onerror err in={
         :local resolved [:resolve "release-assets.githubusercontent.com"]
         :log info ("nasnet-panel: download hostname resolves to " . $resolved)
     } do={
-        :set failed true
-        :log error ("nasnet-panel: download hostname resolution failed: " . $err)
-    }
-    :onerror err in={
-        :local remaining 30
-        :while (([/system/ntp/client get status] != "synchronized") && ($remaining > 0)) do={
-            :delay 1s
-            :set remaining ($remaining - 1)
-        }
-        :if ([/system/ntp/client get status] != "synchronized") do={
-            :error "clock is not NTP-synchronized after 30 seconds; retry when synchronized"
-        }
-    } do={
-        :set failed true
-        :log error ("nasnet-panel: clock readiness failed: " . $err)
+        :log warning ("nasnet-panel: download hostname does not resolve yet: " . $err)
     }
 
-    :if ($failed) do={
-        :log error "nasnet-panel: BASELINE FAILED; inspect preceding errors, then rerun; installation must not continue"
-        :error "nasnet-panel baseline preparation failed"
-    }
-
-    # Final phase: default LAN migration. NASnet Connect already has the target LAN.
-    # Preserve the existing bridge/MAC/ports and old gateway as a transition alias.
-    # A new DHCP pool moves renewing clients to 192.168.10.0/24.
-    :local oldGateway [/ip/address find address="192.168.88.1/24"]
-    :if ([:len $oldGateway] = 0) do={
-        :if ([:len [/ip/address find address="192.168.10.1/24" disabled=no]] = 0) do={
-            :error "nasnet-panel: neither supported LAN gateway exists; LAN migration not attempted"
-        }
-        :log info "nasnet-panel: target LAN gateway already exists; existing LAN configuration preserved"
-    } else={
-        :if ([:len $oldGateway] != 1) do={ :error "nasnet-panel: ambiguous default gateway" }
-        :local lanIface [/ip/address get $oldGateway interface]
-        :if ([:len [/interface/bridge find name=$lanIface]] != 1) do={
-            :error "nasnet-panel: default LAN gateway is not on a bridge"
-        }
-        :local dhcpID [/ip/dhcp-server find interface=$lanIface]
-        :if ([:len $dhcpID] != 1) do={ :error "nasnet-panel: expected one DHCP server on default LAN" }
-        :if ([/ip/dhcp-server get $dhcpID disabled]) do={ :error "nasnet-panel: default LAN DHCP server is disabled" }
-        :local dhcpName [/ip/dhcp-server get $dhcpID name]
-        :local newGateway [/ip/address find address="192.168.10.1/24"]
-        :foreach a in=[/ip/address find network=192.168.10.0] do={
-            :if ([/ip/address get $a interface] != $lanIface) do={
-                :error "nasnet-panel: target LAN network already belongs to a different interface"
+    :if (!$layoutPresent && ($lanBridge != "")) do={
+        :onerror err in={
+            :local dhcpIDs [/ip/dhcp-server find interface=$lanBridge]
+            :if ([:len $dhcpIDs] != 1) do={ :error ("expected one DHCP server on " . $lanBridge . ", found " . [:len $dhcpIDs]) }
+            :local dhcpID ($dhcpIDs->0)
+            :local oldDhcpName [/ip/dhcp-server get $dhcpID name]
+            :foreach leaseID in=[/ip/dhcp-server/lease find dynamic=no] do={
+                :local leaseServer [/ip/dhcp-server/lease get $leaseID server]
+                :if (($leaseServer = $oldDhcpName) || ($leaseServer = "all")) do={
+                    :if (!([/ip/dhcp-server/lease get $leaseID address] in $lanNetworkPrefix)) do={
+                        :error "static DHCP reservations outside 192.168.10.0/24 must be migrated by hand first"
+                    }
+                }
             }
-        }
-        :if ([:len $newGateway] > 1) do={ :error "nasnet-panel: duplicate target gateway addresses" }
-        # Static reservations need an explicit mapping, not silent reassignment.
-        :foreach leaseID in=[/ip/dhcp-server/lease find dynamic=no] do={
-            :local leaseServer [/ip/dhcp-server/lease get $leaseID server]
-            :if (($leaseServer = $dhcpName) || ($leaseServer = "all")) do={
-                :error "nasnet-panel: static DHCP reservations require migration before default LAN cutover"
+            :local addrIDs [/ip/address find interface=$lanBridge dynamic=no]
+            :local targetExists ([:len [/ip/address find interface=$lanBridge address=$lanCIDR]] > 0)
+            :if (([:len $addrIDs] > 1) && (!$targetExists)) do={
+                :error ("expected one static address on " . $lanBridge . ", found " . [:len $addrIDs])
             }
-        }
-        :local poolName "nasnet-panel-baseline-lan-pool"
-        :local poolID [/ip/pool find name=$poolName]
-        :if ([:len $poolID] > 0) do={
-            :if ([:tostr [/ip/pool get $poolID ranges]] != "192.168.10.2-192.168.10.254") do={
-                :error "nasnet-panel: reserved migration pool has unexpected ranges"
+
+            /interface/bridge set [find name=$lanBridge] name=$lanBridgeName comment="Split"
+            :set lanBridge $lanBridgeName
+            :if ([:len [/interface/list/member find list=LAN interface=$lanBridgeName]] = 0) do={
+                /interface/list/member add list=LAN interface=$lanBridgeName comment="Split"
             }
-        }
-        :local targetNetwork [/ip/dhcp-server/network find address="192.168.10.0/24"]
-        :if ([:len $targetNetwork] > 1) do={ :error "nasnet-panel: duplicate target DHCP networks" }
-        :local needsReconnect false
-        :if ([/ip/dhcp-server get $dhcpID address-pool] != $poolName) do={ :set needsReconnect true }
-        :if ([:len $newGateway] > 0) do={
-            :if ([/ip/address get $newGateway comment] = "nasnet-panel: LAN migration pending") do={ :set needsReconnect true }
-        } else={
-            :set needsReconnect true
-        }
 
-        # Prepare the new gateway and DHCP options before switching the active pool.
-        :if ([:len $newGateway] = 0) do={
-            /ip/address add address=192.168.10.1/24 network=192.168.10.0 interface=$lanIface comment="nasnet-panel: LAN migration pending"
-            :set newGateway [/ip/address find address="192.168.10.1/24"]
-        }
-        /ip/address set $newGateway disabled=no
-        :if ([:len $poolID] = 0) do={
-            /ip/pool add name=$poolName ranges=192.168.10.2-192.168.10.254
-        }
-        :if ([:len $targetNetwork] = 0) do={
-            /ip/dhcp-server/network add address=192.168.10.0/24 gateway=192.168.10.1 dns-server=192.168.10.1 comment="nasnet-panel: migrated LAN"
-        } else={
-            /ip/dhcp-server/network set $targetNetwork gateway=192.168.10.1 dns-server=192.168.10.1
-        }
-        /ip/dns set allow-remote-requests=yes
-        :if ($needsReconnect) do={
-            /ip/address set $newGateway comment="nasnet-panel: LAN migration pending"
-        }
-        /ip/dhcp-server set $dhcpID address-pool=$poolName authoritative=yes lease-time=5m
-        # Remove old dynamic bindings only after the new pool is active.
-        # This alone does not force clients to renew; the final link cycle helps.
-        :foreach leaseID in=[/ip/dhcp-server/lease find server=$dhcpName dynamic=yes] do={
-            :local leaseIP [/ip/dhcp-server/lease get $leaseID address]
-            :if ($leaseIP in 192.168.88.0/24) do={ /ip/dhcp-server/lease remove $leaseID }
-        }
-        /ip/dns/static set [find name="router.lan" address=192.168.88.1] address=192.168.10.1
-        :if ([/ip/dhcp-server get $dhcpID address-pool] != $poolName) do={
-            :error "nasnet-panel: DHCP pool switch verification failed"
-        }
-        /interface/bridge set [find name=$lanIface] dhcp-snooping=yes
+            :local oldPool [:tostr [/ip/dhcp-server get $dhcpID address-pool]]
+            :if ([:len [/ip/pool find name=$lanPoolName]] > 0) do={
+                /ip/pool set [find name=$lanPoolName] ranges=$lanPoolRanges
+            } else={
+                :if (($oldPool != "") && ($oldPool != "static-only") && ([:len [/ip/pool find name=$oldPool]] > 0)) do={
+                    /ip/pool set [find name=$oldPool] name=$lanPoolName ranges=$lanPoolRanges comment="Split"
+                } else={
+                    /ip/pool add name=$lanPoolName ranges=$lanPoolRanges comment="Split"
+                }
+            }
 
-        # Last disruptive operation. Only currently enabled members of this LAN.
-        # Do not touch WAN interfaces, move ports, or delete the original bridge.
-        :if ($needsReconnect) do={
-            :log warning "nasnet-panel: LAN moving to 192.168.10.1; clients will briefly disconnect and renew DHCP"
-            :foreach portID in=[/interface/bridge/port find bridge=$lanIface disabled=no] do={
+            /ip/dhcp-server set $dhcpID name=$lanDhcpName address-pool=$lanPoolName comment="Split" disabled=no
+
+            :local oldIP ""
+            :local oldNetworkCIDR ""
+            :if ($targetExists) do={
+                /ip/address set [find interface=$lanBridgeName address=$lanCIDR] comment="Split" disabled=no
+            } else={
+                :if ([:len $addrIDs] = 1) do={
+                    :local a ($addrIDs->0)
+                    :local oldAddr [:tostr [/ip/address get $a address]]
+                    :set oldIP [:pick $oldAddr 0 [:find $oldAddr "/"]]
+                    :set oldNetworkCIDR ([:tostr [/ip/address get $a network]] . [:pick $oldAddr [:find $oldAddr "/"] [:len $oldAddr]])
+                    /ip/address set $a address=$lanCIDR network=$lanNetwork comment="Split" disabled=no
+                } else={
+                    /ip/address add address=$lanCIDR network=$lanNetwork interface=$lanBridgeName comment="Split"
+                }
+            }
+            :local netIDs [/ip/dhcp-server/network find address=$lanNetworkCIDR]
+            :if ([:len $netIDs] = 0) do={
+                :if (($oldNetworkCIDR != "") && ([:len [/ip/dhcp-server/network find address=$oldNetworkCIDR]] = 1)) do={
+                    /ip/dhcp-server/network set [find address=$oldNetworkCIDR] address=$lanNetworkCIDR gateway=$lanIP dns-server=$lanIP comment="Split"
+                } else={
+                    /ip/dhcp-server/network add address=$lanNetworkCIDR gateway=$lanIP dns-server=$lanIP comment="Split"
+                }
+            } else={
+                /ip/dhcp-server/network set ($netIDs->0) gateway=$lanIP dns-server=$lanIP comment="Split"
+            }
+            :if ($oldIP != "") do={
+                /ip/dns/static set [find address=$oldIP] address=$lanIP
+            }
+
+            /ip/dhcp-server/lease remove [find server=$lanDhcpName dynamic=yes]
+            :log warning ("nasnet-panel: LAN moving to " . $lanIP . "; clients will briefly disconnect and renew DHCP")
+            :foreach portID in=[/interface/bridge/port find bridge=$lanBridgeName disabled=no] do={
                 :local portName [/interface/bridge/port get $portID interface]
                 :local ifaceID [/interface find name=$portName]
-                :if (![/interface get $ifaceID disabled]) do={
+                :if (([:len $ifaceID] = 1) && (![/interface get $ifaceID disabled])) do={
                     :onerror cycleError in={
                         /interface disable $ifaceID
                         :delay 1s
                         /interface enable $ifaceID
                     } do={
-                        # Always attempt to restore a port disabled by this script.
                         /interface enable $ifaceID
-                        :error ("nasnet-panel: LAN reconnect failed on " . $portName . ": " . $cycleError)
+                        :log warning ("nasnet-panel: link cycle failed on " . $portName . ": " . $cycleError)
                     }
                 }
             }
-            /ip/address set $newGateway comment="nasnet-panel: migrated LAN"
+            :log info ("nasnet-panel: LAN gateway is " . $lanIP . " on " . $lanBridgeName)
+        } do={
+            :set failed true
+            :log error ("nasnet-panel: LAN migration failed: " . $err)
         }
-        :log info "nasnet-panel: DHCP now assigns 192.168.10.x; 192.168.88.1 retained temporarily for clients still renewing"
     }
-    :log info "nasnet-panel: BASELINE READY; LAN gateway is 192.168.10.1; container installation and application checks are still required"
-    :put "NasNet baseline ready. Reconnect at 192.168.10.1; clients still on 192.168.88.x may need DHCP renewal."
-}
 
+    :if ($failed) do={
+        :log error "nasnet-panel: BASELINE FINISHED WITH ERRORS; inspect the preceding nasnet-panel log lines"
+        :error "nasnet-panel baseline finished with errors"
+    }
+    :log info ("nasnet-panel: BASELINE READY; LAN gateway is " . $lanIP . "; reconnect at " . $lanIP . " or by MAC address")
+    :put ("NasNet baseline ready. Reconnect at " . $lanIP . "; clients on the old subnet renew DHCP automatically.")
+}
