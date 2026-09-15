@@ -87,10 +87,22 @@ func (c *console) expect(timeout time.Duration, poke bool, patterns ...string) (
 	}
 }
 
+func (c *console) clear() {
+	c.mu.Lock()
+	c.buf = ""
+	c.mu.Unlock()
+}
+
+func (c *console) settle() {
+	time.Sleep(time.Second)
+	c.clear()
+}
+
 func (c *console) login(user, password string) (bool, error) {
 	passwordSet := false
 attempts:
 	for attempt := 0; attempt < 3; attempt++ {
+		c.settle()
 		if err := c.send(user + "+cet"); err != nil {
 			return false, err
 		}
@@ -105,6 +117,7 @@ attempts:
 			return false, err
 		}
 
+		sentLicense, sentNew, sentRepeat := false, false, false
 		for {
 			match, _, err := c.expect(90*time.Second, false,
 				"license?", "repeat new password>", "new password>", "login failed", "login:", "] >")
@@ -113,12 +126,24 @@ attempts:
 			}
 			switch match {
 			case "] >":
+				c.settle()
 				return passwordSet, nil
 			case "license?":
-				err = c.send("n")
-			case "repeat new password>", "new password>":
-				passwordSet = true
-				err = c.send(password)
+				if !sentLicense {
+					sentLicense = true
+					err = c.send("n")
+				}
+			case "new password>":
+				if !sentNew {
+					sentNew = true
+					passwordSet = true
+					err = c.send(password)
+				}
+			case "repeat new password>":
+				if !sentRepeat {
+					sentRepeat = true
+					err = c.send(password)
+				}
 			default:
 				continue attempts
 			}

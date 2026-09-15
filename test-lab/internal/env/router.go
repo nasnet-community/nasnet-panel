@@ -187,6 +187,7 @@ func (e *Env) consoleSetup(cmds []string) error {
 
 func (c *console) runAll(cmds []string) error {
 	for _, cmd := range cmds {
+		c.clear()
 		if err := c.send(cmd); err != nil {
 			return err
 		}
