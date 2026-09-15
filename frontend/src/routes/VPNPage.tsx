@@ -19,6 +19,7 @@ import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
 import { mapClientFromBE, mapServersStatusToList } from './vpn/adapters';
 import { StatsStrip } from './vpn/StatsStrip';
+import { ActiveConnectionsSection } from './vpn/sections/ActiveConnectionsSection';
 import { ServersSection } from './vpn/sections/ServersSection';
 import { UsersSection } from './vpn/sections/UsersSection';
 // import { PeersSection } from './vpn/sections/PeersSection';
@@ -109,6 +110,7 @@ export function VPNPage() {
         loading={!loaded}
       />
       <ServersSection creds={creds} servers={servers} peerCounts={peerCounts} onChanged={reload} />
+      <ActiveConnectionsSection creds={creds} />
       <UsersSection creds={creds} users={users} onChanged={reload} />
       {/* <PeersSection routerId={id} peers={peers} servers={servers} onChanged={reload} /> */}
     </Stack>
