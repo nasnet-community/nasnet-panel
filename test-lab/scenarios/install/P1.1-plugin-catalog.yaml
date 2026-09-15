@@ -1,0 +1,16 @@
+id: 'P1.1-plugin-catalog'
+stage: install
+title: Plugin catalog loads after the panel is set up
+profiles: [all]
+start: bootstrapped
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api:
+      method: GET
+      path: /api/plugin/plugins
+      status: 200
+      contains: [lab-echo, lab-broken-image, lab-broken-script, lab-arm-only]

@@ -1,0 +1,24 @@
+id: 'P3.1-reboot'
+stage: resilience
+title: Installed plugins start on boot
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+  - do: reboot
+  - do: sleep
+    with: { for: 60s }
+expect:
+  container:
+    - name: lab-echo
+      running: true
+  ports:
+    - { from: domestic-side, port: 18090, open: true }

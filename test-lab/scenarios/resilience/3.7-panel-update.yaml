@@ -1,0 +1,48 @@
+id: '3.7-panel-update'
+stage: resilience
+title: Updating the panel keeps the applied config
+profiles: [all]
+start: container-ready
+requires: { roles: [starlink, domestic, split], lab: [image-tar, previous-image-tar, cli-install] }
+steps:
+  - do: install
+    with: { installer: cli, image: previous }
+  - do: wizard
+    wizard:
+      foreign: starlink
+      domestic: domestic
+      wait_domestic_list: true
+  - do: install
+    with: { installer: cli }
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }
+  container:
+    - name: nasnet-panel
+      running: true

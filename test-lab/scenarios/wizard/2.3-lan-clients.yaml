@@ -1,0 +1,25 @@
+id: '2.3-lan-clients'
+stage: wizard
+title: Clients on each segment get a lease and reach the internet through their link
+profiles: [all]
+requires: { roles: [starlink, domestic, split, spare] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  dhcp:
+    - { from: split, lease: true, gateway: 192.168.10.1, dns: 192.168.10.1 }
+steps:
+  - do: segment_client
+    with: { client: p4, bridge: LANBridgeForeign }
+    expect:
+      traffic:
+        - { from: p4, to: foreign-host, exits: starlink }
+        - { from: p4, to: domestic-host, exits: starlink }
+  - do: segment_client
+    with: { client: p4, bridge: LANBridgeDomestic }
+    expect:
+      traffic:
+        - { from: p4, to: domestic-host, exits: domestic }
+        - { from: p4, to: foreign-host, exits: domestic }

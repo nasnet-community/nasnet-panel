@@ -1,0 +1,27 @@
+id: 'D3.4-resolver-filtered'
+stage: resilience
+title: A filtered resolver on a healthy link does not break the link
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: filter
+    with: { link: domestic, target: domestic-resolver }
+  - do: sleep
+    with: { for: 30s }
+expect:
+  dns:
+    - {
+        from: split,
+        name: lab.ir,
+        exits: domestic,
+        known_bug: Each DNS type has a single server so one filtered resolver breaks it,
+      }
+  values:
+    - path: /ip/route
+      where: { comment: CheckIP-Route-to-Domestic-Domestic Link }
+      fields: { disabled: 'no' }
+      known_bug: A filtered DNS server also takes the domestic link down

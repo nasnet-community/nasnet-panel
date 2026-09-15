@@ -235,7 +235,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 			Password: password,
 		}
 	}
-	if req.WiFiAP.SSID != "" {
+	if req.WiFiAP != nil && req.WiFiAP.SSID != "" {
 		identity = req.WiFiAP.SSID
 	}
 

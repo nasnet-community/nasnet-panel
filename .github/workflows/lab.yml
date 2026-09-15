@@ -1,0 +1,195 @@
+name: Lab
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - backend/internal/template/**
+      - backend/internal/handler/wizard*
+      - backend/internal/handler/dns*
+      - backend/internal/handler/plugin*
+      - backend/internal/handler/interface*
+      - backend/pkg/routeros/**
+      - scripts/install.sh
+      - scripts/nasnet-lan-baseline.rsc
+      - graphical-installer/internal/install/**
+      - graphical-installer/headless/**
+      - test-lab/**
+      - .github/workflows/lab.yml
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: Scenario id prefix, empty for all
+        default: ''
+      profile:
+        description: Device profile, empty for all
+        default: ''
+
+concurrency:
+  group: lab-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      profiles: ${{ steps.profiles.outputs.list }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-go-backend
+        with:
+          go-version-file: test-lab/go.mod
+          cache-dependency-path: '**/go.sum'
+      - name: Vet lab code
+        run: go -C test-lab vet -tags lab ./...
+      - name: Validate profiles and scenarios
+        run: go -C test-lab run ./cmd/labcheck
+      - name: Pick profiles
+        id: profiles
+        env:
+          FULL: ${{ github.event_name == 'schedule' || contains(github.event.pull_request.labels.*.name, 'lab:full') }}
+          PROFILE: ${{ inputs.profile }}
+        run: |
+          if [ -n "$PROFILE" ]; then
+            list="[\"$PROFILE\"]"
+          elif [ "$FULL" = "true" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            list=$(ls test-lab/profiles | sed 's/\.yaml$//' | jq -R . | jq -sc .)
+          else
+            list='["chr-x86"]'
+          fi
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v4
+      - name: Build panel image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: nasnet-panel:lab
+          build-args: APP_VERSION=lab-${{ github.sha }}
+      - name: Package RouterOS tar
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+          mkdir -p dist
+          skopeo copy docker-daemon:nasnet-panel:lab docker-archive:dist/nasnet-panel-lab-amd64.tar:nasnet-panel:lab
+      - name: Download previous snapshot tar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download snapshot -R "${{ github.repository }}" -p 'nasnet-panel-dev-amd64.tar' -O dist/nasnet-panel-previous-amd64.tar || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lab-images
+          path: dist/*.tar
+          retention-days: 3
+
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: routeros
+          key: routeros-7.24.2
+      - name: Download RouterOS images
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p routeros
+          cd routeros
+          for file in chr-7.24.2.img.zip all_packages-x86-7.24.2.zip; do
+            curl -fL --retry 10 --retry-all-errors --retry-delay 10 --connect-timeout 30 \
+              -o "$file.tmp" "https://download.mikrotik.com/routeros/7.24.2/$file"
+            mv "$file.tmp" "$file"
+          done
+      - uses: actions/cache/save@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: routeros
+          key: routeros-7.24.2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: routeros-images
+          path: routeros/*.zip
+          compression-level: 0
+          retention-days: 3
+
+  lab:
+    needs: [check, image, assets]
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        stage: [1, 2, 3]
+        shard: [1, 2]
+        profile: ${{ fromJSON(needs.check.outputs.profiles) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup-go-backend
+        with:
+          go-version-file: test-lab/go.mod
+          cache-dependency-path: '**/go.sum'
+      - name: Enable KVM
+        run: |
+          sudo mkdir -p /etc/udev/rules
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules/99-kvm4all.rules
+          sudo udevadm control --reload-rules || true
+          sudo udevadm trigger --name-match=kvm || true
+          if [ ! -e /dev/kvm ]; then
+            echo "::error::/dev/kvm is not available on this runner"
+            exit 1
+          fi
+          ls -l /dev/kvm
+      - name: Install lab tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 qemu-utils nftables dnsmasq-base wireguard-tools xl2tpd ppp openvpn openssh-client curl
+      - uses: actions/download-artifact@v4
+        with:
+          name: lab-images
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: routeros-images
+          path: routeros
+      - name: Place RouterOS images in the lab cache
+        run: |
+          mkdir -p "$HOME/.cache/nasnet-test-lab"
+          mv routeros/*.zip "$HOME/.cache/nasnet-test-lab/"
+          ls -l "$HOME/.cache/nasnet-test-lab"
+      - name: Run stage ${{ matrix.stage }} shard ${{ matrix.shard }} on ${{ matrix.profile }}
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+        run: |
+          previous=""
+          if [ -f dist/nasnet-panel-previous-amd64.tar ]; then
+            previous="-previous-image-tar $GITHUB_WORKSPACE/dist/nasnet-panel-previous-amd64.tar"
+          fi
+          sudo -E env "PATH=$PATH" go -C test-lab test -tags lab -v -count=1 -timeout 340m \
+            -run "TestStage${{ matrix.stage }}" . \
+            -profile "${{ matrix.profile }}" \
+            -shard "${{ matrix.shard }}/2" \
+            -scenario "$SCENARIO" \
+            -cache "$HOME/.cache/nasnet-test-lab" \
+            -image-tar "$GITHUB_WORKSPACE/dist/nasnet-panel-lab-amd64.tar" \
+            $previous
+      - name: Hand cache back to the runner user
+        if: always()
+        run: sudo chown -R "$USER" "$HOME/.cache/nasnet-test-lab" test-lab || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: lab-artifacts-stage${{ matrix.stage }}-shard${{ matrix.shard }}-${{ matrix.profile }}
+          path: test-lab/artifacts
+          retention-days: 7

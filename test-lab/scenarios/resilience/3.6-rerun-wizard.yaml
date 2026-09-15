@@ -1,0 +1,53 @@
+id: '3.6-rerun-wizard'
+stage: resilience
+title: Re-running the wizard with other inputs leaves no stale config
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [wireguard, l2tp] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  l2tp_client: true
+  wait_domestic_list: true
+steps:
+  - do: wizard
+    wizard:
+      foreign: starlink
+      domestic: domestic
+      wireguard_client: true
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }
+  sections:
+    - path: /interface/l2tp-client
+      key: name
+      absent: [l2tp-client-L2TP-Client]
+    - path: /routing/table
+      key: name
+      present: [to-VPN-wg-client]
+      absent: [to-VPN-L2TP-Client]

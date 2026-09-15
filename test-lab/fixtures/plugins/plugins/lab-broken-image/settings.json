@@ -1,0 +1,12 @@
+{
+  "settings": [
+    {
+      "key": "token",
+      "label": "Token",
+      "type": "string",
+      "required": true,
+      "description": "Generated at install",
+      "generate": "uuid"
+    }
+  ]
+}

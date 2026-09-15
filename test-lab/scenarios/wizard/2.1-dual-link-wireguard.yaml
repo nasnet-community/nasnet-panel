@@ -1,0 +1,46 @@
+id: '2.1-dual-link-wireguard'
+stage: wizard
+title: Dual-link with a WireGuard client applies the expected config
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [wireguard] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wireguard_client: true
+  wait_domestic_list: true
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }
+  sections:
+    - path: /interface/wireguard
+      key: name
+      present: [wireguard-client-wg-client]
+    - path: /routing/table
+      key: name
+      present: [to-VPN-wg-client]

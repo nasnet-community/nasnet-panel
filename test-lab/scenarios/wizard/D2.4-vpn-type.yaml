@@ -1,0 +1,16 @@
+id: 'D2.4-vpn-type'
+stage: wizard
+title: VPN segment lookups go through the tunnel
+profiles: [all]
+requires: { roles: [starlink, domestic, split, spare], lab: [wireguard] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wireguard_client: true
+  wait_domestic_list: true
+steps:
+  - do: segment_client
+    with: { client: p4, bridge: LANBridgeVPN }
+    expect:
+      dns:
+        - { from: p4, name: lab.test, exits: vpn }

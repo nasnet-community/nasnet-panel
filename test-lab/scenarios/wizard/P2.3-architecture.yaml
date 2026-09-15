@@ -1,0 +1,23 @@
+id: 'P2.3-architecture'
+stage: wizard
+title: Plugin without support for the router architecture fails early and creates nothing
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-arm-only, phase: error }
+expect:
+  container:
+    - name: lab-arm-only
+      present: false
+  values:
+    - path: /interface/veth
+      where: { name: veth-lab-arm-only }
+      absent: true
