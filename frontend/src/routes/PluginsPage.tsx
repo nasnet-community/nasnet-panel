@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Blocks, Download, Trash2, TriangleAlert } from 'lucide-react';
+import { Blocks, Download, RefreshCw, Trash2, TriangleAlert } from 'lucide-react';
 import {
   Badge,
   Button,
@@ -16,8 +16,10 @@ import {
   ApiError,
   fetchPlugins,
   fetchPluginInstallStatus,
+  fetchPluginUpdateStatus,
   installPlugin,
   uninstallPlugin,
+  updatePlugin,
   type PluginCredentials,
   type PluginInfoResponse,
 } from '../api';
@@ -45,6 +47,16 @@ const PLUGIN_INSTALL_STEPS: Record<string, { value: number; label: string }> = {
   pulling: { value: 65, label: 'Pulling image' },
   starting_container: { value: 85, label: 'Starting container' },
   running_post_install_script: { value: 95, label: 'Running post-install script' },
+};
+
+const PLUGIN_UPDATE_TIMEOUT_MS = 10 * 60 * 1000;
+
+const PLUGIN_UPDATE_STEPS: Record<string, { value: number; label: string }> = {
+  checking_version: { value: 10, label: 'Checking version' },
+  stopping_container: { value: 30, label: 'Stopping container' },
+  repulling: { value: 60, label: 'Pulling image' },
+  starting_container: { value: 85, label: 'Starting container' },
+  updating_comment: { value: 95, label: 'Finishing up' },
 };
 
 const FALLBACK_LOGOS: Record<string, React.FC<{ size?: number }>> = {
@@ -144,6 +156,8 @@ export function PluginsPage() {
   const [installs, setInstalls] = useState<Record<string, { value: number; label: string }>>({});
   const [confirmingUninstall, setConfirmingUninstall] = useState<PluginInfoResponse | null>(null);
   const [uninstallingId, setUninstallingId] = useState<string | null>(null);
+  const [updates, setUpdates] = useState<Record<string, { value: number; label: string }>>({});
+  const [confirmingUpdate, setConfirmingUpdate] = useState<PluginInfoResponse | null>(null);
   const inFlightRef = useRef(false);
   const watchingRef = useRef(new Set<string>());
   const activeRouterRef = useRef(id);
@@ -277,6 +291,89 @@ export function PluginsPage() {
     }
   };
 
+  const stopUpdate = (pluginId: string) => {
+    watchingRef.current.delete(pluginId);
+    setUpdates((prev) => {
+      const next = { ...prev };
+      delete next[pluginId];
+      return next;
+    });
+  };
+
+  const failUpdate = (pluginId: string, name: string, message: string) => {
+    stopUpdate(pluginId);
+    toast.notify({ title: `${name} update failed`, description: message, tone: 'danger' });
+    void reload(true);
+  };
+
+  const watchUpdate = (pluginId: string, name: string, startedAt: number) => {
+    if (!watchingRef.current.has(pluginId) || !creds) return;
+    if (Date.now() - startedAt > PLUGIN_UPDATE_TIMEOUT_MS) {
+      failUpdate(pluginId, name, 'Timed out waiting for the update to finish');
+      return;
+    }
+    void fetchPluginUpdateStatus(creds, pluginId)
+      .then(
+        (status) => status,
+        (err) => (err instanceof ApiError && err.status === 404 ? ('gone' as const) : null),
+      )
+      .then((status) => {
+        if (!watchingRef.current.has(pluginId)) return;
+        if (status === 'gone') {
+          stopUpdate(pluginId);
+          void reload(true);
+          return;
+        }
+        if (status?.phase === 'error') {
+          failUpdate(pluginId, name, status.message || 'Plugin update failed');
+          return;
+        }
+        if (status?.phase === 'unconfirmed') {
+          stopUpdate(pluginId);
+          toast.notify({
+            title: `${name} update unconfirmed`,
+            description:
+              status.message || 'The new image could not be verified. The plugin was restarted.',
+            tone: 'warning',
+          });
+          void reload(true);
+          return;
+        }
+        if (status?.phase === 'done') {
+          stopUpdate(pluginId);
+          toast.notify({
+            title: status.version ? `${name} updated to v${status.version}` : `${name} updated`,
+            tone: 'success',
+          });
+          void reload(true);
+          return;
+        }
+        const step = status ? PLUGIN_UPDATE_STEPS[status.phase] : undefined;
+        if (step) setUpdates((prev) => ({ ...prev, [pluginId]: step }));
+        window.setTimeout(() => watchUpdate(pluginId, name, startedAt), 2000);
+      });
+  };
+
+  const update = async () => {
+    const plugin = confirmingUpdate;
+    setConfirmingUpdate(null);
+    if (!plugin || !creds) return;
+    watchingRef.current.add(plugin.id);
+    setUpdates((prev) => ({ ...prev, [plugin.id]: { value: 5, label: 'Starting update' } }));
+    try {
+      await updatePlugin(creds, plugin.id);
+      watchUpdate(plugin.id, plugin.name, Date.now());
+    } catch (err) {
+      stopUpdate(plugin.id);
+      toast.notify({
+        title: `${plugin.name} update failed`,
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+      void reload(true);
+    }
+  };
+
   const uninstall = async () => {
     const plugin = confirmingUninstall;
     setConfirmingUninstall(null);
@@ -338,13 +435,16 @@ export function PluginsPage() {
         <div className={styles.grid}>
           {plugins.map((plugin) => {
             const localInstall = installs[plugin.id];
+            const localUpdate = updates[plugin.id];
             const badge = statusBadge(plugin, Boolean(localInstall));
             const installing = Boolean(localInstall) || plugin.installing;
+            const updating = Boolean(localUpdate);
+            const progress = localInstall ?? localUpdate;
             return (
               <article key={plugin.id} className={styles.card}>
                 <div className={styles.cardTop}>
                   <PluginIcon plugin={plugin} />
-                  <Stack $gap="4px" className={styles.cardHead}>
+                  <Stack $gap="0" className={styles.cardHead}>
                     <h3 className={styles.cardTitle} title={plugin.name}>
                       {plugin.name}
                     </h3>
@@ -357,42 +457,60 @@ export function PluginsPage() {
                         className={styles.cardAuthorLink}
                       >
                         {plugin.author}
-                      </a>{' '}
-                      · v{plugin.version}
+                      </a>
+                    </p>
+                    <p className={styles.cardAuthor}>
+                      {plugin.updateAvailable && plugin.installedVersion
+                        ? `v${plugin.installedVersion} (v${plugin.version} available)`
+                        : `v${plugin.version}`}
                     </p>
                   </Stack>
                 </div>
+                <div className={styles.badgeGroup}>
+                  <Badge tone="neutral" className={styles.categoryBadge}>
+                    {plugin.category}
+                  </Badge>
+                  {badge ? <Badge tone={badge.tone}>{badge.label}</Badge> : null}
+                </div>
                 <p className={styles.cardDesc}>{plugin.tagline}</p>
                 {plugin.note ? <PluginNote note={plugin.note} failed={plugin.failed} /> : null}
-                {localInstall ? (
-                  <Progress value={localInstall.value} label={localInstall.label} />
-                ) : null}
+                {progress ? <Progress value={progress.value} label={progress.label} /> : null}
                 <div className={styles.cardActions}>
-                  <div className={styles.badgeGroup}>
-                    <Badge tone="neutral" className={styles.categoryBadge}>
-                      {plugin.category}
-                    </Badge>
-                    {badge ? <Badge tone={badge.tone}>{badge.label}</Badge> : null}
-                  </div>
                   {installing ? (
                     <Button variant="primary" size="sm" loading>
                       Installing…
                     </Button>
-                  ) : plugin.installed ? (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => setConfirmingUninstall(plugin)}
-                      loading={uninstallingId === plugin.id}
-                    >
-                      {uninstallingId === plugin.id ? (
-                        'Uninstalling…'
-                      ) : (
-                        <>
-                          <Trash2 size={14} aria-hidden /> Uninstall
-                        </>
-                      )}
+                  ) : updating ? (
+                    <Button variant="primary" size="sm" loading>
+                      Updating…
                     </Button>
+                  ) : plugin.installed ? (
+                    <div className={styles.cardButtons}>
+                      {plugin.updateAvailable ? (
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => setConfirmingUpdate(plugin)}
+                        >
+                          <RefreshCw size={14} aria-hidden /> Update
+                        </Button>
+                      ) : null}
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className={styles.uninstallButton}
+                        onClick={() => setConfirmingUninstall(plugin)}
+                        loading={uninstallingId === plugin.id}
+                      >
+                        {uninstallingId === plugin.id ? (
+                          'Uninstalling…'
+                        ) : (
+                          <>
+                            <Trash2 size={14} aria-hidden /> Uninstall
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   ) : containerSupport === false ? (
                     <Button variant="secondary" size="sm" disabled>
                       Unavailable
@@ -421,6 +539,16 @@ export function PluginsPage() {
         confirmLabel="Uninstall"
         onConfirm={uninstall}
         onCancel={() => setConfirmingUninstall(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmingUpdate !== null}
+        title={`Update ${confirmingUpdate?.name ?? 'plugin'}?`}
+        description="The plugin container restarts and is briefly offline during the update."
+        confirmLabel="Update"
+        confirmVariant="success"
+        onConfirm={update}
+        onCancel={() => setConfirmingUpdate(null)}
       />
     </PageShell>
   );

@@ -166,6 +166,26 @@ export async function fetchEthernetInterfaces(
   return list ?? [];
 }
 
+export interface CableTestResponse {
+  name: string;
+  status: string;
+  cablePairs?: string;
+}
+
+export async function testEthernetCable(
+  creds: SystemCredentials,
+  nameOrId: string,
+): Promise<CableTestResponse> {
+  return apiRequest<CableTestResponse>(
+    `/api/interface/ethernet/cable-test/${encodeURIComponent(nameOrId)}`,
+    {
+      method: 'POST',
+      headers: authHeaders(creds),
+      cache: 'no-store',
+    },
+  );
+}
+
 export type WanInterfaceType = 'foreign' | 'domestic';
 
 export interface UpdateWanInterfaceRequest {

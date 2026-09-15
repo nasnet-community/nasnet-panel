@@ -18,6 +18,8 @@ export interface PluginInfoResponse {
   running: boolean;
   installing: boolean;
   failed: boolean;
+  installedVersion?: string;
+  updateAvailable: boolean;
   note?: string;
 }
 
@@ -55,6 +57,28 @@ export interface PluginInstallStatusResponse {
   startedAt?: string;
   containerId?: string;
   interface?: string;
+}
+
+export type PluginUpdatePhase =
+  | 'checking_version'
+  | 'stopping_container'
+  | 'repulling'
+  | 'starting_container'
+  | 'updating_comment'
+  | 'done'
+  | 'unconfirmed'
+  | 'error';
+
+export interface UpdatePluginResponse {
+  pluginId: string;
+}
+
+export interface PluginUpdateStatusResponse {
+  pluginId: string;
+  phase: PluginUpdatePhase;
+  message?: string;
+  startedAt?: string;
+  version?: string;
 }
 
 export interface UninstallPluginResponse {
@@ -117,6 +141,32 @@ export async function fetchPluginInstallStatus(
 ): Promise<PluginInstallStatusResponse> {
   return apiRequest<PluginInstallStatusResponse>(
     `/api/plugin/install/status/${encodeURIComponent(pluginId)}`,
+    {
+      method: 'GET',
+      headers: authHeaders(creds),
+      cache: 'no-store',
+      signal,
+    },
+  );
+}
+
+export async function updatePlugin(
+  creds: PluginCredentials,
+  pluginId: string,
+): Promise<UpdatePluginResponse> {
+  return apiRequest<UpdatePluginResponse>(`/api/plugin/update/${encodeURIComponent(pluginId)}`, {
+    method: 'POST',
+    headers: authHeaders(creds),
+  });
+}
+
+export async function fetchPluginUpdateStatus(
+  creds: PluginCredentials,
+  pluginId: string,
+  signal?: AbortSignal,
+): Promise<PluginUpdateStatusResponse> {
+  return apiRequest<PluginUpdateStatusResponse>(
+    `/api/plugin/update/status/${encodeURIComponent(pluginId)}`,
     {
       method: 'GET',
       headers: authHeaders(creds),
