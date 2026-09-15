@@ -24,6 +24,7 @@ import {
   useToast,
 } from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
+import { CableTestCard } from './CableTestCard';
 import {
   DIAG_REPORT_FILENAME,
   fetchDiagReport,
@@ -345,6 +346,7 @@ export function DiagnosticsPage() {
           </Button>
         </Card>
       </SectionGrid>
+      <CableTestCard creds={creds} />
       <ConfirmDialog
         open={resetConfirmOpen}
         title="Reset configuration?"
