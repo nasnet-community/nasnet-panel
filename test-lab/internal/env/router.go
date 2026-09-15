@@ -144,7 +144,7 @@ func (e *Env) bootVM() error {
 		idx := i + 1
 		args = append(args,
 			"-netdev", fmt.Sprintf("tap,id=net%d,ifname=%s,script=no,downscript=no", idx, e.net.link("t", idx)),
-			"-device", fmt.Sprintf("virtio-net-pci,netdev=net%d,mac=52:54:%s:%s:%02x:%02x", idx, e.ID[:2], e.ID[2:4], e.net.hostIdx, idx),
+			"-device", fmt.Sprintf("virtio-net-pci,netdev=net%d,mac=52:54:00:4c:00:%02x", idx, idx),
 		)
 	}
 	return e.start("router", args...)
