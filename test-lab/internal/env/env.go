@@ -3,6 +3,7 @@ package env
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -158,6 +159,7 @@ type Setup struct {
 	Panel          string
 	Patch          *Patch
 	DomesticSubnet string
+	Snapshot       string
 }
 
 type Env struct {
@@ -181,6 +183,7 @@ type Env struct {
 	filters  []filter
 	vpn      *vpnServers
 	cleanups []func()
+	restored bool
 }
 
 func New(t *testing.T, p *profile.Profile, opts Options, setup Setup) *Env {
@@ -258,6 +261,22 @@ func (e *Env) startNetwork() error {
 	}
 	e.Probe = &probe.Prober{Labsvc: e.assets.labsvc, Namespaces: namespaces}
 	return e.net.mgmtResolver(VPNResolver)
+}
+
+func (e *Env) Restored() bool {
+	return e.restored
+}
+
+func (e *Env) SaveSnapshot() error {
+	if e.setup.Snapshot == "" {
+		return nil
+	}
+	return saveGolden(e, snapshotName(e.setup.Snapshot))
+}
+
+func snapshotName(key string) string {
+	sum := sha256.Sum256([]byte(key))
+	return "snapshot-" + hex.EncodeToString(sum[:6])
 }
 
 func (e *Env) Password() string {

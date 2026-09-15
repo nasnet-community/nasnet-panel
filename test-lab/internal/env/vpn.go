@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"nasnet-panel/test-lab/internal/sh"
@@ -29,14 +30,11 @@ func (e *Env) startVPNServers() error {
 	inet := e.net.ns("internet")
 
 	if len(MissingFeatureTools("wireguard")) == 0 {
-		serverPriv, serverPub, err := e.wgKeys()
+		creds, err := sessionVPN(e)
 		if err != nil {
 			return err
 		}
-		clientPriv, clientPub, err := e.wgKeys()
-		if err != nil {
-			return err
-		}
+		serverPriv, serverPub, clientPriv, clientPub := creds.serverPriv, creds.serverPub, creds.clientPriv, creds.clientPub
 		keyFile := filepath.Join(e.Dir, "wg-server.key")
 		if err := os.WriteFile(keyFile, []byte(serverPriv+"\n"), 0o600); err != nil {
 			return err
@@ -56,8 +54,12 @@ func (e *Env) startVPNServers() error {
 	}
 
 	if len(MissingFeatureTools("l2tp")) == 0 {
-		e.vpn.l2tpUser = "lab" + e.ID
-		e.vpn.l2tpPassword = randomHex(8)
+		creds, err := sessionVPN(e)
+		if err != nil {
+			return err
+		}
+		e.vpn.l2tpUser = creds.l2tpUser
+		e.vpn.l2tpPassword = creds.l2tpPassword
 		if err := e.writeL2TPConfig(); err != nil {
 			return err
 		}
@@ -70,6 +72,35 @@ func (e *Env) startVPNServers() error {
 		e.vpn.l2tp = true
 	}
 	return nil
+}
+
+type vpnCredentials struct {
+	serverPriv   string
+	serverPub    string
+	clientPriv   string
+	clientPub    string
+	l2tpUser     string
+	l2tpPassword string
+}
+
+var (
+	vpnOnce  sync.Once
+	vpnCreds vpnCredentials
+	vpnErr   error
+)
+
+func sessionVPN(e *Env) (vpnCredentials, error) {
+	vpnOnce.Do(func() {
+		if vpnCreds.serverPriv, vpnCreds.serverPub, vpnErr = e.wgKeys(); vpnErr != nil {
+			return
+		}
+		if vpnCreds.clientPriv, vpnCreds.clientPub, vpnErr = e.wgKeys(); vpnErr != nil {
+			return
+		}
+		vpnCreds.l2tpUser = "lab" + randomHex(3)
+		vpnCreds.l2tpPassword = randomHex(8)
+	})
+	return vpnCreds, vpnErr
 }
 
 func (e *Env) wgKeys() (string, string, error) {

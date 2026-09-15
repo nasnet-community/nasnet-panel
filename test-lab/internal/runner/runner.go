@@ -29,6 +29,7 @@ type Config struct {
 	Profile      string
 	ScenariosDir string
 	ProfilesDir  string
+	Shard        string
 }
 
 func Stage(t *testing.T, stage string, cfg Config) {
@@ -38,6 +39,11 @@ func Stage(t *testing.T, stage string, cfg Config) {
 		t.Fatalf("load %s scenarios: %v", stage, err)
 	}
 
+	shard, shards, err := parseShard(cfg.Shard)
+	if err != nil {
+		t.Fatalf("shard: %v", err)
+	}
+	index := 0
 	ran := false
 	for _, sc := range all {
 		if !strings.HasPrefix(sc.ID, cfg.Scenario) {
@@ -51,6 +57,10 @@ func Stage(t *testing.T, stage string, cfg Config) {
 		}
 		for _, name := range names {
 			if cfg.Profile != "" && name != cfg.Profile {
+				continue
+			}
+			index++
+			if (index-1)%shards != shard-1 {
 				continue
 			}
 			p, err := profile.Load(cfg.ProfilesDir, name)
@@ -81,7 +91,7 @@ func runScenario(t *testing.T, cfg Config, sc *scenario.Scenario, p *profile.Pro
 	}
 	t.Logf("%s: %s", sc.ID, sc.Title)
 
-	setup := env.Setup{Start: sc.Start, Panel: sc.Panel, DomesticSubnet: sc.Domestic}
+	setup := env.Setup{Start: sc.Start, Panel: sc.Panel, DomesticSubnet: sc.Domestic, Snapshot: snapshotKey(sc)}
 	if sc.PanelPatch != nil {
 		setup.Patch = &env.Patch{File: sc.PanelPatch.File, Find: sc.PanelPatch.Find, Replace: sc.PanelPatch.Replace}
 	}
@@ -92,8 +102,15 @@ func runScenario(t *testing.T, cfg Config, sc *scenario.Scenario, p *profile.Pro
 		t.Fatalf("reset leak counters: %v", err)
 	}
 
-	if sc.Wizard != nil && !r.wizard(sc.Wizard) {
-		return
+	if sc.Wizard != nil && !r.lab.Restored() {
+		if !r.wizard(sc.Wizard) {
+			return
+		}
+		if setup.Snapshot != "" {
+			if err := r.lab.SaveSnapshot(); err != nil {
+				t.Fatalf("save wizard snapshot: %v", err)
+			}
+		}
 	}
 	for i, step := range sc.Steps {
 		if !r.step(i, step) {
@@ -529,4 +546,36 @@ func contains(list []string, v string) bool {
 		}
 	}
 	return false
+}
+
+func snapshotKey(sc *scenario.Scenario) string {
+	w := sc.Wizard
+	if w == nil || w.ExpectError != "" || w.ExpectIncomplete || sc.PanelPatch != nil {
+		return ""
+	}
+	inputs := *w
+	inputs.KnownBug = ""
+	inputs.Timeout = ""
+	data, err := json.Marshal(struct {
+		Start    string
+		Domestic string
+		Wizard   scenario.Wizard
+	}{sc.Start, sc.Domestic, inputs})
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+func parseShard(value string) (int, int, error) {
+	if value == "" {
+		return 1, 1, nil
+	}
+	left, right, ok := strings.Cut(value, "/")
+	shard, err1 := strconv.Atoi(left)
+	shards, err2 := strconv.Atoi(right)
+	if !ok || err1 != nil || err2 != nil || shards < 1 || shard < 1 || shard > shards {
+		return 0, 0, fmt.Errorf("want i/n with 1 <= i <= n, got %q", value)
+	}
+	return shard, shards, nil
 }

@@ -100,8 +100,8 @@ func (c *console) settle() {
 
 func (c *console) login(user, password string) (bool, error) {
 	passwordSet := false
-attempts:
 	candidates := []string{"", password}
+attempts:
 	for attempt := 0; attempt < 4; attempt++ {
 		c.settle()
 		if err := c.send(user + "+cet"); err != nil {

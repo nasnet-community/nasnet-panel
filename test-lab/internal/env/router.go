@@ -17,6 +17,18 @@ import (
 var consoleErrors = []string{"failure:", "syntax error", "bad command name", "expected end of command", "input does not match"}
 
 func (e *Env) startRouter() error {
+	if e.setup.Snapshot != "" {
+		if golden, ok := findGolden(e, snapshotName(e.setup.Snapshot)); ok {
+			if err := e.newDisk(golden); err != nil {
+				return err
+			}
+			if err := e.bootVM(); err != nil {
+				return err
+			}
+			e.restored = true
+			return e.waitAPI(5 * time.Minute)
+		}
+	}
 	if e.setup.Start == StartFresh {
 		if err := e.newDisk(e.baseImage()); err != nil {
 			return err

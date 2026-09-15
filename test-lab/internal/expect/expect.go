@@ -46,6 +46,15 @@ func Report(t *testing.T, name, knownBug string, err error) {
 	}
 }
 
+const knownBugWithin = 10 * time.Second
+
+func bugWithin(within time.Duration, knownBug string) time.Duration {
+	if knownBug != "" && within > knownBugWithin {
+		return knownBugWithin
+	}
+	return within
+}
+
 func bug(own, inherited string) string {
 	if own != "" {
 		return own
@@ -198,7 +207,7 @@ func Traffic(t *testing.T, lab *env.Env, tr scenario.Traffic, inherited string) 
 		}
 		return lab.Probe.Fetch(ctx, tr.From, url)
 	}
-	within := scenario.Duration(tr.Within, defaultWithin)
+	within := bugWithin(scenario.Duration(tr.Within, defaultWithin), bug(tr.KnownBug, inherited))
 
 	var err error
 	if tr.Exits == "blocked" {
@@ -251,7 +260,7 @@ func holdFailing(d time.Duration, check func(context.Context) error) error {
 func DNS(t *testing.T, lab *env.Env, d scenario.DNS, inherited string) {
 	t.Helper()
 	name := fmt.Sprintf("dns %s from %s resolver %s exits %s", d.Name, d.From, d.Resolver, d.Exits)
-	within := scenario.Duration(d.Within, defaultWithin)
+	within := bugWithin(scenario.Duration(d.Within, defaultWithin), bug(d.KnownBug, inherited))
 
 	err := Eventually(context.Background(), within, 3*time.Second, func(ctx context.Context) error {
 		query := randomLabel() + "." + strings.TrimPrefix(d.Name, "*.")
@@ -453,7 +462,7 @@ func matchContainer(rows []map[string]string, c scenario.Container) error {
 func Tunnel(t *testing.T, lab *env.Env, tun scenario.Tunnel, inherited string) {
 	t.Helper()
 	name := fmt.Sprintf("tunnel %s up %t", tun.Type, tun.Up)
-	within := scenario.Duration(tun.Within, 90*time.Second)
+	within := bugWithin(scenario.Duration(tun.Within, 90*time.Second), bug(tun.KnownBug, inherited))
 
 	err := Eventually(context.Background(), within, 5*time.Second, func(ctx context.Context) error {
 		up, err := tunnelUp(ctx, lab, tun.Type)
@@ -538,7 +547,7 @@ func Panel(t *testing.T, lab *env.Env, p scenario.PanelCheck, inherited string) 
 func Plugin(t *testing.T, lab *env.Env, p scenario.Plugin, inherited string) {
 	t.Helper()
 	name := "plugin " + p.ID
-	within := scenario.Duration(p.Within, time.Minute)
+	within := bugWithin(scenario.Duration(p.Within, time.Minute), bug(p.KnownBug, inherited))
 
 	err := Eventually(context.Background(), within, 5*time.Second, func(ctx context.Context) error {
 		plugins, err := lab.Panel.Plugins(ctx)

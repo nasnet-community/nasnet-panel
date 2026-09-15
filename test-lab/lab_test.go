@@ -25,5 +25,6 @@ func config() runner.Config {
 		Profile:      *flagProfile,
 		ScenariosDir: "scenarios",
 		ProfilesDir:  "profiles",
+		Shard:        *flagShard,
 	}
 }

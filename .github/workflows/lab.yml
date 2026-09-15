@@ -44,7 +44,7 @@ jobs:
       - uses: ./.github/actions/setup-go-backend
         with:
           go-version-file: test-lab/go.mod
-          cache-dependency-path: test-lab/go.sum
+          cache-dependency-path: '**/go.sum'
       - name: Vet lab code
         run: go -C test-lab vet -tags lab ./...
       - name: Validate profiles and scenarios
@@ -132,13 +132,14 @@ jobs:
       max-parallel: 12
       matrix:
         stage: [1, 2, 3]
+        shard: [1, 2]
         profile: ${{ fromJSON(needs.check.outputs.profiles) }}
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-go-backend
         with:
           go-version-file: test-lab/go.mod
-          cache-dependency-path: test-lab/go.sum
+          cache-dependency-path: '**/go.sum'
       - name: Enable KVM
         run: |
           sudo mkdir -p /etc/udev/rules
@@ -167,7 +168,7 @@ jobs:
           mkdir -p "$HOME/.cache/nasnet-test-lab"
           mv routeros/*.zip "$HOME/.cache/nasnet-test-lab/"
           ls -l "$HOME/.cache/nasnet-test-lab"
-      - name: Run stage ${{ matrix.stage }} on ${{ matrix.profile }}
+      - name: Run stage ${{ matrix.stage }} shard ${{ matrix.shard }} on ${{ matrix.profile }}
         env:
           SCENARIO: ${{ inputs.scenario }}
         run: |
@@ -178,6 +179,7 @@ jobs:
           sudo -E env "PATH=$PATH" go -C test-lab test -tags lab -v -count=1 -timeout 340m \
             -run "TestStage${{ matrix.stage }}" . \
             -profile "${{ matrix.profile }}" \
+            -shard "${{ matrix.shard }}/2" \
             -scenario "$SCENARIO" \
             -cache "$HOME/.cache/nasnet-test-lab" \
             -image-tar "$GITHUB_WORKSPACE/dist/nasnet-panel-lab-amd64.tar" \
@@ -188,6 +190,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: lab-artifacts-stage${{ matrix.stage }}-${{ matrix.profile }}
+          name: lab-artifacts-stage${{ matrix.stage }}-shard${{ matrix.shard }}-${{ matrix.profile }}
           path: test-lab/artifacts
           retention-days: 7

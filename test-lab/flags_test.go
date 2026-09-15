@@ -17,4 +17,5 @@ var (
 	flagImageTar         = flag.String("image-tar", "", "panel container image tar built from this checkout")
 	flagPreviousImageTar = flag.String("previous-image-tar", "", "panel container image tar of the previous release, for update scenarios")
 	flagInternet         = flag.Bool("internet", false, "give the lab real internet access for scenarios that pull real plugin images")
+	flagShard            = flag.String("shard", "", "run only shard i of n, for example 1/2")
 )
