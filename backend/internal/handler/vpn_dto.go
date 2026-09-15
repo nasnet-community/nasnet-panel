@@ -524,9 +524,11 @@ type WireGuardServerPeerCreateResponse struct {
 	Disabled             bool   `json:"disabled"`
 }
 
-// ImportWireGuardConfigRequest represents a request to import a WireGuard configuration.
+// ImportWireGuardConfigRequest represents a request to import a WireGuard
+// client configuration. If InterfaceName is empty, a random two-word
+// lowercase name is generated for it.
 type ImportWireGuardConfigRequest struct {
-	InterfaceName string `json:"interfaceName" binding:"required" example:"wg-client"`
+	InterfaceName string `json:"interfaceName" example:"wg-client"`
 	Config        string `json:"config" binding:"required" example:"[Interface]\nListenPort = 51820\n..."`
 }
 
