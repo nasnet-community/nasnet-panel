@@ -444,7 +444,7 @@ export function PluginsPage() {
               <article key={plugin.id} className={styles.card}>
                 <div className={styles.cardTop}>
                   <PluginIcon plugin={plugin} />
-                  <Stack $gap="4px" className={styles.cardHead}>
+                  <Stack $gap="0" className={styles.cardHead}>
                     <h3 className={styles.cardTitle} title={plugin.name}>
                       {plugin.name}
                     </h3>
@@ -457,27 +457,25 @@ export function PluginsPage() {
                         className={styles.cardAuthorLink}
                       >
                         {plugin.author}
-                      </a>{' '}
-                      ·{' '}
+                      </a>
+                    </p>
+                    <p className={styles.cardAuthor}>
                       {plugin.updateAvailable && plugin.installedVersion
                         ? `v${plugin.installedVersion} (v${plugin.version} available)`
                         : `v${plugin.version}`}
                     </p>
                   </Stack>
                 </div>
+                <div className={styles.badgeGroup}>
+                  <Badge tone="neutral" className={styles.categoryBadge}>
+                    {plugin.category}
+                  </Badge>
+                  {badge ? <Badge tone={badge.tone}>{badge.label}</Badge> : null}
+                </div>
                 <p className={styles.cardDesc}>{plugin.tagline}</p>
                 {plugin.note ? <PluginNote note={plugin.note} failed={plugin.failed} /> : null}
                 {progress ? <Progress value={progress.value} label={progress.label} /> : null}
                 <div className={styles.cardActions}>
-                  <div className={styles.badgeGroup}>
-                    <Badge tone="neutral" className={styles.categoryBadge}>
-                      {plugin.category}
-                    </Badge>
-                    {badge ? <Badge tone={badge.tone}>{badge.label}</Badge> : null}
-                    {plugin.updateAvailable && !updating ? (
-                      <Badge tone="warning">update</Badge>
-                    ) : null}
-                  </div>
                   {installing ? (
                     <Button variant="primary" size="sm" loading>
                       Installing…
@@ -490,7 +488,7 @@ export function PluginsPage() {
                     <div className={styles.cardButtons}>
                       {plugin.updateAvailable ? (
                         <Button
-                          variant="primary"
+                          variant="success"
                           size="sm"
                           onClick={() => setConfirmingUpdate(plugin)}
                         >
@@ -498,8 +496,9 @@ export function PluginsPage() {
                         </Button>
                       ) : null}
                       <Button
-                        variant="danger"
+                        variant="secondary"
                         size="sm"
+                        className={styles.uninstallButton}
                         onClick={() => setConfirmingUninstall(plugin)}
                         loading={uninstallingId === plugin.id}
                       >
@@ -547,6 +546,7 @@ export function PluginsPage() {
         title={`Update ${confirmingUpdate?.name ?? 'plugin'}?`}
         description="The plugin container restarts and is briefly offline during the update."
         confirmLabel="Update"
+        confirmVariant="success"
         onConfirm={update}
         onCancel={() => setConfirmingUpdate(null)}
       />
