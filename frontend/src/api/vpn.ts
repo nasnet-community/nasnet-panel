@@ -991,6 +991,67 @@ export interface UpdateVPNUserRequest {
   comment?: string;
 }
 
+export interface PPPActiveSessionResponse {
+  id: string;
+  name: string;
+  service: string;
+  address?: string;
+  callerID?: string;
+  uptime: string;
+  encoding?: string;
+  sessionID?: string;
+}
+
+export interface ActiveWireguardPeerResponse {
+  id: string;
+  name: string;
+  interfaceName: string;
+  publicKey: string;
+  allowedAddresses: string;
+  clientAddress: string;
+  lastHandshake: string;
+  rxBytes: number;
+  txBytes: number;
+  rx: string;
+  tx: string;
+  dynamic: boolean;
+  disabled: boolean;
+}
+
+export interface ActiveVPNConnectionsResponse {
+  pppSessions: PPPActiveSessionResponse[];
+  wireguardPeers: ActiveWireguardPeerResponse[];
+}
+
+export async function listActiveVPNConnections(
+  creds: VPNCredentials,
+  signal?: AbortSignal,
+): Promise<ActiveVPNConnectionsResponse> {
+  const data = await apiRequest<ActiveVPNConnectionsResponse | null>('/api/vpn/active', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+  return {
+    pppSessions: data?.pppSessions ?? [],
+    wireguardPeers: data?.wireguardPeers ?? [],
+  };
+}
+
+export async function disconnectActiveVPNSession(
+  creds: VPNCredentials,
+  id: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest<void>(`/api/vpn/active/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
 export interface VPNProfileResponse {
   id: string;
   name: string;
