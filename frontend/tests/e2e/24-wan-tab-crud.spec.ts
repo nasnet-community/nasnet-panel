@@ -397,7 +397,7 @@ test.describe('WAN tab', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    await dialog.getByLabel('Comment').fill('mask one');
+    await dialog.getByLabel('Name', { exact: true }).fill('mask one');
     await dialog.getByLabel('Connect to').fill('vpn.example.com');
     await dialog.getByLabel('User').fill('user');
     await dialog.getByLabel('Password', { exact: true }).fill('secret');

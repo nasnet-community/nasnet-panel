@@ -439,7 +439,7 @@ test.describe('WAN VPN clients section', () => {
 
     await page.getByRole('button', { name: 'New' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Comment').fill('Home link');
+    await dialog.getByLabel('Name', { exact: true }).fill('Home link');
     await dialog.getByLabel('Connect to').fill('vpn.example.com');
     await dialog.getByLabel('User').fill('alice');
     await dialog.getByLabel('Password', { exact: true }).fill('s3cret');

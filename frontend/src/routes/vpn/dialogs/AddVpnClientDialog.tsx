@@ -224,12 +224,12 @@ export function AddVpnClientDialog({
 
         <FieldRow>
           <Label>
-            <span>Comment</span>
+            <span>Name</span>
             <Input
               value={draft.comment}
               onChange={(e) => set('comment', e.target.value)}
               placeholder="optional"
-              aria-label="Comment"
+              aria-label="Name"
               autoComplete="off"
             />
           </Label>
