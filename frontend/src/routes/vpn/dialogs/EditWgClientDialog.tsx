@@ -45,7 +45,7 @@ interface Props {
   creds: VPNCredentials | null;
   client: VPNClient;
   onCancel: () => void;
-  onSaved: () => void;
+  onSaved: (changes: { comment: string; disabled: boolean }) => void;
 }
 
 export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) {
@@ -75,7 +75,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
         const firstPeer = data.peers[0] ?? null;
         setPeer(firstPeer);
         setDraft({
-          comment: data.comment ?? '',
+          comment: data.comment || client.name,
           mtu: data.mtu ? String(data.mtu) : '',
           listenPort: data.listenPort ? String(data.listenPort) : '',
           interfacePrivateKey: '',
@@ -150,7 +150,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
 
     const ifaceBody: UpdateWireguardInterfaceRequest = {};
     if (draft.disabled !== details.disabled) ifaceBody.disabled = draft.disabled;
-    if (draft.comment !== (details.comment ?? '')) ifaceBody.comment = draft.comment;
+    if (draft.comment !== (details.comment || client.name)) ifaceBody.comment = draft.comment;
     if (draft.mtu.trim() !== '' && Number(draft.mtu) !== details.mtu) {
       ifaceBody.mtu = Number(draft.mtu);
     }
@@ -202,7 +202,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
       return;
     }
     setSubmitting(false);
-    onSaved();
+    onSaved({ comment: draft.comment, disabled: draft.disabled });
   };
 
   return (
@@ -231,7 +231,13 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
           <FieldRow>
             <Label>
               <span>Name</span>
-              <Input value={client.name} disabled aria-label="Name" />
+              <Input
+                value={draft.comment}
+                onChange={(e) => set('comment', e.target.value)}
+                placeholder="optional"
+                autoComplete="off"
+                aria-label="Name"
+              />
             </Label>
             <Label>
               <span>Listen port</span>
@@ -261,16 +267,6 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                 aria-invalid={submitAttempted && !!errors.mtu}
               />
               {submitAttempted && errors.mtu ? <FormError>{errors.mtu}</FormError> : null}
-            </Label>
-            <Label>
-              <span>Comment</span>
-              <Input
-                value={draft.comment}
-                onChange={(e) => set('comment', e.target.value)}
-                placeholder="optional"
-                autoComplete="off"
-                aria-label="Comment"
-              />
             </Label>
           </FieldRow>
           <FieldRow>

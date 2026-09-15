@@ -530,6 +530,7 @@ test.describe('WAN VPN clients section', () => {
     });
 
     let lastPutBody: {
+      comment?: string;
       connectTo?: string;
       user?: string;
       password?: string;
@@ -557,18 +558,20 @@ test.describe('WAN VPN clients section', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    await expect(dialog.getByLabel('Name')).toBeDisabled();
+    await expect(dialog.getByLabel('Name')).toBeEditable();
     await expect(dialog.getByLabel('Name')).toHaveValue('home-l2tp');
     await expect(dialog.getByLabel('Connect to')).toHaveValue('vpn.old.example.com');
     await expect(dialog.getByLabel('User')).toHaveValue('alice');
     await expect(dialog.getByRole('switch', { name: 'Use IPsec' })).toBeChecked();
 
+    await dialog.getByLabel('Name').fill('Home link');
     await dialog.getByLabel('Connect to').fill('vpn.new.example.com');
     await dialog.getByRole('button', { name: /save changes/i }).click();
 
     await expect.poll(() => lastPutBody?.connectTo).toBe('vpn.new.example.com');
-    expect(lastPutBody).toEqual({ connectTo: 'vpn.new.example.com' });
+    expect(lastPutBody).toEqual({ comment: 'Home link', connectTo: 'vpn.new.example.com' });
     await expect(dialog).toBeHidden();
+    await expect(page.getByRole('row', { name: /Home link/ })).toBeVisible();
   });
 
   test('clears ipsec secret when toggling Use IPsec off in edit dialog', async ({

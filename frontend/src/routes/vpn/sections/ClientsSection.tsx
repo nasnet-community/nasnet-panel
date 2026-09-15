@@ -36,10 +36,17 @@ interface Props {
   creds: VPNCredentials | null;
   clients: VPNClient[];
   onChanged: () => void;
+  onClientUpdated: (client: VPNClient) => void;
   onDialogOpenChange?: (open: boolean) => void;
 }
 
-export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }: Props) {
+export function ClientsSection({
+  creds,
+  clients,
+  onChanged,
+  onClientUpdated,
+  onDialogOpenChange,
+}: Props) {
   const paged = usePagedFilter(clients, matches);
   const toast = useToast();
   const [adding, setAdding] = useState(false);
@@ -148,7 +155,11 @@ export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }
     }
     setEditing(null);
     toast.notify({ title: `L2TP client "${target.name}" updated`, tone: 'success' });
-    onChanged();
+    onClientUpdated({
+      ...target,
+      comment: req.comment ?? target.comment,
+      enabled: req.disabled === undefined ? target.enabled : !req.disabled,
+    });
   };
 
   const onConfirmDelete = async () => {
@@ -234,11 +245,11 @@ export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }
           creds={creds}
           client={editing}
           onCancel={() => setEditing(null)}
-          onSaved={() => {
-            const name = editing.name;
+          onSaved={(changes) => {
+            const target = editing;
             setEditing(null);
-            toast.notify({ title: `WireGuard client "${name}" updated`, tone: 'success' });
-            onChanged();
+            toast.notify({ title: `WireGuard client "${target.name}" updated`, tone: 'success' });
+            onClientUpdated({ ...target, comment: changes.comment, enabled: !changes.disabled });
           }}
         />
       ) : null}

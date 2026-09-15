@@ -84,7 +84,7 @@ export function WgClientConfigDialog({
 
   const load = () => {
     setTouched(true);
-    if (!canLoad) return;
+    if (!canLoad || (publicAddress.trim() === requestedAddress && !error)) return;
     setRequestedAddress(publicAddress.trim());
     setRequestNonce((n) => n + 1);
   };
@@ -137,16 +137,16 @@ export function WgClientConfigDialog({
             <Input
               value={publicAddress}
               onChange={(e) => setPublicAddress(e.target.value)}
-              onBlur={() => setTouched(true)}
+              onBlur={load}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') load();
+              }}
               placeholder="203.0.113.10"
               aria-label="Server public address"
               aria-invalid={touched && !!addressError}
             />
             {touched && addressError ? <FormError>{addressError}</FormError> : null}
           </Label>
-          <Button variant="secondary" onClick={load} disabled={!canLoad}>
-            {loading ? 'Generating…' : 'Generate'}
-          </Button>
         </FieldRow>
         {error ? <FormError role="alert">{error}</FormError> : null}
         {config ? (
