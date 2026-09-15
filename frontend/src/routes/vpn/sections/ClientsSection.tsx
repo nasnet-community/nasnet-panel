@@ -10,9 +10,11 @@ import {
   updateL2TPClient,
   type AddL2TPClientRequest,
   type CreateWireguardClientRequest,
+  type CreateWireguardClientResponse,
   type ImportWireguardConfigRequest,
   type UpdateL2TPClientRequest,
   type VPNClient,
+  type VPNClientResponse,
   type VPNCredentials,
 } from '../../../api';
 import { AddVpnClientDialog } from '../dialogs/AddVpnClientDialog';
@@ -55,8 +57,9 @@ export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }
       toast.notify({ title: 'Not connected to router', tone: 'danger' });
       return;
     }
+    let created: VPNClientResponse;
     try {
-      await addL2TPClient(creds, req);
+      created = await addL2TPClient(creds, req);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -68,7 +71,7 @@ export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }
       throw err;
     }
     setAdding(false);
-    toast.notify({ title: `L2TP client "${req.name}" added`, tone: 'success' });
+    toast.notify({ title: `L2TP client "${created.name}" added`, tone: 'success' });
     onChanged();
   };
 
@@ -77,8 +80,9 @@ export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }
       toast.notify({ title: 'Not connected to router', tone: 'danger' });
       return;
     }
+    let created: CreateWireguardClientResponse;
     try {
-      await createWireguardClient(creds, req);
+      created = await createWireguardClient(creds, req);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -90,7 +94,7 @@ export function ClientsSection({ creds, clients, onChanged, onDialogOpenChange }
       throw err;
     }
     setAdding(false);
-    toast.notify({ title: `WireGuard client "${req.name}" added`, tone: 'success' });
+    toast.notify({ title: `WireGuard client "${created.name}" added`, tone: 'success' });
     onChanged();
   };
 
