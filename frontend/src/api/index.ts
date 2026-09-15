@@ -23,6 +23,8 @@ export {
   fetchInterfaceGraph,
   fetchInterfaces,
   fetchEthernetInterfaces,
+  testEthernetCable,
+  type CableTestResponse,
   updateWanInterface,
   type WanInterfaceType,
   type UpdateWanInterfaceRequest,
