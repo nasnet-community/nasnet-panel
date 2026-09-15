@@ -156,9 +156,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
             onShowPeerConfig={showPeerConfig}
           />
         ) : null}
-        {details && server && creds ? (
-          <ActiveConnectionsSection creds={creds} server={server} />
-        ) : null}
+        {server && creds ? <ActiveConnectionsSection creds={creds} server={server} /> : null}
       </Dialog>
 
       {exporting && isOvpn ? (

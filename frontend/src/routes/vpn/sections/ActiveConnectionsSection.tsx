@@ -94,12 +94,19 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
   const [pendingDisconnect, setPendingDisconnect] = useState<ActiveConnection | null>(null);
   const [disconnectSubmitting, setDisconnectSubmitting] = useState(false);
   const [service, setService] = useState('all');
+  const [loadError, setLoadError] = useState<string | null>(null);
   const disconnected = useRef(new Set<string>());
 
   const load = useCallback(async () => {
     if (!creds) return;
-    const data = await listActiveVPNConnections(creds).catch(() => null);
-    if (!data) return;
+    let data: ActiveVPNConnectionsResponse;
+    try {
+      data = await listActiveVPNConnections(creds);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Failed to load active connections.');
+      return;
+    }
+    setLoadError(null);
     const next = toRows(data);
     const present = new Set(next.map((r) => r.key));
     disconnected.current.forEach((k) => {
@@ -128,7 +135,7 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
   const paged = usePagedFilter(visible, matches);
 
   const onConfirmDisconnect = async () => {
-    if (!creds || !pendingDisconnect) return;
+    if (disconnectSubmitting || !creds || !pendingDisconnect) return;
     const target = pendingDisconnect;
     setDisconnectSubmitting(true);
     try {
@@ -206,9 +213,11 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
           rows={paged.pagedRows}
           rowKey={(r) => r.key}
           emptyMessage={
-            visible.length || service !== 'all'
-              ? 'No connections match the current filters.'
-              : 'No active connections.'
+            loadError && !rows.length
+              ? `Failed to load active connections: ${loadError}`
+              : visible.length || service !== 'all'
+                ? 'No connections match the current filters.'
+                : 'No active connections.'
           }
           emptyIcon={<Activity size={32} aria-hidden />}
         />
