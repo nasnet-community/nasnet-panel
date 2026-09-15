@@ -2119,10 +2119,6 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
 	}
 
-	if req.InterfaceName == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "Interface name is required", nil)
-	}
-
 	cfg, err := wgcfg.FromWgQuick(req.Config, "import")
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadRequest, "Failed to parse configuration", err)
@@ -2141,7 +2137,12 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		listenPort = &p
 	}
 
-	interfaceName := req.InterfaceName
+	name := req.InterfaceName
+	if name == "" {
+		name = utils.GenerateName(2, "-", utils.LowerCase)
+	}
+
+	interfaceName := name
 	if !strings.HasSuffix(interfaceName, "-wg-client") {
 		interfaceName += "-wg-client"
 	}
