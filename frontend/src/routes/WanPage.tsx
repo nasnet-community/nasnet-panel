@@ -134,6 +134,9 @@ export function WanPage() {
         creds={vpnCreds}
         clients={vpnClients}
         onChanged={loadVpn}
+        onClientUpdated={(updated) =>
+          setVpnClients((list) => list.map((c) => (c.id === updated.id ? updated : c)))
+        }
         onDialogOpenChange={setVpnDialogOpen}
       />
     </div>

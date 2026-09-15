@@ -20,6 +20,7 @@ import {
   type WireguardDetailedResponse,
   type WireguardPeerResponse,
 } from '../../../api';
+import { ActiveConnectionsSection } from '../sections/ActiveConnectionsSection';
 import { AddWgPeerDialog } from './AddWgPeerDialog';
 import { EditWgPeerDialog } from './EditWgPeerDialog';
 import { ExportOvpnDialog } from './ExportOvpnDialog';
@@ -155,6 +156,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
             onShowPeerConfig={showPeerConfig}
           />
         ) : null}
+        {server && creds ? <ActiveConnectionsSection creds={creds} server={server} /> : null}
       </Dialog>
 
       {exporting && isOvpn ? (

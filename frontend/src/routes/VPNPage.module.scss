@@ -78,6 +78,21 @@
   min-width: 160px;
 }
 
+.headerFilter {
+  width: 180px;
+  min-width: 140px;
+}
+
+.connectionsScroll > div {
+  max-height: 360px;
+}
+
+.connectionsScroll th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 @media (max-width: 640px) {
   .sectionHeader {
     flex-direction: column;
@@ -88,7 +103,8 @@
     justify-content: flex-start;
   }
 
-  .headerSearch {
+  .headerSearch,
+  .headerFilter {
     width: 100%;
     min-width: 0;
     flex: 1 1 100%;

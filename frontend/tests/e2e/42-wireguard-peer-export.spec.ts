@@ -151,7 +151,7 @@ test.describe('WireGuard peer export', () => {
     await expect.poll(() => exportQueries.length).toBe(1);
 
     await dialog.getByLabel('Server public address').fill('198.51.100.7');
-    await dialog.getByRole('button', { name: 'Generate' }).click();
+    await dialog.getByLabel('Server public address').press('Enter');
 
     await expect
       .poll(() => exportQueries.at(-1))
@@ -227,7 +227,7 @@ test.describe('WireGuard peer export', () => {
     const dialog = await openPeerConfigDialog(page);
     await expect(dialog.getByText('Failed to export WireGuard peer client config')).toBeVisible();
 
-    await dialog.getByRole('button', { name: 'Generate' }).click();
+    await dialog.getByLabel('Server public address').press('Enter');
 
     await expect.poll(() => attempts).toBe(2);
     await expect(dialog.getByText('PrivateKey = peer-private-key')).toBeVisible();

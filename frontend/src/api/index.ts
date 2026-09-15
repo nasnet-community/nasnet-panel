@@ -192,6 +192,8 @@ export {
   updateVPNUser,
   deleteVPNUser,
   listVPNProfiles,
+  listActiveVPNConnections,
+  disconnectActiveVPNSession,
   fetchNasnetVpnCredentials,
   finalizeWizard,
   fetchWizardStatus,
@@ -246,6 +248,9 @@ export {
   type CreateVPNUserRequest,
   type UpdateVPNUserRequest,
   type VPNProfileResponse,
+  type PPPActiveSessionResponse,
+  type ActiveWireguardPeerResponse,
+  type ActiveVPNConnectionsResponse,
 } from './vpn';
 export { ApiError, setUnauthorizedHandler } from './http';
 export { isAbortError } from './abort';
