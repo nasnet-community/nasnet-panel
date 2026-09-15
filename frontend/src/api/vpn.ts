@@ -46,6 +46,7 @@ export interface UpdateL2TPClientRequest {
   password?: string;
   disabled?: boolean;
   ipsecSecret?: string;
+  comment?: string;
 }
 
 export interface L2TPClientDetailsResponse {

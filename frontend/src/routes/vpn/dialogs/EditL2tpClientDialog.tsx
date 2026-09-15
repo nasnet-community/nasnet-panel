@@ -21,6 +21,7 @@ import {
 import { validateHostOrIp } from '../../../utils/validators';
 
 interface Draft {
+  comment: string;
   connectTo: string;
   user: string;
   password: string;
@@ -60,6 +61,7 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
         const data = await fetchL2TPClientDetails(creds, clientName, controller.signal);
         setDetails(data);
         setDraft({
+          comment: data.comment || clientName,
           connectTo: data.connectTo,
           user: data.user,
           password: data.password,
@@ -108,6 +110,8 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
     setSubmitting(true);
 
     const body: UpdateL2TPClientRequest = {};
+    const comment = draft.comment.trim();
+    if (comment !== (details.comment || clientName).trim()) body.comment = comment;
     if (draft.connectTo.trim() !== details.connectTo) body.connectTo = draft.connectTo.trim();
     if (draft.user.trim() !== details.user) body.user = draft.user.trim();
     if (draft.password !== details.password) body.password = draft.password;
@@ -154,7 +158,13 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
           <FieldRow>
             <Label>
               <span>Name</span>
-              <Input value={clientName} disabled aria-label="Name" />
+              <Input
+                value={draft.comment}
+                onChange={(e) => set('comment', e.target.value)}
+                placeholder="optional"
+                aria-label="Name"
+                autoComplete="off"
+              />
             </Label>
             <Label>
               <span>Connect to</span>
