@@ -132,6 +132,18 @@ jobs:
         with:
           path: ~/.cache/nasnet-test-lab/*.zip
           key: routeros-7.24.2
+      - name: Download RouterOS images
+        run: |
+          mkdir -p "$HOME/.cache/nasnet-test-lab"
+          cd "$HOME/.cache/nasnet-test-lab"
+          for file in chr-7.24.2.img.zip all_packages-x86-7.24.2.zip; do
+            if [ ! -s "$file" ]; then
+              curl -fL --retry 10 --retry-all-errors --retry-delay 10 --connect-timeout 30 \
+                -o "$file.tmp" "https://download.mikrotik.com/routeros/7.24.2/$file"
+              mv "$file.tmp" "$file"
+            fi
+          done
+          ls -l
       - name: Run stage ${{ matrix.stage }} on ${{ matrix.profile }}
         env:
           SCENARIO: ${{ inputs.scenario }}
@@ -147,6 +159,9 @@ jobs:
             -cache "$HOME/.cache/nasnet-test-lab" \
             -image-tar "$GITHUB_WORKSPACE/dist/nasnet-panel-lab-amd64.tar" \
             $previous
+      - name: Hand cache back to the runner user
+        if: always()
+        run: sudo chown -R "$USER" "$HOME/.cache/nasnet-test-lab" test-lab || true
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -282,6 +282,20 @@ func downloadCHR(cache, arch, wantSHA256 string) (string, error) {
 }
 
 func download(url, dst string) error {
+	const attempts = 6
+	var err error
+	for attempt := 1; attempt <= attempts; attempt++ {
+		if err = downloadOnce(url, dst); err == nil {
+			return nil
+		}
+		if attempt < attempts {
+			time.Sleep(time.Duration(attempt) * 10 * time.Second)
+		}
+	}
+	return fmt.Errorf("after %d attempts: %w", attempts, err)
+}
+
+func downloadOnce(url, dst string) error {
 	client := &http.Client{Timeout: 15 * time.Minute}
 	resp, err := client.Get(url)
 	if err != nil {
