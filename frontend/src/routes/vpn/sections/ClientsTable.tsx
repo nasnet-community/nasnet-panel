@@ -55,7 +55,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
         {
           key: 'name',
           header: 'Name',
-          render: (c: VPNClient) => c.name,
+          render: (c: VPNClient) => c.comment || c.name,
         },
         {
           key: 'status',
