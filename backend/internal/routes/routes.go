@@ -95,6 +95,7 @@ func RegisterRoutes(e *echo.Echo) {
 	interfaceGroup.GET("/interfaces", handler.HandleListInterfaces)
 	interfaceGroup.GET("/ethernets", handler.HandleGetEthernetInterfaces)
 	interfaceGroup.GET("/ethernet/:nameOrID", handler.HandleGetEthernetInterface)
+	interfaceGroup.POST("/ethernet/cable-test/:nameOrID", handler.HandleTestEthernetCable)
 	interfaceGroup.GET("/graph/:nameOrID", handler.HandleGetInterfaceGraph)
 	interfaceGroup.GET("/bridges", handler.HandleListBridges)
 	interfaceGroup.GET("/bridge/ports", handler.HandleListBridgePorts)

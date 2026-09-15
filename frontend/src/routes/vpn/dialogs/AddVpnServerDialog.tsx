@@ -296,7 +296,7 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
     setError(null);
     setSubmitting(true);
     try {
-      const res = await createSstpServer(creds, { enabled: true });
+      const res = await createSstpServer(creds);
       setTaskId(res.taskId);
     } catch (err) {
       const message =

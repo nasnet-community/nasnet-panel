@@ -62,10 +62,10 @@ test.describe('SSTP server', () => {
       });
     });
 
-    let postBody: { enabled?: boolean } | null = null;
+    let postBody: string | null | undefined;
     await context.route('**/api/vpn/sstp/server', async (route) => {
       if (route.request().method() === 'POST') {
-        postBody = route.request().postDataJSON() as typeof postBody;
+        postBody = route.request().postData();
         await route.fulfill({
           status: 202,
           contentType: 'application/json',
@@ -107,7 +107,7 @@ test.describe('SSTP server', () => {
 
     await dialog.getByRole('button', { name: 'Enable SSTP server' }).click();
 
-    await expect.poll(() => postBody).toEqual({ enabled: true });
+    await expect.poll(() => postBody).toBeNull();
     await expect(dialog).toBeHidden();
 
     const row = page.getByRole('row', { name: /SSTP/ });
@@ -265,34 +265,20 @@ test.describe('SSTP server', () => {
       });
     });
 
-    let postBody: { enabled?: boolean } | null = null;
-    await context.route('**/api/vpn/sstp/server', async (route) => {
-      if (route.request().method() === 'POST') {
-        postBody = route.request().postDataJSON() as typeof postBody;
+    let deletedUrl: string | null = null;
+    await context.route(
+      (url) => url.pathname === '/api/vpn/sstp/server',
+      async (route) => {
+        if (route.request().method() !== 'DELETE') return route.fallback();
+        deletedUrl = route.request().url();
+        enabled = false;
         await route.fulfill({
-          status: 202,
+          status: 200,
           contentType: 'application/json',
-          body: envelope({ taskId: 'sstp-task-3', status: 'running' }),
+          body: envelope({ disabled: true, removedFirewallRules: 1 }),
         });
-        return;
-      }
-      await route.fallback();
-    });
-
-    await context.route('**/api/vpn/sstp/server/status/sstp-task-3', async (route) => {
-      enabled = false;
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope({
-          taskId: 'sstp-task-3',
-          status: 'completed',
-          progress: 100,
-          currentStep: 'Done',
-          startTime: 0,
-        }),
-      });
-    });
+      },
+    );
 
     await page.goto(`/router/${ROUTER_ID}/vpn`);
 
@@ -304,7 +290,8 @@ test.describe('SSTP server', () => {
     await expect(confirm).toBeVisible();
     await confirm.getByRole('button', { name: 'Disable' }).click();
 
-    await expect.poll(() => postBody).toEqual({ enabled: false });
+    await expect.poll(() => deletedUrl).toContain('/api/vpn/sstp/server');
+    expect(new URL(deletedUrl ?? '').searchParams.has('deleteCertificateFiles')).toBe(false);
     await expect(page.getByRole('row', { name: /SSTP/ }).getByText('Disabled')).toBeVisible();
     await expect(
       page.getByRole('row', { name: /SSTP/ }).getByRole('button', { name: /disable SSTP/i }),
