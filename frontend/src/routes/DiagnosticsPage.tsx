@@ -346,7 +346,9 @@ export function DiagnosticsPage() {
           </Button>
         </Card>
       </SectionGrid>
-      <CableTestCard creds={creds} />
+      <div className={styles.cableTestCard}>
+        <CableTestCard creds={creds} />
+      </div>
       <ConfirmDialog
         open={resetConfirmOpen}
         title="Reset configuration?"

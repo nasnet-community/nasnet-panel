@@ -228,6 +228,14 @@
   margin-top: var(--space-lg);
 }
 
+.cableTestCard {
+  width: calc((100% - var(--space-lg)) / 2);
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
+
 .cableTestRow {
   display: flex;
   align-items: flex-end;
