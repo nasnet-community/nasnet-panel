@@ -110,8 +110,8 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
     setSubmitting(true);
 
     const body: UpdateL2TPClientRequest = {};
-    if (draft.comment.trim() !== (details.comment || clientName))
-      body.comment = draft.comment.trim();
+    const comment = draft.comment.trim();
+    if (comment !== (details.comment || clientName).trim()) body.comment = comment;
     if (draft.connectTo.trim() !== details.connectTo) body.connectTo = draft.connectTo.trim();
     if (draft.user.trim() !== details.user) body.user = draft.user.trim();
     if (draft.password !== details.password) body.password = draft.password;

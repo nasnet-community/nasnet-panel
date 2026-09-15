@@ -139,7 +139,7 @@ export function WgClientConfigDialog({
               onChange={(e) => setPublicAddress(e.target.value)}
               onBlur={load}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') load();
+                if (e.key === 'Enter' && !e.nativeEvent.isComposing) load();
               }}
               placeholder="203.0.113.10"
               aria-label="Server public address"

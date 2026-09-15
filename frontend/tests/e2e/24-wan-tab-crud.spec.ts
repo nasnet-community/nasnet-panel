@@ -411,9 +411,7 @@ test.describe('WAN tab', () => {
       user: 'user',
       password: 'secret',
     });
-    await expect(
-      page.getByRole('cell', { name: 'swift-fox-l2tp-client', exact: true }),
-    ).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'mask one', exact: true })).toBeVisible();
   });
 
   test('claims a free VPN into the L2TP add dialog', async ({

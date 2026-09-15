@@ -494,7 +494,7 @@ test.describe('WAN VPN clients section', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: envelope([{ ...baseClient, disabled: false }]),
+        body: envelope([{ ...baseClient, disabled: false, comment: lastPutBody?.comment }]),
       });
     });
     await context.route('**/api/interface/interfaces', async (route) => {
