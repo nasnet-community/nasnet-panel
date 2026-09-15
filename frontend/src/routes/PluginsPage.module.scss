@@ -29,7 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  padding: var(--space-xl);
+  padding: 20px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -149,4 +149,17 @@
   justify-content: space-between;
   gap: var(--space-md);
   margin-top: var(--space-sm);
+}
+
+.cardButtons {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--space-xs, 4px);
+
+  .uninstallButton:hover:not(:disabled) {
+    background: var(--color-danger);
+    color: #fff;
+    border-color: var(--color-danger);
+  }
 }
