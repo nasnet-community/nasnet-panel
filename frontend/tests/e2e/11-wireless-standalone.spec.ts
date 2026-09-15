@@ -41,6 +41,7 @@ test.describe('Wireless standalone', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
+    await expect(dialog.getByLabel('WPA-PSK', { exact: true })).toBeVisible();
     await expect(dialog.getByLabel('WPA2-PSK', { exact: true })).toBeVisible();
     await expect(dialog.getByLabel('WPA3-PSK', { exact: true })).toBeVisible();
   });
