@@ -78,6 +78,7 @@ export interface DnsBackendOptions {
 export interface DiagBackendOptions {
   id?: string;
   initialProgress?: number;
+  cableTestFails?: boolean;
 }
 
 export interface EasyConfigBackendInterface {
@@ -1088,6 +1089,44 @@ export const test = base.extend<TestFixtures>({
             'Content-Disposition': 'attachment; filename="nasnet-diagnostic-report.txt"',
           },
           body: 'NasNet Panel Diagnostic Report',
+        });
+      });
+
+      await context.route('**/api/interface/ethernets', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope([
+            { id: '*1', name: 'ether1', running: true, status: 'link-ok' },
+            { id: '*2', name: 'ether2', running: false, status: 'no-link' },
+          ]),
+        });
+      });
+
+      await context.route('**/api/interface/ethernet/cable-test/*', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        const name = decodeURIComponent(route.request().url().split('/').pop() ?? '');
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        if (options.cableTestFails) {
+          await route.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: 500,
+              message: 'Failed to test ethernet cable',
+              error: `failed to test cable for interface ${name}`,
+            }),
+          });
+          return;
+        }
+        const data =
+          name === 'ether2'
+            ? { name, status: 'no-link', cablePairs: 'open:3,open:3,normal,normal' }
+            : { name, status: 'link-ok' };
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(data),
         });
       });
     });
