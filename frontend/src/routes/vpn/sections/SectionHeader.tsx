@@ -24,9 +24,18 @@ interface Props {
   };
   action?: Action;
   extraActions?: Action[];
+  filters?: ReactNode;
 }
 
-export function SectionHeader({ title, count, description, search, action, extraActions }: Props) {
+export function SectionHeader({
+  title,
+  count,
+  description,
+  search,
+  action,
+  extraActions,
+  filters,
+}: Props) {
   const actions = [...(extraActions ?? []), ...(action ? [action] : [])];
   return (
     <CardHeader className={styles.sectionHeader}>
@@ -43,6 +52,7 @@ export function SectionHeader({ title, count, description, search, action, extra
         <CardDescription>{description}</CardDescription>
       </div>
       <div className={styles.headerActions}>
+        {filters}
         {search ? (
           <Input
             className={styles.headerSearch}

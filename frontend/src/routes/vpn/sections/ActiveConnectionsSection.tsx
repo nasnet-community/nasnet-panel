@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Badge, Button, Card, ConfirmDialog, DataTable, Stack, useToast } from '@nasnet/ui';
+import { Badge, Button, Card, ConfirmDialog, DataTable, Select, Stack, useToast } from '@nasnet/ui';
 import { Activity, Unplug } from 'lucide-react';
 import {
   ApiError,
@@ -13,6 +13,7 @@ import { usePolling } from '../../../utils/usePolling';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
 import { PAGE_SIZE } from '../utils';
+import styles from '../../VPNPage.module.scss';
 import { SectionHeader } from './SectionHeader';
 
 interface ActiveConnection {
@@ -92,21 +93,38 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
   const [rows, setRows] = useState<ActiveConnection[]>([]);
   const [pendingDisconnect, setPendingDisconnect] = useState<ActiveConnection | null>(null);
   const [disconnectSubmitting, setDisconnectSubmitting] = useState(false);
+  const [service, setService] = useState('all');
   const disconnected = useRef(new Set<string>());
 
   const load = useCallback(async () => {
     if (!creds) return;
     const data = await listActiveVPNConnections(creds).catch(() => null);
     if (!data) return;
-    setRows(toRows(data).filter((r) => !disconnected.current.has(r.key)));
+    const next = toRows(data);
+    const present = new Set(next.map((r) => r.key));
+    disconnected.current.forEach((k) => {
+      if (!present.has(k)) disconnected.current.delete(k);
+    });
+    setRows(next.filter((r) => !disconnected.current.has(r.key)));
   }, [creds]);
 
   usePolling(load, 5000, !!creds);
 
   const visible = useMemo(
-    () => (server ? rows.filter((r) => matchesServer(r, server)) : rows),
-    [rows, server],
+    () =>
+      rows.filter((r) =>
+        server ? matchesServer(r, server) : service === 'all' || r.service === service,
+      ),
+    [rows, server, service],
   );
+  const serviceOptions = useMemo(() => {
+    const services = new Set(rows.map((r) => r.service));
+    if (service !== 'all') services.add(service);
+    return [
+      { value: 'all', label: 'All services' },
+      ...[...services].sort().map((s) => ({ value: s, label: serviceLabel(s) })),
+    ];
+  }, [rows, service]);
   const paged = usePagedFilter(visible, matches);
 
   const onConfirmDisconnect = async () => {
@@ -135,54 +153,66 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
 
   const table = (
     <>
-      <DataTable
-        columns={[
-          { key: 'name', header: 'Name', render: (r: ActiveConnection) => r.name },
-          ...(server
-            ? []
-            : [
-                {
-                  key: 'service',
-                  header: 'Service',
-                  render: (r: ActiveConnection) => (
-                    <Badge tone="info">{serviceLabel(r.service)}</Badge>
-                  ),
-                },
-              ]),
-          { key: 'address', header: 'Address', render: (r: ActiveConnection) => r.address || '–' },
-          {
-            key: 'callerId',
-            header: 'Caller ID',
-            render: (r: ActiveConnection) => r.callerId || '–',
-          },
-          { key: 'uptime', header: 'Uptime', render: (r: ActiveConnection) => r.uptime || '–' },
-          { key: 'details', header: 'Session', render: (r: ActiveConnection) => r.details || '–' },
-          {
-            key: 'actions',
-            header: 'Actions',
-            render: (r: ActiveConnection) =>
-              r.kind === 'ppp' ? (
-                <Button
-                  size="sm"
-                  variant="danger"
-                  disabled={!creds}
-                  title={`Disconnect ${r.name}`}
-                  aria-label={`Disconnect ${r.name}`}
-                  onClick={() => setPendingDisconnect(r)}
-                >
-                  <Unplug size={14} aria-hidden />
-                </Button>
-              ) : null,
-            width: '100px',
-          },
-        ]}
-        rows={paged.pagedRows}
-        rowKey={(r) => r.key}
-        emptyMessage={
-          visible.length ? 'No connections match the current filters.' : 'No active connections.'
-        }
-        emptyIcon={<Activity size={32} aria-hidden />}
-      />
+      <div className={styles.connectionsScroll}>
+        <DataTable
+          columns={[
+            { key: 'name', header: 'Name', render: (r: ActiveConnection) => r.name },
+            ...(server
+              ? []
+              : [
+                  {
+                    key: 'service',
+                    header: 'Service',
+                    render: (r: ActiveConnection) => (
+                      <Badge tone="info">{serviceLabel(r.service)}</Badge>
+                    ),
+                  },
+                ]),
+            {
+              key: 'address',
+              header: 'Address',
+              render: (r: ActiveConnection) => r.address || '–',
+            },
+            {
+              key: 'callerId',
+              header: 'Caller ID',
+              render: (r: ActiveConnection) => r.callerId || '–',
+            },
+            { key: 'uptime', header: 'Uptime', render: (r: ActiveConnection) => r.uptime || '–' },
+            {
+              key: 'details',
+              header: 'Session',
+              render: (r: ActiveConnection) => r.details || '–',
+            },
+            {
+              key: 'actions',
+              header: 'Actions',
+              render: (r: ActiveConnection) =>
+                r.kind === 'ppp' ? (
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={!creds}
+                    title={`Disconnect ${r.name}`}
+                    aria-label={`Disconnect ${r.name}`}
+                    onClick={() => setPendingDisconnect(r)}
+                  >
+                    <Unplug size={14} aria-hidden />
+                  </Button>
+                ) : null,
+              width: '100px',
+            },
+          ]}
+          rows={paged.pagedRows}
+          rowKey={(r) => r.key}
+          emptyMessage={
+            visible.length || service !== 'all'
+              ? 'No connections match the current filters.'
+              : 'No active connections.'
+          }
+          emptyIcon={<Activity size={32} aria-hidden />}
+        />
+      </div>
       <PaginationControls
         page={paged.page}
         totalPages={paged.totalPages}
@@ -229,6 +259,15 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
           title="Active Connections"
           count={visible.length}
           description="Clients currently connected to your VPN servers."
+          filters={
+            <Select
+              className={styles.headerFilter}
+              aria-label="Service filter"
+              value={service}
+              onChange={setService}
+              options={serviceOptions}
+            />
+          }
           search={{
             value: paged.search,
             placeholder: 'Search connections…',
