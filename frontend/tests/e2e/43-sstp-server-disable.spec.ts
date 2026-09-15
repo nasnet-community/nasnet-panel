@@ -136,7 +136,7 @@ test.describe('SSTP server enable and disable endpoints', () => {
 
     const confirm = page.getByRole('dialog');
     const checkbox = confirm.getByRole('checkbox', {
-      name: 'Also delete certificates and their files from device storage',
+      name: 'Also delete certificates and their files',
     });
     await expect(checkbox).toBeVisible();
     await expect(checkbox).not.toBeChecked();
@@ -162,7 +162,7 @@ test.describe('SSTP server enable and disable endpoints', () => {
     const confirm = page.getByRole('dialog');
     await confirm
       .getByRole('checkbox', {
-        name: 'Also delete certificates and their files from device storage',
+        name: 'Also delete certificates and their files',
       })
       .check();
     await confirm.getByRole('button', { name: 'Disable', exact: true }).click();
@@ -184,7 +184,7 @@ test.describe('SSTP server enable and disable endpoints', () => {
 
     const confirm = page.getByRole('dialog');
     const checkbox = confirm.getByRole('checkbox', {
-      name: 'Also delete certificates and their files from device storage',
+      name: 'Also delete certificates and their files',
     });
     await checkbox.check();
     await confirm.getByRole('button', { name: 'Cancel' }).click();
@@ -193,7 +193,7 @@ test.describe('SSTP server enable and disable endpoints', () => {
     await row.getByRole('button', { name: /disable SSTP/i }).click();
     await expect(
       page.getByRole('dialog').getByRole('checkbox', {
-        name: 'Also delete certificates and their files from device storage',
+        name: 'Also delete certificates and their files',
       }),
     ).not.toBeChecked();
     expect(state.deleteUrls).toHaveLength(0);

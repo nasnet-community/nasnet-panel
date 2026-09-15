@@ -283,7 +283,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       <ConfirmDialog
         open={!!pendingDisable}
         title="Disable SSTP server"
-        description="Stop the SSTP server on this router? Firewall rules added for it are removed and clients can no longer connect over SSTP. The server certificate is kept unless you also delete it below."
+        description="Stop the SSTP server on this router? Firewall rules added for it are removed and clients can no longer connect over SSTP."
         confirmLabel={disableSubmitting ? 'Disabling…' : 'Disable'}
         destructive
         onConfirm={onConfirmDisable}
@@ -294,7 +294,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
         }}
       >
         <Checkbox
-          label="Also delete certificates and their files from device storage"
+          label="Also delete certificates and their files"
           checked={deleteCertFiles}
           disabled={disableSubmitting}
           onChange={(e) => setDeleteCertFiles(e.target.checked)}
