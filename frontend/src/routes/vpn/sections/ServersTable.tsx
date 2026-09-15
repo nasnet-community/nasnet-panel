@@ -1,5 +1,5 @@
 import { Badge, Button, DataTable } from '@nasnet/ui';
-import { Pencil, Power, PowerOff, Server as ServerIcon, Trash2 } from 'lucide-react';
+import { Download, Pencil, Power, PowerOff, Server as ServerIcon, Trash2 } from 'lucide-react';
 import type { VPNServer } from '../../../api';
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
   onDelete?: (server: VPNServer) => void;
   onDisable?: (server: VPNServer) => void;
   onToggleEnabled?: (server: VPNServer) => void;
+  onDownloadConfig?: (server: VPNServer) => void;
   canMutate?: boolean;
   peerCounts?: Record<string, number>;
 }
@@ -18,6 +19,7 @@ const isDeletable = (s: VPNServer) => s.protocol === 'openvpn' || s.protocol ===
 const isEditable = (s: VPNServer) => s.protocol === 'wireguard';
 const isDisableable = (s: VPNServer) => s.protocol === 'sstp' && s.running;
 const isToggleable = (s: VPNServer) => s.protocol === 'openvpn';
+const isDownloadable = (s: VPNServer) => s.protocol === 'openvpn';
 
 export function ServersTable({
   rows,
@@ -27,6 +29,7 @@ export function ServersTable({
   onDelete,
   onDisable,
   onToggleEnabled,
+  onDownloadConfig,
   canMutate = false,
   peerCounts = {},
 }: Props) {
@@ -82,10 +85,28 @@ export function ServersTable({
             const deletable = isDeletable(s);
             const disableable = isDisableable(s);
             const toggleable = isToggleable(s);
-            if (!editable && !deletable && !disableable && !toggleable) return null;
+            const downloadable = isDownloadable(s);
+            if (!editable && !deletable && !disableable && !toggleable && !downloadable) {
+              return null;
+            }
             const toggleLabel = `${s.running ? 'Disable' : 'Enable'} ${s.name}`;
             return (
               <span style={{ display: 'inline-flex', gap: 8 }}>
+                {downloadable && onDownloadConfig ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={!canMutate}
+                    title={`Download client config for ${s.name}`}
+                    aria-label={`Download client config for ${s.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDownloadConfig(s);
+                    }}
+                  >
+                    <Download size={14} aria-hidden />
+                  </Button>
+                ) : null}
                 {editable && onEdit ? (
                   <Button
                     size="sm"

@@ -11,6 +11,7 @@ import {
 } from '../../../api';
 import { AddVpnServerDialog } from '../dialogs/AddVpnServerDialog';
 import { EditWgInterfaceDialog } from '../dialogs/EditWgInterfaceDialog';
+import { ExportOvpnDialog } from '../dialogs/ExportOvpnDialog';
 import { ServerDetailsDialog } from '../dialogs/ServerDetailsDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
@@ -47,6 +48,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
   const [selected, setSelected] = useState<VPNServer | null>(null);
   const [adding, setAdding] = useState(false);
   const [editingWg, setEditingWg] = useState<VPNServer | null>(null);
+  const [downloading, setDownloading] = useState<VPNServer | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNServer | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [deleteCertFiles, setDeleteCertFiles] = useState(false);
@@ -191,6 +193,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
             onDelete={(s) => setPendingDelete(s)}
             onDisable={(s) => setPendingDisable(s)}
             onToggleEnabled={(s) => setPendingToggle(s)}
+            onDownloadConfig={(s) => setDownloading(s)}
             canMutate={!!creds}
             peerCounts={peerCounts}
           />
@@ -222,6 +225,14 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
             toast.notify({ title: 'WireGuard server updated', tone: 'success' });
             onChanged();
           }}
+        />
+      ) : null}
+      {downloading && downloading.protocol === 'openvpn' ? (
+        <ExportOvpnDialog
+          creds={creds}
+          serverName={downloading.id.replace(/^ovpn:/, '')}
+          defaultPublicAddress={creds?.host}
+          onClose={() => setDownloading(null)}
         />
       ) : null}
       <ServerDetailsDialog server={selected} creds={creds} onClose={() => setSelected(null)} />
