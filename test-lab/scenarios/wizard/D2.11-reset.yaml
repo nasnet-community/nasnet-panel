@@ -1,0 +1,24 @@
+id: 'D2.11-reset'
+stage: wizard
+title: DNS reset restores defaults and leaves no Domestic forwarder without a domestic link
+profiles: [all]
+requires: { roles: [starlink, split] }
+wizard:
+  foreign: starlink
+  wait_domestic_list: true
+steps:
+  - do: router
+    with: { cmd: /ip/dns/forwarders/add, words: '=name=Domestic|=dns-servers=217.218.127.127' }
+  - do: api
+    api: { method: POST, path: /api/dns/reset, status: 200 }
+expect:
+  values:
+    - path: /ip/dns/forwarders
+      where: { name: Domestic }
+      absent: true
+      known_bug: Reset keeps an old Domestic forwarder when there is no domestic link
+    - path: /ip/dns
+      fields: { use-doh-server: '~cloudflare' }
+    - path: /tool/netwatch
+      where: { host: 4.2.2.1 }
+      count: 1

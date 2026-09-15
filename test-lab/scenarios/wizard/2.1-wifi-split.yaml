@@ -1,0 +1,14 @@
+id: '2.1-wifi-split'
+stage: wizard
+title: WiFi split puts each band on its own SSID in the Split bridge
+profiles: [all]
+requires: { roles: [starlink, domestic, split], capabilities: [wifi] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wifi: { ssid: LabWiFi, password: labwifi123, split: true }
+expect:
+  sections:
+    - path: /interface/list/member
+      key: list
+      present: [Split-LAN]

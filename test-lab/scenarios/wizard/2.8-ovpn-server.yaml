@@ -1,0 +1,21 @@
+id: '2.8-ovpn-server'
+stage: wizard
+title: OpenVPN server accepts a real client from the domestic side
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [openvpn] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  ovpn_server: true
+  wait_domestic_list: true
+steps:
+  - do: openvpn_connect
+expect:
+  values:
+    - path: /ppp/active
+      where: { name: labuser }
+  ports:
+    - { from: domestic-side, port: 1194, open: true }
+  leak:
+    starlink_to_domestic: true
+    known_bug: OpenVPN server replies can leave over Starlink

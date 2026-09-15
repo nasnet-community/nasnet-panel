@@ -1,0 +1,25 @@
+id: 'P3.4-link-faults'
+stage: resilience
+title: Plugin traffic follows the same link rules as everything else
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+  - do: link_down
+    with: { link: starlink }
+    expect:
+      ports:
+        - { from: domestic-side, port: 18090, open: true }
+  - do: link_down
+    with: { link: domestic, mode: carrier }
+    expect:
+      ports:
+        - { from: domestic-side, port: 18090, open: false }

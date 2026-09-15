@@ -1,0 +1,18 @@
+id: 'P1.2-plugin-catalog-unavailable'
+stage: install
+title: Unreachable plugin registry gives a clear error and changes nothing
+profiles: [all]
+start: bootstrapped
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: filter
+    with: { target: registry }
+  - do: api
+    api: { method: GET, path: /api/plugin/plugins, status: 502, contains: [registry] }
+expect:
+  values:
+    - path: /container
+      count: 0

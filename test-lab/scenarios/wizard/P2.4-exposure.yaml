@@ -1,0 +1,21 @@
+id: 'P2.4-exposure'
+stage: wizard
+title: Plugin ports open only on the domestic link and never expose the Starlink IP
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+expect:
+  ports:
+    - { from: domestic-side, port: 18090, open: true }
+    - { from: starlink-side, port: 18090, open: false }
+  leak:
+    starlink_to_domestic: true

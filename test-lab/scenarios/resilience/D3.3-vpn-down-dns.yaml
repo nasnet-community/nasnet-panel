@@ -1,0 +1,18 @@
+id: 'D3.3-vpn-down-dns'
+stage: resilience
+title: VPN down blocks VPN segment lookups with no fallback
+profiles: [all]
+requires: { roles: [starlink, domestic, split, spare], lab: [wireguard] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wireguard_client: true
+  wait_domestic_list: true
+steps:
+  - do: segment_client
+    with: { client: p4, bridge: LANBridgeVPN }
+  - do: vpn_server_down
+    with: { type: wireguard }
+    expect:
+      dns:
+        - { from: p4, name: lab.test, exits: blocked, within: 15s }

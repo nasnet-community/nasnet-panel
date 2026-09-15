@@ -1,0 +1,20 @@
+id: '1.6c-corrupt-image'
+stage: install
+title: Corrupt image fails and rolls back everything it created
+profiles: [all]
+requires:
+  lab: [cli-install]
+steps:
+  - do: install
+    with: { installer: cli, image: corrupt, expect_fail: 'true' }
+expect:
+  container:
+    - name: nasnet-panel
+      present: false
+  values:
+    - path: /interface/veth
+      where: { name: veth-nasnet-panel }
+      absent: true
+    - path: /ip/firewall/nat
+      where: { comment: nasnet-panel-installer-dstnat }
+      absent: true

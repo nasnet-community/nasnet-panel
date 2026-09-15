@@ -1,0 +1,31 @@
+id: '3.3-domestic-down'
+stage: resilience
+title: Domestic down blocks domestic traffic, never over Starlink, and recovers
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: reset_counters
+  - do: link_down
+    with: { link: domestic }
+    expect:
+      traffic:
+        - { from: split, to: domestic-host, exits: blocked, within: 15s }
+        - {
+            from: router,
+            to: domestic-host,
+            exits: blocked,
+            within: 15s,
+            known_bug: Router traffic to domestic destinations falls back to Starlink,
+          }
+      leak:
+        starlink_to_domestic: true
+        known_bug: Router traffic to domestic destinations falls back to Starlink
+  - do: link_up
+    with: { link: domestic }
+    expect:
+      traffic:
+        - { from: split, to: domestic-host, exits: domestic, within: 30s }
