@@ -94,6 +94,9 @@ func canonical(rows []map[string]string, ignore []string) []string {
 	var out []string
 rows:
 	for _, row := range rows {
+		if row["dynamic"] == "true" || row["connection"] == "true" {
+			continue
+		}
 		keys := make([]string, 0, len(row))
 		for k, v := range row {
 			for _, needle := range ignore {

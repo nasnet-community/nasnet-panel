@@ -14,4 +14,4 @@ steps:
 expect:
   unchanged:
     - since: before
-      ignore: [nasnet-panel-installer, nasnet-panel-baseline]
+      ignore: [nasnet-panel, containers]
