@@ -74,17 +74,63 @@ add name="LANBridgeForeign-Foreign Link" comment="Foreign-Foreign Link"
 add name="FTAH" comment="Foreign Table Address Holder"
 :global WizardProgress "35"
 {{ if eq .ForeignInterface.Type "wifi" }}
+:log info ("Connecting Foreign WAN to WiFi: {{ .ForeignInterface.SSID }}")
 /interface wifi
 set [ find default-name={{ .ForeignInterface.Interface }} ] name="{{ .ForeignInterface.Interface }}-Foreign-WAN" comment="WAN - Foreign Link" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
 security.passphrase="{{ .ForeignInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
+:local foreignWifi [/interface/wifi get [ find default-name={{ .ForeignInterface.Interface }} ] name]
+:local maxWait   30
+:local waited 0
+:local connected false
+:while (($waited < $maxWait) && ($connected = false)) do={
+    :if ([/interface/wifi/get $foreignWifi inactive] = false) do={
+        :set connected true
+    } else={
+        :put ("Waiting for WiFi connection to {{ .ForeignInterface.SSID }} ... (" . $waited . "s)")
+        :log info ("Waiting for WiFi connection to {{ .ForeignInterface.SSID }}... (" . $waited . "s)")
+        :delay 1s
+        :set waited ($waited + 1)
+    }
+}
+:if ($connected = true) do={
+    :put ("Connected to {{ .ForeignInterface.SSID }} after " . $waited . "s")
+    :log info ("wifi station (" . $foreignWifi . ") connected to SSID={{ .ForeignInterface.SSID }}")
+} else={
+    :put ("Failed to connect to {{ .ForeignInterface.SSID }} within " . $maxWait . "s")
+    :log warning ("wifi station (" . $foreignWifi . ") failed to connect to SSID={{ .ForeignInterface.SSID }} within " . $maxWait . "s")
+    :exit
+}
 {{ end }}
 
 {{ if and .DomesticEnabled (eq .DomesticInterface.Type "wifi") }}
+:log info ("Connecting Domestic WAN to WiFi: {{ .DomesticInterface.SSID }}")
 /interface wifi
 set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticInterface.Interface }}-Domestic-WAN" comment="WAN - Domestic Link" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
 security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
+:local domesticWifi [/interface/wifi get [ find default-name={{ .DomesticInterface.Interface }} ] name]
+:local maxWait   30
+:local waited 0
+:local connected false
+:while (($waited < $maxWait) && ($connected = false)) do={
+    :if ([/interface/wifi/get $domesticWifi inactive] = false) do={
+        :set connected true
+    } else={
+        :put ("Waiting for WiFi connection to {{ .DomesticInterface.SSID }} ... (" . $waited . "s)")
+        :log info ("Waiting for WiFi connection to {{ .DomesticInterface.SSID }}... (" . $waited . "s)")
+        :delay 1s
+        :set waited ($waited + 1)
+    }
+}
+:if ($connected = true) do={
+    :put ("Connected to {{ .DomesticInterface.SSID }} after " . $waited . "s")
+    :log info ("wifi station (" . $domesticWifi . ") connected to SSID={{ .DomesticInterface.SSID }}")
+} else={
+    :put ("Failed to connect to {{ .DomesticInterface.SSID }} within " . $maxWait . "s")
+    :log warning ("wifi station (" . $domesticWifi . ") failed to connect to SSID={{ .DomesticInterface.SSID }} within " . $maxWait . "s")
+    :exit
+}
 {{ end }}
 :global WizardProgress "40"
 {{ if eq .ForeignInterface.Type "ether" }}
@@ -496,14 +542,14 @@ add comment="Foreign DNS leak guard" blackhole dst-address=1.1.1.1/32 routing-ta
 
 
 /ip service
-set api address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8728
-set api-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8729
-set ftp address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=21
-set ssh address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=22
-set telnet address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=23
-set winbox address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=8291
-set www address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=80
-set www-ssl address=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8 port=443
+set api available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+set api-ssl available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+set ftp available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+set ssh available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+set telnet available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+set winbox available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+set www available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
+set www-ssl available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
 
 /ip upnp set enabled=yes
 
