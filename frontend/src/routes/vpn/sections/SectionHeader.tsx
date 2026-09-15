@@ -62,9 +62,9 @@ export function SectionHeader({
             aria-label={search.ariaLabel}
           />
         ) : null}
-        {actions.map((a, i) => (
+        {actions.map((a) => (
           <Button
-            key={`${a.label}-${i}`}
+            key={a.label}
             variant={a.variant ?? (a === action ? 'success' : 'secondary')}
             onClick={a.onClick}
             disabled={a.disabled}
