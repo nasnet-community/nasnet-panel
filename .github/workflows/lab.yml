@@ -93,8 +93,38 @@ jobs:
           path: dist/*.tar
           retention-days: 3
 
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache/restore@v4
+        id: cache
+        with:
+          path: routeros
+          key: routeros-7.24.2
+      - name: Download RouterOS images
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p routeros
+          cd routeros
+          for file in chr-7.24.2.img.zip all_packages-x86-7.24.2.zip; do
+            curl -fL --retry 10 --retry-all-errors --retry-delay 10 --connect-timeout 30 \
+              -o "$file.tmp" "https://download.mikrotik.com/routeros/7.24.2/$file"
+            mv "$file.tmp" "$file"
+          done
+      - uses: actions/cache/save@v4
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: routeros
+          key: routeros-7.24.2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: routeros-images
+          path: routeros/*.zip
+          compression-level: 0
+          retention-days: 3
+
   lab:
-    needs: [check, image]
+    needs: [check, image, assets]
     runs-on: ubuntu-latest
     timeout-minutes: 350
     strategy:
@@ -128,22 +158,15 @@ jobs:
         with:
           name: lab-images
           path: dist
-      - uses: actions/cache@v4
+      - uses: actions/download-artifact@v4
         with:
-          path: ~/.cache/nasnet-test-lab/*.zip
-          key: routeros-7.24.2
-      - name: Download RouterOS images
+          name: routeros-images
+          path: routeros
+      - name: Place RouterOS images in the lab cache
         run: |
           mkdir -p "$HOME/.cache/nasnet-test-lab"
-          cd "$HOME/.cache/nasnet-test-lab"
-          for file in chr-7.24.2.img.zip all_packages-x86-7.24.2.zip; do
-            if [ ! -s "$file" ]; then
-              curl -fL --retry 10 --retry-all-errors --retry-delay 10 --connect-timeout 30 \
-                -o "$file.tmp" "https://download.mikrotik.com/routeros/7.24.2/$file"
-              mv "$file.tmp" "$file"
-            fi
-          done
-          ls -l
+          mv routeros/*.zip "$HOME/.cache/nasnet-test-lab/"
+          ls -l "$HOME/.cache/nasnet-test-lab"
       - name: Run stage ${{ matrix.stage }} on ${{ matrix.profile }}
         env:
           SCENARIO: ${{ inputs.scenario }}
