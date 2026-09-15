@@ -23,7 +23,7 @@ import type {
   CreateWireguardClientRequest,
   ImportWireguardConfigRequest,
 } from '../../../api';
-import { isCIDR, isPort, validateHostOrIp, validateIdentifier } from '../../../utils/validators';
+import { isCIDR, isPort, validateHostOrIp } from '../../../utils/validators';
 
 export type AddVpnType = 'l2tp' | 'wireguard';
 
@@ -42,7 +42,7 @@ const TYPE_TILES: Array<VpnTypeTile<AddVpnTileType>> = [
 ];
 
 interface Draft {
-  name: string;
+  comment: string;
   connectTo: string;
   user: string;
   password: string;
@@ -63,7 +63,7 @@ interface Draft {
 }
 
 const EMPTY_DRAFT: Draft = {
-  name: '',
+  comment: '',
   connectTo: '',
   user: '',
   password: '',
@@ -109,9 +109,7 @@ export function AddVpnClientDialog({
   const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
 
   const errors = useMemo(() => {
-    const base = {
-      name: validateIdentifier(draft.name),
-    } as Record<string, string | null>;
+    const base = {} as Record<string, string | null>;
 
     if (type === 'l2tp') {
       base.connectTo = validateHostOrIp(draft.connectTo);
@@ -154,29 +152,29 @@ export function AddVpnClientDialog({
       acc[k] = true;
       return acc;
     }, {});
-    setTouched((t) => ({ ...t, ...allKeys, name: true }));
+    setTouched((t) => ({ ...t, ...allKeys }));
     if (!canSubmit) return;
     setError(null);
     setSubmitting(true);
     try {
       if (type === 'l2tp') {
         await onSubmitL2TP({
-          name: draft.name.trim(),
           connectTo: draft.connectTo.trim(),
           user: draft.user.trim(),
           password: draft.password,
           disabled: draft.disabled,
           ipsecSecret: draft.useIpsec ? draft.ipsecSecret.trim() || undefined : undefined,
+          comment: draft.comment.trim() || undefined,
         });
       } else if (type === 'wireguard' && wgMode === 'create') {
         const body: CreateWireguardClientRequest = {
-          name: draft.name.trim(),
           interfaceLocalAddress: draft.interfaceLocalAddress.trim(),
           endpointIP: draft.endpoint.trim(),
           endpointPort: Number(draft.endpointPort),
           allowedAddress: draft.allowedAddress.trim(),
           disabled: draft.disabled,
         };
+        if (draft.comment.trim()) body.comment = draft.comment.trim();
         if (draft.publicKey.trim()) body.peerPublicKey = draft.publicKey.trim();
         if (draft.peerPrivateKey.trim()) body.peerPrivateKey = draft.peerPrivateKey.trim();
         if (draft.presharedKey.trim()) body.presharedKey = draft.presharedKey.trim();
@@ -186,8 +184,8 @@ export function AddVpnClientDialog({
         await onSubmitWireguard(body);
       } else if (type === 'wireguard' && wgMode === 'import') {
         await onSubmitWireguardImport({
-          interfaceName: draft.name.trim(),
           config: draft.configText,
+          comment: draft.comment.trim() || undefined,
         });
       }
     } catch (err) {
@@ -228,15 +226,12 @@ export function AddVpnClientDialog({
           <Label>
             <span>Name</span>
             <Input
-              value={draft.name}
-              onChange={(e) => set('name', e.target.value)}
-              onBlur={() => markTouched('name')}
-              placeholder={type === 'wireguard' ? 'my-wg-client' : 'my-l2tp-client'}
+              value={draft.comment}
+              onChange={(e) => set('comment', e.target.value)}
+              placeholder="optional"
               aria-label="Name"
               autoComplete="off"
-              aria-invalid={touched.name && !!errors.name}
             />
-            {touched.name && errors.name ? <FormError>{errors.name}</FormError> : null}
           </Label>
         </FieldRow>
 

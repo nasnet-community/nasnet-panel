@@ -294,14 +294,6 @@ test.describe('WAN VPN clients section', () => {
     const submit = dialog.getByRole('button', { name: 'Add client' });
     await expect(submit).toBeDisabled();
 
-    const name = dialog.getByLabel('Name');
-    await name.fill('bad name');
-    await name.blur();
-    await expect(
-      dialog.getByText('Use letters, digits, hyphens or underscores only.'),
-    ).toBeVisible();
-    await name.fill('home-l2tp');
-
     const connect = dialog.getByLabel('Connect to');
     await connect.fill('not a host');
     await connect.blur();
@@ -426,6 +418,7 @@ test.describe('WAN VPN clients section', () => {
 
     let lastPostBody: {
       name?: string;
+      comment?: string;
       connectTo?: string;
       user?: string;
       password?: string;
@@ -446,7 +439,7 @@ test.describe('WAN VPN clients section', () => {
 
     await page.getByRole('button', { name: 'New' }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Name').fill('home-l2tp');
+    await dialog.getByLabel('Name', { exact: true }).fill('Home link');
     await dialog.getByLabel('Connect to').fill('vpn.example.com');
     await dialog.getByLabel('User').fill('alice');
     await dialog.getByLabel('Password', { exact: true }).fill('s3cret');
@@ -458,9 +451,10 @@ test.describe('WAN VPN clients section', () => {
     await ipsecSecret.fill('topsecret');
     await dialog.getByRole('button', { name: 'Add client' }).click();
 
-    await expect.poll(() => lastPostBody?.name).toBe('home-l2tp');
+    await expect.poll(() => lastPostBody?.comment).toBe('Home link');
+    expect(lastPostBody?.name).toBeUndefined();
     expect(lastPostBody).toMatchObject({
-      name: 'home-l2tp',
+      comment: 'Home link',
       connectTo: 'vpn.example.com',
       user: 'alice',
       password: 's3cret',
