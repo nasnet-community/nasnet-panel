@@ -426,10 +426,14 @@ func Container(t *testing.T, lab *env.Env, c scenario.Container, inherited strin
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	rows, err := lab.Router.Print(ctx, "/container", "?name="+c.Name)
-	if err == nil {
-		err = matchContainer(rows, c)
-	}
+	within := bugWithin(time.Minute, bug(c.KnownBug, inherited))
+	err := Eventually(ctx, within, 5*time.Second, func(ctx context.Context) error {
+		rows, err := lab.Router.Print(ctx, "/container", "?name="+c.Name)
+		if err != nil {
+			return err
+		}
+		return matchContainer(rows, c)
+	})
 	Report(t, name, bug(c.KnownBug, inherited), err)
 }
 
@@ -446,9 +450,9 @@ func matchContainer(rows []map[string]string, c scenario.Container) error {
 	}
 	row := rows[0]
 	if c.Running != nil {
-		running := row["status"] == "running" || row["running"] == "true"
-		if running != *c.Running {
-			return fmt.Errorf("running is %t (status %q), want %t", running, row["status"], *c.Running)
+		if running := ContainerRunning(row); running != *c.Running {
+			return fmt.Errorf("running is %t (stopped %q, healthy %q, note %q), want %t",
+				running, row["stopped"], row["healthy"], row[".about"], *c.Running)
 		}
 	}
 	for key, want := range c.Fields {
@@ -457,6 +461,14 @@ func matchContainer(rows []map[string]string, c scenario.Container) error {
 		}
 	}
 	return nil
+}
+
+func ContainerRunning(row map[string]string) bool {
+	return row["running"] == "true" || row["healthy"] == "true"
+}
+
+func ContainerStopped(row map[string]string) bool {
+	return row["stopped"] == "true" || !ContainerRunning(row)
 }
 
 func Tunnel(t *testing.T, lab *env.Env, tun scenario.Tunnel, inherited string) {

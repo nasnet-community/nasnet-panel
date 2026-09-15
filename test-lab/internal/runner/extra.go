@@ -151,16 +151,16 @@ func (r *run) restartContainer(ctx context.Context, name string) error {
 	if _, err := r.lab.Router.Run(ctx, "/container/stop", "=.id="+id); err != nil {
 		return err
 	}
-	if err := expect.Eventually(ctx, 90*time.Second, 3*time.Second, containerStatus(r, id, "stopped")); err != nil {
+	if err := expect.Eventually(ctx, 90*time.Second, 3*time.Second, containerState(r, id, false)); err != nil {
 		return err
 	}
 	if _, err := r.lab.Router.Run(ctx, "/container/start", "=.id="+id); err != nil {
 		return err
 	}
-	return expect.Eventually(ctx, 2*time.Minute, 3*time.Second, containerStatus(r, id, "running"))
+	return expect.Eventually(ctx, 2*time.Minute, 3*time.Second, containerState(r, id, true))
 }
 
-func containerStatus(r *run, id, want string) func(context.Context) error {
+func containerState(r *run, id string, wantRunning bool) func(context.Context) error {
 	return func(ctx context.Context) error {
 		rows, err := r.lab.Router.PrintWhere(ctx, "/container", map[string]string{".id": id})
 		if err != nil {
@@ -169,8 +169,11 @@ func containerStatus(r *run, id, want string) func(context.Context) error {
 		if len(rows) == 0 {
 			return fmt.Errorf("container %s gone", id)
 		}
-		if rows[0]["status"] != want {
-			return fmt.Errorf("status %q, want %q", rows[0]["status"], want)
+		if wantRunning && !expect.ContainerRunning(rows[0]) {
+			return fmt.Errorf("container %s not running yet", id)
+		}
+		if !wantRunning && !expect.ContainerStopped(rows[0]) {
+			return fmt.Errorf("container %s not stopped yet", id)
 		}
 		return nil
 	}
