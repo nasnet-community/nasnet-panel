@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Card, Checkbox, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
-  createSstpServer,
   deleteOvpnServer,
+  deleteSstpServer,
   deleteWireguardInterface,
   updateOvpnServerEnabled,
   type VPNCredentials,
@@ -11,10 +11,10 @@ import {
 } from '../../../api';
 import { AddVpnServerDialog } from '../dialogs/AddVpnServerDialog';
 import { EditWgInterfaceDialog } from '../dialogs/EditWgInterfaceDialog';
+import { ExportOvpnDialog } from '../dialogs/ExportOvpnDialog';
 import { ServerDetailsDialog } from '../dialogs/ServerDetailsDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
-import { pollSstpServerTask } from '../sstpTask';
 import { PAGE_SIZE } from '../utils';
 import { ServersTable } from './ServersTable';
 import { SectionHeader } from './SectionHeader';
@@ -48,6 +48,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
   const [selected, setSelected] = useState<VPNServer | null>(null);
   const [adding, setAdding] = useState(false);
   const [editingWg, setEditingWg] = useState<VPNServer | null>(null);
+  const [downloading, setDownloading] = useState<VPNServer | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNServer | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [deleteCertFiles, setDeleteCertFiles] = useState(false);
@@ -110,11 +111,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     const target = pendingDisable;
     setDisableSubmitting(true);
     try {
-      const res = await createSstpServer(creds, { enabled: false });
-      const status = await pollSstpServerTask(creds, res.taskId).done;
-      if (status.status !== 'completed') {
-        throw new Error(status.error ?? 'SSTP server could not be disabled.');
-      }
+      await deleteSstpServer(creds, deleteCertFiles);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -132,6 +129,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     }
     setDisableSubmitting(false);
     setPendingDisable(null);
+    setDeleteCertFiles(false);
     toast.notify({ title: `Server "${target.name}" disabled`, tone: 'info' });
     onChanged();
   };
@@ -195,6 +193,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
             onDelete={(s) => setPendingDelete(s)}
             onDisable={(s) => setPendingDisable(s)}
             onToggleEnabled={(s) => setPendingToggle(s)}
+            onDownloadConfig={(s) => setDownloading(s)}
             canMutate={!!creds}
             peerCounts={peerCounts}
           />
@@ -226,6 +225,14 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
             toast.notify({ title: 'WireGuard server updated', tone: 'success' });
             onChanged();
           }}
+        />
+      ) : null}
+      {downloading && downloading.protocol === 'openvpn' ? (
+        <ExportOvpnDialog
+          creds={creds}
+          serverName={downloading.id.replace(/^ovpn:/, '')}
+          defaultPublicAddress={creds?.host}
+          onClose={() => setDownloading(null)}
         />
       ) : null}
       <ServerDetailsDialog server={selected} creds={creds} onClose={() => setSelected(null)} />
@@ -287,12 +294,23 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       <ConfirmDialog
         open={!!pendingDisable}
         title="Disable SSTP server"
-        description="Stop the SSTP server on this router? Firewall rules added for it are removed and clients can no longer connect over SSTP. The server certificate is kept, so it can be enabled again later."
+        description="Stop the SSTP server on this router? Firewall rules added for it are removed and clients can no longer connect over SSTP."
         confirmLabel={disableSubmitting ? 'Disabling…' : 'Disable'}
         destructive
         onConfirm={onConfirmDisable}
-        onCancel={() => (disableSubmitting ? undefined : setPendingDisable(null))}
-      />
+        onCancel={() => {
+          if (disableSubmitting) return;
+          setPendingDisable(null);
+          setDeleteCertFiles(false);
+        }}
+      >
+        <Checkbox
+          label="Also delete certificates and their files"
+          checked={deleteCertFiles}
+          disabled={disableSubmitting}
+          onChange={(e) => setDeleteCertFiles(e.target.checked)}
+        />
+      </ConfirmDialog>
     </Stack>
   );
 }

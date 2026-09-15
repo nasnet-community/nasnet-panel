@@ -211,8 +211,10 @@ export interface UpdateOvpnServerEnabledResponse {
   enabled: boolean;
 }
 
-export interface CreateSstpServerRequest {
-  enabled: boolean;
+export interface DeleteSstpServerResponse {
+  disabled: boolean;
+  removedFirewallRules?: number;
+  warnings?: string[];
 }
 
 export interface CreateSstpServerResponse {
@@ -728,13 +730,24 @@ export async function deleteOvpnServer(
 
 export async function createSstpServer(
   creds: VPNCredentials,
-  body: CreateSstpServerRequest,
   signal?: AbortSignal,
 ): Promise<CreateSstpServerResponse> {
   return apiRequest<CreateSstpServerResponse>('/api/vpn/sstp/server', {
     method: 'POST',
     headers: authHeaders(creds),
-    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function deleteSstpServer(
+  creds: VPNCredentials,
+  deleteCertificateFiles = false,
+  signal?: AbortSignal,
+): Promise<DeleteSstpServerResponse> {
+  const query = deleteCertificateFiles ? '?deleteCertificateFiles=true' : '';
+  return apiRequest<DeleteSstpServerResponse>(`/api/vpn/sstp/server${query}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
     signal,
   });
 }
