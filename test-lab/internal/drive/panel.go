@@ -17,6 +17,7 @@ type Panel struct {
 	User       string
 	Password   string
 	HTTP       *http.Client
+	Failed     func(context.Context) error
 }
 
 type WizardLink struct {
@@ -184,6 +185,11 @@ func (p *Panel) WaitWizard(ctx context.Context) error {
 		if status.Completed {
 			return nil
 		}
+		if p.Failed != nil {
+			if err := p.Failed(ctx); err != nil {
+				return fmt.Errorf("wizard stopped at %d%%: %w", status.Progress, err)
+			}
+		}
 	}
 }
 
@@ -238,9 +244,11 @@ type PluginInfo struct {
 }
 
 func (p *Panel) Plugins(ctx context.Context) ([]PluginInfo, error) {
-	var plugins []PluginInfo
-	err := p.call(ctx, http.MethodGet, "/api/plugin/plugins", nil, &plugins)
-	return plugins, err
+	var list struct {
+		Plugins []PluginInfo `json:"plugins"`
+	}
+	err := p.call(ctx, http.MethodGet, "/api/plugin/plugins", nil, &list)
+	return list.Plugins, err
 }
 
 func (p *Panel) UninstallPlugin(ctx context.Context, id string) (*Response, error) {

@@ -33,18 +33,17 @@ Run from the repository root. `sudo -E env "PATH=$PATH"` keeps your Go toolchain
 # validate every profile and scenario file, no VM needed
 npm run lab:check
 
-# one stage on one profile
-sudo -E env "PATH=$PATH" npm run lab -- -run TestStage2 -profile chr-x86
+# most scenarios need the panel image built from this checkout
+sudo -E env "PATH=$PATH" npm run lab -- -run TestStage2 -profile chr-x86 \
+  -image-tar /path/to/nasnet-panel-lab-amd64.tar
 
 # one scenario
-sudo -E env "PATH=$PATH" npm run lab -- -run TestStage2 -scenario 2.4-dual-link -profile chr-x86
-
-# install and plugin scenarios need the panel image built from this checkout
-sudo -E env "PATH=$PATH" npm run lab -- -run TestStage1 -profile chr-x86 \
+sudo -E env "PATH=$PATH" npm run lab -- -run TestStage2 -scenario 2.4-dual-link -profile chr-x86 \
   -image-tar /path/to/nasnet-panel-lab-amd64.tar
 
 # keep the lab running after a failure to poke at it
-sudo -E env "PATH=$PATH" npm run lab -- -run TestStage3 -scenario 3.3 -profile chr-x86 -keep
+sudo -E env "PATH=$PATH" npm run lab -- -run TestStage3 -scenario 3.3 -profile chr-x86 -keep \
+  -image-tar /path/to/nasnet-panel-lab-amd64.tar
 ```
 
 Build the image tar the same way CI does:
@@ -177,6 +176,7 @@ Every scenario file, grouped by stage. Run one with `-scenario <id>`.
 | `P2.2-plugin-works`             | Installed plugin answers on its published port                                                     | all      |
 | `P2.2-real-plugins`             | Real community plugins install and run                                                             | chr-x86  |
 | `P2.3-architecture`             | Plugin without support for the router architecture fails early and creates nothing                 | all      |
+| `P2.3-x86-name`                 | Plugin listing amd64 installs on an x86_64 router                                                  | all      |
 | `P2.4-exposure`                 | Plugin ports open only on the domestic link and never expose the Starlink IP                       | all      |
 | `P2.5-concurrency`              | Duplicate installs and uninstall during install are refused                                        | all      |
 | `P2.6-failed-image`             | Image pull failure ends in an error and leaves nothing behind                                      | all      |
@@ -305,16 +305,16 @@ Traffic is proven by observation. "exits starlink" means a test server saw the r
 
 ### Starting states and snapshots
 
-| Start             | Router state                                                                    |
-| ----------------- | ------------------------------------------------------------------------------- |
-| `fresh`           | MikroTik default-like config at `192.168.88.1`                                  |
-| `bootstrapped`    | Split LAN baseline at `192.168.10.1`, default for stages 2 and 3                |
-| `container-ready` | Bootstrapped plus the container package and container mode, default for stage 1 |
-| `installed`       | Container-ready plus the panel installed by the CLI installer                   |
+| Start             | Router state                                                                              |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `fresh`           | MikroTik default-like config at `192.168.88.1`                                            |
+| `bootstrapped`    | Split LAN baseline at `192.168.10.1`                                                      |
+| `container-ready` | Bootstrapped plus the container package and container mode, default for stage 1           |
+| `installed`       | Container-ready plus the panel installed by the CLI installer, default for stages 2 and 3 |
 
 Each state is built once per profile per run and saved as a disk snapshot. Later scenarios clone the snapshot instead of repeating the setup.
 
-The panel runs on the host by default so tests start fast. `panel: router` talks to the panel container installed on the router instead.
+Scenarios that start `installed` talk to the panel container on the router, wired the same way a release install is. `panel: host` runs the panel binary on the host instead, which plugin scenarios use so the panel trusts the lab registry certificate and `panel_patch` scenarios use for their patched build.
 
 ### Scenario format
 

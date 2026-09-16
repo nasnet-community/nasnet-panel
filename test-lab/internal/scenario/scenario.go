@@ -215,8 +215,8 @@ type Scenario struct {
 
 var stageStarts = map[string]string{
 	"install":    StartContainerReady,
-	"wizard":     StartBootstrapped,
-	"resilience": StartBootstrapped,
+	"wizard":     StartInstalled,
+	"resilience": StartInstalled,
 }
 
 func LoadStage(root, stage string) ([]*Scenario, error) {
@@ -257,7 +257,7 @@ func (s *Scenario) normalize(stage string) error {
 	}
 	if s.Panel == "" {
 		s.Panel = PanelHost
-		if s.Start == StartInstalled {
+		if s.Start == StartInstalled && s.PanelPatch == nil {
 			s.Panel = PanelRouter
 		}
 	}

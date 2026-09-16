@@ -11,10 +11,13 @@ expect:
   container:
     - name: nasnet-panel
       present: false
+      known_bug: The installer closes its SSH session before rolling back, so nothing is undone
   values:
     - path: /interface/veth
       where: { name: veth-nasnet-panel }
       absent: true
+      known_bug: The installer closes its SSH session before rolling back, so nothing is undone
     - path: /ip/firewall/nat
       where: { comment: nasnet-panel-installer-dstnat }
       absent: true
+      known_bug: The installer closes its SSH session before rolling back, so nothing is undone

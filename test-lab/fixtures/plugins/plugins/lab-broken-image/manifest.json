@@ -9,7 +9,7 @@
   "tagline": "test-lab fixture",
   "description": "Plugin fixture served by the test-lab registry stub.",
   "icon": "icon.svg",
-  "architectures": ["amd64", "arm64"],
+  "architectures": ["amd64", "x86_64", "arm64"],
   "container": {
     "image": "lab/missing:1",
     "interface": {

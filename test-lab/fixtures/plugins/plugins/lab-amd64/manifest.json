@@ -1,6 +1,6 @@
 {
-  "id": "lab-echo",
-  "name": "lab-echo",
+  "id": "lab-amd64",
+  "name": "lab-amd64",
   "version": "1.0.0",
   "author": "test-lab",
   "license": "MIT",
@@ -9,18 +9,18 @@
   "tagline": "test-lab fixture",
   "description": "Plugin fixture served by the test-lab registry stub.",
   "icon": "icon.svg",
-  "architectures": ["amd64", "x86_64", "arm64"],
+  "architectures": ["amd64", "arm64"],
   "container": {
     "image": "lab/echo:1",
     "interface": {
-      "name": "veth-lab-echo",
-      "address": "192.168.50.20/24",
+      "name": "veth-lab-amd64",
+      "address": "192.168.50.24/24",
       "gateway": "192.168.50.1"
     },
     "env": { "LAB_TOKEN": "{{settings.token}}" },
-    "mounts": [{ "name": "lab-echo-data", "src": "/lab-echo-data", "dst": "/data" }],
+    "mounts": [{ "name": "lab-amd64-data", "src": "/lab-amd64-data", "dst": "/data" }],
     "ports": [
-      { "protocol": "tcp", "containerPort": 8080, "hostPort": 18090, "description": "echo" }
+      { "protocol": "tcp", "containerPort": 8080, "hostPort": 18094, "description": "echo" }
     ]
   },
   "scripts": {

@@ -37,7 +37,11 @@ func (e *Env) runInstaller(ctx context.Context, installer, tar string, uninstall
 		if err := os.WriteFile(cfg, []byte(content), 0o600); err != nil {
 			return "", err
 		}
-		args = []string{"env", "HOME=" + e.Dir, "bash", filepath.Join(e.assets.repo, "scripts", "install.sh"), "--config", cfg, "-v"}
+		bin, err := sshWrappers(e.Dir)
+		if err != nil {
+			return "", err
+		}
+		args = []string{"env", "HOME=" + e.Dir, "PATH=" + bin + ":" + os.Getenv("PATH"), "bash", filepath.Join(e.assets.repo, "scripts", "install.sh"), "--config", cfg, "-v"}
 		if uninstall {
 			args = append(args, "--uninstall")
 		} else if tar != "" {
@@ -109,6 +113,25 @@ func (e *Env) runInstaller(ctx context.Context, installer, tar string, uninstall
 		e.Router.Address = RouterAddress
 	}
 	return text, e.waitAPI(5 * time.Minute)
+}
+
+func sshWrappers(dir string) (string, error) {
+	bin := filepath.Join(dir, "ssh-bin")
+	if err := os.MkdirAll(bin, 0o755); err != nil {
+		return "", err
+	}
+	knownHosts := filepath.Join(dir, "known_hosts")
+	for _, tool := range []string{"ssh", "scp"} {
+		path, err := exec.LookPath(tool)
+		if err != nil {
+			return "", err
+		}
+		script := fmt.Sprintf("#!/bin/sh\nexec %s -o UserKnownHostsFile=%s \"$@\"\n", path, knownHosts)
+		if err := os.WriteFile(filepath.Join(bin, tool), []byte(script), 0o755); err != nil {
+			return "", err
+		}
+	}
+	return bin, nil
 }
 
 func containsAny(s string, needles []string) bool {

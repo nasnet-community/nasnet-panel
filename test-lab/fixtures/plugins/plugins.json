@@ -40,6 +40,16 @@
       "tagline": "Only supports 32-bit ARM",
       "url": "https://github.com/nasnet-community/nasnet-panel",
       "canInstall": true
+    },
+    {
+      "id": "lab-amd64",
+      "version": "1.0.0",
+      "name": "Lab Amd64",
+      "author": "test-lab",
+      "category": "Testing",
+      "tagline": "Lists architectures the way registry plugins do",
+      "url": "https://github.com/nasnet-community/nasnet-panel",
+      "canInstall": true
     }
   ]
 }

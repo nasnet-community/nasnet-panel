@@ -144,6 +144,14 @@ func skipReason(sc *scenario.Scenario, p *profile.Profile, opts env.Options) str
 			return fmt.Sprintf("not applicable: %s runs as a %s CHR in this lab", p.Name, arch)
 		}
 	}
+	if sc.Start == env.StartInstalled {
+		if opts.ImageTar == "" {
+			return "needs -image-tar"
+		}
+		if missing := env.MissingFeatureTools("cli-install"); len(missing) > 0 {
+			return fmt.Sprintf("needs tools: %s", strings.Join(missing, ", "))
+		}
+	}
 	for _, need := range sc.Requires.Lab {
 		switch need {
 		case "image-tar":

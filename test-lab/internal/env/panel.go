@@ -2,7 +2,9 @@ package env
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"nasnet-panel/test-lab/internal/drive"
@@ -21,6 +23,7 @@ func (e *Env) startPanel() error {
 		User:       RouterUser,
 		Password:   e.password,
 		HTTP:       &http.Client{Timeout: 2 * time.Minute},
+		Failed:     e.wizardScriptError,
 	}
 
 	if e.setup.Panel == PanelRouter {
@@ -62,4 +65,17 @@ func (e *Env) RestartPanel(ctx context.Context) error {
 		return err
 	}
 	return e.Panel.WaitReady(ctx)
+}
+
+func (e *Env) wizardScriptError(ctx context.Context) error {
+	rows, err := e.Router.Print(ctx, "/log")
+	if err != nil {
+		return nil
+	}
+	for _, row := range rows {
+		if strings.Contains(row["message"], "script:wizard") && strings.Contains(strings.ToLower(row["message"]), "script error") {
+			return fmt.Errorf("router log: %s", row["message"])
+		}
+	}
+	return nil
 }
