@@ -228,6 +228,7 @@ test-lab/
   fixtures/plugins/  plugin registry served by the lab
   cmd/labsvc/        helper run inside the lab: DNS, DoH, test servers, registry, probes
   cmd/labcheck/      validates profiles and scenarios without a VM
+  cmd/labreport/     turns go test output into the CI results table
   internal/
     env/             network, VM lifecycle, snapshots, services, installers, faults
     runner/          runs scenario steps and gates on requirements
@@ -429,3 +430,4 @@ A profile lists the ports in interface order with a role for each (`starlink`, `
 - `image` builds the panel image and the RouterOS tar from the checkout and fetches the previous snapshot tar
 - `lab` runs each stage per profile on GitHub-hosted Linux runners with KVM. Pull requests run `chr-x86`, nightly, manual runs and pull requests labeled `lab:full` run every profile
 - Logs of failed tests are uploaded as artifacts
+- `report` counts passed, failed and skipped scenarios per stage and adds the table to the run summary. `lab-report.yml` posts it on the pull request and updates the same comment on later runs
