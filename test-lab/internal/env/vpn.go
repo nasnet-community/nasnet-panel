@@ -231,11 +231,17 @@ func (e *Env) SetVPNServer(kind string, up bool) error {
 		}
 		return sh.Run("ip", "-n", e.net.ns("internet"), "link", "set", "wg0", state)
 	case "l2tp":
-		if up {
-			return e.restartProcess("l2tp")
+		kept := e.filters[:0]
+		for _, f := range e.filters {
+			if f.target != l2tpIP {
+				kept = append(kept, f)
+			}
 		}
-		e.stopProcess("l2tp")
-		return nil
+		e.filters = kept
+		if !up {
+			e.filters = append(e.filters, filter{target: l2tpIP})
+		}
+		return e.net.setFilters(e.filters)
 	}
 	return fmt.Errorf("unknown VPN server %q", kind)
 }
