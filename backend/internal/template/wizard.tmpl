@@ -413,8 +413,7 @@ add list="Safe" address="192.168.30.0/24" comment="Safe"
 add chain=input dst-port="53" in-interface-list="WAN" protocol="tcp" action=drop comment="Block Open Recursive DNS"
 add chain=input dst-port="53" in-interface-list="WAN" protocol="udp" action=drop comment="Block Open Recursive DNS"
 add chain=input dst-port="80,443,8080,8443,22" in-interface-list="WAN" protocol="tcp" action=drop comment="Block WAN access to management ports"
-add chain=forward dst-address=192.168.100.1 src-address-list=!Safe action=drop place-before=[find comment="nasnet-panel-installer-forward"] \
-comment="Block non-Safe access to 192.168.100.1"
+add chain=forward dst-address=192.168.100.1 src-address-list=!Safe action=drop place-before=0 comment="Block non-Safe access to 192.168.100.1"
 
 /ip firewall nat set [find comment="nasnet-panel-installer-dstnat"] in-interface-list="!WAN"
 /ip firewall nat set [find comment="nasnet-panel-installer-srcnat"] out-interface-list="WAN"
