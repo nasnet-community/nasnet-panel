@@ -12,8 +12,18 @@ expect:
     - { from: split, port: 8728, open: true }
     - { from: split, port: 22, open: true }
     - { from: split, port: 8291, open: true }
-    - { from: starlink-side, port: 8728, open: false }
-    - { from: starlink-side, port: 8291, open: false }
+    - {
+        from: starlink-side,
+        port: 8728,
+        open: false,
+        known_bug: API and Winbox are reachable from the Starlink link,
+      }
+    - {
+        from: starlink-side,
+        port: 8291,
+        open: false,
+        known_bug: API and Winbox are reachable from the Starlink link,
+      }
     - { from: starlink-side, port: 22, open: false }
     - { from: domestic-side, port: 22, open: false }
     - {

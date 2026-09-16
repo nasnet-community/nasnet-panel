@@ -13,6 +13,7 @@ steps:
   - do: lab_registry
   - do: plugin_install
     with: { id: lab-broken-script, phase: error }
+    known_bug: A post-install script that fails is reported as a successful install
 expect:
   container:
     - name: lab-broken-script

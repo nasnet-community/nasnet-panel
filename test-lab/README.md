@@ -292,7 +292,7 @@ flowchart LR
 | Starlink upstream | `100.64.0.1`, public `198.51.100.10`             | DHCP on the foreign link, NAT to the Starlink IP                     |
 | Domestic upstream | `192.168.1.1`, public `198.51.100.20`            | DHCP on the domestic link, NAT to the domestic IP, subnet can change |
 | Test servers      | `203.0.113.80` foreign, `5.160.0.80` domestic    | Answer with the source IP they see                                   |
-| Resolvers         | `4.2.2.1`, `4.2.2.2`, `217.218.127.127` and more | Answer TXT queries with their own identity and the source IP         |
+| Resolvers         | `1.1.1.1`, `1.0.0.1`, `217.218.127.127` and more | Answer TXT queries with their own identity and the source IP         |
 | DoH               | `1.1.1.1:443`, `8.8.8.8:443`                     | DNS over HTTPS with the same answers                                 |
 | IP list source    | `203.0.113.44:443` as `s4i.co`                   | Domestic IP list including `5.160.0.0/24`                            |
 | Plugin registry   | `185.199.108.133:443`                            | Catalog from `fixtures/plugins` and a lab container image            |

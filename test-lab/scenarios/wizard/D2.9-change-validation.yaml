@@ -31,7 +31,7 @@ steps:
       {
         method: GET,
         path: /api/dns/validate,
-        query: { oldIP: 4.2.2.1, newIP: 5.160.0.53 },
+        query: { oldIP: 1.1.1.1, newIP: 5.160.0.53 },
         status: 200,
         json: { suitable: 'false' },
       }
@@ -40,7 +40,7 @@ steps:
       {
         method: GET,
         path: /api/dns/validate,
-        query: { oldIP: 4.2.2.1, newIP: 4.2.2.2 },
+        query: { oldIP: 1.1.1.1, newIP: 1.0.0.1 },
         status: 409,
       }
   - do: api

@@ -12,7 +12,7 @@ steps:
     api:
       method: POST
       path: /api/dns/change
-      body: { oldIp: 4.2.2.1, newIp: 208.67.222.222 }
+      body: { oldIp: 1.1.1.1, newIp: 208.67.222.222 }
       status: 200
       json:
         {
@@ -27,7 +27,7 @@ expect:
       where: { name: Foreign }
       fields: { dns-servers: '~208.67.222.222' }
     - path: /tool/netwatch
-      where: { host: 4.2.2.1 }
+      where: { host: 1.1.1.1 }
       count: 1
       known_bug: Changing a DNS IP also rewrites failover probes and routes
   dns:

@@ -47,11 +47,11 @@ const (
 	l2tpIP          = "203.0.113.52"
 	registryIP      = "185.199.108.133"
 
-	ForeignResolver  = "4.2.2.1"
-	VPNResolver      = "4.2.2.2"
+	ForeignResolver  = "1.1.1.1"
+	VPNResolver      = "1.0.0.1"
 	DomesticResolver = "217.218.127.127"
 	GoogleDoH        = "8.8.8.8"
-	CloudflareDoH    = "1.1.1.1"
+	CloudflareDoH    = ForeignResolver
 	AltResolver      = "208.67.222.222"
 
 	wireguardTunnelCIDR = "10.66.0.0/16"
@@ -61,14 +61,13 @@ const (
 	counterDomesticToForeign  = "domestic_to_foreign"
 )
 
-var resolverAddresses = []string{ForeignResolver, VPNResolver, DomesticResolver, GoogleDoH, CloudflareDoH, AltResolver}
+var resolverAddresses = []string{ForeignResolver, VPNResolver, DomesticResolver, GoogleDoH, AltResolver}
 
 var ResolverRoles = map[string]string{
 	ForeignResolver:        "foreign",
 	VPNResolver:            "vpn",
 	DomesticResolver:       "domestic",
 	GoogleDoH:              "google-plain",
-	CloudflareDoH:          "cloudflare-plain",
 	AltResolver:            "foreign-alt",
 	"doh:" + GoogleDoH:     "doh-google",
 	"doh:" + CloudflareDoH: "doh-cloudflare",
@@ -132,7 +131,7 @@ func domesticDestinations() []string {
 }
 
 func foreignDestinations() []string {
-	return []string{foreignHostIP, listSourceIP, wireguardIP, l2tpIP, registryIP, ForeignResolver, VPNResolver, GoogleDoH, CloudflareDoH, AltResolver}
+	return []string{foreignHostIP, listSourceIP, wireguardIP, l2tpIP, registryIP, ForeignResolver, VPNResolver, GoogleDoH, AltResolver}
 }
 
 type Patch struct {

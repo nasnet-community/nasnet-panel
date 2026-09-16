@@ -13,7 +13,7 @@ steps:
       {
         method: POST,
         path: /api/dns/change,
-        body: { oldIp: 4.2.2.1, newIp: 208.67.222.222 },
+        body: { oldIp: 1.1.1.1, newIp: 208.67.222.222 },
         status: 200,
       }
   - do: link_down
@@ -23,6 +23,6 @@ steps:
         - { from: split, to: foreign-host, exits: blocked, within: 15s }
       values:
         - path: /tool/netwatch
-          where: { host: 4.2.2.1 }
+          where: { host: 1.1.1.1 }
           count: 1
           known_bug: Changing a DNS IP also rewrites failover probes and routes

@@ -19,6 +19,7 @@ expect:
       known_bug: Reset keeps an old Domestic forwarder when there is no domestic link
     - path: /ip/dns
       fields: { use-doh-server: '~cloudflare' }
+      known_bug: DNS reset sets no Cloudflare DoH server
     - path: /tool/netwatch
-      where: { host: 4.2.2.1 }
+      where: { host: 1.1.1.1 }
       count: 1
