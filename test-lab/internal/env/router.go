@@ -29,7 +29,7 @@ func (e *Env) startRouter() error {
 			if err := e.waitAPI(5 * time.Minute); err != nil {
 				return err
 			}
-			e.WaitSettled(2 * time.Minute)
+			e.WaitSettled(4 * time.Minute)
 			return nil
 		}
 	}

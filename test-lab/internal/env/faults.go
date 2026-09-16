@@ -10,7 +10,16 @@ func (e *Env) SetUpstream(role string, up bool) error {
 	if role != "starlink" && role != "domestic" {
 		return fmt.Errorf("unknown upstream %q", role)
 	}
-	return e.net.setLinkState(role, "up0", up)
+	if err := e.net.setLinkState(role, "up0", up); err != nil {
+		return err
+	}
+	if !up {
+		return nil
+	}
+	if role == "starlink" {
+		return e.net.upstreamRoutes(role, 1, StarlinkPublic)
+	}
+	return e.net.upstreamRoutes(role, 2, DomesticPublic)
 }
 
 func (e *Env) SetCarrier(role string, up bool) error {

@@ -184,6 +184,13 @@ func (n *network) upstream(role string, idx int, public string) error {
 	)
 }
 
+func (n *network) upstreamRoutes(role string, idx int, public string) error {
+	return sh.RunAll(
+		[]string{"ip", "-n", n.ns(role), "route", "replace", "default", "via", fmt.Sprintf("10.0.%d.2", idx)},
+		[]string{"ip", "-n", n.ns("internet"), "route", "replace", public + "/32", "via", fmt.Sprintf("10.0.%d.1", idx)},
+	)
+}
+
 func (n *network) labTable() error {
 	ns := n.ns("internet")
 	domestic := "{ " + strings.Join(domesticDestinations(), ", ") + " }"

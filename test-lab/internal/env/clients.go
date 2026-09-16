@@ -29,7 +29,7 @@ func (e *Env) AttachSegmentClient(ctx context.Context, client, bridge string) er
 
 	offer, err := e.Probe.DHCP(ctx, client)
 	if err != nil {
-		return fmt.Errorf("segment client on %s got no lease: %w (%s)", bridge, err, e.DHCPServers(ctx))
+		return fmt.Errorf("segment client on %s got no lease: %w (%s, %s)", bridge, err, e.DHCPServers(ctx), e.Probe.DHCPTrace(client))
 	}
 	mask := net.IPMask(net.ParseIP(offer["mask"]).To4())
 	ones, _ := mask.Size()
