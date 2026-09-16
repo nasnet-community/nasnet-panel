@@ -82,6 +82,20 @@ func (e *Env) DHCPServers(ctx context.Context) string {
 	for _, row := range rows {
 		parts = append(parts, fmt.Sprintf("%s on %s disabled=%s invalid=%s", row["name"], row["interface"], row["disabled"], row["invalid"]))
 	}
+	if rules, err := e.Router.Print(ctx, "/system/logging"); err == nil {
+		for _, row := range rules {
+			parts = append(parts, "logging "+row["topics"]+" "+row["action"]+" disabled="+row["disabled"])
+		}
+	} else {
+		parts = append(parts, "logging: "+err.Error())
+	}
+	if hosts, err := e.Router.Print(ctx, "/interface/bridge/host"); err == nil {
+		for _, row := range hosts {
+			if row["local"] != "true" {
+				parts = append(parts, "host "+row["mac-address"]+" on "+row["bridge"]+"/"+row["on-interface"])
+			}
+		}
+	}
 	if logs, err := e.Router.Print(ctx, "/log"); err == nil {
 		var dhcp []string
 		for _, row := range logs {
@@ -102,5 +116,7 @@ func (e *Env) EnableDHCPDebug(ctx context.Context) {
 	if err != nil || len(rows) > 0 {
 		return
 	}
-	_, _ = e.Router.Run(ctx, "/system/logging/add", "=topics=dhcp", "=action=memory")
+	if _, err := e.Router.Run(ctx, "/system/logging/add", "=topics=dhcp", "=action=memory"); err != nil {
+		fmt.Printf("enable dhcp logging: %v\n", err)
+	}
 }
