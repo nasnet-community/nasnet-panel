@@ -544,6 +544,7 @@ func DHCP(t *testing.T, lab *env.Env, d scenario.DHCP, inherited string) {
 	offer, err := lab.Probe.DHCP(ctx, d.From)
 	switch {
 	case d.Lease && err != nil:
+		err = fmt.Errorf("%w (%s)", err, lab.DHCPServers(ctx))
 	case !d.Lease && err == nil:
 		err = fmt.Errorf("got an offer %v, want none", offer)
 	case !d.Lease:

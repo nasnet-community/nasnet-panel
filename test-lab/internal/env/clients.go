@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"path/filepath"
+	"strings"
 
 	"nasnet-panel/test-lab/internal/profile"
 	"nasnet-panel/test-lab/internal/sh"
@@ -28,7 +29,7 @@ func (e *Env) AttachSegmentClient(ctx context.Context, client, bridge string) er
 
 	offer, err := e.Probe.DHCP(ctx, client)
 	if err != nil {
-		return fmt.Errorf("segment client on %s got no lease: %w", bridge, err)
+		return fmt.Errorf("segment client on %s got no lease: %w (%s)", bridge, err, e.DHCPServers(ctx))
 	}
 	mask := net.IPMask(net.ParseIP(offer["mask"]).To4())
 	ones, _ := mask.Size()
@@ -69,4 +70,16 @@ func (e *Env) OvpnServerName(ctx context.Context) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("no OpenVPN server on the router")
+}
+
+func (e *Env) DHCPServers(ctx context.Context) string {
+	rows, err := e.Router.Print(ctx, "/ip/dhcp-server")
+	if err != nil {
+		return "dhcp servers: " + err.Error()
+	}
+	var parts []string
+	for _, row := range rows {
+		parts = append(parts, fmt.Sprintf("%s on %s disabled=%s invalid=%s", row["name"], row["interface"], row["disabled"], row["invalid"]))
+	}
+	return "dhcp servers: " + strings.Join(parts, "; ")
 }
