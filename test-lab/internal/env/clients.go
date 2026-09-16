@@ -27,6 +27,7 @@ func (e *Env) AttachSegmentClient(ctx context.Context, client, bridge string) er
 		}
 	}
 
+	e.EnableDHCPDebug(ctx)
 	offer, err := e.Probe.DHCP(ctx, client)
 	if err != nil {
 		return fmt.Errorf("segment client on %s got no lease: %w (%s, %s)", bridge, err, e.DHCPServers(ctx), e.Probe.DHCPTrace(client))
@@ -81,5 +82,25 @@ func (e *Env) DHCPServers(ctx context.Context) string {
 	for _, row := range rows {
 		parts = append(parts, fmt.Sprintf("%s on %s disabled=%s invalid=%s", row["name"], row["interface"], row["disabled"], row["invalid"]))
 	}
+	if logs, err := e.Router.Print(ctx, "/log"); err == nil {
+		var dhcp []string
+		for _, row := range logs {
+			if strings.Contains(row["topics"], "dhcp") {
+				dhcp = append(dhcp, "log "+row["topics"]+" "+row["message"])
+			}
+		}
+		if len(dhcp) > 15 {
+			dhcp = dhcp[len(dhcp)-15:]
+		}
+		parts = append(parts, dhcp...)
+	}
 	return "dhcp servers: " + strings.Join(parts, "; ")
+}
+
+func (e *Env) EnableDHCPDebug(ctx context.Context) {
+	rows, err := e.Router.Print(ctx, "/system/logging", "?topics=dhcp")
+	if err != nil || len(rows) > 0 {
+		return
+	}
+	_, _ = e.Router.Run(ctx, "/system/logging/add", "=topics=dhcp", "=action=memory")
 }

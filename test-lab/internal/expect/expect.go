@@ -558,6 +558,7 @@ func DHCP(t *testing.T, lab *env.Env, d scenario.DHCP, inherited string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 	defer cancel()
 
+	lab.EnableDHCPDebug(ctx)
 	offer, err := lab.Probe.DHCP(ctx, d.From)
 	switch {
 	case d.Lease && err != nil:
