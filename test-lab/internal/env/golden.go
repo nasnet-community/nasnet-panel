@@ -57,5 +57,10 @@ func saveGolden(e *Env, start string) error {
 	if err := e.bootVM(); err != nil {
 		return err
 	}
+	if e.find("l2tp") != nil {
+		if err := e.restartProcess("l2tp"); err != nil {
+			return err
+		}
+	}
 	return e.waitAPI(5 * time.Minute)
 }
