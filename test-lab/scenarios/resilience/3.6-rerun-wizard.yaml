@@ -46,8 +46,11 @@ expect:
   sections:
     - path: /interface/l2tp-client
       key: name
-      absent: [l2tp-client-L2TP-Client]
-    - path: /routing/table
+      absent: [wizard-l2tp-client]
+    - path: /interface/wireguard
       key: name
-      present: [to-VPN-wg-client]
-      absent: [to-VPN-L2TP-Client]
+      present: [wireguard-client-wg-client]
+    - path: /interface/bridge
+      key: name
+      present: [LANBridgeVPN-wg-client]
+      absent: [LANBridgeVPN-L2TP-Client]

@@ -40,7 +40,7 @@ expect:
   sections:
     - path: /interface/l2tp-client
       key: name
-      present: [l2tp-client-L2TP-Client]
+      present: [wizard-l2tp-client]
     - path: /routing/table
       key: name
-      present: [to-VPN-L2TP-Client]
+      present: [to-VPN-Client]

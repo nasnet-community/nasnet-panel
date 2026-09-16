@@ -240,6 +240,7 @@ func (r *run) wizard(w *scenario.Wizard) bool {
 	if !r.action("apply wizard", w.KnownBug, r.lab.Panel.ApplyWizard(ctx, req)) {
 		return false
 	}
+	r.lab.WaitSettled(2 * time.Minute)
 	if w.WaitDomesticList {
 		listCtx, listCancel := context.WithTimeout(context.Background(), 8*time.Minute)
 		defer listCancel()

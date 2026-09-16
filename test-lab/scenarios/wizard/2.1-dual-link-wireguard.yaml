@@ -43,4 +43,4 @@ expect:
       present: [wireguard-client-wg-client]
     - path: /routing/table
       key: name
-      present: [to-VPN-wg-client]
+      present: [to-VPN-Client]

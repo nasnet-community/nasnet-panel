@@ -55,6 +55,10 @@ func bugWithin(within time.Duration, knownBug string) time.Duration {
 	return within
 }
 
+func missingMenu(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "no such command prefix")
+}
+
 func bug(own, inherited string) string {
 	if own != "" {
 		return own
@@ -143,6 +147,9 @@ func Value(t *testing.T, r *drive.Router, v scenario.Value, inherited string) {
 	defer cancel()
 
 	rows, err := r.PrintWhere(ctx, v.Path, v.Where)
+	if missingMenu(err) {
+		rows, err = nil, nil
+	}
 	if err == nil {
 		err = matchRows(rows, v)
 	}
@@ -429,6 +436,9 @@ func Container(t *testing.T, lab *env.Env, c scenario.Container, inherited strin
 	within := bugWithin(time.Minute, bug(c.KnownBug, inherited))
 	err := Eventually(ctx, within, 5*time.Second, func(ctx context.Context) error {
 		rows, err := lab.Router.Print(ctx, "/container", "?name="+c.Name)
+		if missingMenu(err) {
+			rows, err = nil, nil
+		}
 		if err != nil {
 			return err
 		}

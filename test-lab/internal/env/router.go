@@ -26,7 +26,11 @@ func (e *Env) startRouter() error {
 				return err
 			}
 			e.restored = true
-			return e.waitAPI(5 * time.Minute)
+			if err := e.waitAPI(5 * time.Minute); err != nil {
+				return err
+			}
+			e.WaitSettled(2 * time.Minute)
+			return nil
 		}
 	}
 	if e.setup.Start == StartFresh {
@@ -233,6 +237,31 @@ func (e *Env) waitAPI(timeout time.Duration) error {
 		case <-time.After(3 * time.Second):
 		}
 	}
+}
+
+func (e *Env) WaitSettled(timeout time.Duration) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	for {
+		rows, err := e.Router.Print(ctx, "/tool/netwatch")
+		if err == nil && netwatchUp(rows) {
+			return
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(3 * time.Second):
+		}
+	}
+}
+
+func netwatchUp(rows []map[string]string) bool {
+	for _, row := range rows {
+		if row["disabled"] != "true" && row["status"] != "up" {
+			return false
+		}
+	}
+	return true
 }
 
 func (e *Env) waitAPIDown(timeout time.Duration) {
