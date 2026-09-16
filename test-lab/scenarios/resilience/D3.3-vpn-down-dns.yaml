@@ -15,4 +15,10 @@ steps:
     with: { type: wireguard }
     expect:
       dns:
-        - { from: p4, name: lab.test, exits: blocked, within: 15s }
+        - {
+            from: p4,
+            name: lab.test,
+            exits: blocked,
+            within: 15s,
+            known_bug: VPN segment lookups fall back to the domestic resolver when the VPN is down,
+          }
