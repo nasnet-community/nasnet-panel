@@ -89,6 +89,15 @@ func (e *Env) DHCPServers(ctx context.Context) string {
 	} else {
 		parts = append(parts, "logging: "+err.Error())
 	}
+	for _, path := range []string{"/ip/firewall/filter", "/ip/firewall/raw"} {
+		if rules, err := e.Router.Print(ctx, path); err == nil {
+			for _, row := range rules {
+				if row["chain"] == "input" || row["chain"] == "prerouting" {
+					parts = append(parts, fmt.Sprintf("%s %s %s %s in=%s list=%s port=%s disabled=%s", path, row["chain"], row["action"], row["comment"], row["in-interface"], row["in-interface-list"], row["dst-port"], row["disabled"]))
+				}
+			}
+		}
+	}
 	if hosts, err := e.Router.Print(ctx, "/interface/bridge/host"); err == nil {
 		for _, row := range hosts {
 			if row["local"] != "true" {

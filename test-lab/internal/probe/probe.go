@@ -64,9 +64,9 @@ func (p *Prober) DHCPTrace(from string) string {
 		return "capture: " + err.Error()
 	}
 	time.Sleep(time.Second)
-	_, _ = sh.Output(ctx, sh.InNS(ns, p.Labsvc, "dhcp", "-iface", "lan0", "-timeout", "8s")...)
+	udhcpc, _ := exec.CommandContext(ctx, "ip", "netns", "exec", ns, "busybox", "udhcpc", "-i", "lan0", "-n", "-q", "-f", "-t", "3", "-T", "2", "-s", "/bin/true").CombinedOutput()
 	_ = capture.Wait()
-	return "capture: " + strings.Join(strings.Fields(out.String()), " ")
+	return "udhcpc: " + strings.Join(strings.Fields(string(udhcpc)), " ") + ", capture: " + strings.Join(strings.Fields(out.String()), " ")
 }
 
 func (p *Prober) DHCP(ctx context.Context, from string) (map[string]string, error) {
