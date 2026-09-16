@@ -2,7 +2,8 @@ id: 'P1.2-plugin-catalog-unavailable'
 stage: install
 title: Unreachable plugin registry gives a clear error and changes nothing
 profiles: [all]
-start: bootstrapped
+start: installed
+panel: host
 wizard:
   foreign: starlink
   domestic: domestic
@@ -15,4 +16,4 @@ steps:
 expect:
   values:
     - path: /container
-      count: 0
+      count: 1
