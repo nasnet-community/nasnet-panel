@@ -18,4 +18,3 @@ expect:
     - { from: domestic-side, port: 1194, open: true }
   leak:
     starlink_to_domestic: true
-    known_bug: OpenVPN server replies can leave over Starlink

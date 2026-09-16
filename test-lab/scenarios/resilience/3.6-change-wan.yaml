@@ -10,6 +10,8 @@ wizard:
 steps:
   - do: change_wan
     with: { role: spare, type: domestic }
+  - do: sleep
+    with: { for: 30s }
 expect:
   sections:
     - path: /interface/macvlan

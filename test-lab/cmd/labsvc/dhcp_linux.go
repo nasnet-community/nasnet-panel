@@ -85,6 +85,9 @@ func dhcpDiscover(xid [4]byte, mac net.HardwareAddr) []byte {
 	p = append(p, 53, 1, 1)
 	p = append(p, 55, 3, 1, 3, 6)
 	p = append(p, 255)
+	if len(p) < 300 {
+		p = append(p, make([]byte, 300-len(p))...)
+	}
 	return p
 }
 

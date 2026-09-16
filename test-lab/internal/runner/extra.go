@@ -20,7 +20,7 @@ var volatileKeys = map[string]bool{
 	"debug-info": true, "role": true, "edge-port": true, "forwarding": true, "learning": true,
 	"forward-transitions": true, "discard-transitions": true, "designated-bridge-id": true,
 	"designated-cost": true, "designated-port-id": true, "root-path-cost": true, "sending-rstp": true,
-	"port-number": true, "external-fdb-status": true, "inactive": true, "hw-offload-group": true,
+	"port-number": true, "external-fdb-status": true, "inactive": true, "hw-offload-group": true, "tx-bpdu": true, "rx-bpdu": true,
 }
 
 func splitPaths(value string) []string {

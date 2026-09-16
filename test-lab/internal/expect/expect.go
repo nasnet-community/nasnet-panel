@@ -143,15 +143,25 @@ func Sections(t *testing.T, r *drive.Router, sections []scenario.Section, inheri
 func Value(t *testing.T, r *drive.Router, v scenario.Value, inherited string) {
 	t.Helper()
 	name := fmt.Sprintf("value %s %v", v.Path, v.Where)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	within := bugWithin(scenario.Duration(v.Within, 0), bug(v.KnownBug, inherited))
+	ctx, cancel := context.WithTimeout(context.Background(), within+time.Minute)
 	defer cancel()
 
-	rows, err := r.PrintWhere(ctx, v.Path, v.Where)
-	if missingMenu(err) {
-		rows, err = nil, nil
+	check := func(ctx context.Context) error {
+		rows, err := r.PrintWhere(ctx, v.Path, v.Where)
+		if missingMenu(err) {
+			rows, err = nil, nil
+		}
+		if err != nil {
+			return err
+		}
+		return matchRows(rows, v)
 	}
-	if err == nil {
-		err = matchRows(rows, v)
+	var err error
+	if within > 0 {
+		err = Eventually(ctx, within, 5*time.Second, check)
+	} else {
+		err = check(ctx)
 	}
 	Report(t, name, bug(v.KnownBug, inherited), err)
 }
@@ -368,16 +378,23 @@ func Port(t *testing.T, lab *env.Env, p scenario.Port, inherited string) {
 		target = addr
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-	dialErr := lab.Probe.Dial(ctx, p.From, target+":"+strconv.Itoa(p.Port))
-
+	check := func(context.Context) error {
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+		dialErr := lab.Probe.Dial(ctx, p.From, target+":"+strconv.Itoa(p.Port))
+		switch {
+		case p.Open && dialErr != nil:
+			return fmt.Errorf("closed: %v", dialErr)
+		case !p.Open && dialErr == nil:
+			return fmt.Errorf("open on %s", target)
+		}
+		return nil
+	}
 	var err error
-	switch {
-	case p.Open && dialErr != nil:
-		err = fmt.Errorf("closed: %v", dialErr)
-	case !p.Open && dialErr == nil:
-		err = fmt.Errorf("open on %s", target)
+	if within := bugWithin(scenario.Duration(p.Within, 0), bug(p.KnownBug, inherited)); within > 0 {
+		err = Eventually(context.Background(), within, 5*time.Second, check)
+	} else {
+		err = check(context.Background())
 	}
 	Report(t, name, bug(p.KnownBug, inherited), err)
 }

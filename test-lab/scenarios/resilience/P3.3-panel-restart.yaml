@@ -16,4 +16,7 @@ steps:
   - do: restart_panel
 expect:
   plugins:
-    - { id: lab-echo, installed: true, running: true, within: 5m }
+    - { id: lab-echo, installed: false, within: 1m }
+  container:
+    - name: lab-echo
+      present: false

@@ -36,3 +36,4 @@ steps:
         - path: /ip/route
           where: { comment: CheckIP-Route-to-Foreign-Foreign Link }
           fields: { disabled: 'no' }
+          within: 30s

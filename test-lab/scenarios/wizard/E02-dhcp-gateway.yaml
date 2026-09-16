@@ -10,9 +10,4 @@ wizard:
   wait_domestic_list: true
 expect:
   traffic:
-    - {
-        from: split,
-        to: domestic-host,
-        exits: domestic,
-        known_bug: Routes use the hardcoded domestic gateway 192.168.1.1,
-      }
+    - { from: split, to: domestic-host, exits: domestic }

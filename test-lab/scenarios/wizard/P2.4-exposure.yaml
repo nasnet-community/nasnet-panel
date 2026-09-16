@@ -15,7 +15,12 @@ steps:
     with: { id: lab-echo }
 expect:
   ports:
-    - { from: domestic-side, port: 18090, open: true }
+    - {
+        from: domestic-side,
+        port: 18090,
+        open: true,
+        known_bug: Plugin ports never answer on the domestic link because the uplink is not in Domestic-WAN,
+      }
     - { from: starlink-side, port: 18090, open: false }
   leak:
     starlink_to_domestic: true

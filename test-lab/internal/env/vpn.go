@@ -130,6 +130,8 @@ func (e *Env) writeL2TPConfig() error {
 		"nodefaultroute",
 		"mtu 1400",
 		"mru 1400",
+		"debug",
+		"logfile " + filepath.Join(e.Dir, "pppd.log"),
 		"",
 	}, "\n")
 	if err := os.WriteFile(ppp, []byte(pppOptions), 0o644); err != nil {
@@ -145,7 +147,6 @@ func (e *Env) writeL2TPConfig() error {
 		"ip range = 10.67.0.2-10.67.0.50",
 		"local ip = 10.67.0.1",
 		"require authentication = yes",
-		"require chap = yes",
 		"refuse pap = yes",
 		"length bit = yes",
 		"name = lab-lns",

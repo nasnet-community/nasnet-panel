@@ -90,6 +90,7 @@ type Value struct {
 	Fields   map[string]string `yaml:"fields"`
 	Absent   bool              `yaml:"absent"`
 	Count    *int              `yaml:"count"`
+	Within   string            `yaml:"within"`
 	KnownBug string            `yaml:"known_bug"`
 }
 
@@ -121,6 +122,7 @@ type Port struct {
 	From     string `yaml:"from"`
 	Port     int    `yaml:"port"`
 	Open     bool   `yaml:"open"`
+	Within   string `yaml:"within"`
 	KnownBug string `yaml:"known_bug"`
 }
 
