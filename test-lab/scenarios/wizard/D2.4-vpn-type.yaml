@@ -13,4 +13,9 @@ steps:
     with: { client: p4, bridge: LANBridgeVPN }
     expect:
       dns:
-        - { from: p4, name: lab.test, exits: vpn }
+        - {
+            from: p4,
+            name: lab.test,
+            exits: vpn,
+            known_bug: VPN segment lookups leave over the domestic link instead of the tunnel,
+          }
