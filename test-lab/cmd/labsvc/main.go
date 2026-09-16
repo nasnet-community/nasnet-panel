@@ -11,7 +11,6 @@ var commands = map[string]func([]string) error{
 	"fetch":   fetch,
 	"ros":     ros,
 	"resolve": resolve,
-	"dhcp":    dhcp,
 	"dial":    dial,
 	"wgkey":   wgkey,
 	"upload":  upload,

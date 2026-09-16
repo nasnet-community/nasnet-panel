@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"path/filepath"
-	"strings"
 
 	"nasnet-panel/test-lab/internal/profile"
 	"nasnet-panel/test-lab/internal/sh"
@@ -27,10 +26,9 @@ func (e *Env) AttachSegmentClient(ctx context.Context, client, bridge string) er
 		}
 	}
 
-	e.EnableDHCPDebug(ctx)
 	offer, err := e.Probe.DHCP(ctx, client)
 	if err != nil {
-		return fmt.Errorf("segment client on %s got no lease: %w (%s, %s)", bridge, err, e.DHCPServers(ctx), e.Probe.DHCPTrace(client))
+		return fmt.Errorf("segment client on %s got no lease: %w", bridge, err)
 	}
 	mask := net.IPMask(net.ParseIP(offer["mask"]).To4())
 	ones, _ := mask.Size()
@@ -71,61 +69,4 @@ func (e *Env) OvpnServerName(ctx context.Context) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("no OpenVPN server on the router")
-}
-
-func (e *Env) DHCPServers(ctx context.Context) string {
-	rows, err := e.Router.Print(ctx, "/ip/dhcp-server")
-	if err != nil {
-		return "dhcp servers: " + err.Error()
-	}
-	var parts []string
-	for _, row := range rows {
-		parts = append(parts, fmt.Sprintf("%s on %s disabled=%s invalid=%s", row["name"], row["interface"], row["disabled"], row["invalid"]))
-	}
-	if rules, err := e.Router.Print(ctx, "/system/logging"); err == nil {
-		for _, row := range rules {
-			parts = append(parts, "logging "+row["topics"]+" "+row["action"]+" disabled="+row["disabled"])
-		}
-	} else {
-		parts = append(parts, "logging: "+err.Error())
-	}
-	for _, path := range []string{"/ip/firewall/filter", "/ip/firewall/raw"} {
-		if rules, err := e.Router.Print(ctx, path); err == nil {
-			for _, row := range rules {
-				if row["chain"] == "input" || row["chain"] == "prerouting" {
-					parts = append(parts, fmt.Sprintf("%s %s %s %s in=%s list=%s port=%s disabled=%s", path, row["chain"], row["action"], row["comment"], row["in-interface"], row["in-interface-list"], row["dst-port"], row["disabled"]))
-				}
-			}
-		}
-	}
-	if hosts, err := e.Router.Print(ctx, "/interface/bridge/host"); err == nil {
-		for _, row := range hosts {
-			if row["local"] != "true" {
-				parts = append(parts, "host "+row["mac-address"]+" on "+row["bridge"]+"/"+row["on-interface"])
-			}
-		}
-	}
-	if logs, err := e.Router.Print(ctx, "/log"); err == nil {
-		var dhcp []string
-		for _, row := range logs {
-			if strings.Contains(row["topics"], "dhcp") {
-				dhcp = append(dhcp, "log "+row["topics"]+" "+row["message"])
-			}
-		}
-		if len(dhcp) > 15 {
-			dhcp = dhcp[len(dhcp)-15:]
-		}
-		parts = append(parts, dhcp...)
-	}
-	return "dhcp servers: " + strings.Join(parts, "; ")
-}
-
-func (e *Env) EnableDHCPDebug(ctx context.Context) {
-	rows, err := e.Router.Print(ctx, "/system/logging", "?topics=dhcp")
-	if err != nil || len(rows) > 0 {
-		return
-	}
-	if _, err := e.Router.Run(ctx, "/system/logging/add", "=topics=dhcp", "=action=memory"); err != nil {
-		fmt.Printf("enable dhcp logging: %v\n", err)
-	}
 }

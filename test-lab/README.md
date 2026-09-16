@@ -18,7 +18,7 @@ On Ubuntu:
 
 ```sh
 sudo apt-get install -y qemu-system-x86 qemu-utils iproute2 nftables dnsmasq-base \
-  wireguard-tools xl2tpd ppp openvpn openssh-client curl
+  wireguard-tools xl2tpd ppp openvpn openssh-client curl busybox
 ```
 
 `wireguard-tools`, `xl2tpd`, `ppp`, `openvpn` and `openssh-client` are only needed by the scenarios that use them. Scenarios whose tools are missing are skipped with the reason.

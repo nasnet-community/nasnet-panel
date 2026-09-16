@@ -1,13 +1,10 @@
 package probe
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"os/exec"
+	"os"
 	"strings"
-	"time"
 
 	"nasnet-panel/test-lab/internal/sh"
 )
@@ -49,40 +46,40 @@ func (p *Prober) Resolve(ctx context.Context, from, server, qtype, name string) 
 	return strings.Split(strings.TrimSpace(string(out)), "\n"), nil
 }
 
-func (p *Prober) DHCPTrace(from string) string {
-	ns, err := p.ns(from)
-	if err != nil {
-		return err.Error()
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-	capture := exec.CommandContext(ctx, "ip", "netns", "exec", ns, "timeout", "12", "tcpdump", "-lnei", "lan0", "-c", "20", "udp port 67 or udp port 68")
-	var out bytes.Buffer
-	capture.Stdout = &out
-	capture.Stderr = &out
-	if err := capture.Start(); err != nil {
-		return "capture: " + err.Error()
-	}
-	time.Sleep(time.Second)
-	udhcpc, _ := exec.CommandContext(ctx, "ip", "netns", "exec", ns, "busybox", "udhcpc", "-i", "lan0", "-n", "-q", "-f", "-t", "3", "-T", "2", "-s", "/bin/true").CombinedOutput()
-	_ = capture.Wait()
-	return "udhcpc: " + strings.Join(strings.Fields(string(udhcpc)), " ") + ", capture: " + strings.Join(strings.Fields(out.String()), " ")
-}
-
 func (p *Prober) DHCP(ctx context.Context, from string) (map[string]string, error) {
 	ns, err := p.ns(from)
 	if err != nil {
 		return nil, err
 	}
-	out, err := sh.Output(ctx, sh.InNS(ns, p.Labsvc, "dhcp", "-iface", "lan0", "-timeout", "20s")...)
+	script, err := os.CreateTemp("", "udhcpc-*.sh")
 	if err != nil {
 		return nil, err
 	}
-	offer := map[string]string{}
-	if err := json.Unmarshal(out, &offer); err != nil {
+	defer func() { _ = os.Remove(script.Name()) }()
+	_, _ = script.WriteString("#!/bin/sh\n[ \"$1\" = bound ] && echo \"LEASE ip=$ip mask=$subnet router=${router%% *} dns=${dns%% *} server=$serverid\"\nexit 0\n")
+	_ = script.Close()
+	if err := os.Chmod(script.Name(), 0o755); err != nil {
 		return nil, err
 	}
-	return offer, nil
+
+	out, err := sh.Output(ctx, sh.InNS(ns, "busybox", "udhcpc", "-i", "lan0", "-n", "-q", "-f", "-t", "6", "-T", "3", "-s", script.Name())...)
+	for _, line := range strings.Split(string(out), "\n") {
+		fields, ok := strings.CutPrefix(line, "LEASE ")
+		if !ok {
+			continue
+		}
+		offer := map[string]string{}
+		for _, field := range strings.Fields(fields) {
+			if key, value, ok := strings.Cut(field, "="); ok && value != "" {
+				offer[key] = value
+			}
+		}
+		return offer, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return nil, fmt.Errorf("no DHCP lease received")
 }
 
 func (p *Prober) Dial(ctx context.Context, from, addr string) error {

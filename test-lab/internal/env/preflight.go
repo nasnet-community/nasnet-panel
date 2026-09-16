@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var baseTools = []string{"ip", "nft", "dnsmasq", "qemu-img", "go", "env", "sysctl"}
+var baseTools = []string{"ip", "nft", "dnsmasq", "qemu-img", "go", "env", "sysctl", "busybox"}
 
 var featureTools = map[string][]string{
 	"wireguard":   {"wg"},
