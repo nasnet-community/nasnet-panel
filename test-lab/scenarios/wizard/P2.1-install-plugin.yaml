@@ -23,7 +23,7 @@ expect:
       where: { name: veth-lab-echo }
       fields: { address: '~192.168.50.20' }
     - path: /container/mounts
-      where: { name: lab-echo-data }
+      where: { list: lab-echo-data }
     - path: /container
       where: { name: lab-echo }
       fields: { env: '!~{{settings' }
