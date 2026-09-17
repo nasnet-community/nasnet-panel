@@ -623,7 +623,27 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 
 :global WizardProgress "95"
 
-:execute script={/system script run DomesticIPUpdate-OneTime}
+/ip dhcp-client set [find comment="Foreign Link to Foreign"] disabled=yes
+:delay 100ms
+/ip dhcp-client set [find comment="Foreign Link to Foreign"] disabled=no
+:local foreignBoundRetries 0
+:while ([/ip dhcp-client get [find comment="Foreign Link to Foreign"] status] != "bound" && $foreignBoundRetries < 100) do={
+    :log info "Waiting for Foreign Link to Foreign DHCP client to reach status=bound"
+    :delay 100ms
+    :set foreignBoundRetries ($foreignBoundRetries + 1)
+}
+{{ if .DomesticEnabled}}
+/ip dhcp-client set [find comment="Domestic Link to Domestic"] disabled=yes
+:delay 100ms
+/ip dhcp-client set [find comment="Domestic Link to Domestic"] disabled=no
+:local domesticBoundRetries 0
+:while ([/ip dhcp-client get [find comment="Domestic Link to Domestic"] status] != "bound" && $domesticBoundRetries < 100) do={
+    :log info "Waiting for Domestic Link to Domestic DHCP client to reach status=bound"
+    :delay 100ms
+    :set domesticBoundRetries ($domesticBoundRetries + 1)
+}
+{{ end }}
+:global WizardProgress "96"
 /ip dhcp-server network remove [find address="192.168.210.0/24"]
 /ip dhcp-server remove [find name="DHCP-Management-wifi"]
 /ip pool remove [find name="DHCP-pool-management-wifi"]
@@ -633,6 +653,9 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 /tool mac-server set allowed-interface-list=all
 /tool mac-server mac-winbox set allowed-interface-list=all
 
-:global WizardProgress "100"
+:global WizardProgress "97"
 /file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
+:global WizardProgress "99"
 /system script remove [find name=wizard]
+:global WizardProgress "100"
+/system script run DomesticIPUpdate-OneTime
