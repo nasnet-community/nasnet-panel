@@ -135,6 +135,7 @@ export interface WirelessSettings {
   band: WirelessBand;
   countryCode: string;
   hidden: boolean;
+  mode?: string;
 }
 
 export interface WirelessClient {
