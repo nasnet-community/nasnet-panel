@@ -2,6 +2,7 @@
   'use strict';
 
   var PANEL_READY_DELAY_MS = 3000;
+  var COPY_LOG_RESET_MS = 2000;
   var DEVICE_LEAD_ASK = 'After you press Proceed, within 120 seconds do one of the following:';
   var DEVICE_LEAD_WAIT = 'Within 120 seconds do one of the following:';
   var REBOOT_LEAD_ASK = 'Use the MODE button while the router is powered on:';
@@ -14,6 +15,7 @@
   var rebootTimer = null;
   var rebootElapsed = 0;
   var panelReadyTimer = null;
+  var copyLogTimer = null;
   var routerBoard = '';
 
   function $(id) {
@@ -131,6 +133,7 @@
     $('btn-cancel').addEventListener('click', function () {
       App.CancelRun();
     });
+    $('btn-copy-log').addEventListener('click', copyLog);
     $('btn-back').addEventListener('click', backToForm);
     $('btn-again').addEventListener('click', backToForm);
     $('btn-device-ok').addEventListener('click', function () {
@@ -339,6 +342,23 @@
     var log = $('log');
     log.textContent += line + '\n';
     log.scrollTop = log.scrollHeight;
+  }
+
+  function copyLog() {
+    var label = $('copy-log-label');
+    Promise.resolve(window.runtime.ClipboardSetText($('log').textContent))
+      .then(function (ok) {
+        label.textContent = ok === false ? 'Copy failed' : 'Copied';
+      })
+      .catch(function () {
+        label.textContent = 'Copy failed';
+      })
+      .then(function () {
+        clearTimeout(copyLogTimer);
+        copyLogTimer = setTimeout(function () {
+          label.textContent = 'Copy';
+        }, COPY_LOG_RESET_MS);
+      });
   }
 
   function bindRuntimeEvents() {

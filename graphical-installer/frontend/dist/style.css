@@ -361,6 +361,27 @@ button.danger-outline:hover {
   min-width: 0;
 }
 
+.log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.log-header h2 {
+  margin-bottom: 0;
+}
+
+#btn-copy-log {
+  gap: 6px;
+}
+
+#btn-copy-log svg {
+  width: 14px;
+  height: 14px;
+}
+
 .router-info {
   display: flex;
   flex-wrap: wrap;
