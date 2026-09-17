@@ -26,7 +26,7 @@ import {
   type SstpServerTaskStatus,
   type VPNCredentials,
 } from '../../../api';
-import { isCIDR, isPort, validateIdentifier, validateOvpnSecret } from '../../../utils/validators';
+import { isCIDR, isPort, validateOvpnSecret } from '../../../utils/validators';
 import { pollSstpServerTask } from '../sstpTask';
 
 export type AddVpnServerType = 'openvpn' | 'wireguard' | 'sstp';
@@ -366,7 +366,6 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
   const [localAddress, setLocalAddress] = useState('');
   const [listenPort, setListenPort] = useState('');
   const [mtu, setMtu] = useState('');
-  const [comment, setComment] = useState('');
   const [privateKey, setPrivateKey] = useState('');
   const [disabled, setDisabled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -375,7 +374,6 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
 
   const errors = useMemo(
     () => ({
-      name: validateIdentifier(name),
       localAddress:
         !advanced || localAddress.trim() === '' || isCIDR(localAddress)
           ? null
@@ -389,7 +387,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
           ? null
           : 'MTU must be a positive integer.',
     }),
-    [advanced, name, localAddress, listenPort, mtu],
+    [advanced, localAddress, listenPort, mtu],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -402,15 +400,15 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
     setSubmitting(true);
     const body: CreateWireguardServerRequest = advanced
       ? {
-          name: name.trim(),
+          name: '',
           localAddress: localAddress.trim() || undefined,
           listenPort: listenPort.trim() ? Number(listenPort) : undefined,
           mtu: mtu.trim() ? Number(mtu) : undefined,
-          comment: comment.trim() || undefined,
+          comment: name.trim() || undefined,
           privateKey: privateKey.trim() || undefined,
           disabled: disabled || undefined,
         }
-      : { name: name.trim() };
+      : { name: '', comment: name.trim() || undefined };
     try {
       await createWireguardServer(creds, body);
       onCreated();
@@ -437,9 +435,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
             placeholder="office"
             autoComplete="off"
             aria-label="Name"
-            aria-invalid={submitAttempted && !!errors.name}
           />
-          {submitAttempted && errors.name ? <FormError>{errors.name}</FormError> : null}
         </Label>
       </FieldRow>
       <FieldRow>
@@ -503,16 +499,6 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
                 aria-invalid={submitAttempted && !!errors.mtu}
               />
               {submitAttempted && errors.mtu ? <FormError>{errors.mtu}</FormError> : null}
-            </Label>
-            <Label>
-              <span>Comment</span>
-              <Input
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="optional"
-                autoComplete="off"
-                aria-label="Comment"
-              />
             </Label>
           </FieldRow>
           <FieldRow>
