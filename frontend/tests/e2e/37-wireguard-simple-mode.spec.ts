@@ -98,7 +98,7 @@ test.describe('WireGuard simple mode', () => {
     await dialog.getByLabel('Name', { exact: true }).fill('office');
     await dialog.getByRole('button', { name: 'Create WireGuard server' }).click();
 
-    await expect.poll(() => lastPostBody).toEqual({ name: 'office' });
+    await expect.poll(() => lastPostBody).toEqual({ name: '', comment: 'office' });
     await expect(dialog).toBeHidden();
   });
 
@@ -159,16 +159,13 @@ test.describe('WireGuard simple mode', () => {
     await expect(advanced.getByLabel('Local address')).toBeVisible();
     await expect(advanced.getByLabel('MTU')).toBeVisible();
     await expect(advanced.getByLabel('Private key')).toBeVisible();
-    await expect(advanced.getByLabel('Comment')).toBeVisible();
+    await expect(advanced.getByLabel('Comment')).toHaveCount(0);
 
-    await dialog.getByLabel('Name', { exact: true }).fill('office');
+    await dialog.getByLabel('Name', { exact: true }).fill('lab');
     await advanced.getByLabel('Listen port').fill('51820');
-    await advanced.getByLabel('Comment').fill('lab');
     await dialog.getByRole('button', { name: 'Create WireGuard server' }).click();
 
-    await expect
-      .poll(() => lastPostBody)
-      .toEqual({ name: 'office', listenPort: 51820, comment: 'lab' });
+    await expect.poll(() => lastPostBody).toEqual({ name: '', listenPort: 51820, comment: 'lab' });
   });
 
   test('creates a peer with no input and shows its client config', async ({
