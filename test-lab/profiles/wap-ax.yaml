@@ -1,0 +1,11 @@
+name: wap-ax
+model: wAP ax wAPG-5HaxD2HaxD
+arch: arm64
+memory_mb: 512
+storage_mb: 128
+cpus: 1
+capabilities: [ethernet, container, wifi]
+ports:
+  - name: ether1
+    kind: poe-in
+    role: split

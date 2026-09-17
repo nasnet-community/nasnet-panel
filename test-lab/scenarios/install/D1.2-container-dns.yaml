@@ -1,0 +1,14 @@
+id: 'D1.2-container-dns'
+stage: install
+title: Panel container resolves names and reaches the internet through the router
+profiles: [chr-x86, chr-arm64]
+start: installed
+requires:
+  lab: [image-tar, internet]
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api: { method: GET, path: /api/app/check-for-updates, status: 200 }

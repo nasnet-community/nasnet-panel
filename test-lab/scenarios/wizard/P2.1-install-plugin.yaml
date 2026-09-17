@@ -1,0 +1,31 @@
+id: 'P2.1-install-plugin'
+stage: wizard
+title: Plugin installs with its network link, mounts and settings
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+expect:
+  container:
+    - name: lab-echo
+      running: true
+      fields: { start-on-boot: 'yes', interface: veth-lab-echo }
+  values:
+    - path: /interface/veth
+      where: { name: veth-lab-echo }
+      fields: { address: '~192.168.50.20' }
+    - path: /container/mounts
+      where: { list: lab-echo-data }
+    - path: /container
+      where: { name: lab-echo }
+      fields: { env: '!~{{settings' }
+  plugins:
+    - { id: lab-echo, installed: true, running: true }
