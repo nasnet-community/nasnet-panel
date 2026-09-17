@@ -145,6 +145,7 @@ export interface UpdateWifiSettingsRequest {
   ssid?: string;
   password?: string;
   securityTypes?: string;
+  mode?: string;
 }
 
 export async function updateWifiSettings(
