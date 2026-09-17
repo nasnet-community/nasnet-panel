@@ -1,7 +1,15 @@
+:local wizardRetry 0
+
+
+
 :global WizardProgress "5"
 /system/backup/save name={{ .BackupTime }}
 /export file={{ .BackupTime }}
 
+:while ($wizardRetry < 3) do={
+:set wizardRetry ($wizardRetry + 1)
+:log info "Wizard: Attempt $wizardRetry to fetch the latest configuration from the server..."
+:do {
 :global WizardProgress "8"
 
 {{ template "cleanup.tmpl" . }}
@@ -13,7 +21,6 @@
 
 {{ if .ManagementWifi.SSID }}
 /interface wifi remove [find name="wifi-management"]
-/interface wifi remove [find name="wifi-virtual"]
 :if ([:len [/interface wifi find]] > 0) do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
@@ -99,7 +106,6 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 } else={
     :put ("Failed to connect to {{ .ForeignInterface.SSID }} within " . $maxWait . "s")
     :log warning ("wifi station (" . $foreignWifi . ") failed to connect to SSID={{ .ForeignInterface.SSID }} within " . $maxWait . "s")
-    :exit
 }
 {{ end }}
 
@@ -129,7 +135,6 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 } else={
     :put ("Failed to connect to {{ .DomesticInterface.SSID }} within " . $maxWait . "s")
     :log warning ("wifi station (" . $domesticWifi . ") failed to connect to SSID={{ .DomesticInterface.SSID }} within " . $maxWait . "s")
-    :exit
 }
 {{ end }}
 :global WizardProgress "40"
@@ -658,4 +663,13 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :global WizardProgress "99"
 /system script remove [find name=wizard]
 :global WizardProgress "100"
+
+        :log info "Script completed successfully"
+        :break
+
+    } on-error={
+        :log warning ("Script failed, retry " . $wizardRetry . "/3")
+        :delay 5s
+    }
+}
 /system script run DomesticIPUpdate-OneTime
