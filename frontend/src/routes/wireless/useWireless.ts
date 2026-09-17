@@ -178,6 +178,7 @@ export function useWireless(id: string | undefined) {
         band: iface.band ?? '2.4ghz',
         countryCode: settings?.countryCode ?? '',
         hidden: false,
+        mode: iface.mode?.toLowerCase().startsWith('station') ? 'station' : 'ap',
       });
     },
     [creds, settings?.countryCode],
@@ -196,6 +197,7 @@ export function useWireless(id: string | undefined) {
     const nextTypes = [...next.securityTypes].sort().join(',');
     const prevTypes = [...(editingSettings?.securityTypes ?? [])].sort().join(',');
     if (nextTypes !== prevTypes) patch.securityTypes = next.securityTypes.join(',');
+    if (next.mode !== editingSettings?.mode) patch.mode = next.mode;
     if (Object.keys(patch).length === 0) {
       closeEdit();
       return;

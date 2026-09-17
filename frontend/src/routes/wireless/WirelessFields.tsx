@@ -1,10 +1,24 @@
-import { Checkbox, FieldRow, FieldStack, Inline, Input, Label, PasswordInput } from '@nasnet/ui';
+import {
+  Checkbox,
+  FieldRow,
+  FieldStack,
+  Inline,
+  Input,
+  Label,
+  PasswordInput,
+  Select,
+} from '@nasnet/ui';
 import type { WirelessSettings } from '../../api';
 
 const SECURITY_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'wpa-psk', label: 'WPA-PSK' },
   { value: 'wpa2-psk', label: 'WPA2-PSK' },
   { value: 'wpa3-psk', label: 'WPA3-PSK' },
+];
+
+const MODE_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: 'ap', label: 'AP' },
+  { value: 'station', label: 'Station' },
 ];
 
 interface Props {
@@ -40,6 +54,15 @@ export function WirelessFields({ draft, onPatch }: Props) {
           />
         </Label>
       </FieldRow>
+      <Label as="div">
+        <span>Mode</span>
+        <Select
+          options={MODE_OPTIONS}
+          value={draft.mode ?? 'ap'}
+          onChange={(v) => onPatch('mode', v)}
+          aria-label="Mode"
+        />
+      </Label>
       <Label as="div">
         <span>Security</span>
         <Inline $gap="16px">
