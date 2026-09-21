@@ -555,7 +555,7 @@ add comment="VPN DNS leak guard" blackhole dst-address=1.0.0.1/32 routing-table=
 add comment="Foreign DNS leak guard" blackhole dst-address=1.1.1.1/32 routing-table=main distance=254 scope=30
 add comment="Tunnel endpoints -> hairpin -> main" dst-address=0.0.0.0/0 gateway="10.255.255.1@VRF-TunnelEnds" routing-table="VRF-TunnelEnds"
 :global WizardProgress "68"
-/ip firewall raw 
+/ip firewall raw
 add chain=output     out-interface=VRF-TunnelEnds action=notrack
 add chain=output     out-interface=TunnelEnds-vrf action=notrack
 add chain=prerouting in-interface=VRF-TunnelEnds  action=notrack
@@ -639,16 +639,14 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 
 :global WizardProgress "80"
 
-{{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 
-:global WizardProgress "85"
 
 {{if and .OvpnServer .DomesticEnabled}}{{ template "ovpn_server.tmpl" . }}{{end}}
 
 :delay 1s
 /user set {{ .RouterUsername }} password="{{ .RouterPassword }}"
 
-:global WizardProgress "95"
+:global WizardProgress "92"
 
 /ip dhcp-client set [find comment="Foreign Link to Foreign"] disabled=yes
 :delay 100ms
@@ -670,6 +668,8 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
     :set domesticBoundRetries ($domesticBoundRetries + 1)
 }
 {{ end }}
+:global WizardProgress "95"
+{{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 :global WizardProgress "96"
 /ip dhcp-server network remove [find address="192.168.210.0/24"]
 /ip dhcp-server remove [find name="DHCP-Management-wifi"]

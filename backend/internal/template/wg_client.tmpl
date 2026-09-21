@@ -11,48 +11,25 @@ add interface="wireguard-client-wg-client" public-key="{{ .PublicKey }}" \
 persistent-keepalive={{ .PersistentKeepalive }}{{ end }}
 {{ end }}
 
-/interface list
-add name="VPN-wg-client-WAN" comment="VPN-wg-client"
-add name="VPN-wg-client-LAN" comment="VPN-wg-client"
+#/interface list
+#add name="VPN-wg-client-WAN" comment="VPN-wg-client"
+#add name="VPN-wg-client-LAN" comment="VPN-wg-client"
 
-/ip pool
-add name="DHCP-pool-VPN-wg-client" ranges="192.168.42.2-192.168.42.254" comment="VPN-wg-client"
-
-/ip dhcp-server
-add address-pool="DHCP-pool-VPN-wg-client" interface="LANBridgeVPN-wg-client" name="DHCP-VPN-wg-client" comment="VPN-wg-client"
-
-/ip dhcp-server network
-add address="192.168.42.0/24" dns-server="192.168.42.1" gateway="192.168.42.1" comment="VPN-wg-client"
 
 /routing table
 add fib name="to-VPN-Client" comment="VPN-client"
 
-/routing rule
-add action=lookup-only-in-table comment="Routing the VPN-wg-client SRC Address" disabled=no src-address="192.168.42.0/24" table="to-VPN-Client"
-add action=lookup-only-in-table comment="Routing the VPN-wg-client Routing Mark" disabled=no routing-mark="to-VPN-Client" table="to-VPN-Client"
 
 /interface list member
 add interface="wireguard-client-wg-client" list="WAN" comment="VPN-wireguard-client-wg-client"
 add interface="wireguard-client-wg-client" list="VPN-WAN" comment="VPN-wireguard-client-wg-client"
-add interface="LANBridgeVPN-wg-client" list="LAN" comment="VPN-wg-client"
-add interface="LANBridgeVPN-wg-client" list="VPN-wg-client-LAN" comment="VPN-wg-client"
+#add interface="LANBridgeVPN-wg-client" list="LAN" comment="VPN-wg-client"
+#add interface="LANBridgeVPN-wg-client" list="VPN-wg-client-LAN" comment="VPN-wg-client"
 
 /ip address
 add address="{{ .WireGuardClient.InterfaceAddress }}" interface="wireguard-client-wg-client" comment="VPN-client-wg-client"
 add address="192.168.42.1/24" interface="LANBridgeVPN-wg-client" network="192.168.42.0" comment="VPN-wg-client"
 
-/ip firewall address-list
-add address="192.168.42.0/24" list="VPN-wg-client-LAN" comment="VPN-wg-client"
-
-/ip firewall mangle
-add action=mark-routing chain=prerouting comment="VPN-wg-client Routing" new-routing-mark="to-VPN-Client" passthrough=no src-address-list="VPN-wg-client-LAN"
-
-/ip firewall nat
-add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=udp src-address-list="VPN-wg-client-LAN" to-addresses=1.0.0.1
-add action=dst-nat chain=dstnat comment="DNS VPN-wg-client" disabled=yes dst-port=53 protocol=tcp src-address-list="VPN-wg-client-LAN" to-addresses=1.0.0.1
-
-/ip nat-pmp interfaces
-add interface="LANBridgeVPN-wg-client" type=internal
 
 /ip route
 add dst-address="0.0.0.0/0" gateway="wireguard-client-wg-client" routing-table="to-VPN-Client" scope=30 target-scope=10  comment="Route-to-VPN-Client"
