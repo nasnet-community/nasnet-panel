@@ -67,7 +67,7 @@
 /interface ovpn-server server remove [find]
 /interface wifi steering remove [find]
 /interface sstp-server server set enabled=no
-/ip address remove [find dynamic!=yes]
+/ip address remove [find dynamic!=yes interface!="LANBridgeSplit" interface!="containers"]
 :foreach i in=[/ip/nat-pmp/interfaces find] do={
   :local interface [/ip/nat-pmp/interfaces get $i interface]
   :if ($interface = "LANBridgeSplit") do={
