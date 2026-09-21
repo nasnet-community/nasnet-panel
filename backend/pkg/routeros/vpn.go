@@ -298,6 +298,7 @@ type WireGuardClientConfig struct {
 	MTU        *int
 	Disabled   *bool
 	Comment    *string
+	VRF        *string
 }
 
 // WireGuardPeerConfig contains the configuration for creating a WireGuard peer.
@@ -1424,7 +1425,7 @@ func (c *Client) CreateVPNProfile(profileName string) error {
 func (c *Client) AddL2TPClient(config AddL2TPClientConfig) error {
 	args := []string{
 		"=name=" + config.Name,
-		"=connect-to=" + config.ConnectTo,
+		"=connect-to=" + config.ConnectTo + "@VRF-TunnelEnds",
 		"=user=" + config.User,
 		"=password=" + config.Password,
 		"=profile=" + config.ProfileName,
@@ -1458,7 +1459,7 @@ func (c *Client) UpdateL2TPClient(nameOrID string, config UpdateL2TPClientConfig
 	args := []string{"=.id=" + vpnClient.ID}
 
 	if config.ConnectTo != nil && *config.ConnectTo != "" {
-		args = append(args, "=connect-to="+*config.ConnectTo)
+		args = append(args, "=connect-to="+*config.ConnectTo+"@VRF-TunnelEnds")
 	}
 
 	if config.User != nil && *config.User != "" {
@@ -1611,6 +1612,10 @@ func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*WireGu
 
 	if config.Comment != nil && *config.Comment != "" {
 		args = append(args, "=comment="+*config.Comment)
+	}
+
+	if config.VRF != nil && *config.VRF != "" {
+		args = append(args, "=vrf="+*config.VRF)
 	}
 
 	// Create WireGuard interface

@@ -31,6 +31,7 @@
   }
   /ip/pool remove $i
 }
+/ip vrf remove [find builtin!=yes]
 
 :global WizardProgress "10"
 
@@ -41,6 +42,7 @@
 /ip firewall filter remove [find dynamic=no && comment!="nasnet-panel-installer-forward"]
 /ip firewall nat remove [find dynamic=no && comment!="nasnet-panel-installer-srcnat" && comment!="nasnet-panel-installer-dstnat"]
 /ip firewall mangle remove [find dynamic=no]
+/ip firewall raw remove [find dynamic=no]
 /ip firewall address-list remove [find dynamic=no]
 /ip dns forwarder remove [find]
 /ip dns static remove [find dynamic=no]
@@ -65,7 +67,7 @@
 /interface ovpn-server server remove [find]
 /interface wifi steering remove [find]
 /interface sstp-server server set enabled=no
-
+/ip address remove [find dynamic!=yes interface!="LANBridgeSplit" interface!="containers"]
 :foreach i in=[/ip/nat-pmp/interfaces find] do={
   :local interface [/ip/nat-pmp/interfaces get $i interface]
   :if ($interface = "LANBridgeSplit") do={

@@ -434,10 +434,6 @@ func HandleAddL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
 	}
 
-	if _, err := client.AddFirewallAddressListItem("VPNE", req.ConnectTo, false, interfaceName); err != nil {
-		c.Logger().Errorf("Failed to add L2TP server address to firewall list: %v", err)
-	}
-
 	for _, list := range []string{"WAN", "VPN-WAN"} {
 		onList, err := client.InterfaceListMemberExists(list, interfaceName)
 		if err != nil {
@@ -511,8 +507,7 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
-	l2tpClientBefore, err := client.GetL2TPClientInfo(nameOrID)
-	if err != nil {
+	if _, err := client.GetL2TPClientInfo(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
 	}
 
@@ -532,25 +527,6 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		UseIPsec:    useIPsec,
 	}); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update L2TP client", err)
-	}
-
-	if req.ConnectTo != nil && *req.ConnectTo != l2tpClientBefore.ConnectTo {
-		oldAddress := l2tpClientBefore.ConnectTo
-		newAddress := *req.ConnectTo
-
-		items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-			ListName: "VPNE",
-			Address:  oldAddress,
-		})
-		if err == nil && len(items) > 0 {
-			if err := client.UpdateFirewallAddressListItem(items[0].ID, newAddress); err != nil {
-				c.Logger().Errorf("Failed to update firewall address list item: %v", err)
-			}
-		} else if err != nil || len(items) == 0 {
-			if _, err := client.AddFirewallAddressListItem("VPNE", newAddress, false, l2tpClientBefore.Name); err != nil {
-				c.Logger().Errorf("Failed to add firewall address list item: %v", err)
-			}
-		}
 	}
 
 	vpnClient, err := client.GetVPNClient(nameOrID)
@@ -619,16 +595,6 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete L2TP client", err)
 	}
 
-	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-		ListName: "VPNE",
-		Address:  l2tpClient.ConnectTo,
-	})
-	if err == nil && len(items) > 0 {
-		if err := client.RemoveFirewallAddressListItem(items[0].ID); err != nil {
-			c.Logger().Errorf("Failed to remove firewall address list item: %v", err)
-		}
-	}
-
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -659,6 +625,7 @@ func HandleGetL2TPClient(c echo.Context) error {
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
 	}
+	l2tpClient.ConnectTo = strings.TrimSuffix(l2tpClient.ConnectTo, "@VRF-TunnelEnds")
 
 	response := ToL2TPClientResponse(l2tpClient)
 
@@ -1046,6 +1013,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to count WireGuard peers", err)
 	}
 
+	vrf := "VRF-TunnelEnds"
 	config := routeros.WireGuardClientConfig{
 		Name:       interfaceName,
 		PrivateKey: req.InterfacePrivateKey,
@@ -1053,6 +1021,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		MTU:        req.MTU,
 		Disabled:   req.Disabled,
 		Comment:    req.Comment,
+		VRF:        &vrf,
 	}
 
 	wireguard, err := client.CreateWireGuardInterface(config)
@@ -1110,12 +1079,6 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		}
 		if _, err := client.AddInterfaceListMember(list, wireguard.Name); err != nil {
 			c.Logger().Errorf("Failed to add %s to %s interface list: %v", wireguard.Name, list, err)
-		}
-	}
-
-	if req.EndpointIP != "" {
-		if _, err := client.AddFirewallAddressListItem("VPNE", req.EndpointIP, false, peerName); err != nil {
-			c.Logger().Errorf("Failed to add peer endpoint IP to firewall list: %v", err)
 		}
 	}
 
@@ -1465,25 +1428,6 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 			return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WireGuard peer", err)
-	}
-
-	if req.EndpointAddress != nil && *req.EndpointAddress != peer.EndpointAddress {
-		oldAddress := peer.EndpointAddress
-		newAddress := *req.EndpointAddress
-
-		items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-			ListName: "VPNE",
-			Address:  oldAddress,
-		})
-		if err == nil && len(items) > 0 {
-			if err := client.UpdateFirewallAddressListItem(items[0].ID, newAddress); err != nil {
-				c.Logger().Errorf("Failed to update firewall address list item: %v", err)
-			}
-		} else if err != nil || len(items) == 0 {
-			if _, err := client.AddFirewallAddressListItem("VPNE", newAddress, false, peer.Name); err != nil {
-				c.Logger().Errorf("Failed to add firewall address list item: %v", err)
-			}
-		}
 	}
 
 	// Retrieve the updated peer
@@ -1997,24 +1941,12 @@ func HandleDeleteWireGuardPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard peer name or ID is required", nil)
 	}
 
-	peer, err := client.GetWireGuardPeerByNameOrID(nameOrID)
-	if err != nil {
+	if _, err := client.GetWireGuardPeerByNameOrID(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 	}
 
-	err = client.DeleteWireGuardPeer(nameOrID)
-	if err != nil {
+	if err := client.DeleteWireGuardPeer(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard peer", err)
-	}
-
-	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-		ListName: "VPNE",
-		Address:  peer.EndpointAddress,
-	})
-	if err == nil && len(items) > 0 {
-		if err := client.RemoveFirewallAddressListItem(items[0].ID); err != nil {
-			c.Logger().Errorf("Failed to remove firewall address list item: %v", err)
-		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard peer deleted successfully", nil)
@@ -2049,11 +1981,6 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
 	}
 
-	peers, err := client.GetWireGuardPeers(wireguard.Name)
-	if err != nil {
-		peers = []routeros.WireGuardPeerInfo{}
-	}
-
 	for _, list := range []string{"WAN", "VPN-WAN"} {
 		if err := client.RemoveInterfaceListMember(list, wireguard.Name); err != nil {
 			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", wireguard.Name, list, err)
@@ -2075,20 +2002,6 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 					c.Logger().Errorf("Failed to remove firewall rule for interface %s: %v", wireguard.Name, err)
 				}
 				break
-			}
-		}
-	}
-
-	for i := range peers {
-		if peers[i].EndpointAddress != "" {
-			items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-				ListName: "VPNE",
-				Address:  peers[i].EndpointAddress,
-			})
-			if err == nil && len(items) > 0 {
-				if err := client.RemoveFirewallAddressListItem(items[0].ID); err != nil {
-					c.Logger().Errorf("Failed to remove firewall address list item for peer %s: %v", peers[i].Name, err)
-				}
 			}
 		}
 	}
@@ -2147,9 +2060,11 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		interfaceName += "-wg-client"
 	}
 
+	vrf := "VRF-TunnelEnds"
 	interfaceConfig2 := routeros.WireGuardClientConfig{
 		Name:       interfaceName,
 		ListenPort: listenPort,
+		VRF:        &vrf,
 	}
 	if privateKey != "" {
 		interfaceConfig2.PrivateKey = &privateKey
@@ -2231,12 +2146,6 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		_, err = client.AddWireGuardPeer(config)
 		if err != nil {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
-		}
-
-		if endpointAddr != "" {
-			if _, err := client.AddFirewallAddressListItem("VPNE", endpointAddr, false, "wireguard-"+wg.Name); err != nil {
-				c.Logger().Errorf("Failed to add peer endpoint IP to firewall list: %v", err)
-			}
 		}
 
 		peerNames = append(peerNames, peerName)
