@@ -2,7 +2,7 @@
 add name="LANBridgeVPN-wg-client" comment="VPN-wg-client"
 
 /interface wireguard
-add name="wireguard-client-wg-client" private-key="{{ .WireGuardClient.InterfacePrivateKey }}" comment="wg-client-wg-client" vrf=VRF-TunnelEnds
+add name="wireguard-client-wg-client" private-key="{{ .WireGuardClient.InterfacePrivateKey }}" comment="wg-client-wg-client" vrf="VRF-TunnelEnds"
 /interface wireguard peers
 {{ range .WireGuardClient.Peers }}
 add interface="wireguard-client-wg-client" public-key="{{ .PublicKey }}" \
