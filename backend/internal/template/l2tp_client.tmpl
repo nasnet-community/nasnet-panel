@@ -2,7 +2,7 @@
 add name="LANBridgeVPN-L2TP-Client" comment="VPN-L2TP-Client"
 
 /interface l2tp-client
-add name="wizard-l2tp-client" connect-to="{{ .L2tpClient.ConnectTo }}" comment="L2TP-Client L2TP" \
+add name="wizard-l2tp-client" connect-to="{{ .L2tpClient.ConnectTo }}@VRF-TunnelEnds" comment="L2TP-Client L2TP" \
 random-source-port=yes user="{{ .L2tpClient.User }}" password="{{ .L2tpClient.Password }}" \
 {{ if .L2tpClient.IPsecSecret }}use-ipsec=yes ipsec-secret={{.L2tpClient.IPsecSecret}}{{ else }}use-ipsec=no{{ end }} allow-fast-path=yes allow=mschap2,mschap1 \
 l2tp-proto-version=l2tpv2 dial-on-demand=no disabled=no
@@ -37,7 +37,6 @@ add interface="LANBridgeVPN-L2TP-Client" list="VPN-L2TP-Client-LAN" comment="VPN
 add address="192.168.41.1/24" interface="LANBridgeVPN-L2TP-Client" network="192.168.41.0" comment="VPN-L2TP-Client"
 
 /ip firewall address-list
-add address="{{ .L2tpClient.ConnectTo }}" list=VPNE comment="VPN-L2TP-Client Interface:wizard-l2tp-client WanInterface:Foreign-Foreign Link Endpoint:{{ .L2tpClient.ConnectTo }} - Endpoint for routing"
 add address="192.168.41.0/24" list="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Client"
 
 /ip firewall mangle
