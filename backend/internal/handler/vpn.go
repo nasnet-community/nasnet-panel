@@ -2564,6 +2564,46 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		setError("Failed to find reply routing mangle rule: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		return
+	}
+
+	tcpMangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + serverConfigNameTCP,
+		ConnectionState:   "new",
+		InIfaceList:       "Domestic-WAN",
+		Protocol:          "tcp",
+		DstPort:           fmt.Sprintf("%d", tcpPort),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(tcpMangleRuleConfig); err != nil {
+		setError("Failed to add mangle rule for OpenVPN TCP: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		return
+	}
+
+	udpMangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + serverConfigNameUDP,
+		ConnectionState:   "new",
+		InIfaceList:       "Domestic-WAN",
+		Protocol:          "udp",
+		DstPort:           fmt.Sprintf("%d", udpPort),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(udpMangleRuleConfig); err != nil {
+		setError("Failed to add mangle rule for OpenVPN UDP: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		return
+	}
+
 	updateTask(100, "Completed")
 
 	task.mu.Lock()
@@ -3147,6 +3187,18 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 			if strings.HasPrefix(rules[i].Comment, baseName) {
 				if err := client.RemoveFirewallRule(rules[i].ID); err != nil {
 					deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete firewall rule %s: %v", rules[i].Comment, err))
+				}
+			}
+		}
+	}
+
+	// Delete associated mangle rules
+	mangleRules, err := client.ListMangleRules()
+	if err == nil {
+		for i := range mangleRules {
+			if strings.HasPrefix(mangleRules[i].Comment, "Mark Inbound "+baseName) {
+				if err := client.RemoveMangleRule(mangleRules[i].ID); err != nil {
+					deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete mangle rule %s: %v", mangleRules[i].Comment, err))
 				}
 			}
 		}
