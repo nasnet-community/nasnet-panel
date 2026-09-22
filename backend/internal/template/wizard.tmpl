@@ -656,7 +656,9 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 }
 {{ end }}
 :global WizardProgress "95"
+
 {{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
+
 {{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 :global WizardProgress "96"
 /ip dhcp-server network remove [find address="192.168.210.0/24"]
