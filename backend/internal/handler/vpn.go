@@ -1745,10 +1745,6 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
 	}
 
-	if req.AllowedAddresses == "" {
-		req.AllowedAddresses = "0.0.0.0/0"
-	}
-
 	if req.ClientEndpoint != nil && net.ParseIP(*req.ClientEndpoint) == nil {
 		return ErrorResponse(c, http.StatusBadRequest, "clientEndpoint must be a valid IP address", nil)
 	}
@@ -1805,6 +1801,15 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		if err != nil {
 			return ErrorResponse(c, http.StatusConflict, "Failed to determine client IP address", err)
 		}
+	}
+
+	if req.AllowedAddresses == "" {
+		req.AllowedAddresses = clientAddress
+	}
+
+	if req.Responder == nil {
+		responder := true
+		req.Responder = &responder
 	}
 
 	clientKeepalive := 30
@@ -1864,7 +1869,6 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 
 	// Parse allowed addresses
 	allowedAddrs := []string{req.AllowedAddresses}
-
 	config := routeros.WireGuardPeerConfig{
 		InterfaceName:        interfaceName,
 		PeerName:             peerName,

@@ -240,6 +240,7 @@ add fib name="to-Foreign-Foreign Link" comment="Foreign-Foreign Link"
 
 /routing rule
 {{ if .DomesticEnabled}}
+add action=lookup-only-in-table comment="Router traffic sourced from Domestic WAN address leaves via Domestic" disabled=no src-address=192.168.1.2/32 table=to-Domestic
 add action=lookup-only-in-table comment="Routing the Domestic SRC Address" disabled=no src-address="192.168.20.0/24" table="to-Domestic"
 add action=lookup-only-in-table comment="Routing the Domestic Routing Mark" disabled=no routing-mark="to-Domestic" table="to-Domestic"
 add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link SRC Address" disabled=no src-address="192.168.21.0/24" table="to-Domestic-Domestic Link"
@@ -348,12 +349,15 @@ eway!=\$gw1 ] gateway=\$gw1\
 \n}\
 \n}" use-peer-dns=no use-peer-ntp=no
 {{ if .DomesticEnabled}}
-add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" script=":if (\$bound=1) do={\r\
-\n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
-\n:local routeCount [/ip route print count-only where comment=\"Route-to-Domestic-Domestic Link\"]\r\
-\n:if (\$routeCount > 0) do={\r\
-\n    /ip route set [ find comment=\"Route-to-Domestic-Domestic Link\" gateway!=\$gw ] gateway=\$gw\r\
-\n}\r\
+add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" script=":if (\$bound=1) do={\
+\n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\
+\n:if ([/ip route print count-only where comment=\"Route-to-Domestic-Domestic Link\"] > 0) do={\
+\n    /ip route set [find comment=\"Route-to-Domestic-Domestic Link\" gateway!=\$gw] gateway=\$gw\
+\n}\
+\n:local src (\$\"lease-address\" . \"/32\")\
+\n:local rc \"Router traffic sourced from Domestic WAN address leaves via Domestic\"\
+\n\
+\n/routing rule set [find comment=\$rc] src-address=\$src\
 \n}" use-peer-dns=no use-peer-ntp=no
 {{ end }}
 
