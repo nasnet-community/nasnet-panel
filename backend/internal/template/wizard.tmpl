@@ -647,7 +647,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :local foreignBoundRetries 0
 :while ([/ip dhcp-client get [find comment="Foreign Link to Foreign"] status] != "bound" && $foreignBoundRetries < 100) do={
     :log info "Waiting for Foreign Link to Foreign DHCP client to reach status=bound"
-    :delay 100ms
+    :delay 500ms
     :set foreignBoundRetries ($foreignBoundRetries + 1)
 }
 {{ if .DomesticEnabled}}

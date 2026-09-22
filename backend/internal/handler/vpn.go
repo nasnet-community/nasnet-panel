@@ -1218,6 +1218,27 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for WireGuard", err)
 	}
 
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
+	}
+
+	mangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + fwComment,
+		ConnectionState:   "new",
+		InIfaceList:       vpnServerAllowedInterfaceList,
+		Protocol:          "udp",
+		DstPort:           fmt.Sprintf("%d", wireguard.ListenPort),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for WireGuard", err)
+	}
+
 	// Add IP address to the interface
 	ipConfig := routeros.IPAddressConfig{
 		Interface: wireguard.Name,
@@ -2006,6 +2027,11 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		}
 	}
 
+	// Delete associated mangle rule
+	if _, err := removeVpnServerMangleRules(client, fwComment); err != nil {
+		c.Logger().Errorf("Failed to remove mangle rule for interface %s: %v", wireguard.Name, err)
+	}
+
 	return SuccessResponse(c, http.StatusOK, "WireGuard interface deleted successfully", nil)
 }
 
@@ -2073,20 +2099,6 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	wg, err := client.CreateWireGuardInterface(interfaceConfig2)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
-	}
-
-	// Add firewall filter rule for the listening port using the created interface info
-	fwComment := "wireguard-" + wg.Name
-	fwRuleConfig := routeros.FirewallRuleConfig{
-		Chain:    "input",
-		Action:   "accept",
-		Protocol: "udp",
-		DstPort:  fmt.Sprintf("%d", wg.ListenPort),
-		Comment:  fwComment,
-	}
-	_, err = client.AddFirewallRule(fwRuleConfig)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for WireGuard", err)
 	}
 
 	// Add address to interface if specified
@@ -2800,6 +2812,11 @@ func HandleDeleteSstpServer(c echo.Context) error {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP firewall rules: %v", err))
 	}
 
+	removedMangleRules, err := removeVpnServerMangleRules(client, "sstp-")
+	if err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP mangle rules: %v", err))
+	}
+
 	// Certificate/certificate-file removal failures aren't reported: the SSTP
 	// server is already disabled either way, and a leftover certificate or
 	// file is harmless, just logged for visibility.
@@ -2822,6 +2839,7 @@ func HandleDeleteSstpServer(c echo.Context) error {
 		return SuccessResponse(c, http.StatusOK, "SSTP server disabled with some errors", map[string]interface{}{
 			"disabled":             true,
 			"removedFirewallRules": removedRules,
+			"removedMangleRules":   removedMangleRules,
 			"warnings":             deleteErrors,
 		})
 	}
@@ -2829,6 +2847,7 @@ func HandleDeleteSstpServer(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "SSTP server disabled successfully", map[string]interface{}{
 		"disabled":             true,
 		"removedFirewallRules": removedRules,
+		"removedMangleRules":   removedMangleRules,
 	})
 }
 
@@ -2973,10 +2992,33 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		Protocol:        "tcp",
 		DstPort:         fmt.Sprintf("%d", sstpConfig.Port),
 		InInterfaceList: vpnServerAllowedInterfaceList,
-		Comment:         "sstp-" + serverName,
+		Comment:         serverName,
 	}
 	if _, err := client.AddFirewallRule(fwRuleConfig); err != nil {
 		setError("Failed to add firewall rule for SSTP: "+err.Error(), createdCerts)
+		return
+	}
+
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		setError("Failed to find reply routing mangle rule: "+err.Error(), createdCerts)
+		return
+	}
+
+	mangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + fwRuleConfig.Comment,
+		ConnectionState:   "new",
+		InIfaceList:       vpnServerAllowedInterfaceList,
+		Protocol:          "tcp",
+		DstPort:           fmt.Sprintf("%d", sstpConfig.Port),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+		setError("Failed to add mangle rule for SSTP: "+err.Error(), createdCerts)
 		return
 	}
 
@@ -3047,6 +3089,28 @@ func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
 			continue
 		}
 		if err := client.RemoveFirewallRule(rules[i].ID); err != nil {
+			return removed, err
+		}
+		removed = append(removed, rules[i].Comment)
+	}
+	return removed, nil
+}
+
+// removeVpnServerMangleRules removes mangle rules created for a VPN server
+// (comment prefix "Mark Inbound "+serverName) and returns the removed comments.
+func removeVpnServerMangleRules(client *routeros.Client, serverName string) ([]string, error) {
+	rules, err := client.ListMangleRules()
+	if err != nil {
+		return nil, err
+	}
+
+	prefix := "Mark Inbound " + serverName
+	removed := make([]string, 0)
+	for i := range rules {
+		if !strings.HasPrefix(rules[i].Comment, prefix) {
+			continue
+		}
+		if err := client.RemoveMangleRule(rules[i].ID); err != nil {
 			return removed, err
 		}
 		removed = append(removed, rules[i].Comment)
@@ -3193,15 +3257,8 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 	}
 
 	// Delete associated mangle rules
-	mangleRules, err := client.ListMangleRules()
-	if err == nil {
-		for i := range mangleRules {
-			if strings.HasPrefix(mangleRules[i].Comment, "Mark Inbound "+baseName) {
-				if err := client.RemoveMangleRule(mangleRules[i].ID); err != nil {
-					deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete mangle rule %s: %v", mangleRules[i].Comment, err))
-				}
-			}
-		}
+	if _, err := removeVpnServerMangleRules(client, baseName); err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete mangle rules: %v", err))
 	}
 
 	if timestamp != "" {
