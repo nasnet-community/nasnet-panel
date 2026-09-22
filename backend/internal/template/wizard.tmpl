@@ -627,19 +627,13 @@ ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
 
 :global WizardProgress "75"
-
-{{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
-
-:global WizardProgress "80"
-
-
-
 {{if and .OvpnServer .DomesticEnabled}}{{ template "ovpn_server.tmpl" . }}{{end}}
+:global WizardProgress "85"
 
 :delay 1s
 /user set {{ .RouterUsername }} password="{{ .RouterPassword }}"
 
-:global WizardProgress "92"
+:global WizardProgress "90"
 
 /ip dhcp-client set [find comment="Foreign Link to Foreign"] disabled=yes
 :delay 100ms
@@ -647,7 +641,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :local foreignBoundRetries 0
 :while ([/ip dhcp-client get [find comment="Foreign Link to Foreign"] status] != "bound" && $foreignBoundRetries < 100) do={
     :log info "Waiting for Foreign Link to Foreign DHCP client to reach status=bound"
-    :delay 100ms
+    :delay 500ms
     :set foreignBoundRetries ($foreignBoundRetries + 1)
 }
 {{ if .DomesticEnabled}}
@@ -662,6 +656,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 }
 {{ end }}
 :global WizardProgress "95"
+{{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
 {{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 :global WizardProgress "96"
 /ip dhcp-server network remove [find address="192.168.210.0/24"]
