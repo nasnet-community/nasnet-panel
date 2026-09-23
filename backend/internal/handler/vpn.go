@@ -1213,13 +1213,26 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		InInterfaceList: vpnServerAllowedInterfaceList,
 		Comment:         fwComment,
 	}
-	_, err = client.AddFirewallRule(fwRuleConfig)
+	fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for WireGuard", err)
 	}
 
+	// rollbackReplyRouting undoes the firewall rule and the interface itself
+	// if setting up reply-routing for it fails partway through, so a failed
+	// create doesn't leave an orphaned interface/rule behind.
+	rollbackReplyRouting := func() {
+		if err := client.RemoveFirewallRule(fwRuleID); err != nil {
+			c.Logger().Errorf("Failed to remove firewall rule %s during rollback: %v", fwRuleID, err)
+		}
+		if err := client.DeleteWireGuardInterface(wireguard.Name); err != nil {
+			c.Logger().Errorf("Failed to remove WireGuard interface %s during rollback: %v", wireguard.Name, err)
+		}
+	}
+
 	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
 	if err != nil {
+		rollbackReplyRouting()
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
 	}
 
@@ -1236,6 +1249,7 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		PlaceBefore:       replyRoutingRuleID,
 	}
 	if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+		rollbackReplyRouting()
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for WireGuard", err)
 	}
 
@@ -1340,6 +1354,32 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 		_, err = client.AddFirewallRule(fwRuleConfig)
 		if err != nil {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to update firewall rule for WireGuard", err)
+		}
+
+		// Remove and recreate the mangle rule so it marks the new port
+		if _, err := removeVpnServerMangleRules(client, fwComment, true); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove mangle rule for WireGuard", err)
+		}
+
+		replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
+		}
+
+		mangleRuleConfig := routeros.MangleRuleConfig{
+			Chain:             "input",
+			Action:            "mark-connection",
+			Comment:           "Mark Inbound " + fwComment,
+			ConnectionState:   "new",
+			InIfaceList:       vpnServerAllowedInterfaceList,
+			Protocol:          "udp",
+			DstPort:           fmt.Sprintf("%d", newPort),
+			NewConnectionMark: "conn-vpn-server",
+			PassThrough:       true,
+			PlaceBefore:       replyRoutingRuleID,
+		}
+		if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for WireGuard", err)
 		}
 	}
 
@@ -2032,7 +2072,7 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 	}
 
 	// Delete associated mangle rule
-	if _, err := removeVpnServerMangleRules(client, fwComment); err != nil {
+	if _, err := removeVpnServerMangleRules(client, fwComment, true); err != nil {
 		c.Logger().Errorf("Failed to remove mangle rule for interface %s: %v", wireguard.Name, err)
 	}
 
@@ -2334,28 +2374,42 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		task.mu.Unlock()
 	}
 
-	rollback := func(serverConfigName, poolName, profileName string, certs []string) {
-		if serverConfigName != "" {
-			_ = client.RemoveOvpnServer(serverConfigName)
-			if profileName != "" {
-				secrets, err := client.GetPppSecretsByProfile(profileName)
-				if err == nil {
-					for _, secret := range secrets {
-						if username, ok := secret["name"]; ok {
-							_ = client.RemovePppSecret(username, "ovpn")
-						}
+	rollback := func(serverBaseName, poolName, profileName string, certs []string) {
+		if serverBaseName != "" {
+			// Both protocol variants may exist by the time a later stage
+			// fails; removing a variant that was never created is a no-op.
+			_ = client.RemoveOvpnServer(serverBaseName + "-tcp")
+			_ = client.RemoveOvpnServer(serverBaseName + "-udp")
+
+			if rules, err := client.GetFirewallRulesByChain("input"); err == nil {
+				for i := range rules {
+					if strings.HasPrefix(rules[i].Comment, serverBaseName) {
+						_ = client.RemoveFirewallRule(rules[i].ID)
 					}
 				}
 			}
+
+			_, _ = removeVpnServerMangleRules(client, serverBaseName, false)
 		}
-		if profileName != "" && profileName != "default" {
-			_ = client.RemovePppProfile(profileName)
+		if profileName != "" {
+			secrets, err := client.GetPppSecretsByProfile(profileName)
+			if err == nil {
+				for _, secret := range secrets {
+					if username, ok := secret["name"]; ok {
+						_ = client.RemovePppSecret(username, "ovpn")
+					}
+				}
+			}
+			if profileName != "default" {
+				_ = client.RemovePppProfile(profileName)
+			}
 		}
 		if poolName != "" {
 			_ = client.RemoveIPPool(poolName)
 		}
 		for _, certName := range certs {
 			_ = client.RemoveCertificate(certName)
+			_ = client.RemoveCertificateFiles(certName)
 		}
 	}
 
@@ -2501,13 +2555,13 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	updateTask(85, "Creating OpenVPN servers")
 	tcpPort, err := client.FindNextAvailableOvpnPort(1194, "tcp")
 	if err != nil {
-		setError("Failed to find available TCP port: "+err.Error(), "", "", "default", []string{caName, serverName, clientName})
+		setError("Failed to find available TCP port: "+err.Error(), "", "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
 	udpPort, err := client.FindNextAvailableOvpnPort(1194, "udp")
 	if err != nil {
-		setError("Failed to find available UDP port: "+err.Error(), "", "", "default", []string{caName, serverName, clientName})
+		setError("Failed to find available UDP port: "+err.Error(), "", "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2528,7 +2582,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		Comment:           ovpnServerComment,
 	})
 	if err != nil {
-		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigNameTCP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2547,7 +2601,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		Comment:           ovpnServerComment,
 	})
 	if err != nil {
-		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2562,7 +2616,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 	_, err = client.AddFirewallRule(tcpFwRuleConfig)
 	if err != nil {
-		setError("Failed to add firewall rule for OpenVPN TCP: "+err.Error(), serverConfigNameTCP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to add firewall rule for OpenVPN TCP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2576,13 +2630,13 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 	_, err = client.AddFirewallRule(udpFwRuleConfig)
 	if err != nil {
-		setError("Failed to add firewall rule for OpenVPN UDP: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to add firewall rule for OpenVPN UDP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
 	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
 	if err != nil {
-		setError("Failed to find reply routing mangle rule: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to find reply routing mangle rule: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2599,7 +2653,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		PlaceBefore:       replyRoutingRuleID,
 	}
 	if _, err := client.AddMangleRule(tcpMangleRuleConfig); err != nil {
-		setError("Failed to add mangle rule for OpenVPN TCP: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to add mangle rule for OpenVPN TCP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2616,7 +2670,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		PlaceBefore:       replyRoutingRuleID,
 	}
 	if _, err := client.AddMangleRule(udpMangleRuleConfig); err != nil {
-		setError("Failed to add mangle rule for OpenVPN UDP: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to add mangle rule for OpenVPN UDP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2816,7 +2870,7 @@ func HandleDeleteSstpServer(c echo.Context) error {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP firewall rules: %v", err))
 	}
 
-	removedMangleRules, err := removeVpnServerMangleRules(client, "sstp-")
+	removedMangleRules, err := removeVpnServerMangleRules(client, "sstp-", false)
 	if err != nil {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP mangle rules: %v", err))
 	}
@@ -2998,13 +3052,16 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		InInterfaceList: vpnServerAllowedInterfaceList,
 		Comment:         serverName,
 	}
-	if _, err := client.AddFirewallRule(fwRuleConfig); err != nil {
+	fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
+	if err != nil {
 		setError("Failed to add firewall rule for SSTP: "+err.Error(), createdCerts)
 		return
 	}
 
 	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
 	if err != nil {
+		_ = client.RemoveFirewallRule(fwRuleID)
+		_ = client.DisableSstpServer(false)
 		setError("Failed to find reply routing mangle rule: "+err.Error(), createdCerts)
 		return
 	}
@@ -3022,6 +3079,8 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		PlaceBefore:       replyRoutingRuleID,
 	}
 	if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+		_ = client.RemoveFirewallRule(fwRuleID)
+		_ = client.DisableSstpServer(false)
 		setError("Failed to add mangle rule for SSTP: "+err.Error(), createdCerts)
 		return
 	}
@@ -3100,18 +3159,26 @@ func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
 	return removed, nil
 }
 
-// removeVpnServerMangleRules removes mangle rules created for a VPN server
-// (comment prefix "Mark Inbound "+serverName) and returns the removed comments.
-func removeVpnServerMangleRules(client *routeros.Client, serverName string) ([]string, error) {
+// removeVpnServerMangleRules removes mangle rules created for a VPN server,
+// matched against "Mark Inbound "+serverName. When exact is true, only a rule
+// whose comment equals that string is removed (for a single, specific
+// server); when exact is false, any rule whose comment has it as a prefix is
+// removed (for intentionally matching multiple related rules, e.g. a
+// server's -tcp/-udp pair). Returns the removed comments.
+func removeVpnServerMangleRules(client *routeros.Client, serverName string, exact bool) ([]string, error) {
 	rules, err := client.ListMangleRules()
 	if err != nil {
 		return nil, err
 	}
 
-	prefix := "Mark Inbound " + serverName
+	target := "Mark Inbound " + serverName
 	removed := make([]string, 0)
 	for i := range rules {
-		if !strings.HasPrefix(rules[i].Comment, prefix) {
+		matches := rules[i].Comment == target
+		if !exact {
+			matches = strings.HasPrefix(rules[i].Comment, target)
+		}
+		if !matches {
 			continue
 		}
 		if err := client.RemoveMangleRule(rules[i].ID); err != nil {
@@ -3261,7 +3328,7 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 	}
 
 	// Delete associated mangle rules
-	if _, err := removeVpnServerMangleRules(client, baseName); err != nil {
+	if _, err := removeVpnServerMangleRules(client, baseName, false); err != nil {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete mangle rules: %v", err))
 	}
 

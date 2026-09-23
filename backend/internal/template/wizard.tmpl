@@ -464,6 +464,7 @@ add action=mark-routing chain=prerouting comment="Split-!DOM"\
 dst-address-list="!DOMAddList" new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Domestic Routing" new-routing-mark="to-Domestic" passthrough=no src-address-list="Domestic-LAN"
 add action=mark-routing chain=prerouting comment="Domestic-Domestic Link Routing" new-routing-mark="to-Domestic-Domestic Link" passthrough=no src-address-list="Domestic-Domestic Link-LAN"
+add action=mark-routing chain=output comment="Route VPN Server Replies via Domestic WAN" connection-mark=conn-vpn-server new-routing-mark=to-Domestic passthrough=no
 {{ end }}
 add action=mark-routing chain=prerouting comment="Split-VPN" dst-address-list="SplitVPNAddList" \
 new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
@@ -473,7 +474,8 @@ add action=mark-routing chain=prerouting comment="Nasnet-Panel outbound via fore
 add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
 add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"
-add action=mark-routing chain=output comment="Route VPN Server Replies via Domestic WAN" connection-mark=conn-vpn-server new-routing-mark=to-Domestic passthrough=no
+add chain=forward action=change-mss new-mss=clamp-to-pmtu protocol=tcp tcp-flags=syn out-interface-list=VPN-WAN comment="Clamp MSS into VPN clients"
+add chain=forward action=change-mss new-mss=clamp-to-pmtu protocol=tcp tcp-flags=syn in-interface-list=VPN-WAN comment="Clamp MSS from VPN clients"
 
 /ip firewall nat
 add action=masquerade chain=srcnat out-interface-list="WAN" comment="MASQUERADE the traffic go to WAN Interfaces"
