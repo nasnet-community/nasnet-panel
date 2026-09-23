@@ -1843,6 +1843,11 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		}
 	}
 
+	clientAllowedAddress := req.AllowedAddresses
+	if clientAllowedAddress == "" {
+		clientAllowedAddress = "0.0.0.0/0"
+	}
+
 	if req.AllowedAddresses == "" {
 		req.AllowedAddresses = clientAddress
 	}
@@ -1856,7 +1861,6 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 	if req.ClientKeepalive != nil {
 		clientKeepalive = *req.ClientKeepalive
 	}
-	clientAllowedAddress := req.AllowedAddresses
 
 	// Determine peer name
 	var peerName string
