@@ -285,7 +285,6 @@ test.describe('WireGuard simple mode', () => {
       .poll(() => lastPeerBody)
       .toEqual({
         interfaceName: INTERFACE_NAME,
-        allowedAddresses: '0.0.0.0/0',
         savePrivateKey: true,
       });
 

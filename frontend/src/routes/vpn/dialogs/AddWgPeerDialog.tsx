@@ -19,7 +19,6 @@ import {
 } from '../../../api';
 import { isPort } from '../../../utils/validators';
 
-const DEFAULT_ALLOWED_ADDRESSES = '0.0.0.0/0';
 const ADVANCED_WG_PEER_FIELDS_ID = 'wg-peer-advanced-fields';
 
 interface Props {
@@ -34,7 +33,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
   const [name, setName] = useState('');
   const [endpointAddress, setEndpointAddress] = useState('');
   const [endpointPort, setEndpointPort] = useState('51820');
-  const [allowedAddresses, setAllowedAddresses] = useState(DEFAULT_ALLOWED_ADDRESSES);
+  const [allowedAddresses, setAllowedAddresses] = useState('');
   const [publicKey, setPublicKey] = useState('');
   const [presharedKey, setPresharedKey] = useState('');
   const [persistentKeepalive, setPersistentKeepalive] = useState('');
@@ -50,8 +49,6 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
         !advanced || endpointAddress.trim() === '' || isPort(endpointPort)
           ? null
           : 'Port must be 1-65535.',
-      allowedAddresses:
-        advanced && allowedAddresses.trim() === '' ? 'Allowed addresses is required.' : null,
       persistentKeepalive:
         !advanced ||
         persistentKeepalive.trim() === '' ||
@@ -59,7 +56,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
           ? null
           : 'Keepalive must be a positive integer.',
     }),
-    [advanced, endpointAddress, endpointPort, allowedAddresses, persistentKeepalive],
+    [advanced, endpointAddress, endpointPort, persistentKeepalive],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -68,7 +65,6 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
   const submit = async () => {
     setTouched({
       endpointPort: true,
-      allowedAddresses: true,
       persistentKeepalive: true,
     });
     if (!canSubmit || !creds) return;
@@ -77,11 +73,10 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
 
     const body: CreateWireguardPeerRequest = {
       interfaceName,
-      allowedAddresses: DEFAULT_ALLOWED_ADDRESSES,
       savePrivateKey: true,
     };
     if (advanced) {
-      body.allowedAddresses = allowedAddresses.trim();
+      if (allowedAddresses.trim()) body.allowedAddresses = allowedAddresses.trim();
       if (endpointAddress.trim()) {
         body.endpointAddress = endpointAddress.trim();
         body.endpointPort = Number(endpointPort);
@@ -193,19 +188,14 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
             </FieldRow>
             <FieldRow>
               <Label>
-                <span>Allowed addresses</span>
+                <span>Allowed addresses (optional)</span>
                 <Input
                   value={allowedAddresses}
                   onChange={(e) => setAllowedAddresses(e.target.value)}
-                  onBlur={() => markTouched('allowedAddresses')}
-                  placeholder="10.8.0.2/32"
+                  placeholder="peer IP if empty"
                   aria-label="Allowed addresses"
                   autoComplete="off"
-                  aria-invalid={touched.allowedAddresses && !!errors.allowedAddresses}
                 />
-                {touched.allowedAddresses && errors.allowedAddresses ? (
-                  <FormError>{errors.allowedAddresses}</FormError>
-                ) : null}
               </Label>
               <Label>
                 <span>Persistent keepalive (s)</span>
