@@ -308,7 +308,7 @@ export interface CreateWireguardPeerRequest {
   name?: string;
   endpointAddress?: string;
   endpointPort?: number;
-  allowedAddresses: string;
+  allowedAddresses?: string;
   privateKey?: string;
   publicKey?: string;
   preSharedKey?: string;
