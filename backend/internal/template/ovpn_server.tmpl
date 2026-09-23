@@ -38,9 +38,9 @@ add action=accept chain=input comment="ovpn-server-{{ .CurrentTimestamp }}-udp" 
 in-interface-list="Domestic-WAN" protocol="udp"
 :global WizardProgress "94"
 /ip firewall mangle
-add action=mark-connection chain=input comment="Mark Inbound OpenVPN Connections (ovpn-tcp)" \
-connection-state=new \ in-interface-list="Domestic-WAN" protocol="tcp" dst-port="1194" \
-new-connection-mark="conn-vpn-server" passthrough=yes
-add action=mark-connection chain=input comment="Mark Inbound OpenVPN Connections (ovpn-udp)" \
-connection-state=new \ in-interface-list="Domestic-WAN" protocol="udp" dst-port="1194" \
-new-connection-mark="conn-vpn-server" passthrough=yes
+add action=mark-connection chain=input comment="Mark Inbound ovpn-server-{{ .CurrentTimestamp }}-tcp" \
+connection-state=new in-interface-list="Domestic-WAN" protocol="tcp" dst-port="1194" \
+new-connection-mark="conn-vpn-server" passthrough=yes place-before=[/ip firewall mangle find comment="Route VPN Server Replies via Domestic WAN"]
+add action=mark-connection chain=input comment="Mark Inbound ovpn-server-{{ .CurrentTimestamp }}-udp" \
+connection-state=new in-interface-list="Domestic-WAN" protocol="udp" dst-port="1194" \
+new-connection-mark="conn-vpn-server" passthrough=yes place-before=[/ip firewall mangle find comment="Route VPN Server Replies via Domestic WAN"]
