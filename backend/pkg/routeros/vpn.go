@@ -28,7 +28,7 @@ type VPNClientInfo struct {
 	LinkDowns    int
 	Comment      string
 	PingTime     string
-	PeerCount    int
+	PeerCount    *int
 }
 
 // L2TPClientInfo represents L2TP client configuration details.

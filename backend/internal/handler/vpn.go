@@ -192,10 +192,11 @@ func HandleListVPNClients(c echo.Context) error {
 			if strings.HasSuffix(vpn.Name, "-client") {
 				peers, err := client.GetWireGuardPeers(vpn.Name)
 				if err == nil {
-					vpn.PeerCount = len(peers)
+					peerCount := len(peers)
+					vpn.PeerCount = &peerCount
 				}
-				if !vpn.Disabled && err == nil && wireGuardHasRecentHandshake(peers) {
-					vpn.Running = true
+				vpn.Running = !vpn.Disabled && err == nil && wireGuardHasRecentHandshake(peers)
+				if vpn.Running {
 					if _, pingTime, err := client.PingFromInterface(vpn.Name, vpnStatusCheckIP); err == nil {
 						vpn.PingTime = utils.StripPingTimeMicroseconds(pingTime)
 					}
@@ -1716,15 +1717,48 @@ const wireGuardRecentHandshakeThreshold = 4 * time.Minute
 // evidence the WireGuard interface is actively running.
 func wireGuardHasRecentHandshake(peers []routeros.WireGuardPeerInfo) bool {
 	for i := range peers {
-		if peers[i].LastHandshake == "" {
+		age, ok := parseWireGuardHandshakeAge(peers[i].LastHandshake)
+		if !ok {
 			continue
 		}
-		age := time.Duration(utils.RouterOSDurationSeconds(peers[i].LastHandshake)) * time.Second
 		if age <= wireGuardRecentHandshakeThreshold {
 			return true
 		}
 	}
 	return false
+}
+
+// parseWireGuardHandshakeAge parses a RouterOS "last-handshake" peer value
+// into how long ago the handshake occurred. RouterOS reports this either as
+// a plain integer number of seconds, or - when the handshake happened
+// earlier today - as a clock time formatted "HH:MM:SS". Anything else
+// (empty, unparsable, or a clock time in the future relative to now) returns
+// ok=false so it isn't mistaken for a recent handshake.
+func parseWireGuardHandshakeAge(raw string) (age time.Duration, ok bool) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return 0, false
+	}
+
+	if seconds, err := strconv.Atoi(raw); err == nil {
+		if seconds < 0 {
+			return 0, false
+		}
+		return time.Duration(seconds) * time.Second, true
+	}
+
+	if clockTime, err := time.Parse("15:04:05", raw); err == nil {
+		now := time.Now()
+		handshakeTime := time.Date(now.Year(), now.Month(), now.Day(),
+			clockTime.Hour(), clockTime.Minute(), clockTime.Second(), 0, now.Location())
+		age = now.Sub(handshakeTime)
+		if age < 0 {
+			return 0, false
+		}
+		return age, true
+	}
+
+	return 0, false
 }
 
 // wireGuardPeerCreationLocks holds one *sync.Mutex per WireGuard interface

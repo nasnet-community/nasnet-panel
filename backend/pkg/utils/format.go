@@ -217,7 +217,7 @@ func StripPingTimeMicroseconds(pingTime string) string {
 	for start > 0 && pingTime[start-1] >= '0' && pingTime[start-1] <= '9' {
 		start--
 	}
-	if start == end {
+	if start == end || start == 0 {
 		return pingTime
 	}
 	return pingTime[:start]

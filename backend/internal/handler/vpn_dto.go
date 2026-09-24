@@ -28,7 +28,7 @@ type VPNClientResponse struct {
 	LinkDowns    int    `json:"linkDowns,omitempty"`
 	Comment      string `json:"comment,omitempty"`
 	PingTime     string `json:"pingTime,omitempty"`
-	PeerCount    int    `json:"peerCount,omitempty"`
+	PeerCount    *int   `json:"peerCount,omitempty"`
 }
 
 // UpdateVPNClientRequest represents a request to update VPN client settings.
