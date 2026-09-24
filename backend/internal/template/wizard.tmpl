@@ -375,7 +375,7 @@ add name=General dns-servers=1.0.0.1,{{ if .DomesticEnabled}}217.218.127.127,{{ 
 
 /ip dns static
 {{ if .DomesticEnabled}}
-add type=FWD regexp="\\.ir" forward-to=Domestic comment="Forward .ir TLD queries via domestic DNS"
+add type=FWD regexp=".*\\.(ir|iran|xn--mgba3a4f16a)\$" forward-to=Domestic comment="Forward .ir TLD queries via domestic DNS"
 {{ end }}
 add address="8.8.8.8" name="dns.google" comment="DOH-Domain-Static-Entry"
 add address="8.8.4.4" name="dns.google" comment="DOH-Domain-Static-Entry"
