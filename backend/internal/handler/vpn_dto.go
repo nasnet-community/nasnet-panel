@@ -27,6 +27,8 @@ type VPNClientResponse struct {
 	LastLinkDown string `json:"lastLinkDown,omitempty"`
 	LinkDowns    int    `json:"linkDowns,omitempty"`
 	Comment      string `json:"comment,omitempty"`
+	PingTime     string `json:"pingTime,omitempty"`
+	PeerCount    int    `json:"peerCount,omitempty"`
 }
 
 // UpdateVPNClientRequest represents a request to update VPN client settings.
@@ -383,6 +385,8 @@ func ToVPNClientResponse(vpn *routeros.VPNClientInfo) VPNClientResponse {
 		LastLinkDown: vpn.LastLinkDown,
 		LinkDowns:    vpn.LinkDowns,
 		Comment:      vpn.Comment,
+		PingTime:     vpn.PingTime,
+		PeerCount:    vpn.PeerCount,
 	}
 }
 
