@@ -169,12 +169,24 @@ func HandleDownloadDiag(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} Response
 // @Failure 404 {object} Response
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/diag/file [delete].
 func HandleDeleteDiagFile(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
+	}
+
+	progress := 0
+	progressStr, err := client.GetEnvironmentVariable("DiagProgress")
+	if err == nil {
+		if p, err := strconv.Atoi(progressStr); err == nil {
+			progress = p
+		}
+	}
+	if progress > 0 && progress < 100 {
+		return ErrorResponse(c, http.StatusConflict, "Diagnostic report is still generating", fmt.Errorf("diagnostic is still running (progress: %d%%)", progress))
 	}
 
 	exists, err := client.FileExists(diagFilename)
@@ -187,6 +199,10 @@ func HandleDeleteDiagFile(c echo.Context) error {
 
 	if err := client.DeleteFile(diagFilename); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete diagnostic report file", err)
+	}
+
+	if err := client.SetEnvironmentVariable("DiagProgress", "0"); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to reset diagnostic progress", err)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Diagnostic report file deleted successfully", nil)
