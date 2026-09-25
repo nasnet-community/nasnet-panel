@@ -27,6 +27,8 @@ type VPNClientInfo struct {
 	LastLinkDown string
 	LinkDowns    int
 	Comment      string
+	PingTime     string
+	PeerCount    *int
 }
 
 // L2TPClientInfo represents L2TP client configuration details.
@@ -1981,39 +1983,6 @@ func (c *Client) UpdateWireGuardPeer(peerID string, config UpdateWireGuardPeerCo
 	return err
 }
 
-// PingPeerEndpoint pings a WireGuard peer endpoint address from a specific interface.
-// Returns true if any packets were received (connection is active).
-func (c *Client) PingPeerEndpoint(interfaceName, peerEndpoint string) (bool, error) {
-	if interfaceName == "" || peerEndpoint == "" {
-		return false, fmt.Errorf("interface name and peer endpoint are required")
-	}
-
-	reply, err := c.Execute("/tool/ping",
-		"=count=1",
-		"=interface="+interfaceName,
-		"=interval=1000ms",
-		"=address="+peerEndpoint,
-	)
-	if err != nil {
-		return false, fmt.Errorf("failed to ping peer endpoint %s from interface %s: %w", peerEndpoint, interfaceName, err)
-	}
-
-	if reply == nil || len(reply.Re) == 0 {
-		return false, nil
-	}
-
-	for _, sentence := range reply.Re {
-		result := sentence.Map
-		if result != nil {
-			if received, err := strconv.Atoi(result["received"]); err == nil && received > 0 {
-				return true, nil
-			}
-		}
-	}
-
-	return false, nil
-}
-
 // UpdateWireGuardInterface updates the properties of an existing WireGuard interface.
 func (c *Client) UpdateWireGuardInterface(nameOrID string, config WireGuardClientConfig) error {
 	if nameOrID == "" {
@@ -2045,36 +2014,6 @@ func (c *Client) UpdateWireGuardInterface(nameOrID string, config WireGuardClien
 
 	_, err = c.Set("/interface/wireguard", args...)
 	return err
-}
-
-// CheckWireGuardStatus checks the status of a WireGuard interface and its connectivity.
-// Returns (running, peersConnected) tuple.
-func (c *Client) CheckWireGuardStatus(interfaceName string) (running, peersConnected bool) {
-	if interfaceName == "" {
-		return false, false
-	}
-
-	wireguard, err := c.GetWireGuard(interfaceName)
-	if err != nil {
-		return false, false
-	}
-
-	peers, err := c.GetWireGuardPeers(interfaceName)
-	if err != nil || len(peers) == 0 {
-		return wireguard.Running, false
-	}
-
-	for i := range peers {
-		if peers[i].EndpointAddress == "" {
-			continue
-		}
-		pingReply, err := c.PingPeerEndpoint(interfaceName, peers[i].EndpointAddress)
-		if err == nil && pingReply {
-			return wireguard.Running, true
-		}
-	}
-
-	return wireguard.Running, false
 }
 
 func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {

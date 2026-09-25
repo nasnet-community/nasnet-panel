@@ -18,6 +18,12 @@ import (
 	"nasnet-panel/pkg/wgcfg"
 )
 
+// vpnStatusCheckIP is the well-known address pinged through a VPN client
+// interface to verify reachability and measure round-trip time, in place of
+// a peer's own endpoint address (which may not be reachable once the tunnel
+// is up). Used across VPN client types, not just WireGuard.
+const vpnStatusCheckIP = "1.0.0.1"
+
 // vpnLANAddressList is the firewall address list the VPN routing rules match
 // on as src-address-list, set up by the wizard template.
 const vpnLANAddressList = "VPN-LAN"
@@ -181,15 +187,28 @@ func HandleListVPNClients(c echo.Context) error {
 	filtered := make([]routeros.VPNClientInfo, 0)
 	for i := range vpnClients {
 		vpn := &vpnClients[i]
+
 		if vpn.Type == "wg" {
 			if strings.HasSuffix(vpn.Name, "-client") {
-				if !vpn.Disabled {
-					running, pingReply := client.CheckWireGuardStatus(vpn.Name)
-					vpn.Running = running && pingReply
+				peers, err := client.GetWireGuardPeers(vpn.Name)
+				if err == nil {
+					peerCount := len(peers)
+					vpn.PeerCount = &peerCount
+				}
+				vpn.Running = !vpn.Disabled && err == nil && wireGuardHasRecentHandshake(peers)
+				if vpn.Running {
+					if _, pingTime, err := client.PingFromInterface(vpn.Name, vpnStatusCheckIP); err == nil {
+						vpn.PingTime = utils.StripPingTimeMicroseconds(pingTime)
+					}
 				}
 				filtered = append(filtered, *vpn)
 			}
 		} else {
+			if !vpn.Disabled && vpn.Running {
+				if _, pingTime, err := client.PingFromInterface(vpn.Name, vpnStatusCheckIP); err == nil {
+					vpn.PingTime = utils.StripPingTimeMicroseconds(pingTime)
+				}
+			}
 			filtered = append(filtered, *vpn)
 		}
 	}
@@ -1687,6 +1706,29 @@ func wireGuardUsedClientAddresses(peers []routeros.WireGuardPeerInfo) map[string
 		}
 	}
 	return used
+}
+
+// wireGuardRecentHandshakeThreshold is how recent a peer's last handshake
+// must be for the interface to be considered actively connected.
+const wireGuardRecentHandshakeThreshold = 4 * time.Minute
+
+// wireGuardHasRecentHandshake reports whether any of the given peers has had
+// a handshake within wireGuardRecentHandshakeThreshold, which is treated as
+// evidence the WireGuard interface is actively running.
+func wireGuardHasRecentHandshake(peers []routeros.WireGuardPeerInfo) bool {
+	for i := range peers {
+		if peers[i].Disabled {
+			continue
+		}
+		if peers[i].LastHandshake == "" {
+			continue
+		}
+		age := time.Duration(utils.RouterOSDurationSeconds(peers[i].LastHandshake)) * time.Second
+		if age <= wireGuardRecentHandshakeThreshold {
+			return true
+		}
+	}
+	return false
 }
 
 // wireGuardPeerCreationLocks holds one *sync.Mutex per WireGuard interface
