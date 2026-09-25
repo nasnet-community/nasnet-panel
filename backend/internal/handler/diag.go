@@ -11,6 +11,9 @@ import (
 	"nasnet-panel/pkg/utils"
 )
 
+// diagFilename is the name of the generated diagnostic report file on the router.
+const diagFilename = "nasnet-diagnostic-report.txt"
+
 // HandleGenerateDiag generates a diagnostic report.
 // @Summary Generate Diagnostic Report
 // @Description Generate a new diagnostic report on the RouterOS device
@@ -58,6 +61,7 @@ func HandleGenerateDiag(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Response
+// @Failure 404 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/diag/status [get].
 func HandleGetDiagStatus(c echo.Context) error {
@@ -81,12 +85,14 @@ func HandleGetDiagStatus(c echo.Context) error {
 		"running":  running,
 	}
 
-	const diagFilename = "nasnet-diagnostic-report.txt"
 	exists, err := client.FileExists(diagFilename)
 	if err == nil {
 		if !exists && progress != 0 {
 			progress = 0
 			response["progress"] = progress
+		}
+		if !exists && !running {
+			return ErrorResponse(c, http.StatusNotFound, "Diagnostic report file not found", nil)
 		}
 		if exists && !running {
 			fileInfo, err := client.GetFile(diagFilename)
@@ -129,7 +135,6 @@ func HandleDownloadDiag(c echo.Context) error {
 		return ErrorResponse(c, http.StatusConflict, "Diagnostic report not ready", fmt.Errorf("diagnostic is still running (progress: %d%%)", progress))
 	}
 
-	const diagFilename = "nasnet-diagnostic-report.txt"
 	exists, err := client.FileExists(diagFilename)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check diagnostic report file", err)
@@ -153,4 +158,52 @@ func HandleDownloadDiag(c echo.Context) error {
 		"text/plain",
 		[]byte(fileContents),
 	)
+}
+
+// HandleDeleteDiagFile deletes the generated diagnostic report file from the router.
+// @Summary Delete Diagnostic Report File
+// @Description Delete the generated diagnostic report file from the RouterOS device
+// @Tags Diagnostics
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/diag/file [delete].
+func HandleDeleteDiagFile(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	progress := 0
+	progressStr, err := client.GetEnvironmentVariable("DiagProgress")
+	if err == nil {
+		if p, err := strconv.Atoi(progressStr); err == nil {
+			progress = p
+		}
+	}
+	if progress > 0 && progress < 100 {
+		return ErrorResponse(c, http.StatusConflict, "Diagnostic report is still generating", fmt.Errorf("diagnostic is still running (progress: %d%%)", progress))
+	}
+
+	exists, err := client.FileExists(diagFilename)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check diagnostic report file", err)
+	}
+	if !exists {
+		return ErrorResponse(c, http.StatusNotFound, "Diagnostic report file not found", fmt.Errorf("file %s does not exist", diagFilename))
+	}
+
+	if err := client.DeleteFile(diagFilename); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete diagnostic report file", err)
+	}
+
+	if err := client.SetEnvironmentVariable("DiagProgress", "0"); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to reset diagnostic progress", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Diagnostic report file deleted successfully", nil)
 }
