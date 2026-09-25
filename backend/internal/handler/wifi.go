@@ -763,6 +763,12 @@ func HandleCreateVirtualWiFiInterface(c echo.Context) error {
 
 	iface, err := client.GetWifiInterface(virtualName)
 	if err != nil {
+		if rmErr := client.RemoveBridgePort(req.Bridge, virtualName); rmErr != nil {
+			c.Logger().Errorf("Failed to remove virtual WiFi bridge port %s during rollback: %v", virtualName, rmErr)
+		}
+		if rmErr := client.RemoveWifiInterface(virtualName); rmErr != nil {
+			c.Logger().Errorf("Failed to remove virtual WiFi interface %s during rollback: %v", virtualName, rmErr)
+		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve created virtual WiFi interface", err)
 	}
 
