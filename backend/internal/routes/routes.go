@@ -177,4 +177,5 @@ func RegisterRoutes(e *echo.Echo) {
 	diagGroup.POST("/generate", handler.HandleGenerateDiag)
 	diagGroup.GET("/status", handler.HandleGetDiagStatus)
 	diagGroup.GET("/download", handler.HandleDownloadDiag)
+	diagGroup.DELETE("/file", handler.HandleDeleteDiagFile)
 }
