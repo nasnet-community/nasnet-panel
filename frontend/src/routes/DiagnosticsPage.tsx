@@ -25,6 +25,7 @@ import {
 } from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
 import { CableTestCard } from './CableTestCard';
+import { USER_GUIDE_URL } from './help/links';
 import {
   DIAG_REPORT_FILENAME,
   fetchDiagReport,
@@ -320,7 +321,14 @@ export function DiagnosticsPage() {
             </CardTitle>
             <CardDescription>
               Anonymous error reports help the Nasnet team fix bugs, and never include your router
-              address, credentials, or configuration.
+              address, credentials, or configuration.{' '}
+              <a
+                href={`${USER_GUIDE_URL}/diagnostics/#what-an-error-report-sends`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                See what we track
+              </a>
             </CardDescription>
           </CardHeader>
           <Switch
