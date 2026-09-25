@@ -713,7 +713,9 @@ func HandleCreateVirtualWiFiInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list WiFi interfaces", err)
 	}
 	virtualCount := 0
+	existingNames := make(map[string]bool, len(interfaces))
 	for i := range interfaces {
+		existingNames[interfaces[i].Name] = true
 		if interfaces[i].SSID == req.SSID {
 			return ErrorResponse(c, http.StatusConflict, "A WiFi interface with this SSID already exists", nil)
 		}
@@ -722,7 +724,12 @@ func HandleCreateVirtualWiFiInterface(c echo.Context) error {
 		}
 	}
 
-	virtualName := fmt.Sprintf("wifi-virtual%d-%sGhz", virtualCount+1, band)
+	idx := virtualCount + 1
+	virtualName := fmt.Sprintf("wifi-virtual%d-%sGhz", idx, band)
+	for existingNames[virtualName] {
+		idx++
+		virtualName = fmt.Sprintf("wifi-virtual%d-%sGhz", idx, band)
+	}
 
 	config := routeros.WifiConfig{
 		Name:      virtualName,
@@ -756,6 +763,12 @@ func HandleCreateVirtualWiFiInterface(c echo.Context) error {
 
 	iface, err := client.GetWifiInterface(virtualName)
 	if err != nil {
+		if rmErr := client.RemoveBridgePort(req.Bridge, virtualName); rmErr != nil {
+			c.Logger().Errorf("Failed to remove virtual WiFi bridge port %s during rollback: %v", virtualName, rmErr)
+		}
+		if rmErr := client.RemoveWifiInterface(virtualName); rmErr != nil {
+			c.Logger().Errorf("Failed to remove virtual WiFi interface %s during rollback: %v", virtualName, rmErr)
+		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve created virtual WiFi interface", err)
 	}
 
