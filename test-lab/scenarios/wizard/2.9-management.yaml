@@ -1,0 +1,61 @@
+id: '2.9-management'
+stage: wizard
+title: Management is reachable from LAN only
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  ports:
+    - { from: split, port: 8728, open: true }
+    - { from: split, port: 22, open: true }
+    - { from: split, port: 8291, open: true }
+    - {
+        from: starlink-side,
+        port: 8728,
+        open: false,
+        known_bug: API and Winbox are reachable from the Starlink link,
+      }
+    - {
+        from: starlink-side,
+        port: 8291,
+        open: false,
+        known_bug: API and Winbox are reachable from the Starlink link,
+      }
+    - { from: starlink-side, port: 22, open: false }
+    - { from: domestic-side, port: 22, open: false }
+    - {
+        from: domestic-side,
+        port: 8728,
+        open: false,
+        known_bug: Management ports are reachable from the domestic modem subnet,
+      }
+    - {
+        from: domestic-side,
+        port: 8291,
+        open: false,
+        known_bug: Management ports are reachable from the domestic modem subnet,
+      }
+    - {
+        from: domestic-side,
+        port: 21,
+        open: false,
+        known_bug: Management ports are reachable from the domestic modem subnet,
+      }
+    - {
+        from: domestic-side,
+        port: 23,
+        open: false,
+        known_bug: Management ports are reachable from the domestic modem subnet,
+      }
+  values:
+    - path: /ip/service
+      where: { name: telnet }
+      fields: { disabled: 'true' }
+      known_bug: Telnet stays enabled after the wizard
+    - path: /ip/service
+      where: { name: ftp }
+      fields: { disabled: 'true' }
+      known_bug: FTP stays enabled after the wizard

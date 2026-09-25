@@ -1,0 +1,23 @@
+name: hap-ax3
+model: hAP ax3 C53UiG+5HPaxD2HPaxD
+arch: arm64
+memory_mb: 1024
+storage_mb: 128
+cpus: 1
+capabilities: [ethernet, container, wifi, usb, 2.5g]
+ports:
+  - name: ether1
+    kind: 2.5g-poe-in
+    role: starlink
+  - name: ether2
+    kind: ethernet
+    role: domestic
+  - name: ether3
+    kind: ethernet
+    role: split
+  - name: ether4
+    kind: ethernet
+    role: spare
+  - name: ether5
+    kind: ethernet
+    role: spare

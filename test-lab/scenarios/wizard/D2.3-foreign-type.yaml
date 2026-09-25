@@ -1,0 +1,12 @@
+id: 'D2.3-foreign-type'
+stage: wizard
+title: Foreign-forwarded names resolve over Starlink
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  dns:
+    - { from: split, name: s4i.co, resolver: foreign, exits: starlink }

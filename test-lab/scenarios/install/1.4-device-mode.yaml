@@ -1,0 +1,18 @@
+id: '1.4-device-mode'
+stage: install
+title: Installer enables container mode and resumes after the physical confirmation
+profiles: [all]
+requires:
+  lab: [image-tar, cli-install]
+steps:
+  - do: container_mode
+    with: { value: 'off' }
+  - do: install
+    with: { installer: cli }
+expect:
+  values:
+    - path: /system/device-mode
+      fields: { container: 'yes' }
+  container:
+    - name: nasnet-panel
+      running: true

@@ -1,0 +1,23 @@
+id: 'D2.6-client-dns'
+stage: wizard
+title: LAN clients use the router for DNS and cannot bypass it
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  dhcp:
+    - { from: split, lease: true, dns: 192.168.10.1 }
+  dns:
+    - {
+        from: split,
+        server: doh-google,
+        name: lab.test,
+        resolver: '!google-plain',
+        known_bug: Split without a VPN client blackholes foreign traffic,
+      }
+  ports:
+    - { from: starlink-side, port: 53, open: false }
+    - { from: domestic-side, port: 53, open: false }

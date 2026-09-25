@@ -1,0 +1,13 @@
+id: 'E02-dhcp-gateway'
+stage: wizard
+title: Routes follow the gateway learned over DHCP
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+domestic_subnet: 192.168.8.0/24
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  traffic:
+    - { from: split, to: domestic-host, exits: domestic }

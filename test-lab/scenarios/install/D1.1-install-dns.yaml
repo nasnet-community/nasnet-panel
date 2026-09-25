@@ -1,0 +1,15 @@
+id: 'D1.1-install-dns'
+stage: install
+title: Installing the panel does not touch DNS
+profiles: [all]
+requires:
+  lab: [image-tar, cli-install]
+steps:
+  - do: config_snapshot
+    with: { name: before, paths: '/ip/dns,/ip/dns/forwarders,/ip/dns/static' }
+  - do: install
+    with: { installer: cli }
+expect:
+  unchanged:
+    - since: before
+      known_bug: The CLI installer sets fallback DNS servers when the router has none
