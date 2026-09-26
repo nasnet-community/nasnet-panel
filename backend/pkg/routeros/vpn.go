@@ -856,7 +856,9 @@ type L2tpServerConfig struct {
 	IPsecSecret    string
 }
 
-// SetL2tpServer configures RouterOS's L2TP server.
+// SetL2tpServer configures RouterOS's L2TP server. UseIPsec, when true, is
+// set to "required" rather than "yes" since L2TP-over-IPsec should reject
+// any connection that doesn't negotiate IPsec.
 func (c *Client) SetL2tpServer(config L2tpServerConfig) error {
 	enabled := "no"
 	if config.Enabled {
@@ -864,7 +866,7 @@ func (c *Client) SetL2tpServer(config L2tpServerConfig) error {
 	}
 	useIPsec := "no"
 	if config.UseIPsec {
-		useIPsec = "yes"
+		useIPsec = "required"
 	}
 
 	args := []string{

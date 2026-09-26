@@ -923,43 +923,81 @@ func HandleCreateL2tpServer(c echo.Context) error {
 
 	const l2tpServerComment = "l2tp-server"
 
-	fwRuleConfig := routeros.FirewallRuleConfig{
-		Chain:           "input",
-		Action:          "accept",
-		Protocol:        "udp",
-		DstPort:         "1701",
-		InInterfaceList: vpnServerAllowedInterfaceList,
-		Comment:         l2tpServerComment,
+	// L2TP-over-IPsec needs accept/mark rules for the L2TP data port itself
+	// (udp/1701) plus the IPsec negotiation traffic that carries it: IKE
+	// (udp/500), NAT-T (udp/4500), and ESP (protocol ipsec-esp, no port).
+	l2tpRuleSpecs := []struct {
+		protocol string
+		dstPort  string
+		suffix   string
+	}{
+		{protocol: "udp", dstPort: "1701", suffix: ""},
+		{protocol: "udp", dstPort: "500", suffix: "-ike"},
+		{protocol: "udp", dstPort: "4500", suffix: "-nat-t"},
+		{protocol: "ipsec-esp", dstPort: "", suffix: "-esp"},
 	}
-	fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
-	if err != nil {
-		_ = client.DisableL2tpServer()
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for L2TP", err)
+
+	var createdFwRuleIDs []string
+	var createdMangleRuleIDs []string
+
+	rollback := func() {
+		for _, id := range createdMangleRuleIDs {
+			if err := client.RemoveMangleRule(id); err != nil {
+				c.Logger().Errorf("Failed to remove mangle rule %s during rollback: %v", id, err)
+			}
+		}
+		for _, id := range createdFwRuleIDs {
+			if err := client.RemoveFirewallRule(id); err != nil {
+				c.Logger().Errorf("Failed to remove firewall rule %s during rollback: %v", id, err)
+			}
+		}
+		if err := client.DisableL2tpServer(); err != nil {
+			c.Logger().Errorf("Failed to disable L2TP server during rollback: %v", err)
+		}
+	}
+
+	for _, spec := range l2tpRuleSpecs {
+		fwRuleConfig := routeros.FirewallRuleConfig{
+			Chain:           "input",
+			Action:          "accept",
+			Protocol:        spec.protocol,
+			DstPort:         spec.dstPort,
+			InInterfaceList: vpnServerAllowedInterfaceList,
+			Comment:         l2tpServerComment + spec.suffix,
+		}
+		fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for L2TP", err)
+		}
+		createdFwRuleIDs = append(createdFwRuleIDs, fwRuleID)
 	}
 
 	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
 	if err != nil {
-		_ = client.RemoveFirewallRule(fwRuleID)
-		_ = client.DisableL2tpServer()
+		rollback()
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
 	}
 
-	mangleRuleConfig := routeros.MangleRuleConfig{
-		Chain:             "input",
-		Action:            "mark-connection",
-		Comment:           "Mark Inbound " + l2tpServerComment,
-		ConnectionState:   "new",
-		InIfaceList:       vpnServerAllowedInterfaceList,
-		Protocol:          "udp",
-		DstPort:           "1701",
-		NewConnectionMark: "conn-vpn-server",
-		PassThrough:       true,
-		PlaceBefore:       replyRoutingRuleID,
-	}
-	if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
-		_ = client.RemoveFirewallRule(fwRuleID)
-		_ = client.DisableL2tpServer()
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for L2TP", err)
+	for _, spec := range l2tpRuleSpecs {
+		mangleRuleConfig := routeros.MangleRuleConfig{
+			Chain:             "input",
+			Action:            "mark-connection",
+			Comment:           "Mark Inbound " + l2tpServerComment + spec.suffix,
+			ConnectionState:   "new",
+			InIfaceList:       vpnServerAllowedInterfaceList,
+			Protocol:          spec.protocol,
+			DstPort:           spec.dstPort,
+			NewConnectionMark: "conn-vpn-server",
+			PassThrough:       true,
+			PlaceBefore:       replyRoutingRuleID,
+		}
+		mangleRuleID, err := client.AddMangleRule(mangleRuleConfig)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for L2TP", err)
+		}
+		createdMangleRuleIDs = append(createdMangleRuleIDs, mangleRuleID)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "L2TP server enabled successfully", map[string]interface{}{
