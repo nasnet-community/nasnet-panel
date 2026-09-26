@@ -1,20 +1,30 @@
 :local wizardRetry 0
+:local wizardSucceeded false
+
+:global WizardFailed
+:global WizardMessage
+:set WizardFailed false
+:set WizardMessage ""
 
 
 
 :global WizardProgress "5"
+:set WizardMessage "Backing up current configuration"
 /system/backup/save name={{ .BackupTime }}
 /export file={{ .BackupTime }}
 
 :while ($wizardRetry < 3) do={
 :set wizardRetry ($wizardRetry + 1)
 :log info "Wizard: Attempt $wizardRetry to fetch the latest configuration from the server..."
-:do {
+:set WizardMessage ("Attempt " . $wizardRetry . " of 3 starting")
+:onerror wizardErr in={
 :global WizardProgress "8"
+:set WizardMessage "Cleaning up previous configuration"
 
 {{ template "cleanup.tmpl" . }}
 
 :global WizardProgress "20"
+:set WizardMessage "Configuring management access"
 
 :local lastEtherId [:pick [/interface/ethernet/find] ([:len [/interface/ethernet/find]] - 1)]
 /ip address add address="192.168.200.1/24" interface=$lastEtherId network="192.168.200.0" comment="Ethernet Static Management Port"
@@ -42,6 +52,7 @@ add dont-require-permissions=no name="DomesticIPUpdate" owner=admin policy=ftp,r
 set builtin-trust-store=all crl-download=yes crl-store=system crl-use=no
 
 :global WizardProgress "25"
+:set WizardMessage "Configuring WiFi access points"
 
 {{if gt (len .WifiAPs) 0 }}
 /interface wifi
@@ -63,6 +74,7 @@ set [ find name="{{ .NameToSet }}" ] steering="Steering"
 {{ end }}
 {{ end }}
 :global WizardProgress "30"
+:set WizardMessage "Creating network bridges"
 
 /interface bridge
 :if ([:len [/interface/bridge find name="LANBridgeSplit"]] = 0) do={
@@ -81,6 +93,7 @@ add name="FTAH" comment="Foreign Table Address Holder"
 add name="TunnelEnds-hairpin" comment="NasNet: internal segment carrying VRF-TunnelEnds into main"
 
 :global WizardProgress "35"
+:set WizardMessage "Connecting WAN interfaces"
 {{ if eq .ForeignInterface.Type "wifi" }}
 :log info ("Connecting Foreign WAN to WiFi: {{ .ForeignInterface.SSID }}")
 /interface wifi
@@ -139,6 +152,7 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 }
 {{ end }}
 :global WizardProgress "40"
+:set WizardMessage "Labeling WAN and split interfaces"
 {{ if eq .ForeignInterface.Type "ether" }}
 /interface ethernet set [ find default-name={{ .ForeignInterface.Interface }} ] comment="WAN - Foreign Link"
 {{ end }}
@@ -150,6 +164,7 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 {{end}}
 
 :global WizardProgress "45"
+:set WizardMessage "Setting up interface lists, MACVLANs, pools, and DHCP servers"
 
 /interface list
 add name="WAN"
@@ -279,6 +294,7 @@ add bridge="LANBridgeSplit" interface=$portName comment="Split"
 set disable-ipv6=yes
 
 :global WizardProgress "50"
+:set WizardMessage "Assigning interfaces to lists and addresses"
 
 /interface list member
 add interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" list="WAN" comment="Foreign WAN"
@@ -319,10 +335,12 @@ add address="192.168.39.12/32" interface="FTAH" network="192.168.39.12" comment=
 add address="10.255.255.1/30" interface="TunnelEnds-main" comment="Hairpin main"
 
 :global WizardProgress "55"
+:set WizardMessage "Setting up the VPN tunnel-endpoints VRF"
 /ip/vrf add name="VRF-TunnelEnds" interfaces="TunnelEnds-vrf" comment="VPN tunnel endpoints" place-before=[/ip/vrf find name=main]
 :delay 2s
 /ip address add address="10.255.255.2/30" interface="TunnelEnds-vrf" comment="Hairpin VRF"
 :global WizardProgress "58"
+:set WizardMessage "Configuring DHCP clients and DNS"
 
 /ip cloud
 set ddns-enabled=yes ddns-update-interval=1m
@@ -406,6 +424,7 @@ add name=time.cloudflare.com type=FWD forward-to=General match-subdomain=no comm
 add name=time.google.com type=FWD forward-to=General match-subdomain=no comment="Forward time.google.com via General DNS for NTP"
 
 :global WizardProgress "60"
+:set WizardMessage "Configuring firewall address lists, filter, mangle, and NAT rules"
 
 /ip firewall address-list
 add comment="LOCAL-IP" address="192.168.0.0/16" list="LOCAL-IP"
@@ -499,7 +518,7 @@ add chain=dstnat action=redirect protocol=tcp dst-port=53 comment="Redirect DNS"
 add chain=dstnat action=redirect protocol=udp dst-port=53 comment="Redirect DNS"
 
 :global WizardProgress "65"
-
+:set WizardMessage "Configuring NAT-PMP and routing"
 
 /ip nat-pmp set enabled=yes
 
@@ -556,6 +575,7 @@ add comment="VPN DNS leak guard" blackhole dst-address=1.0.0.1/32 routing-table=
 add comment="Foreign DNS leak guard" blackhole dst-address=1.1.1.1/32 routing-table=main distance=254 scope=30
 add comment="Tunnel endpoints -> hairpin -> main" dst-address=0.0.0.0/0 gateway="10.255.255.1@VRF-TunnelEnds" routing-table="VRF-TunnelEnds"
 :global WizardProgress "68"
+:set WizardMessage "Configuring the VPN tunnel-endpoints hairpin firewall rules"
 /ip firewall raw
 add chain=output     out-interface=VRF-TunnelEnds action=notrack
 add chain=output     out-interface=TunnelEnds-vrf action=notrack
@@ -566,7 +586,7 @@ add chain=prerouting in-interface=TunnelEnds-vrf  action=notrack
 add chain=srcnat src-address=10.255.255.2 out-interface-list=WAN action=masquerade
 
 :global WizardProgress "70"
-
+:set WizardMessage "Configuring system services, logging, NTP, and scheduled tasks"
 
 /ip service
 set api available-from=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
@@ -633,13 +653,16 @@ ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
 up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-Foreign-Foreign Link\"]; " comment="Failover Netwatch - Foreign Link"
 
 :global WizardProgress "75"
+:set WizardMessage "Setting up the OpenVPN server"
 {{if and .OvpnServer .DomesticEnabled}}{{ template "ovpn_server.tmpl" . }}{{end}}
 :global WizardProgress "85"
+:set WizardMessage "Updating router credentials"
 
 :delay 1s
 /user set {{ .RouterUsername }} password="{{ .RouterPassword }}"
 
 :global WizardProgress "90"
+:set WizardMessage "Renewing DHCP clients to pick up new routes"
 
 /ip dhcp-client set [find comment="Foreign Link to Foreign"] disabled=yes
 :delay 100ms
@@ -662,32 +685,47 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 }
 {{ end }}
 :global WizardProgress "95"
+:set WizardMessage "Setting up VPN clients"
 
 {{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
 
 {{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
 :global WizardProgress "96"
+:set WizardMessage "Removing temporary management access"
 /ip dhcp-server network remove [find address="192.168.210.0/24"]
 /ip dhcp-server remove [find name="DHCP-Management-wifi"]
 /ip pool remove [find name="DHCP-pool-management-wifi"]
 /ip address remove [find address="192.168.210.1/24"]
 /interface wifi remove [find name="wifi-management"]
-/ip address remove [find address="192.168.200.1/24"]
+#/ip address remove [find address="192.168.200.1/24"]
 /tool mac-server set allowed-interface-list=all
 /tool mac-server mac-winbox set allowed-interface-list=all
 
 :global WizardProgress "97"
+:set WizardMessage "Writing wizard success marker"
 /file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
 :global WizardProgress "99"
+:set WizardMessage "Removing the wizard script"
 /system script remove [find name=wizard]
 :global WizardProgress "100"
+:set WizardMessage "Wizard completed successfully"
 
         :log info "Script completed successfully"
+        :set wizardSucceeded true
         :break
 
-    } on-error={
+    } do={
+        :set WizardMessage $wizardErr
+        :log error ("Wizard: Attempt " . $wizardRetry . " failed: " . $wizardErr)
         :log warning ("Script failed, retry " . $wizardRetry . "/3")
         :delay 5s
     }
 }
+
+:if (!$wizardSucceeded) do={
+    :set WizardFailed true
+    :log error "Wizard: All $wizardRetry attempts failed, giving up"
+    :exit
+}
+
 /system script run DomesticIPUpdate-OneTime

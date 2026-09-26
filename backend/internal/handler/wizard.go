@@ -84,9 +84,21 @@ func HandleGetWizardStatus(c echo.Context) error {
 		}
 	}
 
+	if failed, err := client.GetEnvironmentVariable("WizardFailed"); err == nil {
+		status.Failed = failed == "true"
+	}
+
+	if message, err := client.GetEnvironmentVariable("WizardMessage"); err == nil {
+		status.Message = message
+	}
+
 	if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
 		status.Progress = 100
 		status.Completed = true
+	}
+
+	if status.Failed {
+		return SuccessResponse(c, http.StatusInternalServerError, status.Message, status)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard status retrieved successfully", status)
