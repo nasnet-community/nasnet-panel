@@ -146,7 +146,7 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 /interface ethernet set [ find default-name={{ .DomesticInterface.Interface }} ] comment="WAN - Domestic Link"
 {{ end }}
 {{ range .BridgePorts }}
-/interface {{ .Type }} set [ find default-name={{ .DefaultName }} ] comment="Split Network"
+/interface {{ .Type }} set [ find default-name={{ .DefaultName }} ] comment="Split"
 {{end}}
 
 :global WizardProgress "45"

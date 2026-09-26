@@ -88,10 +88,10 @@ func (c *Client) listWirelessInterfaces() ([]WifiInfo, error) {
 	return wifis, nil
 }
 
-func (c *Client) getWirelessInterface(name string) (*WifiInfo, error) {
-	result, err := c.GetFirst("/interface/wireless", "?name="+name)
+func (c *Client) getWirelessInterface(nameOrID string) (*WifiInfo, error) {
+	result, err := c.GetFirst("/interface/wireless", nameOrIDFilterArg(nameOrID))
 	if err != nil {
-		return nil, fmt.Errorf("failed to get WiFi interface %s: %w", name, err)
+		return nil, fmt.Errorf("failed to get WiFi interface %s: %w", nameOrID, err)
 	}
 
 	passphrase := ""
@@ -122,49 +122,51 @@ func (c *Client) getWirelessInterface(name string) (*WifiInfo, error) {
 
 func (c *Client) addWirelessInterface(config WifiConfig) (string, error) {
 	args := []string{
-		"name=" + config.Name,
-		"wlan-interface=" + config.Interface,
-		"ssid=" + config.SSID,
+		"=name=" + config.Name,
+		"=wlan-interface=" + config.Interface,
+		"=ssid=" + config.SSID,
 	}
 
 	if config.Mode != "" {
-		args = append(args, "mode="+config.Mode)
+		args = append(args, "=mode="+config.Mode)
 	}
 	if config.Band != "" {
-		args = append(args, "band="+config.Band)
+		args = append(args, "=band="+config.Band)
 	}
 	if config.Channel != "" {
-		args = append(args, "channel="+config.Channel)
+		args = append(args, "=channel="+config.Channel)
 	}
 	if config.ChannelWidth != "" {
-		args = append(args, "channel-width="+config.ChannelWidth)
+		args = append(args, "=channel-width="+config.ChannelWidth)
 	}
 	if config.Frequency != "" {
-		args = append(args, "frequency="+config.Frequency)
+		args = append(args, "=frequency="+config.Frequency)
 	}
 	if config.TxPower > 0 {
-		args = append(args, "tx-power="+strconv.Itoa(config.TxPower))
+		args = append(args, "=tx-power="+strconv.Itoa(config.TxPower))
 	}
 	if config.Security.Type != "" {
-		args = append(args, "security="+config.Security.Type)
+		args = append(args, "=security="+config.Security.Type)
 		if config.Security.Passphrase != "" {
-			args = append(args, "passphrase="+config.Security.Passphrase)
+			args = append(args, "=passphrase="+config.Security.Passphrase)
 		}
 		if config.Security.Cipher != "" {
-			args = append(args, "cipher="+config.Security.Cipher)
+			args = append(args, "=cipher="+config.Security.Cipher)
 		}
 	}
 	if config.HideSSID {
-		args = append(args, "hide-ssid=yes")
+		args = append(args, "=hide-ssid=yes")
 	}
 	if config.MACAddress != "" {
-		args = append(args, "mac-address="+config.MACAddress)
+		args = append(args, "=mac-address="+config.MACAddress)
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
+	} else {
+		args = append(args, "=disabled=no")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/interface/wireless", args...)
@@ -175,8 +177,13 @@ func (c *Client) addWirelessInterface(config WifiConfig) (string, error) {
 	return id, nil
 }
 
-func (c *Client) removeWirelessInterface(name string) error {
-	_, err := c.Remove("/interface/wireless", "?name="+name)
+func (c *Client) removeWirelessInterface(nameOrID string) error {
+	result, err := c.GetFirst("/interface/wireless", nameOrIDFilterArg(nameOrID))
+	if err != nil {
+		return fmt.Errorf("failed to find WiFi interface %s: %w", nameOrID, err)
+	}
+
+	_, err = c.Remove("/interface/wireless", "=.id="+result[".id"])
 	if err != nil {
 		return fmt.Errorf("failed to remove WiFi interface: %w", err)
 	}

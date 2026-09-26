@@ -65,6 +65,8 @@ func RegisterRoutes(e *echo.Echo) {
 	wifiGroup.DELETE("/clients/:mac", handler.HandleRemoveWiFiConnectedClient)
 	wifiGroup.GET("/passphrase/:name", handler.HandleGetWiFiPassphrase)
 	wifiGroup.PUT("/passphrase/:name", handler.HandleChangeWiFiPassphrase)
+	wifiGroup.POST("/virtual", handler.HandleCreateVirtualWiFiInterface)
+	wifiGroup.DELETE("/virtual/:nameOrID", handler.HandleDeleteVirtualWiFiInterface)
 
 	dhcpGroup := e.Group("/api/dhcp")
 	dhcpGroup.Use(middleware.RouterOSAuth)

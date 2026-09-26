@@ -122,10 +122,10 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 	return wifis, nil
 }
 
-func (c *Client) getWiFiInterface(name string) (*WifiInfo, error) {
-	result, err := c.GetFirst("/interface/wifi", "?name="+name)
+func (c *Client) getWiFiInterfaceImpl(nameOrID string) (*WifiInfo, error) {
+	result, err := c.GetFirst("/interface/wifi", nameOrIDFilterArg(nameOrID))
 	if err != nil {
-		return nil, fmt.Errorf("failed to get WiFi interface %s: %w", name, err)
+		return nil, fmt.Errorf("failed to get WiFi interface %s: %w", nameOrID, err)
 	}
 
 	band := result["channel.band"]
@@ -163,43 +163,45 @@ func (c *Client) getWiFiInterface(name string) (*WifiInfo, error) {
 }
 
 func (c *Client) addWiFiInterface(config WifiConfig) (string, error) {
-	args := []string{"name=" + config.Name}
+	args := []string{"=name=" + config.Name}
 
 	if config.Interface != "" {
-		args = append(args, "master-interface="+config.Interface)
+		args = append(args, "=master-interface="+config.Interface)
 	}
 	if config.SSID != "" {
-		args = append(args, "configuration.ssid="+config.SSID)
+		args = append(args, "=configuration.ssid="+config.SSID)
 	}
 	if config.Mode != "" {
-		args = append(args, "configuration.mode="+config.Mode)
+		args = append(args, "=configuration.mode="+config.Mode)
 	}
 	if config.Band != "" {
-		args = append(args, "configuration.band="+config.Band)
+		args = append(args, "=configuration.band="+config.Band)
 	}
 	if config.Frequency != "" {
-		args = append(args, "channel.frequency="+config.Frequency)
+		args = append(args, "=channel.frequency="+config.Frequency)
 	}
 	if config.ChannelWidth != "" {
-		args = append(args, "channel.width="+config.ChannelWidth)
+		args = append(args, "=channel.width="+config.ChannelWidth)
 	}
 	if config.HideSSID {
-		args = append(args, "configuration.hide-ssid=yes")
+		args = append(args, "=configuration.hide-ssid=yes")
 	}
 	if config.Security.Type != "" {
-		args = append(args, "security.authentication-types="+config.Security.Type)
+		args = append(args, "=security.authentication-types="+config.Security.Type)
 	}
 	if config.Security.Passphrase != "" {
-		args = append(args, "security.passphrase="+config.Security.Passphrase)
+		args = append(args, "=security.passphrase="+config.Security.Passphrase)
 	}
 	if config.Security.Cipher != "" {
-		args = append(args, "security.encryption="+config.Security.Cipher)
+		args = append(args, "=security.encryption="+config.Security.Cipher)
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
+	} else {
+		args = append(args, "=disabled=no")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
 	id, err := c.Add("/interface/wifi", args...)
@@ -210,8 +212,13 @@ func (c *Client) addWiFiInterface(config WifiConfig) (string, error) {
 	return id, nil
 }
 
-func (c *Client) removeWiFiInterface(name string) error {
-	_, err := c.Remove("/interface/wifi", "?name="+name)
+func (c *Client) removeWiFiInterfaceImpl(nameOrID string) error {
+	result, err := c.GetFirst("/interface/wifi", nameOrIDFilterArg(nameOrID))
+	if err != nil {
+		return fmt.Errorf("failed to find WiFi interface %s: %w", nameOrID, err)
+	}
+
+	_, err = c.Remove("/interface/wifi", "=.id="+result[".id"])
 	if err != nil {
 		return fmt.Errorf("failed to remove WiFi interface: %w", err)
 	}
@@ -540,6 +547,11 @@ func (c *Client) updateWiFiSettingsImpl(interfaceName string, settings WiFiSetti
 	// Update SSID if provided
 	if settings.SSID != nil {
 		args = append(args, "=configuration.ssid="+*settings.SSID)
+	}
+
+	// Update mode if provided
+	if settings.Mode != nil {
+		args = append(args, "=configuration.mode="+*settings.Mode)
 	}
 
 	// Update security settings if provided

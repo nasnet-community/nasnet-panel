@@ -37,6 +37,26 @@ func validateSecurityTypes(securityTypes string) error {
 	return nil
 }
 
+// validateWiFiMode validates a WiFi interface mode value.
+func validateWiFiMode(mode string) error {
+	if mode == "" {
+		return nil
+	}
+
+	validModes := map[string]bool{
+		"ap":                   true,
+		"station":              true,
+		"station-bridge":       true,
+		"station-pseudobridge": true,
+	}
+
+	if !validModes[mode] {
+		return fmt.Errorf("invalid mode: %s. Must be one of: ap, station, station-bridge, station-pseudobridge", mode)
+	}
+
+	return nil
+}
+
 // validatePassword validates password length.
 func validatePassword(password string) error {
 	if password == "" {
@@ -477,6 +497,7 @@ func HandleUpdateWiFiInterface(c echo.Context) error {
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 404 {object} map[string]interface{} "Interface not found"
+// @Failure 409 {object} map[string]interface{} "Mode change requested for a virtual interface"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /api/wifi/settings/{name} [put].
 func HandleUpdateWiFiSettings(c echo.Context) error {
@@ -504,6 +525,13 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 		}
 	}
 
+	// Validate mode if provided.
+	if req.Mode != nil {
+		if err := validateWiFiMode(*req.Mode); err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid mode", err)
+		}
+	}
+
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
@@ -520,6 +548,10 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 
 	if iface == nil {
 		return ErrorResponse(c, http.StatusNotFound, "WiFi interface not found", nil)
+	}
+
+	if iface.IsVirtual && req.Mode != nil {
+		return ErrorResponse(c, http.StatusConflict, "Mode changes are not supported for virtual WiFi interfaces", nil)
 	}
 
 	// Update settings.
@@ -635,4 +667,191 @@ func HandleConnectWiFi(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Connected to access point", response)
+}
+
+// HandleCreateVirtualWiFiInterface godoc
+// @Summary Create a virtual WiFi interface
+// @Description Create a virtual WiFi interface bound to a physical master interface and attach it to a LAN bridge
+// @Tags WiFi
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body CreateVirtualWiFiInterfaceRequest true "Virtual WiFi interface configuration"
+// @Success 200 {object} Response{data=WiFiInterfaceResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/wifi/virtual [post].
+func HandleCreateVirtualWiFiInterface(c echo.Context) error {
+	var req CreateVirtualWiFiInterfaceRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	if req.MasterInterface == "" || req.SSID == "" || req.Bridge == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "masterInterface, ssid, and bridge are required", nil)
+	}
+	if req.Password != "" {
+		if req.SecurityTypes == "" {
+			return ErrorResponse(c, http.StatusBadRequest, "securityTypes is required when password is supplied", nil)
+		}
+		if err := validatePassword(req.Password); err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, err.Error(), nil)
+		}
+	}
+	if err := validateSecurityTypes(req.SecurityTypes); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, err.Error(), nil)
+	}
+	if !strings.HasPrefix(req.Bridge, lanBridgeNamePrefix) {
+		return ErrorResponse(c, http.StatusBadRequest, "bridge must start with \""+lanBridgeNamePrefix+"\"", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	master, err := client.GetWifiInterface(req.MasterInterface)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Master WiFi interface not found", err)
+	}
+	if master.IsVirtual {
+		return ErrorResponse(c, http.StatusBadRequest, "Master WiFi interface must not itself be virtual", nil)
+	}
+
+	bridge, err := client.GetBridge(req.Bridge)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "Bridge not found", err)
+	}
+	bridgeComment := ""
+	if bridge.Comment != nil {
+		bridgeComment = *bridge.Comment
+	}
+
+	radios, err := client.GetWiFiRadios()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get WiFi radios", err)
+	}
+	band := getWifiBandFromRadios(radios, req.MasterInterface)
+
+	interfaces, err := client.ListWifiInterfaces()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list WiFi interfaces", err)
+	}
+	virtualCount := 0
+	existingNames := make(map[string]bool, len(interfaces))
+	for i := range interfaces {
+		existingNames[interfaces[i].Name] = true
+		if interfaces[i].SSID == req.SSID {
+			return ErrorResponse(c, http.StatusConflict, "A WiFi interface with this SSID already exists", nil)
+		}
+		if interfaces[i].IsVirtual {
+			virtualCount++
+		}
+	}
+
+	idx := virtualCount + 1
+	virtualName := fmt.Sprintf("wifi-virtual%d-%sGhz", idx, band)
+	for existingNames[virtualName] {
+		idx++
+		virtualName = fmt.Sprintf("wifi-virtual%d-%sGhz", idx, band)
+	}
+
+	config := routeros.WifiConfig{
+		Name:      virtualName,
+		Interface: req.MasterInterface,
+		SSID:      req.SSID,
+		Mode:      "ap",
+		Comment:   bridgeComment,
+	}
+	if req.Password != "" {
+		config.Security = routeros.WifiSecurity{
+			Type:       req.SecurityTypes,
+			Passphrase: req.Password,
+		}
+	}
+
+	if _, err := client.AddWifiInterface(config); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create virtual WiFi interface", err)
+	}
+
+	portConfig := routeros.BridgePortConfig{
+		Bridge:    req.Bridge,
+		Interface: virtualName,
+		Comment:   bridgeComment,
+	}
+	if _, err := client.AddBridgePort(portConfig); err != nil {
+		if rmErr := client.RemoveWifiInterface(virtualName); rmErr != nil {
+			c.Logger().Errorf("Failed to remove virtual WiFi interface %s during rollback: %v", virtualName, rmErr)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add virtual WiFi interface to bridge", err)
+	}
+
+	iface, err := client.GetWifiInterface(virtualName)
+	if err != nil {
+		if rmErr := client.RemoveBridgePort(req.Bridge, virtualName); rmErr != nil {
+			c.Logger().Errorf("Failed to remove virtual WiFi bridge port %s during rollback: %v", virtualName, rmErr)
+		}
+		if rmErr := client.RemoveWifiInterface(virtualName); rmErr != nil {
+			c.Logger().Errorf("Failed to remove virtual WiFi interface %s during rollback: %v", virtualName, rmErr)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve created virtual WiFi interface", err)
+	}
+
+	response := ToWiFiInterfaceResponse(iface)
+	return SuccessResponse(c, http.StatusOK, "Virtual WiFi interface created successfully", response)
+}
+
+// HandleDeleteVirtualWiFiInterface godoc
+// @Summary Delete a virtual WiFi interface
+// @Description Remove a virtual WiFi interface's bridge port (if any) then the interface itself
+// @Tags WiFi
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Virtual WiFi interface name or ID"
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/wifi/virtual/{nameOrID} [delete].
+func HandleDeleteVirtualWiFiInterface(c echo.Context) error {
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	iface, err := client.GetWifiInterface(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WiFi interface not found", err)
+	}
+	if !iface.IsVirtual {
+		return ErrorResponse(c, http.StatusBadRequest, "WiFi interface is not virtual", nil)
+	}
+
+	ports, err := client.ListAllBridgePorts()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list bridge ports", err)
+	}
+	for i := range ports {
+		if ports[i].Interface != iface.Name {
+			continue
+		}
+		if err := client.RemoveBridgePort(ports[i].Bridge, iface.Name); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove bridge port", err)
+		}
+		break
+	}
+
+	if err := client.RemoveWifiInterface(iface.Name); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove virtual WiFi interface", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Virtual WiFi interface deleted successfully", nil)
 }
