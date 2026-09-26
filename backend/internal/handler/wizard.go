@@ -92,9 +92,11 @@ func HandleGetWizardStatus(c echo.Context) error {
 		status.Message = message
 	}
 
-	if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
-		status.Progress = 100
-		status.Completed = true
+	if !status.Failed {
+		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
+			status.Progress = 100
+			status.Completed = true
+		}
 	}
 
 	if status.Failed {

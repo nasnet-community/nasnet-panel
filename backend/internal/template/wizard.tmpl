@@ -10,8 +10,15 @@
 
 :global WizardProgress "5"
 :set WizardMessage "Backing up current configuration"
-/system/backup/save name={{ .BackupTime }}
-/export file={{ .BackupTime }}
+:onerror backupErr in={
+    /system/backup/save name={{ .BackupTime }}
+    /export file={{ .BackupTime }}
+} do={
+    :set WizardFailed true
+    :set WizardMessage $backupErr
+    :log error ("Wizard: Backup/export failed: " . $backupErr)
+    :exit
+}
 
 :while ($wizardRetry < 3) do={
 :set wizardRetry ($wizardRetry + 1)
@@ -697,16 +704,18 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 /ip pool remove [find name="DHCP-pool-management-wifi"]
 /ip address remove [find address="192.168.210.1/24"]
 /interface wifi remove [find name="wifi-management"]
-#/ip address remove [find address="192.168.200.1/24"]
+/ip address remove [find address="192.168.200.1/24"]
 /tool mac-server set allowed-interface-list=all
 /tool mac-server mac-winbox set allowed-interface-list=all
 
 :global WizardProgress "97"
-:set WizardMessage "Writing wizard success marker"
-/file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
-:global WizardProgress "99"
 :set WizardMessage "Removing the wizard script"
 /system script remove [find name=wizard]
+
+:global WizardProgress "99"
+:set WizardMessage "Writing wizard success marker"
+/file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
+
 :global WizardProgress "100"
 :set WizardMessage "Wizard completed successfully"
 
