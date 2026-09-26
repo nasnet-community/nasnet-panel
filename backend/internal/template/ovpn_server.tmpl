@@ -1,23 +1,28 @@
+:set WizardMessage "Creating OpenVPN CA certificate"
 /certificate
 add name=ovpn-ca-{{ .CurrentTimestamp }} common-name=ovpn-ca-{{ .CurrentTimestamp }} key-size=2048 days-valid=3650 trusted=yes key-usage=crl-sign,key-cert-sign
 sign ovpn-ca-{{ .CurrentTimestamp }}
 :delay 1s
 :global WizardProgress "87"
+:set WizardMessage "Creating OpenVPN server certificate"
 /certificate
 add name=ovpn-server-{{ .CurrentTimestamp }} common-name=ovpn-server-{{ .CurrentTimestamp }} key-size=2048 days-valid=3650 trusted=yes key-usage=digital-signature,key-encipherment,tls-server
 sign ovpn-server-{{ .CurrentTimestamp }} ca=ovpn-ca-{{ .CurrentTimestamp }}
 :global WizardProgress "88"
+:set WizardMessage "Creating OpenVPN client certificate"
 /certificate
 add name=ovpn-client-{{ .CurrentTimestamp }} common-name=ovpn-client-{{ .CurrentTimestamp }} key-size=2048 days-valid=3650 trusted=yes key-usage=tls-client
 sign ovpn-client-{{ .CurrentTimestamp }} ca=ovpn-ca-{{ .CurrentTimestamp }}
 /file add name=ovpn-client-{{ .CurrentTimestamp }}-password.txt contents="{{ .OvpnServer.ClientCertificatePassword }}"
 
 :global WizardProgress "89"
+:set WizardMessage "Exporting OpenVPN certificates"
 /certificate
 export-certificate ovpn-ca-{{ .CurrentTimestamp }} file-name=ovpn-ca-{{ .CurrentTimestamp }} type=pem
 export-certificate ovpn-server-{{ .CurrentTimestamp }} file-name=ovpn-server-{{ .CurrentTimestamp }} type=pem
 export-certificate ovpn-client-{{ .CurrentTimestamp }} file-name=ovpn-client-{{ .CurrentTimestamp }} type=pem export-passphrase={{ .OvpnServer.ClientCertificatePassword }}
 :global WizardProgress "90"
+:set WizardMessage "Creating OpenVPN TCP and UDP servers"
 /interface ovpn-server server
 add name="ovpn-server-{{ .CurrentTimestamp }}-tcp" default-profile="default" disabled=no \
 port="1194" protocol="tcp" mode="ip" certificate=ovpn-server-{{ .CurrentTimestamp }} \
@@ -27,16 +32,19 @@ add name="ovpn-server-{{ .CurrentTimestamp }}-udp" default-profile="default" dis
 mode="ip" certificate=ovpn-server-{{ .CurrentTimestamp }} require-client-certificate=yes auth=sha1,md5,sha256,sha384,sha512 cipher=blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm \
 redirect-gateway=def1 keepalive-timeout=60 comment="Client Certificate Password: {{ .OvpnServer.ClientCertificatePassword }}"
 :global WizardProgress "92"
+:set WizardMessage "Creating OpenVPN user accounts"
 /ppp secret{{range .OvpnServer.Users}}
 add name="{{ .Username }}" password="{{ .Password }}" profile=VPN-VPN service=any
 {{end}}
 :global WizardProgress "93"
+:set WizardMessage "Adding OpenVPN firewall filter rules"
 /ip firewall filter
 add action=accept chain=input comment="ovpn-server-{{ .CurrentTimestamp }}-tcp" dst-port="1194" \
 in-interface-list="Domestic-WAN" protocol="tcp"
 add action=accept chain=input comment="ovpn-server-{{ .CurrentTimestamp }}-udp" dst-port="1194" \
 in-interface-list="Domestic-WAN" protocol="udp"
 :global WizardProgress "94"
+:set WizardMessage "Adding OpenVPN reply-routing mangle rules"
 /ip firewall mangle
 add action=mark-connection chain=input comment="Mark Inbound ovpn-server-{{ .CurrentTimestamp }}-tcp" \
 connection-state=new in-interface-list="Domestic-WAN" protocol="tcp" dst-port="1194" \

@@ -34,6 +34,7 @@
 /ip vrf remove [find builtin!=yes]
 
 :global WizardProgress "10"
+:set WizardMessage "Removing dynamic firewall, routing, and system entries"
 
 /tool netwatch remove [find]
 /ip/dhcp-server remove [find interface!="LANBridgeSplit"]
@@ -49,7 +50,7 @@
 /ip route remove [find dynamic=no]
 /routing table remove [find dynamic!=yes]
 /routing rule remove [find default!=yes]
-/system script environment remove [/system script environment find name !=WizardProgress && name !=WizardCurrentStep]
+/system script environment remove [/system script environment find name !=WizardProgress && name !=WizardCurrentStep && name !=WizardFailed && name !=WizardMessage]
 /system script remove [find name!="wizard"]
 /system scheduler remove [find]
 /system logging remove [find default=no]
@@ -62,6 +63,7 @@
 /interface wireguard remove [find]
 /interface wireguard peers remove [find]
 :global WizardProgress "15"
+:set WizardMessage "Removing PPP, VPN, and address configuration"
 /ppp profile remove [find default=no]
 /ppp secret remove [find]
 /interface ovpn-server server remove [find]
