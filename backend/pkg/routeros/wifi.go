@@ -122,7 +122,7 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 	return wifis, nil
 }
 
-func (c *Client) getWiFiInterface(nameOrID string) (*WifiInfo, error) {
+func (c *Client) getWiFiInterfaceImpl(nameOrID string) (*WifiInfo, error) {
 	result, err := c.GetFirst("/interface/wifi", nameOrIDFilterArg(nameOrID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get WiFi interface %s: %w", nameOrID, err)
@@ -212,7 +212,7 @@ func (c *Client) addWiFiInterface(config WifiConfig) (string, error) {
 	return id, nil
 }
 
-func (c *Client) removeWiFiInterface(nameOrID string) error {
+func (c *Client) removeWiFiInterfaceImpl(nameOrID string) error {
 	result, err := c.GetFirst("/interface/wifi", nameOrIDFilterArg(nameOrID))
 	if err != nil {
 		return fmt.Errorf("failed to find WiFi interface %s: %w", nameOrID, err)
@@ -547,6 +547,11 @@ func (c *Client) updateWiFiSettingsImpl(interfaceName string, settings WiFiSetti
 	// Update SSID if provided
 	if settings.SSID != nil {
 		args = append(args, "=configuration.ssid="+*settings.SSID)
+	}
+
+	// Update mode if provided
+	if settings.Mode != nil {
+		args = append(args, "=configuration.mode="+*settings.Mode)
 	}
 
 	// Update security settings if provided

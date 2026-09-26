@@ -37,6 +37,26 @@ func validateSecurityTypes(securityTypes string) error {
 	return nil
 }
 
+// validateWiFiMode validates a WiFi interface mode value.
+func validateWiFiMode(mode string) error {
+	if mode == "" {
+		return nil
+	}
+
+	validModes := map[string]bool{
+		"ap":                   true,
+		"station":              true,
+		"station-bridge":       true,
+		"station-pseudobridge": true,
+	}
+
+	if !validModes[mode] {
+		return fmt.Errorf("invalid mode: %s. Must be one of: ap, station, station-bridge, station-pseudobridge", mode)
+	}
+
+	return nil
+}
+
 // validatePassword validates password length.
 func validatePassword(password string) error {
 	if password == "" {
@@ -502,6 +522,13 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 	if req.SecurityTypes != nil {
 		if err := validateSecurityTypes(*req.SecurityTypes); err != nil {
 			return ErrorResponse(c, http.StatusBadRequest, "Invalid security types", err)
+		}
+	}
+
+	// Validate mode if provided.
+	if req.Mode != nil {
+		if err := validateWiFiMode(*req.Mode); err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid mode", err)
 		}
 	}
 
