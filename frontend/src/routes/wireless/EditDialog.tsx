@@ -5,11 +5,12 @@ import { WirelessFields } from './WirelessFields';
 
 interface Props {
   settings: WirelessSettings;
+  isVirtual?: boolean;
   onClose: () => void;
   onSave: (s: WirelessSettings) => void;
 }
 
-export function EditDialog({ settings, onClose, onSave }: Props) {
+export function EditDialog({ settings, isVirtual, onClose, onSave }: Props) {
   const [draft, setDraft] = useState<WirelessSettings>(settings);
   const patch = <K extends keyof WirelessSettings>(k: K, v: WirelessSettings[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
@@ -30,7 +31,7 @@ export function EditDialog({ settings, onClose, onSave }: Props) {
         </>
       }
     >
-      <WirelessFields draft={draft} onPatch={patch} />
+      <WirelessFields draft={draft} onPatch={patch} hideMode={isVirtual} />
     </Dialog>
   );
 }

@@ -24,7 +24,7 @@ export const MODELS: RouterModelDescriptor[] = [
       eth(4, 3),
       eth(5, 4),
       { id: 'pwr', kind: 'power', label: 'DC', row: 0, col: 5 },
-      { id: 'rst', kind: 'reset', label: 'Reset', row: 0, col: 6 },
+      { id: 'rst', kind: 'reset', label: 'Reboot', row: 0, col: 6 },
     ],
   },
   {
@@ -40,7 +40,7 @@ export const MODELS: RouterModelDescriptor[] = [
       eth(5, 4),
       { id: 'usb', kind: 'usb', label: 'USB 3.0', row: 0, col: 5 },
       { id: 'pwr', kind: 'power', label: 'DC', row: 0, col: 6 },
-      { id: 'rst', kind: 'reset', label: 'Reset', row: 0, col: 7 },
+      { id: 'rst', kind: 'reset', label: 'Reboot', row: 0, col: 7 },
     ],
   },
   {
@@ -70,7 +70,7 @@ export const MODELS: RouterModelDescriptor[] = [
       },
       { id: 'usb', kind: 'usb', label: 'USB 3.0', row: 0, col: 11 },
       { id: 'pwr', kind: 'power', label: 'DC', row: 0, col: 12 },
-      { id: 'rst', kind: 'reset', label: 'Reset', row: 0, col: 13 },
+      { id: 'rst', kind: 'reset', label: 'Reboot', row: 0, col: 13 },
     ],
   },
   {
@@ -98,7 +98,7 @@ export const MODELS: RouterModelDescriptor[] = [
       },
       { id: 'usb', kind: 'usb', label: 'USB 3.0', row: 0, col: 9 },
       { id: 'pwr', kind: 'power', label: 'DC', row: 0, col: 10 },
-      { id: 'rst', kind: 'reset', label: 'Reset', row: 0, col: 11 },
+      { id: 'rst', kind: 'reset', label: 'Reboot', row: 0, col: 11 },
     ],
   },
   {
@@ -117,7 +117,7 @@ export const MODELS: RouterModelDescriptor[] = [
       { id: 'ant1', kind: 'antenna', label: 'LTE 1', row: 0, col: 7 },
       { id: 'ant2', kind: 'antenna', label: 'LTE 2', row: 0, col: 8 },
       { id: 'pwr', kind: 'power', label: 'DC', row: 0, col: 9 },
-      { id: 'rst', kind: 'reset', label: 'Reset', row: 0, col: 10 },
+      { id: 'rst', kind: 'reset', label: 'Reboot', row: 0, col: 10 },
     ],
   },
 ];
