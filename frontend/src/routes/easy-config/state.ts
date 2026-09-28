@@ -57,6 +57,7 @@ export interface State {
   applying: boolean;
   applied: boolean;
   progress: number;
+  stage: string;
   managementWifiSsid: string;
   managementWifiPassword: string;
 }
@@ -115,6 +116,7 @@ export const initial: State = {
   applying: false,
   applied: false,
   progress: 0,
+  stage: '',
   managementWifiSsid: '',
   managementWifiPassword: '',
 };
@@ -127,6 +129,7 @@ export type Action =
   | { type: 'error'; message: string | null }
   | { type: 'applying'; value: boolean }
   | { type: 'progress'; value: number }
+  | { type: 'stage'; value: string }
   | { type: 'managementWifi'; ssid: string; password: string }
   | { type: 'applied' };
 
@@ -148,10 +151,12 @@ export function reducer(state: State, action: Action): State {
       return { ...state, error: action.message };
     case 'applying':
       return action.value
-        ? { ...state, applying: true, progress: 0 }
+        ? { ...state, applying: true, progress: 0, stage: '' }
         : { ...state, applying: false };
     case 'progress':
       return { ...state, progress: Math.max(state.progress, action.value) };
+    case 'stage':
+      return { ...state, stage: action.value };
     case 'managementWifi':
       return { ...state, managementWifiSsid: action.ssid, managementWifiPassword: action.password };
     case 'applied':

@@ -69,6 +69,7 @@ export function ShowStep({ script, state, onApply, onBack }: Props) {
         applying={state.applying}
         applied={state.applied}
         progress={state.progress}
+        stage={state.stage}
         error={state.error}
         managementWifiSsid={state.managementWifiSsid}
         managementWifiPassword={state.managementWifiPassword}
