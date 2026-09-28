@@ -17,7 +17,8 @@ interface Props {
 
 const isDeletable = (s: VPNServer) => s.protocol === 'openvpn' || s.protocol === 'wireguard';
 const isEditable = (s: VPNServer) => s.protocol === 'wireguard';
-const isDisableable = (s: VPNServer) => s.protocol === 'sstp' && s.running;
+const isDisableable = (s: VPNServer) =>
+  (s.protocol === 'sstp' || s.protocol === 'l2tp') && s.running;
 const isToggleable = (s: VPNServer) => s.protocol === 'openvpn';
 const isDownloadable = (s: VPNServer) => s.protocol === 'openvpn';
 
