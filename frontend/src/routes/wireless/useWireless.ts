@@ -54,6 +54,7 @@ const toInterface = (wi: WifiInterfaceResponse): Interface => ({
   band: parseBand(wi.band),
   securityTypes: parseSecurityTypes(wi.securityType),
   mode: wi.mode,
+  isVirtual: wi.isVirtual,
 });
 
 const toWirelessClient = (c: WifiConnectedClientResponse): WirelessClient => ({
@@ -197,7 +198,7 @@ export function useWireless(id: string | undefined) {
     const nextTypes = [...next.securityTypes].sort().join(',');
     const prevTypes = [...(editingSettings?.securityTypes ?? [])].sort().join(',');
     if (nextTypes !== prevTypes) patch.securityTypes = next.securityTypes.join(',');
-    if (next.mode !== editingSettings?.mode) patch.mode = next.mode;
+    if (!editingIface.isVirtual && next.mode !== editingSettings?.mode) patch.mode = next.mode;
     if (Object.keys(patch).length === 0) {
       closeEdit();
       return;
