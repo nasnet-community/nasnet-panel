@@ -653,10 +653,12 @@ func HandleGetL2TPClient(c echo.Context) error {
 
 // HandleListVPNServers gets the status of all VPN servers
 // @Summary List VPN Servers
-// @Description Get the list of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
+// @Description Get the list of OpenVPN, WireGuard, L2TP, and SSTP servers. By default, only
+// @Description enabled servers are returned; pass all=true to include disabled ones too.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param all query boolean false "Include disabled servers too (default: false, only enabled servers)"
 // @Produce json
 // @Success 200 {object} Response{data=VPNServersStatusResponse}
 // @Failure 500 {object} Response
@@ -667,6 +669,8 @@ func HandleListVPNServers(c echo.Context) error {
 		return err
 	}
 
+	showAll := c.QueryParam("all") == "true"
+
 	response := &VPNServersStatusResponse{
 		OvpnServers: []ServerStatusItem{},
 		WireGuards:  []ServerStatusItem{},
@@ -676,6 +680,9 @@ func HandleListVPNServers(c echo.Context) error {
 	if err == nil {
 		for i := range ovpnServers {
 			srv := ovpnServers[i]
+			if srv.Disabled && !showAll {
+				continue
+			}
 			item := ServerStatusItem{
 				Name:     srv.Name,
 				Enabled:  !srv.Disabled,
@@ -695,6 +702,9 @@ func HandleListVPNServers(c echo.Context) error {
 			if !strings.HasSuffix(wg.Name, "-server") {
 				continue
 			}
+			if wg.Disabled && !showAll {
+				continue
+			}
 			peerCount, _ := client.CountWireGuardPeers(wg.Name)
 			response.WireGuards = append(response.WireGuards, ServerStatusItem{
 				Name:      wg.Name,
@@ -707,14 +717,21 @@ func HandleListVPNServers(c echo.Context) error {
 	}
 
 	sstpServer, err := client.GetSstpServer()
-	if err == nil {
-		status := &SingleServerStatus{
+	if err == nil && (sstpServer.Enabled || showAll) {
+		response.Sstp = &SingleServerStatus{
 			Enabled:  sstpServer.Enabled,
 			Port:     sstpServer.Port,
 			Protocol: "tcp",
 		}
+	}
 
-		response.Sstp = status
+	l2tpServer, err := client.GetL2tpServer()
+	if err == nil && (l2tpServer.Enabled || showAll) {
+		response.L2tp = &SingleServerStatus{
+			Enabled:  l2tpServer.Enabled,
+			Port:     1701,
+			Protocol: "udp",
+		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "VPN servers status retrieved successfully", response)
