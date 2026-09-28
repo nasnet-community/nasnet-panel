@@ -401,7 +401,7 @@ export function DHCPPage() {
         </CardHeader>
         {clients.error ? <div className={styles.errorBanner}>{clients.error}</div> : null}
         {sharedSubnets.map(([prefix, ifaces]) => (
-          <div key={prefix} role="alert" className={styles.warningBanner}>
+          <div key={prefix} role="status" className={styles.warningBanner}>
             {ifaces.join(', ')} got addresses in the same {prefix}.x range. Change the LAN subnet on
             one of the upstream modems so each WAN uses a different range.
           </div>
