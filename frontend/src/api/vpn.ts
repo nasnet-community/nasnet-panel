@@ -23,6 +23,8 @@ export interface VPNClientResponse {
   lastLinkDown: string;
   linkDowns: number;
   comment?: string;
+  pingTime?: string;
+  peerCount?: number;
 }
 
 export interface UpdateVPNClientRequest {
@@ -216,6 +218,21 @@ export interface UpdateOvpnServerEnabledResponse {
 export interface DeleteSstpServerResponse {
   disabled: boolean;
   removedFirewallRules?: number;
+  warnings?: string[];
+}
+
+export interface CreateL2tpServerRequest {
+  ipsecSecret: string;
+}
+
+export interface CreateL2tpServerResponse {
+  enabled: boolean;
+}
+
+export interface DeleteL2tpServerResponse {
+  disabled: boolean;
+  removedFirewallRules?: string[];
+  removedMangleRules?: string[];
   warnings?: string[];
 }
 
@@ -727,6 +744,30 @@ export async function deleteOvpnServer(
 ): Promise<void> {
   const query = deleteCertificateFiles ? '?deleteCertificateFiles=true' : '';
   await apiRequest<void>(`/api/vpn/ovpn/server/${encodeURIComponent(name)}${query}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
+
+export async function createL2tpServer(
+  creds: VPNCredentials,
+  body: CreateL2tpServerRequest,
+  signal?: AbortSignal,
+): Promise<CreateL2tpServerResponse> {
+  return apiRequest<CreateL2tpServerResponse>('/api/vpn/l2tp/server', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function deleteL2tpServer(
+  creds: VPNCredentials,
+  signal?: AbortSignal,
+): Promise<DeleteL2tpServerResponse> {
+  return apiRequest<DeleteL2tpServerResponse>('/api/vpn/l2tp/server', {
     method: 'DELETE',
     headers: authHeaders(creds),
     signal,

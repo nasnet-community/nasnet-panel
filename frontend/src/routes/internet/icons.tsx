@@ -41,7 +41,8 @@ const VPN_PROTOCOL_LABELS: Record<string, string> = {
 
 export function nodeSubLabel(node: RoutingNode): string | undefined {
   if (node.kind === 'vpn' && node.protocol) {
-    return VPN_PROTOCOL_LABELS[node.protocol] ?? node.protocol.toUpperCase();
+    const label = VPN_PROTOCOL_LABELS[node.protocol] ?? node.protocol.toUpperCase();
+    return node.pingTime ? `${label} · ${node.pingTime}` : label;
   }
   return node.subnet;
 }
