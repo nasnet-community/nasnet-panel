@@ -59,6 +59,7 @@ export interface Interface {
   band?: WirelessBand;
   securityTypes?: string[];
   mode?: string;
+  isVirtual?: boolean;
 }
 
 export interface SystemOverview {

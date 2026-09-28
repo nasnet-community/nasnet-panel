@@ -1,4 +1,4 @@
-import { Wifi } from 'lucide-react';
+import { Trash2, Wifi } from 'lucide-react';
 import { Badge, Button, Inline, Switch } from '@nasnet/ui';
 import type { Interface, WirelessSettings } from '../../api';
 import styles from '../WirelessPage.module.scss';
@@ -9,6 +9,7 @@ interface Props {
   settings: WirelessSettings;
   onToggle: (running: boolean) => void;
   onEdit: (iface: Interface) => void;
+  onDelete: (iface: Interface) => void;
 }
 
 const formatMode = (mode: string): string =>
@@ -21,7 +22,7 @@ const formatMode = (mode: string): string =>
 
 const isStationMode = (mode: string): boolean => mode.toLowerCase().startsWith('station');
 
-export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
+export function InterfaceRow({ iface, settings, onToggle, onEdit, onDelete }: Props) {
   const enabled = !iface.disabled;
   const station = iface.mode ? isStationMode(iface.mode) : false;
   return (
@@ -38,6 +39,12 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
             <Badge className={station ? styles.stationBadge : styles.modeBadge}>
               {formatMode(iface.mode)}
             </Badge>
+          </>
+        ) : null}
+        {iface.isVirtual ? (
+          <>
+            {' '}
+            <Badge tone="neutral">Virtual</Badge>
           </>
         ) : null}
         <div>
@@ -69,6 +76,17 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
         <Button size="sm" variant="secondary" onClick={() => onEdit(iface)}>
           Edit
         </Button>
+        {iface.isVirtual ? (
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={() => onDelete(iface)}
+            aria-label={`Delete ${iface.name}`}
+            title="Delete"
+          >
+            <Trash2 size={14} aria-hidden />
+          </Button>
+        ) : null}
       </Inline>
     </div>
   );

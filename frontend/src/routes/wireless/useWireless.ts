@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@nasnet/ui';
 import {
+  createVirtualWifiInterface,
+  deleteVirtualWifiInterface,
+  fetchBridges,
   fetchWifiClients,
   fetchWifiInterfaces,
   fetchWifiPassphrase,
   updateWifiInterface,
   updateWifiSettings,
+  type BridgeResponse,
+  type CreateVirtualWifiRequest,
   type Interface,
   type UpdateWifiSettingsRequest,
   type WifiConnectedClientResponse,
@@ -54,6 +59,7 @@ const toInterface = (wi: WifiInterfaceResponse): Interface => ({
   band: parseBand(wi.band),
   securityTypes: parseSecurityTypes(wi.securityType),
   mode: wi.mode,
+  isVirtual: wi.isVirtual,
 });
 
 const toWirelessClient = (c: WifiConnectedClientResponse): WirelessClient => ({
@@ -91,7 +97,18 @@ export function useWireless(id: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [editingIface, setEditingIface] = useState<Interface | null>(null);
   const [editingSettings, setEditingSettings] = useState<WirelessSettings | null>(null);
+  const [addingVirtual, setAddingVirtual] = useState(false);
+  const [bridges, setBridges] = useState<BridgeResponse[]>([]);
+  const [bridgesError, setBridgesError] = useState<string | null>(null);
+  const [deletingIface, setDeletingIface] = useState<Interface | null>(null);
+  const activeId = useRef(id);
   const toast = useToast();
+
+  useEffect(() => {
+    activeId.current = id;
+    setAddingVirtual(false);
+    setDeletingIface(null);
+  }, [id]);
 
   const creds = useMemo<WifiCredentials | null>(() => {
     if (!id) return null;
@@ -197,7 +214,7 @@ export function useWireless(id: string | undefined) {
     const nextTypes = [...next.securityTypes].sort().join(',');
     const prevTypes = [...(editingSettings?.securityTypes ?? [])].sort().join(',');
     if (nextTypes !== prevTypes) patch.securityTypes = next.securityTypes.join(',');
-    if (next.mode !== editingSettings?.mode) patch.mode = next.mode;
+    if (!editingIface.isVirtual && next.mode !== editingSettings?.mode) patch.mode = next.mode;
     if (Object.keys(patch).length === 0) {
       closeEdit();
       return;
@@ -225,6 +242,56 @@ export function useWireless(id: string | undefined) {
     });
   };
 
+  const openAddVirtual = useCallback(async () => {
+    setAddingVirtual(true);
+    if (!creds) return;
+    setBridgesError(null);
+    try {
+      setBridges(await fetchBridges(creds));
+    } catch (err) {
+      setBridges([]);
+      setBridgesError(err instanceof Error ? err.message : 'Failed to load bridges');
+    }
+  }, [creds]);
+
+  const closeAddVirtual = useCallback(() => {
+    setAddingVirtual(false);
+  }, []);
+
+  const createVirtual = async (request: CreateVirtualWifiRequest) => {
+    if (!creds) return;
+    const requestId = id;
+    try {
+      const created = await createVirtualWifiInterface(creds, request);
+      if (activeId.current !== requestId) return;
+      const next = toInterface(created);
+      setInterfaces((prev) => [...prev.filter((i) => i.name !== next.name), next]);
+      toast.notify({ title: `${next.name} created`, tone: 'success' });
+      closeAddVirtual();
+    } catch (err) {
+      if (activeId.current !== requestId) return;
+      const message = err instanceof Error ? err.message : 'Failed to create virtual interface';
+      toast.notify({ title: 'Create failed', description: message, tone: 'danger' });
+    }
+  };
+
+  const confirmDeleteVirtual = async () => {
+    if (!creds || !deletingIface) return;
+    const name = deletingIface.name;
+    const requestId = id;
+    setDeletingIface(null);
+    try {
+      await deleteVirtualWifiInterface(creds, name);
+      if (activeId.current !== requestId) return;
+      setInterfaces((prev) => prev.filter((i) => i.name !== name));
+      toast.notify({ title: `${name} deleted`, tone: 'success' });
+    } catch (err) {
+      if (activeId.current !== requestId) return;
+      const message = err instanceof Error ? err.message : 'Failed to delete virtual interface';
+      toast.notify({ title: 'Delete failed', description: message, tone: 'danger' });
+    }
+  };
+
   return {
     settings,
     interfaces,
@@ -237,5 +304,14 @@ export function useWireless(id: string | undefined) {
     reload,
     save,
     toggleInterface,
+    addingVirtual,
+    bridges,
+    bridgesError,
+    openAddVirtual,
+    closeAddVirtual,
+    createVirtual,
+    deletingIface,
+    requestDeleteVirtual: setDeletingIface,
+    confirmDeleteVirtual,
   };
 }
