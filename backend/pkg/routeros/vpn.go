@@ -847,6 +847,59 @@ func (c *Client) GetL2tpServer() (*L2tpServerInfo, error) {
 	}, nil
 }
 
+// L2tpServerConfig holds the settings applied when enabling the L2TP server.
+type L2tpServerConfig struct {
+	Enabled        bool
+	DefaultProfile string
+	Authentication string
+	UseIPsec       bool
+	IPsecSecret    string
+}
+
+// SetL2tpServer configures RouterOS's L2TP server. UseIPsec, when true, is
+// set to "required" rather than "yes" since L2TP-over-IPsec should reject
+// any connection that doesn't negotiate IPsec.
+func (c *Client) SetL2tpServer(config L2tpServerConfig) error {
+	enabled := "no"
+	if config.Enabled {
+		enabled = "yes"
+	}
+	useIPsec := "no"
+	if config.UseIPsec {
+		useIPsec = "required"
+	}
+
+	args := []string{
+		"=enabled=" + enabled,
+		"=use-ipsec=" + useIPsec,
+	}
+	if config.DefaultProfile != "" {
+		args = append(args, "=default-profile="+config.DefaultProfile)
+	}
+	if config.Authentication != "" {
+		args = append(args, "=authentication="+config.Authentication)
+	}
+	if config.IPsecSecret != "" {
+		args = append(args, "=ipsec-secret="+config.IPsecSecret)
+	}
+
+	_, err := c.Set("/interface/l2tp-server/server", args...)
+	if err != nil {
+		return fmt.Errorf("failed to configure L2TP server: %w", err)
+	}
+
+	return nil
+}
+
+// DisableL2tpServer disables RouterOS's L2TP server.
+func (c *Client) DisableL2tpServer() error {
+	_, err := c.Set("/interface/l2tp-server/server", "=enabled=no")
+	if err != nil {
+		return fmt.Errorf("failed to disable L2TP server: %w", err)
+	}
+	return nil
+}
+
 // GetSstpServer returns the SSTP server configuration.
 func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 	result, err := c.GetFirst("/interface/sstp-server/server")

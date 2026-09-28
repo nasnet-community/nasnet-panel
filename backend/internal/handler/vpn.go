@@ -874,6 +874,185 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "L2TP server details retrieved successfully", response)
 }
 
+// HandleCreateL2tpServer enables the L2TP server.
+// @Summary Enable L2TP Server
+// @Description Enable the L2TP server with the given IPsec preshared key, and add the matching firewall/mangle rules
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body CreateL2tpServerRequest true "L2TP server configuration"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp/server [post].
+func HandleCreateL2tpServer(c echo.Context) error {
+	var req CreateL2tpServerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	if req.IPsecSecret == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "ipsecSecret is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	currentStatus, err := client.GetL2tpServer()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check current L2TP server status", err)
+	}
+	if currentStatus.Enabled {
+		return ErrorResponse(c, http.StatusConflict, "L2TP server is already enabled", nil)
+	}
+
+	l2tpConfig := routeros.L2tpServerConfig{
+		Enabled:        true,
+		DefaultProfile: "default",
+		Authentication: "pap,chap,mschap1,mschap2",
+		UseIPsec:       true,
+		IPsecSecret:    req.IPsecSecret,
+	}
+	if err := client.SetL2tpServer(l2tpConfig); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to enable L2TP server", err)
+	}
+
+	const l2tpServerComment = "l2tp-server"
+
+	// L2TP-over-IPsec needs accept/mark rules for the L2TP data port itself
+	// (udp/1701) plus the IPsec negotiation traffic that carries it: IKE
+	// (udp/500), NAT-T (udp/4500), and ESP (protocol ipsec-esp, no port).
+	l2tpRuleSpecs := []struct {
+		protocol string
+		dstPort  string
+		suffix   string
+	}{
+		{protocol: "udp", dstPort: "1701", suffix: ""},
+		{protocol: "udp", dstPort: "500", suffix: "-ike"},
+		{protocol: "udp", dstPort: "4500", suffix: "-nat-t"},
+		{protocol: "ipsec-esp", dstPort: "", suffix: "-esp"},
+	}
+
+	var createdFwRuleIDs []string
+	var createdMangleRuleIDs []string
+
+	rollback := func() {
+		for _, id := range createdMangleRuleIDs {
+			if err := client.RemoveMangleRule(id); err != nil {
+				c.Logger().Errorf("Failed to remove mangle rule %s during rollback: %v", id, err)
+			}
+		}
+		for _, id := range createdFwRuleIDs {
+			if err := client.RemoveFirewallRule(id); err != nil {
+				c.Logger().Errorf("Failed to remove firewall rule %s during rollback: %v", id, err)
+			}
+		}
+		if err := client.DisableL2tpServer(); err != nil {
+			c.Logger().Errorf("Failed to disable L2TP server during rollback: %v", err)
+		}
+	}
+
+	for _, spec := range l2tpRuleSpecs {
+		fwRuleConfig := routeros.FirewallRuleConfig{
+			Chain:           "input",
+			Action:          "accept",
+			Protocol:        spec.protocol,
+			DstPort:         spec.dstPort,
+			InInterfaceList: vpnServerAllowedInterfaceList,
+			Comment:         l2tpServerComment + spec.suffix,
+		}
+		fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for L2TP", err)
+		}
+		createdFwRuleIDs = append(createdFwRuleIDs, fwRuleID)
+	}
+
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		rollback()
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
+	}
+
+	for _, spec := range l2tpRuleSpecs {
+		mangleRuleConfig := routeros.MangleRuleConfig{
+			Chain:             "input",
+			Action:            "mark-connection",
+			Comment:           "Mark Inbound " + l2tpServerComment + spec.suffix,
+			ConnectionState:   "new",
+			InIfaceList:       vpnServerAllowedInterfaceList,
+			Protocol:          spec.protocol,
+			DstPort:           spec.dstPort,
+			NewConnectionMark: "conn-vpn-server",
+			PassThrough:       true,
+			PlaceBefore:       replyRoutingRuleID,
+		}
+		mangleRuleID, err := client.AddMangleRule(mangleRuleConfig)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for L2TP", err)
+		}
+		createdMangleRuleIDs = append(createdMangleRuleIDs, mangleRuleID)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP server enabled successfully", map[string]interface{}{
+		"enabled": true,
+	})
+}
+
+// HandleDeleteL2tpServer disables the L2TP server and cleans up its firewall/mangle rules.
+// @Summary Disable L2TP Server
+// @Description Disable RouterOS's L2TP server and remove the firewall/mangle rules added when it was enabled
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp/server [delete].
+func HandleDeleteL2tpServer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if err := client.DisableL2tpServer(); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to disable L2TP server", err)
+	}
+
+	deleteErrors := []string{}
+
+	removedRules, err := removeVpnServerFirewallRules(client, "l2tp-")
+	if err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove L2TP firewall rules: %v", err))
+	}
+
+	removedMangleRules, err := removeVpnServerMangleRules(client, "l2tp-", false)
+	if err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove L2TP mangle rules: %v", err))
+	}
+
+	if len(deleteErrors) > 0 {
+		return SuccessResponse(c, http.StatusOK, "L2TP server disabled with some errors", map[string]interface{}{
+			"disabled":             true,
+			"removedFirewallRules": removedRules,
+			"removedMangleRules":   removedMangleRules,
+			"warnings":             deleteErrors,
+		})
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP server disabled successfully", map[string]interface{}{
+		"disabled":             true,
+		"removedFirewallRules": removedRules,
+		"removedMangleRules":   removedMangleRules,
+	})
+}
+
 // HandleGetSstpServerDetails gets SSTP server details
 // @Summary Get SSTP Server Details
 // @Description Get detailed configuration of the SSTP server
@@ -2911,7 +3090,7 @@ func HandleDeleteSstpServer(c echo.Context) error {
 
 	deleteErrors := []string{}
 
-	removedRules, err := removeSstpFirewallRules(client)
+	removedRules, err := removeVpnServerFirewallRules(client, "sstp-")
 	if err != nil {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP firewall rules: %v", err))
 	}
@@ -3183,10 +3362,10 @@ func sstpCACertificateName(serverCertName string) string {
 	return "sstp-ca-" + timestamp
 }
 
-// removeSstpFirewallRules removes every /ip/firewall/filter input-chain rule
-// added for the SSTP server, identified by its "sstp-" comment prefix, and
-// returns the comment of each rule removed.
-func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
+// removeVpnServerFirewallRules removes every /ip/firewall/filter input-chain
+// rule whose comment starts with prefix (e.g. "sstp-", "l2tp-"), and returns
+// the comment of each rule removed.
+func removeVpnServerFirewallRules(client *routeros.Client, prefix string) ([]string, error) {
 	rules, err := client.GetFirewallRulesByChain("input")
 	if err != nil {
 		return nil, err
@@ -3194,7 +3373,7 @@ func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
 
 	removed := make([]string, 0)
 	for i := range rules {
-		if !strings.HasPrefix(rules[i].Comment, "sstp-") {
+		if !strings.HasPrefix(rules[i].Comment, prefix) {
 			continue
 		}
 		if err := client.RemoveFirewallRule(rules[i].ID); err != nil {

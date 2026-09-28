@@ -167,6 +167,11 @@ type L2tpServerDetailsResponse struct {
 	Secrets            []L2TPUserSecret `json:"secrets"`
 }
 
+// CreateL2tpServerRequest is the request to enable the L2TP server.
+type CreateL2tpServerRequest struct {
+	IPsecSecret string `json:"ipsecSecret" example:"secretpassphrase123"`
+}
+
 // SstpServerDetailsResponse represents SSTP server configuration details.
 type SstpServerDetailsResponse struct {
 	Enabled                 bool             `json:"enabled"`
