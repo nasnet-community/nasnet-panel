@@ -8,6 +8,7 @@ import {
   MessageCircle,
   Play,
   RefreshCw,
+  Trash2,
   Wand2,
 } from 'lucide-react';
 import {
@@ -27,7 +28,9 @@ import styles from './DiagnosticsPage.module.scss';
 import { CableTestCard } from './CableTestCard';
 import { USER_GUIDE_URL } from './help/links';
 import {
+  ApiError,
   DIAG_REPORT_FILENAME,
+  deleteDiagFile,
   fetchDiagReport,
   fetchDiagStatus,
   generateDiag,
@@ -87,6 +90,8 @@ export function DiagnosticsPage() {
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [fileMeta, setFileMeta] = useState<{ time?: string; size?: string } | null>(null);
   const [reporting, setReporting] = useState(() => isErrorReportingEnabled());
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
@@ -116,6 +121,10 @@ export function DiagnosticsPage() {
         }
       } catch (err) {
         if (cancelled || isAbortError(err)) return;
+        if (err instanceof ApiError && err.status === 404) {
+          setPhase('idle');
+          return;
+        }
         setPhase('error');
         setError(err instanceof Error ? err.message : 'Failed to load diagnostic status.');
       }
@@ -154,6 +163,13 @@ export function DiagnosticsPage() {
         }, POLL_INTERVAL_MS);
       } catch (err) {
         if (cancelled || isAbortError(err)) return;
+        if (err instanceof ApiError && err.status === 404) {
+          freshRunRef.current = false;
+          setProgress(0);
+          setPhase('idle');
+          toast.notify({ title: 'Diagnostic report not found', tone: 'danger' });
+          return;
+        }
         setPhase('error');
         setError(err instanceof Error ? err.message : 'Failed to check diagnostic progress.');
       }
@@ -165,6 +181,12 @@ export function DiagnosticsPage() {
       if (timer !== undefined) window.clearTimeout(timer);
     };
   }, [phase, creds, toast]);
+
+  const clearReport = () => {
+    setFileMeta(null);
+    setProgress(0);
+    setPhase('idle');
+  };
 
   const run = async () => {
     if (!creds) return;
@@ -193,6 +215,7 @@ export function DiagnosticsPage() {
     try {
       triggerDownload(DIAG_REPORT_FILENAME, await fetchDiagReport(creds));
     } catch (err) {
+      if (err instanceof ApiError && err.status === 404) clearReport();
       toast.notify({
         title: 'Failed to download report',
         description: err instanceof Error ? err.message : undefined,
@@ -200,6 +223,26 @@ export function DiagnosticsPage() {
       });
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const removeReport = async () => {
+    if (!creds) return;
+    setDeleting(true);
+    try {
+      await deleteDiagFile(creds);
+      clearReport();
+      toast.notify({ title: 'Diagnostic report deleted', tone: 'success' });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) clearReport();
+      toast.notify({
+        title: 'Failed to delete report',
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+    } finally {
+      setDeleting(false);
+      setDeleteConfirmOpen(false);
     }
   };
 
@@ -271,7 +314,22 @@ export function DiagnosticsPage() {
                 </span>
               </div>
               <div className={styles.fileAction}>
-                <Button variant="success" onClick={download} disabled={downloading}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                  disabled={deleting || downloading}
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 size={14} aria-hidden /> Deleting…
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} aria-hidden /> Delete
+                    </>
+                  )}
+                </Button>
+                <Button variant="success" onClick={download} disabled={downloading || deleting}>
                   {downloading ? (
                     <>
                       <Loader2 size={14} aria-hidden /> Downloading…
@@ -292,7 +350,7 @@ export function DiagnosticsPage() {
             <Button
               variant={ready ? 'primary' : 'success'}
               onClick={run}
-              disabled={!creds || phase === 'loading' || running || starting}
+              disabled={!creds || phase === 'loading' || running || starting || deleting}
             >
               {running || starting ? (
                 <>
@@ -357,6 +415,15 @@ export function DiagnosticsPage() {
       <div className={styles.cableTestCard}>
         <CableTestCard creds={creds} />
       </div>
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete diagnostic report?"
+        description={`Remove ${DIAG_REPORT_FILENAME} from this router? This cannot be undone.`}
+        destructive
+        confirmLabel={deleting ? 'Deleting…' : 'Delete'}
+        onConfirm={removeReport}
+        onCancel={() => (deleting ? undefined : setDeleteConfirmOpen(false))}
+      />
       <ConfirmDialog
         open={resetConfirmOpen}
         title="Reset configuration?"

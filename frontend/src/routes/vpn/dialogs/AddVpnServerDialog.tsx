@@ -16,6 +16,7 @@ import { VpnTypeTilePicker, type VpnTypeTile } from './VpnTypeTilePicker';
 import styles from './AddVpnServerDialog.module.scss';
 import {
   ApiError,
+  createL2tpServer,
   createOvpnServer,
   createSstpServer,
   createWireguardServer,
@@ -29,14 +30,12 @@ import {
 import { isCIDR, isPort, validateOvpnSecret } from '../../../utils/validators';
 import { pollSstpServerTask } from '../sstpTask';
 
-export type AddVpnServerType = 'openvpn' | 'wireguard' | 'sstp';
+export type AddVpnServerType = 'openvpn' | 'wireguard' | 'l2tp' | 'sstp';
 
-type AddVpnServerTileType = AddVpnServerType | 'l2tp';
-
-const TYPE_TILES: Array<VpnTypeTile<AddVpnServerTileType>> = [
+const TYPE_TILES: Array<VpnTypeTile<AddVpnServerType>> = [
   { value: 'openvpn', label: 'OpenVPN', icon: <Globe size={26} strokeWidth={1.75} /> },
   { value: 'wireguard', label: 'WireGuard', icon: <Shield size={26} strokeWidth={1.75} /> },
-  { value: 'l2tp', label: 'L2TP', icon: <Cable size={26} strokeWidth={1.75} />, disabled: true },
+  { value: 'l2tp', label: 'L2TP', icon: <Cable size={26} strokeWidth={1.75} /> },
   { value: 'sstp', label: 'SSTP', icon: <KeyRound size={26} strokeWidth={1.75} /> },
 ];
 
@@ -47,11 +46,18 @@ const ADVANCED_WG_SERVER_FIELDS_ID = 'wg-server-advanced-fields';
 interface Props {
   creds: VPNCredentials | null;
   sstpEnabled: boolean;
+  l2tpEnabled: boolean;
   onCancel: () => void;
   onCreated: () => void;
 }
 
-export function AddVpnServerDialog({ creds, sstpEnabled, onCancel, onCreated }: Props) {
+export function AddVpnServerDialog({
+  creds,
+  sstpEnabled,
+  l2tpEnabled,
+  onCancel,
+  onCreated,
+}: Props) {
   const [type, setType] = useState<AddVpnServerType>('openvpn');
 
   return (
@@ -67,6 +73,13 @@ export function AddVpnServerDialog({ creds, sstpEnabled, onCancel, onCreated }: 
 
         {type === 'openvpn' ? (
           <OvpnServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
+        ) : type === 'l2tp' ? (
+          <L2tpServerForm
+            creds={creds}
+            l2tpEnabled={l2tpEnabled}
+            onCancel={onCancel}
+            onCreated={onCreated}
+          />
         ) : type === 'sstp' ? (
           <SstpServerForm
             creds={creds}
@@ -354,6 +367,86 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
             : submitting
               ? 'Enabling…'
               : 'Enable SSTP server'}
+        </Button>
+      </FieldRow>
+    </FieldStack>
+  );
+}
+
+interface L2tpFormProps extends FormProps {
+  l2tpEnabled: boolean;
+}
+
+function L2tpServerForm({ creds, l2tpEnabled, onCancel, onCreated }: L2tpFormProps) {
+  const alertId = useId();
+  const [ipsecSecret, setIpsecSecret] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  const secretError = ipsecSecret.trim() === '' ? 'IPsec secret is required.' : null;
+  const canSubmit = !!creds && !submitting && !l2tpEnabled;
+
+  const submit = async () => {
+    setSubmitAttempted(true);
+    if (!canSubmit || !creds || secretError) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      await createL2tpServer(creds, { ipsecSecret: ipsecSecret.trim() });
+      onCreated();
+    } catch (err) {
+      const message =
+        err instanceof ApiError && err.status === 409
+          ? 'The L2TP server is already enabled on this router.'
+          : err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : 'Failed to enable L2TP server.';
+      setError(message);
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <FieldStack>
+      <InlineAlert tone="info" id={alertId}>
+        {l2tpEnabled
+          ? 'The L2TP server is already enabled on this router. Disable it from the VPN servers list before enabling it again.'
+          : 'Enabling L2TP starts the L2TP server with IPsec required and adds firewall rules accepting inbound L2TP and IPsec traffic. Existing VPN users can sign in over L2TP.'}
+      </InlineAlert>
+      {l2tpEnabled ? null : (
+        <FieldRow>
+          <Label>
+            <span>IPsec secret</span>
+            <PasswordInput
+              value={ipsecSecret}
+              onChange={(e) => setIpsecSecret(e.target.value)}
+              aria-label="IPsec secret"
+              autoComplete="new-password"
+              aria-invalid={submitAttempted && !!secretError}
+            />
+            {submitAttempted && secretError ? <FormError>{secretError}</FormError> : null}
+          </Label>
+        </FieldRow>
+      )}
+      {error ? <InlineAlert tone="danger">{error}</InlineAlert> : null}
+      <FieldRow>
+        <Button variant="ghost" onClick={onCancel} disabled={submitting}>
+          Cancel
+        </Button>
+        <Button
+          variant="success"
+          onClick={submit}
+          disabled={!canSubmit}
+          aria-describedby={l2tpEnabled ? alertId : undefined}
+        >
+          {l2tpEnabled
+            ? 'L2TP server already enabled'
+            : submitting
+              ? 'Enabling…'
+              : 'Enable L2TP server'}
         </Button>
       </FieldRow>
     </FieldStack>

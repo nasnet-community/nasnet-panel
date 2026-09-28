@@ -201,3 +201,36 @@ export async function updateWifiPassphrase(
     signal,
   });
 }
+
+export interface CreateVirtualWifiRequest {
+  masterInterface: string;
+  ssid: string;
+  bridge: string;
+  password?: string;
+  securityTypes?: string;
+}
+
+export async function createVirtualWifiInterface(
+  creds: WifiCredentials,
+  request: CreateVirtualWifiRequest,
+  signal?: AbortSignal,
+): Promise<WifiInterfaceResponse> {
+  return apiRequest<WifiInterfaceResponse>('/api/wifi/virtual', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(request),
+    signal,
+  });
+}
+
+export async function deleteVirtualWifiInterface(
+  creds: WifiCredentials,
+  name: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest(`/api/wifi/virtual/${encodeURIComponent(name)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
