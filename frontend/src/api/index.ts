@@ -150,6 +150,7 @@ export {
   generateDiag,
   fetchDiagStatus,
   fetchDiagReport,
+  deleteDiagFile,
   DIAG_REPORT_FILENAME,
   type DiagStatusResponse,
 } from './diag';
