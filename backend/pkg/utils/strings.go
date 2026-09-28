@@ -6,5 +6,6 @@ import "strings"
 // double-quoted RouterOS script string without terminating it early. Unlike
 // EscapeScriptString it leaves newlines and dollar signs alone.
 func EscapeQuotes(value string) string {
+	value = strings.ReplaceAll(value, `\`, `\\`)
 	return strings.ReplaceAll(value, `"`, `\"`)
 }
