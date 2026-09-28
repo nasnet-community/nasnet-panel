@@ -15,6 +15,7 @@ export function WirelessPage() {
     interfaces,
     clients,
     loading,
+    editingIface,
     editingSettings,
     openEdit,
     closeEdit,
@@ -47,7 +48,12 @@ export function WirelessPage() {
         onDelete={requestDeleteVirtual}
       />
       {editingSettings ? (
-        <EditDialog settings={editingSettings} onSave={save} onClose={closeEdit} />
+        <EditDialog
+          settings={editingSettings}
+          isVirtual={editingIface?.isVirtual}
+          onSave={save}
+          onClose={closeEdit}
+        />
       ) : null}
       {addingVirtual ? (
         <AddVirtualDialog

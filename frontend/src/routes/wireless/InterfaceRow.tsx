@@ -41,6 +41,12 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit, onDelete }: Pr
             </Badge>
           </>
         ) : null}
+        {iface.isVirtual ? (
+          <>
+            {' '}
+            <Badge tone="neutral">Virtual</Badge>
+          </>
+        ) : null}
         <div>
           {enabled ? (
             iface.running ? (
