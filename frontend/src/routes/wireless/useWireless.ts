@@ -99,6 +99,7 @@ export function useWireless(id: string | undefined) {
   const [editingSettings, setEditingSettings] = useState<WirelessSettings | null>(null);
   const [addingVirtual, setAddingVirtual] = useState(false);
   const [bridges, setBridges] = useState<BridgeResponse[]>([]);
+  const [bridgesError, setBridgesError] = useState<string | null>(null);
   const [deletingIface, setDeletingIface] = useState<Interface | null>(null);
   const toast = useToast();
 
@@ -237,10 +238,12 @@ export function useWireless(id: string | undefined) {
   const openAddVirtual = useCallback(async () => {
     setAddingVirtual(true);
     if (!creds) return;
+    setBridgesError(null);
     try {
       setBridges(await fetchBridges(creds));
-    } catch {
+    } catch (err) {
       setBridges([]);
+      setBridgesError(err instanceof Error ? err.message : 'Failed to load bridges');
     }
   }, [creds]);
 
@@ -290,6 +293,7 @@ export function useWireless(id: string | undefined) {
     toggleInterface,
     addingVirtual,
     bridges,
+    bridgesError,
     openAddVirtual,
     closeAddVirtual,
     createVirtual,

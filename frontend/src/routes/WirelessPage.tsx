@@ -23,6 +23,7 @@ export function WirelessPage() {
     toggleInterface,
     addingVirtual,
     bridges,
+    bridgesError,
     openAddVirtual,
     closeAddVirtual,
     createVirtual,
@@ -59,6 +60,8 @@ export function WirelessPage() {
         <AddVirtualDialog
           interfaces={interfaces}
           bridges={bridges}
+          bridgesError={bridgesError}
+          onRetryBridges={openAddVirtual}
           onCreate={createVirtual}
           onClose={closeAddVirtual}
         />

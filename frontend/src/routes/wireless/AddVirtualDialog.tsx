@@ -5,6 +5,7 @@ import {
   Dialog,
   FieldRow,
   FieldStack,
+  FormError,
   Inline,
   Input,
   Label,
@@ -22,11 +23,20 @@ const LAN_BRIDGE_PREFIX = 'LANBridge';
 interface Props {
   interfaces: Interface[];
   bridges: BridgeResponse[];
+  bridgesError: string | null;
+  onRetryBridges: () => void;
   onClose: () => void;
   onCreate: (request: CreateVirtualWifiRequest) => Promise<void>;
 }
 
-export function AddVirtualDialog({ interfaces, bridges, onClose, onCreate }: Props) {
+export function AddVirtualDialog({
+  interfaces,
+  bridges,
+  bridgesError,
+  onRetryBridges,
+  onClose,
+  onCreate,
+}: Props) {
   const toast = useToast();
   const masterOptions = useMemo(
     () =>
@@ -85,15 +95,20 @@ export function AddVirtualDialog({ interfaces, bridges, onClose, onCreate }: Pro
     }
   };
 
+  const close = () => {
+    if (busy) return;
+    onClose();
+  };
+
   return (
     <Dialog
       open
-      onClose={onClose}
+      onClose={close}
       title="Add virtual wireless interface"
       size="md"
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={busy}>
+          <Button variant="ghost" onClick={close} disabled={busy}>
             Cancel
           </Button>
           <Button variant="success" onClick={submit} disabled={busy}>
@@ -121,10 +136,24 @@ export function AddVirtualDialog({ interfaces, bridges, onClose, onCreate }: Pro
               options={bridgeOptions}
               value={bridge}
               onChange={setBridge}
-              placeholder={bridgeOptions.length > 0 ? 'Select a bridge' : 'No bridge available'}
+              placeholder={
+                bridgesError
+                  ? 'Failed to load bridges'
+                  : bridgeOptions.length > 0
+                    ? 'Select a bridge'
+                    : 'No bridge available'
+              }
               disabled={busy || bridgeOptions.length === 0}
               aria-label="Bridge"
             />
+            {bridgesError ? (
+              <Inline $gap="8px">
+                <FormError>{bridgesError}</FormError>
+                <Button size="sm" variant="ghost" onClick={onRetryBridges} disabled={busy}>
+                  Retry
+                </Button>
+              </Inline>
+            ) : null}
           </Label>
         </FieldRow>
         <FieldRow>
