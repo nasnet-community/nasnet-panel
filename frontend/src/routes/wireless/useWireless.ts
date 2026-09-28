@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@nasnet/ui';
 import {
   createVirtualWifiInterface,
@@ -101,7 +101,14 @@ export function useWireless(id: string | undefined) {
   const [bridges, setBridges] = useState<BridgeResponse[]>([]);
   const [bridgesError, setBridgesError] = useState<string | null>(null);
   const [deletingIface, setDeletingIface] = useState<Interface | null>(null);
+  const activeId = useRef(id);
   const toast = useToast();
+
+  useEffect(() => {
+    activeId.current = id;
+    setAddingVirtual(false);
+    setDeletingIface(null);
+  }, [id]);
 
   const creds = useMemo<WifiCredentials | null>(() => {
     if (!id) return null;
@@ -253,13 +260,16 @@ export function useWireless(id: string | undefined) {
 
   const createVirtual = async (request: CreateVirtualWifiRequest) => {
     if (!creds) return;
+    const requestId = id;
     try {
       const created = await createVirtualWifiInterface(creds, request);
+      if (activeId.current !== requestId) return;
       const next = toInterface(created);
       setInterfaces((prev) => [...prev.filter((i) => i.name !== next.name), next]);
       toast.notify({ title: `${next.name} created`, tone: 'success' });
       closeAddVirtual();
     } catch (err) {
+      if (activeId.current !== requestId) return;
       const message = err instanceof Error ? err.message : 'Failed to create virtual interface';
       toast.notify({ title: 'Create failed', description: message, tone: 'danger' });
     }
@@ -268,12 +278,15 @@ export function useWireless(id: string | undefined) {
   const confirmDeleteVirtual = async () => {
     if (!creds || !deletingIface) return;
     const name = deletingIface.name;
+    const requestId = id;
     setDeletingIface(null);
     try {
       await deleteVirtualWifiInterface(creds, name);
+      if (activeId.current !== requestId) return;
       setInterfaces((prev) => prev.filter((i) => i.name !== name));
       toast.notify({ title: `${name} deleted`, tone: 'success' });
     } catch (err) {
+      if (activeId.current !== requestId) return;
       const message = err instanceof Error ? err.message : 'Failed to delete virtual interface';
       toast.notify({ title: 'Delete failed', description: message, tone: 'danger' });
     }
