@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, Checkbox, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
+  deleteL2tpServer,
   deleteOvpnServer,
   deleteSstpServer,
   deleteWireguardInterface,
@@ -61,6 +62,8 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
   const deletePaired = pendingDelete ? ovpnPairedServer(pendingDelete, servers) : null;
 
   const sstpEnabled = servers.some((s) => s.protocol === 'sstp' && s.running);
+  const l2tpEnabled = servers.some((s) => s.protocol === 'l2tp' && s.running);
+  const disableLabel = pendingDisable?.protocol === 'l2tp' ? 'L2TP' : 'SSTP';
 
   const onCreated = () => {
     toast.notify({ title: 'VPN server created', tone: 'success' });
@@ -111,14 +114,18 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     const target = pendingDisable;
     setDisableSubmitting(true);
     try {
-      await deleteSstpServer(creds, deleteCertFiles);
+      if (target.protocol === 'l2tp') {
+        await deleteL2tpServer(creds);
+      } else {
+        await deleteSstpServer(creds, deleteCertFiles);
+      }
     } catch (err) {
       const message =
         err instanceof ApiError
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to disable SSTP server.';
+            : `Failed to disable ${target.protocol === 'l2tp' ? 'L2TP' : 'SSTP'} server.`;
       toast.notify({
         title: 'Failed to disable server',
         description: message,
@@ -211,6 +218,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
         <AddVpnServerDialog
           creds={creds}
           sstpEnabled={sstpEnabled}
+          l2tpEnabled={l2tpEnabled}
           onCancel={() => setAdding(false)}
           onCreated={onCreated}
         />
@@ -293,8 +301,8 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       />
       <ConfirmDialog
         open={!!pendingDisable}
-        title="Disable SSTP server"
-        description="Stop the SSTP server on this router? Firewall rules added for it are removed and clients can no longer connect over SSTP."
+        title={`Disable ${disableLabel} server`}
+        description={`Stop the ${disableLabel} server on this router? Firewall rules added for it are removed and clients can no longer connect over ${disableLabel}.`}
         confirmLabel={disableSubmitting ? 'Disabling…' : 'Disable'}
         destructive
         onConfirm={onConfirmDisable}
@@ -304,12 +312,14 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
           setDeleteCertFiles(false);
         }}
       >
-        <Checkbox
-          label="Also delete certificates and their files"
-          checked={deleteCertFiles}
-          disabled={disableSubmitting}
-          onChange={(e) => setDeleteCertFiles(e.target.checked)}
-        />
+        {pendingDisable?.protocol === 'sstp' ? (
+          <Checkbox
+            label="Also delete certificates and their files"
+            checked={deleteCertFiles}
+            disabled={disableSubmitting}
+            onChange={(e) => setDeleteCertFiles(e.target.checked)}
+          />
+        ) : null}
       </ConfirmDialog>
     </Stack>
   );

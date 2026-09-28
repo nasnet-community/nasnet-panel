@@ -9,7 +9,6 @@ import {
   listVPNUsers,
   type VPNClient,
   type VPNCredentials,
-  type VPNPeer,
   type VPNProtocol,
   type VPNServer,
   type VPNUserResponse,
@@ -36,7 +35,7 @@ export function VPNPage() {
   const [users, setUsers] = useState<VPNUserResponse[]>([]);
   const [peerCounts, setPeerCounts] = useState<Record<string, number>>({});
   const [loaded, setLoaded] = useState(false);
-  const peers: VPNPeer[] = [];
+  const [activeConnections, setActiveConnections] = useState<number | null>(null);
 
   const creds = useMemo<VPNCredentials | null>(() => {
     if (!id) return null;
@@ -105,12 +104,12 @@ export function VPNPage() {
       <StatsStrip
         clients={clients}
         servers={servers}
-        peers={peers}
+        activeConnections={activeConnections}
         protocols={protocols}
         loading={!loaded}
       />
       <ServersSection creds={creds} servers={servers} peerCounts={peerCounts} onChanged={reload} />
-      <ActiveConnectionsSection creds={creds} />
+      <ActiveConnectionsSection creds={creds} onCountChange={setActiveConnections} />
       <UsersSection creds={creds} users={users} onChanged={reload} />
       {/* <PeersSection routerId={id} peers={peers} servers={servers} onChanged={reload} /> */}
     </Stack>

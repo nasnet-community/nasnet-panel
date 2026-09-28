@@ -289,6 +289,16 @@ export function DHCPPage() {
     },
   ];
 
+  const sharedSubnets = useMemo(() => {
+    const byPrefix = new Map<string, string[]>();
+    for (const c of clients.data) {
+      const prefix = c.address.split('/')[0].split('.').slice(0, 3).join('.');
+      if (!/^\d+\.\d+\.\d+$/.test(prefix)) continue;
+      byPrefix.set(prefix, [...(byPrefix.get(prefix) ?? []), c.interface]);
+    }
+    return [...byPrefix].filter(([, ifaces]) => ifaces.length > 1);
+  }, [clients.data]);
+
   const clientColumns: DataTableColumn<DhcpClient>[] = [
     {
       key: 'interface',
@@ -390,6 +400,11 @@ export function DHCPPage() {
           </CardDescription>
         </CardHeader>
         {clients.error ? <div className={styles.errorBanner}>{clients.error}</div> : null}
+        {sharedSubnets.map(([prefix, ifaces]) => (
+          <div key={prefix} role="status" className={styles.warningBanner}>
+            {ifaces.join(', ')} share the {prefix}.x subnet. Change it on one upstream modem.
+          </div>
+        ))}
         {clients.loading ? (
           loadingRows(6)
         ) : clients.data.length === 0 ? (
