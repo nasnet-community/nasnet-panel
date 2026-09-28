@@ -2,6 +2,7 @@ import {
   fetchForeignGateway,
   fetchInterfaces,
   fetchNetStatus,
+  listVPNClients,
   type InterfaceResponse,
   type NetStatusEntry,
 } from '../../api';
@@ -74,11 +75,13 @@ export async function buildTopology(
   creds: Creds,
   signal?: AbortSignal,
 ): Promise<RoutingTopology> {
-  const [ifaces, foreignGateway, netStatus] = await Promise.all([
+  const [ifaces, foreignGateway, netStatus, vpnClients] = await Promise.all([
     fetchInterfaces(creds, signal),
     fetchForeignGateway(creds, signal).catch(() => null),
     fetchNetStatus(creds, signal).catch((): NetStatusEntry[] => []),
+    listVPNClients(creds, signal).catch(() => []),
   ]);
+  const pingByName = new Map(vpnClients.map((c) => [c.name, c.pingTime]));
 
   const isNetDown = (type: NetStatusEntry['type']) =>
     netStatus.some((e) => e.type === type && e.status === 'down');
@@ -130,6 +133,7 @@ export async function buildTopology(
       kind: 'vpn',
       label: vpn.comment?.trim() ? vpn.comment : vpn.name,
       protocol: TYPE_TO_PROTOCOL[vpn.type],
+      pingTime: pingByName.get(vpn.name),
     });
     if (vpnUpstream) {
       hops.push({

@@ -10,7 +10,7 @@ import {
 } from '@nasnet/ui';
 import type { WirelessSettings } from '../../api';
 
-const SECURITY_OPTIONS: Array<{ value: string; label: string }> = [
+export const SECURITY_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'wpa-psk', label: 'WPA-PSK' },
   { value: 'wpa2-psk', label: 'WPA2-PSK' },
   { value: 'wpa3-psk', label: 'WPA3-PSK' },

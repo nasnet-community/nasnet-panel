@@ -63,6 +63,9 @@ export {
   fetchWifiPassphrase,
   updateWifiPassphrase,
   scanWifiAccessPoints,
+  createVirtualWifiInterface,
+  deleteVirtualWifiInterface,
+  type CreateVirtualWifiRequest,
   type WifiCredentials,
   type WifiInterfaceResponse,
   type WifiConnectedClientResponse,
@@ -150,6 +153,7 @@ export {
   generateDiag,
   fetchDiagStatus,
   fetchDiagReport,
+  deleteDiagFile,
   DIAG_REPORT_FILENAME,
   type DiagStatusResponse,
 } from './diag';

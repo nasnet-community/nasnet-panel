@@ -29,6 +29,8 @@ export function mapClientFromBE(r: VPNClientResponse, routerId: string): VPNClie
     rxByte: r.rxByte,
     txByte: r.txByte,
     comment: r.comment,
+    pingTime: r.pingTime,
+    peerCount: r.peerCount,
   };
 }
 

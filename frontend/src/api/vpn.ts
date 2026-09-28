@@ -23,6 +23,8 @@ export interface VPNClientResponse {
   lastLinkDown: string;
   linkDowns: number;
   comment?: string;
+  pingTime?: string;
+  peerCount?: number;
 }
 
 export interface UpdateVPNClientRequest {

@@ -37,6 +37,14 @@ export async function fetchDiagStatus(
   });
 }
 
+export async function deleteDiagFile(creds: SystemCredentials): Promise<void> {
+  await apiRequest('/api/diag/file', {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+  });
+}
+
 export async function fetchDiagReport(creds: SystemCredentials): Promise<string> {
   const response = await fetch(`${BACKEND_URL}/api/diag/download`, {
     method: 'GET',
