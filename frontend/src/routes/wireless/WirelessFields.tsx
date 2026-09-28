@@ -10,7 +10,7 @@ import {
 } from '@nasnet/ui';
 import type { WirelessSettings } from '../../api';
 
-const SECURITY_OPTIONS: Array<{ value: string; label: string }> = [
+export const SECURITY_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'wpa-psk', label: 'WPA-PSK' },
   { value: 'wpa2-psk', label: 'WPA2-PSK' },
   { value: 'wpa3-psk', label: 'WPA3-PSK' },
@@ -24,9 +24,10 @@ const MODE_OPTIONS: Array<{ value: string; label: string }> = [
 interface Props {
   draft: WirelessSettings;
   onPatch: <K extends keyof WirelessSettings>(key: K, value: WirelessSettings[K]) => void;
+  hideMode?: boolean;
 }
 
-export function WirelessFields({ draft, onPatch }: Props) {
+export function WirelessFields({ draft, onPatch, hideMode }: Props) {
   const toggleType = (value: string, on: boolean) => {
     const next = on
       ? Array.from(new Set([...draft.securityTypes, value]))
@@ -54,15 +55,17 @@ export function WirelessFields({ draft, onPatch }: Props) {
           />
         </Label>
       </FieldRow>
-      <Label as="div">
-        <span>Mode</span>
-        <Select
-          options={MODE_OPTIONS}
-          value={draft.mode ?? 'ap'}
-          onChange={(v) => onPatch('mode', v)}
-          aria-label="Mode"
-        />
-      </Label>
+      {hideMode ? null : (
+        <Label as="div">
+          <span>Mode</span>
+          <Select
+            options={MODE_OPTIONS}
+            value={draft.mode ?? 'ap'}
+            onChange={(v) => onPatch('mode', v)}
+            aria-label="Mode"
+          />
+        </Label>
+      )}
       <Label as="div">
         <span>Security</span>
         <Inline $gap="16px">
