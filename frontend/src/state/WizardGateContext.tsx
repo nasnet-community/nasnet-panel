@@ -36,7 +36,11 @@ export const WizardGateProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         next = status.completed ? 'completed' : 'fresh';
       } catch (err) {
         if (isAbortError(err)) return;
-        next = err instanceof ApiError && err.status === 401 ? 'unknown' : 'unreachable';
+        if (err instanceof ApiError && (err.data as { failed?: boolean } | undefined)?.failed) {
+          next = 'fresh';
+        } else {
+          next = err instanceof ApiError && err.status === 401 ? 'unknown' : 'unreachable';
+        }
       }
       if (controller.signal.aborted) return;
       setStatuses((prev) => ({ ...prev, [activeRouterId]: next }));

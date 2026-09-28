@@ -493,6 +493,8 @@ export async function finalizeWizard(
 export interface WizardStatus {
   completed: boolean;
   progress: number;
+  failed?: boolean;
+  message?: string;
 }
 
 export async function fetchWizardStatus(

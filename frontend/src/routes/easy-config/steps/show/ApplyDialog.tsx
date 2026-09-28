@@ -8,6 +8,7 @@ interface Props {
   applying: boolean;
   applied: boolean;
   progress: number;
+  stage?: string;
   error: string | null;
   managementWifiSsid: string;
   managementWifiPassword: string;
@@ -21,6 +22,7 @@ export function ApplyDialog({
   applying,
   applied,
   progress,
+  stage,
   error,
   managementWifiSsid,
   managementWifiPassword,
@@ -38,8 +40,8 @@ export function ApplyDialog({
             <h2 id="apply-dialog-title" className={styles.applyTitle}>
               Applying configuration…
             </h2>
-            <p className={styles.applySubtitle}>
-              Running RouterOS commands via the batch executor.
+            <p className={styles.applySubtitle} aria-live="polite">
+              {stage || 'Running RouterOS commands via the batch executor.'}
             </p>
             <div className={styles.applyProgress}>
               <Progress value={progress} label="Progress" tone="success" />

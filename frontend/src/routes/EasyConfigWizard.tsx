@@ -138,6 +138,7 @@ export function EasyConfigWizard() {
         applying={state.applying}
         applied={state.applied}
         progress={state.progress}
+        stage={state.stage}
         error={state.error}
         managementWifiSsid={state.managementWifiSsid}
         managementWifiPassword={state.managementWifiPassword}
