@@ -119,6 +119,7 @@ type VPNServersStatusResponse struct {
 	OvpnServers []ServerStatusItem  `json:"ovpnServers"`
 	WireGuards  []ServerStatusItem  `json:"wireguards"`
 	Sstp        *SingleServerStatus `json:"sstp"`
+	L2tp        *SingleServerStatus `json:"l2tp"`
 }
 
 // OvpnServerDetailsResponse represents OpenVPN server configuration details.
