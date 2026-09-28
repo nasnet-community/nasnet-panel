@@ -167,6 +167,8 @@ export interface VPNClient {
   endpointPort?: number;
   username?: string;
   comment?: string;
+  pingTime?: string;
+  peerCount?: number;
 }
 
 export interface VPNServer {
@@ -238,6 +240,7 @@ export interface RoutingNode {
   wanKind?: RoutingWanKind;
   protocol?: VPNProtocol;
   subnet?: string;
+  pingTime?: string;
 }
 
 export interface RoutingHop {
