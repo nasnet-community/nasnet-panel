@@ -202,6 +202,7 @@
 
 .fileAction {
   display: flex;
+  gap: var(--space-sm);
 
   > * {
     flex: 1;

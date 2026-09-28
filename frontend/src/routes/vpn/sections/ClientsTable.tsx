@@ -72,6 +72,17 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
           render: (c: VPNClient) => <Badge tone="info">{c.protocol.toUpperCase()}</Badge>,
         },
         {
+          key: 'ping',
+          header: 'Ping',
+          render: (c: VPNClient) => c.pingTime || '–',
+        },
+        {
+          key: 'peers',
+          header: 'Peers',
+          render: (c: VPNClient) =>
+            c.protocol === 'wireguard' && c.peerCount !== undefined ? c.peerCount : '–',
+        },
+        {
           key: 'traffic',
           header: 'Traffic',
           render: (c: VPNClient) => {

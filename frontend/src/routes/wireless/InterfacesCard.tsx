@@ -1,5 +1,5 @@
-import { Wifi } from 'lucide-react';
-import { Card, CardDescription, CardHeader, CardTitle } from '@nasnet/ui';
+import { Plus, Wifi } from 'lucide-react';
+import { Button, Card, CardDescription, CardHeader, CardTitle } from '@nasnet/ui';
 import type { Interface, WirelessSettings } from '../../api';
 import styles from '../WirelessPage.module.scss';
 import { InterfaceRow } from './InterfaceRow';
@@ -9,9 +9,18 @@ interface Props {
   settings: WirelessSettings | null;
   onToggle: (ifaceName: string, running: boolean) => void;
   onEdit: (iface: Interface) => void;
+  onAddVirtual: () => void;
+  onDelete: (iface: Interface) => void;
 }
 
-export function InterfacesCard({ interfaces, settings, onToggle, onEdit }: Props) {
+export function InterfacesCard({
+  interfaces,
+  settings,
+  onToggle,
+  onEdit,
+  onAddVirtual,
+  onDelete,
+}: Props) {
   const total = interfaces.length;
   return (
     <Card>
@@ -20,6 +29,11 @@ export function InterfacesCard({ interfaces, settings, onToggle, onEdit }: Props
           <CardTitle>Wireless Interfaces</CardTitle>
           <CardDescription>SSID, password, band, and security.</CardDescription>
         </div>
+        {total > 0 ? (
+          <Button size="sm" variant="success" onClick={onAddVirtual}>
+            <Plus size={14} aria-hidden /> Add virtual
+          </Button>
+        ) : null}
       </CardHeader>
       {settings && total > 0 ? (
         <div className={styles.interfaceGrid}>
@@ -30,6 +44,7 @@ export function InterfacesCard({ interfaces, settings, onToggle, onEdit }: Props
               settings={settings}
               onToggle={(running) => onToggle(iface.name, running)}
               onEdit={onEdit}
+              onDelete={onDelete}
             />
           ))}
         </div>
