@@ -1,21 +1,26 @@
 import { Layers, Monitor, Server, Shield } from 'lucide-react';
 import { Badge, Inline, SectionGrid, Skeleton } from '@nasnet/ui';
-import type { VPNClient, VPNPeer, VPNProtocol, VPNServer } from '../../api';
+import type { VPNClient, VPNProtocol, VPNServer } from '../../api';
 import styles from '../VPNPage.module.scss';
 import { StatCard } from './StatCard';
 
 interface Props {
   clients: VPNClient[];
   servers: VPNServer[];
-  peers: VPNPeer[];
+  activeConnections: number | null;
   protocols: VPNProtocol[];
   loading?: boolean;
 }
 
-export function StatsStrip({ clients, servers, peers, protocols, loading = false }: Props) {
+export function StatsStrip({
+  clients,
+  servers,
+  activeConnections,
+  protocols,
+  loading = false,
+}: Props) {
   const activeTunnels = clients.filter((c) => c.enabled).length;
   const activeServers = servers.filter((s) => s.running).length;
-  const activePeers = peers.filter((p) => p.enabled).length;
 
   return (
     <SectionGrid>
@@ -58,21 +63,15 @@ export function StatsStrip({ clients, servers, peers, protocols, loading = false
       </StatCard>
 
       <StatCard icon={<Monitor size={14} />} tone="info" label="Clients">
-        {loading ? (
+        {activeConnections === null ? (
           <>
-            <Inline $gap="6px">
-              <Skeleton width={32} height={28} radius={4} />
-              <Skeleton width={20} height={18} radius={4} />
-            </Inline>
+            <Skeleton width={32} height={28} radius={4} />
             <Skeleton width={96} height={14} radius={4} />
           </>
         ) : (
           <>
-            <Inline $gap="6px">
-              <span className={styles.statValue}>{activePeers}</span>
-              <span className={styles.statAside}>/ {peers.length}</span>
-            </Inline>
-            <span className={styles.statHint}>Active clients</span>
+            <span className={styles.statValue}>{activeConnections}</span>
+            <span className={styles.statHint}>Active connections</span>
           </>
         )}
       </StatCard>
