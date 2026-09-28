@@ -22,6 +22,7 @@ export interface WifiInterfaceResponse {
   band?: string;
   securityType?: string;
   comment?: string;
+  isVirtual?: boolean;
 }
 
 export interface WifiConnectedClientResponse {
