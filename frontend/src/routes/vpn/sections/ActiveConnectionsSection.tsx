@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button, Card, ConfirmDialog, DataTable, Select, Stack, useToast } from '@nasnet/ui';
 import { Activity, Unplug } from 'lucide-react';
 import {
@@ -86,15 +86,17 @@ const matches = (r: ActiveConnection, q: string) =>
 interface Props {
   creds: VPNCredentials | null;
   server?: VPNServer;
+  onCountChange?: (count: number) => void;
 }
 
-export function ActiveConnectionsSection({ creds, server }: Props) {
+export function ActiveConnectionsSection({ creds, server, onCountChange }: Props) {
   const toast = useToast();
   const [rows, setRows] = useState<ActiveConnection[]>([]);
   const [pendingDisconnect, setPendingDisconnect] = useState<ActiveConnection | null>(null);
   const [disconnectSubmitting, setDisconnectSubmitting] = useState(false);
   const [service, setService] = useState('all');
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const disconnected = useRef(new Set<string>());
 
   const load = useCallback(async () => {
@@ -113,9 +115,14 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
       if (!present.has(k)) disconnected.current.delete(k);
     });
     setRows(next.filter((r) => !disconnected.current.has(r.key)));
+    setLoaded(true);
   }, [creds]);
 
   usePolling(load, 5000, !!creds);
+
+  useEffect(() => {
+    if (loaded) onCountChange?.(rows.length);
+  }, [loaded, rows.length, onCountChange]);
 
   const visible = useMemo(
     () =>
