@@ -68,6 +68,7 @@
     hide('modal-device');
     hide('modal-reboot');
     hide('modal-storage');
+    hide('modal-wifi');
     stopRebootTimer();
   }
 
@@ -153,6 +154,18 @@
       hide('modal-storage');
       App.ConfirmStorage('');
     });
+    $('btn-wifi-ok').addEventListener('click', function () {
+      var picked = document.querySelector('#wifi-list input[name="wifi"]:checked');
+      var password = $('wifi-password').value;
+      $('wifi-password').value = '';
+      hide('modal-wifi');
+      App.ConfirmWiFi(picked ? picked.value : '', password);
+    });
+    $('btn-wifi-no').addEventListener('click', function () {
+      $('wifi-password').value = '';
+      hide('modal-wifi');
+      App.ConfirmWiFi('', '');
+    });
     $('btn-reboot-ok').addEventListener('click', function () {
       setRebootWaiting(true);
       startRebootTimer();
@@ -196,6 +209,7 @@
       skipLanBaseline: $('skipLanBaseline').checked,
       dryRun: $('dryRun').checked,
       noRollback: $('noRollback').checked,
+      wifiUplink: $('wifiUplink').checked,
     };
   }
 
@@ -248,7 +262,7 @@
           );
           return null;
         }
-        return uninstall ? App.UninstallSteps() : App.InstallSteps();
+        return uninstall ? App.UninstallSteps() : App.InstallSteps(collectOptions());
       })
       .then(function (steps) {
         if (!steps) return null;
@@ -452,6 +466,30 @@
         list.appendChild(label);
       });
       show('modal-storage');
+    });
+
+    window.runtime.EventsOn('install:wifi', function (data) {
+      var list = $('wifi-list');
+      list.textContent = '';
+      var networks = (data && data.networks) || [];
+      networks.forEach(function (network, index) {
+        var label = document.createElement('label');
+        label.className = 'storage-option';
+        var radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'wifi';
+        radio.value = network.ssid;
+        radio.checked = index === 0;
+        var text = document.createElement('span');
+        var facts = [network.signal + ' dBm'];
+        if (network.security) facts.push(network.security);
+        text.textContent = network.ssid + ' (' + facts.join(', ') + ')';
+        label.appendChild(radio);
+        label.appendChild(text);
+        list.appendChild(label);
+      });
+      $('wifi-password').value = '';
+      show('modal-wifi');
     });
 
     window.runtime.EventsOn('install:reboot-auto', function (data) {

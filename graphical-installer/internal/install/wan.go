@@ -24,10 +24,10 @@ const wanProbeScript = `:local up ""; :local src ""; ` +
 	`:put ("B=" . [:len [/interface/bridge/port find where interface="ether1"]]); ` +
 	`:put ("L=" . [:len [/interface/bridge find where name="LANBridgeSplit"]])`
 
-// wanSeenOnEther1Script prints H=<n>, the number of bridge hosts on ether1 that carry
-// the MAC address of the given client IP. Non-zero means the installer is plugged into ether1.
-const wanSeenOnEther1Script = `:local mac ""; :do {:set mac [:tostr [/ip/arp get ([/ip/arp find where address=%s]->0) mac-address]]} on-error={}; ` +
-	`:local n 0; :if ($mac != "") do={:set n [:len [/interface/bridge/host find where mac-address=$mac on-interface="ether1"]]}; :put ("H=" . $n)`
+// installerSeenOnScript prints H=<n>, the number of bridge hosts on an interface that carry
+// the MAC address of the given client IP. Non-zero means the installer reaches the router through it.
+const installerSeenOnScript = `:local mac ""; :do {:set mac [:tostr [/ip/arp get ([/ip/arp find where address=%[1]s]->0) mac-address]]} on-error={}; ` +
+	`:local n 0; :if ($mac != "") do={:set n [:len [/interface/bridge/host find where mac-address=$mac on-interface="%[2]s"]]}; :put ("H=" . $n)`
 
 const wanEther1Script = `:foreach p in=[/interface/bridge/port find where interface="ether1"] do={/interface/bridge/port remove $p}; ` +
 	`/interface/list/member remove [find where list="LAN" interface="ether1"]; ` +
@@ -120,7 +120,7 @@ func (e *Engine) keepUplink(st wanState) error {
 
 func (e *Engine) useEther1(st wanState) error {
 	e.log("no uplink found, using %s as the WAN", wanPort)
-	if st.ether1Bridged && e.installerOnEther1() {
+	if st.ether1Bridged && e.installerOn(wanPort) {
 		return fmt.Errorf("this computer is connected to the router through %s, which the installer has to turn into the WAN port. Plug the computer into another LAN port of the router, then run the installer again", wanPort)
 	}
 	if e.opts.DryRun {
@@ -149,12 +149,12 @@ func (e *Engine) useEther1(st wanState) error {
 	return nil
 }
 
-func (e *Engine) installerOnEther1() bool {
+func (e *Engine) installerOn(iface string) bool {
 	ip := net.ParseIP(e.cl.LocalIP())
 	if ip == nil {
 		return false
 	}
-	out, err := e.cl.RunRaw(fmt.Sprintf(wanSeenOnEther1Script, ip.String()), 15*time.Second)
+	out, err := e.cl.RunRaw(fmt.Sprintf(installerSeenOnScript, ip.String(), iface), 15*time.Second)
 	if err != nil {
 		return false
 	}

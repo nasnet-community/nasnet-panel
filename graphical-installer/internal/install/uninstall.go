@@ -62,6 +62,7 @@ func (e *Engine) stepRemoveNetwork() error {
 	e.removeObj("nat "+commentTag+"-dstnat-https", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"))
 	e.removeObj("nat "+commentTag+"-container-dns-tcp", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-container-dns-tcp"))
 	e.removeObj("nat "+commentTag+"-container-dns-udp", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-container-dns-udp"))
+	e.removeObj("dhcp-client "+wifiUplinkTag, "/ip/dhcp-client", fmt.Sprintf("comment=%q", wifiUplinkTag))
 	e.removeObj("filter forward", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward"))
 	e.removeObj("filter forward-https", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward-https"))
 	e.removeObj("filter nasnet-panel-baseline-container-router", "/ip/firewall/filter", fmt.Sprintf("comment=%q", "nasnet-panel-baseline-container-router"))

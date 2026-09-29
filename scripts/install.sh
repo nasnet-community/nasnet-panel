@@ -60,6 +60,9 @@ IMAGE_TAR=""
 STORAGE_CHOICE=""
 LAN_PORT=8080
 HTTPS_LAN_PORT=8443
+WIFI_UPLINK=0
+WIFI_SSID=""
+WIFI_PASSWORD="${WIFI_PASSWORD:-}"
 
 ROUTER_IP=""
 ROUTER_USER=""
@@ -80,11 +83,14 @@ Usage: install.sh [options]
   --lan-port <port>    LAN port for dstnat to panel HTTP (default: 8080).
   --https-lan-port <port>  LAN port for dstnat to panel HTTPS (default: 8443).
   --no-lan-baseline    Skip the baseline LAN setup (192.168.10.1/24 on the existing LAN bridge).
+  --wifi-uplink        Join a WiFi network as the router uplink for the install, removed at the end.
+  --wifi-ssid <ssid>   WiFi network to join (default: pick from a scan).
+  --wifi-password <pw> WiFi password (default: prompt; empty for an open network).
   --no-rollback        Do not undo partial state on failure.
   -v, --verbose        Verbose output.
   -h, --help           This help.
 
-Env: SSHPASS may supply the router password.
+Env: SSHPASS may supply the router password, WIFI_PASSWORD the WiFi password.
 EOF
 }
 
@@ -119,6 +125,9 @@ while [[ $# -gt 0 ]]; do
     --lan-port)       LAN_PORT="${2:?--lan-port requires a port}"; shift ;;
     --https-lan-port) HTTPS_LAN_PORT="${2:?--https-lan-port requires a port}"; shift ;;
     --no-lan-baseline) NO_LAN_BASELINE=1 ;;
+    --wifi-uplink)   WIFI_UPLINK=1 ;;
+    --wifi-ssid)     WIFI_SSID="${2:?--wifi-ssid requires a name}"; WIFI_UPLINK=1; shift ;;
+    --wifi-password) WIFI_PASSWORD="${2?--wifi-password requires a value}"; WIFI_UPLINK=1; shift ;;
     --no-rollback) NO_ROLLBACK=1 ;;
     -v|--verbose)  VERBOSE=1 ;;
     -h|--help)     usage; exit 0 ;;
@@ -410,6 +419,9 @@ do_rollback() {
 on_exit() {
   local rc=$?
   tput cnorm 2>/dev/null || true
+  if (( rc != 0 )); then
+    remove_wifi_uplink || true
+  fi
   if [[ -n "${SSH_CONTROL_DIR:-}" && -d "${SSH_CONTROL_DIR:-}" ]]; then
     ssh -p "${SSH_PORT}" -o "ControlPath=${SSH_CONTROL_PATH}" -O exit \
         "${ROUTER_USER}@${ROUTER_IP}" >/dev/null 2>&1 || true
@@ -462,6 +474,294 @@ probe() {
   fi
 }
 
+# ---- WiFi uplink -----------------------------------------------------------
+WIFI_UPLINK_TAG="${COMMENT_TAG}-wifi-uplink"
+WIFI_JOIN_TIMEOUT=60
+WIFI_LEASE_TIMEOUT=45
+WIFI_ACTIVE=0
+WIFI_MENU=""
+WIFI_IFACE=""
+WIFI_BRIDGED=0
+WIFI_RADIOS=()
+WIFI_SAVED_PROPS=()
+WIFI_SAVED_VALS=()
+
+# Prints s as a double-quoted RouterOS string.
+ros_quote() {
+  local s="$1"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//\$/\\\$}"
+  s="${s//\?/\\?}"
+  printf '"%s"' "$s"
+}
+
+wifi_saved_props() {
+  if [[ "$1" == "/interface/wifi" ]]; then
+    printf '%s\n' configuration.mode configuration.ssid security.authentication-types security.passphrase disabled
+  else
+    printf '%s\n' mode ssid security-profile disabled
+  fi
+}
+
+# Sets WIFI_MENU and WIFI_RADIOS to the package menu and radios the router has.
+wifi_radios() {
+  local menu out line
+  for menu in /interface/wifi /interface/wireless; do
+    out="$(ros_cmd ":foreach i in=[${menu} find] do={:local m \"\"; :do {:set m [:tostr [${menu} get \$i master-interface]]} on-error={}; :if (\$m = \"\") do={:put (\"I=\" . [${menu} get \$i name])}}" 2>/dev/null || true)"
+    WIFI_RADIOS=()
+    while IFS= read -r line; do
+      line="$(trim "$line")"
+      [[ "$line" == I=?* ]] && WIFI_RADIOS+=("${line#I=}")
+    done <<< "$out"
+    if (( ${#WIFI_RADIOS[@]} > 0 )); then
+      WIFI_MENU="$menu"
+      return 0
+    fi
+  done
+  return 0
+}
+
+# Prints "<signal>\t<ssid>\t<security>\t<radio>" for each network a radio sees.
+wifi_scan_radio() {
+  local radio="$1" variant out line ssid="" raw field key value signal security found=0 fields
+  local variants=("duration=8s as-value")
+  [[ "$WIFI_MENU" == "/interface/wireless" ]] && variants=("background=yes rounds=1 as-value" "duration=8s as-value")
+  for variant in "${variants[@]}"; do
+    out="$(ros_cmd ":foreach r in=[${WIFI_MENU}/scan $(ros_quote "$radio") ${variant}] do={:put (\"N=\" . [:tostr (\$r->\"ssid\")]); :put (\"R=\" . [:tostr \$r])}" 2>/dev/null || true)"
+    while IFS= read -r line; do
+      line="$(trim "$line")"
+      case "$line" in
+        N=*) ssid="${line#N=}" ;;
+        R=*)
+          [[ -z "$ssid" ]] && continue
+          raw="${line#R=}"; signal=-100; security=""
+          IFS=';' read -r -a fields <<< "$raw"
+          for field in "${fields[@]}"; do
+            key="${field%%=*}"; value="${field#*=}"
+            case "$key" in
+              signal|sig|signal-strength)
+                value="${value%%[@/ ]*}"
+                [[ "$value" =~ ^-?[0-9]+$ ]] && signal="$value" ;;
+              security) security="$value" ;;
+              privacy) [[ -z "$security" && ( "$value" == "true" || "$value" == "yes" ) ]] && security="protected" ;;
+            esac
+          done
+          printf '%s\t%s\t%s\t%s\n' "$signal" "$ssid" "$security" "$radio"
+          ssid=""; found=1
+          ;;
+      esac
+    done <<< "$out"
+    (( found )) && return 0
+  done
+  return 0
+}
+
+installer_seen_on() {
+  local iface="$1" out
+  out="$(ros_cmd ":local ids [/user/active find where via=\"ssh\"]; :local mac \"\"; :if ([:len \$ids] > 0) do={:local a [/user/active get (\$ids->([:len \$ids] - 1)) address]; :do {:set mac [:tostr [/ip/arp get ([/ip/arp find where address=\$a]->0) mac-address]]} on-error={}}; :local n 0; :if (\$mac != \"\") do={:set n [:len [/interface/bridge/host find where mac-address=\$mac on-interface=$(ros_quote "$iface")]]}; :put (\"H=\" . \$n)" 2>/dev/null || true)"
+  printf '%s' "$out" | grep -qE '^[[:space:]]*H=[1-9]'
+}
+
+setup_wifi_uplink() {
+  local usable=() radio
+  wifi_radios
+  if (( ${#WIFI_RADIOS[@]} == 0 )); then
+    err "the WiFi uplink option is on, but the router has no WiFi interface (neither the wireless nor the wifi package is active)"
+    err "run the installer without --wifi-uplink and connect the router with a cable"
+    exit 1
+  fi
+  log "  router has WiFi (${WIFI_MENU#/interface/} package): ${WIFI_RADIOS[*]}"
+
+  for radio in "${WIFI_RADIOS[@]}"; do
+    if installer_seen_on "$radio"; then
+      log "  this computer is connected through ${radio}, so the installer does not use it"
+      continue
+    fi
+    usable+=("$radio")
+  done
+  if (( ${#usable[@]} == 0 )); then
+    err "this computer is connected to the router over WiFi, and the installer needs that radio for the uplink"
+    err "connect the computer to a LAN port with a cable, then run the installer again"
+    exit 1
+  fi
+
+  local scan="" sorted out=""
+  for radio in "${usable[@]}"; do
+    spin_out "scanning for WiFi networks on ${radio}" out wifi_scan_radio "$radio" || true
+    scan+="${out}"$'\n'
+  done
+  sorted="$(printf '%s' "$scan" | grep -v '^$' | sort -t $'\t' -k1,1nr | awk -F '\t' '!seen[$2]++')"
+
+  local sigs=() ssids=() secs=() ifaces=() signal ssid security iface
+  while IFS=$'\t' read -r signal ssid security iface; do
+    [[ -z "$ssid" ]] && continue
+    sigs+=("$signal"); ssids+=("$ssid"); secs+=("$security"); ifaces+=("$iface")
+  done <<< "$sorted"
+  if (( ${#ssids[@]} == 0 )); then
+    err "the router did not find any WiFi network. Move it closer to the access point, then run the installer again"
+    exit 1
+  fi
+
+  local pick=-1 i
+  if [[ -n "$WIFI_SSID" ]]; then
+    for (( i = 0; i < ${#ssids[@]}; i++ )); do
+      [[ "${ssids[i]}" == "$WIFI_SSID" ]] && { pick=$i; break; }
+    done
+    if (( pick < 0 )); then
+      err "the router cannot see the WiFi network \"${WIFI_SSID}\". Check the name and that the network is in range, then run the installer again"
+      exit 1
+    fi
+  elif [[ -t 0 ]]; then
+    log ""
+    log "  Pick the WiFi network for the uplink:"
+    for (( i = 0; i < ${#ssids[@]}; i++ )); do
+      if [[ -n "${secs[i]}" ]]; then
+        log "    $(( i + 1 )). ${ssids[i]} (${sigs[i]} dBm, ${secs[i]})"
+      else
+        log "    $(( i + 1 )). ${ssids[i]} (${sigs[i]} dBm)"
+      fi
+    done
+    local ans
+    while (( pick < 0 )); do
+      read -r -p "  Network [1-${#ssids[@]}]: " ans
+      if [[ "$ans" =~ ^[0-9]+$ ]] && (( ans >= 1 && ans <= ${#ssids[@]} )); then
+        pick=$(( ans - 1 ))
+      else
+        err "pick a number from 1 to ${#ssids[@]}"
+      fi
+    done
+  else
+    err "no terminal to pick a WiFi network from, pass --wifi-ssid"
+    exit 1
+  fi
+
+  ssid="${ssids[pick]}"; iface="${ifaces[pick]}"
+  if [[ -z "$WIFI_PASSWORD" && -z "$WIFI_SSID" && -t 0 ]]; then
+    read -r -s -p $'  \033[1m\xF0\x9F\x94\x91 WiFi password\033[0m \033[2m(empty for an open network)\033[0m: ' WIFI_PASSWORD; echo
+  fi
+
+  if (( DRY_RUN )); then
+    log "  [dry-run] would join \"${ssid}\" on ${iface} in station mode with a DHCP client"
+    return 0
+  fi
+  join_wifi "$iface" "$ssid" "$WIFI_PASSWORD"
+}
+
+join_wifi() {
+  local iface="$1" ssid="$2" password="$3" prop value sel
+  sel="[find name=$(ros_quote "$iface")]"
+  WIFI_IFACE="$iface"; WIFI_SAVED_PROPS=(); WIFI_SAVED_VALS=()
+  while IFS= read -r prop; do
+    value="$(ros_cmd ":put (\"V=\" . [:tostr [${WIFI_MENU} get ${sel} ${prop}]])" 2>/dev/null || true)"
+    value="$(printf '%s' "$value" | sed -n 's/^[[:space:]]*V=//p' | head -1)"
+    value="$(trim "$value")"
+    WIFI_SAVED_PROPS+=("$prop"); WIFI_SAVED_VALS+=("$value")
+  done <<< "$(wifi_saved_props "$WIFI_MENU")"
+  WIFI_ACTIVE=1
+
+  if ros_exists /interface/bridge/port "where interface=$(ros_quote "$iface") disabled=no"; then
+    if ! spin "${iface} out of its bridge while it is the uplink" \
+         ros_cmd "/interface/bridge/port disable [find where interface=$(ros_quote "$iface") disabled=no]"; then
+      err "could not take ${iface} out of its bridge"; exit 1
+    fi
+    WIFI_BRIDGED=1
+  fi
+
+  local cmd profile sec
+  if [[ "$WIFI_MENU" == "/interface/wifi" ]]; then
+    if [[ -n "$password" ]]; then
+      sec="security.authentication-types=wpa2-psk,wpa3-psk security.passphrase=$(ros_quote "$password")"
+    else
+      sec='security.authentication-types=""'
+    fi
+    cmd="/interface/wifi set ${sel} configuration.mode=station configuration.ssid=$(ros_quote "$ssid") ${sec} disabled=no"
+  else
+    profile="$(ros_quote "$WIFI_UPLINK_TAG")"
+    if [[ -n "$password" ]]; then
+      sec="mode=dynamic-keys authentication-types=wpa-psk,wpa2-psk wpa-pre-shared-key=$(ros_quote "$password") wpa2-pre-shared-key=$(ros_quote "$password")"
+    else
+      sec="mode=none"
+    fi
+    if ! spin "WiFi security profile" ros_cmd ":if ([:len [/interface/wireless/security-profiles find name=${profile}]] = 0) do={/interface/wireless/security-profiles add name=${profile}}; /interface/wireless/security-profiles set [find name=${profile}] ${sec}"; then
+      err "could not create the WiFi security profile"; exit 1
+    fi
+    cmd="/interface/wireless set ${sel} mode=station ssid=$(ros_quote "$ssid") security-profile=${profile} disabled=no"
+  fi
+  if ! spin "${iface} joining \"${ssid}\" in station mode" ros_cmd "$cmd"; then
+    err "could not set ${iface} to station mode"; exit 1
+  fi
+  if ! spin "DHCP client on ${iface}" ros_cmd ":if ([:len [/ip/dhcp-client find where interface=$(ros_quote "$iface")]] = 0) do={/ip/dhcp-client add interface=$(ros_quote "$iface") add-default-route=yes default-route-distance=1 use-peer-dns=yes use-peer-ntp=yes disabled=no comment=$(ros_quote "$WIFI_UPLINK_TAG")}"; then
+    err "could not add a DHCP client on ${iface}"; exit 1
+  fi
+
+  local elapsed=0 connected=0
+  while (( elapsed < WIFI_JOIN_TIMEOUT )); do
+    sleep 3; elapsed=$(( elapsed + 3 ))
+    if ros_exists "${WIFI_MENU}/registration-table" "where interface=$(ros_quote "$iface")"; then
+      connected=1; break
+    fi
+  done
+  if (( ! connected )); then
+    err "the router could not join the WiFi network \"${ssid}\" within ${WIFI_JOIN_TIMEOUT}s"
+    err "the password may be wrong or the network is out of range. Check both, then run the installer again"
+    exit 1
+  fi
+  printf '  \033[32m✓\033[0m %s is connected to "%s"\n' "$iface" "$ssid"
+
+  local status addr
+  elapsed=0
+  while (( elapsed < WIFI_LEASE_TIMEOUT )); do
+    status="$(trim "$(ros_cmd ":put [/ip/dhcp-client get [find where comment=$(ros_quote "$WIFI_UPLINK_TAG")] status]" 2>/dev/null || true)")"
+    if [[ "$status" == "bound" ]]; then
+      addr="$(trim "$(ros_cmd ":put [/ip/dhcp-client get [find where comment=$(ros_quote "$WIFI_UPLINK_TAG")] address]" 2>/dev/null || true)")"
+      printf '  \033[32m✓\033[0m %s has the address %s\n' "$iface" "$addr"
+      return 0
+    fi
+    sleep 3; elapsed=$(( elapsed + 3 ))
+  done
+  err "the router joined \"${ssid}\" but did not get an address from its DHCP server within ${WIFI_LEASE_TIMEOUT}s"
+  err "check the access point, then run the installer again"
+  exit 1
+}
+
+# Undoes join_wifi: removes the DHCP client, puts the radio settings and bridge
+# ports back, and drops the legacy security profile.
+remove_wifi_uplink() {
+  (( WIFI_ACTIVE )) || return 0
+  WIFI_ACTIVE=0
+  log ""
+  log "Removing the WiFi uplink on ${WIFI_IFACE} ..."
+  if ! ros_cmd ':put ok' >/dev/null 2>&1; then
+    err "could not reach the router to remove the WiFi uplink on ${WIFI_IFACE}"
+    err "remove the DHCP client commented ${WIFI_UPLINK_TAG} and set ${WIFI_IFACE} back to its old settings by hand"
+    return 0
+  fi
+  ros_cmd "/ip/dhcp-client remove [find where comment=$(ros_quote "$WIFI_UPLINK_TAG")]" >/dev/null 2>&1 || true
+
+  local sel i prop value cmd
+  sel="[find name=$(ros_quote "$WIFI_IFACE")]"
+  for (( i = 0; i < ${#WIFI_SAVED_PROPS[@]}; i++ )); do
+    prop="${WIFI_SAVED_PROPS[i]}"; value="${WIFI_SAVED_VALS[i]}"
+    if [[ "$prop" == "disabled" ]]; then
+      if [[ "$value" == "true" ]]; then value=yes; else value=no; fi
+      cmd="${WIFI_MENU} set ${sel} disabled=${value}"
+    elif [[ -n "$value" || "$WIFI_MENU" == "/interface/wireless" ]]; then
+      cmd="${WIFI_MENU} set ${sel} ${prop}=$(ros_quote "$value")"
+    else
+      cmd=":do {${WIFI_MENU} unset ${sel} ${prop}} on-error={}"
+    fi
+    ros_cmd "$cmd" >/dev/null 2>&1 || err "could not restore ${prop} on ${WIFI_IFACE}"
+  done
+  if [[ "$WIFI_MENU" == "/interface/wireless" ]]; then
+    ros_cmd "/interface/wireless/security-profiles remove [find name=$(ros_quote "$WIFI_UPLINK_TAG")]" >/dev/null 2>&1 || true
+  fi
+  if (( WIFI_BRIDGED )); then
+    ros_cmd "/interface/bridge/port enable [find where interface=$(ros_quote "$WIFI_IFACE")]" >/dev/null 2>&1 || true
+  fi
+  printf '  \033[32m✓\033[0m %s is back to its old settings\n' "$WIFI_IFACE"
+}
+
 # ---- WAN -------------------------------------------------------------------
 WAN_PORT="ether1"
 WAN_LEASE_TIMEOUT=30
@@ -469,10 +769,6 @@ WAN_LEASE_TIMEOUT=30
 # Reports the uplink the router already has: a WAN list member, an LTE
 # interface, or the interface holding the active default route, in that order.
 WAN_PROBE_SCRIPT=':local up ""; :local src ""; :do {:foreach m in=[/interface/list/member find where list="WAN" disabled=no] do={:if ($up = "") do={:set up [:tostr [/interface/list/member get $m interface]]; :set src "wan-list"}}} on-error={}; :if ($up = "") do={:do {:foreach i in=[/interface find where (name="lte1" || type="lte")] do={:if ($up = "") do={:set up [/interface get $i name]; :set src "lte"}}} on-error={}}; :if ($up = "") do={:do {:foreach r in=[/ip/route find where dst-address=0.0.0.0/0 active] do={:if ($up = "") do={:local g ""; :do {:set g [:tostr [/ip/route get $r immediate-gw]]} on-error={}; :local p [:find $g "%"]; :if ([:typeof $p] = "num") do={:set g [:pick $g ($p + 1) [:len $g]]}; :if ($g = "") do={:set g "default route"}; :set up $g; :set src "route"}}} on-error={}}; :put ("U=" . $up); :put ("S=" . $src); :put ("E=" . [:len [/interface find where name="ether1"]]); :put ("B=" . [:len [/interface/bridge/port find where interface="ether1"]]); :put ("L=" . [:len [/interface/bridge find where name="LANBridgeSplit"]])'
-
-# Prints H=<n>, the number of bridge hosts on ether1 that carry the MAC address
-# of this SSH session's client. Non-zero means the installer is plugged into ether1.
-WAN_SEEN_ON_ETHER1_SCRIPT=':local ids [/user/active find where via="ssh"]; :local mac ""; :if ([:len $ids] > 0) do={:local a [/user/active get ($ids->([:len $ids] - 1)) address]; :do {:set mac [:tostr [/ip/arp get ([/ip/arp find where address=$a]->0) mac-address]]} on-error={}}; :local n 0; :if ($mac != "") do={:set n [:len [/interface/bridge/host find where mac-address=$mac on-interface="ether1"]]}; :put ("H=" . $n)'
 
 WAN_ETHER1_SCRIPT=':foreach p in=[/interface/bridge/port find where interface="ether1"] do={/interface/bridge/port remove $p}; /interface/list/member remove [find where list="LAN" interface="ether1"]; :if ([:len [/ip/dhcp-client find where interface="ether1"]] = 0) do={/ip/dhcp-client add interface=ether1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment="nasnet-panel-baseline: WAN uplink"}'
 
@@ -484,6 +780,11 @@ wan_list_script() {
 prepare_wan() {
   log ""
   log "Preparing WAN ..."
+
+  if (( WIFI_UPLINK )); then
+    setup_wifi_uplink
+    return 0
+  fi
 
   local out=""
   if ! spin_out "reading the WAN setup" out ros_cmd "$WAN_PROBE_SCRIPT"; then
@@ -532,8 +833,7 @@ prepare_wan() {
 
   log "  no uplink found, using ${WAN_PORT} as the WAN"
   if (( ether1_bridged )); then
-    out="$(ros_cmd "$WAN_SEEN_ON_ETHER1_SCRIPT" 2>/dev/null || true)"
-    if printf '%s' "$out" | grep -qE '^[[:space:]]*H=[1-9]'; then
+    if installer_seen_on "$WAN_PORT"; then
       err "this computer is connected to the router through ${WAN_PORT}, which the installer has to turn into the WAN port"
       err "plug the computer into another LAN port of the router, then run the installer again"
       exit 1
@@ -1403,6 +1703,8 @@ main() {
   final_port="$(ros_cmd "/ip/firewall/nat/print detail where comment=\"${COMMENT_TAG}-dstnat\"" 2>/dev/null \
                   | sed -nE 's/.*dst-port=([0-9]+).*/\1/p' | head -1)"
   [[ -z "$final_port" ]] && final_port="$LAN_PORT"
+
+  remove_wifi_uplink
 
   if (( ! NO_LAN_BASELINE )); then
     setup_lan_baseline
