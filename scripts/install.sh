@@ -873,18 +873,19 @@ latest_release_tag() {
   local api="https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/releases/latest"
   local page="https://github.com/${GH_OWNER}/${GH_REPO}/releases/latest"
   local tag="" effective=""
+  local pattern='^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'
   tag="$(curl -fsSL --max-time 20 -H 'Accept: application/vnd.github+json' "$api" 2>/dev/null \
            | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 \
            | sed -E 's/.*"([^"]*)"$/\1/')" || tag=""
-  if [[ -z "$tag" ]]; then
-    v "GitHub API lookup failed, trying ${page}"
+  if [[ ! "$tag" =~ $pattern ]]; then
+    v "GitHub API lookup returned no usable tag, trying ${page}"
     effective="$(curl -fsSL --max-time 20 -o /dev/null -w '%{url_effective}' "$page" 2>/dev/null)" \
       || effective=""
     case "$effective" in
       */releases/tag/*) tag="${effective##*/releases/tag/}" ;;
     esac
   fi
-  [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]] || return 1
+  [[ "$tag" =~ $pattern ]] || return 1
   printf '%s\n' "$tag"
 }
 
