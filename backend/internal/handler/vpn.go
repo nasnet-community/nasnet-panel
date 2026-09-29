@@ -2463,6 +2463,14 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard peers", err)
 	}
 
+	usedPeerNames := make(map[string]struct{}, len(existingPeers))
+	for j := range existingPeers {
+		if existingPeers[j].Name != "" {
+			usedPeerNames[existingPeers[j].Name] = struct{}{}
+		}
+	}
+	nextPeerIndex := len(existingPeers) + 1
+
 	var peerNames []string
 	var skippedDuplicatePeers []string
 	for i := range cfg.Peers {
@@ -2498,7 +2506,17 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		}
 
 		persistentKeepalive := int(peer.PersistentKeepalive)
-		peerName := fmt.Sprintf("%s-peer%d", wg.Name, len(existingPeers)+1)
+
+		var peerName string
+		for {
+			candidate := fmt.Sprintf("%s-peer%d", wg.Name, nextPeerIndex)
+			nextPeerIndex++
+			if _, used := usedPeerNames[candidate]; !used {
+				peerName = candidate
+				break
+			}
+		}
+		usedPeerNames[peerName] = struct{}{}
 
 		config := routeros.WireGuardPeerConfig{
 			InterfaceName:       wg.Name,
@@ -2523,7 +2541,7 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
 		}
 
-		existingPeers = append(existingPeers, routeros.WireGuardPeerInfo{PublicKey: publicKey})
+		existingPeers = append(existingPeers, routeros.WireGuardPeerInfo{Name: peerName, PublicKey: publicKey})
 		peerNames = append(peerNames, peerName)
 	}
 
