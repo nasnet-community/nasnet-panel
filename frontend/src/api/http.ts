@@ -12,6 +12,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public readonly status: number,
+    public readonly data?: unknown,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -59,7 +60,7 @@ export async function apiRequest<T>(path: string, init: ApiRequestInit = {}): Pr
     if (response.status === 401 && !skipAuthRedirect) {
       unauthorizedHandler?.(headers.get('X-RouterOS-Host'));
     }
-    throw new ApiError(message, response.status);
+    throw new ApiError(message, response.status, body?.data);
   }
 
   if (body && body.data !== undefined) return body.data;
