@@ -39,7 +39,7 @@ export function loadChatwoot(): Promise<void> {
     win.chatwootSettings = {
       position: 'right',
       type: 'standard',
-      launcherTitle: '',
+      launcherTitle: 'نس‌نت پنل - میکروتیک',
       enableFileUpload: true,
     };
     const script = document.createElement('script');
