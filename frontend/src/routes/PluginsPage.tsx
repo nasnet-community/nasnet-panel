@@ -147,7 +147,7 @@ function CardSkeleton() {
 export function PluginsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
-  const { getCredentials } = useSession();
+  const { getCredentials, activeRouterId } = useSession();
   const { plugins: installedPlugins, markInstalled, markUninstalled } = useInstalledPlugins();
   const toast = useToast();
 
@@ -179,9 +179,11 @@ export function PluginsPage() {
     setLoading(true);
   }, [id]);
 
+  // The store follows the session's active router, which is set in an effect after
+  // this page first renders with a new :id, so ignore it until the two agree.
   const installedIds = useMemo(
-    () => new Set(installedPlugins.map((p) => p.id)),
-    [installedPlugins],
+    () => new Set(activeRouterId === id ? installedPlugins.map((p) => p.id) : []),
+    [activeRouterId, id, installedPlugins],
   );
 
   const creds = useMemo<PluginCredentials | null>(() => {

@@ -19,12 +19,17 @@ interface InstalledPluginsContextValue {
 
 const Ctx = createContext<InstalledPluginsContextValue | null>(null);
 
+const NO_PLUGINS: InstalledPluginResponse[] = [];
+
 export const InstalledPluginsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { activeRouterId, getCredentials } = useSession();
   const router = useRouter(activeRouterId ?? undefined);
   const host = router?.host;
   const creds = activeRouterId ? getCredentials(activeRouterId) : undefined;
   const [plugins, setPlugins] = useState<InstalledPluginResponse[]>([]);
+  // The router `plugins` belongs to. It lags `activeRouterId` by one render on a
+  // switch, and never catches up for a router without stored credentials.
+  const [loadedRouterId, setLoadedRouterId] = useState<string | null>(null);
   const loadedRef = useRef<string | null>(null);
   const mutationRef = useRef(0);
 
@@ -33,6 +38,7 @@ export const InstalledPluginsProvider: React.FC<{ children: React.ReactNode }> =
     if (loadedRef.current !== activeRouterId) {
       if (loadedRef.current !== null) setPlugins([]);
       loadedRef.current = activeRouterId;
+      setLoadedRouterId(activeRouterId);
     }
     const mutation = mutationRef.current;
     const controller = new AbortController();
@@ -60,8 +66,12 @@ export const InstalledPluginsProvider: React.FC<{ children: React.ReactNode }> =
   }, []);
 
   const value = useMemo(
-    () => ({ plugins, markInstalled, markUninstalled }),
-    [plugins, markInstalled, markUninstalled],
+    () => ({
+      plugins: loadedRouterId === activeRouterId ? plugins : NO_PLUGINS,
+      markInstalled,
+      markUninstalled,
+    }),
+    [loadedRouterId, activeRouterId, plugins, markInstalled, markUninstalled],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
