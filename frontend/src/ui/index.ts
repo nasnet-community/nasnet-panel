@@ -2,8 +2,8 @@ export { theme, themeDark, themeLight, themes } from './theme';
 export type { AppTheme, ThemeMode } from './theme';
 export { GlobalStyle } from './GlobalStyle';
 
-export { Button } from './primitives/Button';
-export type { ButtonProps } from './primitives/Button';
+export { Button, ButtonLink } from './primitives/Button';
+export type { ButtonProps, ButtonLinkProps } from './primitives/Button';
 export { Card, CardHeader, CardTitle, CardDescription, CardFooter } from './primitives/Card';
 export { Input, Textarea, Label, FieldRow, FieldStack, FormError } from './primitives/Input';
 export { Select } from './primitives/Select';

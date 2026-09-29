@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Blocks, Download, RefreshCw, Trash2, TriangleAlert } from 'lucide-react';
+import { Blocks, Download, ExternalLink, RefreshCw, Trash2, TriangleAlert } from 'lucide-react';
 import {
   Badge,
   Button,
+  ButtonLink,
   ConfirmDialog,
   EmptyState,
   PageShell,
@@ -18,6 +19,7 @@ import {
   fetchPluginInstallStatus,
   fetchPluginUpdateStatus,
   installPlugin,
+  pluginViewUrl,
   uninstallPlugin,
   updatePlugin,
   type PluginCredentials,
@@ -145,8 +147,8 @@ function CardSkeleton() {
 export function PluginsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
-  const { getCredentials } = useSession();
-  const { markInstalled, markUninstalled } = useInstalledPlugins();
+  const { getCredentials, activeRouterId } = useSession();
+  const { plugins: installedPlugins, markInstalled, markUninstalled } = useInstalledPlugins();
   const toast = useToast();
 
   const [plugins, setPlugins] = useState<PluginInfoResponse[]>([]);
@@ -176,6 +178,13 @@ export function PluginsPage() {
     setContainerSupport(null);
     setLoading(true);
   }, [id]);
+
+  // The store follows the session's active router, which is set in an effect after
+  // this page first renders with a new :id, so ignore it until the two agree.
+  const installedIds = useMemo(
+    () => new Set(activeRouterId === id ? installedPlugins.map((p) => p.id) : []),
+    [activeRouterId, id, installedPlugins],
+  );
 
   const creds = useMemo<PluginCredentials | null>(() => {
     if (!id) return null;
@@ -440,6 +449,9 @@ export function PluginsPage() {
             const installing = Boolean(localInstall) || plugin.installing;
             const updating = Boolean(localUpdate);
             const progress = localInstall ?? localUpdate;
+            // The registry list lags a just-finished install until the next reload,
+            // so the installed-plugins store also counts.
+            const installed = plugin.installed || installedIds.has(plugin.id);
             return (
               <article key={plugin.id} className={styles.card}>
                 <div className={styles.cardTop}>
@@ -484,8 +496,19 @@ export function PluginsPage() {
                     <Button variant="primary" size="sm" loading>
                       Updating…
                     </Button>
-                  ) : plugin.installed ? (
+                  ) : installed ? (
                     <div className={styles.cardButtons}>
+                      {plugin.failed ? null : (
+                        <ButtonLink
+                          variant="primary"
+                          size="sm"
+                          href={pluginViewUrl(plugin.id)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink size={14} aria-hidden /> Open
+                        </ButtonLink>
+                      )}
                       {plugin.updateAvailable ? (
                         <Button
                           variant="success"
