@@ -10,7 +10,7 @@ const BASE_URL = (
 const WEBSITE_TOKEN =
   typeof __CHATWOOT_WEBSITE_TOKEN__ === 'string'
     ? __CHATWOOT_WEBSITE_TOKEN__
-    : '6bf25JZcWyhrbtLMgiv4oNuy';
+    : 'TSZHw92QX8r6RKPMc6739EXf';
 
 interface ChatwootApi {
   toggle: (state?: 'open' | 'close') => void;
