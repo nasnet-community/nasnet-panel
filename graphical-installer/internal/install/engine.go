@@ -154,6 +154,7 @@ func InstallStepList() []StepInfo {
 	return []StepInfo{
 		{ID: "connect", Title: "Connect to router"},
 		{ID: "check", Title: "Check system"},
+		{ID: "prepare-wan", Title: "Prepare WAN"},
 		{ID: "update-ros", Title: "Update RouterOS"},
 		{ID: "device-mode", Title: "Enable container support"},
 		{ID: "download", Title: "Download image"},
@@ -178,6 +179,7 @@ func (e *Engine) Run() error {
 	steps := []step{
 		{"connect", e.stepConnect},
 		{"check", e.stepCheck},
+		{"prepare-wan", e.stepPrepareWAN},
 		{"update-ros", e.stepUpdateROS},
 		{"device-mode", e.stepDeviceMode},
 		{"download", e.stepDownload},
