@@ -1175,7 +1175,7 @@ func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error
 
 // HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
-// @Description Create a new WireGuard client interface with the specified configuration
+// @Description Create a new WireGuard client interface with the specified configuration. Returns 409 if a WireGuard client interface with the same private key and IP address already exists.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -1183,6 +1183,7 @@ func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error
 // @Produce json
 // @Success 200 {object} Response{data=WireGuardClientCreateResponse}
 // @Failure 400 {object} Response
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/wireguard/client [post].
 func HandleCreateWireGuardClient(c echo.Context) error {
@@ -1210,6 +1211,30 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	if req.PersistentKeepalive != nil && *req.PersistentKeepalive <= 0 {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
+
+	if req.InterfacePrivateKey != nil && *req.InterfacePrivateKey != "" && req.InterfaceLocalAddress != "" {
+		existingInterfaces, err := client.ListWireGuards()
+		if err == nil {
+			for i := range existingInterfaces {
+				if !strings.HasSuffix(existingInterfaces[i].Name, "-wg-client") {
+					continue
+				}
+				if existingInterfaces[i].PrivateKey != *req.InterfacePrivateKey {
+					continue
+				}
+				addrs, err := client.GetIPAddressesByInterface(existingInterfaces[i].Name)
+				if err != nil {
+					continue
+				}
+				for _, a := range addrs {
+					if a.Address == req.InterfaceLocalAddress {
+						return ErrorResponse(c, http.StatusConflict, "A WireGuard interface with this private key and IP address already exists", nil)
+					}
+				}
+			}
+		}
+	}
+
 	var interfaceName string
 	if req.Name != "" {
 		interfaceName = req.Name
