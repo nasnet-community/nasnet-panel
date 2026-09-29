@@ -182,6 +182,13 @@
     });
   }
 
+  // An empty version makes the installer look up the latest tagged release.
+  function versionFor(source) {
+    if (source === 'release') return val('version');
+    if (source === 'snapshot') return 'snapshot';
+    return '';
+  }
+
   function collectOptions() {
     var source = document.querySelector('input[name="source"]:checked').value;
     return {
@@ -189,7 +196,7 @@
       sshPort: num('sshPort', 22),
       user: val('user') || 'admin',
       password: $('password').value,
-      version: source === 'release' ? val('version') : '',
+      version: versionFor(source),
       imageTar: source === 'local' ? tarPath : '',
       lanPort: num('lanPort', 8080),
       httpsLanPort: num('httpsLanPort', 8443),
