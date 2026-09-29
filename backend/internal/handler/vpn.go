@@ -2545,6 +2545,7 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		InterfaceName:           wg.Name,
 		InterfaceIP:             address,
 		PeerNames:               peerNames,
+		ImportedPeerCount:       len(peerNames),
 		ReusedExistingInterface: reusedExistingInterface,
 		SkippedDuplicatePeers:   skippedDuplicatePeers,
 	}

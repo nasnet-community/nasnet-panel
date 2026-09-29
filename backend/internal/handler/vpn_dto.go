@@ -547,6 +547,7 @@ type ImportWireGuardConfigResponse struct {
 	InterfaceName           string   `json:"interfaceName"`
 	InterfaceIP             string   `json:"interfaceIP"`
 	PeerNames               []string `json:"peerNames"`
+	ImportedPeerCount       int      `json:"importedPeerCount"`
 	ReusedExistingInterface bool     `json:"reusedExistingInterface"`
 	SkippedDuplicatePeers   []string `json:"skippedDuplicatePeers"`
 }
