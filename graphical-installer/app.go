@@ -68,7 +68,7 @@ func (a *App) SelectImageTar() (string, error) {
 	})
 }
 
-func (a *App) InstallSteps(opts install.Options) []install.StepInfo {
+func (*App) InstallSteps(opts install.Options) []install.StepInfo {
 	return install.InstallStepList(opts)
 }
 
@@ -160,7 +160,7 @@ func (a *App) events(ctx context.Context) install.Events {
 			}
 		},
 		WiFiPrompt: func(networks []install.WiFiNetwork) (install.WiFiChoice, bool) {
-			runtime.EventsEmit(a.ctx, "install:wifi", map[string]any{"networks": networks})
+			runtime.EventsEmit(a.ctx, "install:wifi", map[string]any{"networks": networks}) //nolint:contextcheck // Wails events go on the app context, like the other prompts
 			select {
 			case v := <-a.wifiCh:
 				if v == nil {

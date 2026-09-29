@@ -155,7 +155,8 @@ func New(ctx context.Context, opts Options, ev Events) *Engine {
 	return &Engine{opts: opts, ev: ev, ctx: ctx}
 }
 
-func InstallStepList(opts Options) []StepInfo {
+// InstallStepList returns the install steps for opts, including the WiFi uplink steps when it is on.
+func InstallStepList(opts Options) []StepInfo { //nolint:revive // existing name, paired with UninstallStepList
 	wan := StepInfo{ID: "prepare-wan", Title: "Prepare WAN"}
 	if opts.WiFiUplink {
 		wan.Title = "Connect WiFi uplink"

@@ -15,6 +15,7 @@ const (
 	wifiLeaseTimeout = 45 * time.Second
 )
 
+// WiFiNetwork is one network the router saw in a scan, on the radio that saw it best.
 type WiFiNetwork struct {
 	SSID      string `json:"ssid"`
 	Signal    int    `json:"signal"`
@@ -22,6 +23,7 @@ type WiFiNetwork struct {
 	Interface string `json:"interface"`
 }
 
+// WiFiChoice is the network the user picked and its password, empty for an open network.
 type WiFiChoice struct {
 	SSID     string `json:"ssid"`
 	Password string `json:"password"`
@@ -81,20 +83,20 @@ func (e *Engine) redact(s string) string {
 	return s
 }
 
-func (e *Engine) wifiRadios() (wifiPkg, []string) {
-	for _, pkg := range []wifiPkg{wifiNew, wifiLegacy} {
-		out, err := e.cl.RunChecked(fmt.Sprintf(`:foreach i in=[%[1]s find] do={:local m ""; :do {:set m [:tostr [%[1]s get $i master-interface]]} on-error={}; :if ($m = "") do={:put ("I=" . [%[1]s get $i name])}}`, pkg.menu()), 15*time.Second)
+func (e *Engine) wifiRadios() (pkg wifiPkg, radios []string) {
+	for _, p := range []wifiPkg{wifiNew, wifiLegacy} {
+		out, err := e.cl.RunChecked(fmt.Sprintf(`:foreach i in=[%[1]s find] do={:local m ""; :do {:set m [:tostr [%[1]s get $i master-interface]]} on-error={}; :if ($m = "") do={:put ("I=" . [%[1]s get $i name])}}`, p.menu()), 15*time.Second)
 		if err != nil {
 			continue
 		}
-		var radios []string
+		radios = nil
 		for _, line := range strings.Split(out, "\n") {
 			if name, ok := strings.CutPrefix(strings.TrimSpace(line), "I="); ok && name != "" {
 				radios = append(radios, name)
 			}
 		}
 		if len(radios) > 0 {
-			return pkg, radios
+			return p, radios
 		}
 	}
 	return 0, nil
