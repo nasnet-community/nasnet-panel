@@ -23,6 +23,7 @@ type App struct {
 	deviceCh  chan bool
 	rebootCh  chan bool
 	storageCh chan string
+	wifiCh    chan *install.WiFiChoice
 }
 
 func NewApp() *App {
@@ -67,8 +68,8 @@ func (a *App) SelectImageTar() (string, error) {
 	})
 }
 
-func (a *App) InstallSteps() []install.StepInfo {
-	return install.InstallStepList()
+func (a *App) InstallSteps(opts install.Options) []install.StepInfo {
+	return install.InstallStepList(opts)
 }
 
 func (a *App) UninstallSteps() []install.StepInfo {
@@ -98,6 +99,7 @@ func (a *App) start(opts install.Options, uninstall bool) error {
 	a.deviceCh = make(chan bool, 1)
 	a.rebootCh = make(chan bool, 1)
 	a.storageCh = make(chan string, 1)
+	a.wifiCh = make(chan *install.WiFiChoice, 1)
 
 	eng := install.New(ctx, opts, a.events(ctx))
 	go func() {
@@ -157,6 +159,18 @@ func (a *App) events(ctx context.Context) install.Events {
 				return ""
 			}
 		},
+		WiFiPrompt: func(networks []install.WiFiNetwork) (install.WiFiChoice, bool) {
+			runtime.EventsEmit(a.ctx, "install:wifi", map[string]any{"networks": networks})
+			select {
+			case v := <-a.wifiCh:
+				if v == nil {
+					return install.WiFiChoice{}, false
+				}
+				return *v, true
+			case <-ctx.Done():
+				return install.WiFiChoice{}, false
+			}
+		},
 		RebootNotice: func(reason string) {
 			runtime.EventsEmit(a.ctx, "install:reboot-auto", map[string]any{"reason": reason})
 		},
@@ -200,6 +214,23 @@ func (a *App) ConfirmStorage(name string) {
 	if ch != nil {
 		select {
 		case ch <- name:
+		default:
+		}
+	}
+}
+
+// ConfirmWiFi answers the WiFi network prompt. An empty SSID aborts the install.
+func (a *App) ConfirmWiFi(ssid, password string) {
+	a.mu.Lock()
+	ch := a.wifiCh
+	a.mu.Unlock()
+	var choice *install.WiFiChoice
+	if ssid != "" {
+		choice = &install.WiFiChoice{SSID: ssid, Password: password}
+	}
+	if ch != nil {
+		select {
+		case ch <- choice:
 		default:
 		}
 	}
