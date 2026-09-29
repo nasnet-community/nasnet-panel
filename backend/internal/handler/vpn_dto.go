@@ -548,6 +548,7 @@ type ImportWireGuardConfigResponse struct {
 	InterfaceIP             string   `json:"interfaceIP"`
 	PeerNames               []string `json:"peerNames"`
 	ReusedExistingInterface bool     `json:"reusedExistingInterface"`
+	SkippedDuplicatePeers   []string `json:"skippedDuplicatePeers"`
 }
 
 // CreateOvpnServerRequest represents a request to create an OpenVPN server with client certificate.
