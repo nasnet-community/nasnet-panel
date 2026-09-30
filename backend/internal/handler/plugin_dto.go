@@ -24,6 +24,7 @@ type PluginInfo struct {
 	Tagline          string `json:"tagline"`
 	URL              string `json:"url"`
 	CanInstall       bool   `json:"canInstall"`
+	Visible          bool   `json:"visible"`
 	Icon             string `json:"icon"`
 	Installed        bool   `json:"installed"`
 	InstalledVersion string `json:"installedVersion,omitempty"`
