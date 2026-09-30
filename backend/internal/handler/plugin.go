@@ -372,8 +372,9 @@ func (l *pluginLifecycle) acquire(pluginID string, op pluginLifecycleOp) (func()
 // @Description Fetches the community plugin registry and returns the list of available
 // @Description plugins, each annotated with installed/running status from the router's
 // @Description own containers (a plugin is installed as a container named after its id).
-// @Description Only plugins with visible=true in the registry are included; hidden plugins
-// @Description can still be installed directly and are unaffected by this filter.
+// @Description In production builds only plugins with visible=true in the registry are
+// @Description included; dev builds list every plugin. Hidden plugins can still be installed
+// @Description directly and are unaffected by this filter.
 // @Tags Plugin
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -413,17 +414,9 @@ func HandleListPlugins(c echo.Context) error {
 		}
 	}
 
-	plugins := finalizePlugins(registry.Plugins, containers)
-	visiblePlugins := make([]PluginInfo, 0, len(plugins))
-	for i := range plugins {
-		if plugins[i].Visible {
-			visiblePlugins = append(visiblePlugins, plugins[i])
-		}
-	}
-
 	return SuccessResponse(c, http.StatusOK, "Plugins retrieved", PluginListResponse{
 		ContainerSupport: containerSupport,
-		Plugins:          visiblePlugins,
+		Plugins:          filterVisiblePlugins(finalizePlugins(registry.Plugins, containers)),
 	})
 }
 
