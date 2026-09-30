@@ -19,7 +19,7 @@ The router must also be reachable on the RouterOS API port (8291) and SSH port (
 
 The `install.sh` script performs the entire deployment end-to-end: it probes the router, verifies prerequisites, enables device-mode if required, downloads the prebuilt container image tar for the router's architecture, uploads it, configures the networking and firewall rules, creates and starts the container, then polls the panel's health endpoint until it responds.
 
-By default it installs the latest snapshot, published as ready-to-use RouterOS tars on the rolling `snapshot` release. The build pipeline packages these (with `skopeo`) so nothing needs converting locally. Pass `--version <tag>` to install a tagged release instead, or `--image-tar <path>` to use a local tar and skip the download entirely.
+By default it looks up the latest tagged release on GitHub and installs it; if that lookup fails, the script stops with an error instead of guessing. Each release carries ready-to-use RouterOS tars, which the build pipeline packages (with `skopeo`), so nothing needs converting locally. Pass `--version <tag>` to install a specific release, `--version snapshot` to install the development snapshot from the rolling `snapshot` release, or `--image-tar <path>` to use a local tar and skip the download entirely.
 
 ### Local prerequisites
 
@@ -79,7 +79,7 @@ SSHPASS=secret bash install.sh --config router.env
 | `--dry-run`          | Print every action the script would take, change nothing.               |
 | `--uninstall`        | Stop and remove the container, networking, NAT rules, and uploaded tar. |
 | `--config <file>`    | Read `ROUTER_IP`, `ROUTER_USER`, and `ROUTER_PASS` from an env file.    |
-| `--version <tag>`    | Release tag to install (default: `snapshot`).                           |
+| `--version <tag>`    | Release tag to install, or `snapshot` (default: the latest release).    |
 | `--image-tar <path>` | Use a local tar instead of downloading a release asset.                 |
 | `--lan-port <port>`  | LAN port for the panel (default: 8080).                                 |
 | `--no-lan-baseline`  | Skip the baseline LAN setup (see below).                                |
