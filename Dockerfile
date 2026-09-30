@@ -12,7 +12,7 @@ ENV BACKEND_URL=""
 RUN npm run build
 
 # Build the Go backend with the embedded SPA
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS gobuilder
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS gobuilder
 ARG TARGETOS TARGETARCH TARGETVARIANT
 # Overridden by the release/snapshot workflows; the default only applies to
 # ad-hoc local builds that pass no --build-arg.
