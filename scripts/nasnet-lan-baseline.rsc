@@ -116,37 +116,54 @@
 
     :if (!$layoutPresent) do={
         :onerror err in={
-            :if ([:len [/interface find name=$wanPort]] = 0) do={
-                :error ($wanPort . " does not exist on this router")
+            :local wanUplink ""
+            :foreach m in=[/interface/list/member find where list=WAN disabled=no] do={
+                :if ($wanUplink = "") do={ :set wanUplink [:tostr [/interface/list/member get $m interface]] }
             }
-            :local alreadyWan false
-            :if ([:len [/ip/dhcp-client find interface=$wanPort]] > 0) do={ :set alreadyWan true }
-            :if ([:len [/interface/list/member find list=WAN interface=$wanPort]] > 0) do={ :set alreadyWan true }
-            :onerror ignore in={
-                :if ([:len [/interface/pppoe-client find interface=$wanPort]] > 0) do={ :set alreadyWan true }
-            } do={}
-            :onerror ignore in={
-                :if ([:len [/interface/macvlan find interface=$wanPort]] > 0) do={ :set alreadyWan true }
-            } do={}
+            :if ($wanUplink = "") do={
+                :foreach i in=[/interface find where (name="lte1" || type="lte")] do={
+                    :if ($wanUplink = "") do={ :set wanUplink [/interface get $i name] }
+                }
+            }
+            :if (($wanUplink = "") && ([:len [/ip/route find where dst-address=0.0.0.0/0 active]] > 0)) do={
+                :set wanUplink "the default route"
+            }
 
-            :foreach p in=[/interface/bridge/port find interface=$wanPort] do={
-                :local pb [/interface/bridge/port get $p bridge]
-                :log info ("nasnet-panel: taking " . $wanPort . " out of bridge " . $pb . " to use it as WAN")
-                /interface/bridge/port remove $p
-            }
-            :if ([:len [/interface/list/member find list=LAN interface=$wanPort]] > 0) do={
-                /interface/list/member remove [find list=LAN interface=$wanPort]
-            }
-            :if ([:len [/ip/dhcp-client find interface=$wanPort]] = 0) do={
-                /ip/dhcp-client add interface=$wanPort add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment=($tag . ": WAN uplink")
-            }
-            :if ([:len [/interface/list/member find list=WAN interface=$wanPort]] = 0) do={
-                /interface/list/member add list=WAN interface=$wanPort comment=$tag
-            }
-            :if ($alreadyWan) do={
-                :log info ("nasnet-panel: " . $wanPort . " was already a WAN uplink")
+            :if ($wanUplink != "") do={
+                :log info ("nasnet-panel: WAN uplink " . $wanUplink . " is already set up; WAN rewiring skipped")
             } else={
-                :log info ("nasnet-panel: " . $wanPort . " is now the WAN uplink")
+                :if ([:len [/interface find name=$wanPort]] = 0) do={
+                    :error ($wanPort . " does not exist on this router and no other uplink was found")
+                }
+                :local alreadyWan false
+                :if ([:len [/ip/dhcp-client find interface=$wanPort]] > 0) do={ :set alreadyWan true }
+                :if ([:len [/interface/list/member find list=WAN interface=$wanPort]] > 0) do={ :set alreadyWan true }
+                :onerror ignore in={
+                    :if ([:len [/interface/pppoe-client find interface=$wanPort]] > 0) do={ :set alreadyWan true }
+                } do={}
+                :onerror ignore in={
+                    :if ([:len [/interface/macvlan find interface=$wanPort]] > 0) do={ :set alreadyWan true }
+                } do={}
+
+                :foreach p in=[/interface/bridge/port find interface=$wanPort] do={
+                    :local pb [/interface/bridge/port get $p bridge]
+                    :log info ("nasnet-panel: taking " . $wanPort . " out of bridge " . $pb . " to use it as WAN")
+                    /interface/bridge/port remove $p
+                }
+                :if ([:len [/interface/list/member find list=LAN interface=$wanPort]] > 0) do={
+                    /interface/list/member remove [find list=LAN interface=$wanPort]
+                }
+                :if ([:len [/ip/dhcp-client find interface=$wanPort]] = 0) do={
+                    /ip/dhcp-client add interface=$wanPort add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment=($tag . ": WAN uplink")
+                }
+                :if ([:len [/interface/list/member find list=WAN interface=$wanPort]] = 0) do={
+                    /interface/list/member add list=WAN interface=$wanPort comment=$tag
+                }
+                :if ($alreadyWan) do={
+                    :log info ("nasnet-panel: " . $wanPort . " was already a WAN uplink")
+                } else={
+                    :log info ("nasnet-panel: " . $wanPort . " is now the WAN uplink")
+                }
             }
 
             :if ([:len [/ip/firewall/nat find chain=srcnat action=masquerade out-interface-list=WAN]] = 0) do={
