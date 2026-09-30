@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 )
@@ -271,6 +272,19 @@ func finalizePlugins(plugins []PluginInfo, containers []routeros.ContainerInfo) 
 		}
 	}
 	return result
+}
+
+func filterVisiblePlugins(plugins []PluginInfo) []PluginInfo {
+	if strings.Contains(buildinfo.Version, "dev") {
+		return plugins
+	}
+	visible := make([]PluginInfo, 0, len(plugins))
+	for i := range plugins {
+		if plugins[i].Visible {
+			visible = append(visible, plugins[i])
+		}
+	}
+	return visible
 }
 
 // registryHasPlugin reports whether id is a plugin known to the registry.
