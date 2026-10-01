@@ -1,0 +1,18 @@
+id: '2.4-dual-link'
+stage: wizard
+title: Dual-link setup gives internet on both links
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  traffic:
+    - { from: split, to: domestic-host, exits: domestic }
+    - {
+        from: split,
+        to: foreign-host,
+        exits: starlink,
+        known_bug: Split without a VPN client blackholes foreign traffic,
+      }

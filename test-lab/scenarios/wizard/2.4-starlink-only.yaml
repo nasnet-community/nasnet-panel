@@ -1,0 +1,12 @@
+id: '2.4-starlink-only'
+stage: wizard
+title: Starlink-only setup gives internet over Starlink
+profiles: [all]
+requires: { roles: [starlink, split] }
+wizard:
+  foreign: starlink
+  wait_domestic_list: true
+expect:
+  traffic:
+    - { from: split, to: foreign-host, exits: starlink }
+    - { from: router, to: foreign-host, exits: starlink }

@@ -1,0 +1,16 @@
+id: 'D3.1-domestic-down-dns'
+stage: resilience
+title: Domestic down blocks domestic names while foreign names still resolve
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: link_down
+    with: { link: domestic }
+    expect:
+      dns:
+        - { from: split, name: lab.ir, exits: blocked, within: 15s }
+        - { from: split, name: s4i.co, resolver: foreign, exits: starlink }

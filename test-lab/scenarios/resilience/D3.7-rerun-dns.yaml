@@ -1,0 +1,23 @@
+id: 'D3.7-rerun-dns'
+stage: resilience
+title: Re-running the wizard restores DNS defaults
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api: { method: PUT, path: /api/dns/info, body: { servers: 9.9.9.9 }, status: 200 }
+  - do: wizard
+    wizard:
+      foreign: starlink
+      domestic: domestic
+expect:
+  values:
+    - path: /ip/dns
+      fields: { servers: '!~9.9.9.9' }
+    - path: /ip/dns
+      fields: { use-doh-server: '~cloudflare' }
+      known_bug: The wizard sets Google DoH instead of Cloudflare

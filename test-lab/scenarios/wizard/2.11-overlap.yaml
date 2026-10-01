@@ -1,0 +1,17 @@
+id: '2.11-overlap'
+stage: wizard
+title: Wizard refuses an upstream subnet that overlaps the LAN
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+domestic_subnet: 192.168.10.0/24
+wizard:
+  foreign: starlink
+  domestic: domestic
+  expect_error: overlap
+  known_bug: The wizard does not check upstream subnets for overlap
+expect:
+  values:
+    - path: /routing/table
+      where: { name: to-Foreign }
+      absent: true
+      known_bug: The wizard does not check upstream subnets for overlap

@@ -1,0 +1,25 @@
+id: '1.6d-reinstall'
+stage: install
+title: Running the installer twice is idempotent
+profiles: [all]
+requires:
+  lab: [image-tar, cli-install]
+steps:
+  - do: install
+    with: { installer: cli }
+  - do: install
+    with: { installer: cli }
+expect:
+  container:
+    - name: nasnet-panel
+      running: true
+  values:
+    - path: /ip/firewall/nat
+      where: { comment: nasnet-panel-installer-dstnat }
+      count: 1
+    - path: /interface/bridge
+      where: { name: containers }
+      count: 1
+    - path: /interface/veth
+      where: { name: veth-nasnet-panel }
+      count: 1

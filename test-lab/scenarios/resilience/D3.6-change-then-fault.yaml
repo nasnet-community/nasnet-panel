@@ -1,0 +1,28 @@
+id: 'D3.6-change-then-fault'
+stage: resilience
+title: Failover still works on its own targets after a DNS IP change
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api:
+      {
+        method: POST,
+        path: /api/dns/change,
+        body: { oldIp: 1.1.1.1, newIp: 208.67.222.222 },
+        status: 200,
+      }
+  - do: link_down
+    with: { link: starlink }
+    expect:
+      traffic:
+        - { from: split, to: foreign-host, exits: blocked, within: 15s }
+      values:
+        - path: /tool/netwatch
+          where: { host: 1.1.1.1 }
+          count: 1
+          known_bug: Changing a DNS IP also rewrites failover probes and routes

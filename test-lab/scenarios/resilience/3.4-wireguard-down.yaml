@@ -1,0 +1,21 @@
+id: '3.4-wireguard-down'
+stage: resilience
+title: VPN tunnel down (wireguard) blocks VPN traffic and recovers
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [wireguard] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wireguard_client: true
+  wait_domestic_list: true
+steps:
+  - do: vpn_server_down
+    with: { type: wireguard }
+    expect:
+      traffic:
+        - { from: split, to: foreign-host, exits: blocked, within: 15s }
+  - do: vpn_server_up
+    with: { type: wireguard }
+    expect:
+      traffic:
+        - { from: split, to: foreign-host, exits: vpn, within: 30s }

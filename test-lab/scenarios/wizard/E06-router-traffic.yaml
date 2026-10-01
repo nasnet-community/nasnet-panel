@@ -1,0 +1,18 @@
+id: 'E06-router-traffic'
+stage: wizard
+title: The router's own traffic uses the VPN or Starlink, and domestic destinations use the domestic link
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  traffic:
+    - {
+        from: router,
+        to: foreign-host,
+        exits: starlink,
+        known_bug: The router's own traffic prefers the domestic link,
+      }
+    - { from: router, to: domestic-host, exits: domestic }

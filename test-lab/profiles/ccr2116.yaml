@@ -1,0 +1,59 @@
+name: ccr2116
+model: CCR2116-12G-4S+
+arch: arm64
+memory_mb: 16384
+storage_mb: 128
+cpus: 1
+capabilities: [ethernet, container, sfp, m2]
+ports:
+  - name: ether1
+    kind: ethernet
+    role: starlink
+  - name: ether2
+    kind: ethernet
+    role: domestic
+  - name: ether3
+    kind: ethernet
+    role: split
+  - name: ether4
+    kind: ethernet
+    role: spare
+  - name: ether5
+    kind: ethernet
+    role: spare
+  - name: ether6
+    kind: ethernet
+    role: spare
+  - name: ether7
+    kind: ethernet
+    role: spare
+  - name: ether8
+    kind: ethernet
+    role: spare
+  - name: ether9
+    kind: ethernet
+    role: spare
+  - name: ether10
+    kind: ethernet
+    role: spare
+  - name: ether11
+    kind: ethernet
+    role: spare
+  - name: ether12
+    kind: ethernet
+    role: spare
+  - name: ether13
+    kind: ethernet
+    role: spare
+  - name: sfp-sfpplus1
+    kind: sfp+
+    role: spare
+  - name: sfp-sfpplus2
+    kind: sfp+
+    role: spare
+  - name: sfp-sfpplus3
+    kind: sfp+
+    role: spare
+  - name: sfp-sfpplus4
+    kind: sfp+
+    role: spare

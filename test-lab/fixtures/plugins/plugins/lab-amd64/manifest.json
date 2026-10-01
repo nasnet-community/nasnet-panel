@@ -1,0 +1,32 @@
+{
+  "id": "lab-amd64",
+  "name": "lab-amd64",
+  "version": "1.0.0",
+  "author": "test-lab",
+  "license": "MIT",
+  "website": "https://github.com/nasnet-community/nasnet-panel",
+  "category": "Testing",
+  "tagline": "test-lab fixture",
+  "description": "Plugin fixture served by the test-lab registry stub.",
+  "icon": "icon.svg",
+  "architectures": ["amd64", "arm64"],
+  "container": {
+    "image": "lab/echo:1",
+    "interface": {
+      "name": "veth-lab-amd64",
+      "address": "192.168.50.24/24",
+      "gateway": "192.168.50.1"
+    },
+    "env": { "LAB_TOKEN": "{{settings.token}}" },
+    "mounts": [{ "name": "lab-amd64-data", "src": "/lab-amd64-data", "dst": "/data" }],
+    "ports": [
+      { "protocol": "tcp", "containerPort": 8080, "hostPort": 18094, "description": "echo" }
+    ]
+  },
+  "scripts": {
+    "preInstall": "scripts/pre-install.rsc",
+    "postInstall": "scripts/post-install.rsc",
+    "preUninstall": "scripts/pre-uninstall.rsc"
+  },
+  "settingsSchema": "settings.json"
+}

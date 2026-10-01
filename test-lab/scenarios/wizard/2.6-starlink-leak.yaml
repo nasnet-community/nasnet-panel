@@ -1,0 +1,17 @@
+id: '2.6-starlink-leak'
+stage: wizard
+title: The Starlink IP is never seen by domestic destinations
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  traffic:
+    - { from: split, to: domestic-host, exits: domestic }
+    - { from: router, to: domestic-host, exits: domestic }
+  dns:
+    - { from: split, name: lab.ir, resolver: domestic, exits: domestic }
+  leak:
+    starlink_to_domestic: true

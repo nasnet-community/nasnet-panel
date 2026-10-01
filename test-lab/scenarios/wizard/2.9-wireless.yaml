@@ -1,0 +1,13 @@
+id: '2.9-wireless'
+stage: wizard
+title: Wireless clients get the same routing as wired ones
+profiles: [all]
+requires: { roles: [starlink, domestic, split], capabilities: [wifi] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wifi: { ssid: LabWiFi, password: labwifi123 }
+expect:
+  values:
+    - path: /interface/list/member
+      where: { list: Split-LAN, comment: SplitLAN }
