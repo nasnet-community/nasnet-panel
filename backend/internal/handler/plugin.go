@@ -791,6 +791,14 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		}
 	}
 
+	if manifest.SettingsSchema != "" {
+		if err := savePluginSettings(client, pluginID, settingsValues); err != nil {
+			task.set(pluginInstallPhaseError, "failed to persist plugin settings: "+err.Error())
+			log.Printf("[plugin-install %s] failed to persist settings: %v", pluginID, err)
+			return
+		}
+	}
+
 	task.set(pluginInstallPhaseCreatingInterface, "creating veth interface "+iface.Name)
 	if _, err := client.GetInterface(iface.Name); err != nil {
 		if _, err := client.AddVethInterface(routeros.VethConfig{
@@ -1287,9 +1295,13 @@ func HandleUninstallPlugin(c echo.Context) error {
 		settingsValues := map[string]string{}
 		var settingsErr error
 		if manifest.SettingsSchema != "" {
-			var settingsSchema *PluginSettingsSchema
-			if settingsSchema, settingsErr = fetchPluginSettings(ctx, name, manifest.SettingsSchema); settingsErr == nil {
-				settingsValues, settingsErr = settingsDefaults(settingsSchema)
+			var persisted bool
+			settingsValues, persisted, settingsErr = loadPluginSettings(client, name)
+			if settingsErr == nil && !persisted {
+				var settingsSchema *PluginSettingsSchema
+				if settingsSchema, settingsErr = fetchPluginSettings(ctx, name, manifest.SettingsSchema); settingsErr == nil {
+					settingsValues, settingsErr = settingsDefaults(settingsSchema)
+				}
 			}
 		}
 		if settingsErr != nil {
@@ -1315,6 +1327,11 @@ func HandleUninstallPlugin(c echo.Context) error {
 
 	if err := client.RemoveContainer(name); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove plugin container", err)
+	}
+
+	if err := deletePluginSettings(client, name); err != nil {
+		warnings = append(warnings, "failed to remove persisted plugin settings: "+err.Error())
+		log.Printf("[plugin-uninstall %s] failed to remove persisted settings: %v", name, err)
 	}
 
 	removedLists := make([]string, 0, len(manifest.Container.Mounts))
@@ -1383,6 +1400,49 @@ func fetchPluginJSON(ctx context.Context, url string, target any) error {
 	}
 
 	return json.NewDecoder(resp.Body).Decode(target)
+}
+
+func pluginSettingsFileName(pluginID string) string {
+	return "nasnet-plugin-" + pluginID + "-settings.json"
+}
+
+// savePluginSettings writes the resolved settings used by an install to a file
+// on the router, so later scripts (pre-uninstall) see the very values the
+// install-time scripts used instead of regenerated ones.
+func savePluginSettings(client *routeros.Client, pluginID string, values map[string]string) error {
+	data, err := json.Marshal(values)
+	if err != nil {
+		return err
+	}
+	return client.AddFile(pluginSettingsFileName(pluginID), string(data))
+}
+
+// loadPluginSettings reads back the settings saved by savePluginSettings;
+// found is false when none were saved (e.g. a plugin installed before settings
+// were persisted).
+func loadPluginSettings(client *routeros.Client, pluginID string) (values map[string]string, found bool, err error) {
+	name := pluginSettingsFileName(pluginID)
+	exists, err := client.FileExists(name)
+	if err != nil || !exists {
+		return nil, false, err
+	}
+	contents, err := client.GetFileContents(name, 0)
+	if err != nil {
+		return nil, false, err
+	}
+	if err := json.Unmarshal([]byte(contents), &values); err != nil {
+		return nil, false, fmt.Errorf("invalid persisted settings in %s: %w", name, err)
+	}
+	return values, true, nil
+}
+
+func deletePluginSettings(client *routeros.Client, pluginID string) error {
+	name := pluginSettingsFileName(pluginID)
+	exists, err := client.FileExists(name)
+	if err != nil || !exists {
+		return err
+	}
+	return client.DeleteFile(name)
 }
 
 // runPluginScript fetches one of the RouterOS scripts a plugin's manifest names
