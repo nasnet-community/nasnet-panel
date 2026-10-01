@@ -843,7 +843,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 
 	if manifest.Scripts.PreInstall != "" {
 		task.set(pluginInstallPhaseRunningPreInstall, "running pre-install script")
-		if err := runPluginScript(ctx, client, pluginID, manifest.Scripts.PreInstall); err != nil {
+		if err := runPluginScript(ctx, client, pluginID, manifest.Scripts.PreInstall, settingsValues); err != nil {
 			task.set(pluginInstallPhaseError, "pre-install script failed: "+err.Error())
 			log.Printf("[plugin-install %s] pre-install script failed: %v", pluginID, err)
 			return
@@ -897,7 +897,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			continue
 		}
 
-		startPluginContainer(ctx, client, task, pluginID, manifest.Scripts.PostInstall)
+		startPluginContainer(ctx, client, task, pluginID, manifest.Scripts.PostInstall, settingsValues)
 		return
 	}
 
@@ -909,7 +909,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 // any) and marks the task done. Adding a container only downloads/extracts
 // its image; RouterOS never starts a container automatically, so this is a
 // required step, not an optional nicety.
-func startPluginContainer(ctx context.Context, client *routeros.Client, task *pluginInstallTask, pluginID, postInstallScript string) {
+func startPluginContainer(ctx context.Context, client *routeros.Client, task *pluginInstallTask, pluginID, postInstallScript string, settingsValues map[string]string) {
 	task.set(pluginInstallPhaseStartingContainer, "starting container "+pluginID)
 	if err := client.StartContainer(pluginID); err != nil {
 		task.set(pluginInstallPhaseError, "failed to start container: "+err.Error())
@@ -937,7 +937,7 @@ func startPluginContainer(ctx context.Context, client *routeros.Client, task *pl
 
 	if postInstallScript != "" {
 		task.set(pluginInstallPhaseRunningPostInstall, "running post-install script")
-		if err := runPluginScript(ctx, client, pluginID, postInstallScript); err != nil {
+		if err := runPluginScript(ctx, client, pluginID, postInstallScript, settingsValues); err != nil {
 			task.set(pluginInstallPhaseError, "post-install script failed: "+err.Error())
 			log.Printf("[plugin-install %s] post-install script failed: %v", pluginID, err)
 			return
@@ -1284,7 +1284,18 @@ func HandleUninstallPlugin(c echo.Context) error {
 	if manifest.Scripts.PreUninstall != "" {
 		// A failing cleanup script must not block the uninstall, or a plugin
 		// with a broken script could never be removed.
-		if err := runPluginScript(ctx, client, name, manifest.Scripts.PreUninstall); err != nil {
+		settingsValues := map[string]string{}
+		var settingsErr error
+		if manifest.SettingsSchema != "" {
+			var settingsSchema *PluginSettingsSchema
+			if settingsSchema, settingsErr = fetchPluginSettings(ctx, name, manifest.SettingsSchema); settingsErr == nil {
+				settingsValues, settingsErr = settingsDefaults(settingsSchema)
+			}
+		}
+		if settingsErr != nil {
+			warnings = append(warnings, "pre-uninstall script skipped, failed to resolve plugin settings: "+settingsErr.Error())
+			log.Printf("[plugin-uninstall %s] failed to resolve settings for pre-uninstall script: %v", name, settingsErr)
+		} else if err := runPluginScript(ctx, client, name, manifest.Scripts.PreUninstall, settingsValues); err != nil {
 			warnings = append(warnings, "pre-uninstall script failed: "+err.Error())
 			log.Printf("[plugin-uninstall %s] pre-uninstall script failed: %v", name, err)
 		}
@@ -1377,8 +1388,9 @@ func fetchPluginJSON(ctx context.Context, url string, target any) error {
 // runPluginScript fetches one of the RouterOS scripts a plugin's manifest names
 // and executes it on the router. An empty or whitespace-only script file is a
 // no-op: ExecuteScriptString rejects an empty string, so a plugin shipping a
-// placeholder script file would otherwise fail the whole operation.
-func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scriptPath string) error {
+// placeholder script file would otherwise fail the whole operation. Any
+// "{{settings.<key>}}" placeholders are replaced from settingsValues first.
+func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scriptPath string, settingsValues map[string]string) error {
 	script, err := fetchPluginScript(ctx, pluginID, scriptPath)
 	if err != nil {
 		return fmt.Errorf("failed to fetch %s: %w", scriptPath, err)
@@ -1388,7 +1400,7 @@ func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scr
 		return nil
 	}
 
-	return client.ExecuteScriptString(script)
+	return client.ExecuteScriptString(resolveSettingsPlaceholders(script, settingsValues))
 }
 
 // fetchPluginScript fetches the raw text of a RouterOS script file (e.g. a
