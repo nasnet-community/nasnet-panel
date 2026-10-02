@@ -499,7 +499,8 @@ test.describe('WAN VPN clients section', () => {
       });
     });
 
-    let lastPostBody: {
+    // Cast so TS doesn't narrow to null; the route callback assigns it.
+    let lastPostBody = null as {
       name?: string;
       comment?: string;
       connectTo?: string;
@@ -507,7 +508,7 @@ test.describe('WAN VPN clients section', () => {
       password?: string;
       ipsecSecret?: string;
       disabled?: boolean;
-    } | null = null;
+    } | null;
     await context.route('**/api/vpn/l2tp/client', async (route) => {
       if (route.request().method() !== 'POST') return route.fallback();
       lastPostBody = route.request().postDataJSON() as typeof lastPostBody;
