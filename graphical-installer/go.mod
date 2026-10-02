@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/pkg/sftp v1.13.11
-	github.com/wailsapp/wails/v2 v2.13.0
+	github.com/wailsapp/wails/v2 v2.16.0
 	golang.org/x/crypto v0.57.0
 )
 
