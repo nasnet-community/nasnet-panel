@@ -23,7 +23,7 @@ import type {
   CreateWireguardClientRequest,
   ImportWireguardConfigRequest,
 } from '../../../api';
-import { isCIDR, isPort, validateHostOrIp } from '../../../utils/validators';
+import { isCIDR, isPort, isWireGuardKey, validateHostOrIp } from '../../../utils/validators';
 
 export type AddVpnType = 'l2tp' | 'wireguard';
 
@@ -50,6 +50,7 @@ interface Draft {
   ipsecSecret: string;
   disabled: boolean;
   // WireGuard-specific
+  interfacePrivateKey: string;
   publicKey: string;
   peerPrivateKey: string;
   endpoint: string;
@@ -70,6 +71,7 @@ const EMPTY_DRAFT: Draft = {
   useIpsec: false,
   ipsecSecret: '',
   disabled: false,
+  interfacePrivateKey: '',
   publicKey: '',
   peerPrivateKey: '',
   endpoint: '',
@@ -121,6 +123,10 @@ export function AddVpnClientDialog({
       base.interfaceLocalAddress = isCIDR(draft.interfaceLocalAddress)
         ? null
         : 'Enter a CIDR like 10.0.0.2/24.';
+      base.interfacePrivateKey =
+        draft.interfacePrivateKey.trim() === '' || isWireGuardKey(draft.interfacePrivateKey)
+          ? null
+          : 'Enter a valid WireGuard key (44-character base64).';
       base.endpoint = validateHostOrIp(draft.endpoint);
       base.endpointPort = isPort(draft.endpointPort) ? null : 'Port must be 1-65535.';
       base.allowedAddress =
@@ -175,6 +181,9 @@ export function AddVpnClientDialog({
           disabled: draft.disabled,
         };
         if (draft.comment.trim()) body.comment = draft.comment.trim();
+        if (draft.interfacePrivateKey.trim()) {
+          body.interfacePrivateKey = draft.interfacePrivateKey.trim();
+        }
         if (draft.publicKey.trim()) body.peerPublicKey = draft.publicKey.trim();
         if (draft.peerPrivateKey.trim()) body.peerPrivateKey = draft.peerPrivateKey.trim();
         if (draft.presharedKey.trim()) body.presharedKey = draft.presharedKey.trim();
@@ -449,6 +458,23 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
           />
           {touched.allowedAddress && errors.allowedAddress ? (
             <FormError>{errors.allowedAddress}</FormError>
+          ) : null}
+        </Label>
+      </FieldRow>
+      <FieldRow>
+        <Label>
+          <span>Interface private key</span>
+          <PasswordInput
+            value={draft.interfacePrivateKey}
+            onChange={(e) => set('interfacePrivateKey', e.target.value)}
+            onBlur={() => markTouched('interfacePrivateKey')}
+            placeholder="optional, generated if empty"
+            aria-label="Interface private key"
+            autoComplete="new-password"
+            aria-invalid={touched.interfacePrivateKey && !!errors.interfacePrivateKey}
+          />
+          {touched.interfacePrivateKey && errors.interfacePrivateKey ? (
+            <FormError>{errors.interfacePrivateKey}</FormError>
           ) : null}
         </Label>
       </FieldRow>
