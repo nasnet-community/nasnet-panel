@@ -88,14 +88,9 @@ export interface SystemOverview {
   vpnTunnels: number;
 }
 
-export type VPNProtocolLabel =
-  | 'ppp'
-  | 'wireguard'
-  | 'ipsec'
-  | 'l2tp-client'
-  | 'pptp-client'
-  | 'ovpn-client'
-  | 'sstp-client';
+type VPNClientProtocolLabel = 'l2tp-client' | 'pptp-client' | 'ovpn-client' | 'sstp-client';
+
+export type VPNProtocolLabel = 'ppp' | 'wireguard' | 'ipsec' | VPNClientProtocolLabel;
 
 export interface VPNActiveClient {
   id: string;
