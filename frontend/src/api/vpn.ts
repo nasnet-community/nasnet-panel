@@ -392,7 +392,8 @@ export interface CreateWireguardClientRequest {
   persistentKeepalive?: number;
 }
 
-export interface CreateWireguardClientResponse {
+/** `peerName` is empty when the peer was skipped as a duplicate. */
+export interface CreateWireguardClientResponse extends WireguardPeerImportResult {
   id: string;
   name: string;
   mtu: number;
@@ -415,10 +416,24 @@ export interface ImportWireguardConfigRequest {
   comment?: string;
 }
 
-export interface ImportWireguardConfigResponse {
+/**
+ * Peer outcome of a WireGuard client add or config import. When an interface with the
+ * same private key and IP address already exists, the backend reuses it and adds only
+ * the peers whose public key is not on it yet.
+ */
+export interface WireguardPeerImportResult {
+  /** Names of the peers created by this request; null when none were created. */
+  peerNames: string[] | null;
+  importedPeerCount: number;
+  /** True when an interface with the same private key and IP already existed and was reused. */
+  reusedExistingInterface: boolean;
+  /** Public keys of peers skipped because they already exist on the interface; may be null. */
+  skippedDuplicatePeers: string[] | null;
+}
+
+export interface ImportWireguardConfigResponse extends WireguardPeerImportResult {
   interfaceName: string;
   interfaceIP: string;
-  peerName: string;
 }
 
 function authHeaders({ host, username, password }: VPNCredentials): Record<string, string> {
