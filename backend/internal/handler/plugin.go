@@ -1075,6 +1075,22 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 	}
 	previousImageID := before.ImageID
 
+	settingsCtx, cancelSettings := context.WithTimeout(context.Background(), pluginInstallTimeout)
+	settingsValues, settingsChanged, err := resolvePluginSettings(settingsCtx, client, pluginID, manifest)
+	cancelSettings()
+	if err != nil {
+		task.set(pluginUpdatePhaseError, "failed to resolve plugin settings: "+err.Error())
+		log.Printf("[plugin-update %s] failed to resolve settings: %v", pluginID, err)
+		return
+	}
+	if settingsChanged {
+		if err := savePluginSettings(client, pluginID, settingsValues); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to persist plugin settings: "+err.Error())
+			log.Printf("[plugin-update %s] failed to persist settings: %v", pluginID, err)
+			return
+		}
+	}
+
 	if before.Running || before.Healthy {
 		task.set(pluginUpdatePhaseStoppingContainer, "stopping container "+pluginID)
 		if err := client.StopContainer(pluginID); err != nil {
@@ -1292,18 +1308,7 @@ func HandleUninstallPlugin(c echo.Context) error {
 	if manifest.Scripts.PreUninstall != "" {
 		// A failing cleanup script must not block the uninstall, or a plugin
 		// with a broken script could never be removed.
-		settingsValues := map[string]string{}
-		var settingsErr error
-		if manifest.SettingsSchema != "" {
-			var persisted bool
-			settingsValues, persisted, settingsErr = loadPluginSettings(client, name)
-			if settingsErr == nil && !persisted {
-				var settingsSchema *PluginSettingsSchema
-				if settingsSchema, settingsErr = fetchPluginSettings(ctx, name, manifest.SettingsSchema); settingsErr == nil {
-					settingsValues, settingsErr = settingsDefaults(settingsSchema)
-				}
-			}
-		}
+		settingsValues, _, settingsErr := resolvePluginSettings(ctx, client, name, manifest)
 		if settingsErr != nil {
 			warnings = append(warnings, "pre-uninstall script skipped, failed to resolve plugin settings: "+settingsErr.Error())
 			log.Printf("[plugin-uninstall %s] failed to resolve settings for pre-uninstall script: %v", name, settingsErr)
@@ -1434,6 +1439,43 @@ func loadPluginSettings(client *routeros.Client, pluginID string) (values map[st
 		return nil, false, fmt.Errorf("invalid persisted settings in %s: %w", name, err)
 	}
 	return values, true, nil
+}
+
+// resolvePluginSettings returns the settings a plugin's scripts should see:
+// the values persisted at install time, plus defaults for any key the current
+// settings schema declares that was not persisted (e.g. added by a newer plugin
+// version). The changed result is true when the returned map differs from what
+// is persisted and so needs saving. A manifest with no settings schema has none.
+func resolvePluginSettings(ctx context.Context, client *routeros.Client, pluginID string, manifest *PluginManifest) (values map[string]string, changed bool, err error) {
+	if manifest.SettingsSchema == "" {
+		return map[string]string{}, false, nil
+	}
+
+	values, found, err := loadPluginSettings(client, pluginID)
+	if err != nil {
+		return nil, false, err
+	}
+	if values == nil {
+		values = map[string]string{}
+	}
+
+	schema, err := fetchPluginSettings(ctx, pluginID, manifest.SettingsSchema)
+	if err != nil {
+		return nil, false, fmt.Errorf("failed to fetch plugin settings schema: %w", err)
+	}
+	defaults, err := settingsDefaults(schema)
+	if err != nil {
+		return nil, false, err
+	}
+
+	changed = !found
+	for key, val := range defaults {
+		if _, ok := values[key]; !ok {
+			values[key] = val
+			changed = true
+		}
+	}
+	return values, changed, nil
 }
 
 func deletePluginSettings(client *routeros.Client, pluginID string) error {
