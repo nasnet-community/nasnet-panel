@@ -1,3 +1,4 @@
+import type { BrowserContext, Page } from '@playwright/test';
 import { test, expect } from './fixtures';
 
 const ROUTER_ID = 'rtr_vpn';
@@ -20,6 +21,88 @@ const baseClient = {
   lastLinkDown: '',
   linkDowns: 0,
 };
+
+const WG_KEY = 'yAnz5TF+lXXJte14tji3zlMNq+hd2rYUIgJBgB3fBmk=';
+
+const wgCreated = {
+  id: '*9',
+  name: 'office-wg-client',
+  mtu: 1420,
+  listenPort: 13231,
+  interfacePrivateKey: WG_KEY,
+  interfacePublicKey: 'HIgo9xNzJMWLKASShiTqIybxZ0U3wGLiUeJ1PKf8ykw=',
+  interfaceLocalAddress: '10.0.0.2/24',
+  disabled: false,
+  peerName: 'peer1',
+  peerPublicKey: 'xTIBA5rboUvnH4htodjb6e697QjLERt1NAB4mZqp8Dg=',
+  peerPrivateKey: '',
+  endpointIP: 'vpn.example.com',
+  endpointPort: 51820,
+  allowedAddress: '0.0.0.0/0',
+};
+
+type WgPostBody = Record<string, unknown>;
+
+// Opens the WireGuard "create" form with every required field filled in, and
+// records each POST to the create-client endpoint in the returned array.
+async function openWireguardCreateForm(page: Page, context: BrowserContext) {
+  await context.addInitScript((routerId) => {
+    try {
+      const key = 'nasnet-panel.session-credentials.v1';
+      const raw = window.sessionStorage.getItem(key);
+      const map = (raw ? JSON.parse(raw) : {}) as Record<
+        string,
+        { username: string; password: string }
+      >;
+      map[routerId] = { username: 'admin', password: 'test' };
+      window.sessionStorage.setItem(key, JSON.stringify(map));
+    } catch {
+      /* ignore */
+    }
+  }, ROUTER_ID);
+
+  await context.route('**/api/vpn/clients', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: envelope([]),
+    });
+  });
+  await context.route('**/api/interface/interfaces', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: envelope([]),
+    });
+  });
+
+  const posts: WgPostBody[] = [];
+  await context.route('**/api/vpn/wireguard/client', async (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    posts.push(route.request().postDataJSON() as WgPostBody);
+    await route.fulfill({
+      status: 201,
+      contentType: 'application/json',
+      body: envelope(wgCreated),
+    });
+  });
+
+  await page.goto(`/router/${ROUTER_ID}/wan`);
+  await page.getByRole('button', { name: 'New' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog
+    .getByRole('radiogroup', { name: 'VPN client type' })
+    .getByRole('radio', { name: 'WireGuard' })
+    .click();
+  await dialog.getByRole('switch', { name: 'Import existing config' }).uncheck();
+
+  await dialog.getByLabel('Interface local address').fill('10.0.0.2/24');
+  await dialog.getByLabel('Allowed address').fill('0.0.0.0/0');
+  await dialog.getByLabel('Endpoint host').fill('vpn.example.com');
+  await dialog.getByLabel('Peer public key').fill(wgCreated.peerPublicKey);
+
+  return { dialog, posts };
+}
 
 test.describe('WAN VPN clients section', () => {
   test('lists clients from backend and toggles enable via PUT', async ({
@@ -790,5 +873,77 @@ test.describe('WAN VPN clients section', () => {
     await page.goto(`/router/${ROUTER_ID}/vpn`);
 
     await expect(page.getByText('No VPN servers configured.')).toBeVisible();
+  });
+  test('creates WireGuard client with trimmed interface private key', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+    const { dialog, posts } = await openWireguardCreateForm(page, context);
+
+    await dialog.getByLabel('Interface private key', { exact: true }).fill(`  ${WG_KEY}  `);
+    await dialog.getByRole('button', { name: 'Add client' }).click();
+
+    await expect.poll(() => posts.length).toBe(1);
+    expect(posts[0]).toMatchObject({
+      interfacePrivateKey: WG_KEY,
+      interfaceLocalAddress: '10.0.0.2/24',
+      endpointIP: 'vpn.example.com',
+      endpointPort: 51820,
+      allowedAddress: '0.0.0.0/0',
+      peerPublicKey: wgCreated.peerPublicKey,
+      disabled: false,
+    });
+    await expect(dialog).toBeHidden();
+  });
+
+  test('omits interface private key from WireGuard POST when left empty', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+    const { dialog, posts } = await openWireguardCreateForm(page, context);
+
+    await expect(dialog.getByLabel('Interface private key', { exact: true })).toHaveValue('');
+    await dialog.getByRole('button', { name: 'Add client' }).click();
+
+    await expect.poll(() => posts.length).toBe(1);
+    expect(posts[0]).not.toHaveProperty('interfacePrivateKey');
+    expect(posts[0]).toMatchObject({ interfaceLocalAddress: '10.0.0.2/24' });
+    await expect(dialog).toBeHidden();
+  });
+
+  test('rejects an invalid interface private key without sending a POST', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+    const { dialog, posts } = await openWireguardCreateForm(page, context);
+
+    const keyInput = dialog.getByLabel('Interface private key', { exact: true });
+    await keyInput.fill('not-a-wireguard-key');
+    await keyInput.blur();
+
+    const message = 'Enter a valid WireGuard key (44-character base64).';
+    await expect(dialog.getByText(message)).toBeVisible();
+    await expect(keyInput).toHaveAttribute('aria-invalid', 'true');
+    const submit = dialog.getByRole('button', { name: 'Add client' });
+    await expect(submit).toBeDisabled();
+    await submit.click({ force: true });
+    await expect(dialog).toBeVisible();
+    expect(posts).toHaveLength(0);
+
+    await keyInput.fill(WG_KEY);
+    await expect(dialog.getByText(message)).toHaveCount(0);
+    await expect(submit).toBeEnabled();
   });
 });
