@@ -3,6 +3,7 @@
     "title": "Nasnet Panel",
     "logoAlt": "Nasnet Panel"
   },
+  "footer": { "copyright": "© {{year}} {{brand}}" },
   "sections": {
     "ariaLabel": "Router sections",
     "overview": "Overview",

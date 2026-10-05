@@ -3,6 +3,7 @@
     "title": "نسنت پنل",
     "logoAlt": "نسنت پنل"
   },
+  "footer": { "copyright": "© {{year}} {{brand}}" },
   "sections": {
     "ariaLabel": "بخش‌های روتر",
     "overview": "نمای کلی",
