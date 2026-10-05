@@ -1,4 +1,5 @@
 import { Wifi, WifiOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './WirelessPreview.module.scss';
 
 export interface WirelessPreviewBand {
@@ -13,11 +14,12 @@ interface Props {
 }
 
 export function WirelessPreview({ bands, enabled }: Props) {
+  const { t } = useTranslation('easyConfig');
   return (
     <div className={styles.wrap} aria-live="polite">
       <div className={`${styles.previews} ${bands.length > 1 ? styles.previewsRow : ''}`}>
         {bands.map((b) => {
-          const ssid = b.ssid.trim() || 'Your network name';
+          const ssid = b.ssid.trim() || t('wifi.previewPlaceholder');
           const isPlaceholder = !b.ssid.trim();
           const key = b.id ?? b.band ?? 'single';
           return (

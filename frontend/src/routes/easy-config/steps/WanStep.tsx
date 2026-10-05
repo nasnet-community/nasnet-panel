@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Laptop, SatelliteDish, Server, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   Card,
   CardDescription,
@@ -26,10 +28,14 @@ interface Props {
   footer?: React.ReactNode;
 }
 
-function starlinkFlowNodes(starlinkInterface: string | undefined, type: InterfaceType) {
+function starlinkFlowNodes(
+  t: TFunction<'easyConfig'>,
+  starlinkInterface: string | undefined,
+  type: InterfaceType,
+) {
   return [
-    { id: 'user', icon: <Laptop size={32} strokeWidth={1.75} />, label: 'USER' },
-    { id: 'router', icon: <Wifi size={32} strokeWidth={1.75} />, label: 'Router' },
+    { id: 'user', icon: <Laptop size={32} strokeWidth={1.75} />, label: t('flow.user') },
+    { id: 'router', icon: <Wifi size={32} strokeWidth={1.75} />, label: t('flow.router') },
     {
       id: 'wan',
       icon: <SatelliteDish size={32} strokeWidth={1.75} />,
@@ -38,11 +44,12 @@ function starlinkFlowNodes(starlinkInterface: string | undefined, type: Interfac
       sublabelIcon: starlinkInterface ? interfaceIcon(type) : undefined,
       selected: Boolean(starlinkInterface),
     },
-    { id: 'site', icon: <Server size={32} strokeWidth={1.75} />, label: 'Foreign Site' },
+    { id: 'site', icon: <Server size={32} strokeWidth={1.75} />, label: t('flow.foreignSite') },
   ];
 }
 
 export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer }: Props) {
+  const { t } = useTranslation('easyConfig');
   const [focus, setFocus] = useState<'starlink' | 'domestic' | undefined>(undefined);
   const isDual = state.mode === 'dual-link';
   const availableTypes = useMemo(() => availableInterfaceTypes(interfaces), [interfaces]);
@@ -50,10 +57,8 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{isDual ? 'Dual-Link connection' : 'Starlink-Only connection'}</CardTitle>
-        <CardDescription>
-          Tell us which ports are wired to each uplink, starting with the Starlink interface.
-        </CardDescription>
+        <CardTitle>{isDual ? t('wan.titleDual') : t('wan.titleStarlinkOnly')}</CardTitle>
+        <CardDescription>{t('wan.description')}</CardDescription>
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack onMouseLeave={() => setFocus(undefined)}>
@@ -64,14 +69,14 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
               interfaces={interfaces}
               availableTypes={availableTypes}
               loading={interfacesLoading}
-              heading="Starlink WAN"
-              ariaLabel="Starlink WAN"
+              heading={t('wan.starlinkHeading')}
+              ariaLabel={t('wan.starlinkHeading')}
               typeField="starlinkInterfaceType"
               nameField="starlinkInterface"
               excludeName={state.domesticInterface}
               ssidField="starlinkWanSsid"
               passwordField="starlinkWanPassword"
-              wirelessLabel="Starlink wireless"
+              wirelessLabel={t('wan.starlinkWireless')}
             />
           </section>
 
@@ -83,14 +88,14 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
                 interfaces={interfaces}
                 availableTypes={availableTypes}
                 loading={interfacesLoading}
-                heading="Domestic WAN"
-                ariaLabel="Domestic WAN"
+                heading={t('wan.domesticHeading')}
+                ariaLabel={t('wan.domesticHeading')}
                 typeField="domesticInterfaceType"
                 nameField="domesticInterface"
                 excludeName={state.starlinkInterface}
                 ssidField="domesticWanSsid"
                 passwordField="domesticWanPassword"
-                wirelessLabel="Domestic wireless"
+                wirelessLabel={t('wan.domesticWireless')}
               />
             </section>
           ) : null}
@@ -118,8 +123,9 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
               />
             ) : (
               <FlowDiagram
-                ariaLabel="Starlink-only traffic flow"
+                ariaLabel={t('flow.starlinkOnlyAria')}
                 nodes={starlinkFlowNodes(
+                  t,
                   state.starlinkInterface || undefined,
                   state.starlinkInterfaceType,
                 )}

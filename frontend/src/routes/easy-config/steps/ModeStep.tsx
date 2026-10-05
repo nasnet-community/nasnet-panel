@@ -1,5 +1,7 @@
 import React from 'react';
 import { Laptop, SatelliteDish, Server, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   Card,
   CardDescription,
@@ -12,24 +14,24 @@ import {
 import styles from '../../EasyConfigWizard.module.scss';
 import type { Action, Mode, State } from '../state';
 
-const MODE_OPTIONS = [
+const modeOptions = (t: TFunction<'easyConfig'>) => [
   {
     value: 'dual-link',
-    label: 'Dual-Link',
-    description: 'Starlink + Domestic uplink (DHCP, Static, or PPPoE)',
+    label: t('mode.dualLink.label'),
+    description: t('mode.dualLink.description'),
   },
   {
     value: 'starlink-only',
-    label: 'Starlink-Only',
-    description: 'Only a Starlink uplink for this router',
+    label: t('mode.starlinkOnly.label'),
+    description: t('mode.starlinkOnly.description'),
   },
 ];
 
-const STARLINK_FLOW_NODES = [
-  { id: 'user', icon: <Laptop size={32} strokeWidth={1.75} />, label: 'USER' },
-  { id: 'router', icon: <Wifi size={32} strokeWidth={1.75} />, label: 'Router' },
+const starlinkFlowNodes = (t: TFunction<'easyConfig'>) => [
+  { id: 'user', icon: <Laptop size={32} strokeWidth={1.75} />, label: t('flow.user') },
+  { id: 'router', icon: <Wifi size={32} strokeWidth={1.75} />, label: t('flow.router') },
   { id: 'wan', icon: <SatelliteDish size={32} strokeWidth={1.75} />, label: 'Starlink' },
-  { id: 'site', icon: <Server size={32} strokeWidth={1.75} />, label: 'Foreign Site' },
+  { id: 'site', icon: <Server size={32} strokeWidth={1.75} />, label: t('flow.foreignSite') },
 ];
 
 interface Props {
@@ -39,24 +41,23 @@ interface Props {
 }
 
 export function ModeStep({ state, dispatch, footer }: Props) {
+  const { t } = useTranslation('easyConfig');
   const [preview, setPreview] = React.useState<Mode | null>(null);
   const activeMode: Mode = preview ?? state.mode ?? 'starlink-only';
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Setup mode</CardTitle>
-        <CardDescription>
-          Pick how your WAN is wired. We&apos;ll adapt the wizard accordingly.
-        </CardDescription>
+        <CardTitle>{t('mode.title')}</CardTitle>
+        <CardDescription>{t('mode.description')}</CardDescription>
       </CardHeader>
       <div className={styles.modeLayout}>
         <div className={styles.modeSelect}>
           <RadioGroup
             name="easy-config-mode"
-            ariaLabel="Mode"
+            ariaLabel={t('mode.ariaLabel')}
             value={state.mode ?? ''}
             orientation="column"
-            options={MODE_OPTIONS}
+            options={modeOptions(t)}
             onChange={(v) => dispatch({ type: 'setMode', mode: v as Mode })}
             onOptionHover={(v) => setPreview(v as Mode | null)}
           />
@@ -68,7 +69,7 @@ export function ModeStep({ state, dispatch, footer }: Props) {
               {activeMode === 'dual-link' ? (
                 <DualLinkFlow />
               ) : (
-                <FlowDiagram ariaLabel="Starlink-only traffic flow" nodes={STARLINK_FLOW_NODES} />
+                <FlowDiagram ariaLabel={t('flow.starlinkOnlyAria')} nodes={starlinkFlowNodes(t)} />
               )}
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   CardDescription,
@@ -12,9 +13,9 @@ import {
   Stack,
   Switch,
 } from '@nasnet/ui';
-import { validateOvpnSecret } from '../../../utils/validators';
 import wizardStyles from '../../EasyConfigWizard.module.scss';
-import type { Action, State } from '../state';
+import { messageText, type Action, type State } from '../state';
+import { ovpnSecretProblem } from '../validation';
 import { Collapsible } from './components/Collapsible';
 import { CertPreview } from './vpnsrv/CertPreview';
 
@@ -25,27 +26,25 @@ interface Props {
 }
 
 export function VpnServerStep({ state, dispatch, footer }: Props) {
+  const { t } = useTranslation('easyConfig');
   const set = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: 'setField', field, value: e.target.value });
 
-  const certPassphraseError = validateOvpnSecret(
-    state.vpnServerCertPassphrase,
-    'Certificate passphrase',
-  );
-  const firstUserKeyError = validateOvpnSecret(state.firstUserKey);
+  const certPassphraseProblem = ovpnSecretProblem(state.vpnServerCertPassphrase, 'certPassphrase');
+  const certPassphraseError = certPassphraseProblem ? messageText(certPassphraseProblem) : null;
+  const firstUserKeyProblem = ovpnSecretProblem(state.firstUserKey);
+  const firstUserKeyError = firstUserKeyProblem ? messageText(firstUserKeyProblem) : null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>VPN server</CardTitle>
-        <CardDescription>
-          Issue OpenVPN client certificates so devices can connect back to this router.
-        </CardDescription>
+        <CardTitle>{t('vpnServer.title')}</CardTitle>
+        <CardDescription>{t('vpnServer.description')}</CardDescription>
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack>
           <Switch
-            label={state.vpnServerEnabled ? 'Enabled' : 'Disabled'}
+            label={state.vpnServerEnabled ? t('vpnServer.enabled') : t('vpnServer.disabled')}
             checked={state.vpnServerEnabled}
             onChange={(e) =>
               dispatch({ type: 'setField', field: 'vpnServerEnabled', value: e.target.checked })
@@ -55,11 +54,11 @@ export function VpnServerStep({ state, dispatch, footer }: Props) {
             <Stack>
               <FieldRow>
                 <Label>
-                  <span>Certificate passphrase</span>
+                  <span>{t('vpnServer.certPassphrase')}</span>
                   <PasswordInput
                     value={state.vpnServerCertPassphrase}
                     onChange={set('vpnServerCertPassphrase')}
-                    aria-label="Certificate passphrase"
+                    aria-label={t('vpnServer.certPassphrase')}
                     aria-invalid={!!certPassphraseError}
                   />
                   {certPassphraseError ? <FormError>{certPassphraseError}</FormError> : null}
@@ -67,21 +66,21 @@ export function VpnServerStep({ state, dispatch, footer }: Props) {
               </FieldRow>
               <FieldRow>
                 <Label>
-                  <span>Username</span>
+                  <span>{t('vpnServer.username')}</span>
                   <Input
                     value={state.firstUserName}
                     onChange={set('firstUserName')}
-                    aria-label="Username"
+                    aria-label={t('vpnServer.username')}
                   />
                 </Label>
               </FieldRow>
               <FieldRow>
                 <Label>
-                  <span>Password</span>
+                  <span>{t('vpnServer.password')}</span>
                   <PasswordInput
                     value={state.firstUserKey}
                     onChange={set('firstUserKey')}
-                    aria-label="Password"
+                    aria-label={t('vpnServer.password')}
                     aria-invalid={!!firstUserKeyError}
                   />
                   {firstUserKeyError ? <FormError>{firstUserKeyError}</FormError> : null}

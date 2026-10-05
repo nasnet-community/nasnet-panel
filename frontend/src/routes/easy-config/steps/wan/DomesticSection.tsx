@@ -1,14 +1,17 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { FieldStack, RadioGroup } from '@nasnet/ui';
 import type { Action, State } from '../../state';
 import { PppoeFields } from './PppoeFields';
 import { StaticFields } from './StaticFields';
 
-const DOMESTIC_MODE_OPTIONS = [
-  { value: 'dhcp', label: 'DHCP', description: 'Auto-config from ISP.' },
-  { value: 'static', label: 'Static', description: 'Manually assign IPs.' },
-  { value: 'pppoe', label: 'PPPoE', description: 'Username + password.' },
-];
+const domesticModeOptions = (t: TFunction<'easyConfig'>) =>
+  (['dhcp', 'static', 'pppoe'] as const).map((value) => ({
+    value,
+    label: t(`wan.domestic.${value}.label`),
+    description: t(`wan.domestic.${value}.description`),
+  }));
 
 interface Props {
   state: State;
@@ -16,14 +19,15 @@ interface Props {
 }
 
 export function DomesticSection({ state, dispatch }: Props) {
+  const { t } = useTranslation('easyConfig');
   return (
     <FieldStack>
       <RadioGroup
         name="easy-config-domestic-mode"
-        ariaLabel="Domestic connection type"
+        ariaLabel={t('wan.domestic.ariaLabel')}
         value={state.domesticMode}
         orientation="row"
-        options={DOMESTIC_MODE_OPTIONS}
+        options={domesticModeOptions(t)}
         onChange={(v) =>
           dispatch({
             type: 'setField',

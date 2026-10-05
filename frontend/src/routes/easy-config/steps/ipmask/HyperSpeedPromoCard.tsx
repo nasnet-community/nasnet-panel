@@ -1,20 +1,27 @@
+import { useTranslation } from 'react-i18next';
 import { Tooltip } from '@nasnet/ui';
 import styles from './HyperSpeedPromoCard.module.scss';
 
 export function HyperSpeedPromoCard() {
+  const { t } = useTranslation('easyConfig');
   return (
     <div className={styles.promo}>
       <div className={styles.copy}>
         <span className={styles.badgeRow}>
-          <span className={styles.badge}>Hot Deal</span>
-          <span>Available now</span>
+          <span className={styles.badge}>{t('hyperSpeed.hotDeal')}</span>
+          <span>{t('hyperSpeed.availableNow')}</span>
         </span>
-        <h4 className={styles.title}>FREE Hyper Speed VPN powered by Nasnet Panel</h4>
-        <p className={styles.subtitle}>Optimized for Starlink & built for Nasnet Panel users.</p>
+        <h4 className={styles.title}>{t('hyperSpeed.title')}</h4>
+        <p className={styles.subtitle}>{t('hyperSpeed.subtitle')}</p>
       </div>
-      <Tooltip label="Coming soon">
-        <button type="button" className={styles.cta} disabled aria-label="Claim your free VPN">
-          Claim your free VPN
+      <Tooltip label={t('hyperSpeed.comingSoon')}>
+        <button
+          type="button"
+          className={styles.cta}
+          disabled
+          aria-label={t('hyperSpeed.claimYours')}
+        >
+          {t('hyperSpeed.claimYours')}
         </button>
       </Tooltip>
     </div>
