@@ -107,3 +107,9 @@ textarea {
 .woot--bubble-holder {
   display: none !important;
 }
+
+// Mirrors icons that point along the reading direction (back/next arrows, chevrons
+// in breadcrumbs) when the page is right to left.
+[dir='rtl'] .rtl-flip {
+  transform: scaleX(-1);
+}
