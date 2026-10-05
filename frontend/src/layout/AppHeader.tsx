@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { HeaderActions } from './HeaderActions';
 import { activeRouterSectionId, routerSectionsWithPlugins } from './routerSections';
 import { useSession } from '../state/SessionContext';
@@ -13,6 +14,7 @@ export function AppHeader() {
   const { statusFor } = useWizardGate();
   const { plugins } = useInstalledPlugins();
   const location = useLocation();
+  const { t } = useTranslation('layout');
   const targetId = activeRouterId ?? lastConnectedRouterId ?? selectedRouterId ?? null;
   const router = useRouter(targetId ?? undefined);
   const logoTarget = targetId ? `/router/${targetId}` : '/';
@@ -20,7 +22,7 @@ export function AppHeader() {
     <header className={styles.headerRoot}>
       <div className={styles.wrap}>
         <Link to={logoTarget} className={styles.brand}>
-          <img src="/favicon.png" alt="Nasnet Panel" className={styles.logoImg} />
+          <img src="/favicon.png" alt={t('brand.logoAlt')} className={styles.logoImg} />
           <div className={styles.brandText}>
             <span className={styles.brandTitle}>Nasnet Panel</span>
           </div>

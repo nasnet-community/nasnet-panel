@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, PasswordInput, Stack, useToast } from '@nasnet/ui';
 import { ApiError, changeUserPassword } from '../api';
 import { useRouter } from '../state/RouterStoreContext';
@@ -12,6 +13,7 @@ export interface ChangePasswordDialogProps {
 
 export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProps) {
   const toast = useToast();
+  const { t } = useTranslation('layout');
   const { activeRouterId, getCredentials, setCredentials } = useSession();
   const router = useRouter(activeRouterId ?? undefined);
   const [newPassword, setNewPassword] = useState('');
@@ -31,24 +33,24 @@ export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProp
   const submit = async () => {
     setError(null);
     if (!activeRouterId || !router?.host) {
-      setError('No active router. Open a router first.');
+      setError(t('changePassword.errors.noRouter'));
       return;
     }
     const creds = getCredentials(activeRouterId);
     if (!creds) {
-      setError('Session expired. Please reconnect to the router.');
+      setError(t('changePassword.errors.sessionExpired'));
       return;
     }
     if (newPassword.length < 1) {
-      setError('Enter a new password.');
+      setError(t('changePassword.errors.empty'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('changePassword.errors.mismatch'));
       return;
     }
     if (newPassword === creds.password) {
-      setError('New password must be different from the current one.');
+      setError(t('changePassword.errors.sameAsCurrent'));
       return;
     }
 
@@ -56,7 +58,7 @@ export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProp
     try {
       await changeUserPassword({ host: router.host, ...creds }, newPassword);
       setCredentials(activeRouterId, { ...creds, password: newPassword });
-      toast.notify({ title: 'Password changed', tone: 'success' });
+      toast.notify({ title: t('changePassword.toastSuccess'), tone: 'success' });
       onClose();
     } catch (err) {
       const message =
@@ -64,9 +66,13 @@ export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProp
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to change password.';
+            : t('changePassword.errors.failed');
       setError(message);
-      toast.notify({ title: 'Failed to change password', description: message, tone: 'danger' });
+      toast.notify({
+        title: t('changePassword.toastFailed'),
+        description: message,
+        tone: 'danger',
+      });
     } finally {
       setSaving(false);
     }
@@ -76,20 +82,20 @@ export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProp
     <Dialog
       open={open}
       onClose={saving ? () => undefined : onClose}
-      title="Change password"
+      title={t('changePassword.title')}
       description={
         router?.name
-          ? `Update the password for "${router.name}".`
-          : 'Update the router login password.'
+          ? t('changePassword.descriptionNamed', { name: router.name })
+          : t('changePassword.description')
       }
       size="sm"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={saving}>
-            Cancel
+            {t('changePassword.cancel')}
           </Button>
           <Button variant="primary" onClick={submit} disabled={saving}>
-            {saving ? 'Saving…' : 'Change password'}
+            {saving ? t('changePassword.saving') : t('changePassword.submit')}
           </Button>
         </>
       }
@@ -97,7 +103,7 @@ export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProp
       <Stack $gap="var(--space-md)">
         <div className={styles.field}>
           <label className={styles.label} htmlFor="change-password-new">
-            New password
+            {t('changePassword.newPassword')}
           </label>
           <PasswordInput
             id="change-password-new"
@@ -109,7 +115,7 @@ export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProp
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="change-password-confirm">
-            Confirm new password
+            {t('changePassword.confirmPassword')}
           </label>
           <PasswordInput
             id="change-password-confirm"
@@ -124,9 +130,7 @@ export function ChangePasswordDialog({ open, onClose }: ChangePasswordDialogProp
             {error}
           </p>
         ) : (
-          <p className={styles.hint}>
-            You will stay signed in — the new password is saved for this session.
-          </p>
+          <p className={styles.hint}>{t('changePassword.hint')}</p>
         )}
       </Stack>
     </Dialog>

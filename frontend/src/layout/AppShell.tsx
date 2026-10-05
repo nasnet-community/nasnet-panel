@@ -24,7 +24,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
       <main className={styles.main}>{children}</main>
       <footer className={styles.footer}>
         <Inline $gap="8px" $justify="center">
-          <span>© 2026 Nasnet Panel{version ? ` ${version}` : ''}</span>
+          <span dir="ltr">© 2026 Nasnet Panel{version ? ` ${version}` : ''}</span>
           {isDev ? <Badge tone="warning">DEV</Badge> : null}
         </Inline>
       </footer>

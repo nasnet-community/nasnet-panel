@@ -1,1 +1,56 @@
-{}
+{
+  "brand": {
+    "logoAlt": "Nasnet Panel"
+  },
+  "sections": {
+    "ariaLabel": "Router sections",
+    "overview": "Overview",
+    "internet": "Internet",
+    "wan": "WAN",
+    "lan": "LAN",
+    "dns": "DNS",
+    "wireless": "WIFI",
+    "vpn": "VPN Server",
+    "plugins": "Plugins",
+    "diagnostics": "Diagnostics",
+    "help": "Help"
+  },
+  "menu": {
+    "open": "Open menu",
+    "online": "Online",
+    "showSubmenu": "Show {{label}} menu",
+    "updates": "Updates & notifications",
+    "changePassword": "Change password",
+    "logout": "Logout"
+  },
+  "theme": {
+    "lightOn": "Light mode on",
+    "lightOff": "Light mode off",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "dark": "Dark",
+    "light": "Light",
+    "toggle": "Toggle light mode"
+  },
+  "changePassword": {
+    "title": "Change password",
+    "descriptionNamed": "Update the password for \"{{name}}\".",
+    "description": "Update the router login password.",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "submit": "Change password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "hint": "You will stay signed in — the new password is saved for this session.",
+    "errors": {
+      "noRouter": "No active router. Open a router first.",
+      "sessionExpired": "Session expired. Please reconnect to the router.",
+      "empty": "Enter a new password.",
+      "mismatch": "Passwords do not match.",
+      "sameAsCurrent": "New password must be different from the current one.",
+      "failed": "Failed to change password."
+    },
+    "toastSuccess": "Password changed",
+    "toastFailed": "Failed to change password"
+  }
+}

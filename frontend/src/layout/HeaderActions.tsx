@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Bell, ChevronDown, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useAppTheme } from '../state/ThemeContext';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import type { RouterSection } from './routerSections';
 import styles from './HeaderActions.module.scss';
 
@@ -23,6 +25,7 @@ export function HeaderActions({
 }: HeaderActionsProps) {
   const { preference, resolved, setPreference } = useAppTheme();
   const navigate = useNavigate();
+  const { t } = useTranslation('layout');
   const location = useLocation();
   const hideSessionActions = location.pathname === '/' || location.pathname === '/routers/new';
   const [open, setOpen] = useState(false);
@@ -59,16 +62,19 @@ export function HeaderActions({
 
   if (hideSessionActions) {
     return (
-      <button
-        type="button"
-        className={cx(styles.themeIconButton, !isLight && styles.themeIconButtonOff)}
-        aria-label={isLight ? 'Light mode on' : 'Light mode off'}
-        aria-pressed={isLight}
-        title={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
-        onClick={() => setPreference(isLight ? 'dark' : 'light')}
-      >
-        <Sun size={16} aria-hidden />
-      </button>
+      <div className={styles.landingActions}>
+        <LanguageSwitcher compact />
+        <button
+          type="button"
+          className={cx(styles.themeIconButton, !isLight && styles.themeIconButtonOff)}
+          aria-label={isLight ? t('theme.lightOn') : t('theme.lightOff')}
+          aria-pressed={isLight}
+          title={isLight ? t('theme.switchToDark') : t('theme.switchToLight')}
+          onClick={() => setPreference(isLight ? 'dark' : 'light')}
+        >
+          <Sun size={16} aria-hidden />
+        </button>
+      </div>
     );
   }
 
@@ -79,13 +85,13 @@ export function HeaderActions({
         className={styles.menuTrigger}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Open menu"
+        aria-label={t('menu.open')}
         onClick={() => setOpen((v) => !v)}
       >
         <span className={styles.triggerDesktop}>
           {routerName ? (
             <>
-              <span className={styles.onlineDot} aria-label="Online" role="status" />
+              <span className={styles.onlineDot} aria-label={t('menu.online')} role="status" />
               <span className={styles.routerName}>{routerName}</span>
             </>
           ) : null}
@@ -124,7 +130,7 @@ export function HeaderActions({
                         type="button"
                         className={styles.subMenuToggle}
                         aria-expanded={expanded}
-                        aria-label={`Show ${s.label} menu`}
+                        aria-label={t('menu.showSubmenu', { label: s.label })}
                         onClick={() => setExpandedSectionId(expanded ? null : s.id)}
                       >
                         <ChevronDown
@@ -164,13 +170,13 @@ export function HeaderActions({
               onClick={() => setPreference('dark')}
             >
               <Moon size={14} aria-hidden />
-              <span>Dark</span>
+              <span>{t('theme.dark')}</span>
             </button>
             <button
               type="button"
               role="switch"
               aria-checked={isLight}
-              aria-label="Toggle light mode"
+              aria-label={t('theme.toggle')}
               className={cx(styles.themeSwitch, isLight && styles.themeSwitchOn)}
               onClick={() => setPreference(isLight ? 'dark' : 'light')}
             >
@@ -182,9 +188,11 @@ export function HeaderActions({
               onClick={() => setPreference('light')}
             >
               <Sun size={14} aria-hidden />
-              <span>Light</span>
+              <span>{t('theme.light')}</span>
             </button>
           </div>
+          <div className={styles.menuDivider} role="separator" />
+          <LanguageSwitcher />
           <div className={styles.menuDivider} role="separator" />
           <button
             type="button"
@@ -193,7 +201,7 @@ export function HeaderActions({
             onClick={goAndClose('/updates')}
           >
             <Bell size={16} aria-hidden />
-            <span>Updates &amp; notifications</span>
+            <span>{t('menu.updates')}</span>
           </button>
           <button
             type="button"
@@ -205,7 +213,7 @@ export function HeaderActions({
             }}
           >
             <KeyRound size={16} aria-hidden />
-            <span>Change password</span>
+            <span>{t('menu.changePassword')}</span>
           </button>
           <button
             type="button"
@@ -214,7 +222,7 @@ export function HeaderActions({
             onClick={goAndClose('/')}
           >
             <LogOut size={16} aria-hidden />
-            <span>Logout</span>
+            <span>{t('menu.logout')}</span>
           </button>
         </div>
       ) : null}
