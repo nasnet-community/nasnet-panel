@@ -16,11 +16,13 @@ export interface LanguageInfo {
   dir: 'ltr' | 'rtl';
   // BCP 47 tag handed to Intl for dates and numbers.
   intlLocale: string;
+  // Flag image served from the public folder.
+  flag: string;
 }
 
 export const LANGUAGES: LanguageInfo[] = [
-  { code: 'en', nativeName: 'English', dir: 'ltr', intlLocale: 'en-US' },
-  { code: 'fa', nativeName: 'فارسی', dir: 'rtl', intlLocale: 'fa-IR' },
+  { code: 'en', nativeName: 'English', dir: 'ltr', intlLocale: 'en-US', flag: '/flags/en.svg' },
+  { code: 'fa', nativeName: 'فارسی', dir: 'rtl', intlLocale: 'fa-IR', flag: '/flags/fa.svg' },
 ];
 
 export const DEFAULT_LANGUAGE: LanguageCode = 'en';

@@ -62,8 +62,8 @@ export function HeaderActions({
 
   if (hideSessionActions) {
     return (
-      <div className={styles.landingActions}>
-        <LanguageSwitcher compact />
+      <div className={styles.headerBar}>
+        <LanguageSwitcher />
         <button
           type="button"
           className={cx(styles.themeIconButton, !isLight && styles.themeIconButtonOff)}
@@ -79,157 +79,158 @@ export function HeaderActions({
   }
 
   return (
-    <div className={styles.menuRoot} ref={menuRef}>
-      <button
-        type="button"
-        className={styles.menuTrigger}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={t('menu.open')}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className={styles.triggerDesktop}>
-          {routerName ? (
-            <>
-              <span className={styles.onlineDot} aria-label={t('menu.online')} role="status" />
-              <span className={styles.routerName}>{routerName}</span>
-            </>
-          ) : null}
-          <ChevronDown size={14} aria-hidden className={open ? styles.chevronOpen : undefined} />
-        </span>
-        <Menu size={20} aria-hidden className={styles.triggerMobile} />
-      </button>
-      {open ? (
-        <div className={styles.menuPanel} role="menu">
-          {sections && routerId ? (
-            <div className={styles.sectionsMobile}>
-              {sections.map((s) => {
-                const item = (
-                  <button
-                    key={s.id}
-                    type="button"
-                    role="menuitem"
-                    disabled={s.disabled}
-                    className={cx(
-                      styles.menuItem,
-                      s.id === activeSectionId && styles.menuItemActive,
-                    )}
-                    onClick={goAndClose(`/router/${routerId}${s.path ? `/${s.path}` : ''}`)}
-                  >
-                    {s.icon}
-                    <span>{s.label}</span>
-                  </button>
-                );
-                if (!s.menu?.length) return item;
-                const expanded = expandedSectionId === s.id;
-                return (
-                  <div key={s.id} role="presentation" className={styles.sectionGroup}>
-                    <div role="presentation" className={styles.sectionRow}>
-                      {item}
-                      <button
-                        type="button"
-                        className={styles.subMenuToggle}
-                        aria-expanded={expanded}
-                        aria-label={t('menu.showSubmenu', { label: s.label })}
-                        onClick={() => setExpandedSectionId(expanded ? null : s.id)}
-                      >
-                        <ChevronDown
-                          size={16}
-                          aria-hidden
-                          className={expanded ? styles.chevronOpen : undefined}
-                        />
-                      </button>
-                    </div>
-                    {expanded ? (
-                      <div role="presentation" className={styles.subMenu}>
-                        {s.menu.map((m) => (
-                          <a
-                            key={m.id}
-                            role="menuitem"
-                            href={m.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.subMenuItem}
-                            onClick={() => setOpen(false)}
-                          >
-                            {m.label}
-                          </a>
-                        ))}
+    <div className={styles.headerBar}>
+      <LanguageSwitcher />
+      <div className={styles.menuRoot} ref={menuRef}>
+        <button
+          type="button"
+          className={styles.menuTrigger}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={t('menu.open')}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span className={styles.triggerDesktop}>
+            {routerName ? (
+              <>
+                <span className={styles.onlineDot} aria-label={t('menu.online')} role="status" />
+                <span className={styles.routerName}>{routerName}</span>
+              </>
+            ) : null}
+            <ChevronDown size={14} aria-hidden className={open ? styles.chevronOpen : undefined} />
+          </span>
+          <Menu size={20} aria-hidden className={styles.triggerMobile} />
+        </button>
+        {open ? (
+          <div className={styles.menuPanel} role="menu">
+            {sections && routerId ? (
+              <div className={styles.sectionsMobile}>
+                {sections.map((s) => {
+                  const item = (
+                    <button
+                      key={s.id}
+                      type="button"
+                      role="menuitem"
+                      disabled={s.disabled}
+                      className={cx(
+                        styles.menuItem,
+                        s.id === activeSectionId && styles.menuItemActive,
+                      )}
+                      onClick={goAndClose(`/router/${routerId}${s.path ? `/${s.path}` : ''}`)}
+                    >
+                      {s.icon}
+                      <span>{s.label}</span>
+                    </button>
+                  );
+                  if (!s.menu?.length) return item;
+                  const expanded = expandedSectionId === s.id;
+                  return (
+                    <div key={s.id} role="presentation" className={styles.sectionGroup}>
+                      <div role="presentation" className={styles.sectionRow}>
+                        {item}
+                        <button
+                          type="button"
+                          className={styles.subMenuToggle}
+                          aria-expanded={expanded}
+                          aria-label={t('menu.showSubmenu', { label: s.label })}
+                          onClick={() => setExpandedSectionId(expanded ? null : s.id)}
+                        >
+                          <ChevronDown
+                            size={16}
+                            aria-hidden
+                            className={expanded ? styles.chevronOpen : undefined}
+                          />
+                        </button>
                       </div>
-                    ) : null}
-                  </div>
-                );
-              })}
-              <div className={styles.menuDivider} role="separator" />
+                      {expanded ? (
+                        <div role="presentation" className={styles.subMenu}>
+                          {s.menu.map((m) => (
+                            <a
+                              key={m.id}
+                              role="menuitem"
+                              href={m.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.subMenuItem}
+                              onClick={() => setOpen(false)}
+                            >
+                              {m.label}
+                            </a>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+                <div className={styles.menuDivider} role="separator" />
+              </div>
+            ) : null}
+            <div className={styles.themeRow}>
+              <button
+                type="button"
+                className={cx(styles.themeLabel, !isLight && styles.themeLabelActive)}
+                onClick={() => setPreference('dark')}
+              >
+                <Moon size={14} aria-hidden />
+                <span>{t('theme.dark')}</span>
+              </button>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isLight}
+                aria-label={t('theme.toggle')}
+                className={cx(styles.themeSwitch, isLight && styles.themeSwitchOn)}
+                onClick={() => setPreference(isLight ? 'dark' : 'light')}
+              >
+                <span className={styles.themeSwitchThumb} aria-hidden />
+              </button>
+              <button
+                type="button"
+                className={cx(styles.themeLabel, isLight && styles.themeLabelActive)}
+                onClick={() => setPreference('light')}
+              >
+                <Sun size={14} aria-hidden />
+                <span>{t('theme.light')}</span>
+              </button>
             </div>
-          ) : null}
-          <div className={styles.themeRow}>
+            <div className={styles.menuDivider} role="separator" />
             <button
               type="button"
-              className={cx(styles.themeLabel, !isLight && styles.themeLabelActive)}
-              onClick={() => setPreference('dark')}
+              role="menuitem"
+              className={styles.menuItem}
+              onClick={goAndClose('/updates')}
             >
-              <Moon size={14} aria-hidden />
-              <span>{t('theme.dark')}</span>
+              <Bell size={16} aria-hidden />
+              <span>{t('menu.updates')}</span>
             </button>
             <button
               type="button"
-              role="switch"
-              aria-checked={isLight}
-              aria-label={t('theme.toggle')}
-              className={cx(styles.themeSwitch, isLight && styles.themeSwitchOn)}
-              onClick={() => setPreference(isLight ? 'dark' : 'light')}
+              role="menuitem"
+              className={styles.menuItem}
+              onClick={() => {
+                setOpen(false);
+                setPasswordDialogOpen(true);
+              }}
             >
-              <span className={styles.themeSwitchThumb} aria-hidden />
+              <KeyRound size={16} aria-hidden />
+              <span>{t('menu.changePassword')}</span>
             </button>
             <button
               type="button"
-              className={cx(styles.themeLabel, isLight && styles.themeLabelActive)}
-              onClick={() => setPreference('light')}
+              role="menuitem"
+              className={styles.menuItem}
+              onClick={goAndClose('/')}
             >
-              <Sun size={14} aria-hidden />
-              <span>{t('theme.light')}</span>
+              <LogOut size={16} aria-hidden />
+              <span>{t('menu.logout')}</span>
             </button>
           </div>
-          <div className={styles.menuDivider} role="separator" />
-          <LanguageSwitcher />
-          <div className={styles.menuDivider} role="separator" />
-          <button
-            type="button"
-            role="menuitem"
-            className={styles.menuItem}
-            onClick={goAndClose('/updates')}
-          >
-            <Bell size={16} aria-hidden />
-            <span>{t('menu.updates')}</span>
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className={styles.menuItem}
-            onClick={() => {
-              setOpen(false);
-              setPasswordDialogOpen(true);
-            }}
-          >
-            <KeyRound size={16} aria-hidden />
-            <span>{t('menu.changePassword')}</span>
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className={styles.menuItem}
-            onClick={goAndClose('/')}
-          >
-            <LogOut size={16} aria-hidden />
-            <span>{t('menu.logout')}</span>
-          </button>
-        </div>
-      ) : null}
-      <ChangePasswordDialog
-        open={passwordDialogOpen}
-        onClose={() => setPasswordDialogOpen(false)}
-      />
+        ) : null}
+        <ChangePasswordDialog
+          open={passwordDialogOpen}
+          onClose={() => setPasswordDialogOpen(false)}
+        />
+      </div>
     </div>
   );
 }
