@@ -586,10 +586,9 @@ func (e *Engine) stepDownload() error {
 		return nil
 	}
 
-	release, channel := snapshotRelease, snapshotChannel
-	if e.opts.Version != "" {
-		release = e.opts.Version
-		channel = strings.TrimPrefix(e.opts.Version, "v")
+	release, channel, err := e.resolveRelease()
+	if err != nil {
+		return err
 	}
 	suffix, err := assetSuffix(e.sys.Arch)
 	if err != nil {

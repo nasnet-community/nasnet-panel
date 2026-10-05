@@ -253,6 +253,7 @@ export {
   type CreateWireguardClientResponse,
   type ImportWireguardConfigRequest,
   type ImportWireguardConfigResponse,
+  type WireguardPeerImportResult,
   type VPNUserResponse,
   type CreateVPNUserRequest,
   type UpdateVPNUserRequest,
