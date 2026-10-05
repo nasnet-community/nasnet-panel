@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { test, expect, type TestFixtures } from './fixtures';
 
 const seedHeaderRouter = async ({
@@ -16,6 +17,13 @@ const seedHeaderRouter = async ({
   await mockOverviewBackend({ id: 'rtr_lang', model: 'hAP ax3', version: '7.13.2' });
 };
 
+const languageTrigger = (page: Page) => page.getByRole('button', { name: /^(Language|زبان): / });
+
+const chooseLanguage = async (page: Page, nativeName: string) => {
+  await languageTrigger(page).click();
+  await page.getByRole('menuitemradio', { name: nativeName }).click();
+};
+
 test.describe('Language switch', () => {
   test('switches to Farsi right to left and persists across reloads', async ({
     page,
@@ -27,25 +35,28 @@ test.describe('Language switch', () => {
     const html = page.locator('html');
     await expect(html).toHaveAttribute('lang', 'en');
     await expect(html).toHaveAttribute('dir', 'ltr');
+    await expect(languageTrigger(page)).toHaveAttribute('aria-label', 'Language: English');
 
-    await page.getByRole('button', { name: 'فارسی' }).click();
+    await chooseLanguage(page, 'فارسی');
     await expect(html).toHaveAttribute('lang', 'fa');
     await expect(html).toHaveAttribute('dir', 'rtl');
     await expect(page.getByRole('button', { name: /حالت روشن/ })).toBeVisible();
 
     await page.reload();
     await expect(html).toHaveAttribute('dir', 'rtl');
-    await expect(page.getByRole('button', { name: 'فارسی' })).toHaveAttribute(
-      'aria-pressed',
+    await expect(languageTrigger(page)).toHaveAttribute('aria-label', 'زبان: فارسی');
+
+    await languageTrigger(page).click();
+    await expect(page.getByRole('menuitemradio', { name: 'فارسی' })).toHaveAttribute(
+      'aria-checked',
       'true',
     );
-
-    await page.getByRole('button', { name: 'English' }).click();
+    await page.getByRole('menuitemradio', { name: 'English' }).click();
     await expect(html).toHaveAttribute('dir', 'ltr');
     await expect(page.getByRole('button', { name: /light mode (on|off)/i })).toBeVisible();
   });
 
-  test('translates the header menu and offers Persian digits only in Farsi', async ({
+  test('translates the dashboard, keeps form fields left to right, and offers Persian digits', async ({
     page,
     resetMocks,
     seedRouter,
@@ -54,21 +65,29 @@ test.describe('Language switch', () => {
     await seedHeaderRouter({ resetMocks, seedRouter, mockOverviewBackend });
     await page.goto('/router/rtr_lang');
 
-    const trigger = page.locator('header button[aria-haspopup="menu"]');
-    await trigger.click();
-    await expect(page.getByRole('menuitem', { name: /logout/i })).toBeVisible();
+    await languageTrigger(page).click();
     await expect(page.getByRole('checkbox', { name: 'Persian digits' })).toHaveCount(0);
+    await page.getByRole('menuitemradio', { name: 'فارسی' }).click();
 
-    await page.getByRole('button', { name: 'فارسی' }).click();
-    await expect(page.getByRole('menuitem', { name: 'خروج' })).toBeVisible();
+    await expect(page.locator('header')).toContainText('نسنت پنل');
     await expect(page.getByRole('tab', { name: 'نمای کلی' }).first()).toBeAttached();
 
+    const routerMenu = page.locator('header button[aria-haspopup="menu"]');
+    await routerMenu.click();
+    await expect(page.getByRole('menuitem', { name: 'خروج' })).toBeVisible();
+    await page.getByRole('menuitem', { name: 'تغییر رمز عبور' }).click();
+    const passwordField = page.locator('#change-password-new');
+    await expect(passwordField).toBeVisible();
+    await expect(passwordField).toHaveCSS('direction', 'ltr');
+    await page.keyboard.press('Escape');
+
+    await languageTrigger(page).click();
     const digits = page.getByRole('checkbox', { name: 'ارقام فارسی' });
     await expect(digits).not.toBeChecked();
     await digits.check();
 
     await page.reload();
-    await trigger.click();
+    await languageTrigger(page).click();
     await expect(page.getByRole('checkbox', { name: 'ارقام فارسی' })).toBeChecked();
   });
 });
@@ -82,9 +101,6 @@ test.describe('Language detection', () => {
 
     await expect(page.locator('html')).toHaveAttribute('lang', 'fa');
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-    await expect(page.getByRole('button', { name: 'فارسی' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expect(languageTrigger(page)).toHaveAttribute('aria-label', 'زبان: فارسی');
   });
 });
