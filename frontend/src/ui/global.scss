@@ -70,6 +70,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+// Vazirmatn ships only its Arabic-script subset (unicode-range), so Latin text in
+// Farsi mode, such as IPs and interface names, keeps the system font.
+:root[lang='fa'] body {
+  font-family:
+    Vazirmatn,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
 a {
   color: var(--color-primary);
   text-decoration: none;

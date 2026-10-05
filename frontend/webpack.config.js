@@ -71,6 +71,11 @@ module.exports = (_env, argv) => {
           test: /\.css$/,
           use: ['style-loader', 'css-loader'],
         },
+        {
+          test: /\.(woff2?|ttf|eot)$/,
+          type: 'asset/resource',
+          generator: { filename: 'assets/fonts/[name].[contenthash][ext]' },
+        },
       ],
     },
     plugins: [
