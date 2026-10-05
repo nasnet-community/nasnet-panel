@@ -14,12 +14,13 @@ const FIXED_NODE_LABEL_KEYS = {
   internet: 'internet.nodes.internet',
 } as const;
 
-// Mobile carriers buildTopology names from interface comments; Persian users know them by
-// their Persian names.
+// Uplinks buildTopology names from interface comments; Persian users know them by their
+// Persian names.
 const CARRIER_LABEL_KEYS: Record<
   string,
-  'internet.carriers.hamrahAval' | 'internet.carriers.irancell'
+  'internet.carriers.starlink' | 'internet.carriers.hamrahAval' | 'internet.carriers.irancell'
 > = {
+  Starlink: 'internet.carriers.starlink',
   'Hamrah-e-Aval': 'internet.carriers.hamrahAval',
   Irancell: 'internet.carriers.irancell',
 };

@@ -12,6 +12,7 @@
     "confirm": "Confirm"
   },
   "dualLinkFlow": {
+    "starlink": "Starlink",
     "ariaLabel": "Dual-link traffic flow",
     "domesticSite": "Domestic Site",
     "domesticWan": "Domestic WAN",

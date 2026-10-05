@@ -1,14 +1,14 @@
 {
   "internet": {
     "title": "مسیریابی اینترنت",
-    "description": "نمای زنده از نحوهٔ دسترسی کلاینت‌ها به اینترنت از طریق لینک‌های WAN و تونل‌های VPN. برای فعال یا غیرفعال کردن یک تونل VPN، روی آن کلیک کنید.",
+    "description": "نمای زنده از نحوهٔ دسترسی کلاینت‌ها به اینترنت از طریق لینک‌های ون و تونل‌های وی پی ان. برای فعال یا غیرفعال کردن یک تونل وی پی ان، روی آن کلیک کنید.",
     "loadFailedTitle": "بارگذاری توپولوژی اینترنت ناموفق بود",
     "loadFailedFallback": "بارگذاری توپولوژی مسیریابی ناموفق بود.",
     "notSupportedTitle": "هنوز پشتیبانی نمی‌شود",
-    "notSupportedDescription": "از این نما فقط تونل‌های VPN را می‌توان فعال یا غیرفعال کرد.",
-    "tunnelUpdated": "تونل VPN به‌روزرسانی شد",
+    "notSupportedDescription": "از این نما فقط تونل‌های وی پی ان را می‌توان فعال یا غیرفعال کرد.",
+    "tunnelUpdated": "تونل وی پی ان به‌روزرسانی شد",
     "updateFailedTitle": "به‌روزرسانی ناموفق بود",
-    "updateFailedFallback": "به‌روزرسانی تونل VPN ناموفق بود.",
+    "updateFailedFallback": "به‌روزرسانی تونل وی پی ان ناموفق بود.",
     "topologyAria": "توپولوژی مسیریابی",
     "empty": "هنوز هیچ توپولوژی مسیریابی برای این روتر پیکربندی نشده است.",
     "loading": "در حال بارگذاری توپولوژی…",
@@ -16,13 +16,13 @@
       "activeLink": "لینک فعال",
       "configuredIdle": "پیکربندی‌شده، بیکار",
       "liveTraffic": "ترافیک زنده",
-      "clickToToggle": "برای فعال/غیرفعال کردن، روی یک تونل VPN کلیک کنید"
+      "clickToToggle": "برای فعال/غیرفعال کردن، روی یک تونل وی پی ان کلیک کنید"
     },
     "columns": {
       "group": "کلاینت‌ها",
       "router": "روتر",
-      "wan": "WAN",
-      "vpn": "VPN",
+      "wan": "ون",
+      "vpn": "وی پی ان",
       "internet": "اینترنت"
     },
     "nodes": {
@@ -40,6 +40,7 @@
       "saving": "در حال ذخیره…"
     },
     "carriers": {
+      "starlink": "استارلینک",
       "hamrahAval": "همراه اول",
       "irancell": "ایرانسل"
     }
@@ -47,8 +48,8 @@
   "wan": {
     "loadInterfacesFailedTitle": "بارگذاری اینترفیس‌ها ناموفق بود",
     "loadInterfacesFailedFallback": "بارگذاری اینترفیس‌ها ناموفق بود.",
-    "loadVpnFailedTitle": "بارگذاری VPN ناموفق بود",
-    "loadVpnFailedFallback": "بارگذاری کلاینت‌های VPN ناموفق بود.",
+    "loadVpnFailedTitle": "بارگذاری وی پی ان ناموفق بود",
+    "loadVpnFailedFallback": "بارگذاری کلاینت‌های وی پی ان ناموفق بود.",
     "table": {
       "name": "نام",
       "type": "نوع",
@@ -72,12 +73,12 @@
       "moving": "در حال انتقال…"
     },
     "foreign": {
-      "title": "خارجی / Starlink",
-      "description": "اینترفیس‌هایی که به‌عنوان آپ‌لینک خارجی (Starlink) برچسب خورده‌اند.",
-      "empty": "هنوز هیچ آپ‌لینک Starlink وجود ندارد",
-      "changeFailedTitle": "تغییر آپ‌لینک Starlink ناموفق بود",
-      "changed": "آپ‌لینک Starlink تغییر کرد",
-      "dialogTitle": "تغییر آپ‌لینک Starlink",
+      "title": "خارجی / استارلینک",
+      "description": "اینترفیس‌هایی که به‌عنوان آپ‌لینک خارجی (استارلینک) برچسب خورده‌اند.",
+      "empty": "هنوز هیچ آپ‌لینک استارلینک وجود ندارد",
+      "changeFailedTitle": "تغییر آپ‌لینک استارلینک ناموفق بود",
+      "changed": "آپ‌لینک استارلینک تغییر کرد",
+      "dialogTitle": "تغییر آپ‌لینک استارلینک",
       "moveLabel": "انتقال {{name}} به داخلی",
       "moved": "«{{name}}» به داخلی منتقل شد",
       "confirmTitle": "انتقال به داخلی",
@@ -100,9 +101,9 @@
       "save": "ذخیره",
       "saving": "در حال ذخیره…",
       "saveFailed": "ذخیرهٔ آپ‌لینک ناموفق بود.",
-      "foreignHeading": "WAN Starlink",
-      "foreignWireless": "بی‌سیم Starlink",
-      "domesticHeading": "WAN داخلی",
+      "foreignHeading": "ون استارلینک",
+      "foreignWireless": "بی‌سیم استارلینک",
+      "domesticHeading": "ون داخلی",
       "domesticWireless": "بی‌سیم داخلی"
     }
   }

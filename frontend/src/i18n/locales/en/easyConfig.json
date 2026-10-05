@@ -13,6 +13,7 @@
     "vpnsrv": { "title": "VPN Server", "description": "Inbound VPN" }
   },
   "flow": {
+    "starlink": "Starlink",
     "user": "USER",
     "router": "Router",
     "foreignSite": "Foreign Site",

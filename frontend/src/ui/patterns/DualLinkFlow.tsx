@@ -196,7 +196,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         left="61%"
         top="24%"
         icon={<SatelliteDish size={32} strokeWidth={1.75} />}
-        label="Starlink"
+        label={t('dualLinkFlow.starlink')}
         sublabel={starlinkInterface}
         sublabelIcon={starlinkInterfaceIcon}
         badge={starlinkBadge}

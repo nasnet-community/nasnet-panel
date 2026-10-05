@@ -30,7 +30,7 @@ const modeOptions = (t: TFunction<'easyConfig'>) => [
 const starlinkFlowNodes = (t: TFunction<'easyConfig'>) => [
   { id: 'user', icon: <Laptop size={32} strokeWidth={1.75} />, label: t('flow.user') },
   { id: 'router', icon: <Wifi size={32} strokeWidth={1.75} />, label: t('flow.router') },
-  { id: 'wan', icon: <SatelliteDish size={32} strokeWidth={1.75} />, label: 'Starlink' },
+  { id: 'wan', icon: <SatelliteDish size={32} strokeWidth={1.75} />, label: t('flow.starlink') },
   { id: 'site', icon: <Server size={32} strokeWidth={1.75} />, label: t('flow.foreignSite') },
 ];
 

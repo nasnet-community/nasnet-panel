@@ -7,38 +7,39 @@
   },
   "stepper": {
     "mode": { "title": "انتخاب", "description": "نوع راه‌اندازی" },
-    "wan": { "title": "WAN", "description": "رابط‌های اتصال" },
-    "ipmask": { "title": "پنهان‌سازی IP", "description": "کلاینت VPN برای Starlink" },
+    "wan": { "title": "ون", "description": "رابط‌های اتصال" },
+    "ipmask": { "title": "پنهان‌سازی IP", "description": "کلاینت وی پی ان برای استارلینک" },
     "wifi": { "title": "وای‌فای", "description": "شبکه بی‌سیم" },
-    "vpnsrv": { "title": "سرور VPN", "description": "VPN ورودی" }
+    "vpnsrv": { "title": "سرور وی پی ان", "description": "وی پی ان ورودی" }
   },
   "flow": {
+    "starlink": "استارلینک",
     "user": "کاربر",
     "router": "روتر",
     "foreignSite": "سایت خارجی",
-    "starlinkOnlyAria": "مسیر ترافیک در حالت فقط Starlink",
-    "ipMaskAria": "مسیر پنهان‌سازی IP در Starlink"
+    "starlinkOnlyAria": "مسیر ترافیک در حالت فقط استارلینک",
+    "ipMaskAria": "مسیر پنهان‌سازی IP در استارلینک"
   },
   "mode": {
     "title": "حالت راه‌اندازی",
-    "description": "مشخص کنید WAN شما چگونه سیم‌کشی شده است. راهنمای تنظیم بر همین اساس تنظیم می‌شود.",
+    "description": "مشخص کنید ون شما چگونه سیم‌کشی شده است. راهنمای تنظیم بر همین اساس تنظیم می‌شود.",
     "ariaLabel": "حالت",
     "dualLink": {
       "label": "دو لینک",
-      "description": "Starlink + لینک اینترنت داخلی (DHCP، ایستا یا PPPoE)"
+      "description": "استارلینک + لینک اینترنت داخلی (DHCP، ایستا یا PPPoE)"
     },
     "starlinkOnly": {
-      "label": "فقط Starlink",
-      "description": "این روتر فقط یک لینک اینترنت Starlink دارد"
+      "label": "فقط استارلینک",
+      "description": "این روتر فقط یک لینک اینترنت استارلینک دارد"
     }
   },
   "wan": {
     "titleDual": "اتصال دو لینک",
-    "titleStarlinkOnly": "اتصال فقط Starlink",
-    "description": "مشخص کنید هر لینک اینترنت به کدام پورت وصل است؛ از رابط Starlink شروع کنید.",
-    "starlinkHeading": "WAN مربوط به Starlink",
-    "starlinkWireless": "بی‌سیم Starlink",
-    "domesticHeading": "WAN داخلی",
+    "titleStarlinkOnly": "اتصال فقط استارلینک",
+    "description": "مشخص کنید هر لینک اینترنت به کدام پورت وصل است؛ از رابط استارلینک شروع کنید.",
+    "starlinkHeading": "ون مربوط به استارلینک",
+    "starlinkWireless": "بی‌سیم استارلینک",
+    "domesticHeading": "ون داخلی",
     "domesticWireless": "بی‌سیم داخلی",
     "interfaceLabel": {
       "ethernet": "رابط اترنت",
@@ -69,8 +70,8 @@
       "ipAria": "IP ایستا",
       "gateway": "درگاه",
       "gatewayAria": "درگاه ایستا",
-      "dns": "DNS",
-      "dnsAria": "DNS ایستا"
+      "dns": "دی ان اس",
+      "dnsAria": "دی ان اس ایستا"
     },
     "wireless": {
       "change": "تغییر",
@@ -95,10 +96,10 @@
     }
   },
   "ipMask": {
-    "title": "کلاینت VPN پنهان‌سازی IP برای Starlink",
-    "description": "استفاده شما از Starlink قابل ردیابی تا هویت شماست. یک کلاینت VPN تنظیم کنید تا IP مربوط به Starlink پنهان شود.",
+    "title": "کلاینت وی پی ان پنهان‌سازی IP برای استارلینک",
+    "description": "استفاده شما از استارلینک قابل ردیابی تا هویت شماست. یک کلاینت وی پی ان تنظیم کنید تا IP مربوط به استارلینک پنهان شود.",
     "protocolAria": "پروتکل پنهان‌سازی IP",
-    "wireguardDescription": "VPN سریع و مدرن با رمزنگاری پیشرفته.",
+    "wireguardDescription": "وی پی ان سریع و مدرن با رمزنگاری پیشرفته.",
     "l2tpDescription": "پروتکلی با پشتیبانی گسترده و رمزنگاری IPsec.",
     "wireguard": {
       "placeholder": "پیکربندی WireGuard خود را اینجا جای‌گذاری کنید. فایل باید بخش‌های [Interface] و [Peer] را داشته باشد.",
@@ -112,7 +113,7 @@
     },
     "l2tp": {
       "server": "سرور",
-      "claimFree": "دریافت VPN رایگان",
+      "claimFree": "دریافت وی پی ان رایگان",
       "username": "نام کاربری",
       "password": "رمز عبور",
       "useIpsec": "استفاده از رمزنگاری IPsec",
@@ -122,12 +123,12 @@
   "hyperSpeed": {
     "hotDeal": "پیشنهاد ویژه",
     "availableNow": "هم‌اکنون در دسترس",
-    "title": "VPN رایگان Hyper Speed از Nasnet Panel",
-    "subtitle": "بهینه‌شده برای Starlink و ساخته‌شده برای کاربران Nasnet Panel.",
+    "title": "وی پی ان رایگان Hyper Speed از Nasnet Panel",
+    "subtitle": "بهینه‌شده برای استارلینک و ساخته‌شده برای کاربران Nasnet Panel.",
     "comingSoon": "به‌زودی",
-    "claimYours": "VPN رایگان خود را دریافت کنید",
+    "claimYours": "وی پی ان رایگان خود را دریافت کنید",
     "cancel": "لغو",
-    "claim": "دریافت VPN رایگان",
+    "claim": "دریافت وی پی ان رایگان",
     "bullets": {
       "bandwidth": "پهنای باند نامحدود",
       "throttling": "بدون محدودسازی سرعت",
@@ -137,8 +138,8 @@
     "validity": "اطلاعات ورود 6 ماه معتبر است و پس از انقضا می‌توانید دوباره آن را دریافت کنید.",
     "toast": {
       "missingTitle": "اطلاعات ورود روتر موجود نیست",
-      "missingDescription": "پیش از دریافت VPN به روتر متصل شوید.",
-      "successTitle": "اطلاعات ورود VPN رایگان اعمال شد",
+      "missingDescription": "پیش از دریافت وی پی ان به روتر متصل شوید.",
+      "successTitle": "اطلاعات ورود وی پی ان رایگان اعمال شد",
       "validUntil": "معتبر تا {{date}}.",
       "failedTitle": "دریافت ناموفق بود",
       "fallbackError": "مشکلی پیش آمد"
@@ -164,7 +165,7 @@
     "toggleEnabled": "فعال"
   },
   "vpnServer": {
-    "title": "سرور VPN",
+    "title": "سرور وی پی ان",
     "description": "برای دستگاه‌ها گواهی کلاینت OpenVPN صادر کنید تا بتوانند به این روتر وصل شوند.",
     "enabled": "فعال",
     "disabled": "غیرفعال",
@@ -182,11 +183,11 @@
     },
     "fields": {
       "listenPort": "پورت شنود",
-      "listenPortAria": "پورت شنود سرور VPN",
+      "listenPortAria": "پورت شنود سرور وی پی ان",
       "ipPool": "محدوده IP",
-      "ipPoolAria": "محدوده IP سرور VPN",
-      "dns": "DNS (اختیاری)",
-      "dnsAria": "DNS سرور VPN"
+      "ipPoolAria": "محدوده IP سرور وی پی ان",
+      "dns": "دی ان اس (اختیاری)",
+      "dnsAria": "دی ان اس سرور وی پی ان"
     }
   },
   "review": {
@@ -219,9 +220,9 @@
   },
   "validation": {
     "pickMode": "برای ادامه یک حالت انتخاب کنید.",
-    "selectStarlink": "رابط Starlink را انتخاب کنید.",
-    "starlinkSsidRequired": "SSID بی‌سیم Starlink الزامی است.",
-    "starlinkPasswordShort": "رمز عبور بی‌سیم Starlink باید دست‌کم 8 نویسه باشد.",
+    "selectStarlink": "رابط استارلینک را انتخاب کنید.",
+    "starlinkSsidRequired": "SSID بی‌سیم استارلینک الزامی است.",
+    "starlinkPasswordShort": "رمز عبور بی‌سیم استارلینک باید دست‌کم 8 نویسه باشد.",
     "selectDomestic": "رابط داخلی را انتخاب کنید.",
     "domesticSsidRequired": "SSID بی‌سیم داخلی الزامی است.",
     "domesticPasswordShort": "رمز عبور بی‌سیم داخلی باید دست‌کم 8 نویسه باشد.",

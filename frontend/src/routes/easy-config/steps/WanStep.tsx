@@ -39,7 +39,7 @@ function starlinkFlowNodes(
     {
       id: 'wan',
       icon: <SatelliteDish size={32} strokeWidth={1.75} />,
-      label: 'Starlink',
+      label: t('flow.starlink'),
       sublabel: starlinkInterface,
       sublabelIcon: starlinkInterface ? interfaceIcon(type) : undefined,
       selected: Boolean(starlinkInterface),

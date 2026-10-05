@@ -66,16 +66,16 @@
         "description": "جدول‌ها و قوانین"
       },
       "dns": {
-        "label": "DNS",
+        "label": "دی ان اس",
         "description": "پیکربندی و تفکیک نام"
       },
       "vpn": {
-        "label": "VPN",
+        "label": "وی پی ان",
         "description": "کلاینت‌ها و سرورها"
       },
       "connectivity": {
         "label": "آزمون‌های اتصال",
-        "description": "پینگ WAN و VPN"
+        "description": "پینگ ون و وی پی ان"
       },
       "logs": {
         "label": "لاگ‌ها",

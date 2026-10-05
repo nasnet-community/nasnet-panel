@@ -46,7 +46,7 @@
     "noLeases": "هیچ اجارهٔ فعالی وجود ندارد",
     "dynamic": "پویا",
     "static": "ثابت",
-    "vpnTitle": "کلاینت‌های VPN",
+    "vpnTitle": "کلاینت‌های وی پی ان",
     "noVpnClients": "هیچ کلاینتی متصل نیست"
   },
   "system": {
@@ -92,7 +92,7 @@
     "listAria": "دسترس‌پذیری لینک‌ها",
     "foreign": "خارجی",
     "domestic": "داخلی",
-    "vpn": "VPN",
+    "vpn": "وی پی ان",
     "badgeUp": "برقرار",
     "badgeDown": "قطع",
     "badgeUnknown": "نامشخص",
@@ -105,12 +105,13 @@
     "empty": "هیچ اینترفیس آپلینکی شناسایی نشد",
     "noAddress": "بدون آدرس",
     "kind": {
-      "starlink": "Starlink",
+      "starlink": "استارلینک",
       "mobile": "موبایل",
       "fiber": "فیبر",
       "ether": "اترنت"
     },
     "carriers": {
+      "starlink": "استارلینک",
       "hamrahAval": "همراه اول",
       "irancell": "ایرانسل"
     }

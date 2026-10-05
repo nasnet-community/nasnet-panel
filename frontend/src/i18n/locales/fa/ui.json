@@ -12,9 +12,10 @@
     "confirm": "تأیید"
   },
   "dualLinkFlow": {
+    "starlink": "استارلینک",
     "ariaLabel": "جریان ترافیک دو لینکی",
     "domesticSite": "سایت داخلی",
-    "domesticWan": "WAN داخلی",
+    "domesticWan": "ون داخلی",
     "foreignSite": "سایت خارجی",
     "router": "روتر",
     "user": "کاربر"

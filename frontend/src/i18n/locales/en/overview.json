@@ -111,6 +111,7 @@
       "ether": "ether"
     },
     "carriers": {
+      "starlink": "Starlink",
       "hamrahAval": "Hamrah-e-Aval",
       "irancell": "Irancell"
     }

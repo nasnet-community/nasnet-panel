@@ -79,9 +79,10 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
   );
 });
 
-// buildUplinks names known mobile carriers in English; Persian users know them by their
+// buildUplinks names Starlink and known mobile carriers in English; Persian users know them by their
 // Persian names. Other labels are interface comments from the router, shown as-is.
 const carrierLabel = (t: TFunction<'overview'>, label: string) => {
+  if (label === 'Starlink') return t('uplink.carriers.starlink');
   if (label === 'Hamrah-e-Aval') return t('uplink.carriers.hamrahAval');
   if (label === 'Irancell') return t('uplink.carriers.irancell');
   return label;
