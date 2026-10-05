@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, FieldRow, FieldStack, Input, Label, Select } from '@nasnet/ui';
 import { getProtocolOptions, type VPNClient, type VPNProtocol } from '../../../api';
 
@@ -9,36 +10,37 @@ interface Props {
 }
 
 export function ClientFormDialog({ value, onCancel, onSave }: Props) {
+  const { t } = useTranslation('vpn');
   const [draft, setDraft] = useState<Partial<VPNClient>>(value);
   return (
     <Dialog
       open
       onClose={onCancel}
-      title={value.id ? 'Edit VPN client' : 'New VPN client'}
+      title={value.id ? t('clients.form.editTitle') : t('clients.form.newTitle')}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
-          <Button onClick={() => onSave(draft)}>Save</Button>
+          <Button onClick={() => onSave(draft)}>{t('shared.save')}</Button>
         </>
       }
     >
       <FieldStack>
         <FieldRow>
           <Label>
-            <span>Name</span>
+            <span>{t('shared.name')}</span>
             <Input
               value={draft.name ?? ''}
               onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
-              aria-label="Name"
+              aria-label={t('shared.name')}
             />
           </Label>
           <Label>
-            <span>Protocol</span>
+            <span>{t('shared.protocol')}</span>
             <Select
-              aria-label="Protocol"
+              aria-label={t('shared.protocol')}
               value={draft.protocol ?? 'wireguard'}
               onChange={(v) => setDraft((d) => ({ ...d, protocol: v as VPNProtocol }))}
               options={getProtocolOptions().map((p) => ({ value: p, label: p }))}
@@ -47,21 +49,23 @@ export function ClientFormDialog({ value, onCancel, onSave }: Props) {
         </FieldRow>
         <FieldRow>
           <Label>
-            <span>Endpoint host</span>
+            <span>{t('clients.form.endpointHost')}</span>
             <Input
               value={draft.endpoint ?? ''}
               onChange={(e) => setDraft((d) => ({ ...d, endpoint: e.target.value }))}
-              aria-label="Endpoint host"
+              aria-label={t('clients.form.endpointHost')}
+              dir="ltr"
             />
           </Label>
           <Label>
-            <span>Endpoint port</span>
+            <span>{t('clients.form.endpointPort')}</span>
             <Input
               value={String(draft.endpointPort ?? '')}
               onChange={(e) =>
                 setDraft((d) => ({ ...d, endpointPort: Number(e.target.value) || undefined }))
               }
-              aria-label="Endpoint port"
+              aria-label={t('clients.form.endpointPort')}
+              dir="ltr"
             />
           </Label>
         </FieldRow>

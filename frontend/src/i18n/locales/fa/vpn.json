@@ -1,1 +1,464 @@
-{}
+{
+  "page": {
+    "loadFailed": "بارگذاری VPN ناموفق بود",
+    "loadFailedDescription": "بارگذاری داده‌های VPN ناموفق بود."
+  },
+  "clients": {
+    "toast": {
+      "saved": "کلاینت ذخیره شد",
+      "deleted": "کلاینت حذف شد",
+      "updateFailed": "به‌روزرسانی کلاینت ناموفق بود",
+      "updateFailedDescription": "به‌روزرسانی کلاینت ناموفق بود.",
+      "gatewaySet": "گیت‌وی Starlink روی «{{name}}» تنظیم شد",
+      "gatewayFailed": "تنظیم گیت‌وی ناموفق بود",
+      "gatewayFailedDescription": "تنظیم گیت‌وی ناموفق بود.",
+      "addFailed": "افزودن کلاینت VPN ناموفق بود",
+      "addL2tpFailedDescription": "افزودن کلاینت L2TP ناموفق بود.",
+      "l2tpAdded": "کلاینت L2TP «{{name}}» افزوده شد",
+      "addWgFailedDescription": "افزودن کلاینت WireGuard ناموفق بود.",
+      "wgAdded": "کلاینت WireGuard «{{name}}» افزوده شد",
+      "wgImportFailed": "وارد کردن پیکربندی WireGuard ناموفق بود.",
+      "wgImportFailedTitle": "وارد کردن پیکربندی WireGuard ناموفق بود",
+      "l2tpUpdateFailed": "به‌روزرسانی کلاینت L2TP ناموفق بود",
+      "l2tpUpdateFailedDescription": "به‌روزرسانی کلاینت L2TP ناموفق بود.",
+      "l2tpUpdated": "کلاینت L2TP «{{name}}» به‌روزرسانی شد",
+      "deleteFailed": "حذف کلاینت ناموفق بود",
+      "deleteFailedDescription": "حذف کلاینت ناموفق بود.",
+      "deletedNamed": "کلاینت «{{name}}» حذف شد",
+      "wgUpdated": "کلاینت WireGuard «{{name}}» به‌روزرسانی شد"
+    },
+    "title": "کلاینت VPN پنهان‌سازی Starlink",
+    "description": "کلاینت‌های VPN که IP اینترنت Starlink را پنهان می‌کنند.",
+    "new": "جدید",
+    "table": {
+      "ping": "پینگ",
+      "traffic": "ترافیک",
+      "lastLink": "آخرین اتصال",
+      "lastConnected": "متصل: {{time}}",
+      "lastDisconnected": "قطع: {{time}}",
+      "starlinkGateway": "گیت‌وی Starlink",
+      "gateway": "گیت‌وی",
+      "setGatewayFor": "تنظیم {{name}} به‌عنوان گیت‌وی Starlink",
+      "setGateway": "تنظیم گیت‌وی",
+      "noMatch": "هیچ کلاینتی با فیلترهای فعلی مطابقت ندارد.",
+      "empty": "هنوز کلاینت VPNای وجود ندارد."
+    },
+    "delete": {
+      "wgTitle": "حذف کلاینت WireGuard",
+      "l2tpTitle": "حذف کلاینت L2TP",
+      "wgDescription": "«{{name}}» از این روتر حذف شود؟ همتاها و آدرس IP مرتبط هم حذف می‌شوند. این کار برگشت‌پذیر نیست.",
+      "l2tpDescription": "«{{name}}» از این روتر حذف شود؟ این کار برگشت‌پذیر نیست."
+    },
+    "form": {
+      "editTitle": "ویرایش کلاینت VPN",
+      "newTitle": "کلاینت VPN جدید",
+      "endpointHost": "میزبان نقطهٔ پایانی (endpoint)",
+      "endpointPort": "پورت نقطهٔ پایانی (endpoint)"
+    }
+  },
+  "peers": {
+    "toast": {
+      "added": "همتا افزوده شد",
+      "deleted": "همتا حذف شد"
+    },
+    "empty": "هنوز همتایی وجود ندارد.",
+    "noServer": "ابتدا یک سرور VPN اضافه کنید.",
+    "title": "همتاهای متصل",
+    "description": "کلاینت‌هایی که به سرور VPN این روتر متصل می‌شوند.",
+    "add": "افزودن همتا",
+    "deleteTitle": "حذف همتا",
+    "form": {
+      "title": "همتای جدید"
+    }
+  },
+  "pagination": {
+    "showing": "نمایش {{from}}–{{to}} از {{total}}",
+    "previousPage": "صفحهٔ قبلی",
+    "prev": "قبلی",
+    "page": "صفحهٔ {{page}} از {{total}}",
+    "nextPage": "صفحهٔ بعدی",
+    "next": "بعدی"
+  },
+  "stats": {
+    "activeTunnels": "تونل‌های فعال",
+    "configured": "{{active}} از {{total}} پیکربندی‌شده",
+    "servers": "سرورها",
+    "activeServers": "سرورهای فعال",
+    "clients": "کلاینت‌ها",
+    "activeConnections": "اتصال‌های فعال",
+    "protocols": "پروتکل‌ها"
+  },
+  "wgImport": {
+    "skippedMore_one": " و {{count}} مورد دیگر",
+    "skippedMore_other": " و {{count}} مورد دیگر",
+    "skipped_one": "{{count}} همتا که از قبل روی این اینترفیس بود رد شد ({{list}}{{more}}).",
+    "skipped_other": "{{count}} همتا که از قبل روی این اینترفیس بودند رد شدند ({{list}}{{more}}).",
+    "upToDate": "کلاینت WireGuard «{{name}}» از قبل به‌روز است",
+    "reusedInterface": "اینترفیسی با همین کلید خصوصی و آدرس IP از قبل وجود دارد، بنابراین از همان استفاده شد.",
+    "noNewPeers": "همتای جدیدی افزوده نشد.",
+    "addedToExisting_one": "{{count}} همتا به کلاینت WireGuard موجود «{{name}}» افزوده شد",
+    "addedToExisting_other": "{{count}} همتا به کلاینت WireGuard موجود «{{name}}» افزوده شدند",
+    "reusedInsteadOfNew": "اینترفیسی با همین کلید خصوصی و آدرس IP از قبل وجود دارد، بنابراین به‌جای ساختن اینترفیس جدید از همان استفاده شد.",
+    "importedWithoutPeers": "کلاینت WireGuard «{{name}}» بدون همتا وارد شد",
+    "noPeersInConfig": "فایل پیکربندی هیچ همتایی برای افزودن نداشت.",
+    "imported": "کلاینت WireGuard «{{name}}» وارد شد",
+    "createdWith_one": "با {{count}} همتا ساخته شد.",
+    "createdWith_other": "با {{count}} همتا ساخته شد."
+  },
+  "shared": {
+    "name": "نام",
+    "allowedIps": "IPهای مجاز",
+    "actions": "عملیات",
+    "delete": "حذف",
+    "deleting": "در حال حذف…",
+    "status": "وضعیت",
+    "enabled": "فعال",
+    "disabled": "غیرفعال",
+    "comment": "توضیحات",
+    "editNamed": "ویرایش {{name}}",
+    "deleteNamed": "حذف {{name}}",
+    "protocol": "پروتکل",
+    "running": "در حال اجرا",
+    "port": "پورت",
+    "enable": "فعال‌سازی",
+    "disable": "غیرفعال‌سازی",
+    "enabling": "در حال فعال‌سازی…",
+    "disabling": "در حال غیرفعال‌سازی…",
+    "enableNamed": "فعال‌سازی {{name}}",
+    "disableNamed": "غیرفعال‌سازی {{name}}",
+    "connected": "متصل",
+    "disconnected": "قطع",
+    "notConnected": "به روتر متصل نیست",
+    "cancel": "لغو",
+    "save": "ذخیره",
+    "notConnectedDot": "به روتر متصل نیست.",
+    "nameRequired": "نام الزامی است.",
+    "saving": "در حال ذخیره…",
+    "saveChanges": "ذخیرهٔ تغییرات",
+    "loading": "در حال بارگذاری…",
+    "password": "رمز عبور",
+    "leaveEmpty": "برای حفظ مقدار فعلی خالی بگذارید",
+    "portRange": "پورت باید بین 1 تا 65535 باشد.",
+    "mtuPositive": "MTU باید یک عدد صحیح مثبت باشد.",
+    "listenPort": "پورت شنود",
+    "privateKey": "کلید خصوصی",
+    "required": "الزامی است.",
+    "optional": "اختیاری",
+    "connectTo": "اتصال به",
+    "user": "کاربر",
+    "usernamePlaceholder": "نام کاربری",
+    "ipsecSecret": "رمز IPsec",
+    "preSharedKeyPlaceholder": "کلید از پیش مشترک",
+    "useIpsec": "استفاده از IPsec",
+    "keepalivePositive": "Keepalive باید یک عدد صحیح مثبت باشد.",
+    "endpointAddress": "آدرس نقطهٔ پایانی (endpoint)",
+    "allowedAddresses": "آدرس‌های مجاز",
+    "keepaliveSeconds": "Keepalive دائمی (ثانیه)",
+    "keepalivePlaceholder": "خالی = خاموش",
+    "keepalive": "Keepalive دائمی",
+    "presharedKey": "کلید از پیش مشترک",
+    "creating": "در حال ساخت…",
+    "advancedMode": "حالت پیشرفته",
+    "nameOptional": "نام (اختیاری)",
+    "autoGeneratedIfEmpty": "اگر خالی باشد خودکار ساخته می‌شود",
+    "publicKey": "کلید عمومی",
+    "autoGeneratePlaceholder": "برای ساخت خودکار خالی بگذارید",
+    "close": "بستن",
+    "copy": "کپی",
+    "yes": "بله",
+    "no": "خیر",
+    "passwordRequired": "رمز عبور الزامی است.",
+    "wgKeyInvalid": "یک کلید معتبر WireGuard وارد کنید (base64 با ۴۴ کاراکتر).",
+    "adding": "در حال افزودن…",
+    "enabledOnCreation": "فعال هنگام ساخت",
+    "peerPublicKey": "کلید عمومی همتا",
+    "peerPrivateKey": "کلید خصوصی همتا"
+  },
+  "users": {
+    "title": "کاربران VPN",
+    "description": "مدیریت اطلاعات ورودی مشترک بین همهٔ سرورهای VPN.",
+    "searchPlaceholder": "جستجوی کاربران…",
+    "searchLabel": "جستجوی کاربران",
+    "add": "افزودن کاربر",
+    "deleteTitle": "حذف کاربر VPN",
+    "deleteDescription": "«{{name}}» از این روتر حذف شود؟ این کار برگشت‌پذیر نیست.",
+    "table": {
+      "profile": "پروفایل",
+      "noMatch": "هیچ کاربری با فیلترهای فعلی مطابقت ندارد.",
+      "empty": "هیچ کاربر VPNای پیکربندی نشده است."
+    },
+    "toast": {
+      "deleteFailed": "حذف کاربر ناموفق بود",
+      "deleteFailedDescription": "حذف کاربر VPN ناموفق بود.",
+      "deleted": "کاربر «{{name}}» حذف شد",
+      "created": "کاربر VPN ساخته شد",
+      "updated": "کاربر VPN به‌روزرسانی شد"
+    },
+    "form": {
+      "hints": {
+        "vpnVpn": "تمام ترافیک کاربر از طریق VPN خروجی مسیریابی می‌شود.",
+        "vpnSplit": "ترافیک خارجی از طریق VPN خروجی و ترافیک داخلی از طریق لینک داخلی مسیریابی می‌شود.",
+        "vpnForeign": "تمام ترافیک کاربر از طریق Starlink مسیریابی می‌شود که ممکن است هویت شما و استفاده از Starlink را آشکار کند. با احتیاط استفاده کنید."
+      },
+      "loadProfilesFailed": "بارگذاری پروفایل‌های VPN ناموفق بود.",
+      "profileRequired": "پروفایل الزامی است.",
+      "updateFailed": "به‌روزرسانی کاربر VPN ناموفق بود.",
+      "createFailed": "ساخت کاربر VPN ناموفق بود.",
+      "editTitle": "ویرایش کاربر VPN - {{name}}",
+      "newTitle": "کاربر VPN جدید",
+      "create": "ساخت کاربر",
+      "scopeNote": "کاربران VPN برای OpenVPN، L2TP و SSTP به کار می‌روند. برای WireGuard، سرور WireGuard را باز کنید و به‌جای آن یک همتا اضافه کنید.",
+      "passwordKeep": "برای حفظ رمز عبور فعلی خالی بگذارید",
+      "selectProfile": "یک پروفایل انتخاب کنید",
+      "noProfiles": "پروفایلی موجود نیست"
+    }
+  },
+  "servers": {
+    "title": "سرورهای VPN",
+    "description": "دریافت اتصال‌های ورودی VPN.",
+    "searchPlaceholder": "جستجوی سرورها…",
+    "searchLabel": "جستجوی سرورها",
+    "add": "افزودن سرور",
+    "table": {
+      "peers": "همتاها",
+      "peersOn_one": "{{count}} همتا روی {{name}}",
+      "peersOn_other": "{{count}} همتا روی {{name}}",
+      "downloadConfig": "دانلود پیکربندی کلاینت برای {{name}}",
+      "noMatch": "هیچ سروری با فیلترهای فعلی مطابقت ندارد.",
+      "empty": "هیچ سرور VPNای پیکربندی نشده است."
+    },
+    "toast": {
+      "created": "سرور VPN ساخته شد",
+      "deleteFailed": "حذف سرور ناموفق بود",
+      "deleteFailedDescription": "حذف سرور VPN ناموفق بود.",
+      "pairDeleted": "سرورهای «{{name}}» و «{{paired}}» حذف شدند",
+      "deleted": "سرور «{{name}}» حذف شد",
+      "disableFailed": "غیرفعال‌سازی سرور ناموفق بود",
+      "disableFailedDescription": "غیرفعال‌سازی سرور {{protocol}} ناموفق بود.",
+      "disabled": "سرور «{{name}}» غیرفعال شد",
+      "enabled": "سرور «{{name}}» فعال شد",
+      "enableFailed": "فعال‌سازی سرور ناموفق بود",
+      "ovpnEnableFailedDescription": "فعال‌سازی سرور OpenVPN ناموفق بود.",
+      "ovpnDisableFailedDescription": "غیرفعال‌سازی سرور OpenVPN ناموفق بود.",
+      "wgUpdated": "سرور WireGuard به‌روزرسانی شد"
+    },
+    "delete": {
+      "pairTitle": "حذف جفت سرور OpenVPN",
+      "title": "حذف سرور VPN",
+      "description": "«{{name}}» از این روتر حذف شود؟ همتاها و آدرس IP آن هم حذف می‌شوند. این کار برگشت‌پذیر نیست.",
+      "ovpnDescription": "«{{name}}» از این روتر حذف شود؟ کاربران، مخزن IP، پروفایل و گواهی‌ها هم حذف می‌شوند. این کار برگشت‌پذیر نیست.",
+      "ovpnPairDescription": "«{{name}}» از این روتر حذف شود؟ سرور جفت آن، «{{paired}}»، هم همراهش حذف می‌شود. کاربران، مخزن IP، پروفایل و گواهی‌ها هم حذف می‌شوند. این کار برگشت‌پذیر نیست.",
+      "alsoDeleteCertFiles": "فایل‌های گواهی هم از حافظهٔ دستگاه حذف شوند"
+    },
+    "toggle": {
+      "enableTitle": "فعال‌سازی سرور OpenVPN",
+      "disableTitle": "غیرفعال‌سازی سرور OpenVPN",
+      "enableDescription": "«{{name}}» روی این روتر راه‌اندازی شود؟ کلاینت‌ها می‌توانند دوباره با پروفایل‌های فعلی‌شان متصل شوند.",
+      "disableDescription": "«{{name}}» روی این روتر متوقف شود؟ اتصال کلاینت‌های متصل قطع می‌شود و تا فعال‌سازی دوباره نمی‌توانند وصل شوند."
+    },
+    "disable": {
+      "title": "غیرفعال‌سازی سرور {{protocol}}",
+      "description": "سرور {{protocol}} روی این روتر متوقف شود؟ قوانین فایروالی که برای آن اضافه شده حذف می‌شوند و کلاینت‌ها دیگر نمی‌توانند از طریق {{protocol}} متصل شوند.",
+      "alsoDeleteCerts": "گواهی‌ها و فایل‌هایشان هم حذف شوند"
+    }
+  },
+  "active": {
+    "title": "اتصال‌های فعال",
+    "description": "کلاینت‌هایی که هم‌اکنون به سرورهای VPN شما متصل هستند.",
+    "serviceFilter": "فیلتر سرویس",
+    "searchPlaceholder": "جستجوی اتصال‌ها…",
+    "searchLabel": "جستجوی اتصال‌ها",
+    "allServices": "همهٔ سرویس‌ها",
+    "loadFailedDescription": "بارگذاری اتصال‌های فعال ناموفق بود.",
+    "disconnectNamed": "قطع اتصال {{name}}",
+    "table": {
+      "service": "سرویس",
+      "address": "آدرس",
+      "callerId": "شناسهٔ تماس‌گیرنده",
+      "uptime": "مدت اتصال",
+      "handshake": "handshake {{time}} پیش",
+      "session": "نشست",
+      "wgDetails": "{{iface}} دریافت {{rx}} ارسال {{tx}}",
+      "loadFailed": "بارگذاری اتصال‌های فعال ناموفق بود: {{error}}",
+      "noMatch": "هیچ اتصالی با فیلترهای فعلی مطابقت ندارد.",
+      "empty": "اتصال فعالی وجود ندارد."
+    },
+    "toast": {
+      "disconnectFailed": "قطع اتصال ناموفق بود",
+      "disconnectFailedDescription": "قطع اتصال نشست ناموفق بود.",
+      "disconnected": "اتصال «{{name}}» قطع شد"
+    },
+    "confirm": {
+      "title": "قطع اتصال نشست",
+      "description": "اتصال «{{name}}» همین حالا قطع شود؟ حساب کاربری حفظ می‌شود و می‌تواند دوباره متصل شود.",
+      "disconnect": "قطع اتصال",
+      "disconnecting": "در حال قطع اتصال…"
+    }
+  },
+  "typePicker": {
+    "soon": "به‌زودی"
+  },
+  "ovpnExport": {
+    "failed": "دانلود پیکربندی کلاینت ناموفق بود.",
+    "title": "دانلود کلاینت OpenVPN - {{name}}",
+    "exporting": "در حال آماده‌سازی…",
+    "download": "دانلود ‎.ovpn",
+    "serverAddress": "آدرس عمومی سرور",
+    "addressPlaceholder": "vpn.example.com یا 203.0.113.10",
+    "addressLabel": "آدرس عمومی"
+  },
+  "wgInterface": {
+    "loadFailed": "بارگذاری اینترفیس WireGuard ناموفق بود.",
+    "updateFailed": "به‌روزرسانی اینترفیس WireGuard ناموفق بود.",
+    "title": "ویرایش سرور WireGuard - {{name}}",
+    "privateKeyReplace": "کلید خصوصی (جایگزینی)"
+  },
+  "l2tpEdit": {
+    "loadFailed": "بارگذاری کلاینت L2TP ناموفق بود.",
+    "userRequired": "کاربر الزامی است.",
+    "title": "ویرایش کلاینت L2TP - {{name}}"
+  },
+  "wgPeerEdit": {
+    "updateFailed": "به‌روزرسانی همتای WireGuard ناموفق بود.",
+    "title": "ویرایش همتا - {{name}}"
+  },
+  "wgPeerAdd": {
+    "createFailed": "ساخت همتای WireGuard ناموفق بود.",
+    "title": "افزودن همتا به {{name}}",
+    "create": "ساخت همتا",
+    "intro": "کلیدها، نام و آدرس‌ها برای شما ساخته می‌شوند. برای تنظیم دستی آن‌ها، حالت پیشرفته را روشن کنید.",
+    "advancedGroup": "تنظیمات پیشرفتهٔ همتای WireGuard",
+    "endpointAddressOptional": "آدرس نقطهٔ پایانی (اختیاری)",
+    "allowedAddressesOptional": "آدرس‌های مجاز (اختیاری)",
+    "peerIpIfEmpty": "اگر خالی باشد، IP همتا",
+    "publicKeyPeer": "کلید عمومی (همتا)",
+    "publicKeyPlaceholder": "برای ساخت خودکار جفت‌کلید خالی بگذارید"
+  },
+  "wgConfig": {
+    "copied": "پیکربندی در کلیپ‌بورد کپی شد",
+    "copyFailed": "کپی پیکربندی ناموفق بود",
+    "title": "پیکربندی کلاینت - {{name}}",
+    "download": "دانلود ‎.conf"
+  },
+  "details": {
+    "loadFailed": "بارگذاری جزئیات سرور ناموفق بود.",
+    "title": "سرور {{protocol}}: {{name}}",
+    "exportOvpn": "دانلود ‎.ovpn",
+    "noEndpoint": "برای پروتکل «{{protocol}}» endpoint جزئیات وجود ندارد.",
+    "localIp": "IP محلی",
+    "localIpPool": "مخزن IP محلی",
+    "remoteIp": "IP راه دور",
+    "remoteIpPool": "مخزن IP راه دور",
+    "certificate": "گواهی",
+    "requireClientCert": "الزام گواهی کلاینت",
+    "auth": "احراز هویت",
+    "localAddress": "آدرس محلی",
+    "remoteAddress": "آدرس راه دور",
+    "dnsServer": "سرور DNS",
+    "useCompression": "استفاده از فشرده‌سازی",
+    "useEncryption": "استفاده از رمزنگاری",
+    "onlyOne": "فقط یک اتصال",
+    "changeTcpMss": "تغییر TCP MSS",
+    "oneSessionPerHost": "یک نشست برای هر میزبان",
+    "verifyClientCert": "تأیید گواهی کلاینت",
+    "tlsVersion": "نسخهٔ TLS",
+    "secrets": "اطلاعات ورود (Secrets)",
+    "peers": {
+      "deleteFailed": "حذف همتا ناموفق بود",
+      "deleteFailedDescription": "حذف همتا ناموفق بود.",
+      "deleted": "همتای «{{name}}» حذف شد",
+      "created": "همتای WireGuard ساخته شد",
+      "updated": "همتای WireGuard به‌روزرسانی شد",
+      "deleteTitle": "حذف همتای WireGuard",
+      "deleteDescription": "همتای «{{name}}» از این سرور حذف شود؟ این کار برگشت‌پذیر نیست.",
+      "empty": "هیچ همتایی پیکربندی نشده است.",
+      "endpoint": "نقطهٔ پایانی (endpoint)",
+      "lastHandshake": "آخرین handshake",
+      "configFor": "پیکربندی کلاینت برای {{name}}",
+      "noPrivateKey": "کلید خصوصی روی روتر ذخیره نشده است",
+      "configForPeer": "پیکربندی کلاینت برای همتای {{name}}",
+      "editPeer": "ویرایش همتای {{name}}",
+      "deletePeer": "حذف همتای {{name}}"
+    }
+  },
+  "addClient": {
+    "errors": {
+      "cidr": "یک CIDR مانند 10.0.0.2/24 وارد کنید.",
+      "allowedAddress": "آدرس مجاز الزامی است (مثلاً 0.0.0.0/0).",
+      "peerKey": "کلید عمومی یا کلید خصوصی همتا را وارد کنید.",
+      "configText": "یک پیکربندی WireGuard را جای‌گذاری کنید."
+    },
+    "failed": "افزودن کلاینت VPN ناموفق بود.",
+    "submit": "افزودن کلاینت",
+    "typeLabel": "نوع کلاینت VPN",
+    "typeLegend": "نوع کلاینت VPN را انتخاب کنید",
+    "importExisting": "وارد کردن پیکربندی موجود",
+    "claimFree": "دریافت VPN رایگان",
+    "localAddressCidr": "آدرس محلی اینترفیس (CIDR)",
+    "localAddress": "آدرس محلی اینترفیس",
+    "allowedAddressCidr": "آدرس مجاز (فهرست CIDR)",
+    "allowedAddress": "آدرس مجاز",
+    "interfacePrivateKey": "کلید خصوصی اینترفیس",
+    "optionalGenerated": "اختیاری، اگر خالی باشد ساخته می‌شود",
+    "publicKeyPlaceholder": "اگر کلید خصوصی همتا را وارد می‌کنید خالی بگذارید",
+    "privateKeyPlaceholder": "اگر کلید عمومی را وارد می‌کنید خالی بگذارید",
+    "dropConf": "فایل ‎.conf مربوط به WireGuard را اینجا رها کنید یا برای انتخاب کلیک کنید",
+    "dropHint": "محتوای فایل در ویرایشگر زیر بارگذاری می‌شود.",
+    "configText": "متن پیکربندی",
+    "config": "پیکربندی"
+  },
+  "addServer": {
+    "title": "سرور VPN جدید",
+    "typeLabel": "نوع سرور VPN",
+    "typeLegend": "نوع سرور VPN را انتخاب کنید",
+    "failed": "ناموفق",
+    "working": "در حال انجام…",
+    "taskStatusFailed": "دریافت وضعیت عملیات ناموفق بود.",
+    "ovpn": {
+      "creationFailed": "ساخت سرور OpenVPN ناموفق بود.",
+      "certPassphraseField": "عبارت عبور گواهی",
+      "startFailed": "شروع ساخت سرور OpenVPN ناموفق بود.",
+      "certPassphrase": "عبارت عبور گواهی کلاینت",
+      "create": "ساخت سرور OpenVPN"
+    },
+    "sstp": {
+      "setupFailed": "راه‌اندازی سرور SSTP ناموفق بود.",
+      "alreadyEnabledError": "سرور SSTP از قبل روی این روتر فعال است.",
+      "startFailed": "شروع راه‌اندازی سرور SSTP ناموفق بود.",
+      "alreadyEnabledInfo": "سرور SSTP از قبل روی این روتر فعال است. پیش از فعال‌سازی دوباره، آن را از فهرست سرورهای VPN غیرفعال کنید.",
+      "info": "فعال‌سازی SSTP یک گواهی سرور صادر می‌کند، سرور SSTP را روی پورت 4433 راه‌اندازی می‌کند و یک قانون فایروال برای پذیرش اتصال‌های ورودی اضافه می‌کند. کاربران VPN فعلی می‌توانند از طریق SSTP وارد شوند.",
+      "alreadyEnabled": "سرور SSTP از قبل فعال است",
+      "enable": "فعال‌سازی سرور SSTP"
+    },
+    "l2tp": {
+      "secretRequired": "رمز IPsec الزامی است.",
+      "alreadyEnabledError": "سرور L2TP از قبل روی این روتر فعال است.",
+      "enableFailed": "فعال‌سازی سرور L2TP ناموفق بود.",
+      "alreadyEnabledInfo": "سرور L2TP از قبل روی این روتر فعال است. پیش از فعال‌سازی دوباره، آن را از فهرست سرورهای VPN غیرفعال کنید.",
+      "info": "فعال‌سازی L2TP سرور L2TP را با IPsec اجباری راه‌اندازی می‌کند و قوانین فایروال برای پذیرش ترافیک ورودی L2TP و IPsec اضافه می‌کند. کاربران VPN فعلی می‌توانند از طریق L2TP وارد شوند.",
+      "alreadyEnabled": "سرور L2TP از قبل فعال است",
+      "enable": "فعال‌سازی سرور L2TP"
+    },
+    "wg": {
+      "cidrError": "یک CIDR مانند 10.8.0.1/24 وارد کنید یا برای تخصیص خودکار خالی بگذارید.",
+      "createFailed": "ساخت سرور WireGuard ناموفق بود.",
+      "namePlaceholder": "office",
+      "advancedGroup": "تنظیمات پیشرفتهٔ سرور WireGuard",
+      "localAddressCidr": "آدرس محلی (CIDR)",
+      "localAddressPlaceholder": "10.8.0.1/24 (اگر خالی باشد خودکار)",
+      "create": "ساخت سرور WireGuard"
+    }
+  },
+  "wgClientEdit": {
+    "loadFailed": "بارگذاری کلاینت WireGuard ناموفق بود.",
+    "updateFailed": "به‌روزرسانی کلاینت WireGuard ناموفق بود.",
+    "title": "ویرایش کلاینت WireGuard - {{name}}",
+    "interfacePrivateKeyReplace": "کلید خصوصی اینترفیس (جایگزینی)",
+    "peerHeading": "همتا ({{name}})",
+    "needsOnePeer": "کلاینت WireGuard دست‌کم به یک همتا نیاز دارد",
+    "peerPublicKeyReplace": "کلید عمومی همتا (جایگزینی)",
+    "presharedKeyReplace": "کلید از پیش مشترک (جایگزینی)",
+    "noPeers": "این کلاینت WireGuard هیچ همتایی ندارد.",
+    "deletePeerDescription": "همتای «{{name}}» از این کلاینت حذف شود؟ این کار برگشت‌پذیر نیست."
+  }
+}

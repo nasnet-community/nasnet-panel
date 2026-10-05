@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import { ApiError, deleteVPNUser, type VPNCredentials, type VPNUserResponse } from '../../../api';
 import { UserFormDialog } from '../dialogs/UserFormDialog';
@@ -22,6 +23,7 @@ interface Props {
 export function UsersSection({ creds, users, onChanged }: Props) {
   const paged = usePagedFilter(users, matches);
   const toast = useToast();
+  const { t } = useTranslation('vpn');
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<VPNUserResponse | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNUserResponse | null>(null);
@@ -39,9 +41,9 @@ export function UsersSection({ creds, users, onChanged }: Props) {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to delete VPN user.';
+            : t('users.toast.deleteFailedDescription');
       toast.notify({
-        title: 'Failed to delete user',
+        title: t('users.toast.deleteFailed'),
         description: message,
         tone: 'danger',
       });
@@ -50,7 +52,7 @@ export function UsersSection({ creds, users, onChanged }: Props) {
     }
     setDeleteSubmitting(false);
     setPendingDelete(null);
-    toast.notify({ title: `User "${target.name}" deleted`, tone: 'info' });
+    toast.notify({ title: t('users.toast.deleted', { name: target.name }), tone: 'info' });
     onChanged();
   };
 
@@ -58,17 +60,17 @@ export function UsersSection({ creds, users, onChanged }: Props) {
     <Stack>
       <Card>
         <SectionHeader
-          title="VPN Users"
+          title={t('users.title')}
           count={users.length}
-          description="Manage credentials shared across all VPN servers."
+          description={t('users.description')}
           search={{
             value: paged.search,
-            placeholder: 'Search users…',
-            ariaLabel: 'Search users',
+            placeholder: t('users.searchPlaceholder'),
+            ariaLabel: t('users.searchLabel'),
             onChange: paged.setSearch,
           }}
           action={{
-            label: 'Add user',
+            label: t('users.add'),
             disabled: !creds,
             onClick: () => setAdding(true),
           }}
@@ -98,7 +100,7 @@ export function UsersSection({ creds, users, onChanged }: Props) {
           onCancel={() => setAdding(false)}
           onSaved={() => {
             setAdding(false);
-            toast.notify({ title: 'VPN user created', tone: 'success' });
+            toast.notify({ title: t('users.toast.created'), tone: 'success' });
             onChanged();
           }}
         />
@@ -110,20 +112,18 @@ export function UsersSection({ creds, users, onChanged }: Props) {
           onCancel={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
-            toast.notify({ title: 'VPN user updated', tone: 'success' });
+            toast.notify({ title: t('users.toast.updated'), tone: 'success' });
             onChanged();
           }}
         />
       ) : null}
       <ConfirmDialog
         open={!!pendingDelete}
-        title="Delete VPN user"
+        title={t('users.deleteTitle')}
         description={
-          pendingDelete
-            ? `Remove "${pendingDelete.name}" from this router? This cannot be undone.`
-            : undefined
+          pendingDelete ? t('users.deleteDescription', { name: pendingDelete.name }) : undefined
         }
-        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
+        confirmLabel={deleteSubmitting ? t('shared.deleting') : t('shared.delete')}
         destructive
         onConfirm={onConfirmDelete}
         onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}

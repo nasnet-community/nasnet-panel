@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, DataTable, Switch, useToast } from '@nasnet/ui';
 import { ArrowDown, ArrowUp, Cable, Pencil, Trash2 } from 'lucide-react';
 import {
@@ -9,7 +10,7 @@ import {
   type VPNClient,
   type VPNCredentials,
 } from '../../../api';
-import { formatBytes } from '../../../utils/format';
+import { useFormat } from '../../../utils/useFormat';
 import { useThemeColors } from '../../../utils/theme-colors';
 
 interface Props {
@@ -23,6 +24,8 @@ interface Props {
 
 export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDelete }: Props) {
   const toast = useToast();
+  const { t } = useTranslation('vpn');
+  const format = useFormat();
   const colors = useThemeColors();
   const [pending, setPending] = useState<Set<string>>(() => new Set());
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
@@ -54,37 +57,39 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
       columns={[
         {
           key: 'name',
-          header: 'Name',
+          header: t('shared.name'),
           render: (c: VPNClient) => c.comment || c.name,
         },
         {
           key: 'status',
-          header: 'Status',
+          header: t('shared.status'),
           render: (c: VPNClient) => (
             <Badge tone={c.running ? 'success' : 'neutral'}>
-              {c.running ? 'Connected' : 'Disconnected'}
+              {c.running ? t('shared.connected') : t('shared.disconnected')}
             </Badge>
           ),
         },
         {
           key: 'protocol',
-          header: 'Protocol',
+          header: t('shared.protocol'),
           render: (c: VPNClient) => <Badge tone="info">{c.protocol.toUpperCase()}</Badge>,
         },
         {
           key: 'ping',
-          header: 'Ping',
+          header: t('clients.table.ping'),
           render: (c: VPNClient) => c.pingTime || '–',
         },
         {
           key: 'peers',
-          header: 'Peers',
+          header: t('servers.table.peers'),
           render: (c: VPNClient) =>
-            c.protocol === 'wireguard' && c.peerCount !== undefined ? c.peerCount : '–',
+            c.protocol === 'wireguard' && c.peerCount !== undefined
+              ? format.number(c.peerCount)
+              : '–',
         },
         {
           key: 'traffic',
-          header: 'Traffic',
+          header: t('clients.table.traffic'),
           render: (c: VPNClient) => {
             const rx = c.rxByte ?? 0;
             const tx = c.txByte ?? 0;
@@ -98,32 +103,34 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                 }}
               >
                 <ArrowDown size={14} color={colors.success} aria-hidden />
-                {formatBytes(rx)}
+                {format.bytes(rx)}
                 <span aria-hidden> / </span>
                 <ArrowUp size={14} color={colors.warning} aria-hidden />
-                {formatBytes(tx)}
+                {format.bytes(tx)}
               </span>
             );
           },
         },
         {
           key: 'lastLink',
-          header: 'Last link',
+          header: t('clients.table.lastLink'),
           render: (c: VPNClient) => {
             const ts = c.running ? c.lastLinkUp : c.lastLinkDown;
-            const label = c.running ? 'Connected' : 'Disconnected';
-            return ts ? `${label}: ${ts}` : '–';
+            if (!ts) return '–';
+            return c.running
+              ? t('clients.table.lastConnected', { time: ts })
+              : t('clients.table.lastDisconnected', { time: ts });
           },
         },
         {
           key: 'enabled',
-          header: 'Enabled',
+          header: t('shared.enabled'),
           render: (c: VPNClient) => {
             const busy = isPending(c.id);
             const next = !checkedFor(c);
             return (
               <Switch
-                aria-label="Enabled"
+                aria-label={t('shared.enabled')}
                 checked={checkedFor(c)}
                 disabled={!creds || busy}
                 onChange={async () => {
@@ -143,9 +150,9 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                         ? err.message
                         : err instanceof Error
                           ? err.message
-                          : 'Failed to update client.';
+                          : t('clients.toast.updateFailedDescription');
                     toast.notify({
-                      title: 'Failed to update client',
+                      title: t('clients.toast.updateFailed'),
                       description: message,
                       tone: 'danger',
                     });
@@ -161,18 +168,18 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
         },
         {
           key: 'gateway',
-          header: 'Starlink gateway',
+          header: t('clients.table.starlinkGateway'),
           render: (c: VPNClient) => {
             if (gateway === c.name) {
-              return <Badge tone="success">Gateway</Badge>;
+              return <Badge tone="success">{t('clients.table.gateway')}</Badge>;
             }
             return (
               <Button
                 size="sm"
                 variant="secondary"
                 disabled={!creds || !checkedFor(c) || gatewayBusy}
-                title={`Set ${c.name} as Starlink gateway`}
-                aria-label={`Set ${c.name} as Starlink gateway`}
+                title={t('clients.table.setGatewayFor', { name: c.name })}
+                aria-label={t('clients.table.setGatewayFor', { name: c.name })}
                 onClick={async () => {
                   if (!creds) return;
                   setGatewayBusy(true);
@@ -180,7 +187,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                     await updateForeignGateway(creds, c.name);
                     setGatewayState(c.name);
                     toast.notify({
-                      title: `Starlink gateway set to "${c.name}"`,
+                      title: t('clients.toast.gatewaySet', { name: c.name }),
                       tone: 'success',
                     });
                   } catch (err) {
@@ -189,9 +196,9 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                         ? err.message
                         : err instanceof Error
                           ? err.message
-                          : 'Failed to set gateway.';
+                          : t('clients.toast.gatewayFailedDescription');
                     toast.notify({
-                      title: 'Failed to set gateway',
+                      title: t('clients.toast.gatewayFailed'),
                       description: message,
                       tone: 'danger',
                     });
@@ -200,7 +207,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                   }
                 }}
               >
-                Set gateway
+                {t('clients.table.setGateway')}
               </Button>
             );
           },
@@ -208,7 +215,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
         },
         {
           key: 'actions',
-          header: 'Actions',
+          header: t('shared.actions'),
           render: (c: VPNClient) => {
             if (c.protocol !== 'l2tp' && c.protocol !== 'wireguard') return null;
             return (
@@ -217,8 +224,8 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                   size="sm"
                   variant="secondary"
                   disabled={!creds}
-                  title={`Edit ${c.name}`}
-                  aria-label={`Edit ${c.name}`}
+                  title={t('shared.editNamed', { name: c.name })}
+                  aria-label={t('shared.editNamed', { name: c.name })}
                   onClick={() => onEdit(c)}
                 >
                   <Pencil size={14} aria-hidden />
@@ -227,8 +234,8 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
                   size="sm"
                   variant="danger"
                   disabled={!creds}
-                  title={`Delete ${c.name}`}
-                  aria-label={`Delete ${c.name}`}
+                  title={t('shared.deleteNamed', { name: c.name })}
+                  aria-label={t('shared.deleteNamed', { name: c.name })}
                   onClick={() => onDelete(c)}
                 >
                   <Trash2 size={14} aria-hidden />
@@ -241,7 +248,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
       ]}
       rows={rows}
       rowKey={(c) => c.id}
-      emptyMessage={totalRows ? 'No clients match the current filters.' : 'No VPN clients yet.'}
+      emptyMessage={totalRows ? t('clients.table.noMatch') : t('clients.table.empty')}
       emptyIcon={<Cable size={32} aria-hidden />}
     />
   );

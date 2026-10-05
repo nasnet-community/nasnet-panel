@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, ConfirmDialog, Stack } from '@nasnet/ui';
 import type { VPNPeer, VPNServer } from '../../../api';
 import { PeerFormDialog } from '../dialogs/PeerFormDialog';
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function PeersSection({ routerId, peers, servers, onChanged }: Props) {
+  const { t } = useTranslation('vpn');
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -44,11 +46,11 @@ export function PeersSection({ routerId, peers, servers, onChanged }: Props) {
     <Stack>
       <Card>
         <SectionHeader
-          title="Connected peers"
+          title={t('peers.title')}
           count={peers.length}
-          description="Clients connecting to this router's VPN server."
+          description={t('peers.description')}
           action={{
-            label: 'Add peer',
+            label: t('peers.add'),
             disabled: !defaultServer,
             onClick: () => setAdding(true),
           }}
@@ -68,7 +70,7 @@ export function PeersSection({ routerId, peers, servers, onChanged }: Props) {
       {adding ? <PeerFormDialog onCancel={() => setAdding(false)} onSave={onAdd} /> : null}
       <ConfirmDialog
         open={!!deletingId}
-        title="Delete peer"
+        title={t('peers.deleteTitle')}
         destructive
         onConfirm={onConfirmDelete}
         onCancel={() => setDeletingId(null)}

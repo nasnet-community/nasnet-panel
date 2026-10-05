@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Dialog,
@@ -38,6 +39,7 @@ interface Props {
 }
 
 export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: Props) {
+  const { t } = useTranslation('vpn');
   const [details, setDetails] = useState<L2TPClientDetailsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
   useEffect(() => {
     if (!creds) {
       setLoading(false);
-      setLoadError('Not connected to router.');
+      setLoadError(t('shared.notConnectedDot'));
       return;
     }
     const controller = new AbortController();
@@ -76,7 +78,7 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to load L2TP client.';
+              : t('l2tpEdit.loadFailed');
         setLoadError(message);
       } finally {
         setLoading(false);
@@ -84,20 +86,22 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
     })();
 
     return () => controller.abort();
-  }, [creds, clientName]);
+  }, [creds, clientName, t]);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => (d ? { ...d, [key]: value } : d));
 
-  const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
+  const markTouched = (key: string) =>
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
 
   const errors = useMemo(() => {
     if (!draft) return { connectTo: null, user: null };
     return {
-      connectTo: draft.connectTo.trim() === '' ? 'Required.' : validateHostOrIp(draft.connectTo),
-      user: draft.user.trim() === '' ? 'User is required.' : null,
+      connectTo:
+        draft.connectTo.trim() === '' ? t('shared.required') : validateHostOrIp(draft.connectTo),
+      user: draft.user.trim() === '' ? t('l2tpEdit.userRequired') : null,
     };
-  }, [draft]);
+  }, [draft, t]);
 
   const hasErrors = Object.values(errors).some(Boolean);
   const canSubmit = !!draft && !!details && !submitting && !hasErrors;
@@ -125,7 +129,7 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
     try {
       await onSubmit(body);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update L2TP client.');
+      setError(err instanceof Error ? err.message : t('clients.toast.l2tpUpdateFailedDescription'));
       setSubmitting(false);
       return;
     }
@@ -136,44 +140,45 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
     <Dialog
       open
       onClose={submitting ? () => undefined : onCancel}
-      title={`Edit L2TP client - ${clientName}`}
+      title={t('l2tpEdit.title', { name: clientName })}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
           <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
-            {submitting ? 'Saving…' : 'Save changes'}
+            {submitting ? t('shared.saving') : t('shared.saveChanges')}
           </Button>
         </>
       }
     >
       {loading ? (
-        <p>Loading…</p>
+        <p>{t('shared.loading')}</p>
       ) : loadError ? (
         <FormError role="alert">{loadError}</FormError>
       ) : draft ? (
         <FieldStack>
           <FieldRow>
             <Label>
-              <span>Name</span>
+              <span>{t('shared.name')}</span>
               <Input
                 value={draft.comment}
                 onChange={(e) => set('comment', e.target.value)}
-                placeholder="optional"
-                aria-label="Name"
+                placeholder={t('shared.optional')}
+                aria-label={t('shared.name')}
                 autoComplete="off"
               />
             </Label>
             <Label>
-              <span>Connect to</span>
+              <span>{t('shared.connectTo')}</span>
               <Input
                 value={draft.connectTo}
                 onChange={(e) => set('connectTo', e.target.value)}
                 onBlur={() => markTouched('connectTo')}
                 placeholder="192.168.1.1"
-                aria-label="Connect to"
+                aria-label={t('shared.connectTo')}
+                dir="ltr"
                 aria-invalid={touched.connectTo && !!errors.connectTo}
               />
               {touched.connectTo && errors.connectTo ? (
@@ -183,36 +188,36 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
           </FieldRow>
           <FieldRow>
             <Label>
-              <span>User</span>
+              <span>{t('shared.user')}</span>
               <Input
                 value={draft.user}
                 onChange={(e) => set('user', e.target.value)}
                 onBlur={() => markTouched('user')}
-                placeholder="username"
-                aria-label="User"
+                placeholder={t('shared.usernamePlaceholder')}
+                aria-label={t('shared.user')}
                 autoComplete="off"
                 aria-invalid={touched.user && !!errors.user}
               />
               {touched.user && errors.user ? <FormError>{errors.user}</FormError> : null}
             </Label>
             <Label>
-              <span>Password</span>
+              <span>{t('shared.password')}</span>
               <PasswordInput
                 value={draft.password}
                 onChange={(e) => set('password', e.target.value)}
-                aria-label="Password"
+                aria-label={t('shared.password')}
                 autoComplete="new-password"
               />
             </Label>
           </FieldRow>
           <FieldRow>
             <Label>
-              <span>IPsec secret</span>
+              <span>{t('shared.ipsecSecret')}</span>
               <PasswordInput
                 value={draft.ipsecSecret}
                 onChange={(e) => set('ipsecSecret', e.target.value)}
-                placeholder="Pre-shared key"
-                aria-label="IPsec secret"
+                placeholder={t('shared.preSharedKeyPlaceholder')}
+                aria-label={t('shared.ipsecSecret')}
                 autoComplete="off"
                 disabled={!draft.useIpsec}
               />
@@ -221,14 +226,14 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
           <FieldRow>
             <Label as="div">
               <Switch
-                label="Enabled"
+                label={t('shared.enabled')}
                 checked={!draft.disabled}
                 onChange={(e) => set('disabled', !e.target.checked)}
               />
             </Label>
             <Label as="div">
               <Switch
-                label="Use IPsec"
+                label={t('shared.useIpsec')}
                 checked={draft.useIpsec}
                 onChange={(e) => {
                   const on = e.target.checked;

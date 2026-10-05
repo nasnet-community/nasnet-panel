@@ -1,5 +1,6 @@
 import type { ToastTone } from '@nasnet/ui';
 import type { WireguardPeerImportResult } from '../../api';
+import i18n from '../../i18n';
 
 export interface WgClientSummary {
   title: string;
@@ -9,14 +10,15 @@ export interface WgClientSummary {
 
 const MAX_LISTED_KEYS = 3;
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
-
 const shortKey = (key: string) => (key.length > 12 ? `${key.slice(0, 8)}…` : key);
 
 function describeSkipped(keys: string[]): string {
   const listed = keys.slice(0, MAX_LISTED_KEYS).map(shortKey).join(', ');
-  const more = keys.length > MAX_LISTED_KEYS ? ` and ${keys.length - MAX_LISTED_KEYS} more` : '';
-  return `Skipped ${plural(keys.length, 'peer')} already on this interface (${listed}${more}).`;
+  const more =
+    keys.length > MAX_LISTED_KEYS
+      ? i18n.t('wgImport.skippedMore', { ns: 'vpn', count: keys.length - MAX_LISTED_KEYS })
+      : '';
+  return i18n.t('wgImport.skipped', { ns: 'vpn', count: keys.length, list: listed, more });
 }
 
 const sentences = (...parts: string[]) => parts.filter(Boolean).join(' ') || undefined;
@@ -37,10 +39,10 @@ export function summarizeWireguardImport(
 
   if (res.reusedExistingInterface && imported === 0) {
     return {
-      title: `WireGuard client "${name}" is already up to date`,
+      title: i18n.t('wgImport.upToDate', { ns: 'vpn', name }),
       description: sentences(
-        'An interface with the same private key and IP address already exists, so it was reused.',
-        'No new peers were added.',
+        i18n.t('wgImport.reusedInterface', { ns: 'vpn' }),
+        i18n.t('wgImport.noNewPeers', { ns: 'vpn' }),
         skippedText,
       ),
       tone: 'info',
@@ -49,26 +51,26 @@ export function summarizeWireguardImport(
 
   if (res.reusedExistingInterface) {
     return {
-      title: `Added ${plural(imported, 'peer')} to existing WireGuard client "${name}"`,
-      description: sentences(
-        'An interface with the same private key and IP address already exists, so it was reused instead of creating a new one.',
-        skippedText,
-      ),
+      title: i18n.t('wgImport.addedToExisting', { ns: 'vpn', count: imported, name }),
+      description: sentences(i18n.t('wgImport.reusedInsteadOfNew', { ns: 'vpn' }), skippedText),
       tone: 'success',
     };
   }
 
   if (imported === 0) {
     return {
-      title: `WireGuard client "${name}" imported without peers`,
-      description: skippedText || 'The config did not contain any peers to add.',
+      title: i18n.t('wgImport.importedWithoutPeers', { ns: 'vpn', name }),
+      description: skippedText || i18n.t('wgImport.noPeersInConfig', { ns: 'vpn' }),
       tone: 'warning',
     };
   }
 
   return {
-    title: `WireGuard client "${name}" imported`,
-    description: sentences(`Created with ${plural(imported, 'peer')}.`, skippedText),
+    title: i18n.t('wgImport.imported', { ns: 'vpn', name }),
+    description: sentences(
+      i18n.t('wgImport.createdWith', { ns: 'vpn', count: imported }),
+      skippedText,
+    ),
     tone: 'success',
   };
 }

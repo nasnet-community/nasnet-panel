@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Info, TriangleAlert } from 'lucide-react';
 import {
   Button,
@@ -28,19 +29,18 @@ import styles from './UserFormDialog.module.scss';
 
 const PREFERRED_PROFILE = 'VPN-VPN';
 
-const PROFILE_HINTS: Record<string, { tone: 'info' | 'danger'; text: string }> = {
-  'VPN-VPN': {
-    tone: 'info',
-    text: 'All of the user’s traffic is routed through the outbound VPN.',
-  },
-  'VPN-Split': {
-    tone: 'info',
-    text: 'Foreign traffic is routed through the outbound VPN and domestic traffic through the domestic link.',
-  },
-  'VPN-Foreign': {
-    tone: 'danger',
-    text: 'All of the user’s traffic is routed through Starlink, which can expose your identity and Starlink usage. Use with caution.',
-  },
+// `textKey` is translated at render so the hint follows the active language.
+const PROFILE_HINTS: Record<
+  string,
+  {
+    tone: 'info' | 'danger';
+    textKey:
+      'users.form.hints.vpnVpn' | 'users.form.hints.vpnSplit' | 'users.form.hints.vpnForeign';
+  }
+> = {
+  'VPN-VPN': { tone: 'info', textKey: 'users.form.hints.vpnVpn' },
+  'VPN-Split': { tone: 'info', textKey: 'users.form.hints.vpnSplit' },
+  'VPN-Foreign': { tone: 'danger', textKey: 'users.form.hints.vpnForeign' },
 };
 
 interface Draft {
@@ -58,6 +58,7 @@ interface Props {
 }
 
 export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
+  const { t } = useTranslation('vpn');
   const isEdit = !!user;
   const [profiles, setProfiles] = useState<VPNProfileResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +76,7 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
   useEffect(() => {
     if (!creds) {
       setLoading(false);
-      setLoadError('Not connected to router.');
+      setLoadError(t('shared.notConnectedDot'));
       return;
     }
     const controller = new AbortController();
@@ -100,7 +101,7 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to load VPN profiles.';
+              : t('users.form.loadProfilesFailed');
         setLoadError(message);
       } finally {
         setLoading(false);
@@ -108,12 +109,13 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
     })();
 
     return () => controller.abort();
-  }, [creds]);
+  }, [creds, t]);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
-  const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
+  const markTouched = (key: string) =>
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
 
   const profileOptions = useMemo(() => {
     const options = profiles.map((p) => ({ value: p.name, label: p.name, description: p.comment }));
@@ -127,11 +129,11 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
 
   const errors = useMemo(
     () => ({
-      name: draft.name.trim() === '' ? 'Name is required.' : null,
+      name: draft.name.trim() === '' ? t('shared.nameRequired') : null,
       password: isEdit && draft.password === '' ? null : validateOvpnSecret(draft.password),
-      profile: draft.profile === '' ? 'Profile is required.' : null,
+      profile: draft.profile === '' ? t('users.form.profileRequired') : null,
     }),
-    [draft, isEdit],
+    [draft, isEdit, t],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -170,8 +172,8 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
           : err instanceof Error
             ? err.message
             : user
-              ? 'Failed to update VPN user.'
-              : 'Failed to create VPN user.';
+              ? t('users.form.updateFailed')
+              : t('users.form.createFailed');
       setError(message);
       setSubmitting(false);
       return;
@@ -184,31 +186,32 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
     <Dialog
       open
       onClose={submitting ? () => undefined : onCancel}
-      title={user ? `Edit VPN user - ${user.name}` : 'New VPN user'}
+      title={user ? t('users.form.editTitle', { name: user.name }) : t('users.form.newTitle')}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
           <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
-            {submitting ? 'Saving…' : user ? 'Save changes' : 'Create user'}
+            {submitting
+              ? t('shared.saving')
+              : user
+                ? t('shared.saveChanges')
+                : t('users.form.create')}
           </Button>
         </>
       }
     >
       {loading ? (
-        <p>Loading…</p>
+        <p>{t('shared.loading')}</p>
       ) : loadError ? (
         <FormError role="alert">{loadError}</FormError>
       ) : (
         <FieldStack>
           <div className={`${styles.alert} ${styles.alertInfo}`}>
             <Info size={16} aria-hidden className={styles.alertIcon} />
-            <span>
-              VPN users apply to OpenVPN, L2TP and SSTP. For WireGuard, open the WireGuard server
-              and add a peer instead.
-            </span>
+            <span>{t('users.form.scopeNote')}</span>
           </div>
           {profileHint ? (
             <div
@@ -223,33 +226,33 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
                 <Info size={16} aria-hidden className={styles.alertIcon} />
               )}
               <span>
-                <strong>{draft.profile}</strong> {profileHint.text}
+                <strong>{draft.profile}</strong> {t(profileHint.textKey)}
               </span>
             </div>
           ) : null}
           <FieldRow>
             <Label>
-              <span>Name</span>
+              <span>{t('shared.name')}</span>
               <Input
                 value={draft.name}
                 onChange={(e) => set('name', e.target.value)}
                 onBlur={() => markTouched('name')}
                 autoComplete="off"
-                aria-label="Name"
+                aria-label={t('shared.name')}
                 aria-invalid={touched.name && !!errors.name}
               />
               {touched.name && errors.name ? <FormError>{errors.name}</FormError> : null}
             </Label>
             <Label>
-              <span>Password</span>
+              <span>{t('shared.password')}</span>
               <PasswordInput
                 value={draft.password}
                 onChange={(e) => set('password', e.target.value)}
                 onBlur={() => markTouched('password')}
-                aria-label="Password"
+                aria-label={t('shared.password')}
                 aria-invalid={touched.password && !!errors.password}
                 autoComplete="new-password"
-                placeholder={isEdit ? 'Leave blank to keep the current password' : undefined}
+                placeholder={isEdit ? t('users.form.passwordKeep') : undefined}
               />
               {touched.password && errors.password ? (
                 <FormError>{errors.password}</FormError>
@@ -258,19 +261,21 @@ export function UserFormDialog({ creds, user, onCancel, onSaved }: Props) {
           </FieldRow>
           <FieldRow>
             <Label>
-              <span>Profile</span>
+              <span>{t('users.table.profile')}</span>
               <Select
-                aria-label="Profile"
+                aria-label={t('users.table.profile')}
                 value={draft.profile}
                 onChange={(v) => set('profile', v)}
                 options={profileOptions}
-                placeholder={profileOptions.length ? 'Select a profile' : 'No profiles available'}
+                placeholder={
+                  profileOptions.length ? t('users.form.selectProfile') : t('users.form.noProfiles')
+                }
               />
               {touched.profile && errors.profile ? <FormError>{errors.profile}</FormError> : null}
             </Label>
             <Label as="div">
               <Switch
-                label="Enabled"
+                label={t('shared.enabled')}
                 checked={!draft.disabled}
                 onChange={(e) => set('disabled', !e.target.checked)}
               />

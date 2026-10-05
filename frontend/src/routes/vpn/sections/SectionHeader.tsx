@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Plus } from 'lucide-react';
+import { useFormat } from '../../../utils/useFormat';
 import { Badge, Button, CardDescription, CardHeader, CardTitle, Input } from '@nasnet/ui';
 import styles from '../../VPNPage.module.scss';
 
@@ -36,6 +37,7 @@ export function SectionHeader({
   extraActions,
   filters,
 }: Props) {
+  const format = useFormat();
   const actions = [...(extraActions ?? []), ...(action ? [action] : [])];
   return (
     <CardHeader className={styles.sectionHeader}>
@@ -45,7 +47,7 @@ export function SectionHeader({
           {count !== undefined ? (
             <>
               {' '}
-              <Badge tone="info">{count}</Badge>
+              <Badge tone="info">{format.number(count)}</Badge>
             </>
           ) : null}
         </CardTitle>

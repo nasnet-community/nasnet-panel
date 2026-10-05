@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { Stack, useToast } from '@nasnet/ui';
 import {
@@ -29,6 +30,7 @@ export function VPNPage() {
   const router = useRouter(id);
   const { getCredentials } = useSession();
   const toast = useToast();
+  const { t } = useTranslation('vpn');
 
   const [clients, setClients] = useState<VPNClient[]>([]);
   const [servers, setServers] = useState<VPNServer[]>([]);
@@ -83,10 +85,10 @@ export function VPNPage() {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to load VPN data.';
-      toast.notify({ title: 'Failed to load VPN', description: message, tone: 'danger' });
+            : t('page.loadFailedDescription');
+      toast.notify({ title: t('page.loadFailed'), description: message, tone: 'danger' });
     }
-  }, [id, creds, toast]);
+  }, [id, creds, toast, t]);
 
   usePolling(reload, 5000, !!creds);
 
