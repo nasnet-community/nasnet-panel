@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardDescription, CardHeader, CardTitle, Stack, useToast } from '@nasnet/ui';
 import type { RoutingTopology } from '@nasnet/mocks';
 import { ApiError, updateForeignGateway, updateVPNClient } from '../api';
@@ -11,13 +12,7 @@ import { computeColumnLayout } from './internet/columnLayout';
 import { Edge } from './internet/Edge';
 import { HopEditDialog } from './internet/HopEditDialog';
 import { NodeBubble } from './internet/NodeBubble';
-import {
-  COLUMN_LABELS,
-  COLUMN_ORDER,
-  computeReachable,
-  hopForNode,
-  type Positioned,
-} from './internet/layout';
+import { COLUMN_ORDER, computeReachable, hopForNode, type Positioned } from './internet/layout';
 import styles from './InternetPage.module.scss';
 
 const HEADER_BAND = 44;
@@ -27,6 +22,7 @@ export function InternetPage() {
   const router = useRouter(id);
   const { getCredentials } = useSession();
   const toast = useToast();
+  const { t } = useTranslation('internet');
   const [topology, setTopology] = useState<RoutingTopology | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [editingHopId, setEditingHopId] = useState<string | null>(null);
@@ -42,8 +38,8 @@ export function InternetPage() {
   const reload = useCallback(async () => {
     if (!id || !creds) return;
     try {
-      const t = await buildTopology(id, creds);
-      setTopology(t);
+      const next = await buildTopology(id, creds);
+      setTopology(next);
       setLoaded(true);
     } catch (err) {
       const message =
@@ -51,14 +47,14 @@ export function InternetPage() {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to load routing topology.';
+            : t('internet.loadFailedFallback');
       toast.notify({
-        title: 'Failed to load Internet topology',
+        title: t('internet.loadFailedTitle'),
         description: message,
         tone: 'danger',
       });
     }
-  }, [id, creds, toast]);
+  }, [id, creds, toast, t]);
 
   usePolling(reload, 5000, !!creds && editingHopId === null);
 
@@ -70,8 +66,8 @@ export function InternetPage() {
       if (!hop || !target) return;
       if (target.kind !== 'vpn') {
         toast.notify({
-          title: 'Not supported yet',
-          description: 'Only VPN tunnels can be toggled from this view.',
+          title: t('internet.notSupportedTitle'),
+          description: t('internet.notSupportedDescription'),
           tone: 'warning',
         });
         return;
@@ -83,18 +79,22 @@ export function InternetPage() {
           await updateForeignGateway(creds, vpnName);
         }
         await reload();
-        toast.notify({ title: 'VPN tunnel updated', tone: 'success' });
+        toast.notify({ title: t('internet.tunnelUpdated'), tone: 'success' });
       } catch (err) {
         const message =
           err instanceof ApiError
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to update VPN tunnel.';
-        toast.notify({ title: 'Update failed', description: message, tone: 'danger' });
+              : t('internet.updateFailedFallback');
+        toast.notify({
+          title: t('internet.updateFailedTitle'),
+          description: message,
+          tone: 'danger',
+        });
       }
     },
-    [creds, topology, toast, reload],
+    [creds, topology, toast, reload, t],
   );
 
   const reachable = useMemo(
@@ -129,11 +129,8 @@ export function InternetPage() {
     <Stack>
       <Card>
         <CardHeader>
-          <CardTitle>Internet routing</CardTitle>
-          <CardDescription>
-            Live view of how clients reach the internet via WAN uplinks and VPN tunnels. Click a VPN
-            tunnel to enable or disable it.
-          </CardDescription>
+          <CardTitle>{t('internet.title')}</CardTitle>
+          <CardDescription>{t('internet.description')}</CardDescription>
         </CardHeader>
         <div className={styles.wrap} aria-busy={!loaded}>
           <div className={styles.viewport}>
@@ -151,7 +148,7 @@ export function InternetPage() {
                   viewBox={`0 ${-HEADER_BAND} ${layout.width} ${layout.height + HEADER_BAND}`}
                   preserveAspectRatio="xMidYMid meet"
                   role="img"
-                  aria-label="Routing topology"
+                  aria-label={t('internet.topologyAria')}
                 >
                   <defs>
                     <marker
@@ -185,7 +182,7 @@ export function InternetPage() {
                       width={160}
                       height={30}
                     >
-                      <div className={styles.columnHeader}>{COLUMN_LABELS[col.kind]}</div>
+                      <div className={styles.columnHeader}>{t(`internet.columns.${col.kind}`)}</div>
                     </foreignObject>
                   ))}
                   {topology?.hops
@@ -225,8 +222,8 @@ export function InternetPage() {
               ) : (
                 <div className={styles.empty}>
                   {loaded && (!topology || topology.nodes.length === 0)
-                    ? 'No routing topology configured for this router yet.'
-                    : 'Loading topology…'}
+                    ? t('internet.empty')
+                    : t('internet.loading')}
                 </div>
               )}
             </div>
@@ -234,17 +231,17 @@ export function InternetPage() {
           <div className={styles.legend}>
             <span className={styles.legendItem}>
               <span className={`${styles.legendSwatch} ${styles.legendSwatchActive}`} />
-              Active link
+              {t('internet.legend.activeLink')}
             </span>
             <span className={styles.legendItem}>
               <span className={styles.legendSwatch} />
-              Configured, idle
+              {t('internet.legend.configuredIdle')}
             </span>
             <span className={styles.legendItem}>
               <span className={styles.legendDot} />
-              Live traffic
+              {t('internet.legend.liveTraffic')}
             </span>
-            <span className={styles.legendItem}>Click a VPN tunnel to toggle</span>
+            <span className={styles.legendItem}>{t('internet.legend.clickToToggle')}</span>
           </div>
         </div>
       </Card>

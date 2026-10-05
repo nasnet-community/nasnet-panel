@@ -1,4 +1,5 @@
 import { useMemo, useReducer, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, FieldStack, FormError } from '@nasnet/ui';
 import type { InterfaceResponse } from '../../../api';
 import { initial, reducer, type State } from '../../easy-config/state';
@@ -29,22 +30,20 @@ interface Props {
 
 const FIELD_MAP = {
   foreign: {
-    heading: 'Starlink WAN',
-    ariaLabel: 'Starlink WAN',
+    headingKey: 'wan.dialog.foreignHeading' as const,
     typeField: 'starlinkInterfaceType' as const,
     nameField: 'starlinkInterface' as const,
     ssidField: 'starlinkWanSsid' as const,
     passwordField: 'starlinkWanPassword' as const,
-    wirelessLabel: 'Starlink wireless',
+    wirelessLabelKey: 'wan.dialog.foreignWireless' as const,
   },
   domestic: {
-    heading: 'Domestic WAN',
-    ariaLabel: 'Domestic WAN',
+    headingKey: 'wan.dialog.domesticHeading' as const,
     typeField: 'domesticInterfaceType' as const,
     nameField: 'domesticInterface' as const,
     ssidField: 'domesticWanSsid' as const,
     passwordField: 'domesticWanPassword' as const,
-    wirelessLabel: 'Domestic wireless',
+    wirelessLabelKey: 'wan.dialog.domesticWireless' as const,
   },
 };
 
@@ -58,6 +57,7 @@ export function WanUplinkDialog({
   onCancel,
   onSubmit,
 }: Props) {
+  const { t } = useTranslation('internet');
   const fields = FIELD_MAP[variant];
   const [state, dispatch] = useReducer(reducer, initial, (base): State => {
     if (!initialInterface) return base;
@@ -90,7 +90,7 @@ export function WanUplinkDialog({
         password: wireless ? state[fields.passwordField] : undefined,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save uplink.');
+      setError(err instanceof Error ? err.message : t('wan.dialog.saveFailed'));
       setSubmitting(false);
       return;
     }
@@ -107,10 +107,10 @@ export function WanUplinkDialog({
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('wan.dialog.cancel')}
           </Button>
           <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
-            {submitting ? 'Saving…' : 'Save'}
+            {submitting ? t('wan.dialog.saving') : t('wan.dialog.save')}
           </Button>
         </>
       }
@@ -122,13 +122,13 @@ export function WanUplinkDialog({
           interfaces={pickable}
           availableTypes={availableTypes}
           loading={interfacesLoading}
-          heading={fields.heading}
-          ariaLabel={fields.ariaLabel}
+          heading={t(fields.headingKey)}
+          ariaLabel={t(fields.headingKey)}
           typeField={fields.typeField}
           nameField={fields.nameField}
           ssidField={fields.ssidField}
           passwordField={fields.passwordField}
-          wirelessLabel={fields.wirelessLabel}
+          wirelessLabel={t(fields.wirelessLabelKey)}
         />
         {error ? <FormError role="alert">{error}</FormError> : null}
       </FieldStack>

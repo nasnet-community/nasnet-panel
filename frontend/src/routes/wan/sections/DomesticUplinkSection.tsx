@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Cable, Pencil } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
@@ -32,6 +33,7 @@ export function DomesticUplinkSection({
   onChanged,
 }: Props) {
   const toast = useToast();
+  const { t } = useTranslation('internet');
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -52,8 +54,8 @@ export function DomesticUplinkSection({
     const creds = resolveCreds();
     if (!creds) {
       toast.notify({
-        title: 'Missing router credentials',
-        description: 'Reconnect to the router and try again.',
+        title: t('wan.section.missingCredsTitle'),
+        description: t('wan.section.missingCredsDescription'),
         tone: 'danger',
       });
       return;
@@ -71,9 +73,9 @@ export function DomesticUplinkSection({
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to assign interface.';
+            : t('wan.section.assignFailedFallback');
       toast.notify({
-        title: 'Failed to change domestic uplink',
+        title: t('wan.domestic.changeFailedTitle'),
         description: message,
         tone: 'danger',
       });
@@ -81,7 +83,7 @@ export function DomesticUplinkSection({
     }
     await onChanged();
     closeDialog();
-    toast.notify({ title: 'Domestic uplink changed', tone: 'success' });
+    toast.notify({ title: t('wan.domestic.changed'), tone: 'success' });
   };
 
   const onConfirmMove = async () => {
@@ -90,8 +92,8 @@ export function DomesticUplinkSection({
     const creds = resolveCreds();
     if (!creds) {
       toast.notify({
-        title: 'Missing router credentials',
-        description: 'Reconnect to the router and try again.',
+        title: t('wan.section.missingCredsTitle'),
+        description: t('wan.section.missingCredsDescription'),
         tone: 'danger',
       });
       return;
@@ -101,7 +103,7 @@ export function DomesticUplinkSection({
       await updateWanInterface(creds, { interface: target.name, type: 'foreign' });
     } catch (err) {
       toast.notify({
-        title: 'Failed to move uplink',
+        title: t('wan.section.moveFailedTitle'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -111,7 +113,7 @@ export function DomesticUplinkSection({
     await onChanged();
     setMoveSubmitting(false);
     setPendingMove(null);
-    toast.notify({ title: `Moved "${target.name}" to Foreign`, tone: 'info' });
+    toast.notify({ title: t('wan.domestic.moved', { name: target.name }), tone: 'info' });
   };
 
   const moveWireless = pendingMove ? classifyInterface(pendingMove) === 'wireless' : false;
@@ -120,8 +122,8 @@ export function DomesticUplinkSection({
     const creds = resolveCreds();
     if (!creds) {
       toast.notify({
-        title: 'Missing router credentials',
-        description: 'Reconnect to the router and try again.',
+        title: t('wan.section.missingCredsTitle'),
+        description: t('wan.section.missingCredsDescription'),
         tone: 'danger',
       });
       return;
@@ -129,16 +131,20 @@ export function DomesticUplinkSection({
     await updateWanInterface(creds, { interface: interfaceName, type: 'foreign', ssid, password });
     await onChanged();
     setPendingMove(null);
-    toast.notify({ title: `Moved "${interfaceName}" to Foreign`, tone: 'info' });
+    toast.notify({ title: t('wan.domestic.moved', { name: interfaceName }), tone: 'info' });
   };
 
   return (
     <Stack>
       <Card>
         <SectionHeader
-          title="Domestic"
-          description="Interfaces tagged as the domestic uplink."
-          action={{ label: 'Change', onClick: openAdd, icon: <Pencil size={14} aria-hidden /> }}
+          title={t('wan.domestic.title')}
+          description={t('wan.domestic.description')}
+          action={{
+            label: t('wan.section.change'),
+            onClick: openAdd,
+            icon: <Pencil size={14} aria-hidden />,
+          }}
         />
         <WanTable
           rows={items}
@@ -148,15 +154,15 @@ export function DomesticUplinkSection({
           detail={(i) => i.comment || '—'}
           enabled={(i) => !i.disabled}
           emptyIcon={<Cable size={20} aria-hidden />}
-          emptyMessage="No domestic uplinks yet"
-          moveLabel={(i) => `Move ${i.name} to Foreign`}
+          emptyMessage={t('wan.domestic.empty')}
+          moveLabel={(i) => t('wan.domestic.moveLabel', { name: i.name })}
           onMove={(i) => setPendingMove(i)}
         />
       </Card>
       {dialogOpen ? (
         <WanUplinkDialog
           variant="domestic"
-          title="Change domestic uplink"
+          title={t('wan.domestic.dialogTitle')}
           interfaces={interfaces}
           excludeNames={excludeNames}
           interfacesLoading={interfacesLoading}
@@ -167,7 +173,7 @@ export function DomesticUplinkSection({
       {pendingMove && moveWireless ? (
         <WanUplinkDialog
           variant="foreign"
-          title={`Move ${pendingMove.name} to Foreign`}
+          title={t('wan.domestic.moveLabel', { name: pendingMove.name })}
           interfaces={[pendingMove]}
           initialInterface={pendingMove}
           onCancel={() => setPendingMove(null)}
@@ -176,13 +182,11 @@ export function DomesticUplinkSection({
       ) : null}
       <ConfirmDialog
         open={!!pendingMove && !moveWireless}
-        title="Move to Foreign"
+        title={t('wan.domestic.confirmTitle')}
         description={
-          pendingMove
-            ? `Re-tag "${pendingMove.name}" as the Foreign uplink? It will move to that section.`
-            : undefined
+          pendingMove ? t('wan.domestic.confirmDescription', { name: pendingMove.name }) : undefined
         }
-        confirmLabel={moveSubmitting ? 'Moving…' : 'Move'}
+        confirmLabel={moveSubmitting ? t('wan.section.moving') : t('wan.section.move')}
         onConfirm={onConfirmMove}
         onCancel={() => (moveSubmitting ? undefined : setPendingMove(null))}
       />
