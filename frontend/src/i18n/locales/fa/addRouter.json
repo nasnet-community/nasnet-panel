@@ -1,1 +1,62 @@
-{}
+{
+  "page": {
+    "title": "افزودن روتر",
+    "subtitle": "شبکه را اسکن کنید یا یک روتر را به‌صورت دستی اضافه کنید.",
+    "back": "بازگشت",
+    "addManually": "افزودن دستی",
+    "scanNetwork": "اسکن شبکه"
+  },
+  "duplicate": {
+    "title": "این روتر قبلاً اضافه شده است",
+    "description": "روتری با آدرس {{host}} با نام «{{name}}» در فهرست شما وجود دارد.",
+    "close": "بستن",
+    "openRouter": "باز کردن روتر"
+  },
+  "credentials": {
+    "title": "اتصال به {{name}}",
+    "titleFallback": "اتصال",
+    "description": "اطلاعات ورود {{host}} را وارد کنید.",
+    "cancel": "لغو",
+    "connect": "اتصال"
+  },
+  "fields": {
+    "displayName": "نام نمایشی",
+    "ipAddress": "آدرس IP",
+    "username": "نام کاربری",
+    "password": "رمز عبور"
+  },
+  "scan": {
+    "title": "زیرشبکه را اسکن کنید",
+    "description": "در حال جست‌وجوی دستگاه‌های MikroTik. برای ادامه و وارد کردن اطلاعات ورود، یکی از نتایج را انتخاب کنید.",
+    "progress": "در حال اسکن {{subnet}} ({{percent}})",
+    "scanning": "در حال اسکن…",
+    "empty": "هنوز دستگاهی پیدا نشده است. یک اسکن را شروع کنید.",
+    "failed": "اسکن ناموفق بود",
+    "subnet": "زیرشبکه",
+    "start": "شروع اسکن",
+    "columns": {
+      "ip": "IP",
+      "hostname": "نام میزبان",
+      "vendor": "سازنده",
+      "type": "نوع",
+      "services": "سرویس‌ها"
+    }
+  },
+  "target": {
+    "title": "مشخصات روتر",
+    "description": "برای اتصال، اطلاعات روتر و اطلاعات ورود را وارد کنید.",
+    "back": "بازگشت",
+    "connect": "اتصال"
+  },
+  "errors": {
+    "usernameRequired": "نام کاربری الزامی است.",
+    "notReachable": "{{host}} در دسترس نیست",
+    "notMikroTik": "به نظر نمی‌رسد {{host}} یک دستگاه MikroTik باشد",
+    "invalidCredentials": "نام کاربری یا رمز عبور نادرست است",
+    "connectionFailed": "اتصال ناموفق بود"
+  },
+  "toasts": {
+    "configApplied": "پیکربندی پیش‌فرض اعمال شد",
+    "configFailed": "اعمال پیکربندی پیش‌فرض ناموفق بود"
+  }
+}

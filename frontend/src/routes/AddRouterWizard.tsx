@@ -1,6 +1,7 @@
 import { useReducer, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Plus, Radar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Dialog,
@@ -20,6 +21,7 @@ import { initialState, reducer, type Mode } from './add-router/state';
 
 export function AddRouterWizard() {
   const navigate = useNavigate();
+  const { t } = useTranslation('addRouter');
   const [params] = useSearchParams();
   const requestedMode: Mode = params.get('mode') === 'scan' ? 'scan' : 'manual';
   const [state, dispatch] = useReducer(reducer, initialState(requestedMode));
@@ -33,20 +35,20 @@ export function AddRouterWizard() {
     <PageShell>
       <PageHeader>
         <div>
-          <PageTitle>Add router</PageTitle>
-          <PageSubtitle>Scan the network or add a router manually.</PageSubtitle>
+          <PageTitle>{t('page.title')}</PageTitle>
+          <PageSubtitle>{t('page.subtitle')}</PageSubtitle>
         </div>
         <PageActions>
           <Button variant="secondary" onClick={() => navigate('/')}>
-            <ArrowLeft size={16} aria-hidden /> Back
+            <ArrowLeft size={16} aria-hidden className="rtl-flip" /> {t('page.back')}
           </Button>
           {state.mode === 'scan' ? (
             <Button variant="success" onClick={() => navigate('/routers/new?mode=manual')}>
-              <Plus size={16} aria-hidden /> Add manually
+              <Plus size={16} aria-hidden /> {t('page.addManually')}
             </Button>
           ) : (
             <Button variant="success" onClick={() => navigate('/routers/new?mode=scan')}>
-              <Radar size={16} aria-hidden /> Scan network
+              <Radar size={16} aria-hidden /> {t('page.scanNetwork')}
             </Button>
           )}
         </PageActions>
@@ -78,16 +80,16 @@ export function AddRouterWizard() {
         open={!!duplicate}
         onClose={() => setDuplicate(null)}
         size="sm"
-        title="Router already added"
+        title={t('duplicate.title')}
         description={
           duplicate
-            ? `A router at ${duplicate.host} is already on your list as "${duplicate.name}".`
+            ? t('duplicate.description', { host: duplicate.host, name: duplicate.name })
             : undefined
         }
         footer={
           <>
             <Button variant="ghost" onClick={() => setDuplicate(null)}>
-              Close
+              {t('duplicate.close')}
             </Button>
             {duplicate ? (
               <Button
@@ -98,7 +100,7 @@ export function AddRouterWizard() {
                   navigate(`/router/${id}`);
                 }}
               >
-                Open router
+                {t('duplicate.openRouter')}
               </Button>
             ) : null}
           </>

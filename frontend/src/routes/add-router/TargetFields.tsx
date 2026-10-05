@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { FieldRow, Input, Label, PasswordInput } from '@nasnet/ui';
 import type { Action, WizardState } from './state';
 
@@ -10,41 +11,42 @@ interface Props {
 }
 
 export function TargetFields({ state, dispatch, onSubmit, canSubmit }: Props) {
+  const { t } = useTranslation('addRouter');
   return (
     <>
       <FieldRow>
         <Label>
-          <span>Display name</span>
+          <span>{t('fields.displayName')}</span>
           <Input
             value={state.name}
             onChange={(e) => dispatch({ type: 'setField', field: 'name', value: e.target.value })}
-            aria-label="Display name"
+            aria-label={t('fields.displayName')}
           />
         </Label>
         <Label>
-          <span>IP address</span>
+          <span>{t('fields.ipAddress')}</span>
           <Input
             value={state.host}
             onChange={(e) => dispatch({ type: 'setField', field: 'host', value: e.target.value })}
             placeholder="192.168.1.1"
-            aria-label="IP address"
+            aria-label={t('fields.ipAddress')}
           />
         </Label>
       </FieldRow>
       <FieldRow>
         <Label>
-          <span>Username</span>
+          <span>{t('fields.username')}</span>
           <Input
             value={state.username}
             onChange={(e) =>
               dispatch({ type: 'setField', field: 'username', value: e.target.value })
             }
             autoComplete="username"
-            aria-label="Username"
+            aria-label={t('fields.username')}
           />
         </Label>
         <Label>
-          <span>Password</span>
+          <span>{t('fields.password')}</span>
           <PasswordInput
             value={state.password}
             onChange={(e) =>
@@ -54,7 +56,7 @@ export function TargetFields({ state, dispatch, onSubmit, canSubmit }: Props) {
               if (e.key === 'Enter' && canSubmit) onSubmit();
             }}
             autoComplete="current-password"
-            aria-label="Password"
+            aria-label={t('fields.password')}
           />
         </Label>
       </FieldRow>
