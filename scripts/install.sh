@@ -56,6 +56,8 @@ NO_LAN_BASELINE=0
 LAN_BASELINE_APPLIED=0
 CONFIG_FILE=""
 VERSION=""
+RELEASE_TAG=""
+RELEASE_CHANNEL=""
 IMAGE_TAR=""
 STORAGE_CHOICE=""
 LAN_PORT=8080
@@ -77,7 +79,8 @@ Usage: install.sh [options]
   --dry-run            Print actions, change nothing.
   --uninstall          Stop+remove container, networking, uploaded tar.
   --config <file>      env-style file: ROUTER_IP=, ROUTER_USER=, ROUTER_PASS=
-  --version <tag>      Release tag to install (default: snapshot).
+  --version <tag>      Release tag to install (default: the latest release).
+                       Pass "snapshot" for the development snapshot.
   --image-tar <path>   Use a local tar instead of downloading a release asset.
   --storage <name>     Router storage for the container (disk slot name, or "internal").
   --lan-port <port>    LAN port for dstnat to panel HTTP (default: 8080).
@@ -1264,13 +1267,52 @@ fetch_verified() {
   fi
 }
 
-download_asset() {
-  local arch="$1" release channel suffix asset url sha_url out_dir out sha
-  if [[ -n "$VERSION" ]]; then
-    release="$VERSION"; channel="${VERSION#v}"
-  else
-    release="$SNAPSHOT_RELEASE"; channel="$SNAPSHOT_CHANNEL"
+# Print the tag of the latest published (non-prerelease) release. Tries the
+# GitHub API first, then the github.com/.../releases/latest redirect, which
+# is not subject to the unauthenticated API rate limit.
+latest_release_tag() {
+  local api="https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/releases/latest"
+  local page="https://github.com/${GH_OWNER}/${GH_REPO}/releases/latest"
+  local tag="" effective=""
+  local pattern='^v[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'
+  tag="$(curl -fsSL --max-time 20 -H 'Accept: application/vnd.github+json' "$api" 2>/dev/null \
+           | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 \
+           | sed -E 's/.*"([^"]*)"$/\1/')" || tag=""
+  if [[ ! "$tag" =~ $pattern ]]; then
+    v "GitHub API lookup returned no usable tag, trying ${page}"
+    effective="$(curl -fsSL --max-time 20 -o /dev/null -w '%{url_effective}' "$page" 2>/dev/null)" \
+      || effective=""
+    case "$effective" in
+      */releases/tag/*) tag="${effective##*/releases/tag/}" ;;
+    esac
   fi
+  [[ "$tag" =~ $pattern ]] || return 1
+  printf '%s\n' "$tag"
+}
+
+# Set RELEASE_TAG (the GitHub release) and RELEASE_CHANNEL (the version part
+# of its asset names) from --version: empty means the latest release,
+# "snapshot" the rolling development snapshot, anything else a release tag.
+resolve_release() {
+  case "$VERSION" in
+    "$SNAPSHOT_RELEASE")
+      RELEASE_TAG="$SNAPSHOT_RELEASE"; RELEASE_CHANNEL="$SNAPSHOT_CHANNEL" ;;
+    "")
+      log ""
+      log "Looking up the latest release ..."
+      RELEASE_TAG="$(latest_release_tag)" || {
+        err "could not find the latest release of ${GH_OWNER}/${GH_REPO} on GitHub"
+        err "check this machine's internet connection, or pass --version <tag> (or --version ${SNAPSHOT_RELEASE})"
+        exit 1
+      }
+      RELEASE_CHANNEL="${RELEASE_TAG#v}" ;;
+    *)
+      RELEASE_TAG="$VERSION"; RELEASE_CHANNEL="${VERSION#v}" ;;
+  esac
+}
+
+download_asset() {
+  local arch="$1" release="$RELEASE_TAG" channel="$RELEASE_CHANNEL" suffix asset url sha_url out_dir out sha
   suffix="$(asset_suffix "$arch")"
   asset="${ASSET_PREFIX}-${channel}-${suffix}.tar"
   url="https://github.com/${GH_OWNER}/${GH_REPO}/releases/download/${release}/${asset}"
@@ -1568,7 +1610,8 @@ setup_lan_baseline() {
 
   local rsc="${SCRIPT_DIR}/${LAN_BASELINE_RSC}" tmp=""
   if [[ ! -r "$rsc" ]]; then
-    local ref="${VERSION:-$SNAPSHOT_CHANNEL}"
+    local ref="${RELEASE_TAG:-${VERSION:-$SNAPSHOT_RELEASE}}"
+    [[ "$ref" == "$SNAPSHOT_RELEASE" ]] && ref="$SNAPSHOT_CHANNEL"
     local url="https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${ref}/scripts/${LAN_BASELINE_RSC}"
     tmp="$(mktemp)"
     if ! spin "downloading LAN baseline script" curl -fsSL "$url" -o "$tmp"; then
@@ -1674,6 +1717,10 @@ main() {
     return 0
   fi
 
+  if [[ -z "$IMAGE_TAR" ]]; then
+    resolve_release
+  fi
+
   prepare_wan
   ensure_container_support
   detect_storage
@@ -1686,10 +1733,10 @@ main() {
     log "Using local tar: ${LOCAL_TAR}"
   else
     log ""
-    if [[ -n "$VERSION" ]]; then
-      log "Release: ${VERSION}  arch: ${ROUTEROS_ARCH}"
-    else
+    if [[ "$RELEASE_TAG" == "$SNAPSHOT_RELEASE" ]]; then
       log "Snapshot release: ${SNAPSHOT_RELEASE}  arch: ${ROUTEROS_ARCH}"
+    else
+      log "Release: ${RELEASE_TAG}  arch: ${ROUTEROS_ARCH}"
     fi
     download_asset "$ROUTEROS_ARCH"
   fi

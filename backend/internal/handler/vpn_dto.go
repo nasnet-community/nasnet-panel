@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strconv"
 	"strings"
 
 	"nasnet-panel/pkg/utils"
@@ -318,9 +319,9 @@ type WireGuardPeerResponse struct {
 	PublicKey              string `json:"publicKey"`
 	PrivateKey             string `json:"privateKey,omitempty"`
 	EndpointAddress        string `json:"endpointAddress"`
-	EndpointPort           int    `json:"endpointPort"`
+	EndpointPort           int    `json:"endpointPort,omitempty"`
 	CurrentEndpointAddress string `json:"currentEndpointAddress"`
-	CurrentEndpointPort    int    `json:"currentEndpointPort"`
+	CurrentEndpointPort    int    `json:"currentEndpointPort,omitempty"`
 	AllowedAddresses       string `json:"allowedAddresses"`
 	PreSharedKey           string `json:"preSharedKey,omitempty"`
 	PersistentKeepalive    string `json:"persistentKeepalive"`
@@ -445,6 +446,11 @@ func ToL2TPClientResponse(l2tp *routeros.L2TPClientInfo) L2TPClientResponse {
 
 // ToWireGuardPeerResponse converts a RouterOS WireGuardPeerInfo to API WireGuardPeerResponse.
 func ToWireGuardPeerResponse(peer *routeros.WireGuardPeerInfo) WireGuardPeerResponse {
+	persistentKeepalive := ""
+	if strings.TrimSpace(peer.PersistentKeepalive) != "" {
+		persistentKeepalive = strconv.FormatInt(utils.RouterOSDurationSeconds(peer.PersistentKeepalive), 10)
+	}
+
 	return WireGuardPeerResponse{
 		ID:                     peer.ID,
 		Name:                   peer.Name,
@@ -457,7 +463,7 @@ func ToWireGuardPeerResponse(peer *routeros.WireGuardPeerInfo) WireGuardPeerResp
 		CurrentEndpointPort:    peer.CurrentEndpointPort,
 		AllowedAddresses:       peer.AllowedAddresses,
 		PreSharedKey:           peer.PreSharedKey,
-		PersistentKeepalive:    peer.PersistentKeepalive,
+		PersistentKeepalive:    persistentKeepalive,
 		ClientEndpoint:         peer.ClientEndpoint,
 		ClientAllowedAddress:   peer.ClientAllowedAddress,
 		LastHandshake:          peer.LastHandshake,
@@ -544,9 +550,12 @@ type ImportWireGuardConfigRequest struct {
 
 // ImportWireGuardConfigResponse represents the response after importing a WireGuard configuration.
 type ImportWireGuardConfigResponse struct {
-	InterfaceName string   `json:"interfaceName"`
-	InterfaceIP   string   `json:"interfaceIP"`
-	PeerNames     []string `json:"peerNames"`
+	InterfaceName           string   `json:"interfaceName"`
+	InterfaceIP             string   `json:"interfaceIP"`
+	PeerNames               []string `json:"peerNames"`
+	ImportedPeerCount       int      `json:"importedPeerCount"`
+	ReusedExistingInterface bool     `json:"reusedExistingInterface"`
+	SkippedDuplicatePeers   []string `json:"skippedDuplicatePeers"`
 }
 
 // CreateOvpnServerRequest represents a request to create an OpenVPN server with client certificate.

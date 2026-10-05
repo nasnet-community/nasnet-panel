@@ -92,6 +92,106 @@ test.describe('Plugins page', () => {
     await expect(authorLink).toHaveAttribute('href', 'https://ooni.org');
   });
 
+  test('installed plugin cards get an Open link to the plugin, others do not', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+    seedCredentials,
+  }) => {
+    await resetMocks();
+    await seedRouter(ROUTER);
+    await seedCredentials(ROUTER.id);
+
+    await context.route('**/api/plugin/plugins', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          containerSupport: true,
+          plugins: [CATALOG[0], { ...CATALOG[1], installed: true, running: true }],
+        }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER.id}/plugins`);
+
+    const ooniCard = page
+      .getByRole('article')
+      .filter({ has: page.getByRole('heading', { name: 'OONI Probe' }) });
+    const open = ooniCard.getByRole('link', { name: 'Open' });
+    await expect(open).toBeVisible();
+    await expect(open).toHaveAttribute('href', /\/api\/plugin\/view\/ooni-probe$/);
+    await expect(open).toHaveAttribute('target', '_blank');
+    await expect(open).toHaveAttribute('rel', /noopener/);
+
+    const xrayCard = page
+      .getByRole('article')
+      .filter({ has: page.getByRole('heading', { name: 'V2Ray / Xray' }) });
+    await expect(xrayCard.getByRole('button', { name: /^install$/i })).toBeVisible();
+    await expect(xrayCard.getByRole('link', { name: 'Open' })).toHaveCount(0);
+  });
+
+  test('a plugin installed this session gets an Open link right away', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+    seedCredentials,
+  }) => {
+    await resetMocks();
+    await seedRouter(ROUTER);
+    await seedCredentials(ROUTER.id);
+
+    // The registry keeps reporting the plugin as not installed.
+    await context.route('**/api/plugin/plugins', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ containerSupport: true, plugins: CATALOG }),
+      });
+    });
+
+    await context.route('**/api/plugin/installed', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+
+    await context.route('**/api/plugin/install', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ id: 'xray-server', pluginId: 'xray-server' }),
+      });
+    });
+
+    await context.route('**/api/plugin/install/status/*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({ pluginId: 'xray-server', phase: 'done' }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER.id}/plugins`);
+
+    const xrayCard = page
+      .getByRole('article')
+      .filter({ has: page.getByRole('heading', { name: 'V2Ray / Xray' }) });
+    await expect(xrayCard.getByRole('link', { name: 'Open' })).toHaveCount(0);
+    await xrayCard.getByRole('button', { name: /^install$/i }).click();
+
+    await expect(page.getByText('V2Ray / Xray installed')).toBeVisible();
+    const open = xrayCard.getByRole('link', { name: 'Open' });
+    await expect(open).toBeVisible();
+    await expect(open).toHaveAttribute('href', /\/api\/plugin\/view\/xray-server$/);
+
+    const ooniCard = page
+      .getByRole('article')
+      .filter({ has: page.getByRole('heading', { name: 'OONI Probe' }) });
+    await expect(ooniCard.getByRole('link', { name: 'Open' })).toHaveCount(0);
+  });
+
   test('install starts an async install, polls status, and refreshes the list', async ({
     context,
     page,

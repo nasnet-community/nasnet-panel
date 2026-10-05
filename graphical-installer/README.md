@@ -24,6 +24,14 @@ The engine (`internal/install/engine.go`) runs these in order, with rollback on 
 
 Uninstall reverses the container, network config, and uploaded files.
 
+## Image source
+
+By default the Download image step looks up the latest tagged release on GitHub
+(`releases/latest`, falling back to the `/releases/latest` redirect) and downloads its tar for the
+router's architecture. If neither lookup works, the step fails with an error. Advanced options
+offer the development snapshot (the rolling `snapshot` release), a specific release tag, or a
+local tar instead.
+
 ## LAN baseline script
 
 `scripts/nasnet-lan-baseline.rsc` at the repo root is the single source for the LAN baseline
