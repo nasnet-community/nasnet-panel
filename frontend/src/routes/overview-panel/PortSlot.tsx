@@ -15,6 +15,7 @@ import {
   Usb,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useFormat } from '../../utils/useFormat';
 import { Tooltip } from '@nasnet/ui';
 import type { ResolvedSlot, SlotKind } from './types';
 import { POWER_ACTION, statusLabel } from './mapPorts';
@@ -59,6 +60,7 @@ export interface PortSlotProps {
 
 export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
   const { t } = useTranslation('overview');
+  const format = useFormat();
   // The reset button's printed label is prose; the other non-port labels (DC, USB, SIM, LTE) are not.
   const fixedLabel = slot.kind === 'reset' ? t('ports.rebootLabel') : (slot.label ?? slot.kind);
   const Icon = ICONS[slot.kind] ?? Cable;
@@ -104,13 +106,13 @@ export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
           {slot.rxLabel ? (
             <span className={cx(styles.hoverRow, styles.rxRow)}>
               <ArrowDown size={13} aria-hidden />
-              {slot.rxLabel}
+              {format.sizeLabel(slot.rxLabel)}
             </span>
           ) : null}
           {slot.txLabel ? (
             <span className={cx(styles.hoverRow, styles.txRow)}>
               <ArrowUp size={13} aria-hidden />
-              {slot.txLabel}
+              {format.sizeLabel(slot.txLabel)}
             </span>
           ) : null}
         </span>

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../state/LanguageContext';
 
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB'] as const;
+type SizeUnit = 'B' | 'KB' | 'MB' | 'GB' | 'TB';
+const SIZE_LABEL = /^(\d+(?:\.\d+)?) ?(B|KB|MB|GB|TB)(\/s)?$/;
 
 // Locale-aware formatters for display text. Machine values (IPs, MACs, ports, keys,
 // versions) are not prose: render them as-is, never through these.
@@ -40,6 +42,21 @@ export function useFormat() {
             useGrouping: false,
           }),
         });
+      },
+      // Re-renders a size the backend already formatted, such as "256.00 MB" or "1.25 MB/s",
+      // in the active language. English output is unchanged; anything else passes through.
+      sizeLabel: (label: string | undefined) => {
+        const match = label ? SIZE_LABEL.exec(label.trim()) : null;
+        if (!label || !match) return label;
+        const [, amount, unit, perSecond] = match;
+        const decimals = amount.split('.')[1]?.length ?? 0;
+        const value = number(Number(amount), {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+          useGrouping: false,
+        });
+        const sizeUnit = unit as SizeUnit;
+        return perSecond ? t(`units.${sizeUnit}ps`, { value }) : t(`units.${sizeUnit}`, { value });
       },
     };
   }, [intlLocale, t]);

@@ -302,6 +302,7 @@ export function FirewallPage() {
   const router = useRouter(id);
   const { getCredentials } = useSession();
   const { t } = useTranslation('network');
+  const format = useFormat();
 
   const chainOptions = useMemo(
     () => [
@@ -432,7 +433,7 @@ export function FirewallPage() {
       header: t('firewall.columns.bytes'),
       render: (r) =>
         r.bytes ? (
-          <span className={styles.mono}>{r.bytes}</span>
+          <span className={styles.mono}>{format.sizeLabel(r.bytes)}</span>
         ) : (
           <span className={styles.muted}>0</span>
         ),

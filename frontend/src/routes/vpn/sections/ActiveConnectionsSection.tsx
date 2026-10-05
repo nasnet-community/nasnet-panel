@@ -226,8 +226,8 @@ export function ActiveConnectionsSection({ creds, server, onCountChange }: Props
                 r.kind === 'wireguard'
                   ? t('active.table.wgDetails', {
                       iface: r.interfaceName ?? '',
-                      rx: r.rx ?? '',
-                      tx: r.tx ?? '',
+                      rx: format.sizeLabel(r.rx) ?? '',
+                      tx: format.sizeLabel(r.tx) ?? '',
                     })
                   : r.details || '–',
             },

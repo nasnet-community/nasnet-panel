@@ -443,7 +443,7 @@ export function OverviewTab() {
             <span className={styles.trafficLabel}>
               <span style={{ color: colors.success }}>↓</span> {t('traffic.download')}
             </span>
-            <span className={styles.trafficValue} dir="ltr">
+            <span className={styles.trafficValue} dir="auto">
               {formatMbps(downloadKbps)}
             </span>
           </div>
@@ -451,7 +451,7 @@ export function OverviewTab() {
             <span className={styles.trafficLabel}>
               <span style={{ color: colors.warning }}>↑</span> {t('traffic.upload')}
             </span>
-            <span className={styles.trafficValue} dir="ltr">
+            <span className={styles.trafficValue} dir="auto">
               {formatMbps(uploadKbps)}
             </span>
           </div>
@@ -536,7 +536,7 @@ export function OverviewTab() {
               style={miniBarStyle(memoryPct, toneForPct(memoryPct))}
             />
             <div className={styles.resourceFooter}>
-              {overview.memoryUsedLabel} / {overview.memoryTotalLabel}
+              {fmt.sizeLabel(overview.memoryUsedLabel)} / {fmt.sizeLabel(overview.memoryTotalLabel)}
             </div>
           </Card>
 
@@ -556,7 +556,7 @@ export function OverviewTab() {
             </div>
             <div className={styles.miniBar} style={miniBarStyle(diskPct, toneForPct(diskPct))} />
             <div className={styles.resourceFooter}>
-              {overview.hddUsedLabel} / {overview.hddTotalLabel}
+              {fmt.sizeLabel(overview.hddUsedLabel)} / {fmt.sizeLabel(overview.hddTotalLabel)}
             </div>
           </Card>
         </SectionGrid>

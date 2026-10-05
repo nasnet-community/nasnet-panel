@@ -6,6 +6,12 @@
     "B": "{{value}} B",
     "KB": "{{value}} KB",
     "MB": "{{value}} MB",
-    "GB": "{{value}} GB"
+    "GB": "{{value}} GB",
+    "TB": "{{value}} TB",
+    "Bps": "{{value}} B/s",
+    "KBps": "{{value}} KB/s",
+    "MBps": "{{value}} MB/s",
+    "GBps": "{{value}} GB/s",
+    "TBps": "{{value}} TB/s"
   }
 }
