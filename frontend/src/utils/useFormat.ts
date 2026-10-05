@@ -33,7 +33,12 @@ export function useFormat() {
         }
         const digits = unit === 0 ? 0 : 2;
         return t(`units.${BYTE_UNITS[unit]}`, {
-          value: number(value, { minimumFractionDigits: digits, maximumFractionDigits: digits }),
+          value: number(value, {
+            minimumFractionDigits: digits,
+            maximumFractionDigits: digits,
+            // Match formatBytes exactly: no thousands separators.
+            useGrouping: false,
+          }),
         });
       },
     };
