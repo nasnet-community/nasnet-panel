@@ -71,6 +71,10 @@ test.describe('Language switch', () => {
 
     await expect(page.locator('header')).toContainText('نسنت پنل');
     await expect(page.getByRole('tab', { name: 'نمای کلی' }).first()).toBeAttached();
+    await expect(page.getByRole('link', { name: 'مطالعهٔ راهنمای کاربر' })).toHaveAttribute(
+      'href',
+      'https://www.joinnasnet.com/fa/guides/nasnet-panel/overview/',
+    );
 
     const routerMenu = page.locator('header button[aria-haspopup="menu"]');
     await routerMenu.click();
