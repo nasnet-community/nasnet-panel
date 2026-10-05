@@ -1,8 +1,10 @@
 import { BookOpen, Bug, ExternalLink, Send } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { GITHUB_ISSUES_URL, KNOWLEDGE_BASE_URL, TELEGRAM_SUPPORT_URL } from './links';
 import styles from '../HelpPage.module.scss';
 
 export function SupportLinks() {
+  const { t } = useTranslation('tools');
   return (
     <div className={styles.links}>
       <a
@@ -15,10 +17,10 @@ export function SupportLinks() {
           <BookOpen size={18} />
         </span>
         <span className={styles.linkBody}>
-          <span className={styles.linkTitle}>Knowledge base</span>
-          <span className={styles.linkDesc}>Browse guides and documentation</span>
+          <span className={styles.linkTitle}>{t('help.links.knowledgeBase')}</span>
+          <span className={styles.linkDesc}>{t('help.links.knowledgeBaseDesc')}</span>
         </span>
-        <ExternalLink size={14} aria-hidden className={styles.linkExternal} />
+        <ExternalLink size={14} aria-hidden className={`${styles.linkExternal} rtl-flip`} />
       </a>
 
       <a
@@ -31,10 +33,10 @@ export function SupportLinks() {
           <Send size={18} />
         </span>
         <span className={styles.linkBody}>
-          <span className={styles.linkTitle}>Telegram support</span>
-          <span className={styles.linkDesc}>Chat with the team on Telegram</span>
+          <span className={styles.linkTitle}>{t('help.links.telegram')}</span>
+          <span className={styles.linkDesc}>{t('help.links.telegramDesc')}</span>
         </span>
-        <ExternalLink size={14} aria-hidden className={styles.linkExternal} />
+        <ExternalLink size={14} aria-hidden className={`${styles.linkExternal} rtl-flip`} />
       </a>
 
       <a
@@ -47,10 +49,10 @@ export function SupportLinks() {
           <Bug size={18} />
         </span>
         <span className={styles.linkBody}>
-          <span className={styles.linkTitle}>Report a bug on GitHub</span>
-          <span className={styles.linkDesc}>Open a new issue in the project repository</span>
+          <span className={styles.linkTitle}>{t('help.links.github')}</span>
+          <span className={styles.linkDesc}>{t('help.links.githubDesc')}</span>
         </span>
-        <ExternalLink size={14} aria-hidden className={styles.linkExternal} />
+        <ExternalLink size={14} aria-hidden className={`${styles.linkExternal} rtl-flip`} />
       </a>
     </div>
   );

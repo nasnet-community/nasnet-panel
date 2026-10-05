@@ -1,1 +1,258 @@
-{}
+{
+  "common": {
+    "missingCredentials": "اطلاعات ورود روتر برای این نشست موجود نیست.",
+    "refresh": "بازخوانی"
+  },
+  "logs": {
+    "loadFailed": "بارگذاری لاگ‌ها ناموفق بود.",
+    "title": "لاگ‌ها",
+    "description": "جریان رویدادهای RouterOS. بر اساس سطح یا موضوع فیلتر کنید و در هر جای پیام جستجو کنید.",
+    "level": "سطح",
+    "searchLevel": "جستجوی سطح…",
+    "allLevels": "همه سطح‌ها",
+    "levels": {
+      "info": "اطلاعات",
+      "warning": "هشدار",
+      "error": "خطا",
+      "critical": "بحرانی",
+      "debug": "اشکال‌زدایی"
+    },
+    "topic": "موضوع",
+    "searchTopic": "جستجوی موضوع…",
+    "allTopics": "همه موضوع‌ها",
+    "search": "جستجو",
+    "keyword": "کلیدواژه…",
+    "empty": "هیچ لاگی با فیلترهای فعلی مطابقت ندارد.",
+    "openDetailsAria": "باز کردن جزئیات لاگ {{id}}",
+    "showing": "نمایش {{from}}–{{to}} از {{total}}",
+    "previousPage": "صفحه قبل",
+    "prev": "قبلی",
+    "pageOf": "صفحه {{page}} از {{total}}",
+    "nextPage": "صفحه بعد",
+    "next": "بعدی",
+    "details": {
+      "title": "جزئیات لاگ",
+      "close": "بستن",
+      "timestamp": "زمان",
+      "level": "سطح",
+      "topic": "موضوع",
+      "message": "پیام",
+      "logId": "شناسه لاگ",
+      "prefix": "پیشوند",
+      "account": "حساب",
+      "count": "تعداد"
+    }
+  },
+  "diagnostics": {
+    "steps": {
+      "systemInfo": {
+        "label": "اطلاعات سیستم",
+        "description": "منابع و بسته‌ها"
+      },
+      "installCheck": {
+        "label": "بررسی نصب",
+        "description": "وضعیت نصب پنل"
+      },
+      "interfaces": {
+        "label": "اینترفیس‌ها",
+        "description": "لینک‌ها و آدرس‌ها"
+      },
+      "wifi": {
+        "label": "WiFi",
+        "description": "اینترفیس‌های بی‌سیم"
+      },
+      "routing": {
+        "label": "مسیریابی",
+        "description": "جدول‌ها و قوانین"
+      },
+      "dns": {
+        "label": "DNS",
+        "description": "پیکربندی و تفکیک نام"
+      },
+      "vpn": {
+        "label": "VPN",
+        "description": "کلاینت‌ها و سرورها"
+      },
+      "connectivity": {
+        "label": "آزمون‌های اتصال",
+        "description": "پینگ WAN و VPN"
+      },
+      "logs": {
+        "label": "لاگ‌ها",
+        "description": "خطاهای اخیر"
+      }
+    },
+    "statusFailed": "بارگذاری وضعیت عیب‌یابی ناموفق بود.",
+    "progressFailed": "بررسی پیشرفت عیب‌یابی ناموفق بود.",
+    "toasts": {
+      "complete": "عیب‌یابی کامل شد",
+      "notFound": "گزارش عیب‌یابی پیدا نشد",
+      "startFailed": "شروع عیب‌یابی ناموفق بود",
+      "downloadFailed": "دانلود گزارش ناموفق بود",
+      "deleted": "گزارش عیب‌یابی حذف شد",
+      "deleteFailed": "حذف گزارش ناموفق بود"
+    },
+    "generated": "ایجادشده در {{time}}",
+    "generatedWithSize": "ایجادشده در {{time}} ({{size}})",
+    "deleting": "در حال حذف…",
+    "delete": "حذف",
+    "downloading": "در حال دانلود…",
+    "download": "دانلود",
+    "talkToSupport": "گفتگو با پشتیبانی",
+    "running": "در حال اجرا…",
+    "runAgain": "اجرای دوباره",
+    "start": "شروع",
+    "errorReports": {
+      "title": "گزارش خطا",
+      "description": "گزارش‌های ناشناس خطا به تیم Nasnet در رفع باگ‌ها کمک می‌کنند و هرگز شامل آدرس روتر، اطلاعات ورود یا پیکربندی شما نیستند. <link>ببینید چه چیزهایی ثبت می‌شود</link>",
+      "toggle": "ارسال گزارش خطا"
+    },
+    "reset": {
+      "title": "بازنشانی پیکربندی",
+      "description": "همه تنظیمات فعلی این روتر را پاک کنید و راهنمای راه‌اندازی را دوباره از ابتدا طی کنید. این کار برگشت‌پذیر نیست.",
+      "button": "بازنشانی و پیکربندی دوباره"
+    },
+    "confirmDelete": {
+      "title": "گزارش عیب‌یابی حذف شود؟",
+      "description": "{{file}} از این روتر حذف شود؟ این کار برگشت‌پذیر نیست."
+    },
+    "confirmReset": {
+      "title": "پیکربندی بازنشانی شود؟",
+      "description": "همه تنظیمات فعلی این روتر پاک می‌شود و راهنمای راه‌اندازی شما را دوباره از ابتدا در پیکربندی آن همراهی می‌کند."
+    }
+  },
+  "help": {
+    "assistant": {
+      "title": "دستیار هوش مصنوعی",
+      "description": "هر سؤالی دارید از دستیار هوش مصنوعی ما بپرسید؛ در صورت نیاز، یکی از کارشناسان پشتیبانی هم به گفتگو می‌پیوندد."
+    },
+    "chat": {
+      "error": "بارگذاری گفتگوی پشتیبانی ممکن نشد. اتصال اینترنت خود را بررسی کنید و صفحه را دوباره بارگذاری کنید.",
+      "loading": "در حال بارگذاری گفتگو…"
+    },
+    "links": {
+      "knowledgeBase": "پایگاه دانش",
+      "knowledgeBaseDesc": "مرور راهنماها و مستندات",
+      "telegram": "پشتیبانی تلگرام",
+      "telegramDesc": "گفتگو با تیم در تلگرام",
+      "github": "گزارش باگ در GitHub",
+      "githubDesc": "ثبت یک issue جدید در مخزن پروژه"
+    }
+  },
+  "plugins": {
+    "progress": {
+      "startingInstall": "شروع نصب",
+      "startingUpdate": "شروع به‌روزرسانی",
+      "preparing": "آماده‌سازی",
+      "creatingInterface": "ایجاد اینترفیس",
+      "creatingMounts": "ایجاد نقاط اتصال (mount)",
+      "runningPreInstall": "اجرای اسکریپت پیش از نصب",
+      "creatingContainer": "ایجاد کانتینر",
+      "pullingImage": "دریافت ایمیج",
+      "startingContainer": "راه‌اندازی کانتینر",
+      "runningPostInstall": "اجرای اسکریپت پس از نصب",
+      "checkingVersion": "بررسی نسخه",
+      "stoppingContainer": "توقف کانتینر",
+      "finishing": "در حال اتمام"
+    },
+    "status": {
+      "failed": "ناموفق",
+      "installing": "در حال نصب",
+      "running": "در حال اجرا",
+      "installed": "نصب‌شده"
+    },
+    "loadFailed": "بارگذاری افزونه‌ها ناموفق بود.",
+    "toasts": {
+      "installFailed": "نصب {{name}} ناموفق بود",
+      "installTimeout": "زمان انتظار برای پایان نصب به سر رسید",
+      "installFailedDetail": "نصب افزونه ناموفق بود",
+      "installed": "{{name}} نصب شد",
+      "updateFailed": "به‌روزرسانی {{name}} ناموفق بود",
+      "updateTimeout": "زمان انتظار برای پایان به‌روزرسانی به سر رسید",
+      "updateFailedDetail": "به‌روزرسانی افزونه ناموفق بود",
+      "updateUnconfirmed": "به‌روزرسانی {{name}} تأیید نشد",
+      "updateUnconfirmedDetail": "ایمیج جدید قابل تأیید نبود. افزونه دوباره راه‌اندازی شد.",
+      "updatedTo": "{{name}} به نسخه v{{version}} به‌روزرسانی شد",
+      "updated": "{{name}} به‌روزرسانی شد",
+      "uninstalledWithWarnings": "{{name}} با هشدار حذف شد",
+      "uninstalled": "{{name}} حذف شد",
+      "uninstallFailed": "حذف {{name}} ناموفق بود"
+    },
+    "unsupported": "این روتر نمی‌تواند افزونه اجرا کند. حالت کانتینر غیرفعال است یا بسته container نصب نشده است؛ بنابراین افزونه‌ها را فقط می‌توان مرور کرد، نه نصب.",
+    "loadFailedTitle": "بارگذاری افزونه‌ها ناموفق بود",
+    "retry": "تلاش دوباره",
+    "noneTitle": "افزونه‌ای موجود نیست",
+    "noneDescription": "مخزن افزونه‌ها هیچ افزونه‌ای برنگرداند.",
+    "byAuthor": "از <link>{{author}}</link>",
+    "versionWithUpdate": "v{{installed}} (نسخه v{{latest}} موجود است)",
+    "installing": "در حال نصب…",
+    "updating": "در حال به‌روزرسانی…",
+    "open": "باز کردن",
+    "update": "به‌روزرسانی",
+    "uninstalling": "در حال حذف…",
+    "uninstall": "حذف نصب",
+    "unavailable": "ناموجود",
+    "install": "نصب",
+    "comingSoon": "به‌زودی",
+    "pluginFallback": "افزونه",
+    "confirmUninstall": {
+      "title": "{{name}} حذف نصب شود؟",
+      "description": "کانتینر افزونه و منابع آن از روتر حذف می‌شوند."
+    },
+    "confirmUpdate": {
+      "title": "{{name}} به‌روزرسانی شود؟",
+      "description": "کانتینر افزونه دوباره راه‌اندازی می‌شود و در طول به‌روزرسانی مدت کوتاهی از دسترس خارج است."
+    },
+    "logo": "لوگوی {{name}}"
+  },
+  "updates": {
+    "title": "به‌روزرسانی‌ها",
+    "subtitle": "برنامه Nasnet Panel و فریم‌ور RouterOS را به‌روز نگه دارید.",
+    "checkFailed": "بررسی به‌روزرسانی‌ها ناموفق بود",
+    "updateAvailable": "به‌روزرسانی موجود است",
+    "upToDate": "به‌روز",
+    "current": "فعلی",
+    "latest": "آخرین",
+    "installing": "در حال نصب…",
+    "done": "انجام شد",
+    "confirm": "تأیید",
+    "progress": {
+      "starting": "شروع به‌روزرسانی",
+      "preparing": "آماده‌سازی به‌روزرسانی",
+      "pulling": "دانلود نسخه جدید",
+      "restarting": "راه‌اندازی دوباره پنل",
+      "waiting": "در انتظار بازگشت پنل",
+      "done": "انجام شد"
+    },
+    "app": {
+      "title": "به‌روزرسانی برنامه",
+      "failed": "به‌روزرسانی برنامه ناموفق بود",
+      "timeout": "زمان انتظار برای پایان به‌روزرسانی به سر رسید",
+      "applied": "به‌روزرسانی اعمال شد",
+      "appliedDetail": "برای بارگذاری نسخه جدید، صفحه را بازخوانی کنید.",
+      "complete": "به‌روزرسانی کامل شد",
+      "reloading": "در حال بارگذاری دوباره…",
+      "alreadyUpToDate": "از قبل به‌روز است",
+      "keepUpToDate": "برنامه Nasnet Panel را به‌روز نگه دارید.",
+      "newerAvailable": "نسخه جدیدتری از Nasnet Panel موجود است.",
+      "runningLatest": "از آخرین نسخه استفاده می‌کنید.",
+      "connectFirst": "برای بررسی به‌روزرسانی‌های برنامه، ابتدا به یک روتر متصل شوید.",
+      "releaseNotes": "یادداشت‌های انتشار",
+      "updateButton": "به‌روزرسانی برنامه",
+      "confirmTitle": "به‌روزرسانی برنامه نصب شود؟",
+      "confirmDescription": "پنل برای اعمال نسخه جدید دوباره راه‌اندازی می‌شود. پس از بازگشت پنل، صفحه به‌طور خودکار دوباره بارگذاری می‌شود."
+    },
+    "firmware": {
+      "title": "فریم‌ور RouterOS",
+      "started": "به‌روزرسانی فریم‌ور آغاز شد",
+      "startedDetail": "روتر برای اعمال به‌روزرسانی دوباره راه‌اندازی می‌شود.",
+      "failed": "به‌روزرسانی فریم‌ور ناموفق بود",
+      "installOn": "آخرین نسخه RouterOS را روی {{name}} نصب کنید.",
+      "connect": "برای بررسی فریم‌ور به یک روتر متصل شوید.",
+      "connectFirst": "برای بررسی به‌روزرسانی‌های فریم‌ور، ابتدا به یک روتر متصل شوید.",
+      "updateButton": "به‌روزرسانی فریم‌ور",
+      "confirmTitle": "فریم‌ور RouterOS نصب شود؟",
+      "confirmDescription": "روتر پس از اعمال بسته دوباره راه‌اندازی می‌شود. اتصال برای مدت کوتاهی قطع می‌شود."
+    }
+  }
+}

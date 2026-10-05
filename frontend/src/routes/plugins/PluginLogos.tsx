@@ -1,11 +1,18 @@
 import React from 'react';
+import i18n from '../../i18n';
 
 interface LogoProps {
   size?: number;
 }
 
 export const TelegramMtprotoLogo: React.FC<LogoProps> = ({ size = 48 }) => (
-  <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label="Telegram MTProto logo">
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    role="img"
+    aria-label={i18n.t('plugins.logo', { ns: 'tools', name: 'Telegram MTProto' })}
+  >
     <defs>
       <linearGradient id="telegram-grad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#37BBFE" />
@@ -21,7 +28,13 @@ export const TelegramMtprotoLogo: React.FC<LogoProps> = ({ size = 48 }) => (
 );
 
 export const XrayLogo: React.FC<LogoProps> = ({ size = 48 }) => (
-  <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label="V2Ray / Xray logo">
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    role="img"
+    aria-label={i18n.t('plugins.logo', { ns: 'tools', name: 'V2Ray / Xray' })}
+  >
     <defs>
       <linearGradient id="xray-grad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stopColor="#3B3F51" />
@@ -37,7 +50,13 @@ export const XrayLogo: React.FC<LogoProps> = ({ size = 48 }) => (
 );
 
 export const DeltaChatLogo: React.FC<LogoProps> = ({ size = 48 }) => (
-  <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label="DeltaChat logo">
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    role="img"
+    aria-label={i18n.t('plugins.logo', { ns: 'tools', name: 'DeltaChat' })}
+  >
     <defs>
       <linearGradient id="delta-grad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stopColor="#22C55E" />
@@ -51,7 +70,13 @@ export const DeltaChatLogo: React.FC<LogoProps> = ({ size = 48 }) => (
 );
 
 export const OONIProbeLogo: React.FC<LogoProps> = ({ size = 48 }) => (
-  <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label="OONI Probe logo">
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    role="img"
+    aria-label={i18n.t('plugins.logo', { ns: 'tools', name: 'OONI Probe' })}
+  >
     <defs>
       <linearGradient id="ooni-grad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stopColor="#0EA5E9" />
@@ -74,7 +99,13 @@ export const OONIProbeLogo: React.FC<LogoProps> = ({ size = 48 }) => (
 );
 
 export const NasnetMonitorLogo: React.FC<LogoProps> = ({ size = 48 }) => (
-  <svg viewBox="0 0 64 64" width={size} height={size} role="img" aria-label="NASNET Monitor logo">
+  <svg
+    viewBox="0 0 64 64"
+    width={size}
+    height={size}
+    role="img"
+    aria-label={i18n.t('plugins.logo', { ns: 'tools', name: 'NASNET Monitor' })}
+  >
     <defs>
       <linearGradient id="nasnet-monitor-grad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stopColor="#6366F1" />
