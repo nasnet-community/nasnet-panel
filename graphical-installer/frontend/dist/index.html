@@ -76,6 +76,10 @@
               </div>
             </div>
           </div>
+          <label class="check">
+            <input type="checkbox" id="wifiUplink" />
+            <span>Use WiFi as uplink (the router joins a WiFi network during the install)</span>
+          </label>
           <div id="form-error" class="error hidden"></div>
 
           <details>
@@ -309,6 +313,25 @@
           <div class="actions">
             <button id="btn-storage-ok" class="primary">Use this disk</button>
             <button id="btn-storage-no">Abort</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-wifi" class="modal hidden">
+        <div class="modal-box">
+          <h3>Pick a WiFi network</h3>
+          <p>
+            The router joins this network for the install, then goes back to its own WiFi settings
+            when the install ends.
+          </p>
+          <div id="wifi-list" class="storage-list"></div>
+          <label class="field">
+            <span>WiFi password (leave empty for an open network)</span>
+            <input id="wifi-password" type="password" autocomplete="off" />
+          </label>
+          <div class="actions">
+            <button id="btn-wifi-ok" class="primary">Connect</button>
+            <button id="btn-wifi-no">Abort</button>
           </div>
         </div>
       </div>

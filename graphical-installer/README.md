@@ -10,7 +10,8 @@ The engine (`internal/install/engine.go`) runs these in order, with rollback on 
 
 1. Connect to router
 2. Check system
-3. Prepare WAN, so the router has an uplink before it updates or downloads anything
+3. Prepare WAN, so the router has an uplink before it updates or downloads anything. With
+   "Use WiFi as uplink" on, this step joins a WiFi network picked from a router scan instead
 4. Update RouterOS, when the router runs below the required version
 5. Enable container device-mode
 6. Download image
@@ -18,7 +19,8 @@ The engine (`internal/install/engine.go`) runs these in order, with rollback on 
 8. Configure network
 9. Deploy container
 10. Start and health check
-11. LAN baseline
+11. Remove WiFi uplink, only with "Use WiFi as uplink" on (also done when the install fails or is cancelled)
+12. LAN baseline
 
 Uninstall reverses the container, network config, and uploaded files.
 

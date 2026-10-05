@@ -27,7 +27,7 @@ func (e *Engine) stepConnect() error {
 	}
 	e.cl = cl
 	e.cl.OnFailure = func(cmd, out string) {
-		e.log("command failed: %s (%s)", cmd, strings.TrimSpace(out))
+		e.log("command failed: %s (%s)", e.redact(cmd), e.redact(strings.TrimSpace(out)))
 	}
 	if _, err := e.cl.Run(":put ok"); err != nil {
 		return fmt.Errorf("SSH command test failed: %w", err)

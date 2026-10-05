@@ -74,22 +74,31 @@ SSHPASS=secret bash install.sh --config router.env
 
 ### Useful flags
 
-| Flag                 | Purpose                                                                 |
-| -------------------- | ----------------------------------------------------------------------- |
-| `--dry-run`          | Print every action the script would take, change nothing.               |
-| `--uninstall`        | Stop and remove the container, networking, NAT rules, and uploaded tar. |
-| `--config <file>`    | Read `ROUTER_IP`, `ROUTER_USER`, and `ROUTER_PASS` from an env file.    |
-| `--version <tag>`    | Release tag to install, or `snapshot` (default: the latest release).    |
-| `--image-tar <path>` | Use a local tar instead of downloading a release asset.                 |
-| `--lan-port <port>`  | LAN port for the panel (default: 8080).                                 |
-| `--no-lan-baseline`  | Skip the baseline LAN setup (see below).                                |
-| `--no-rollback`      | Leave partial state in place on failure rather than undoing it.         |
-| `-v`, `--verbose`    | Verbose output.                                                         |
-| `-h`, `--help`       | Show usage.                                                             |
+| Flag                   | Purpose                                                                 |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `--dry-run`            | Print every action the script would take, change nothing.               |
+| `--uninstall`          | Stop and remove the container, networking, NAT rules, and uploaded tar. |
+| `--config <file>`      | Read `ROUTER_IP`, `ROUTER_USER`, and `ROUTER_PASS` from an env file.    |
+| `--version <tag>`      | Release tag to install, or `snapshot` (default: the latest release).    |
+| `--image-tar <path>`   | Use a local tar instead of downloading a release asset.                 |
+| `--lan-port <port>`    | LAN port for the panel (default: 8080).                                 |
+| `--no-lan-baseline`    | Skip the baseline LAN setup (see below).                                |
+| `--wifi-uplink`        | Use a WiFi network as the router uplink during the install (see below). |
+| `--wifi-ssid <ssid>`   | WiFi network to join, instead of picking one from the scan.             |
+| `--wifi-password <pw>` | WiFi password, instead of the prompt. Also read from `WIFI_PASSWORD`.   |
+| `--no-rollback`        | Leave partial state in place on failure rather than undoing it.         |
+| `-v`, `--verbose`      | Verbose output.                                                         |
+| `-h`, `--help`         | Show usage.                                                             |
 
 ### The WAN uplink
 
 Right after checking the router, and before it installs any package, the script makes sure the router has an internet uplink. An uplink that is already there is kept as it is: an LTE interface such as `lte1`, an interface already in the `WAN` interface list, or the interface holding the default route. Only when none of these exist does it use `ether1` as the WAN: it takes `ether1` out of the LAN bridge, adds a DHCP client on it, and adds it to the `WAN` list. A router with no `ether1` and no uplink stops here with a message. If your computer is plugged into `ether1` and the script has to turn it into the WAN, it stops and asks you to use another LAN port.
+
+### The WiFi uplink
+
+When the router's only internet access is an upstream WiFi network, pass `--wifi-uplink`. The script first checks that the router has a WiFi interface (the `wireless` or the `wifi` package) and stops if it has none. It then scans from the router, lists the networks it found, and asks for the password. The router joins the network in station mode with a DHCP client, so any access point works, and the script waits until it is connected and has an address. A wrong password or a network out of range stops the install with a message. This replaces the WAN step above.
+
+The WiFi uplink is temporary. When the install finishes, fails, or is cancelled, the script removes the DHCP client and puts the WiFi interface back to its old settings, so the setup wizard starts from a clean state. Run the script from a cable connection: a radio that carries your own connection is not used.
 
 ### The baseline LAN
 
