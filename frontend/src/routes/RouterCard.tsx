@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Globe, Router as RouterIcon, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Badge, Card, CardDescription, CardTitle, Inline, Skeleton, StatusDot } from '@nasnet/ui';
 import type { Router } from '../api';
+import { useFormat } from '../utils/useFormat';
 import styles from './RouterListPage.module.scss';
 
 interface Props {
@@ -12,6 +15,8 @@ interface Props {
 }
 
 export function RouterCard({ router, isProbed, onOpen, onRemove }: Props) {
+  const { t } = useTranslation('routerList');
+  const format = useFormat();
   return (
     <div className={styles.routerCardWrap}>
       <Link
@@ -46,15 +51,15 @@ export function RouterCard({ router, isProbed, onOpen, onRemove }: Props) {
           <div className={styles.cardBottomRow}>
             {isProbed ? (
               <Badge tone={toneFor(router.status)}>
-                <StatusDot $status={router.status} aria-hidden /> {router.status}
+                <StatusDot $status={router.status} aria-hidden /> {statusLabel(t, router.status)}
               </Badge>
             ) : (
               <Skeleton width={78} height={20} radius={999} />
             )}
             <span>
               {router.lastSeen
-                ? `seen ${new Date(router.lastSeen).toLocaleDateString()}`
-                : 'never seen'}
+                ? t('card.seen', { date: format.date(router.lastSeen) })
+                : t('card.neverSeen')}
             </span>
           </div>
         </Card>
@@ -62,8 +67,8 @@ export function RouterCard({ router, isProbed, onOpen, onRemove }: Props) {
       <button
         type="button"
         className={styles.deleteButton}
-        aria-label={`Remove ${router.name}`}
-        title="Remove router"
+        aria-label={t('card.removeAriaLabel', { name: router.name })}
+        title={t('card.removeTitle')}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -75,6 +80,22 @@ export function RouterCard({ router, isProbed, onOpen, onRemove }: Props) {
     </div>
   );
 }
+
+// Known statuses get a translated label; anything else the API sends is shown as-is.
+const statusLabel = (t: TFunction<'routerList'>, status: string) => {
+  switch (status) {
+    case 'online':
+      return t('card.status.online');
+    case 'offline':
+      return t('card.status.offline');
+    case 'degraded':
+      return t('card.status.degraded');
+    case 'unknown':
+      return t('card.status.unknown');
+    default:
+      return status;
+  }
+};
 
 const toneFor = (status: string) => {
   switch (status) {

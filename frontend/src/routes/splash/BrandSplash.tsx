@@ -17,7 +17,7 @@ const wrapVariants: Variants = {
     justifyContent: 'flex-start',
     minHeight: 0,
     flexDirection: 'row',
-    textAlign: 'left',
+    textAlign: 'start',
     gap: 16,
   },
 };

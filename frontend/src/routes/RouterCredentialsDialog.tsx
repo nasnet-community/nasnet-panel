@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Dialog,
@@ -20,6 +21,7 @@ interface Props {
 export function RouterCredentialsDialog({ router }: Props) {
   const navigate = useNavigate();
   const { setCredentials } = useSession();
+  const { t } = useTranslation('routerList');
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
   const [connecting, setConnecting] = useState(false);
@@ -29,7 +31,7 @@ export function RouterCredentialsDialog({ router }: Props) {
 
   const onConnect = async () => {
     if (!username.trim()) {
-      setError('Username is required.');
+      setError(t('credentials.usernameRequired'));
       return;
     }
     setConnecting(true);
@@ -39,9 +41,9 @@ export function RouterCredentialsDialog({ router }: Props) {
       setCredentials(router.id, { username, password });
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setError('Invalid username or password');
+        setError(t('credentials.invalidCredentials'));
       } else {
-        setError(err instanceof Error ? err.message : 'Connection failed');
+        setError(err instanceof Error ? err.message : t('credentials.connectionFailed'));
       }
     } finally {
       setConnecting(false);
@@ -54,14 +56,14 @@ export function RouterCredentialsDialog({ router }: Props) {
       onClose={() => {
         if (!connecting) close();
       }}
-      title={`Connect to ${router.name || router.host}`}
-      description={`Enter credentials for ${router.host}.`}
+      title={t('credentials.title', { name: router.name || router.host })}
+      description={t('credentials.description', { host: router.host })}
       size="sm"
       labelledBy="router-credentials-title"
       footer={
         <>
           <Button variant="ghost" onClick={close} disabled={connecting}>
-            Cancel
+            {t('credentials.cancel')}
           </Button>
           <Button
             variant="success"
@@ -70,7 +72,7 @@ export function RouterCredentialsDialog({ router }: Props) {
             }}
             loading={connecting}
           >
-            Connect
+            {t('credentials.connect')}
           </Button>
         </>
       }
@@ -78,17 +80,17 @@ export function RouterCredentialsDialog({ router }: Props) {
       <Stack>
         <FieldRow>
           <Label>
-            <span>Username</span>
+            <span>{t('credentials.username')}</span>
             <Input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
-              aria-label="Username"
+              aria-label={t('credentials.username')}
               autoFocus
             />
           </Label>
           <Label>
-            <span>Password</span>
+            <span>{t('credentials.password')}</span>
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -99,7 +101,7 @@ export function RouterCredentialsDialog({ router }: Props) {
                 }
               }}
               autoComplete="current-password"
-              aria-label="Password"
+              aria-label={t('credentials.password')}
             />
           </Label>
         </FieldRow>

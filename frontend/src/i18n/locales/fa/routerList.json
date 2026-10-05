@@ -1,1 +1,47 @@
-{}
+{
+  "page": {
+    "title": "روترها",
+    "subtitleEmpty": "هنوز روتری اضافه نشده است. با اسکن شبکه شروع کنید یا یک روتر را به‌صورت دستی اضافه کنید.",
+    "subtitle": "برای باز کردن داشبورد، یک روتر را انتخاب کنید.",
+    "loading": "در حال بارگذاری روترها…"
+  },
+  "newTile": {
+    "ariaLabel": "روتر جدید",
+    "label": "روتر جدید",
+    "hint": "برای یافتن دستگاه‌ها، شبکه را اسکن کنید"
+  },
+  "connecting": {
+    "title": "در حال اتصال به {{name}}",
+    "subtitle": "در حال برقراری نشست امن با {{host}}…"
+  },
+  "remove": {
+    "title": "حذف روتر",
+    "description": "{{name}} ({{host}}) از فهرست حذف شود؟ این کار تغییری در خود دستگاه ایجاد نمی‌کند.",
+    "confirm": "حذف",
+    "toastTitle": "روتر حذف شد",
+    "toastDescription": "{{name}} از فهرست حذف شد."
+  },
+  "card": {
+    "status": {
+      "online": "آنلاین",
+      "offline": "آفلاین",
+      "degraded": "عملکرد ضعیف",
+      "unknown": "نامشخص"
+    },
+    "seen": "آخرین مشاهده {{date}}",
+    "neverSeen": "هرگز دیده نشده",
+    "removeAriaLabel": "حذف {{name}}",
+    "removeTitle": "حذف روتر"
+  },
+  "credentials": {
+    "title": "اتصال به {{name}}",
+    "description": "اطلاعات ورود {{host}} را وارد کنید.",
+    "cancel": "لغو",
+    "connect": "اتصال",
+    "username": "نام کاربری",
+    "password": "رمز عبور",
+    "usernameRequired": "نام کاربری الزامی است.",
+    "invalidCredentials": "نام کاربری یا رمز عبور نادرست است",
+    "connectionFailed": "اتصال ناموفق بود"
+  }
+}

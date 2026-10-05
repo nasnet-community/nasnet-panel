@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { Plus, Router as RouterIcon, Server } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   ConfirmDialog,
@@ -45,6 +46,7 @@ export function RouterListPage() {
     return window.localStorage.getItem(SPLASH_FLAG) ? 'ready' : 'splash';
   });
   const toast = useToast();
+  const { t } = useTranslation('routerList');
 
   const probedIds = useRouterStatusPolling(routers, upsertRouter, {
     intervalMs: STATUS_POLL_INTERVAL_MS,
@@ -64,10 +66,10 @@ export function RouterListPage() {
 
   useEffect(() => {
     if (!connecting) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       navigate(`/router/${connecting.id}`);
     }, CONNECT_DELAY_MS);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [connecting, navigate]);
 
   useEffect(() => {
@@ -95,16 +97,13 @@ export function RouterListPage() {
     await api.routers.remove(target.id);
     removeRouter(target.id);
     toast.notify({
-      title: 'Router removed',
-      description: `${target.name} was removed from the list.`,
+      title: t('remove.toastTitle'),
+      description: t('remove.toastDescription', { name: target.name }),
       tone: 'info',
     });
   };
 
-  const subtitle =
-    routers.length === 0
-      ? 'No routers yet. Start by scanning the network or adding one manually.'
-      : 'Pick a router to open its dashboard.';
+  const subtitle = routers.length === 0 ? t('page.subtitleEmpty') : t('page.subtitle');
 
   return (
     <>
@@ -129,14 +128,14 @@ export function RouterListPage() {
               <PageShell>
                 <PageHeader>
                   <div>
-                    <PageTitle>Routers</PageTitle>
+                    <PageTitle>{t('page.title')}</PageTitle>
                     <PageSubtitle>{subtitle}</PageSubtitle>
                   </div>
                 </PageHeader>
 
                 {initialLoad && routers.length === 0 ? (
                   <Card>
-                    <p aria-busy="true">Loading routers…</p>
+                    <p aria-busy="true">{t('page.loading')}</p>
                   </Card>
                 ) : (
                   <motion.div
@@ -177,15 +176,13 @@ export function RouterListPage() {
                           type="button"
                           className={styles.newRouterTile}
                           onClick={goScan}
-                          aria-label="New router"
+                          aria-label={t('newTile.ariaLabel')}
                         >
                           <div className={styles.newRouterIcon} aria-hidden>
                             <Plus size={22} />
                           </div>
-                          <span className={styles.newRouterLabel}>New Router</span>
-                          <span className={styles.newRouterHint}>
-                            Scan the network to find devices
-                          </span>
+                          <span className={styles.newRouterLabel}>{t('newTile.label')}</span>
+                          <span className={styles.newRouterHint}>{t('newTile.hint')}</span>
                         </button>
                       </motion.div>
                     </AnimatePresence>
@@ -227,9 +224,11 @@ export function RouterListPage() {
                   <Server size={26} />
                 </div>
               </div>
-              <div className={styles.connectingTitle}>Connecting to {connecting.name}</div>
+              <div className={styles.connectingTitle}>
+                {t('connecting.title', { name: connecting.name })}
+              </div>
               <div className={styles.connectingSubtitle}>
-                Establishing secure session with {connecting.host}…
+                {t('connecting.subtitle', { host: connecting.host })}
               </div>
               <div className={styles.connectingBar} aria-hidden>
                 <span />
@@ -240,13 +239,13 @@ export function RouterListPage() {
       </AnimatePresence>
       <ConfirmDialog
         open={!!pendingRemoval}
-        title="Remove router"
+        title={t('remove.title')}
         description={
           pendingRemoval
-            ? `Remove ${pendingRemoval.name} (${pendingRemoval.host}) from the list? This does not touch the device itself.`
+            ? t('remove.description', { name: pendingRemoval.name, host: pendingRemoval.host })
             : undefined
         }
-        confirmLabel="Remove"
+        confirmLabel={t('remove.confirm')}
         destructive
         onConfirm={confirmRemove}
         onCancel={() => setPendingRemoval(null)}
