@@ -443,13 +443,17 @@ export function OverviewTab() {
             <span className={styles.trafficLabel}>
               <span style={{ color: colors.success }}>↓</span> {t('traffic.download')}
             </span>
-            <span className={styles.trafficValue}>{formatMbps(downloadKbps)}</span>
+            <span className={styles.trafficValue} dir="ltr">
+              {formatMbps(downloadKbps)}
+            </span>
           </div>
           <div className={styles.trafficColumn}>
             <span className={styles.trafficLabel}>
               <span style={{ color: colors.warning }}>↑</span> {t('traffic.upload')}
             </span>
-            <span className={styles.trafficValue}>{formatMbps(uploadKbps)}</span>
+            <span className={styles.trafficValue} dir="ltr">
+              {formatMbps(uploadKbps)}
+            </span>
           </div>
         </div>
         <div className={styles.chartArea}>
@@ -464,8 +468,9 @@ export function OverviewTab() {
           )}
         </div>
         <div className={styles.chartAxis}>
-          <span>{windowLabel}</span>
-          <span>{t('traffic.now')}</span>
+          {/* The axis is pinned left to right; each label keeps its own text direction. */}
+          <span dir="auto">{windowLabel}</span>
+          <span dir="auto">{t('traffic.now')}</span>
         </div>
         <div className={styles.chartLegend}>
           <span className={styles.chartLegendItem}>

@@ -176,13 +176,13 @@ export const TrafficChart: React.FC<TrafficChartProps> = ({
           <div className={styles.chartTooltipRow}>
             <span className={styles.chartLegendSwatch} style={{ background: colors.success }} />
             <span>
-              {rxLabel} {fmt(hoverPoint.rxKbps)}
+              {rxLabel} <bdi>{fmt(hoverPoint.rxKbps)}</bdi>
             </span>
           </div>
           <div className={styles.chartTooltipRow}>
             <span className={styles.chartLegendSwatch} style={{ background: colors.warning }} />
             <span>
-              {txLabel} {fmt(hoverPoint.txKbps)}
+              {txLabel} <bdi>{fmt(hoverPoint.txKbps)}</bdi>
             </span>
           </div>
         </div>
