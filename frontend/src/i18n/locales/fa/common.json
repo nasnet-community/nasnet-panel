@@ -1,7 +1,6 @@
 {
   "language": {
-    "label": "زبان",
-    "persianDigits": "ارقام فارسی"
+    "label": "زبان"
   },
   "units": {
     "B": "{{value}} بایت",

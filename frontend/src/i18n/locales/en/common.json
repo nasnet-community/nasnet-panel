@@ -1,7 +1,6 @@
 {
   "language": {
-    "label": "Language",
-    "persianDigits": "Persian digits"
+    "label": "Language"
   },
   "units": {
     "B": "{{value}} B",

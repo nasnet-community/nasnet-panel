@@ -90,19 +90,3 @@
   background: var(--color-surface-alt);
   font-weight: var(--weight-semibold);
 }
-
-.divider {
-  height: 1px;
-  margin: var(--space-xs) 0;
-  background: var(--color-border);
-}
-
-.digits {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  font-size: var(--font-sm);
-  color: var(--color-text-muted);
-  cursor: pointer;
-}

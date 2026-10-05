@@ -14,7 +14,7 @@ const Flag = ({ lang }: { lang: LanguageInfo }) => (
 // Dropdown with one entry per supported language, each labelled in its own script.
 export function LanguageSwitcher() {
   const { t } = useTranslation('common');
-  const { language, setLanguage, digits, setDigits } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -67,19 +67,6 @@ export function LanguageSwitcher() {
               <span>{lang.nativeName}</span>
             </button>
           ))}
-          {language.code === 'fa' ? (
-            <>
-              <div className={styles.divider} role="separator" />
-              <label className={styles.digits}>
-                <input
-                  type="checkbox"
-                  checked={digits === 'persian'}
-                  onChange={(e) => setDigits(e.target.checked ? 'persian' : 'latin')}
-                />
-                <span>{t('language.persianDigits')}</span>
-              </label>
-            </>
-          ) : null}
         </div>
       ) : null}
     </div>
