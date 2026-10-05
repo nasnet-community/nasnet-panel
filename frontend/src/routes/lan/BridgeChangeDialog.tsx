@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, FieldStack, Label, Select, Stack, useToast } from '@nasnet/ui';
 import styles from './BridgeChangeDialog.module.scss';
 import {
@@ -28,6 +29,7 @@ export function BridgeChangeDialog({
   onChanged,
 }: BridgeChangeDialogProps) {
   const toast = useToast();
+  const { t } = useTranslation('network');
   const [target, setTarget] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -36,36 +38,40 @@ export function BridgeChangeDialog({
     setTarget('');
   }, [open, port.interface]);
 
-  const options = useMemo(
-    () =>
-      bridges
-        .filter((b) => !b.disabled && b.name !== port.bridge)
-        .map((b) => ({
-          value: b.name,
-          label: bridgeLabel(b.name),
-          description: bridgeDescription(b.name, b.comment),
-        })),
-    [bridges, port.bridge],
-  );
+  // Built on every render so the translated labels follow a language change.
+  const options = bridges
+    .filter((b) => !b.disabled && b.name !== port.bridge)
+    .map((b) => ({
+      value: b.name,
+      label: bridgeLabel(b.name),
+      description: bridgeDescription(b.name, b.comment),
+    }));
 
   const submit = async () => {
     if (!target) {
-      toast.notify({ title: 'Select a bridge', tone: 'warning' });
+      toast.notify({ title: t('bridge.dialog.selectBridge'), tone: 'warning' });
       return;
     }
     setBusy(true);
     try {
       await updateInterfaceBridge(creds, { interface: port.interface, bridge: target });
       toast.notify({
-        title: 'Bridge changed',
-        description: `${port.interface} is now a port of ${bridgeLabel(target)}.`,
+        title: t('bridge.dialog.changed'),
+        description: t('bridge.dialog.changedDetail', {
+          interface: port.interface,
+          bridge: bridgeLabel(target),
+        }),
         tone: 'success',
       });
       onChanged();
       onClose();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to change the bridge.';
-      toast.notify({ title: 'Failed to change bridge', description: message, tone: 'danger' });
+      const message = err instanceof Error ? err.message : t('bridge.dialog.changeFailedDetail');
+      toast.notify({
+        title: t('bridge.dialog.changeFailed'),
+        description: message,
+        tone: 'danger',
+      });
     } finally {
       setBusy(false);
     }
@@ -75,34 +81,38 @@ export function BridgeChangeDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      title={`Change bridge for ${port.interface}`}
+      title={t('bridge.dialog.title', { interface: port.interface })}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={busy}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={submit} disabled={busy || !target}>
-            {busy ? 'Changing…' : 'Change'}
+            {busy ? t('common.changing') : t('common.change')}
           </Button>
         </>
       }
     >
       <Stack $gap="var(--space-md)">
         <div className={styles.readonlyGrid}>
-          <span className={styles.readonlyLabel}>Current bridge</span>
+          <span className={styles.readonlyLabel}>{t('bridge.dialog.currentBridge')}</span>
           <span className={styles.readonlyValue}>{bridgeLabel(port.bridge)}</span>
         </div>
 
         <FieldStack>
           <Label as="span" id="bridge-target-label">
-            New bridge
+            {t('bridge.dialog.newBridge')}
           </Label>
           <Select
             options={options}
             value={target}
             onChange={setTarget}
-            placeholder={options.length > 0 ? 'Select a bridge…' : 'No other bridge available'}
+            placeholder={
+              options.length > 0
+                ? t('bridge.dialog.selectPlaceholder')
+                : t('bridge.dialog.noOtherBridge')
+            }
             disabled={busy || options.length === 0}
             aria-labelledby="bridge-target-label"
           />
@@ -110,19 +120,13 @@ export function BridgeChangeDialog({
 
         <div className={styles.warning} role="alert">
           <TriangleAlert size={16} aria-hidden className={styles.warningIcon} />
-          <p>
-            {port.interface} restarts to apply this. You may lose the network or the internet for a
-            few seconds.
-          </p>
+          <p>{t('bridge.dialog.restartWarning', { interface: port.interface })}</p>
         </div>
 
         {isForeignBridge(target) ? (
           <div className={styles.warning} role="alert">
             <TriangleAlert size={16} aria-hidden className={styles.warningIcon} />
-            <p>
-              All traffic on {port.interface} will be routed to foreign. Domestic sites may become
-              unreachable.
-            </p>
+            <p>{t('bridge.dialog.foreignWarning', { interface: port.interface })}</p>
           </div>
         ) : null}
       </Stack>

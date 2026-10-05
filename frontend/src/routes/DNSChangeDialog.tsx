@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   Button,
   Dialog,
@@ -31,6 +33,13 @@ interface DNSChangeDialogProps {
   onChanged: () => void;
 }
 
+// Forwarder names come from the API; only the displayed label is translated.
+export function dnsTypeLabel(t: TFunction<'network'>, name: string): string {
+  return name === 'Domestic' || name === 'Foreign' || name === 'VPN'
+    ? t(`dns.types.${name}`)
+    : name;
+}
+
 function splitIps(ip: string): string[] {
   return ip
     .split(',')
@@ -46,6 +55,7 @@ export function DNSChangeDialog({
   onChanged,
 }: DNSChangeDialogProps) {
   const toast = useToast();
+  const { t } = useTranslation('network');
   const currentIps = useMemo(() => splitIps(forwarder.ip), [forwarder.ip]);
 
   const [oldIp, setOldIp] = useState(() => currentIps[0] ?? '');
@@ -90,21 +100,21 @@ export function DNSChangeDialog({
     setBusy(true);
     try {
       await changeDns(creds, { oldIp, newIp: newIp.trim() });
-      toast.notify({ title: `DNS server changed to ${newIp.trim()}`, tone: 'success' });
+      toast.notify({ title: t('dnsChange.changedTo', { ip: newIp.trim() }), tone: 'success' });
       onChanged();
       onClose();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to change DNS server.';
-      toast.notify({ title: 'Failed to change DNS server', description: message, tone: 'danger' });
+      const message = err instanceof Error ? err.message : t('dnsChange.changeFailedDetail');
+      toast.notify({ title: t('dnsChange.changeFailed'), description: message, tone: 'danger' });
     } finally {
       setBusy(false);
     }
-  }, [creds, oldIp, newIp, toast, onChanged, onClose]);
+  }, [creds, oldIp, newIp, toast, onChanged, onClose, t]);
 
   const submit = async () => {
     const candidate = newIp.trim();
     if (!candidate) {
-      toast.notify({ title: 'Enter a new DNS server IP', tone: 'warning' });
+      toast.notify({ title: t('dnsChange.enterIp'), tone: 'warning' });
       return;
     }
     setBusy(true);
@@ -116,13 +126,15 @@ export function DNSChangeDialog({
         await applyChange();
         return;
       }
-      setWarning(result.message || `${candidate} is not suitable for the ${result.oldIpType} DNS.`);
+      setWarning(
+        result.message || t('dnsChange.notSuitable', { ip: candidate, type: result.oldIpType }),
+      );
     } catch (err) {
       if (err instanceof ApiError && err.status === 422) {
-        setWarning(`${err.message} Suitability could not be verified.`);
+        setWarning(t('dnsChange.unverified', { message: err.message }));
       } else {
-        const message = err instanceof Error ? err.message : 'Failed to verify the new DNS server.';
-        toast.notify({ title: 'Verification failed', description: message, tone: 'danger' });
+        const message = err instanceof Error ? err.message : t('dnsChange.verifyFailedDetail');
+        toast.notify({ title: t('dnsChange.verifyFailed'), description: message, tone: 'danger' });
       }
     } finally {
       setBusy(false);
@@ -133,20 +145,20 @@ export function DNSChangeDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      title="Change DNS server"
+      title={t('dnsChange.title')}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={busy}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           {warning ? (
             <Button variant="danger" onClick={applyChange} disabled={busy}>
-              {busy ? 'Changing…' : 'Continue anyway'}
+              {busy ? t('common.changing') : t('dnsChange.continueAnyway')}
             </Button>
           ) : (
             <Button variant="primary" onClick={submit} disabled={busy}>
-              {busy ? 'Verifying…' : 'Change'}
+              {busy ? t('dnsChange.verifying') : t('common.change')}
             </Button>
           )}
         </>
@@ -154,13 +166,13 @@ export function DNSChangeDialog({
     >
       <Stack $gap="var(--space-md)">
         <div className={styles.readonlyGrid}>
-          <span className={styles.readonlyLabel}>Type</span>
-          <span className={styles.readonlyValue}>{forwarder.name}</span>
+          <span className={styles.readonlyLabel}>{t('dnsChange.type')}</span>
+          <span className={styles.readonlyValue}>{dnsTypeLabel(t, forwarder.name)}</span>
         </div>
 
         {currentIps.length > 1 ? (
           <FieldStack>
-            <Label as="span">Current IP to replace</Label>
+            <Label as="span">{t('dnsChange.currentIpToReplace')}</Label>
             <RadioGroup
               name="dns-old-ip"
               value={oldIp}
@@ -170,12 +182,12 @@ export function DNSChangeDialog({
                 setWarning(null);
               }}
               orientation="column"
-              ariaLabel="Current IP to replace"
+              ariaLabel={t('dnsChange.currentIpToReplace')}
             />
           </FieldStack>
         ) : (
           <div className={styles.readonlyGrid}>
-            <span className={styles.readonlyLabel}>Current IP</span>
+            <span className={styles.readonlyLabel}>{t('dnsChange.currentIp')}</span>
             <span className={styles.readonlyValue}>{oldIp}</span>
           </div>
         )}
@@ -183,10 +195,10 @@ export function DNSChangeDialog({
         <FieldStack>
           <div className={styles.fieldHeader}>
             <Label as="span" htmlFor={showManual ? 'dns-new-ip' : undefined} id="dns-new-ip-label">
-              New IP
+              {t('dnsChange.newIp')}
             </Label>
             <Switch
-              label="Enter manually"
+              label={t('dnsChange.enterManually')}
               checked={showManual}
               onChange={(e) => {
                 setManualEntry(e.target.checked);
@@ -215,17 +227,17 @@ export function DNSChangeDialog({
                 setNewIp(value);
                 setWarning(null);
               }}
-              placeholder={suggestionOptions.length > 0 ? 'Select…' : 'No suggestions available'}
+              placeholder={
+                suggestionOptions.length > 0 ? t('dnsChange.select') : t('dnsChange.noSuggestions')
+              }
               disabled={busy || suggestionOptions.length === 0}
               searchable
-              searchPlaceholder="Search suggestions…"
+              searchPlaceholder={t('dnsChange.searchSuggestions')}
               aria-labelledby="dns-new-ip-label"
             />
           )}
           <p className={styles.hint}>
-            {showManual
-              ? 'Any reachable IP can be entered.'
-              : 'Turn on manual entry to type an IP that is not listed.'}
+            {showManual ? t('dnsChange.hintManual') : t('dnsChange.hintSelect')}
           </p>
         </FieldStack>
 

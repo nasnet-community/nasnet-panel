@@ -1,1 +1,234 @@
-{}
+{
+  "common": {
+    "missingCredentials": "اطلاعات ورود روتر برای این نشست موجود نیست.",
+    "unknownError": "خطای ناشناخته",
+    "cancel": "لغو",
+    "change": "تغییر",
+    "changing": "در حال تغییر…",
+    "disabled": "غیرفعال",
+    "enabled": "فعال"
+  },
+  "dhcp": {
+    "loadLeasesFailed": "بارگذاری اجاره‌ها ناموفق بود.",
+    "loadClientsFailed": "بارگذاری کلاینت‌ها ناموفق بود.",
+    "toasts": {
+      "madeStatic": "اجاره ثابت شد",
+      "makeStaticFailed": "ثابت کردن اجاره ناموفق بود",
+      "removed": "اجاره حذف شد",
+      "removeFailed": "حذف اجاره ناموفق بود"
+    },
+    "columns": {
+      "address": "آدرس",
+      "mac": "MAC",
+      "host": "میزبان",
+      "server": "سرور",
+      "port": "پورت",
+      "type": "نوع",
+      "status": "وضعیت",
+      "expires": "انقضا",
+      "interface": "اینترفیس",
+      "gateway": "گیت‌وی",
+      "dns": "DNS",
+      "state": "حالت"
+    },
+    "dynamic": "پویا",
+    "static": "ثابت",
+    "makeStatic": "ثابت کردن",
+    "makeStaticAria": "ثابت کردن {{mac}}",
+    "remove": "حذف",
+    "removeLeaseAria": "حذف اجاره {{mac}}",
+    "lanPorts": {
+      "title": "پورت‌های LAN",
+      "description": "پورت‌های سمت LAN را مدیریت کنید. پورت‌های WAN در زبانه «اینترنت» مدیریت می‌شوند."
+    },
+    "clients": {
+      "title": "کلاینت‌های DHCP",
+      "description": "اینترفیس‌هایی که این روتر روی آن‌ها کلاینت DHCP (WAN) است.",
+      "sharedSubnet": "{{interfaces}} از زیرشبکه مشترک {{prefix}}.x استفاده می‌کنند. آن را روی یکی از مودم‌های بالادستی تغییر دهید.",
+      "empty": "این روتر روی هیچ اینترفیسی کلاینت DHCP نیست."
+    },
+    "leases": {
+      "title": "اجاره‌های DHCP",
+      "description": "اجاره‌های فعال DHCP که به کلاینت‌های LAN داده شده‌اند.",
+      "empty": "هیچ اجاره فعالی وجود ندارد."
+    },
+    "confirmRemove": {
+      "title": "حذف اجاره DHCP",
+      "description": "اجاره {{address}} ({{mac}}) حذف شود؟ این کار برگشت‌پذیر نیست."
+    },
+    "confirmStatic": {
+      "title": "ثابت کردن اجاره DHCP",
+      "description": "اجاره {{address}} ({{mac}}) ثابت شود؟ کلاینت این آدرس را حفظ می‌کند."
+    }
+  },
+  "dns": {
+    "types": {
+      "Domestic": "داخلی",
+      "Foreign": "خارجی",
+      "VPN": "VPN"
+    },
+    "loadFailed": "بارگذاری سرورهای DNS ناموفق بود.",
+    "toasts": {
+      "adBlockEnabled": "مسدودساز تبلیغات فعال شد",
+      "adBlockDisabled": "مسدودساز تبلیغات غیرفعال شد",
+      "adBlockAlreadyOn": "مسدودساز تبلیغات از قبل روشن بود",
+      "adBlockAlreadyOff": "مسدودساز تبلیغات از قبل خاموش بود",
+      "adBlockFailedDetail": "به‌روزرسانی مسدودساز تبلیغات ناموفق بود.",
+      "adBlockFailed": "به‌روزرسانی مسدودساز تبلیغات ناموفق بود",
+      "resetDone": "تنظیمات DNS به حالت پیش‌فرض بازگشت",
+      "resetFailedDetail": "بازنشانی تنظیمات DNS ناموفق بود.",
+      "resetFailed": "بازنشانی DNS ناموفق بود",
+      "cacheCleared": "کش DNS پاک شد",
+      "cacheFailedDetail": "پاک کردن کش DNS ناموفق بود.",
+      "cacheFailed": "پاک کردن کش DNS ناموفق بود",
+      "familyEnabled": "DNS خانواده فعال شد",
+      "familyEnableFailedDetail": "فعال کردن DNS خانواده ناموفق بود.",
+      "familyEnableFailed": "فعال کردن DNS خانواده ناموفق بود",
+      "familyDisabled": "DNS خانواده غیرفعال شد",
+      "familyDisableFailedDetail": "غیرفعال کردن DNS خانواده ناموفق بود.",
+      "familyDisableFailed": "غیرفعال کردن DNS خانواده ناموفق بود",
+      "familyPartial": "{{message}} ممکن است برخی فورواردرها از قبل تغییر کرده باشند؛ پیش از تلاش دوباره، فهرست را بررسی کنید."
+    },
+    "disabling": "در حال غیرفعال کردن…",
+    "enabling": "در حال فعال کردن…",
+    "columns": {
+      "type": "نوع",
+      "servers": "سرورهای DNS",
+      "provider": "ارائه‌دهنده"
+    },
+    "edit": "ویرایش",
+    "editAria": "ویرایش سرور DNS {{name}}",
+    "description": "سرورهای DNS پیکربندی‌شده روی این روتر، دسته‌بندی‌شده بر اساس ترافیک داخلی، خارجی و VPN.",
+    "refresh": "بازخوانی",
+    "resetting": "در حال بازنشانی…",
+    "reset": "بازنشانی",
+    "empty": "هیچ سرور DNS پیکربندی نشده است",
+    "cache": "کش DNS",
+    "purgeAria": "پاک کردن کش DNS",
+    "purging": "در حال پاک کردن…",
+    "purge": "پاک کردن کش",
+    "family": "DNS خانواده",
+    "adBlock": "مسدودساز تبلیغات",
+    "adBlockHint": "دامنه‌های تبلیغاتی و ردیاب را برای همه دستگاه‌های شبکه مسدود می‌کند.",
+    "adBlockWarning": "تا وقتی روشن است، برخی سایت‌ها درست کار نمی‌کنند.",
+    "confirmReset": {
+      "title": "تنظیمات DNS بازنشانی شود؟",
+      "description": "همه سرورهای DNS، فورواردرها، مسیرهای failover و پروب‌های netwatch به مقدار پیش‌فرض برمی‌گردند. سرورهای DNS سفارشی حذف می‌شوند."
+    },
+    "confirmEnableFamily": {
+      "title": "DNS خانواده فعال شود؟",
+      "description": "فورواردرهای خارجی و VPN به سرورهای فیلترکننده تغییر می‌کنند.",
+      "confirm": "فعال کردن"
+    },
+    "confirmDisableFamily": {
+      "title": "DNS خانواده غیرفعال شود؟",
+      "description": "فورواردرهای خارجی و VPN به سرورهای استاندارد خود برمی‌گردند و فیلتر کردن متوقف می‌شود.",
+      "confirm": "غیرفعال کردن"
+    }
+  },
+  "dnsChange": {
+    "title": "تغییر سرور DNS",
+    "changedTo": "سرور DNS به {{ip}} تغییر کرد",
+    "changeFailedDetail": "تغییر سرور DNS ناموفق بود.",
+    "changeFailed": "تغییر سرور DNS ناموفق بود",
+    "enterIp": "IP سرور DNS جدید را وارد کنید",
+    "notSuitable": "{{ip}} برای DNS {{type}} مناسب نیست.",
+    "unverified": "{{message}} مناسب بودن آن قابل تأیید نبود.",
+    "verifyFailedDetail": "بررسی سرور DNS جدید ناموفق بود.",
+    "verifyFailed": "بررسی ناموفق بود",
+    "continueAnyway": "در هر صورت ادامه بده",
+    "verifying": "در حال بررسی…",
+    "type": "نوع",
+    "currentIpToReplace": "IP فعلی برای جایگزینی",
+    "currentIp": "IP فعلی",
+    "newIp": "IP جدید",
+    "enterManually": "ورود دستی",
+    "select": "انتخاب کنید…",
+    "noSuggestions": "پیشنهادی موجود نیست",
+    "searchSuggestions": "جستجو در پیشنهادها…",
+    "hintManual": "هر IP در دسترسی را می‌توانید وارد کنید.",
+    "hintSelect": "برای وارد کردن IPای که در فهرست نیست، ورود دستی را روشن کنید."
+  },
+  "firewall": {
+    "allChains": "همه زنجیره‌ها",
+    "nodes": {
+      "ingress": "ورود",
+      "input": "ورودی",
+      "router": "روتر",
+      "output": "خروجی",
+      "egress": "خروج",
+      "forward": "عبوری"
+    },
+    "diagramAria": "نمودار جریان بسته‌ها در فایروال",
+    "nodeAria_one": "{{label}}، {{n}} قانون",
+    "nodeAria_other": "{{label}}، {{n}} قانون",
+    "ruleCount_one": "{{n}} قانون",
+    "ruleCount_other": "{{n}} قانون",
+    "noRules": "بدون قانون",
+    "any": "هر",
+    "noComment": "(بدون توضیح)",
+    "loadFailed": "بارگذاری قوانین فایروال ناموفق بود.",
+    "columns": {
+      "chain": "زنجیره",
+      "action": "عملیات",
+      "proto": "پروتکل",
+      "source": "مبدأ",
+      "destination": "مقصد",
+      "in": "ورودی",
+      "out": "خروجی",
+      "bytes": "بایت",
+      "packets": "بسته",
+      "comment": "توضیح",
+      "status": "وضعیت"
+    },
+    "log": "لاگ",
+    "title": "قوانین فایروال",
+    "description": "قوانین فیلتر فعال روی این روتر، به ترتیب اولویت.",
+    "chain": "زنجیره",
+    "chainFilterAria": "فیلتر زنجیره",
+    "empty": "هیچ قانون فایروالی پیکربندی نشده است.",
+    "emptyInChain": "هیچ قانون فایروالی در زنجیره {{chain}} پیکربندی نشده است."
+  },
+  "bridge": {
+    "kinds": {
+      "split": "تفکیکی",
+      "domestic": "داخلی",
+      "foreign": "خارجی",
+      "vpn": "VPN",
+      "other": "سفارشی"
+    },
+    "kindDescriptions": {
+      "split": "ترافیک آن اینترفیس را به‌طور خودکار بین داخلی و خارجی تفکیک می‌کند.",
+      "domestic": "همه ترافیک آن اینترفیس را به داخلی هدایت می‌کند.",
+      "foreign": "همه ترافیک آن اینترفیس را به خارجی هدایت می‌کند.",
+      "vpn": "همه ترافیک آن اینترفیس را به VPN هدایت می‌کند."
+    },
+    "card": {
+      "title": "پورت‌های بریج",
+      "description": "هر پورت LAN به کدام بریج تعلق دارد و در نتیجه ترافیک آن چگونه مسیریابی می‌شود.",
+      "loadFailed": "بارگذاری پورت‌های بریج ناموفق بود.",
+      "columns": {
+        "interface": "اینترفیس",
+        "bridge": "بریج",
+        "behaviour": "رفتار"
+      },
+      "changeAria": "تغییر بریج {{interface}}",
+      "changeTitle": "تغییر بریج",
+      "empty": "هیچ پورت بریج LAN روی این روتر وجود ندارد."
+    },
+    "dialog": {
+      "title": "تغییر بریج {{interface}}",
+      "selectBridge": "یک بریج انتخاب کنید",
+      "changed": "بریج تغییر کرد",
+      "changedDetail": "{{interface}} اکنون پورتی از {{bridge}} است.",
+      "changeFailedDetail": "تغییر بریج ناموفق بود.",
+      "changeFailed": "تغییر بریج ناموفق بود",
+      "currentBridge": "بریج فعلی",
+      "newBridge": "بریج جدید",
+      "selectPlaceholder": "یک بریج انتخاب کنید…",
+      "noOtherBridge": "بریج دیگری موجود نیست",
+      "restartWarning": "برای اعمال این تغییر، {{interface}} دوباره راه‌اندازی می‌شود. ممکن است برای چند ثانیه اتصال شبکه یا اینترنت قطع شود.",
+      "foreignWarning": "همه ترافیک {{interface}} به خارجی هدایت می‌شود. ممکن است سایت‌های داخلی در دسترس نباشند."
+    }
+  }
+}

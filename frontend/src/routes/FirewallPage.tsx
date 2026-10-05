@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowRightFromLine,
   ArrowRightLeft,
@@ -29,13 +30,10 @@ import styles from './FirewallPage.module.scss';
 import { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from '../api';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
+import { useFormat } from '../utils/useFormat';
 
-const CHAIN_OPTIONS = [
-  { value: '', label: 'All chains' },
-  { value: 'input', label: 'input' },
-  { value: 'forward', label: 'forward' },
-  { value: 'output', label: 'output' },
-];
+// Chain names are RouterOS values and stay untranslated.
+const CHAINS = ['input', 'forward', 'output'] as const;
 
 function actionTone(action: string): 'success' | 'danger' | 'warning' | 'info' {
   const a = action.toLowerCase();
@@ -119,30 +117,48 @@ interface PacketFlowBoardProps {
 }
 
 function PacketFlowBoard({ rulesByChain, loading }: PacketFlowBoardProps) {
+  const { t } = useTranslation('network');
+  const format = useFormat();
+  const ruleCount = (count: number) => t('firewall.ruleCount', { count, n: format.number(count) });
   const nodes: FlowNodeSpec[] = [
-    { id: 'net-in', icon: <Globe size={26} aria-hidden />, label: 'Ingress', ...P['net-in'] },
+    {
+      id: 'net-in',
+      icon: <Globe size={26} aria-hidden />,
+      label: t('firewall.nodes.ingress'),
+      ...P['net-in'],
+    },
     {
       id: 'input',
       icon: <ArrowRightToLine size={26} aria-hidden />,
-      label: 'Input',
+      label: t('firewall.nodes.input'),
       ...P.input,
       rules: rulesByChain.input,
       popoverPlacement: 'below',
     },
-    { id: 'router', icon: <Cpu size={26} aria-hidden />, label: 'Router', ...P.router },
+    {
+      id: 'router',
+      icon: <Cpu size={26} aria-hidden />,
+      label: t('firewall.nodes.router'),
+      ...P.router,
+    },
     {
       id: 'output',
       icon: <ArrowRightFromLine size={26} aria-hidden />,
-      label: 'Output',
+      label: t('firewall.nodes.output'),
       ...P.output,
       rules: rulesByChain.output,
       popoverPlacement: 'below',
     },
-    { id: 'net-out', icon: <Cloud size={26} aria-hidden />, label: 'Egress', ...P['net-out'] },
+    {
+      id: 'net-out',
+      icon: <Cloud size={26} aria-hidden />,
+      label: t('firewall.nodes.egress'),
+      ...P['net-out'],
+    },
     {
       id: 'forward',
       icon: <ArrowRightLeft size={26} aria-hidden />,
-      label: 'Forward',
+      label: t('firewall.nodes.forward'),
       ...P.forward,
       rules: rulesByChain.forward,
       popoverPlacement: 'above',
@@ -150,7 +166,7 @@ function PacketFlowBoard({ rulesByChain, loading }: PacketFlowBoardProps) {
   ];
 
   return (
-    <div className={styles.board} role="img" aria-label="Firewall packet flow diagram">
+    <div className={styles.board} role="img" aria-label={t('firewall.diagramAria')}>
       <svg
         className={styles.boardSvg}
         viewBox={`0 0 ${FLOW_W} ${FLOW_H}`}
@@ -212,7 +228,11 @@ function PacketFlowBoard({ rulesByChain, loading }: PacketFlowBoardProps) {
             role={hasPopover ? 'button' : undefined}
             aria-label={
               hasPopover && n.rules
-                ? `${n.label}, ${n.rules.length} rule${n.rules.length === 1 ? '' : 's'}`
+                ? t('firewall.nodeAria', {
+                    label: n.label,
+                    count: n.rules.length,
+                    n: format.number(n.rules.length),
+                  })
                 : n.label
             }
           >
@@ -238,7 +258,7 @@ function PacketFlowBoard({ rulesByChain, loading }: PacketFlowBoardProps) {
                 <div className={styles.boardPopoverHeader}>
                   <span className={styles.boardPopoverTitle}>{n.label}</span>
                   <span className={styles.boardPopoverMeta}>
-                    {loading ? '…' : `${n.rules!.length} rule${n.rules!.length === 1 ? '' : 's'}`}
+                    {loading ? '…' : ruleCount(n.rules!.length)}
                   </span>
                 </div>
                 {loading ? (
@@ -258,17 +278,18 @@ function PacketFlowBoard({ rulesByChain, loading }: PacketFlowBoardProps) {
 }
 
 function RuleSummary({ rules }: { rules: FirewallRule[] }) {
+  const { t } = useTranslation('network');
   if (rules.length === 0) {
-    return <div className={styles.flowEmpty}>No rules</div>;
+    return <div className={styles.flowEmpty}>{t('firewall.noRules')}</div>;
   }
   return (
     <ul className={styles.flowRuleList}>
       {rules.map((r) => (
         <li key={r.id} className={r.disabled ? styles.flowRuleItemDisabled : styles.flowRuleItem}>
           <Badge tone={actionTone(r.action)}>{r.action}</Badge>
-          <span className={styles.flowRuleProto}>{r.protocol || 'any'}</span>
+          <span className={styles.flowRuleProto}>{r.protocol || t('firewall.any')}</span>
           <span className={styles.flowRuleComment}>
-            {r.comment || <span className={styles.muted}>(no comment)</span>}
+            {r.comment || <span className={styles.muted}>{t('firewall.noComment')}</span>}
           </span>
         </li>
       ))}
@@ -280,6 +301,15 @@ export function FirewallPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
   const { getCredentials } = useSession();
+  const { t } = useTranslation('network');
+
+  const chainOptions = useMemo(
+    () => [
+      { value: '', label: t('firewall.allChains') },
+      ...CHAINS.map((c) => ({ value: c, label: c })),
+    ],
+    [t],
+  );
 
   const [rules, setRules] = useState<FirewallRule[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -299,7 +329,7 @@ export function FirewallPage() {
     async (silent = false) => {
       if (!creds) {
         setLoading(false);
-        setError('Missing router credentials for this session.');
+        setError(t('common.missingCredentials'));
         return;
       }
       if (inFlightRef.current) return;
@@ -313,7 +343,7 @@ export function FirewallPage() {
         setRules(data);
         if (silent) setError(null);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load firewall rules.';
+        const message = err instanceof Error ? err.message : t('firewall.loadFailed');
         setError(message);
         if (!silent) setRules([]);
       } finally {
@@ -321,7 +351,7 @@ export function FirewallPage() {
         setLoading(false);
       }
     },
-    [creds],
+    [creds, t],
   );
 
   const visibleRules = useMemo(
@@ -340,46 +370,46 @@ export function FirewallPage() {
   const columns: DataTableColumn<FirewallRule>[] = [
     {
       key: 'chain',
-      header: 'Chain',
+      header: t('firewall.columns.chain'),
       render: (r) => <Badge tone="info">{r.chain}</Badge>,
     },
     {
       key: 'action',
-      header: 'Action',
+      header: t('firewall.columns.action'),
       render: (r) => <Badge tone={actionTone(r.action)}>{r.action}</Badge>,
     },
     {
       key: 'protocol',
-      header: 'Proto',
-      render: (r) => r.protocol || <span className={styles.muted}>any</span>,
+      header: t('firewall.columns.proto'),
+      render: (r) => r.protocol || <span className={styles.muted}>{t('firewall.any')}</span>,
     },
     {
       key: 'src',
-      header: 'Source',
+      header: t('firewall.columns.source'),
       render: (r) => {
         const v = addrWithPort(r.srcAddress, r.srcPort);
         return v ? (
           <span className={styles.mono}>{v}</span>
         ) : (
-          <span className={styles.muted}>any</span>
+          <span className={styles.muted}>{t('firewall.any')}</span>
         );
       },
     },
     {
       key: 'dst',
-      header: 'Destination',
+      header: t('firewall.columns.destination'),
       render: (r) => {
         const v = addrWithPort(r.dstAddress, r.dstPort);
         return v ? (
           <span className={styles.mono}>{v}</span>
         ) : (
-          <span className={styles.muted}>any</span>
+          <span className={styles.muted}>{t('firewall.any')}</span>
         );
       },
     },
     {
       key: 'in',
-      header: 'In',
+      header: t('firewall.columns.in'),
       render: (r) =>
         r.inInterface ? (
           <span className={styles.mono}>{r.inInterface}</span>
@@ -389,7 +419,7 @@ export function FirewallPage() {
     },
     {
       key: 'out',
-      header: 'Out',
+      header: t('firewall.columns.out'),
       render: (r) =>
         r.outInterface ? (
           <span className={styles.mono}>{r.outInterface}</span>
@@ -399,7 +429,7 @@ export function FirewallPage() {
     },
     {
       key: 'bytes',
-      header: 'Bytes',
+      header: t('firewall.columns.bytes'),
       render: (r) =>
         r.bytes ? (
           <span className={styles.mono}>{r.bytes}</span>
@@ -409,7 +439,7 @@ export function FirewallPage() {
     },
     {
       key: 'packets',
-      header: 'Packets',
+      header: t('firewall.columns.packets'),
       render: (r) =>
         r.packets ? (
           <span className={styles.mono}>{r.packets}</span>
@@ -419,20 +449,20 @@ export function FirewallPage() {
     },
     {
       key: 'comment',
-      header: 'Comment',
+      header: t('firewall.columns.comment'),
       render: (r) => (r.comment ? r.comment : <span className={styles.muted}>—</span>),
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('firewall.columns.status'),
       render: (r) => (
         <Inline>
           {r.disabled ? (
-            <Badge tone="warning">disabled</Badge>
+            <Badge tone="warning">{t('common.disabled')}</Badge>
           ) : (
-            <Badge tone="success">enabled</Badge>
+            <Badge tone="success">{t('common.enabled')}</Badge>
           )}
-          {r.log ? <Badge tone="info">log</Badge> : null}
+          {r.log ? <Badge tone="info">{t('firewall.log')}</Badge> : null}
         </Inline>
       ),
     },
@@ -468,21 +498,19 @@ export function FirewallPage() {
           <div>
             <CardTitle>
               <Inline>
-                <Flame size={16} aria-hidden /> Firewall rules
+                <Flame size={16} aria-hidden /> {t('firewall.title')}
               </Inline>
             </CardTitle>
-            <CardDescription>
-              Active filter rules on this router, ordered by priority.
-            </CardDescription>
+            <CardDescription>{t('firewall.description')}</CardDescription>
           </div>
           <div className={styles.headerActions}>
             <Label className={styles.chainField}>
-              <span className={styles.chainLabel}>Chain</span>
+              <span className={styles.chainLabel}>{t('firewall.chain')}</span>
               <Select
-                aria-label="Chain filter"
+                aria-label={t('firewall.chainFilterAria')}
                 value={chain}
                 onChange={setChain}
-                options={CHAIN_OPTIONS}
+                options={chainOptions}
               />
             </Label>
           </div>
@@ -495,7 +523,7 @@ export function FirewallPage() {
         ) : visibleRules.length === 0 ? (
           <div className={styles.empty}>
             <ShieldOff size={22} aria-hidden className={styles.emptyIcon} />
-            <p>No firewall rules configured{chain ? ` in the ${chain} chain` : ''}.</p>
+            <p>{chain ? t('firewall.emptyInChain', { chain }) : t('firewall.empty')}</p>
           </div>
         ) : (
           <DataTable columns={columns} rows={visibleRules} rowKey={(r) => r.id} />
