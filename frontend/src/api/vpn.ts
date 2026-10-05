@@ -392,8 +392,7 @@ export interface CreateWireguardClientRequest {
   persistentKeepalive?: number;
 }
 
-/** `peerName` is empty when the peer was skipped as a duplicate. */
-export interface CreateWireguardClientResponse extends WireguardPeerImportResult {
+export interface CreateWireguardClientResponse {
   id: string;
   name: string;
   mtu: number;
@@ -417,7 +416,7 @@ export interface ImportWireguardConfigRequest {
 }
 
 /**
- * Peer outcome of a WireGuard client add or config import. When an interface with the
+ * Peer outcome of a WireGuard config import. When an interface with the
  * same private key and IP address already exists, the backend reuses it and adds only
  * the peers whose public key is not on it yet.
  */

@@ -7,9 +7,6 @@ export interface WgClientSummary {
   tone: ToastTone;
 }
 
-/** Whether the result came from importing a config file or from the detailed add form. */
-export type WgClientAction = 'import' | 'add';
-
 const MAX_LISTED_KEYS = 3;
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -25,14 +22,13 @@ function describeSkipped(keys: string[]): string {
 const sentences = (...parts: string[]) => parts.filter(Boolean).join(' ') || undefined;
 
 /**
- * Builds the toast shown after adding or importing a WireGuard client. The backend may
+ * Builds the toast shown after importing a WireGuard config. The backend may
  * reuse an existing interface (same private key and IP) and skip peers whose public key
  * is already present, so a successful request can add zero peers.
  */
-export function summarizeWireguardClientResult(
+export function summarizeWireguardImport(
   interfaceName: string,
   res: WireguardPeerImportResult,
-  action: WgClientAction,
 ): WgClientSummary {
   const name = interfaceName;
   const imported = res.importedPeerCount ?? res.peerNames?.length ?? 0;
@@ -64,17 +60,9 @@ export function summarizeWireguardClientResult(
 
   if (imported === 0) {
     return {
-      title: `WireGuard client "${name}" ${action === 'import' ? 'imported' : 'added'} without peers`,
+      title: `WireGuard client "${name}" imported without peers`,
       description: skippedText || 'The config did not contain any peers to add.',
       tone: 'warning',
-    };
-  }
-
-  if (action === 'add') {
-    return {
-      title: `WireGuard client "${name}" added`,
-      description: sentences(skippedText),
-      tone: 'success',
     };
   }
 

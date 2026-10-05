@@ -24,7 +24,7 @@ import { EditWgClientDialog } from '../dialogs/EditWgClientDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
 import { PAGE_SIZE } from '../utils';
-import { summarizeWireguardClientResult } from '../wgClientSummary';
+import { summarizeWireguardImport } from '../wgClientSummary';
 import { ClientsTable } from './ClientsTable';
 import { SectionHeader } from './SectionHeader';
 
@@ -103,10 +103,7 @@ export function ClientsSection({
       throw err;
     }
     setAdding(false);
-    toast.notify({
-      ...summarizeWireguardClientResult(created.name, created, 'add'),
-      durationMs: 8000,
-    });
+    toast.notify({ title: `WireGuard client "${created.name}" added`, tone: 'success' });
     onChanged();
   };
 
@@ -134,7 +131,7 @@ export function ClientsSection({
     }
     setAdding(false);
     toast.notify({
-      ...summarizeWireguardClientResult(imported.interfaceName, imported, 'import'),
+      ...summarizeWireguardImport(imported.interfaceName, imported),
       durationMs: 8000,
     });
     onChanged();
