@@ -104,7 +104,7 @@
     "start": "Start",
     "errorReports": {
       "title": "Error Reports",
-      "description": "Anonymous error reports help the Nasnet team fix bugs, and never include your router address, credentials, or configuration. <link>See what we track</link>",
+      "description": "Anonymous error reports help the Nasnet team fix bugs, and never include your router address, credentials, or configuration. <anchor>See what we track</anchor>",
       "toggle": "Send error reports"
     },
     "reset": {
@@ -183,7 +183,7 @@
     "retry": "Retry",
     "noneTitle": "No plugins available",
     "noneDescription": "The plugin registry did not return any plugins.",
-    "byAuthor": "by <link>{{author}}</link>",
+    "byAuthor": "by <anchor>{{author}}</anchor>",
     "versionWithUpdate": "v{{installed}} (v{{latest}} available)",
     "installing": "Installing…",
     "updating": "Updating…",

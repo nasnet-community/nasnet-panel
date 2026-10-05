@@ -392,7 +392,7 @@ export function DiagnosticsPage() {
                 t={t}
                 i18nKey="diagnostics.errorReports.description"
                 components={{
-                  link: (
+                  anchor: (
                     // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- Trans fills in the text
                     <a
                       href={`${USER_GUIDE_URL}/diagnostics/#what-an-error-report-sends`}

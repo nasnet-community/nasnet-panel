@@ -498,7 +498,7 @@ export function PluginsPage() {
                         i18nKey="plugins.byAuthor"
                         values={{ author: plugin.author }}
                         components={{
-                          link: (
+                          anchor: (
                             // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- Trans fills in the text
                             <a
                               href={plugin.url}
