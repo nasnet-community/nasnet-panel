@@ -35,8 +35,49 @@ const applyDocumentLanguage = (code: string) => {
   document.documentElement.dir = info.dir;
 };
 
+export const DIGITS_CHANGED_EVENT = 'digitsChanged';
+
+const readStoredDigitStyle = (): DigitStyle => {
+  try {
+    return window.localStorage.getItem(DIGITS_STORAGE_KEY) === 'persian' ? 'persian' : 'latin';
+  } catch {
+    return 'latin';
+  }
+};
+
+let digitStyle: DigitStyle = readStoredDigitStyle();
+
+export const getDigitStyle = (): DigitStyle => digitStyle;
+
+export const setDigitStyle = (style: DigitStyle) => {
+  digitStyle = style;
+  // react-i18next is bound to this event, so every translated component re-renders.
+  i18n.emit(DIGITS_CHANGED_EVENT, style);
+};
+
+const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+
+// Applies the digit preference to numbers interpolated into catalog strings, such as
+// {{count}} or {{min}}. Only number values are touched: IPs, ports and names are passed
+// as strings and stay in Latin digits. Values already formatted by useFormat are strings too.
+const digitFormatter = {
+  type: 'formatter' as const,
+  init: () => {},
+  add: () => {},
+  addCached: () => {},
+  format: (value: unknown, _format: string | undefined, lng: string | undefined) => {
+    if (typeof value !== 'number' || digitStyle !== 'persian' || !lng?.startsWith('fa')) {
+      return value;
+    }
+    return String(value)
+      .replace(/\d/g, (d) => PERSIAN_DIGITS[Number(d)])
+      .replace('.', '٫');
+  },
+};
+
 i18n
   .use(LanguageDetector)
+  .use(digitFormatter)
   .use(initReactI18next)
   .init({
     resources: { en, fa },
@@ -52,9 +93,9 @@ i18n
       // Only an explicit choice is stored, so the browser default keeps tracking the browser.
       caches: [],
     },
-    interpolation: { escapeValue: false },
+    interpolation: { escapeValue: false, alwaysFormat: true },
     returnNull: false,
-    react: { useSuspense: false },
+    react: { useSuspense: false, bindI18n: `languageChanged ${DIGITS_CHANGED_EVENT}` },
   });
 
 applyDocumentLanguage(i18n.resolvedLanguage ?? DEFAULT_LANGUAGE);

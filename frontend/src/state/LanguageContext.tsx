@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import i18n, {
   DIGITS_STORAGE_KEY,
   LANGUAGE_STORAGE_KEY,
+  getDigitStyle,
   getLanguageInfo,
+  setDigitStyle,
   type DigitStyle,
   type LanguageCode,
   type LanguageInfo,
@@ -20,14 +22,6 @@ interface LanguageContextValue {
 
 const Ctx = createContext<LanguageContextValue | null>(null);
 
-const readStoredDigits = (): DigitStyle => {
-  try {
-    return window.localStorage.getItem(DIGITS_STORAGE_KEY) === 'persian' ? 'persian' : 'latin';
-  } catch {
-    return 'latin';
-  }
-};
-
 const store = (key: string, value: string) => {
   try {
     window.localStorage.setItem(key, value);
@@ -39,7 +33,7 @@ const store = (key: string, value: string) => {
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Subscribing re-renders the provider, and so its value, on every language change.
   const { i18n: instance } = useTranslation();
-  const [digits, setDigitsState] = useState<DigitStyle>(() => readStoredDigits());
+  const [digits, setDigitsState] = useState<DigitStyle>(() => getDigitStyle());
   const language = getLanguageInfo(instance.resolvedLanguage);
 
   const setLanguage = useCallback((code: LanguageCode) => {
@@ -49,6 +43,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setDigits = useCallback((style: DigitStyle) => {
     setDigitsState(style);
+    setDigitStyle(style);
     store(DIGITS_STORAGE_KEY, style);
   }, []);
 
