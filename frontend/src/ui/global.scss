@@ -113,3 +113,10 @@ textarea {
 [dir='rtl'] .rtl-flip {
   transform: scaleX(-1);
 }
+
+// Form values are mostly IPs, hostnames, keys and passwords, so text fields stay left to
+// right in Farsi. Labels and placeholders around them still follow the page direction.
+[dir='rtl'] :is(input:not([type='checkbox'], [type='radio'], [type='range']), textarea) {
+  direction: ltr;
+  text-align: left;
+}
