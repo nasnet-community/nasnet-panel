@@ -90,6 +90,19 @@ func (c *Client) Reconnect() error {
 	return nil
 }
 
+// LocalIP returns the installer's own address on the SSH connection, or "" when not connected.
+func (c *Client) LocalIP() string {
+	conn := c.current()
+	if conn == nil {
+		return ""
+	}
+	host, _, err := net.SplitHostPort(conn.LocalAddr().String())
+	if err != nil {
+		return ""
+	}
+	return host
+}
+
 func (c *Client) Close() {
 	c.mu.Lock()
 	conn := c.conn
