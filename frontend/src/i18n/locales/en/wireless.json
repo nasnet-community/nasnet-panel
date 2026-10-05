@@ -1,1 +1,88 @@
-{}
+{
+  "listSeparator": ", ",
+  "common": {
+    "cancel": "Cancel",
+    "ssid": "SSID",
+    "password": "Password",
+    "security": "Security"
+  },
+  "page": {
+    "deleteTitle": "Delete virtual interface",
+    "deleteDescription": "Delete {{name}} ({{iface}})? Connected clients will be disconnected. This cannot be undone.",
+    "deleteConfirm": "Delete"
+  },
+  "stats": {
+    "clients": "Clients",
+    "connectedDevices": "Connected devices",
+    "active": "Active",
+    "activeTotal": "/{{total}}",
+    "signal": "Signal",
+    "dbm": "{{value}} dBm",
+    "averageRssi": "Average RSSI",
+    "noClients": "No clients",
+    "bands": "Bands",
+    "interfaceCount_one": "{{value}} interface",
+    "interfaceCount_other": "{{value}} interfaces",
+    "noInterfaces": "No interfaces"
+  },
+  "clients": {
+    "title": "Connected Clients",
+    "description": "Devices associated to this router's wireless.",
+    "hostname": "Hostname",
+    "ip": "IP",
+    "mac": "MAC",
+    "band": "Band",
+    "signal": "Signal",
+    "throughput": "TX / RX",
+    "throughputValue": "{{tx}} / {{rx}} kbps",
+    "uptime": "Uptime",
+    "empty": "No clients connected"
+  },
+  "interfaces": {
+    "title": "Wireless Interfaces",
+    "description": "SSID, password, band, and security.",
+    "addVirtual": "Add virtual",
+    "empty": "No wireless interfaces found",
+    "virtual": "Virtual",
+    "active": "active",
+    "idle": "idle",
+    "enableAria": "Enable {{name}}",
+    "edit": "Edit",
+    "deleteAria": "Delete {{name}}",
+    "delete": "Delete"
+  },
+  "edit": {
+    "title": "Edit wireless settings",
+    "save": "Save",
+    "mode": "Mode"
+  },
+  "addVirtual": {
+    "title": "Add virtual wireless interface",
+    "creating": "Creating...",
+    "create": "Create",
+    "masterInterface": "Master interface",
+    "selectInterface": "Select an interface",
+    "bridge": "Bridge",
+    "selectBridge": "Select a bridge",
+    "noBridge": "No bridge available",
+    "retry": "Retry",
+    "openNetworkPlaceholder": "Leave empty for an open network",
+    "requiredFields": "Master interface, bridge, and SSID are required",
+    "passwordLength": "Password must be {{min}} to {{max}} characters",
+    "selectSecurityType": "Select at least one security type"
+  },
+  "toast": {
+    "saved": "Wireless settings saved",
+    "saveFailed": "Save failed",
+    "saveError": "Failed to save wireless settings",
+    "enabled": "{{name}} enabled",
+    "disabled": "{{name}} disabled",
+    "loadBridgesError": "Failed to load bridges",
+    "created": "{{name}} created",
+    "createFailed": "Create failed",
+    "createError": "Failed to create virtual interface",
+    "deleted": "{{name}} deleted",
+    "deleteFailed": "Delete failed",
+    "deleteError": "Failed to delete virtual interface"
+  }
+}

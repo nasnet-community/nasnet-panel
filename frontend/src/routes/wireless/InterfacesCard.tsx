@@ -1,4 +1,5 @@
 import { Plus, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, Card, CardDescription, CardHeader, CardTitle } from '@nasnet/ui';
 import type { Interface, WirelessSettings } from '../../api';
 import styles from '../WirelessPage.module.scss';
@@ -21,17 +22,18 @@ export function InterfacesCard({
   onAddVirtual,
   onDelete,
 }: Props) {
+  const { t } = useTranslation('wireless');
   const total = interfaces.length;
   return (
     <Card>
       <CardHeader className={styles.cardHeaderRow}>
         <div>
-          <CardTitle>Wireless Interfaces</CardTitle>
-          <CardDescription>SSID, password, band, and security.</CardDescription>
+          <CardTitle>{t('interfaces.title')}</CardTitle>
+          <CardDescription>{t('interfaces.description')}</CardDescription>
         </div>
         {total > 0 ? (
           <Button size="sm" variant="success" onClick={onAddVirtual}>
-            <Plus size={14} aria-hidden /> Add virtual
+            <Plus size={14} aria-hidden /> {t('interfaces.addVirtual')}
           </Button>
         ) : null}
       </CardHeader>
@@ -51,7 +53,7 @@ export function InterfacesCard({
       ) : (
         <div className={styles.emptyBlock}>
           <Wifi size={28} aria-hidden />
-          <span>No wireless interfaces found</span>
+          <span>{t('interfaces.empty')}</span>
         </div>
       )}
     </Card>
