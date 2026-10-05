@@ -56,7 +56,7 @@ test.describe('Language switch', () => {
     await expect(page.getByRole('button', { name: /light mode (on|off)/i })).toBeVisible();
   });
 
-  test('translates the dashboard, keeps form fields left to right, and offers Persian digits', async ({
+  test('translates the dashboard with Persian digits and keeps form fields left to right', async ({
     page,
     resetMocks,
     seedRouter,
@@ -65,11 +65,12 @@ test.describe('Language switch', () => {
     await seedHeaderRouter({ resetMocks, seedRouter, mockOverviewBackend });
     await page.goto('/router/rtr_lang');
 
-    await languageTrigger(page).click();
-    await expect(page.getByRole('checkbox', { name: 'Persian digits' })).toHaveCount(0);
-    await page.getByRole('menuitemradio', { name: 'فارسی' }).click();
+    await expect(page.locator('footer')).toContainText('© 2026 Nasnet Panel');
+    await chooseLanguage(page, 'فارسی');
 
     await expect(page.locator('header')).toContainText('نسنت پنل');
+    // Farsi always writes numbers in Persian digits.
+    await expect(page.locator('footer')).toContainText('© ۲۰۲۶ نسنت پنل');
     await expect(page.getByRole('tab', { name: 'نمای کلی' }).first()).toBeAttached();
     await expect(page.getByRole('link', { name: 'مطالعهٔ راهنمای کاربر' })).toHaveAttribute(
       'href',
@@ -84,15 +85,6 @@ test.describe('Language switch', () => {
     await expect(passwordField).toBeVisible();
     await expect(passwordField).toHaveCSS('direction', 'ltr');
     await page.keyboard.press('Escape');
-
-    await languageTrigger(page).click();
-    const digits = page.getByRole('checkbox', { name: 'ارقام فارسی' });
-    await expect(digits).not.toBeChecked();
-    await digits.check();
-
-    await page.reload();
-    await languageTrigger(page).click();
-    await expect(page.getByRole('checkbox', { name: 'ارقام فارسی' })).toBeChecked();
   });
 });
 
