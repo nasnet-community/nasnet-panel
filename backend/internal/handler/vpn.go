@@ -565,17 +565,29 @@ func HandleAddSSTPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add SSTP client", err)
 	}
 
+	rollback := func() {
+		for _, list := range []string{"WAN", "VPN-WAN"} {
+			if err := client.RemoveInterfaceListMember(list, interfaceName); err != nil {
+				c.Logger().Errorf("Rollback: failed to remove %s from %s interface list: %v", interfaceName, list, err)
+			}
+		}
+		if err := client.RemoveSSTPClient(interfaceName); err != nil {
+			c.Logger().Errorf("Rollback: failed to remove SSTP client %s: %v", interfaceName, err)
+		}
+	}
+
 	for _, list := range []string{"WAN", "VPN-WAN"} {
 		onList, err := client.InterfaceListMemberExists(list, interfaceName)
 		if err != nil {
-			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
-			continue
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to check "+list+" interface list membership; SSTP client was not created", err)
 		}
 		if onList {
 			continue
 		}
 		if _, err := client.AddInterfaceListMember(list, interfaceName); err != nil {
-			c.Logger().Errorf("Failed to add %s to %s interface list: %v", interfaceName, list, err)
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add SSTP client to "+list+" interface list; SSTP client was not created", err)
 		}
 	}
 
