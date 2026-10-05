@@ -1,0 +1,12 @@
+{
+  "language": {
+    "label": "زبان",
+    "persianDigits": "ارقام فارسی"
+  },
+  "units": {
+    "B": "{{value}} بایت",
+    "KB": "{{value}} کیلوبایت",
+    "MB": "{{value}} مگابایت",
+    "GB": "{{value}} گیگابایت"
+  }
+}

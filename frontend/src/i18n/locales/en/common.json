@@ -1,0 +1,12 @@
+{
+  "language": {
+    "label": "Language",
+    "persianDigits": "Persian digits"
+  },
+  "units": {
+    "B": "{{value}} B",
+    "KB": "{{value}} KB",
+    "MB": "{{value}} MB",
+    "GB": "{{value}} GB"
+  }
+}
