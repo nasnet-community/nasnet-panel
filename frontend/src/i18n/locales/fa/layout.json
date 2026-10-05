@@ -1,6 +1,7 @@
 {
   "brand": {
-    "logoAlt": "Nasnet Panel"
+    "title": "نسنت پنل",
+    "logoAlt": "نسنت پنل"
   },
   "sections": {
     "ariaLabel": "بخش‌های روتر",

@@ -24,7 +24,7 @@ export function AppHeader() {
         <Link to={logoTarget} className={styles.brand}>
           <img src="/favicon.png" alt={t('brand.logoAlt')} className={styles.logoImg} />
           <div className={styles.brandText}>
-            <span className={styles.brandTitle}>Nasnet Panel</span>
+            <span className={styles.brandTitle}>{t('brand.title')}</span>
           </div>
         </Link>
         <div className={styles.actionsRight}>

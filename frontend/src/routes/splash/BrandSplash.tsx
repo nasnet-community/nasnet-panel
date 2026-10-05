@@ -1,4 +1,5 @@
 import { motion, type Variants } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import styles from './BrandSplash.module.scss';
 
 interface BrandSplashProps {
@@ -35,6 +36,7 @@ const titleVariants: Variants = {
 const transition = { duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
 
 export function BrandSplash({ phase }: BrandSplashProps) {
+  const { t } = useTranslation('layout');
   return (
     <motion.div
       className={styles.wrap}
@@ -47,13 +49,13 @@ export function BrandSplash({ phase }: BrandSplashProps) {
       <motion.img
         className={styles.logoImg}
         src="/favicon.png"
-        alt="Nasnet Panel"
+        alt={t('brand.logoAlt')}
         variants={logoVariants}
         transition={transition}
       />
       <motion.div className={styles.brandText} layout>
         <motion.h1 className={styles.title} variants={titleVariants} transition={transition}>
-          Nasnet Panel
+          {t('brand.title')}
         </motion.h1>
       </motion.div>
     </motion.div>

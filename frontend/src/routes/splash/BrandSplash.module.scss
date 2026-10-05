@@ -26,4 +26,9 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
   line-height: 1;
+
+  // Letter-spacing breaks the joins between Persian letters.
+  [dir='rtl'] & {
+    letter-spacing: normal;
+  }
 }
