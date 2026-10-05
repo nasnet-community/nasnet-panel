@@ -273,19 +273,6 @@ type WireGuardClientCreateResponse struct {
 	EndpointIP            string `json:"endpointIP"`
 	EndpointPort          int    `json:"endpointPort"`
 	AllowedAddress        string `json:"allowedAddress"`
-	WireGuardPeerImportResult
-}
-
-// WireGuardPeerImportResult reports what happened to the peers of a WireGuard
-// client add or config import. When an existing interface has the same private
-// key and IP address, it is reused and only peers not already on it are added.
-type WireGuardPeerImportResult struct {
-	// PeerNames lists the peers created by this request; null when none were.
-	PeerNames               []string `json:"peerNames"`
-	ImportedPeerCount       int      `json:"importedPeerCount"`
-	ReusedExistingInterface bool     `json:"reusedExistingInterface"`
-	// SkippedDuplicatePeers lists the public keys of peers that already existed; null when none.
-	SkippedDuplicatePeers []string `json:"skippedDuplicatePeers"`
 }
 
 // CreateWireGuardServerRequest represents a request to create a WireGuard server interface.
@@ -563,9 +550,12 @@ type ImportWireGuardConfigRequest struct {
 
 // ImportWireGuardConfigResponse represents the response after importing a WireGuard configuration.
 type ImportWireGuardConfigResponse struct {
-	InterfaceName string `json:"interfaceName"`
-	InterfaceIP   string `json:"interfaceIP"`
-	WireGuardPeerImportResult
+	InterfaceName           string   `json:"interfaceName"`
+	InterfaceIP             string   `json:"interfaceIP"`
+	PeerNames               []string `json:"peerNames"`
+	ImportedPeerCount       int      `json:"importedPeerCount"`
+	ReusedExistingInterface bool     `json:"reusedExistingInterface"`
+	SkippedDuplicatePeers   []string `json:"skippedDuplicatePeers"`
 }
 
 // CreateOvpnServerRequest represents a request to create an OpenVPN server with client certificate.

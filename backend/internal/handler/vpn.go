@@ -1175,11 +1175,7 @@ func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error
 
 // HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
-// @Description Create a new WireGuard client interface with the specified configuration. If an
-// @Description existing WireGuard interface already has the exact same private key and IP address,
-// @Description the peer is added to that interface instead of creating a new one
-// @Description (reusedExistingInterface). A peer whose public key already exists on the target
-// @Description interface is skipped and reported in skippedDuplicatePeers instead of failing.
+// @Description Create a new WireGuard client interface with the specified configuration. Returns 409 if any WireGuard interface with the same private key and IP address already exists.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -1187,6 +1183,7 @@ func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error
 // @Produce json
 // @Success 200 {object} Response{data=WireGuardClientCreateResponse}
 // @Failure 400 {object} Response
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/wireguard/client [post].
 func HandleCreateWireGuardClient(c echo.Context) error {
@@ -1215,125 +1212,132 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
 
-	// Checked before anything is created, so a missing key never leaves a
-	// half-configured interface behind.
-	if req.PeerPublicKey == nil {
-		return ErrorResponse(c, http.StatusBadRequest, "Peer validation error", fmt.Errorf("peerPublicKey is required for peer creation"))
-	}
-	publicKey := *req.PeerPublicKey
-
-	privateKey := ""
-	if req.InterfacePrivateKey != nil {
-		privateKey = *req.InterfacePrivateKey
-	}
-
-	// Reuse an existing interface if one already has this exact private key
-	// + IP address combination, instead of creating a duplicate interface.
-	wireguard, err := findWireGuardInterfaceByKeyAndAddress(client, privateKey, req.InterfaceLocalAddress)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to look up existing WireGuard interfaces", err)
-	}
-	reusedExistingInterface := wireguard != nil
-
-	if wireguard == nil {
-		var interfaceName string
-		if req.Name != "" {
-			interfaceName = req.Name
-			if !strings.HasSuffix(interfaceName, "-wg-client") {
-				interfaceName += "-wg-client"
+	if req.InterfacePrivateKey != nil && *req.InterfacePrivateKey != "" && req.InterfaceLocalAddress != "" {
+		existingInterfaces, err := client.ListWireGuards()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard interfaces", err)
+		}
+		for i := range existingInterfaces {
+			if existingInterfaces[i].PrivateKey != *req.InterfacePrivateKey {
+				continue
 			}
-		} else {
-			interfaceName, err = generateUniqueWireGuardInterfaceName(client, "-wg-client")
+			addrs, err := client.GetIPAddressesByInterface(existingInterfaces[i].Name)
 			if err != nil {
-				return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP addresses for interface", err)
+			}
+			for _, a := range addrs {
+				if a.Address == req.InterfaceLocalAddress {
+					return ErrorResponse(c, http.StatusConflict, "A WireGuard interface with this private key and IP address already exists", nil)
+				}
 			}
 		}
+	}
 
-		vrf := "VRF-TunnelEnds"
-		config := routeros.WireGuardClientConfig{
-			Name:       interfaceName,
-			PrivateKey: req.InterfacePrivateKey,
-			ListenPort: req.ListenPort,
-			MTU:        req.MTU,
-			Disabled:   req.Disabled,
-			Comment:    req.Comment,
-			VRF:        &vrf,
+	var interfaceName string
+	if req.Name != "" {
+		interfaceName = req.Name
+		if !strings.HasSuffix(interfaceName, "-wg-client") {
+			interfaceName += "-wg-client"
 		}
-
-		wireguard, err = client.CreateWireGuardInterface(config)
+	} else {
+		interfaceName, err = generateUniqueWireGuardInterfaceName(client, "-wg-client")
 		if err != nil {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
 		}
-
-		ipConfig := routeros.IPAddressConfig{
-			Interface: wireguard.Name,
-			Address:   req.InterfaceLocalAddress,
-			Disabled:  false,
-		}
-
-		if _, err := client.AddIPAddress(ipConfig); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
-		}
 	}
 
-	existingPeers, err := client.GetWireGuardPeers(wireguard.Name)
+	peerCount, err := client.CountWireGuardPeers(interfaceName)
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard peers", err)
-	}
-	peers := newWireGuardPeerPlanner(wireguard.Name, existingPeers)
-
-	peerName := ""
-	if !peers.SkipIfDuplicate(publicKey) {
-		peerName = peers.NextName()
-
-		cleanedCIDRs := make([]string, len(allowedCIDRs))
-		for i, cidr := range allowedCIDRs {
-			cleanedCIDRs[i] = strings.TrimSpace(cidr)
-		}
-
-		peerConfig := routeros.WireGuardPeerConfig{
-			InterfaceName:       wireguard.Name,
-			PeerName:            peerName,
-			PublicKey:           &publicKey,
-			PrivateKey:          req.PeerPrivateKey,
-			EndpointAddress:     req.EndpointIP,
-			EndpointPort:        req.EndpointPort,
-			AllowedAddresses:    cleanedCIDRs,
-			PresharedKey:        req.PresharedKey,
-			PersistentKeepalive: req.PersistentKeepalive,
-		}
-
-		if _, err := client.AddWireGuardPeer(peerConfig); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add WireGuard peer", err)
-		}
-		peers.Added(peerName, publicKey)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to count WireGuard peers", err)
 	}
 
-	ensureWireGuardClientOnWanLists(client, wireguard.Name, c.Logger().Errorf)
+	vrf := "VRF-TunnelEnds"
+	config := routeros.WireGuardClientConfig{
+		Name:       interfaceName,
+		PrivateKey: req.InterfacePrivateKey,
+		ListenPort: req.ListenPort,
+		MTU:        req.MTU,
+		Disabled:   req.Disabled,
+		Comment:    req.Comment,
+		VRF:        &vrf,
+	}
+
+	wireguard, err := client.CreateWireGuardInterface(config)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
+	}
+
+	ipConfig := routeros.IPAddressConfig{
+		Interface: wireguard.Name,
+		Address:   req.InterfaceLocalAddress,
+		Disabled:  false,
+	}
+
+	if _, err := client.AddIPAddress(ipConfig); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
+	}
+
+	peerName := fmt.Sprintf("%s-peer%d", wireguard.Name, peerCount+1)
+
+	var publicKey *string
+	if req.PeerPublicKey == nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Peer validation error", fmt.Errorf("peerPublicKey is required for peer creation"))
+	}
+	publicKey = req.PeerPublicKey
+
+	cleanedCIDRs := make([]string, len(allowedCIDRs))
+	for i, cidr := range allowedCIDRs {
+		cleanedCIDRs[i] = strings.TrimSpace(cidr)
+	}
+
+	peerConfig := routeros.WireGuardPeerConfig{
+		InterfaceName:       wireguard.Name,
+		PeerName:            peerName,
+		PublicKey:           publicKey,
+		PrivateKey:          req.PeerPrivateKey,
+		EndpointAddress:     req.EndpointIP,
+		EndpointPort:        req.EndpointPort,
+		AllowedAddresses:    cleanedCIDRs,
+		PresharedKey:        req.PresharedKey,
+		PersistentKeepalive: req.PersistentKeepalive,
+	}
+
+	if _, err := client.AddWireGuardPeer(peerConfig); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add WireGuard peer", err)
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, wireguard.Name)
+		if err != nil {
+			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
+			continue
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, wireguard.Name); err != nil {
+			c.Logger().Errorf("Failed to add %s to %s interface list: %v", wireguard.Name, list, err)
+		}
+	}
 
 	response := WireGuardClientCreateResponse{
-		ID:                        wireguard.ID,
-		Name:                      wireguard.Name,
-		InterfacePublicKey:        wireguard.PublicKey,
-		InterfacePrivateKey:       wireguard.PrivateKey,
-		Disabled:                  wireguard.Disabled,
-		MTU:                       wireguard.MTU,
-		ListenPort:                wireguard.ListenPort,
-		InterfaceLocalAddress:     req.InterfaceLocalAddress,
-		PeerName:                  peerName,
-		PeerPublicKey:             publicKey,
-		PeerPrivateKey:            "",
-		EndpointIP:                req.EndpointIP,
-		EndpointPort:              req.EndpointPort,
-		AllowedAddress:            req.AllowedAddress,
-		WireGuardPeerImportResult: peers.Result(reusedExistingInterface),
+		ID:                    wireguard.ID,
+		Name:                  wireguard.Name,
+		InterfacePublicKey:    wireguard.PublicKey,
+		InterfacePrivateKey:   wireguard.PrivateKey,
+		Disabled:              wireguard.Disabled,
+		MTU:                   wireguard.MTU,
+		ListenPort:            wireguard.ListenPort,
+		InterfaceLocalAddress: req.InterfaceLocalAddress,
+		PeerName:              peerName,
+		PeerPublicKey:         *publicKey,
+		PeerPrivateKey:        "",
+		EndpointIP:            req.EndpointIP,
+		EndpointPort:          req.EndpointPort,
+		AllowedAddress:        req.AllowedAddress,
 	}
 
-	message := "WireGuard client interface created successfully"
-	if reusedExistingInterface {
-		message = "Existing WireGuard client interface reused"
-	}
-	return SuccessResponse(c, http.StatusOK, message, response)
+	return SuccessResponse(c, http.StatusOK, "WireGuard client interface created successfully", response)
 }
 
 // HandleCreateWireGuardServer creates a new WireGuard server interface.
@@ -2387,9 +2391,30 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 
 	// Reuse an existing interface if one already has this exact private key
 	// + IP address combination, instead of creating a duplicate interface.
-	wg, err := findWireGuardInterfaceByKeyAndAddress(client, privateKey, address)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to look up existing WireGuard interfaces", err)
+	var wg *routeros.WireGuardInfo
+	if privateKey != "" && address != "" {
+		existingInterfaces, err := client.ListWireGuards()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard interfaces", err)
+		}
+		for i := range existingInterfaces {
+			if existingInterfaces[i].PrivateKey != privateKey {
+				continue
+			}
+			addrs, err := client.GetIPAddressesByInterface(existingInterfaces[i].Name)
+			if err != nil {
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP addresses for interface", err)
+			}
+			for _, a := range addrs {
+				if a.Address == address {
+					wg = &existingInterfaces[i]
+					break
+				}
+			}
+			if wg != nil {
+				break
+			}
+		}
 	}
 
 	reusedExistingInterface := wg != nil
@@ -2438,8 +2463,16 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard peers", err)
 	}
 
-	peers := newWireGuardPeerPlanner(wg.Name, existingPeers)
+	usedPeerNames := make(map[string]struct{}, len(existingPeers))
+	for j := range existingPeers {
+		if existingPeers[j].Name != "" {
+			usedPeerNames[existingPeers[j].Name] = struct{}{}
+		}
+	}
+	nextPeerIndex := len(existingPeers) + 1
 
+	var peerNames []string
+	var skippedDuplicatePeers []string
 	for i := range cfg.Peers {
 		peer := cfg.Peers[i]
 
@@ -2448,7 +2481,15 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			return ErrorResponse(c, http.StatusBadRequest, "Peer PublicKey is required", nil)
 		}
 
-		if peers.SkipIfDuplicate(publicKey) {
+		duplicate := false
+		for j := range existingPeers {
+			if existingPeers[j].PublicKey == publicKey {
+				duplicate = true
+				break
+			}
+		}
+		if duplicate {
+			skippedDuplicatePeers = append(skippedDuplicatePeers, publicKey)
 			continue
 		}
 
@@ -2466,7 +2507,16 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 
 		persistentKeepalive := int(peer.PersistentKeepalive)
 
-		peerName := peers.NextName()
+		var peerName string
+		for {
+			candidate := fmt.Sprintf("%s-peer%d", wg.Name, nextPeerIndex)
+			nextPeerIndex++
+			if _, used := usedPeerNames[candidate]; !used {
+				peerName = candidate
+				break
+			}
+		}
+		usedPeerNames[peerName] = struct{}{}
 
 		config := routeros.WireGuardPeerConfig{
 			InterfaceName:       wg.Name,
@@ -2491,15 +2541,31 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
 		}
 
-		peers.Added(peerName, publicKey)
+		existingPeers = append(existingPeers, routeros.WireGuardPeerInfo{Name: peerName, PublicKey: publicKey})
+		peerNames = append(peerNames, peerName)
 	}
 
-	ensureWireGuardClientOnWanLists(client, wg.Name, c.Logger().Errorf)
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, wg.Name)
+		if err != nil {
+			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
+			continue
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, wg.Name); err != nil {
+			c.Logger().Errorf("Failed to add %s to %s interface list: %v", wg.Name, list, err)
+		}
+	}
 
 	response := ImportWireGuardConfigResponse{
-		InterfaceName:             wg.Name,
-		InterfaceIP:               address,
-		WireGuardPeerImportResult: peers.Result(reusedExistingInterface),
+		InterfaceName:           wg.Name,
+		InterfaceIP:             address,
+		PeerNames:               peerNames,
+		ImportedPeerCount:       len(peerNames),
+		ReusedExistingInterface: reusedExistingInterface,
+		SkippedDuplicatePeers:   skippedDuplicatePeers,
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
