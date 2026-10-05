@@ -105,7 +105,8 @@
     "errorReports": {
       "title": "Error Reports",
       "description": "Anonymous error reports help the Nasnet team fix bugs, and never include your router address, credentials, or configuration. <anchor>See what we track</anchor>",
-      "toggle": "Send error reports"
+      "toggle": "Send error reports",
+      "guideAnchor": "what-an-error-report-sends"
     },
     "reset": {
       "title": "Reset Configuration",

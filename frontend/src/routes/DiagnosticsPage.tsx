@@ -27,7 +27,8 @@ import {
 } from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
 import { CableTestCard } from './CableTestCard';
-import { USER_GUIDE_URL } from './help/links';
+import { userGuideUrl } from './help/links';
+import { useLanguage } from '../state/LanguageContext';
 import {
   ApiError,
   DIAG_REPORT_FILENAME,
@@ -79,6 +80,7 @@ export function DiagnosticsPage() {
   const { getCredentials } = useSession();
   const toast = useToast();
   const { t } = useTranslation('tools');
+  const { language } = useLanguage();
 
   const creds = useMemo<SystemCredentials | null>(() => {
     if (!id) return null;
@@ -395,7 +397,7 @@ export function DiagnosticsPage() {
                   anchor: (
                     // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- Trans fills in the text
                     <a
-                      href={`${USER_GUIDE_URL}/diagnostics/#what-an-error-report-sends`}
+                      href={`${userGuideUrl(language.code)}/diagnostics/#${t('diagnostics.errorReports.guideAnchor')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     />

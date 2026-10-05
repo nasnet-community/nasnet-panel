@@ -1,15 +1,17 @@
 import { BookOpen, Bug, ExternalLink, Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { GITHUB_ISSUES_URL, KNOWLEDGE_BASE_URL, TELEGRAM_SUPPORT_URL } from './links';
+import { useLanguage } from '../../state/LanguageContext';
+import { GITHUB_ISSUES_URL, TELEGRAM_SUPPORT_URL, userGuideUrl } from './links';
 import styles from '../HelpPage.module.scss';
 
 export function SupportLinks() {
   const { t } = useTranslation('tools');
+  const { language } = useLanguage();
   return (
     <div className={styles.links}>
       <a
         className={`${styles.linkCard} ${styles.knowledgeBase}`}
-        href={KNOWLEDGE_BASE_URL}
+        href={`${userGuideUrl(language.code)}/`}
         target="_blank"
         rel="noopener noreferrer"
       >

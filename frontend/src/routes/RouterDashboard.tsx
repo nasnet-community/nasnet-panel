@@ -9,11 +9,13 @@ import { useWizardGate } from '../state/WizardGateContext';
 import { useInstalledPlugins } from '../state/InstalledPluginsContext';
 import { routerSectionsWithPlugins } from '../layout/routerSections';
 import { RouterCredentialsDialog } from './RouterCredentialsDialog';
-import { USER_GUIDE_SECTIONS, USER_GUIDE_URL } from './help/links';
+import { USER_GUIDE_SECTIONS, userGuideUrl } from './help/links';
+import { useLanguage } from '../state/LanguageContext';
 import styles from './RouterDashboard.module.scss';
 
 export function RouterDashboard() {
   const { t } = useTranslation('overview');
+  const { language } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
   const location = useLocation();
@@ -100,7 +102,7 @@ export function RouterDashboard() {
           <footer className={styles.guideFooter}>
             <a
               className={styles.guideLink}
-              href={`${USER_GUIDE_URL}/${guideSection}/`}
+              href={`${userGuideUrl(language.code)}/${guideSection}/`}
               target="_blank"
               rel="noopener noreferrer"
             >
