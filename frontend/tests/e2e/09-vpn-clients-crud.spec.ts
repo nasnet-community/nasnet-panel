@@ -550,6 +550,163 @@ test.describe('WAN VPN clients section', () => {
     await expect(page.getByRole('row', { name: /home-l2tp/ })).toBeVisible();
   });
 
+  const WG_CONFIG = [
+    '[Interface]',
+    'PrivateKey = yAnz5TF+lXXJte14tji3zlMNq+hd2rYUIgJBgB3fBmk=',
+    'Address = 10.71.139.103/32',
+    '',
+    '[Peer]',
+    'PublicKey = Abxw9kZlH8Stt7mWJ2rKeCQjVVdJpLvV6czby23FzmA=',
+    'Endpoint = vpn.example.com:51820',
+    'AllowedIPs = 0.0.0.0/0',
+  ].join('\n');
+
+  const wgImportSetup = async (
+    page: import('@playwright/test').Page,
+    context: import('@playwright/test').BrowserContext,
+    importResponse: Record<string, unknown>,
+  ) => {
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    const state = { listCalls: 0, importBody: null as { config?: string } | null };
+    await context.route('**/api/vpn/clients', async (route) => {
+      state.listCalls += 1;
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: envelope([]) });
+    });
+    await context.route('**/api/vpn/wireguard/import-config', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      state.importBody = route.request().postDataJSON() as typeof state.importBody;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 200,
+          message: 'WireGuard configuration imported successfully',
+          data: importResponse,
+        }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+    await page.getByRole('button', { name: 'New' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog
+      .getByRole('radiogroup', { name: 'VPN client type' })
+      .getByRole('radio', { name: 'WireGuard' })
+      .click();
+    await dialog.getByRole('textbox', { name: 'Config' }).fill(WG_CONFIG);
+    return { dialog, state };
+  };
+
+  test('WireGuard import that reuses an interface and skips every peer explains why nothing changed', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+    const { dialog, state } = await wgImportSetup(page, context, {
+      interfaceName: 'anais-spiegel-wg-client',
+      interfaceIP: '10.71.139.103/32',
+      peerNames: null,
+      importedPeerCount: 0,
+      reusedExistingInterface: true,
+      skippedDuplicatePeers: ['Abxw9kZlH8Stt7mWJ2rKeCQjVVdJpLvV6czby23FzmA='],
+    });
+
+    const listCallsBefore = state.listCalls;
+    await dialog.getByRole('button', { name: 'Add client' }).click();
+
+    await expect.poll(() => state.importBody?.config).toBe(WG_CONFIG);
+    await expect(dialog).toBeHidden();
+    const toast = page.getByRole('status').filter({
+      hasText: 'WireGuard client "anais-spiegel-wg-client" is already up to date',
+    });
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText('so it was reused');
+    await expect(toast).toContainText('No new peers were added.');
+    await expect(toast).toContainText('Skipped 1 peer already on this interface (Abxw9kZl…)');
+    await expect.poll(() => state.listCalls).toBeGreaterThan(listCallsBefore);
+  });
+
+  test('WireGuard import that reuses an interface reports added and skipped peers', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+    const { dialog } = await wgImportSetup(page, context, {
+      interfaceName: 'anais-spiegel-wg-client',
+      interfaceIP: '10.71.139.103/32',
+      peerNames: ['anais-spiegel-wg-client-peer2', 'anais-spiegel-wg-client-peer3'],
+      importedPeerCount: 2,
+      reusedExistingInterface: true,
+      skippedDuplicatePeers: [
+        'Abxw9kZlH8Stt7mWJ2rKeCQjVVdJpLvV6czby23FzmA=',
+        'Bcxw9kZlH8Stt7mWJ2rKeCQjVVdJpLvV6czby23FzmA=',
+        'Cdxw9kZlH8Stt7mWJ2rKeCQjVVdJpLvV6czby23FzmA=',
+        'Dexw9kZlH8Stt7mWJ2rKeCQjVVdJpLvV6czby23FzmA=',
+      ],
+    });
+
+    await dialog.getByRole('button', { name: 'Add client' }).click();
+
+    await expect(dialog).toBeHidden();
+    const toast = page.getByRole('status').filter({
+      hasText: 'Added 2 peers to existing WireGuard client "anais-spiegel-wg-client"',
+    });
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText(
+      'Skipped 4 peers already on this interface (Abxw9kZl…, Bcxw9kZl…, Cdxw9kZl… and 1 more)',
+    );
+  });
+
+  test('WireGuard import that creates a new interface reports the peer count', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+    const { dialog } = await wgImportSetup(page, context, {
+      interfaceName: 'swift-fox-wg-client',
+      interfaceIP: '10.71.139.103/32',
+      peerNames: ['swift-fox-wg-client-peer1'],
+      importedPeerCount: 1,
+      reusedExistingInterface: false,
+      skippedDuplicatePeers: null,
+    });
+
+    await dialog.getByRole('button', { name: 'Add client' }).click();
+
+    await expect(dialog).toBeHidden();
+    const toast = page
+      .getByRole('status')
+      .filter({ hasText: 'WireGuard client "swift-fox-wg-client" imported' });
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText('Created with 1 peer.');
+  });
+
   test('edits L2TP client via PUT after prefilling from GET endpoint', async ({
     page,
     context,

@@ -12,6 +12,7 @@ import {
   type CreateWireguardClientRequest,
   type CreateWireguardClientResponse,
   type ImportWireguardConfigRequest,
+  type ImportWireguardConfigResponse,
   type UpdateL2TPClientRequest,
   type VPNClient,
   type VPNClientResponse,
@@ -23,6 +24,7 @@ import { EditWgClientDialog } from '../dialogs/EditWgClientDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
 import { PAGE_SIZE } from '../utils';
+import { summarizeWireguardImport } from '../wgClientSummary';
 import { ClientsTable } from './ClientsTable';
 import { SectionHeader } from './SectionHeader';
 
@@ -110,8 +112,9 @@ export function ClientsSection({
       toast.notify({ title: 'Not connected to router', tone: 'danger' });
       return;
     }
+    let imported: ImportWireguardConfigResponse;
     try {
-      await importWireguardConfig(creds, req);
+      imported = await importWireguardConfig(creds, req);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -127,7 +130,10 @@ export function ClientsSection({
       throw err;
     }
     setAdding(false);
-    toast.notify({ title: 'WireGuard config imported', tone: 'success' });
+    toast.notify({
+      ...summarizeWireguardImport(imported.interfaceName, imported),
+      durationMs: 8000,
+    });
     onChanged();
   };
 

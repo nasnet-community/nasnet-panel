@@ -189,7 +189,14 @@ const setupWanRoutes = async (
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: envelope({ interfaceName: name, interfaceIP: '10.0.0.2', peerName: 'peer' }),
+      body: envelope({
+        interfaceName: name,
+        interfaceIP: '10.0.0.2',
+        peerNames: [`${name}-peer1`],
+        importedPeerCount: 1,
+        reusedExistingInterface: false,
+        skippedDuplicatePeers: null,
+      }),
     });
   });
 
