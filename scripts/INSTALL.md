@@ -87,6 +87,10 @@ SSHPASS=secret bash install.sh --config router.env
 | `-v`, `--verbose`    | Verbose output.                                                         |
 | `-h`, `--help`       | Show usage.                                                             |
 
+### The WAN uplink
+
+Right after checking the router, and before it installs any package, the script makes sure the router has an internet uplink. An uplink that is already there is kept as it is: an LTE interface such as `lte1`, an interface already in the `WAN` interface list, or the interface holding the default route. Only when none of these exist does it use `ether1` as the WAN: it takes `ether1` out of the LAN bridge, adds a DHCP client on it, and adds it to the `WAN` list. A router with no `ether1` and no uplink stops here with a message. If your computer is plugged into `ether1` and the script has to turn it into the WAN, it stops and asks you to use another LAN port.
+
 ### The baseline LAN
 
 As its final step, the script prepares the router for the panel and moves the default LAN to `192.168.10.1/24`. It keeps your existing LAN bridge and its ports, adds `192.168.10.1/24` to that bridge, and switches its DHCP server to hand out `192.168.10.2-254`. The old `192.168.88.1` address stays on the bridge for clients that have not renewed yet. It also enables NTP, sets fallback DNS servers when the router has none, and adds the container DNS and container-to-router firewall rules. The change runs as a detached RouterOS job, so it completes even though it briefly interrupts your session. The LAN move needs the default `192.168.88.1/24` LAN with one DHCP server and no static leases; a router that already has `192.168.10.1/24` keeps its LAN as it is.
