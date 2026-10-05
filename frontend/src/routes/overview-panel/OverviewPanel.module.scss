@@ -34,6 +34,8 @@
 }
 
 .chassis {
+  // The port diagram copies the device's physical rear panel, so it never mirrors.
+  direction: ltr;
   display: inline-flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -53,7 +55,7 @@
   min-width: 0;
 
   > div {
-    margin-left: auto;
+    margin-inline-start: auto;
     max-width: 100%;
     min-width: 0;
   }
@@ -64,7 +66,7 @@
     justify-content: flex-start;
 
     > div {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
   }
 }
@@ -261,7 +263,7 @@
   flex: 0 0 100%;
   flex-direction: column;
   gap: var(--space-xs);
-  padding-left: calc(8px + var(--space-sm));
+  padding-inline-start: calc(8px + var(--space-sm));
 }
 
 .uplinkIp {

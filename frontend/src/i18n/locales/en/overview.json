@@ -1,1 +1,147 @@
-{}
+{
+  "dashboard": {
+    "notFound": "Router not found.",
+    "unreachableTitle": "Router unreachable",
+    "unreachableBody": "Nasnet Panel got no response from {{name}}. Check that the router is powered on and reachable, then try again.",
+    "retry": "Retry",
+    "sectionsAria": "Router sections",
+    "userGuide": "Read the user guide"
+  },
+  "banner": {
+    "routerFallback": "Router",
+    "renameAria": "Rename router",
+    "uptime": "uptime"
+  },
+  "traffic": {
+    "title": "Network Traffic",
+    "selectIfaceAria": "Select interface for traffic",
+    "download": "Download",
+    "upload": "Upload",
+    "mbps": "{{value}} Mb/s",
+    "loading": "Loading traffic data",
+    "noData": "No traffic data collected for this interface yet",
+    "loadFailed": "Failed to load traffic data",
+    "windowMinutes": "-{{value}}m",
+    "windowSeconds": "-{{value}}s",
+    "now": "now"
+  },
+  "resources": {
+    "heading": "Resources",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "disk": "Disk",
+    "cpuAria": "CPU {{value}}",
+    "memoryAria": "Memory {{value}}",
+    "diskAria": "Disk {{value}}",
+    "cores_one": "{{value}} core",
+    "cores_other": "{{value}} cores",
+    "critical": "Critical",
+    "high": "High",
+    "normal": "Normal"
+  },
+  "network": {
+    "heading": "Network",
+    "dhcpTitle": "Default DHCP Server",
+    "view": "View",
+    "noLeases": "No active leases",
+    "dynamic": "dynamic",
+    "static": "static",
+    "vpnTitle": "VPN Clients",
+    "noVpnClients": "No clients connected"
+  },
+  "system": {
+    "heading": "System",
+    "infoTitle": "System Information",
+    "hostname": "Hostname",
+    "model": "Model",
+    "buildTime": "Build Time",
+    "architecture": "Architecture",
+    "hardwareTitle": "Hardware Details",
+    "identity": "Identity",
+    "board": "Board",
+    "updateChannel": "Update Channel",
+    "license": "License",
+    "serial": "Serial"
+  },
+  "rename": {
+    "title": "Rename router",
+    "description": "Updates the router's system identity.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "placeholder": "Router name",
+    "success": "Router renamed",
+    "failed": "Rename failed"
+  },
+  "power": {
+    "rebootTitle": "Reboot router?",
+    "shutdownTitle": "Shutdown router?",
+    "rebootDescription": "The router will restart. Connectivity drops briefly.",
+    "shutdownDescription": "The router will power off. You will need physical access to turn it back on.",
+    "reboot": "Reboot",
+    "shutdown": "Shutdown",
+    "rebootInitiated": "Reboot initiated",
+    "shutdownInitiated": "Shutdown initiated",
+    "rebootFailed": "Failed to reboot router",
+    "shutdownFailed": "Failed to shutdown router"
+  },
+  "skeleton": {
+    "loadingAria": "Loading overview"
+  },
+  "connectivity": {
+    "title": "Connectivity",
+    "listAria": "Link reachability",
+    "foreign": "Foreign",
+    "domestic": "Domestic",
+    "vpn": "VPN",
+    "badgeUp": "UP",
+    "badgeDown": "DOWN",
+    "badgeUnknown": "UNKNOWN",
+    "healthy": "Healthy",
+    "warning": "Warning",
+    "noData": "No data"
+  },
+  "uplink": {
+    "title": "Uplink IP Addresses",
+    "empty": "No uplink interfaces detected",
+    "noAddress": "no address",
+    "kind": {
+      "starlink": "starlink",
+      "mobile": "mobile",
+      "fiber": "fiber",
+      "ether": "ether"
+    },
+    "carriers": {
+      "hamrahAval": "Hamrah-e-Aval",
+      "irancell": "Irancell"
+    }
+  },
+  "ports": {
+    "status": {
+      "up": "up",
+      "down": "down",
+      "disabled": "disabled",
+      "absent": "not detected"
+    },
+    "duplexFull": "{{rate}} full duplex",
+    "duplexHalf": "{{rate}} half duplex",
+    "rebootRouter": "Reboot router",
+    "shutdownRouter": "Shutdown router",
+    "rebootLabel": "Reboot",
+    "rearPanel": "{{model}} rear panel"
+  },
+  "cableTest": {
+    "title": "Cable Test",
+    "description": "Check an ethernet cable for open or shorted pairs and the distance to the fault. The link on the tested port may drop for a few seconds.",
+    "interfaceLabel": "Ethernet interface",
+    "selectPlaceholder": "Select interface",
+    "testing": "Testing…",
+    "run": "Run cable test",
+    "loadFailed": "Failed to load ethernet interfaces.",
+    "failed": "Cable test failed.",
+    "pairHeader": "Pair",
+    "pairN": "Pair {{index}}",
+    "statusHeader": "Status",
+    "distanceHeader": "Fault distance",
+    "distance": "{{value}} m"
+  }
+}

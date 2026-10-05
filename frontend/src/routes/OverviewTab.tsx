@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Activity,
@@ -54,6 +55,7 @@ import {
 import { useRouter, useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { useThemeColors } from '../utils/theme-colors';
+import { useFormat } from '../utils/useFormat';
 import { matchesWanCategory } from './wan/types';
 import { ConnectivityCard } from './overview-panel/ConnectivityCard';
 import { RouterPortDiagramCard } from './overview-panel/RouterPortDiagramCard';
@@ -69,8 +71,8 @@ const toneForPct = (pct: number): 'success' | 'warning' | 'danger' =>
 
 const statusBadgeTone = (pct: number): 'success' | 'warning' | 'danger' => toneForPct(pct);
 
-const statusBadgeLabel = (pct: number): string =>
-  pct >= 85 ? 'Critical' : pct >= 65 ? 'High' : 'Normal';
+const statusBadgeKey = (pct: number) =>
+  pct >= 85 ? 'resources.critical' : pct >= 65 ? 'resources.high' : 'resources.normal';
 
 const toneVar = (tone: 'success' | 'warning' | 'danger'): string =>
   tone === 'danger'
@@ -85,11 +87,12 @@ const miniBarStyle = (pct: number, tone: 'success' | 'warning' | 'danger'): Reac
     ['--_tone' as string]: toneVar(tone),
   }) as React.CSSProperties;
 
-const formatMbps = (kbps: number) => `${(kbps / 1000).toFixed(2)} Mb/s`;
-
 const OVERVIEW_REFRESH_MS = 3000;
 const GRAPH_REFRESH_MS = 10_000;
 const DEFAULT_TRAFFIC_INTERFACE = 'ether1';
+
+// The fallback messages are translated at render so they follow a language change.
+type GraphError = { key: 'traffic.noData' | 'traffic.loadFailed' } | { message: string };
 
 const toTrafficSamples = (data: InterfaceGraphSample[]): TrafficSample[] => {
   const samples: TrafficSample[] = [];
@@ -109,6 +112,8 @@ const toTrafficSamples = (data: InterfaceGraphSample[]): TrafficSample[] => {
 };
 
 export function OverviewTab() {
+  const { t } = useTranslation('overview');
+  const fmt = useFormat();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const router = useRouter(id);
@@ -123,12 +128,23 @@ export function OverviewTab() {
   const [selectedIface, setSelectedIface] = useState<string>(DEFAULT_TRAFFIC_INTERFACE);
   const ifaceDefaultApplied = useRef(false);
   const [graphLoading, setGraphLoading] = useState(false);
-  const [graphError, setGraphError] = useState<string | null>(null);
+  const [graphError, setGraphError] = useState<GraphError | null>(null);
   const [powerAction, setPowerAction] = useState<'reboot' | 'shutdown' | null>(null);
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameInput, setRenameInput] = useState('');
   const [renaming, setRenaming] = useState(false);
   const colors = useThemeColors();
+  const formatMbps = useCallback(
+    (kbps: number) =>
+      t('traffic.mbps', {
+        value: fmt.number(kbps / 1000, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+          useGrouping: false,
+        }),
+      }),
+    [t, fmt],
+  );
   const toast = useToast();
   const { upsertRouter } = useRouterStore();
 
@@ -157,11 +173,11 @@ export function OverviewTab() {
     try {
       await setSystemIdentity({ host: router.host, ...creds }, newName);
       upsertRouter({ ...router, name: newName, hostname: newName });
-      toast.notify({ title: 'Router renamed', tone: 'success' });
+      toast.notify({ title: t('rename.success'), tone: 'success' });
       setRenameOpen(false);
     } catch (err) {
       toast.notify({
-        title: 'Rename failed',
+        title: t('rename.failed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -179,15 +195,15 @@ export function OverviewTab() {
     try {
       if (action === 'reboot') {
         await rebootSystem({ host, ...creds });
-        toast.notify({ title: 'Reboot initiated', tone: 'warning' });
+        toast.notify({ title: t('power.rebootInitiated'), tone: 'warning' });
       } else {
         await shutdownSystem({ host, ...creds });
-        toast.notify({ title: 'Shutdown initiated', tone: 'warning' });
+        toast.notify({ title: t('power.shutdownInitiated'), tone: 'warning' });
       }
       navigate('/');
     } catch (err) {
       toast.notify({
-        title: `Failed to ${action} router`,
+        title: t(action === 'reboot' ? 'power.rebootFailed' : 'power.shutdownFailed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -290,9 +306,11 @@ export function OverviewTab() {
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && err.status === 404) {
-          setGraphError('No traffic data collected for this interface yet');
+          setGraphError({ key: 'traffic.noData' });
         } else {
-          setGraphError(err instanceof Error ? err.message : 'Failed to load traffic data');
+          setGraphError(
+            err instanceof Error ? { message: err.message } : { key: 'traffic.loadFailed' },
+          );
         }
       } finally {
         if (!cancelled) {
@@ -341,7 +359,16 @@ export function OverviewTab() {
   const windowSec =
     traffic.length > 1 ? Math.round((traffic[traffic.length - 1].t - traffic[0].t) / 1000) : 0;
   const windowLabel =
-    windowSec >= 60 ? `-${Math.round(windowSec / 60)}m` : windowSec > 0 ? `-${windowSec}s` : '';
+    windowSec >= 60
+      ? t('traffic.windowMinutes', { value: fmt.number(Math.round(windowSec / 60)) })
+      : windowSec > 0
+        ? t('traffic.windowSeconds', { value: fmt.number(windowSec) })
+        : '';
+  const graphErrorText = graphError
+    ? 'message' in graphError
+      ? graphError.message
+      : t(graphError.key)
+    : null;
 
   if (!id || !overview) {
     return <OverviewSkeleton />;
@@ -354,12 +381,12 @@ export function OverviewTab() {
           <div className={styles.bannerLeft}>
             <h1 className={styles.routerTitleRow}>
               <RouterIcon size={18} aria-hidden />
-              {router?.name ?? 'Router'}
+              {router?.name ?? t('banner.routerFallback')}
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={openRename}
-                aria-label="Rename router"
+                aria-label={t('banner.renameAria')}
                 data-testid="rename-router"
               >
                 <Pencil size={14} aria-hidden />
@@ -376,7 +403,7 @@ export function OverviewTab() {
               <span className={styles.statValue} data-testid="overview-uptime">
                 {overview.uptime}
               </span>{' '}
-              <span>uptime</span>
+              <span>{t('banner.uptime')}</span>
             </span>
           </div>
           <div className={styles.bannerRight}>
@@ -396,12 +423,12 @@ export function OverviewTab() {
             <div className={styles.iconCircle} aria-hidden>
               <Activity size={16} />
             </div>
-            Network Traffic
+            {t('traffic.title')}
           </div>
           {interfaces.length > 0 ? (
             <Select
               className={styles.ifaceSelect}
-              aria-label="Select interface for traffic"
+              aria-label={t('traffic.selectIfaceAria')}
               value={selectedIface}
               onChange={setSelectedIface}
               options={interfaces.map((i) => ({
@@ -414,13 +441,13 @@ export function OverviewTab() {
         <div className={styles.trafficLine}>
           <div className={styles.trafficColumn}>
             <span className={styles.trafficLabel}>
-              <span style={{ color: colors.success }}>↓</span> Download
+              <span style={{ color: colors.success }}>↓</span> {t('traffic.download')}
             </span>
             <span className={styles.trafficValue}>{formatMbps(downloadKbps)}</span>
           </div>
           <div className={styles.trafficColumn}>
             <span className={styles.trafficLabel}>
-              <span style={{ color: colors.warning }}>↑</span> Upload
+              <span style={{ color: colors.warning }}>↑</span> {t('traffic.upload')}
             </span>
             <span className={styles.trafficValue}>{formatMbps(uploadKbps)}</span>
           </div>
@@ -431,37 +458,35 @@ export function OverviewTab() {
           ) : (
             <div className={styles.networkEmpty}>
               <span>
-                {graphLoading
-                  ? 'Loading traffic data'
-                  : (graphError ?? 'No traffic data collected for this interface yet')}
+                {graphLoading ? t('traffic.loading') : (graphErrorText ?? t('traffic.noData'))}
               </span>
             </div>
           )}
         </div>
         <div className={styles.chartAxis}>
           <span>{windowLabel}</span>
-          <span>now</span>
+          <span>{t('traffic.now')}</span>
         </div>
         <div className={styles.chartLegend}>
           <span className={styles.chartLegendItem}>
             <span className={styles.chartLegendSwatch} style={{ background: colors.success }} />
-            Download
+            {t('traffic.download')}
           </span>
           <span className={styles.chartLegendItem}>
             <span className={styles.chartLegendSwatch} style={{ background: colors.warning }} />
-            Upload
+            {t('traffic.upload')}
           </span>
         </div>
       </Card>
 
       <div>
-        <SectionHeading>Resources</SectionHeading>
+        <SectionHeading>{t('resources.heading')}</SectionHeading>
         <SectionGrid>
           <Card className={styles.resourceCard}>
             <div className={styles.resourceHeader}>
-              <h4 className={styles.resourceTitle}>CPU</h4>
+              <h4 className={styles.resourceTitle}>{t('resources.cpu')}</h4>
               <Badge tone={statusBadgeTone(overview.cpuLoad)}>
-                {statusBadgeLabel(overview.cpuLoad)}
+                {t(statusBadgeKey(overview.cpuLoad))}
               </Badge>
             </div>
             <div className={styles.resourceBody}>
@@ -470,7 +495,9 @@ export function OverviewTab() {
                 size={96}
                 strokeWidth={8}
                 tone={toneForPct(overview.cpuLoad)}
-                ariaLabel={`CPU ${overview.cpuLoad}%`}
+                ariaLabel={t('resources.cpuAria', {
+                  value: fmt.percent(overview.cpuLoad / 100, 2),
+                })}
               />
             </div>
             <div
@@ -478,14 +505,17 @@ export function OverviewTab() {
               style={miniBarStyle(overview.cpuLoad, toneForPct(overview.cpuLoad))}
             />
             <div className={styles.resourceFooter} data-testid="overview-cpu">
-              {overview.cpuCount} {overview.cpuCount === 1 ? 'core' : 'cores'}
+              {t('resources.cores', {
+                count: overview.cpuCount,
+                value: fmt.number(overview.cpuCount),
+              })}
             </div>
           </Card>
 
           <Card className={styles.resourceCard}>
             <div className={styles.resourceHeader}>
-              <h4 className={styles.resourceTitle}>Memory</h4>
-              <Badge tone={statusBadgeTone(memoryPct)}>{statusBadgeLabel(memoryPct)}</Badge>
+              <h4 className={styles.resourceTitle}>{t('resources.memory')}</h4>
+              <Badge tone={statusBadgeTone(memoryPct)}>{t(statusBadgeKey(memoryPct))}</Badge>
             </div>
             <div className={styles.resourceBody}>
               <CircularProgress
@@ -493,7 +523,7 @@ export function OverviewTab() {
                 size={96}
                 strokeWidth={8}
                 tone={toneForPct(memoryPct)}
-                ariaLabel={`Memory ${memoryPct}%`}
+                ariaLabel={t('resources.memoryAria', { value: fmt.percent(memoryPct / 100) })}
               />
             </div>
             <div
@@ -507,8 +537,8 @@ export function OverviewTab() {
 
           <Card className={styles.resourceCard}>
             <div className={styles.resourceHeader}>
-              <h4 className={styles.resourceTitle}>Disk</h4>
-              <Badge tone={statusBadgeTone(diskPct)}>{statusBadgeLabel(diskPct)}</Badge>
+              <h4 className={styles.resourceTitle}>{t('resources.disk')}</h4>
+              <Badge tone={statusBadgeTone(diskPct)}>{t(statusBadgeKey(diskPct))}</Badge>
             </div>
             <div className={styles.resourceBody}>
               <CircularProgress
@@ -516,7 +546,7 @@ export function OverviewTab() {
                 size={96}
                 strokeWidth={8}
                 tone={toneForPct(diskPct)}
-                ariaLabel={`Disk ${diskPct}%`}
+                ariaLabel={t('resources.diskAria', { value: fmt.percent(diskPct / 100) })}
               />
             </div>
             <div className={styles.miniBar} style={miniBarStyle(diskPct, toneForPct(diskPct))} />
@@ -528,7 +558,7 @@ export function OverviewTab() {
       </div>
 
       <div>
-        <SectionHeading>Network</SectionHeading>
+        <SectionHeading>{t('network.heading')}</SectionHeading>
         <SectionGrid>
           <Card className={styles.networkCard}>
             <div className={styles.networkCardHeader}>
@@ -536,10 +566,10 @@ export function OverviewTab() {
                 <div className={cx(styles.iconCircle, styles.iconCircleInfo)} aria-hidden>
                   <NetworkIcon size={16} />
                 </div>
-                Default DHCP Server
+                {t('network.dhcpTitle')}
               </div>
               <Button variant="secondary" size="sm" onClick={() => navigate(`/router/${id}/lan`)}>
-                View
+                {t('network.view')}
               </Button>
             </div>
             {dhcpLeaseList.length === 0 ? (
@@ -547,7 +577,7 @@ export function OverviewTab() {
                 <div className={cx(styles.iconCircle, styles.iconCircleInfo)} aria-hidden>
                   <NetworkIcon size={16} />
                 </div>
-                <span>No active leases</span>
+                <span>{t('network.noLeases')}</span>
               </div>
             ) : (
               <div className={styles.vpnList}>
@@ -557,7 +587,9 @@ export function OverviewTab() {
                     <span className={styles.vpnName} title={l.hostName || l.macAddress}>
                       {l.hostName || l.macAddress}
                     </span>
-                    <Badge tone="neutral">{l.dynamic ? 'dynamic' : 'static'}</Badge>
+                    <Badge tone="neutral">
+                      {l.dynamic ? t('network.dynamic') : t('network.static')}
+                    </Badge>
                     <span className={styles.vpnAddress} title={l.address}>
                       {l.address}
                     </span>
@@ -577,10 +609,10 @@ export function OverviewTab() {
                 <div className={cx(styles.iconCircle, styles.iconCircleSuccess)} aria-hidden>
                   <Shield size={16} />
                 </div>
-                VPN Clients
+                {t('network.vpnTitle')}
               </div>
               <Button variant="secondary" size="sm" onClick={() => navigate(`/router/${id}/wan`)}>
-                View
+                {t('network.view')}
               </Button>
             </div>
             {vpnClients.length === 0 ? (
@@ -588,7 +620,7 @@ export function OverviewTab() {
                 <div className={cx(styles.iconCircle, styles.iconCircleSuccess)} aria-hidden>
                   <Shield size={16} />
                 </div>
-                <span>No clients connected</span>
+                <span>{t('network.noVpnClients')}</span>
               </div>
             ) : (
               <div className={styles.vpnList}>
@@ -616,20 +648,20 @@ export function OverviewTab() {
       </div>
 
       <div>
-        <SectionHeading>System</SectionHeading>
+        <SectionHeading>{t('system.heading')}</SectionHeading>
         <SectionGrid>
           <Card>
             <CardHeader>
-              <CardTitle>System Information</CardTitle>
+              <CardTitle>{t('system.infoTitle')}</CardTitle>
             </CardHeader>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Hostname</span>
+              <span className={styles.infoKey}>{t('system.hostname')}</span>
               <span className={styles.infoVal} data-testid="overview-hostname">
                 {router?.hostname ?? '—'}
               </span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Model</span>
+              <span className={styles.infoKey}>{t('system.model')}</span>
               <span className={styles.infoVal} data-testid="overview-model">
                 {overview.model}
               </span>
@@ -639,38 +671,38 @@ export function OverviewTab() {
               <span className={styles.infoVal}>{overview.version}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Build Time</span>
+              <span className={styles.infoKey}>{t('system.buildTime')}</span>
               <span className={styles.infoVal} data-testid="overview-build-time">
                 {overview.buildTime || '—'}
               </span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Architecture</span>
+              <span className={styles.infoKey}>{t('system.architecture')}</span>
               <span className={styles.infoVal}>arm64</span>
             </div>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Hardware Details</CardTitle>
+              <CardTitle>{t('system.hardwareTitle')}</CardTitle>
             </CardHeader>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Identity</span>
+              <span className={styles.infoKey}>{t('system.identity')}</span>
               <span className={styles.infoVal}>{overview.identity || '—'}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Board</span>
+              <span className={styles.infoKey}>{t('system.board')}</span>
               <span className={styles.infoVal}>{overview.model}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Update Channel</span>
+              <span className={styles.infoKey}>{t('system.updateChannel')}</span>
               <span className={styles.infoVal}>{overview.updateChannel || '—'}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>License</span>
+              <span className={styles.infoKey}>{t('system.license')}</span>
               <span className={styles.infoVal}>{overview.license || '—'}</span>
             </div>
             <div className={styles.infoRow}>
-              <span className={styles.infoKey}>Serial</span>
+              <span className={styles.infoKey}>{t('system.serial')}</span>
               <span className={styles.infoVal}>{overview.serial || '—'}</span>
             </div>
           </Card>
@@ -682,13 +714,13 @@ export function OverviewTab() {
         onClose={() => {
           if (!renaming) setRenameOpen(false);
         }}
-        title="Rename router"
-        description="Updates the router's system identity."
+        title={t('rename.title')}
+        description={t('rename.description')}
         size="sm"
         footer={
           <>
             <Button variant="secondary" onClick={() => setRenameOpen(false)} disabled={renaming}>
-              Cancel
+              {t('rename.cancel')}
             </Button>
             <Button
               onClick={() => {
@@ -696,7 +728,7 @@ export function OverviewTab() {
               }}
               disabled={renaming || !renameInput.trim()}
             >
-              Save
+              {t('rename.save')}
             </Button>
           </>
         }
@@ -704,7 +736,7 @@ export function OverviewTab() {
         <Input
           value={renameInput}
           onChange={(e) => setRenameInput(e.target.value)}
-          placeholder="Router name"
+          placeholder={t('rename.placeholder')}
           autoFocus
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !renaming) {
@@ -717,14 +749,12 @@ export function OverviewTab() {
 
       <ConfirmDialog
         open={powerAction !== null}
-        title={powerAction === 'shutdown' ? 'Shutdown router?' : 'Reboot router?'}
+        title={powerAction === 'shutdown' ? t('power.shutdownTitle') : t('power.rebootTitle')}
         description={
-          powerAction === 'shutdown'
-            ? 'The router will power off. You will need physical access to turn it back on.'
-            : 'The router will restart. Connectivity drops briefly.'
+          powerAction === 'shutdown' ? t('power.shutdownDescription') : t('power.rebootDescription')
         }
         destructive
-        confirmLabel={powerAction === 'shutdown' ? 'Shutdown' : 'Reboot'}
+        confirmLabel={powerAction === 'shutdown' ? t('power.shutdown') : t('power.reboot')}
         onConfirm={() => {
           if (powerAction) {
             void runPowerAction(powerAction);
@@ -737,8 +767,9 @@ export function OverviewTab() {
 }
 
 function OverviewSkeleton() {
+  const { t } = useTranslation('overview');
   return (
-    <Stack aria-busy="true" aria-label="Loading overview">
+    <Stack aria-busy="true" aria-label={t('skeleton.loadingAria')}>
       <Card className={styles.bannerCard}>
         <div className={styles.bannerHeader}>
           <div className={styles.bannerLeft}>
@@ -762,7 +793,7 @@ function OverviewSkeleton() {
       </Card>
 
       <div>
-        <SectionHeading>Resources</SectionHeading>
+        <SectionHeading>{t('resources.heading')}</SectionHeading>
         <SectionGrid>
           {[0, 1, 2].map((i) => (
             <Card key={i} className={styles.resourceCard}>
@@ -783,7 +814,7 @@ function OverviewSkeleton() {
       </div>
 
       <div>
-        <SectionHeading>Network</SectionHeading>
+        <SectionHeading>{t('network.heading')}</SectionHeading>
         <SectionGrid>
           <Card className={styles.networkCard}>
             <div className={styles.networkCardHeader}>
@@ -810,7 +841,7 @@ function OverviewSkeleton() {
       </div>
 
       <div>
-        <SectionHeading>System</SectionHeading>
+        <SectionHeading>{t('system.heading')}</SectionHeading>
         <SectionGrid>
           {[0, 1].map((i) => (
             <Card key={i}>

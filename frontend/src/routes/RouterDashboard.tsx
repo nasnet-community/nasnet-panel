@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, Tabs } from '@nasnet/ui';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
@@ -12,6 +13,7 @@ import { USER_GUIDE_SECTIONS, USER_GUIDE_URL } from './help/links';
 import styles from './RouterDashboard.module.scss';
 
 export function RouterDashboard() {
+  const { t } = useTranslation('overview');
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
   const location = useLocation();
@@ -29,7 +31,7 @@ export function RouterDashboard() {
   if (!router) {
     return (
       <div className={styles.contentShell}>
-        <div className={styles.notFound}>Router not found.</div>
+        <div className={styles.notFound}>{t('dashboard.notFound')}</div>
       </div>
     );
   }
@@ -51,22 +53,19 @@ export function RouterDashboard() {
 
   const activeTab = onWizard
     ? 'diagnostics'
-    : (TABS.find((t) => {
-        const full = `/router/${router.id}${t.path ? `/${t.path}` : ''}`;
-        return t.path === '' ? location.pathname === full : location.pathname.startsWith(full);
+    : (TABS.find((tab) => {
+        const full = `/router/${router.id}${tab.path ? `/${tab.path}` : ''}`;
+        return tab.path === '' ? location.pathname === full : location.pathname.startsWith(full);
       })?.id ?? 'overview');
 
   if (wizardStatus === 'unreachable' && !onWizard) {
     return (
       <div className={styles.contentShell}>
         <div className={styles.unreachable} role="alert">
-          <h2 className={styles.unreachableTitle}>Router unreachable</h2>
-          <p>
-            Nasnet Panel got no response from {router.name || router.host}. Check that the router is
-            powered on and reachable, then try again.
-          </p>
+          <h2 className={styles.unreachableTitle}>{t('dashboard.unreachableTitle')}</h2>
+          <p>{t('dashboard.unreachableBody', { name: router.name || router.host })}</p>
           <Button variant="success" onClick={retry}>
-            Retry
+            {t('dashboard.retry')}
           </Button>
         </div>
       </div>
@@ -86,11 +85,11 @@ export function RouterDashboard() {
               items={TABS}
               activeId={activeTab}
               onChange={(tabId) => {
-                const item = TABS.find((t) => t.id === tabId);
+                const item = TABS.find((tab) => tab.id === tabId);
                 if (!item) return;
                 navigate(`/router/${router.id}${item.path ? `/${item.path}` : ''}`);
               }}
-              ariaLabel="Router sections"
+              ariaLabel={t('dashboard.sectionsAria')}
             />
           </div>
         </div>
@@ -106,7 +105,7 @@ export function RouterDashboard() {
               rel="noopener noreferrer"
             >
               <BookOpen size={16} aria-hidden />
-              Read the user guide
+              {t('dashboard.userGuide')}
             </a>
           </footer>
         ) : null}

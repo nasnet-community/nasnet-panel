@@ -1,1 +1,147 @@
-{}
+{
+  "dashboard": {
+    "notFound": "روتر پیدا نشد.",
+    "unreachableTitle": "روتر در دسترس نیست",
+    "unreachableBody": "Nasnet Panel پاسخی از {{name}} دریافت نکرد. بررسی کنید روتر روشن و در دسترس باشد، سپس دوباره تلاش کنید.",
+    "retry": "تلاش دوباره",
+    "sectionsAria": "بخش‌های روتر",
+    "userGuide": "مطالعهٔ راهنمای کاربر"
+  },
+  "banner": {
+    "routerFallback": "روتر",
+    "renameAria": "تغییر نام روتر",
+    "uptime": "زمان فعالیت"
+  },
+  "traffic": {
+    "title": "ترافیک شبکه",
+    "selectIfaceAria": "انتخاب اینترفیس برای ترافیک",
+    "download": "دانلود",
+    "upload": "آپلود",
+    "mbps": "{{value}} Mb/s",
+    "loading": "در حال بارگذاری داده‌های ترافیک",
+    "noData": "هنوز داده‌ای از ترافیک این اینترفیس جمع‌آوری نشده است",
+    "loadFailed": "بارگذاری داده‌های ترافیک ناموفق بود",
+    "windowMinutes": "{{value}} دقیقه پیش",
+    "windowSeconds": "{{value}} ثانیه پیش",
+    "now": "اکنون"
+  },
+  "resources": {
+    "heading": "منابع",
+    "cpu": "CPU",
+    "memory": "حافظه",
+    "disk": "دیسک",
+    "cpuAria": "CPU {{value}}",
+    "memoryAria": "حافظه {{value}}",
+    "diskAria": "دیسک {{value}}",
+    "cores_one": "{{value}} هسته",
+    "cores_other": "{{value}} هسته",
+    "critical": "بحرانی",
+    "high": "بالا",
+    "normal": "عادی"
+  },
+  "network": {
+    "heading": "شبکه",
+    "dhcpTitle": "سرور DHCP پیش‌فرض",
+    "view": "مشاهده",
+    "noLeases": "هیچ اجارهٔ فعالی وجود ندارد",
+    "dynamic": "پویا",
+    "static": "ثابت",
+    "vpnTitle": "کلاینت‌های VPN",
+    "noVpnClients": "هیچ کلاینتی متصل نیست"
+  },
+  "system": {
+    "heading": "سیستم",
+    "infoTitle": "اطلاعات سیستم",
+    "hostname": "نام میزبان",
+    "model": "مدل",
+    "buildTime": "زمان ساخت",
+    "architecture": "معماری",
+    "hardwareTitle": "جزئیات سخت‌افزار",
+    "identity": "شناسه",
+    "board": "برد",
+    "updateChannel": "کانال به‌روزرسانی",
+    "license": "لایسنس",
+    "serial": "شماره سریال"
+  },
+  "rename": {
+    "title": "تغییر نام روتر",
+    "description": "شناسهٔ سیستمی (identity) روتر را به‌روزرسانی می‌کند.",
+    "cancel": "لغو",
+    "save": "ذخیره",
+    "placeholder": "نام روتر",
+    "success": "نام روتر تغییر کرد",
+    "failed": "تغییر نام ناموفق بود"
+  },
+  "power": {
+    "rebootTitle": "روتر راه‌اندازی مجدد شود؟",
+    "shutdownTitle": "روتر خاموش شود؟",
+    "rebootDescription": "روتر دوباره راه‌اندازی می‌شود و اتصال برای مدت کوتاهی قطع خواهد شد.",
+    "shutdownDescription": "روتر خاموش می‌شود. برای روشن کردن دوباره به دسترسی فیزیکی نیاز خواهید داشت.",
+    "reboot": "راه‌اندازی مجدد",
+    "shutdown": "خاموش کردن",
+    "rebootInitiated": "راه‌اندازی مجدد آغاز شد",
+    "shutdownInitiated": "خاموش شدن آغاز شد",
+    "rebootFailed": "راه‌اندازی مجدد روتر ناموفق بود",
+    "shutdownFailed": "خاموش کردن روتر ناموفق بود"
+  },
+  "skeleton": {
+    "loadingAria": "در حال بارگذاری نمای کلی"
+  },
+  "connectivity": {
+    "title": "اتصال",
+    "listAria": "دسترس‌پذیری لینک‌ها",
+    "foreign": "خارجی",
+    "domestic": "داخلی",
+    "vpn": "VPN",
+    "badgeUp": "برقرار",
+    "badgeDown": "قطع",
+    "badgeUnknown": "نامشخص",
+    "healthy": "سالم",
+    "warning": "هشدار",
+    "noData": "بدون داده"
+  },
+  "uplink": {
+    "title": "آدرس‌های IP آپلینک",
+    "empty": "هیچ اینترفیس آپلینکی شناسایی نشد",
+    "noAddress": "بدون آدرس",
+    "kind": {
+      "starlink": "Starlink",
+      "mobile": "موبایل",
+      "fiber": "فیبر",
+      "ether": "اترنت"
+    },
+    "carriers": {
+      "hamrahAval": "همراه اول",
+      "irancell": "ایرانسل"
+    }
+  },
+  "ports": {
+    "status": {
+      "up": "متصل",
+      "down": "قطع",
+      "disabled": "غیرفعال",
+      "absent": "شناسایی نشد"
+    },
+    "duplexFull": "{{rate}} تمام‌دوطرفه",
+    "duplexHalf": "{{rate}} نیم‌دوطرفه",
+    "rebootRouter": "راه‌اندازی مجدد روتر",
+    "shutdownRouter": "خاموش کردن روتر",
+    "rebootLabel": "راه‌اندازی مجدد",
+    "rearPanel": "پنل پشتی {{model}}"
+  },
+  "cableTest": {
+    "title": "تست کابل",
+    "description": "کابل اترنت را از نظر زوج‌سیم‌های قطع یا اتصال کوتاه و فاصله تا محل خرابی بررسی کنید. ممکن است لینک پورت تست‌شده برای چند ثانیه قطع شود.",
+    "interfaceLabel": "اینترفیس اترنت",
+    "selectPlaceholder": "انتخاب اینترفیس",
+    "testing": "در حال تست…",
+    "run": "اجرای تست کابل",
+    "loadFailed": "بارگذاری اینترفیس‌های اترنت ناموفق بود.",
+    "failed": "تست کابل ناموفق بود.",
+    "pairHeader": "زوج",
+    "pairN": "زوج {{index}}",
+    "statusHeader": "وضعیت",
+    "distanceHeader": "فاصلهٔ خرابی",
+    "distance": "{{value}} متر"
+  }
+}

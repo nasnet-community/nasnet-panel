@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PortSlot } from '../PortSlot';
 import type { FormFactor, PanelProps } from '../types';
 import { cx } from '../utils';
@@ -11,6 +12,7 @@ const FORM_CLASS: Record<FormFactor, string> = {
 };
 
 export const PanelChassis: React.FC<PanelProps> = ({ descriptor, slots, onSlotActivate, bare }) => {
+  const { t } = useTranslation('overview');
   const rows = useMemo(() => {
     const byRow = new Map<number, typeof slots>();
     for (const slot of slots) {
@@ -28,7 +30,7 @@ export const PanelChassis: React.FC<PanelProps> = ({ descriptor, slots, onSlotAc
       <div
         className={cx(styles.chassis, bare ? styles.chassisBare : FORM_CLASS[descriptor.form])}
         role="img"
-        aria-label={`${descriptor.displayName} rear panel`}
+        aria-label={t('ports.rearPanel', { model: descriptor.displayName })}
       >
         {rows.map((row, index) => (
           <div className={styles.row} key={row[0]?.id ?? `row-${index}`}>
