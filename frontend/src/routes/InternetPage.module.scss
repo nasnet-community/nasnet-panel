@@ -5,6 +5,9 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  // The diagram box, legend included, reads left to right in every language, like the
+  // diagram itself. The page around it still follows the page direction.
+  direction: ltr;
 }
 
 .viewport {
@@ -188,6 +191,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  // Persian legend text keeps its own direction, so punctuation lands at its end.
+  unicode-bidi: plaintext;
 }
 
 .legendSwatch {
