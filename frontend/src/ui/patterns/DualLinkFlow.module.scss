@@ -1,5 +1,7 @@
 .wrap {
   position: relative;
+  // Absolutely positioned diagram drawn left to right in SVG; it does not mirror in RTL.
+  direction: ltr;
   width: min(100%, 720px);
   aspect-ratio: 5 / 2;
   max-height: 100%;

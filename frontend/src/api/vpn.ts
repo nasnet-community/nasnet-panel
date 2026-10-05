@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import { BACKEND_URL } from './config';
 import { ApiError, apiRequest } from './http';
 
@@ -1009,7 +1010,7 @@ export async function exportOvpnClient(
     signal,
   });
   if (!response.ok) {
-    let message = `Request failed (${response.status})`;
+    let message = i18n.t('api.requestFailed', { ns: 'ui', status: response.status });
     try {
       const body = (await response.json()) as { error?: string; message?: string };
       message = body.error || body.message || message;

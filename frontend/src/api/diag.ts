@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import { apiRequest, ApiError } from './http';
 import { BACKEND_URL } from './config';
 import type { SystemCredentials } from './system';
@@ -57,7 +58,9 @@ export async function fetchDiagReport(creds: SystemCredentials): Promise<string>
       message?: string;
     } | null;
     throw new ApiError(
-      body?.error || body?.message || `Request failed (${response.status})`,
+      body?.error ||
+        body?.message ||
+        i18n.t('api.requestFailed', { ns: 'ui', status: response.status }),
       response.status,
     );
   }

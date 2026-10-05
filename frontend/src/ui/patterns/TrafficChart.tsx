@@ -1,4 +1,6 @@
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useFormat } from '../../utils/useFormat';
 import styles from './TrafficChart.module.scss';
 
 export interface TrafficChartPoint {
@@ -25,17 +27,27 @@ const CHART_W = 100;
 const CHART_H = 40;
 const GRID_ROWS = 4;
 
-const defaultFormat = (kbps: number) => `${(kbps / 1000).toFixed(2)} Mb/s`;
-
 export const TrafficChart: React.FC<TrafficChartProps> = ({
   data,
   colors,
-  formatValue = defaultFormat,
+  formatValue,
   rxLabel = '↓',
   txLabel = '↑',
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const { t } = useTranslation('ui');
+  const format = useFormat();
+  // Grouping off so English output matches the previous `toFixed(2)` text.
+  const formatMbps = (kbps: number) =>
+    t('trafficChart.mbps', {
+      value: format.number(kbps / 1000, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: false,
+      }),
+    });
+  const fmt = formatValue ?? formatMbps;
 
   if (data.length === 0) return null;
 
@@ -66,7 +78,7 @@ export const TrafficChart: React.FC<TrafficChartProps> = ({
   const tooltipLeftPct = CHART_W > 0 ? (hoverX / CHART_W) * 100 : 0;
 
   const timeLabel = hoverPoint
-    ? new Date(hoverPoint.t).toLocaleTimeString([], {
+    ? format.time(hoverPoint.t, {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
@@ -164,13 +176,13 @@ export const TrafficChart: React.FC<TrafficChartProps> = ({
           <div className={styles.chartTooltipRow}>
             <span className={styles.chartLegendSwatch} style={{ background: colors.success }} />
             <span>
-              {rxLabel} {formatValue(hoverPoint.rxKbps)}
+              {rxLabel} {fmt(hoverPoint.rxKbps)}
             </span>
           </div>
           <div className={styles.chartTooltipRow}>
             <span className={styles.chartLegendSwatch} style={{ background: colors.warning }} />
             <span>
-              {txLabel} {formatValue(hoverPoint.txKbps)}
+              {txLabel} {fmt(hoverPoint.txKbps)}
             </span>
           </div>
         </div>

@@ -1,1 +1,73 @@
-{}
+{
+  "api": {
+    "networkFailed": "درخواست شبکه ناموفق بود",
+    "requestFailed": "درخواست ناموفق بود ({{status}})",
+    "scanFailed": "اسکن {{subnet}} ناموفق بود"
+  },
+  "dataTable": {
+    "empty": "نتیجه‌ای یافت نشد"
+  },
+  "dialog": {
+    "cancel": "لغو",
+    "confirm": "تأیید"
+  },
+  "dualLinkFlow": {
+    "ariaLabel": "جریان ترافیک دو لینکی",
+    "domesticSite": "سایت داخلی",
+    "domesticWan": "WAN داخلی",
+    "foreignSite": "سایت خارجی",
+    "router": "روتر",
+    "user": "کاربر"
+  },
+  "fileDrop": {
+    "label": "فایل ‎.rsc مربوط به RouterOS را اینجا رها کنید، یا برای انتخاب فایل کلیک کنید",
+    "uploadAriaLabel": "بارگذاری فایل پیکربندی"
+  },
+  "flowDiagram": {
+    "ariaLabel": "جریان شبکه"
+  },
+  "passwordInput": {
+    "hide": "پنهان کردن رمز عبور",
+    "show": "نمایش رمز عبور"
+  },
+  "select": {
+    "noMatches": "موردی یافت نشد",
+    "placeholder": "انتخاب کنید…",
+    "searchAriaLabel": "جست‌وجوی گزینه‌ها",
+    "searchPlaceholder": "جست‌وجو…",
+    "selectedCount_one": "{{count}} مورد انتخاب شده",
+    "selectedCount_other": "{{count}} مورد انتخاب شده"
+  },
+  "session": {
+    "expiredDescription": "اطلاعات ورود ذخیره‌شده پذیرفته نشد. لطفاً دوباره وارد شوید.",
+    "expiredTitle": "نشست منقضی شد"
+  },
+  "stepper": {
+    "ariaLabel": "پیشرفت راه‌انداز"
+  },
+  "tabs": {
+    "showMenu": "نمایش منوی {{label}}"
+  },
+  "themeToggle": {
+    "dark": "تیره",
+    "light": "روشن",
+    "system": "سیستم",
+    "theme": "پوسته"
+  },
+  "toast": {
+    "regionLabel": "اعلان‌ها"
+  },
+  "trafficChart": {
+    "mbps": "{{value}} Mb/s"
+  },
+  "validators": {
+    "hostInvalid": "یک نشانی IP یا نام میزبان معتبر وارد کنید.",
+    "hostRequired": "میزبان الزامی است.",
+    "nameCharacters": "فقط از حروف، ارقام، خط تیره یا زیرخط استفاده کنید.",
+    "nameRequired": "نام الزامی است.",
+    "nameTooLong": "نام باید حداکثر ۶۴ نویسه باشد.",
+    "password": "رمز عبور",
+    "secretRequired": "{{label}} الزامی است.",
+    "secretTooShort": "{{label}} باید دست‌کم {{min}} نویسه باشد."
+  }
+}

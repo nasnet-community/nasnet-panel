@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import { sleep } from './abort';
 import { apiRequest } from './http';
 import type { ScanProgressEvent } from '../mocks/types';
@@ -91,7 +92,7 @@ export async function* scanSubnet(
         done,
       };
       if (status.status === 'error') {
-        throw new Error(`Scan failed for ${subnet}`);
+        throw new Error(i18n.t('api.scanFailed', { ns: 'ui', subnet }));
       }
       if (done) return;
       await sleep(POLL_INTERVAL_MS, signal);

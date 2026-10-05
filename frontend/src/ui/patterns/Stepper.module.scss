@@ -32,8 +32,8 @@
     content: '';
     position: absolute;
     top: 19px;
-    left: calc(50% + 22px);
-    right: calc(-50% + 22px);
+    inset-inline-start: calc(50% + 22px);
+    inset-inline-end: calc(-50% + 22px);
     height: 2px;
     background: var(--color-border);
     z-index: 0;
@@ -51,7 +51,7 @@
 .wrapVertical .item {
   flex-direction: row;
   align-items: center;
-  text-align: left;
+  text-align: start;
   flex: 0 0 auto;
 
   &:not(:last-child)::after {
