@@ -59,7 +59,7 @@
     "regionLabel": "اعلان‌ها"
   },
   "trafficChart": {
-    "mbps": "{{value}} Mb/s"
+    "mbps": "{{value}} مگابیت بر ثانیه"
   },
   "validators": {
     "hostInvalid": "یک نشانی IP یا نام میزبان معتبر وارد کنید.",
