@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { loadChatwoot, toggleChatwoot } from '../../api';
 import styles from '../HelpPage.module.scss';
 
@@ -8,6 +9,7 @@ const HIDDEN_CLASS = 'woot--hide';
 type ChatState = 'loading' | 'ready' | 'error';
 
 export function ChatPanel() {
+  const { t } = useTranslation('tools');
   const hostRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<ChatState>('loading');
 
@@ -79,10 +81,10 @@ export function ChatPanel() {
     <div className={styles.chatHost} ref={hostRef} data-testid="help-chat">
       {state === 'error' ? (
         <p className={styles.chatError} role="alert">
-          Couldn&apos;t load the support chat. Check your internet connection and reload the page.
+          {t('help.chat.error')}
         </p>
       ) : state === 'loading' ? (
-        <p className={styles.chatLoading}>Loading chat…</p>
+        <p className={styles.chatLoading}>{t('help.chat.loading')}</p>
       ) : null}
     </div>
   );

@@ -14,9 +14,11 @@ import {
   Smartphone,
   Usb,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useFormat } from '../../utils/useFormat';
 import { Tooltip } from '@nasnet/ui';
 import type { ResolvedSlot, SlotKind } from './types';
-import { POWER_ACTION, STATUS_LABEL } from './mapPorts';
+import { POWER_ACTION, statusLabel } from './mapPorts';
 import { cx } from './utils';
 import styles from './OverviewPanel.module.scss';
 
@@ -57,6 +59,10 @@ export interface PortSlotProps {
 }
 
 export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
+  const { t } = useTranslation('overview');
+  const format = useFormat();
+  // The reset button's printed label is prose; the other non-port labels (DC, USB, SIM, LTE) are not.
+  const fixedLabel = slot.kind === 'reset' ? t('ports.rebootLabel') : (slot.label ?? slot.kind);
   const Icon = ICONS[slot.kind] ?? Cable;
   const isSfp = slot.kind === 'sfp';
   const isPort = slot.kind === 'ethernet' || slot.kind === 'sfp';
@@ -88,7 +94,7 @@ export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
           </span>
           <span className={styles.hoverRow}>
             <Gauge size={13} aria-hidden />
-            {STATUS_LABEL[slot.status]}
+            {statusLabel(slot.status, t)}
             {slot.mtu ? ` · ${slot.mtu} MTU` : ''}
           </span>
           {slot.linkSpeed ? (
@@ -100,13 +106,13 @@ export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
           {slot.rxLabel ? (
             <span className={cx(styles.hoverRow, styles.rxRow)}>
               <ArrowDown size={13} aria-hidden />
-              {slot.rxLabel}
+              {format.sizeLabel(slot.rxLabel)}
             </span>
           ) : null}
           {slot.txLabel ? (
             <span className={cx(styles.hoverRow, styles.txRow)}>
               <ArrowUp size={13} aria-hidden />
-              {slot.txLabel}
+              {format.sizeLabel(slot.txLabel)}
             </span>
           ) : null}
         </span>
@@ -131,7 +137,7 @@ export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
           onClick={() => onActivate?.(slot)}
         >
           {socket}
-          <span className={styles.slotLabel}>{slot.label ?? slot.kind}</span>
+          <span className={styles.slotLabel}>{fixedLabel}</span>
         </button>
       </Tooltip>
     );
@@ -140,7 +146,7 @@ export const PortSlot: React.FC<PortSlotProps> = ({ slot, onActivate }) => {
   return (
     <span className={styles.slot}>
       {socket}
-      <span className={styles.slotLabel}>{slot.label ?? slot.kind}</span>
+      <span className={styles.slotLabel}>{fixedLabel}</span>
     </span>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Badge, Card, StatusDot } from '@nasnet/ui';
 import type { InterfaceResponse, IpAddressResponse } from '../../api';
 import { buildUplinks, type UplinkKind } from './uplinks';
@@ -21,6 +23,7 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
   interfaces,
   addresses,
 }) {
+  const { t } = useTranslation('overview');
   const rows = useMemo(() => buildUplinks(interfaces, addresses), [interfaces, addresses]);
 
   return (
@@ -30,7 +33,7 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
           <span className={styles.cardTitleIcon} aria-hidden>
             <Globe size={16} />
           </span>
-          Uplink IP Addresses
+          {t('uplink.title')}
         </div>
       </div>
 
@@ -39,7 +42,7 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
           <span className={styles.cardTitleIcon} aria-hidden>
             <Globe size={16} />
           </span>
-          <span>No uplink interfaces detected</span>
+          <span>{t('uplink.empty')}</span>
         </div>
       ) : (
         <div className={styles.uplinkList}>
@@ -54,9 +57,9 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
                 aria-hidden
               />
               <span className={styles.uplinkName} title={row.ifaceName}>
-                {row.label}
+                {carrierLabel(t, row.label)}
               </span>
-              <Badge tone={KIND_TONE[row.kind]}>{row.kind}</Badge>
+              <Badge tone={KIND_TONE[row.kind]}>{t(`uplink.kind.${row.kind}`)}</Badge>
               <span className={styles.uplinkIps}>
                 {row.ipAddresses.length > 0 ? (
                   row.ipAddresses.map((ip) => (
@@ -65,7 +68,7 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
                     </span>
                   ))
                 ) : (
-                  <span className={styles.uplinkIp}>no address</span>
+                  <span className={styles.uplinkIp}>{t('uplink.noAddress')}</span>
                 )}
               </span>
             </div>
@@ -75,3 +78,12 @@ export const UplinkIpCard: React.FC<UplinkIpCardProps> = React.memo(function Upl
     </Card>
   );
 });
+
+// buildUplinks names Starlink and known mobile carriers in English; Persian users know them by their
+// Persian names. Other labels are interface comments from the router, shown as-is.
+const carrierLabel = (t: TFunction<'overview'>, label: string) => {
+  if (label === 'Starlink') return t('uplink.carriers.starlink');
+  if (label === 'Hamrah-e-Aval') return t('uplink.carriers.hamrahAval');
+  if (label === 'Irancell') return t('uplink.carriers.irancell');
+  return label;
+};

@@ -13,6 +13,7 @@ import {
   useToast,
 } from '@nasnet/ui';
 import { Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   ApiError,
   deleteWireguardPeer,
@@ -67,11 +68,12 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
   const [pendingDeletePeer, setPendingDeletePeer] = useState<WireguardPeerResponse | null>(null);
   const [peerDeleteSubmitting, setPeerDeleteSubmitting] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation('vpn');
 
   useEffect(() => {
     if (!creds) {
       setLoading(false);
-      setLoadError('Not connected to router.');
+      setLoadError(t('shared.notConnectedDot'));
       return;
     }
     const controller = new AbortController();
@@ -107,7 +109,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to load WireGuard client.';
+              : t('wgClientEdit.loadFailed');
         setLoadError(message);
       } finally {
         setLoading(false);
@@ -115,7 +117,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
     })();
 
     return () => controller.abort();
-  }, [creds, client.name]);
+  }, [creds, client.name, t]);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => (d ? { ...d, [key]: value } : d));
@@ -135,22 +137,22 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
     }
     return {
       listenPort:
-        draft.listenPort.trim() === '' || isPort(draft.listenPort) ? null : 'Port must be 1-65535.',
+        draft.listenPort.trim() === '' || isPort(draft.listenPort) ? null : t('shared.portRange'),
       mtu:
         draft.mtu.trim() === '' || (Number.isInteger(Number(draft.mtu)) && Number(draft.mtu) > 0)
           ? null
-          : 'MTU must be a positive integer.',
+          : t('shared.mtuPositive'),
       peers: draft.peers.map((p) => ({
         endpointPort:
-          p.endpointPort.trim() === '' || isPort(p.endpointPort) ? null : 'Port must be 1-65535.',
+          p.endpointPort.trim() === '' || isPort(p.endpointPort) ? null : t('shared.portRange'),
         persistentKeepalive:
           p.persistentKeepalive.trim() === '' ||
           (Number.isInteger(Number(p.persistentKeepalive)) && Number(p.persistentKeepalive) > 0)
             ? null
-            : 'Keepalive must be a positive integer.',
+            : t('shared.keepalivePositive'),
       })),
     };
-  }, [draft]);
+  }, [draft, t]);
 
   const hasErrors =
     !!errors.listenPort ||
@@ -219,7 +221,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to update WireGuard client.';
+            : t('wgClientEdit.updateFailed');
       setError(message);
       setSubmitting(false);
       return;
@@ -240,8 +242,12 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to delete peer.';
-      toast.notify({ title: 'Failed to delete peer', description: message, tone: 'danger' });
+            : t('details.peers.deleteFailedDescription');
+      toast.notify({
+        title: t('details.peers.deleteFailed'),
+        description: message,
+        tone: 'danger',
+      });
       setPeerDeleteSubmitting(false);
       return;
     }
@@ -250,7 +256,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
     setDraft((d) => (d ? { ...d, peers: d.peers.filter((_, i) => i !== index) } : d));
     setPeerDeleteSubmitting(false);
     setPendingDeletePeer(null);
-    toast.notify({ title: `Peer "${target.name}" deleted`, tone: 'info' });
+    toast.notify({ title: t('details.peers.deleted', { name: target.name }), tone: 'info' });
   };
 
   return (
@@ -258,44 +264,45 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
       <Dialog
         open
         onClose={submitting ? () => undefined : onCancel}
-        title={`Edit WireGuard client - ${client.name}`}
+        title={t('wgClientEdit.title', { name: client.name })}
         size="md"
         footer={
           <>
             <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-              Cancel
+              {t('shared.cancel')}
             </Button>
             <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
-              {submitting ? 'Saving…' : 'Save changes'}
+              {submitting ? t('shared.saving') : t('shared.saveChanges')}
             </Button>
           </>
         }
       >
         {loading ? (
-          <p>Loading…</p>
+          <p>{t('shared.loading')}</p>
         ) : loadError ? (
           <FormError role="alert">{loadError}</FormError>
         ) : draft ? (
           <FieldStack>
             <FieldRow>
               <Label>
-                <span>Name</span>
+                <span>{t('shared.name')}</span>
                 <Input
                   value={draft.comment}
                   onChange={(e) => set('comment', e.target.value)}
-                  placeholder="optional"
+                  placeholder={t('shared.optional')}
                   autoComplete="off"
-                  aria-label="Name"
+                  aria-label={t('shared.name')}
                 />
               </Label>
               <Label>
-                <span>Listen port</span>
+                <span>{t('shared.listenPort')}</span>
                 <Input
                   value={draft.listenPort}
                   onChange={(e) => set('listenPort', e.target.value)}
                   inputMode="numeric"
                   autoComplete="off"
-                  aria-label="Listen port"
+                  aria-label={t('shared.listenPort')}
+                  dir="ltr"
                   aria-invalid={submitAttempted && !!errors.listenPort}
                 />
                 {submitAttempted && errors.listenPort ? (
@@ -309,7 +316,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                 <Input
                   value={draft.mtu}
                   onChange={(e) => set('mtu', e.target.value)}
-                  placeholder="leave empty to keep current"
+                  placeholder={t('shared.leaveEmpty')}
                   inputMode="numeric"
                   autoComplete="off"
                   aria-label="MTU"
@@ -320,12 +327,13 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
             </FieldRow>
             <FieldRow>
               <Label>
-                <span>Interface private key (replace)</span>
+                <span>{t('wgClientEdit.interfacePrivateKeyReplace')}</span>
                 <PasswordInput
                   value={draft.interfacePrivateKey}
                   onChange={(e) => set('interfacePrivateKey', e.target.value)}
-                  placeholder="leave empty to keep current"
-                  aria-label="Interface private key"
+                  placeholder={t('shared.leaveEmpty')}
+                  aria-label={t('addClient.interfacePrivateKey')}
+                  dir="ltr"
                   autoComplete="new-password"
                 />
               </Label>
@@ -333,7 +341,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
             <FieldRow>
               <Label as="div">
                 <Switch
-                  label="Enabled"
+                  label={t('shared.enabled')}
                   checked={!draft.disabled}
                   onChange={(e) => set('disabled', !e.target.checked)}
                 />
@@ -350,17 +358,17 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                       justifyContent: 'space-between',
                     }}
                   >
-                    <strong>Peer ({peer.name})</strong>
+                    <strong>{t('wgClientEdit.peerHeading', { name: peer.name })}</strong>
                     <Button
                       size="sm"
                       variant="danger"
                       disabled={submitting || peers.length <= 1}
                       title={
                         peers.length <= 1
-                          ? 'A WireGuard client needs at least one peer'
-                          : `Delete ${peer.name}`
+                          ? t('wgClientEdit.needsOnePeer')
+                          : t('shared.deleteNamed', { name: peer.name })
                       }
-                      aria-label={`Delete peer ${peer.name}`}
+                      aria-label={t('details.peers.deletePeer', { name: peer.name })}
                       onClick={() => setPendingDeletePeer(peer)}
                     >
                       <Trash2 size={14} aria-hidden />
@@ -368,22 +376,24 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                   </div>
                   <FieldRow>
                     <Label>
-                      <span>Endpoint address</span>
+                      <span>{t('shared.endpointAddress')}</span>
                       <Input
                         value={draft.peers[index].endpointAddress}
                         onChange={(e) => setPeerField(index, 'endpointAddress', e.target.value)}
                         autoComplete="off"
-                        aria-label="Endpoint address"
+                        aria-label={t('shared.endpointAddress')}
+                        dir="ltr"
                       />
                     </Label>
                     <Label>
-                      <span>Endpoint port</span>
+                      <span>{t('clients.form.endpointPort')}</span>
                       <Input
                         value={draft.peers[index].endpointPort}
                         onChange={(e) => setPeerField(index, 'endpointPort', e.target.value)}
                         inputMode="numeric"
                         autoComplete="off"
-                        aria-label="Endpoint port"
+                        aria-label={t('clients.form.endpointPort')}
+                        dir="ltr"
                         aria-invalid={submitAttempted && !!errors.peers[index]?.endpointPort}
                       />
                       {submitAttempted && errors.peers[index]?.endpointPort ? (
@@ -393,24 +403,25 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                   </FieldRow>
                   <FieldRow>
                     <Label>
-                      <span>Allowed addresses</span>
+                      <span>{t('shared.allowedAddresses')}</span>
                       <Input
                         value={draft.peers[index].allowedAddresses}
                         onChange={(e) => setPeerField(index, 'allowedAddresses', e.target.value)}
                         placeholder="0.0.0.0/0"
                         autoComplete="off"
-                        aria-label="Allowed addresses"
+                        aria-label={t('shared.allowedAddresses')}
+                        dir="ltr"
                       />
                     </Label>
                     <Label>
-                      <span>Persistent keepalive (s)</span>
+                      <span>{t('shared.keepaliveSeconds')}</span>
                       <Input
                         value={draft.peers[index].persistentKeepalive}
                         onChange={(e) => setPeerField(index, 'persistentKeepalive', e.target.value)}
-                        placeholder="empty = off"
+                        placeholder={t('shared.keepalivePlaceholder')}
                         inputMode="numeric"
                         autoComplete="off"
-                        aria-label="Persistent keepalive"
+                        aria-label={t('shared.keepalive')}
                         aria-invalid={submitAttempted && !!errors.peers[index]?.persistentKeepalive}
                       />
                       {submitAttempted && errors.peers[index]?.persistentKeepalive ? (
@@ -420,22 +431,24 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                   </FieldRow>
                   <FieldRow>
                     <Label>
-                      <span>Peer public key (replace)</span>
+                      <span>{t('wgClientEdit.peerPublicKeyReplace')}</span>
                       <Input
                         value={draft.peers[index].peerPublicKey}
                         onChange={(e) => setPeerField(index, 'peerPublicKey', e.target.value)}
-                        placeholder="leave empty to keep current"
+                        placeholder={t('shared.leaveEmpty')}
                         autoComplete="off"
-                        aria-label="Peer public key"
+                        aria-label={t('shared.peerPublicKey')}
+                        dir="ltr"
                       />
                     </Label>
                     <Label>
-                      <span>Preshared key (replace)</span>
+                      <span>{t('wgClientEdit.presharedKeyReplace')}</span>
                       <PasswordInput
                         value={draft.peers[index].preSharedKey}
                         onChange={(e) => setPeerField(index, 'preSharedKey', e.target.value)}
-                        placeholder="leave empty to keep current"
-                        aria-label="Preshared key"
+                        placeholder={t('shared.leaveEmpty')}
+                        aria-label={t('shared.presharedKey')}
+                        dir="ltr"
                         autoComplete="new-password"
                       />
                     </Label>
@@ -443,7 +456,7 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
                 </Fragment>
               ))
             ) : (
-              <p style={{ color: 'var(--color-muted)' }}>This WireGuard client has no peers.</p>
+              <p style={{ color: 'var(--color-muted)' }}>{t('wgClientEdit.noPeers')}</p>
             )}
             {error ? <FormError role="alert">{error}</FormError> : null}
           </FieldStack>
@@ -451,13 +464,13 @@ export function EditWgClientDialog({ creds, client, onCancel, onSaved }: Props) 
       </Dialog>
       <ConfirmDialog
         open={!!pendingDeletePeer}
-        title="Delete WireGuard peer"
+        title={t('details.peers.deleteTitle')}
         description={
           pendingDeletePeer
-            ? `Remove peer "${pendingDeletePeer.name}" from this client? This cannot be undone.`
+            ? t('wgClientEdit.deletePeerDescription', { name: pendingDeletePeer.name })
             : undefined
         }
-        confirmLabel={peerDeleteSubmitting ? 'Deleting…' : 'Delete'}
+        confirmLabel={peerDeleteSubmitting ? t('shared.deleting') : t('shared.delete')}
         destructive
         onConfirm={onConfirmDeletePeer}
         onCancel={() => (peerDeleteSubmitting ? undefined : setPendingDeletePeer(null))}

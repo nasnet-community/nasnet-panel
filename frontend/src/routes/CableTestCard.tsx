@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { Cable, Loader2, Play } from 'lucide-react';
 import {
   Badge,
@@ -47,11 +49,18 @@ function statusTone(status: string): 'success' | 'warning' | 'neutral' {
   return 'neutral';
 }
 
-const PAIR_COLUMNS: DataTableColumn<CablePair>[] = [
-  { key: 'pair', header: 'Pair', render: (p) => `Pair ${p.index}` },
+// Fallback messages are kept as keys and translated at render, so they follow a language change.
+type CableTestError = { key: 'cableTest.loadFailed' | 'cableTest.failed' } | { message: string };
+
+const pairColumns = (t: TFunction<'overview'>): DataTableColumn<CablePair>[] => [
+  {
+    key: 'pair',
+    header: t('cableTest.pairHeader'),
+    render: (p) => t('cableTest.pairN', { index: p.index }),
+  },
   {
     key: 'state',
-    header: 'Status',
+    header: t('cableTest.statusHeader'),
     render: (p) => (
       <Badge tone={p.state === 'normal' || p.state === 'ok' ? 'success' : 'danger'}>
         {p.state}
@@ -60,17 +69,20 @@ const PAIR_COLUMNS: DataTableColumn<CablePair>[] = [
   },
   {
     key: 'distance',
-    header: 'Fault distance',
-    render: (p) => (p.distance !== undefined ? `${p.distance} m` : '-'),
+    header: t('cableTest.distanceHeader'),
+    render: (p) =>
+      p.distance !== undefined ? t('cableTest.distance', { value: p.distance }) : '-',
   },
 ];
 
 export function CableTestCard({ creds }: { creds: SystemCredentials | null }) {
+  const { t } = useTranslation('overview');
+  const columns = useMemo(() => pairColumns(t), [t]);
   const [interfaces, setInterfaces] = useState<string[]>([]);
   const [selected, setSelected] = useState('');
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<CableTestResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<CableTestError | null>(null);
 
   useEffect(() => {
     if (!creds) return;
@@ -83,7 +95,7 @@ export function CableTestCard({ creds }: { creds: SystemCredentials | null }) {
       })
       .catch((err: unknown) => {
         if (isAbortError(err)) return;
-        setError(err instanceof Error ? err.message : 'Failed to load ethernet interfaces.');
+        setError(err instanceof Error ? { message: err.message } : { key: 'cableTest.loadFailed' });
       });
     return () => controller.abort();
   }, [creds]);
@@ -96,7 +108,7 @@ export function CableTestCard({ creds }: { creds: SystemCredentials | null }) {
     try {
       setResult(await testEthernetCable(creds, selected));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Cable test failed.');
+      setError(err instanceof Error ? { message: err.message } : { key: 'cableTest.failed' });
     } finally {
       setTesting(false);
     }
@@ -109,42 +121,39 @@ export function CableTestCard({ creds }: { creds: SystemCredentials | null }) {
       <CardHeader>
         <CardTitle>
           <Inline>
-            <Cable size={16} aria-hidden /> Cable Test
+            <Cable size={16} aria-hidden /> {t('cableTest.title')}
           </Inline>
         </CardTitle>
-        <CardDescription>
-          Check an ethernet cable for open or shorted pairs and the distance to the fault. The link
-          on the tested port may drop for a few seconds.
-        </CardDescription>
+        <CardDescription>{t('cableTest.description')}</CardDescription>
       </CardHeader>
       <Stack>
         <div className={styles.cableTestRow}>
           <div className={styles.cableTestField}>
-            <Label htmlFor="cable-test-interface">Ethernet interface</Label>
+            <Label htmlFor="cable-test-interface">{t('cableTest.interfaceLabel')}</Label>
             <Select
               id="cable-test-interface"
               options={interfaces.map((name) => ({ value: name, label: name }))}
               value={selected}
               onChange={setSelected}
-              placeholder="Select interface"
+              placeholder={t('cableTest.selectPlaceholder')}
               disabled={!creds || testing || interfaces.length === 0}
             />
           </div>
           <Button variant="primary" onClick={run} disabled={!creds || !selected || testing}>
             {testing ? (
               <>
-                <Loader2 size={14} aria-hidden /> Testing…
+                <Loader2 size={14} aria-hidden /> {t('cableTest.testing')}
               </>
             ) : (
               <>
-                <Play size={14} aria-hidden /> Run cable test
+                <Play size={14} aria-hidden /> {t('cableTest.run')}
               </>
             )}
           </Button>
         </div>
         {error ? (
           <p className={styles.errorText} role="alert">
-            {error}
+            {'message' in error ? error.message : t(error.key)}
           </p>
         ) : null}
         {result ? (
@@ -154,7 +163,7 @@ export function CableTestCard({ creds }: { creds: SystemCredentials | null }) {
               <Badge tone={statusTone(result.status)}>{result.status}</Badge>
             </Inline>
             {pairs.length > 0 ? (
-              <DataTable columns={PAIR_COLUMNS} rows={pairs} rowKey={(p) => String(p.index)} />
+              <DataTable columns={columns} rows={pairs} rowKey={(p) => String(p.index)} />
             ) : null}
           </Stack>
         ) : null}

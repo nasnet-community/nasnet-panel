@@ -1,5 +1,6 @@
 import React from 'react';
 import { Globe, Laptop, SatelliteDish, Server, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './DualLinkFlow.module.scss';
 
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
@@ -96,7 +97,7 @@ export interface DualLinkFlowProps {
 }
 
 export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
-  ariaLabel = 'Dual-link traffic flow',
+  ariaLabel,
   focus,
   starlinkInterface,
   domesticInterface,
@@ -104,6 +105,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
   domesticInterfaceIcon,
   starlinkBadge,
 }) => {
+  const { t } = useTranslation('ui');
   const domesticEmph = emphasisClass('domestic', focus);
   const starlinkEmph = emphasisClass('starlink', focus);
   const wrapClass = cx(
@@ -112,7 +114,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
     focus === 'domestic' && styles.zoomDomestic,
   );
   return (
-    <div className={wrapClass} role="img" aria-label={ariaLabel}>
+    <div className={wrapClass} role="img" aria-label={ariaLabel ?? t('dualLinkFlow.ariaLabel')}>
       <svg
         className={styles.svg}
         viewBox="0 0 500 200"
@@ -178,7 +180,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         left="10%"
         top="50%"
         icon={<Laptop size={32} strokeWidth={1.75} />}
-        label="USER"
+        label={t('dualLinkFlow.user')}
         branch="common"
         focus={focus}
       />
@@ -186,7 +188,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         left="30%"
         top="50%"
         icon={<Wifi size={32} strokeWidth={1.75} />}
-        label="Router"
+        label={t('dualLinkFlow.router')}
         branch="common"
         focus={focus}
       />
@@ -194,7 +196,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         left="61%"
         top="24%"
         icon={<SatelliteDish size={32} strokeWidth={1.75} />}
-        label="Starlink"
+        label={t('dualLinkFlow.starlink')}
         sublabel={starlinkInterface}
         sublabelIcon={starlinkInterfaceIcon}
         badge={starlinkBadge}
@@ -206,7 +208,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         left="88%"
         top="24%"
         icon={<Server size={32} strokeWidth={1.75} />}
-        label="Foreign Site"
+        label={t('dualLinkFlow.foreignSite')}
         branch="starlink"
         focus={focus}
       />
@@ -214,7 +216,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         left="61%"
         top="76%"
         icon={<Globe size={32} strokeWidth={1.75} />}
-        label="Domestic WAN"
+        label={t('dualLinkFlow.domesticWan')}
         sublabel={domesticInterface}
         sublabelIcon={domesticInterfaceIcon}
         selected={Boolean(domesticInterface)}
@@ -225,7 +227,7 @@ export const DualLinkFlow: React.FC<DualLinkFlowProps> = ({
         left="88%"
         top="76%"
         icon={<Server size={32} strokeWidth={1.75} />}
-        label="Domestic Site"
+        label={t('dualLinkFlow.domesticSite')}
         branch="domestic"
         focus={focus}
       />

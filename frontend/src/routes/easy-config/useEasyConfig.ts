@@ -262,7 +262,7 @@ export function useEasyConfig(routerId: string | undefined) {
           const failure =
             err instanceof ApiError ? (err.data as WizardStatus | undefined) : undefined;
           if (err instanceof ApiError && err.status === 500 && failure?.failed) {
-            dispatch({ type: 'error', message: failure.message || err.message });
+            dispatch({ type: 'error', message: { text: failure.message || err.message } });
             dispatch({ type: 'applying', value: false });
             return;
           }
@@ -270,7 +270,7 @@ export function useEasyConfig(routerId: string | undefined) {
         }
         if (ctl.cancelled) return;
         if (Date.now() > deadline) {
-          dispatch({ type: 'error', message: 'Timed out waiting for the router to finish.' });
+          dispatch({ type: 'error', message: { key: 'errors.timedOut' } });
           dispatch({ type: 'applying', value: false });
           return;
         }
@@ -288,7 +288,7 @@ export function useEasyConfig(routerId: string | undefined) {
     const creds = routerId ? getCredentials(routerId) : undefined;
     const host = router?.host;
     if (!creds || !host) {
-      dispatch({ type: 'error', message: 'Missing router credentials.' });
+      dispatch({ type: 'error', message: { key: 'errors.missingCredentials' } });
       return;
     }
 
@@ -305,7 +305,11 @@ export function useEasyConfig(routerId: string | undefined) {
         password: result.managementWiFiPassword ?? '',
       });
     } catch (err) {
-      dispatch({ type: 'error', message: (err as Error).message ?? 'Apply failed' });
+      const message = (err as Error).message;
+      dispatch({
+        type: 'error',
+        message: message != null ? { text: message } : { key: 'errors.applyFailed' },
+      });
       dispatch({ type: 'applying', value: false });
       return;
     }

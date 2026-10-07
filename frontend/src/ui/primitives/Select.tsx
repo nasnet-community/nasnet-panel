@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import styles from './Select.module.scss';
 
 export interface SelectOption {
@@ -49,17 +50,18 @@ export type SelectProps = SingleSelectProps | MultipleSelectProps;
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
 
 export const Select: React.FC<SelectProps> = (props) => {
+  const { t } = useTranslation('ui');
   const {
     options,
     value,
     onChange,
-    placeholder = 'Select…',
+    placeholder = t('select.placeholder'),
     disabled,
     id,
     name,
     className,
     searchable = false,
-    searchPlaceholder = 'Search…',
+    searchPlaceholder = t('select.searchPlaceholder'),
     maxOptionsHeight,
     'aria-label': ariaLabel,
     'aria-labelledby': ariaLabelledBy,
@@ -97,7 +99,7 @@ export const Select: React.FC<SelectProps> = (props) => {
     selectedOptions.length === 0
       ? placeholder
       : multiple && selectedOptions.length > 2
-        ? `${selectedOptions.length} selected`
+        ? t('select.selectedCount', { count: selectedOptions.length })
         : selectedOptions.map((o) => o.label).join(', ');
 
   const filteredOptions = useMemo(() => {
@@ -299,7 +301,7 @@ export const Select: React.FC<SelectProps> = (props) => {
                   }}
                   onKeyDown={onSearchKeyDown}
                   placeholder={searchPlaceholder}
-                  aria-label="Search options"
+                  aria-label={t('select.searchAriaLabel')}
                   aria-controls={listboxId}
                   className={styles.search}
                 />
@@ -314,7 +316,7 @@ export const Select: React.FC<SelectProps> = (props) => {
               >
                 {filteredOptions.length === 0 ? (
                   <li className={styles.emptyOption} role="presentation">
-                    No matches
+                    {t('select.noMatches')}
                   </li>
                 ) : (
                   filteredOptions.map((opt, idx) => {

@@ -1,4 +1,5 @@
 import { Trash2, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, Inline, Switch } from '@nasnet/ui';
 import type { Interface, WirelessSettings } from '../../api';
 import styles from '../WirelessPage.module.scss';
@@ -12,6 +13,7 @@ interface Props {
   onDelete: (iface: Interface) => void;
 }
 
+// RouterOS mode names (AP, Station Bridge…) are shown as-is in every language.
 const formatMode = (mode: string): string =>
   mode
     .split('-')
@@ -23,6 +25,7 @@ const formatMode = (mode: string): string =>
 const isStationMode = (mode: string): boolean => mode.toLowerCase().startsWith('station');
 
 export function InterfaceRow({ iface, settings, onToggle, onEdit, onDelete }: Props) {
+  const { t } = useTranslation('wireless');
   const enabled = !iface.disabled;
   const station = iface.mode ? isStationMode(iface.mode) : false;
   return (
@@ -31,8 +34,10 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit, onDelete }: Pr
         <Wifi size={14} />
       </div>
       <div>
-        <strong>{iface.ssid ?? settings.ssid}</strong>{' '}
-        <span className={styles.interfaceName}>({iface.name})</span>
+        <strong dir="auto">{iface.ssid ?? settings.ssid}</strong>{' '}
+        <span className={styles.interfaceName}>
+          (<bdi>{iface.name}</bdi>)
+        </span>
         {iface.mode ? (
           <>
             {' '}
@@ -44,15 +49,15 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit, onDelete }: Pr
         {iface.isVirtual ? (
           <>
             {' '}
-            <Badge tone="neutral">Virtual</Badge>
+            <Badge tone="neutral">{t('interfaces.virtual')}</Badge>
           </>
         ) : null}
         <div>
           {enabled ? (
             iface.running ? (
-              <Badge tone="success">active</Badge>
+              <Badge tone="success">{t('interfaces.active')}</Badge>
             ) : (
-              <Badge tone="primary">idle</Badge>
+              <Badge tone="primary">{t('interfaces.idle')}</Badge>
             )
           ) : null}{' '}
           {(iface.securityTypes && iface.securityTypes.length > 0
@@ -69,20 +74,20 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit, onDelete }: Pr
       </div>
       <Inline $gap="12px">
         <Switch
-          aria-label={`Enable ${iface.name}`}
+          aria-label={t('interfaces.enableAria', { name: iface.name })}
           checked={enabled}
           onChange={(e) => onToggle(e.target.checked)}
         />
         <Button size="sm" variant="secondary" onClick={() => onEdit(iface)}>
-          Edit
+          {t('interfaces.edit')}
         </Button>
         {iface.isVirtual ? (
           <Button
             size="sm"
             variant="danger"
             onClick={() => onDelete(iface)}
-            aria-label={`Delete ${iface.name}`}
-            title="Delete"
+            aria-label={t('interfaces.deleteAria', { name: iface.name })}
+            title={t('interfaces.delete')}
           >
             <Trash2 size={14} aria-hidden />
           </Button>

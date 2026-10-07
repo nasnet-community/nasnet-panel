@@ -1,0 +1,234 @@
+{
+  "common": {
+    "missingCredentials": "Missing router credentials for this session.",
+    "unknownError": "Unknown error",
+    "cancel": "Cancel",
+    "change": "Change",
+    "changing": "Changing…",
+    "disabled": "disabled",
+    "enabled": "enabled"
+  },
+  "dhcp": {
+    "loadLeasesFailed": "Failed to load leases.",
+    "loadClientsFailed": "Failed to load clients.",
+    "toasts": {
+      "madeStatic": "Lease made static",
+      "makeStaticFailed": "Failed to make lease static",
+      "removed": "Lease removed",
+      "removeFailed": "Failed to remove lease"
+    },
+    "columns": {
+      "address": "Address",
+      "mac": "MAC",
+      "host": "Host",
+      "server": "Server",
+      "port": "Port",
+      "type": "Type",
+      "status": "Status",
+      "expires": "Expires",
+      "interface": "Interface",
+      "gateway": "Gateway",
+      "dns": "DNS",
+      "state": "State"
+    },
+    "dynamic": "dynamic",
+    "static": "static",
+    "makeStatic": "Make static",
+    "makeStaticAria": "Make static {{mac}}",
+    "remove": "Remove",
+    "removeLeaseAria": "Remove lease {{mac}}",
+    "lanPorts": {
+      "title": "LAN ports",
+      "description": "Manage LAN-side ports. WAN ports are managed on the Internet tab."
+    },
+    "clients": {
+      "title": "DHCP Clients",
+      "description": "Interfaces on which this router acts as a DHCP client (WAN).",
+      "sharedSubnet": "{{interfaces}} share the {{prefix}}.x subnet. Change it on one upstream modem.",
+      "empty": "This router is not a DHCP client on any interface."
+    },
+    "leases": {
+      "title": "DHCP Leases",
+      "description": "Active DHCP leases issued to clients on the LAN.",
+      "empty": "No active leases."
+    },
+    "confirmRemove": {
+      "title": "Remove DHCP lease",
+      "description": "Remove the lease for {{address}} ({{mac}})? This cannot be undone."
+    },
+    "confirmStatic": {
+      "title": "Make DHCP lease static",
+      "description": "Make the lease for {{address}} ({{mac}}) static? The client will keep this address."
+    }
+  },
+  "dns": {
+    "types": {
+      "Domestic": "Domestic",
+      "Foreign": "Foreign",
+      "VPN": "VPN"
+    },
+    "loadFailed": "Failed to load DNS servers.",
+    "toasts": {
+      "adBlockEnabled": "Ad-block enabled",
+      "adBlockDisabled": "Ad-block disabled",
+      "adBlockAlreadyOn": "Ad-block was already on",
+      "adBlockAlreadyOff": "Ad-block was already off",
+      "adBlockFailedDetail": "Failed to update ad-block.",
+      "adBlockFailed": "Failed to update ad-block",
+      "resetDone": "DNS settings reset to defaults",
+      "resetFailedDetail": "Failed to reset DNS settings.",
+      "resetFailed": "Failed to reset DNS",
+      "cacheCleared": "DNS cache cleared",
+      "cacheFailedDetail": "Failed to clear the DNS cache.",
+      "cacheFailed": "Failed to clear DNS cache",
+      "familyEnabled": "Family DNS enabled",
+      "familyEnableFailedDetail": "Failed to enable Family DNS.",
+      "familyEnableFailed": "Failed to enable Family DNS",
+      "familyDisabled": "Family DNS disabled",
+      "familyDisableFailedDetail": "Failed to disable Family DNS.",
+      "familyDisableFailed": "Failed to disable Family DNS",
+      "familyPartial": "{{message}} Some forwarders may already have been switched, so check the list before retrying."
+    },
+    "disabling": "Disabling…",
+    "enabling": "Enabling…",
+    "columns": {
+      "type": "Type",
+      "servers": "DNS servers",
+      "provider": "Provider"
+    },
+    "edit": "Edit",
+    "editAria": "Edit {{name}} DNS server",
+    "description": "DNS servers configured on this router, grouped by domestic, foreign and VPN traffic.",
+    "refresh": "Refresh",
+    "resetting": "Resetting…",
+    "reset": "Reset",
+    "empty": "No DNS servers configured",
+    "cache": "DNS cache",
+    "purgeAria": "Purge DNS cache",
+    "purging": "Purging…",
+    "purge": "Purge cache",
+    "family": "Family DNS",
+    "adBlock": "Ad-block",
+    "adBlockHint": "Blocks ad and tracker domains for every device on the network.",
+    "adBlockWarning": "Some sites stop working while it is on.",
+    "confirmReset": {
+      "title": "Reset DNS settings?",
+      "description": "Every DNS server, forwarder, failover route and netwatch probe returns to its default value. Custom DNS servers are discarded."
+    },
+    "confirmEnableFamily": {
+      "title": "Enable Family DNS?",
+      "description": "The Foreign and VPN forwarders switch to filtering servers.",
+      "confirm": "Enable"
+    },
+    "confirmDisableFamily": {
+      "title": "Disable Family DNS?",
+      "description": "The Foreign and VPN forwarders go back to their standard servers, and filtering stops.",
+      "confirm": "Disable"
+    }
+  },
+  "dnsChange": {
+    "title": "Change DNS server",
+    "changedTo": "DNS server changed to {{ip}}",
+    "changeFailedDetail": "Failed to change DNS server.",
+    "changeFailed": "Failed to change DNS server",
+    "enterIp": "Enter a new DNS server IP",
+    "notSuitable": "{{ip}} is not suitable for the {{type}} DNS.",
+    "unverified": "{{message}} Suitability could not be verified.",
+    "verifyFailedDetail": "Failed to verify the new DNS server.",
+    "verifyFailed": "Verification failed",
+    "continueAnyway": "Continue anyway",
+    "verifying": "Verifying…",
+    "type": "Type",
+    "currentIpToReplace": "Current IP to replace",
+    "currentIp": "Current IP",
+    "newIp": "New IP",
+    "enterManually": "Enter manually",
+    "select": "Select…",
+    "noSuggestions": "No suggestions available",
+    "searchSuggestions": "Search suggestions…",
+    "hintManual": "Any reachable IP can be entered.",
+    "hintSelect": "Turn on manual entry to type an IP that is not listed."
+  },
+  "firewall": {
+    "allChains": "All chains",
+    "nodes": {
+      "ingress": "Ingress",
+      "input": "Input",
+      "router": "Router",
+      "output": "Output",
+      "egress": "Egress",
+      "forward": "Forward"
+    },
+    "diagramAria": "Firewall packet flow diagram",
+    "nodeAria_one": "{{label}}, {{n}} rule",
+    "nodeAria_other": "{{label}}, {{n}} rules",
+    "ruleCount_one": "{{n}} rule",
+    "ruleCount_other": "{{n}} rules",
+    "noRules": "No rules",
+    "any": "any",
+    "noComment": "(no comment)",
+    "loadFailed": "Failed to load firewall rules.",
+    "columns": {
+      "chain": "Chain",
+      "action": "Action",
+      "proto": "Proto",
+      "source": "Source",
+      "destination": "Destination",
+      "in": "In",
+      "out": "Out",
+      "bytes": "Bytes",
+      "packets": "Packets",
+      "comment": "Comment",
+      "status": "Status"
+    },
+    "log": "log",
+    "title": "Firewall rules",
+    "description": "Active filter rules on this router, ordered by priority.",
+    "chain": "Chain",
+    "chainFilterAria": "Chain filter",
+    "empty": "No firewall rules configured.",
+    "emptyInChain": "No firewall rules configured in the {{chain}} chain."
+  },
+  "bridge": {
+    "kinds": {
+      "split": "Split",
+      "domestic": "Domestic",
+      "foreign": "Foreign",
+      "vpn": "VPN",
+      "other": "Custom"
+    },
+    "kindDescriptions": {
+      "split": "Splits traffic to foreign and domestic automatically for that interface.",
+      "domestic": "Routes all traffic to domestic for that interface.",
+      "foreign": "Routes all traffic to foreign for that interface.",
+      "vpn": "Routes all traffic to VPN for that interface."
+    },
+    "card": {
+      "title": "Bridge ports",
+      "description": "Which bridge each LAN port belongs to, and therefore how its traffic is routed.",
+      "loadFailed": "Failed to load bridge ports.",
+      "columns": {
+        "interface": "Interface",
+        "bridge": "Bridge",
+        "behaviour": "Behaviour"
+      },
+      "changeAria": "Change bridge for {{interface}}",
+      "changeTitle": "Change bridge",
+      "empty": "No LAN bridge ports on this router."
+    },
+    "dialog": {
+      "title": "Change bridge for {{interface}}",
+      "selectBridge": "Select a bridge",
+      "changed": "Bridge changed",
+      "changedDetail": "{{interface}} is now a port of {{bridge}}.",
+      "changeFailedDetail": "Failed to change the bridge.",
+      "changeFailed": "Failed to change bridge",
+      "currentBridge": "Current bridge",
+      "newBridge": "New bridge",
+      "selectPlaceholder": "Select a bridge…",
+      "noOtherBridge": "No other bridge available",
+      "restartWarning": "{{interface}} restarts to apply this. You may lose the network or the internet for a few seconds.",
+      "foreignWarning": "All traffic on {{interface}} will be routed to foreign. Domestic sites may become unreachable."
+    }
+  }
+}

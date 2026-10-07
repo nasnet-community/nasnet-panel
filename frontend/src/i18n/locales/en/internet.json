@@ -1,0 +1,110 @@
+{
+  "internet": {
+    "title": "Internet routing",
+    "description": "Live view of how clients reach the internet via WAN uplinks and VPN tunnels. Click a VPN tunnel to enable or disable it.",
+    "loadFailedTitle": "Failed to load Internet topology",
+    "loadFailedFallback": "Failed to load routing topology.",
+    "notSupportedTitle": "Not supported yet",
+    "notSupportedDescription": "Only VPN tunnels can be toggled from this view.",
+    "tunnelUpdated": "VPN tunnel updated",
+    "updateFailedTitle": "Update failed",
+    "updateFailedFallback": "Failed to update VPN tunnel.",
+    "topologyAria": "Routing topology",
+    "empty": "No routing topology configured for this router yet.",
+    "loading": "Loading topology…",
+    "legend": {
+      "activeLink": "Active link",
+      "configuredIdle": "Configured, idle",
+      "liveTraffic": "Live traffic",
+      "clickToToggle": "Click a VPN tunnel to toggle"
+    },
+    "columns": {
+      "group": "Clients",
+      "router": "Router",
+      "wan": "WAN",
+      "vpn": "VPN",
+      "internet": "Internet"
+    },
+    "nodes": {
+      "clients": "Clients",
+      "router": "Router",
+      "internet": "Internet",
+      "configure": "Configure {{name}}"
+    },
+    "hopDialog": {
+      "title": "{{from}} → {{to}}",
+      "description": "Toggle this hop. Changes take effect immediately.",
+      "active": "Active",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "carriers": {
+      "starlink": "Starlink",
+      "hamrahAval": "Hamrah-e-Aval",
+      "irancell": "Irancell"
+    }
+  },
+  "wan": {
+    "loadInterfacesFailedTitle": "Failed to load interfaces",
+    "loadInterfacesFailedFallback": "Failed to load interfaces.",
+    "loadVpnFailedTitle": "Failed to load VPN",
+    "loadVpnFailedFallback": "Failed to load VPN clients.",
+    "table": {
+      "name": "Name",
+      "type": "Type",
+      "detail": "Detail",
+      "enabled": "Enabled",
+      "statusEnabled": "enabled",
+      "statusDisabled": "disabled",
+      "toggleAria": "toggle {{name}}",
+      "moveTitle": "Move {{name}}",
+      "moveAria": "move {{name}}",
+      "deleteTitle": "Delete {{name}}",
+      "deleteAria": "delete {{name}}"
+    },
+    "section": {
+      "missingCredsTitle": "Missing router credentials",
+      "missingCredsDescription": "Reconnect to the router and try again.",
+      "assignFailedFallback": "Failed to assign interface.",
+      "moveFailedTitle": "Failed to move uplink",
+      "change": "Change",
+      "move": "Move",
+      "moving": "Moving…"
+    },
+    "foreign": {
+      "title": "Foreign / Starlink",
+      "description": "Interfaces tagged as the foreign (Starlink) uplink.",
+      "empty": "No Starlink uplinks yet",
+      "changeFailedTitle": "Failed to change Starlink uplink",
+      "changed": "Starlink uplink changed",
+      "dialogTitle": "Change Starlink uplink",
+      "moveLabel": "Move {{name}} to Domestic",
+      "moved": "Moved \"{{name}}\" to Domestic",
+      "confirmTitle": "Move to Domestic",
+      "confirmDescription": "Re-tag \"{{name}}\" as the Domestic uplink? It will move to that section."
+    },
+    "domestic": {
+      "title": "Domestic",
+      "description": "Interfaces tagged as the domestic uplink.",
+      "empty": "No domestic uplinks yet",
+      "changeFailedTitle": "Failed to change domestic uplink",
+      "changed": "Domestic uplink changed",
+      "dialogTitle": "Change domestic uplink",
+      "moveLabel": "Move {{name}} to Foreign",
+      "moved": "Moved \"{{name}}\" to Foreign",
+      "confirmTitle": "Move to Foreign",
+      "confirmDescription": "Re-tag \"{{name}}\" as the Foreign uplink? It will move to that section."
+    },
+    "dialog": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…",
+      "saveFailed": "Failed to save uplink.",
+      "foreignHeading": "Starlink WAN",
+      "foreignWireless": "Starlink wireless",
+      "domesticHeading": "Domestic WAN",
+      "domesticWireless": "Domestic wireless"
+    }
+  }
+}

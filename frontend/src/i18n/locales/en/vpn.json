@@ -1,0 +1,464 @@
+{
+  "page": {
+    "loadFailed": "Failed to load VPN",
+    "loadFailedDescription": "Failed to load VPN data."
+  },
+  "clients": {
+    "toast": {
+      "saved": "Client saved",
+      "deleted": "Client deleted",
+      "updateFailed": "Failed to update client",
+      "updateFailedDescription": "Failed to update client.",
+      "gatewaySet": "Starlink gateway set to \"{{name}}\"",
+      "gatewayFailed": "Failed to set gateway",
+      "gatewayFailedDescription": "Failed to set gateway.",
+      "addFailed": "Failed to add VPN client",
+      "addL2tpFailedDescription": "Failed to add L2TP client.",
+      "l2tpAdded": "L2TP client \"{{name}}\" added",
+      "addWgFailedDescription": "Failed to add WireGuard client.",
+      "wgAdded": "WireGuard client \"{{name}}\" added",
+      "wgImportFailed": "Failed to import WireGuard config.",
+      "wgImportFailedTitle": "Failed to import WireGuard config",
+      "l2tpUpdateFailed": "Failed to update L2TP client",
+      "l2tpUpdateFailedDescription": "Failed to update L2TP client.",
+      "l2tpUpdated": "L2TP client \"{{name}}\" updated",
+      "deleteFailed": "Failed to delete client",
+      "deleteFailedDescription": "Failed to delete client.",
+      "deletedNamed": "Client \"{{name}}\" deleted",
+      "wgUpdated": "WireGuard client \"{{name}}\" updated"
+    },
+    "title": "Starlink Masking VPN Client",
+    "description": "VPN clients that conceal the Starlink IP.",
+    "new": "New",
+    "table": {
+      "ping": "Ping",
+      "traffic": "Traffic",
+      "lastLink": "Last link",
+      "lastConnected": "Connected: {{time}}",
+      "lastDisconnected": "Disconnected: {{time}}",
+      "starlinkGateway": "Starlink gateway",
+      "gateway": "Gateway",
+      "setGatewayFor": "Set {{name}} as Starlink gateway",
+      "setGateway": "Set gateway",
+      "noMatch": "No clients match the current filters.",
+      "empty": "No VPN clients yet."
+    },
+    "delete": {
+      "wgTitle": "Delete WireGuard client",
+      "l2tpTitle": "Delete L2TP client",
+      "wgDescription": "Remove \"{{name}}\" from this router? Associated peers and IP address will also be removed. This cannot be undone.",
+      "l2tpDescription": "Remove \"{{name}}\" from this router? This cannot be undone."
+    },
+    "form": {
+      "editTitle": "Edit VPN client",
+      "newTitle": "New VPN client",
+      "endpointHost": "Endpoint host",
+      "endpointPort": "Endpoint port"
+    }
+  },
+  "peers": {
+    "toast": {
+      "added": "Peer added",
+      "deleted": "Peer deleted"
+    },
+    "empty": "No peers yet.",
+    "noServer": "Add a VPN server first.",
+    "title": "Connected peers",
+    "description": "Clients connecting to this router's VPN server.",
+    "add": "Add peer",
+    "deleteTitle": "Delete peer",
+    "form": {
+      "title": "New peer"
+    }
+  },
+  "pagination": {
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
+    "previousPage": "Previous page",
+    "prev": "Prev",
+    "page": "Page {{page}} of {{total}}",
+    "nextPage": "Next page",
+    "next": "Next"
+  },
+  "stats": {
+    "activeTunnels": "Active Tunnels",
+    "configured": "{{active}} of {{total}} configured",
+    "servers": "Servers",
+    "activeServers": "Active servers",
+    "clients": "Clients",
+    "activeConnections": "Active connections",
+    "protocols": "Protocols"
+  },
+  "wgImport": {
+    "skippedMore_one": " and {{count}} more",
+    "skippedMore_other": " and {{count}} more",
+    "skipped_one": "Skipped {{count}} peer already on this interface ({{list}}{{more}}).",
+    "skipped_other": "Skipped {{count}} peers already on this interface ({{list}}{{more}}).",
+    "upToDate": "WireGuard client \"{{name}}\" is already up to date",
+    "reusedInterface": "An interface with the same private key and IP address already exists, so it was reused.",
+    "noNewPeers": "No new peers were added.",
+    "addedToExisting_one": "Added {{count}} peer to existing WireGuard client \"{{name}}\"",
+    "addedToExisting_other": "Added {{count}} peers to existing WireGuard client \"{{name}}\"",
+    "reusedInsteadOfNew": "An interface with the same private key and IP address already exists, so it was reused instead of creating a new one.",
+    "importedWithoutPeers": "WireGuard client \"{{name}}\" imported without peers",
+    "noPeersInConfig": "The config did not contain any peers to add.",
+    "imported": "WireGuard client \"{{name}}\" imported",
+    "createdWith_one": "Created with {{count}} peer.",
+    "createdWith_other": "Created with {{count}} peers."
+  },
+  "shared": {
+    "name": "Name",
+    "allowedIps": "Allowed IPs",
+    "actions": "Actions",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "status": "Status",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "comment": "Comment",
+    "editNamed": "Edit {{name}}",
+    "deleteNamed": "Delete {{name}}",
+    "protocol": "Protocol",
+    "running": "Running",
+    "port": "Port",
+    "enable": "Enable",
+    "disable": "Disable",
+    "enabling": "Enabling…",
+    "disabling": "Disabling…",
+    "enableNamed": "Enable {{name}}",
+    "disableNamed": "Disable {{name}}",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "notConnected": "Not connected to router",
+    "cancel": "Cancel",
+    "save": "Save",
+    "notConnectedDot": "Not connected to router.",
+    "nameRequired": "Name is required.",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "loading": "Loading…",
+    "password": "Password",
+    "leaveEmpty": "leave empty to keep current",
+    "portRange": "Port must be 1-65535.",
+    "mtuPositive": "MTU must be a positive integer.",
+    "listenPort": "Listen port",
+    "privateKey": "Private key",
+    "required": "Required.",
+    "optional": "optional",
+    "connectTo": "Connect to",
+    "user": "User",
+    "usernamePlaceholder": "username",
+    "ipsecSecret": "IPsec secret",
+    "preSharedKeyPlaceholder": "Pre-shared key",
+    "useIpsec": "Use IPsec",
+    "keepalivePositive": "Keepalive must be a positive integer.",
+    "endpointAddress": "Endpoint address",
+    "allowedAddresses": "Allowed addresses",
+    "keepaliveSeconds": "Persistent keepalive (s)",
+    "keepalivePlaceholder": "empty = off",
+    "keepalive": "Persistent keepalive",
+    "presharedKey": "Preshared key",
+    "creating": "Creating…",
+    "advancedMode": "Advanced mode",
+    "nameOptional": "Name (optional)",
+    "autoGeneratedIfEmpty": "auto-generated if empty",
+    "publicKey": "Public key",
+    "autoGeneratePlaceholder": "leave empty to auto-generate",
+    "close": "Close",
+    "copy": "Copy",
+    "yes": "Yes",
+    "no": "No",
+    "passwordRequired": "Password is required.",
+    "wgKeyInvalid": "Enter a valid WireGuard key (44-character base64).",
+    "adding": "Adding…",
+    "enabledOnCreation": "Enabled on creation",
+    "peerPublicKey": "Peer public key",
+    "peerPrivateKey": "Peer private key"
+  },
+  "users": {
+    "title": "VPN Users",
+    "description": "Manage credentials shared across all VPN servers.",
+    "searchPlaceholder": "Search users…",
+    "searchLabel": "Search users",
+    "add": "Add user",
+    "deleteTitle": "Delete VPN user",
+    "deleteDescription": "Remove \"{{name}}\" from this router? This cannot be undone.",
+    "table": {
+      "profile": "Profile",
+      "noMatch": "No users match the current filters.",
+      "empty": "No VPN users configured."
+    },
+    "toast": {
+      "deleteFailed": "Failed to delete user",
+      "deleteFailedDescription": "Failed to delete VPN user.",
+      "deleted": "User \"{{name}}\" deleted",
+      "created": "VPN user created",
+      "updated": "VPN user updated"
+    },
+    "form": {
+      "hints": {
+        "vpnVpn": "All of the user’s traffic is routed through the outbound VPN.",
+        "vpnSplit": "Foreign traffic is routed through the outbound VPN and domestic traffic through the domestic link.",
+        "vpnForeign": "All of the user’s traffic is routed through Starlink, which can expose your identity and Starlink usage. Use with caution."
+      },
+      "loadProfilesFailed": "Failed to load VPN profiles.",
+      "profileRequired": "Profile is required.",
+      "updateFailed": "Failed to update VPN user.",
+      "createFailed": "Failed to create VPN user.",
+      "editTitle": "Edit VPN user - {{name}}",
+      "newTitle": "New VPN user",
+      "create": "Create user",
+      "scopeNote": "VPN users apply to OpenVPN, L2TP and SSTP. For WireGuard, open the WireGuard server and add a peer instead.",
+      "passwordKeep": "Leave blank to keep the current password",
+      "selectProfile": "Select a profile",
+      "noProfiles": "No profiles available"
+    }
+  },
+  "servers": {
+    "title": "VPN Servers",
+    "description": "Listen for inbound VPN connections.",
+    "searchPlaceholder": "Search servers…",
+    "searchLabel": "Search servers",
+    "add": "Add server",
+    "table": {
+      "peers": "Peers",
+      "peersOn_one": "{{count}} peer on {{name}}",
+      "peersOn_other": "{{count}} peers on {{name}}",
+      "downloadConfig": "Download client config for {{name}}",
+      "noMatch": "No servers match the current filters.",
+      "empty": "No VPN servers configured."
+    },
+    "toast": {
+      "created": "VPN server created",
+      "deleteFailed": "Failed to delete server",
+      "deleteFailedDescription": "Failed to delete VPN server.",
+      "pairDeleted": "Servers \"{{name}}\" and \"{{paired}}\" deleted",
+      "deleted": "Server \"{{name}}\" deleted",
+      "disableFailed": "Failed to disable server",
+      "disableFailedDescription": "Failed to disable {{protocol}} server.",
+      "disabled": "Server \"{{name}}\" disabled",
+      "enabled": "Server \"{{name}}\" enabled",
+      "enableFailed": "Failed to enable server",
+      "ovpnEnableFailedDescription": "Failed to enable OpenVPN server.",
+      "ovpnDisableFailedDescription": "Failed to disable OpenVPN server.",
+      "wgUpdated": "WireGuard server updated"
+    },
+    "delete": {
+      "pairTitle": "Delete OpenVPN server pair",
+      "title": "Delete VPN server",
+      "description": "Remove \"{{name}}\" from this router? Peers and IP address go too. This cannot be undone.",
+      "ovpnDescription": "Remove \"{{name}}\" from this router? Users, IP pool, profile and certificates go too. This cannot be undone.",
+      "ovpnPairDescription": "Remove \"{{name}}\" from this router? The paired server \"{{paired}}\" goes with it. Users, IP pool, profile and certificates go too. This cannot be undone.",
+      "alsoDeleteCertFiles": "Also delete certificate files from device storage"
+    },
+    "toggle": {
+      "enableTitle": "Enable OpenVPN server",
+      "disableTitle": "Disable OpenVPN server",
+      "enableDescription": "Start \"{{name}}\" on this router? Clients can connect again with their existing profiles.",
+      "disableDescription": "Stop \"{{name}}\" on this router? Connected clients are dropped and cannot reconnect until it is enabled again."
+    },
+    "disable": {
+      "title": "Disable {{protocol}} server",
+      "description": "Stop the {{protocol}} server on this router? Firewall rules added for it are removed and clients can no longer connect over {{protocol}}.",
+      "alsoDeleteCerts": "Also delete certificates and their files"
+    }
+  },
+  "active": {
+    "title": "Active Connections",
+    "description": "Clients currently connected to your VPN servers.",
+    "serviceFilter": "Service filter",
+    "searchPlaceholder": "Search connections…",
+    "searchLabel": "Search connections",
+    "allServices": "All services",
+    "loadFailedDescription": "Failed to load active connections.",
+    "disconnectNamed": "Disconnect {{name}}",
+    "table": {
+      "service": "Service",
+      "address": "Address",
+      "callerId": "Caller ID",
+      "uptime": "Uptime",
+      "handshake": "handshake {{time}} ago",
+      "session": "Session",
+      "wgDetails": "{{iface}} rx {{rx}} tx {{tx}}",
+      "loadFailed": "Failed to load active connections: {{error}}",
+      "noMatch": "No connections match the current filters.",
+      "empty": "No active connections."
+    },
+    "toast": {
+      "disconnectFailed": "Failed to disconnect",
+      "disconnectFailedDescription": "Failed to disconnect session.",
+      "disconnected": "\"{{name}}\" disconnected"
+    },
+    "confirm": {
+      "title": "Disconnect session",
+      "description": "Disconnect \"{{name}}\" now? The user account is kept and can reconnect.",
+      "disconnect": "Disconnect",
+      "disconnecting": "Disconnecting…"
+    }
+  },
+  "typePicker": {
+    "soon": "Soon"
+  },
+  "ovpnExport": {
+    "failed": "Failed to export client config.",
+    "title": "Export OpenVPN client - {{name}}",
+    "exporting": "Exporting…",
+    "download": "Download .ovpn",
+    "serverAddress": "Server public address",
+    "addressPlaceholder": "vpn.example.com or 203.0.113.10",
+    "addressLabel": "Public address"
+  },
+  "wgInterface": {
+    "loadFailed": "Failed to load WireGuard interface.",
+    "updateFailed": "Failed to update WireGuard interface.",
+    "title": "Edit WireGuard server - {{name}}",
+    "privateKeyReplace": "Private key (replace)"
+  },
+  "l2tpEdit": {
+    "loadFailed": "Failed to load L2TP client.",
+    "userRequired": "User is required.",
+    "title": "Edit L2TP client - {{name}}"
+  },
+  "wgPeerEdit": {
+    "updateFailed": "Failed to update WireGuard peer.",
+    "title": "Edit peer - {{name}}"
+  },
+  "wgPeerAdd": {
+    "createFailed": "Failed to create WireGuard peer.",
+    "title": "Add peer to {{name}}",
+    "create": "Create peer",
+    "intro": "Keys, name and addresses are generated for you. Turn on advanced mode to set them yourself.",
+    "advancedGroup": "Advanced WireGuard peer settings",
+    "endpointAddressOptional": "Endpoint address (optional)",
+    "allowedAddressesOptional": "Allowed addresses (optional)",
+    "peerIpIfEmpty": "peer IP if empty",
+    "publicKeyPeer": "Public key (peer)",
+    "publicKeyPlaceholder": "leave empty to auto-generate keypair"
+  },
+  "wgConfig": {
+    "copied": "Config copied to clipboard",
+    "copyFailed": "Failed to copy config",
+    "title": "Client config - {{name}}",
+    "download": "Download .conf"
+  },
+  "details": {
+    "loadFailed": "Failed to load server details.",
+    "title": "{{protocol}} server: {{name}}",
+    "exportOvpn": "Export .ovpn",
+    "noEndpoint": "No detail endpoint for protocol \"{{protocol}}\".",
+    "localIp": "Local IP",
+    "localIpPool": "Local IP pool",
+    "remoteIp": "Remote IP",
+    "remoteIpPool": "Remote IP pool",
+    "certificate": "Certificate",
+    "requireClientCert": "Require client cert",
+    "auth": "Auth",
+    "localAddress": "Local address",
+    "remoteAddress": "Remote address",
+    "dnsServer": "DNS server",
+    "useCompression": "Use compression",
+    "useEncryption": "Use encryption",
+    "onlyOne": "Only one",
+    "changeTcpMss": "Change TCP MSS",
+    "oneSessionPerHost": "One session per host",
+    "verifyClientCert": "Verify client cert",
+    "tlsVersion": "TLS version",
+    "secrets": "Secrets",
+    "peers": {
+      "deleteFailed": "Failed to delete peer",
+      "deleteFailedDescription": "Failed to delete peer.",
+      "deleted": "Peer \"{{name}}\" deleted",
+      "created": "WireGuard peer created",
+      "updated": "WireGuard peer updated",
+      "deleteTitle": "Delete WireGuard peer",
+      "deleteDescription": "Remove peer \"{{name}}\" from this server? This cannot be undone.",
+      "empty": "No peers configured.",
+      "endpoint": "Endpoint",
+      "lastHandshake": "Last handshake",
+      "configFor": "Client config for {{name}}",
+      "noPrivateKey": "Private key not stored on router",
+      "configForPeer": "Client config for peer {{name}}",
+      "editPeer": "Edit peer {{name}}",
+      "deletePeer": "Delete peer {{name}}"
+    }
+  },
+  "addClient": {
+    "errors": {
+      "cidr": "Enter a CIDR like 10.0.0.2/24.",
+      "allowedAddress": "Allowed address is required (e.g. 0.0.0.0/0).",
+      "peerKey": "Provide peer public key OR private key.",
+      "configText": "Paste a WireGuard config."
+    },
+    "failed": "Failed to add VPN client.",
+    "submit": "Add client",
+    "typeLabel": "VPN client type",
+    "typeLegend": "Choose VPN client type",
+    "importExisting": "Import existing config",
+    "claimFree": "Claim free VPN",
+    "localAddressCidr": "Interface local address (CIDR)",
+    "localAddress": "Interface local address",
+    "allowedAddressCidr": "Allowed address (CIDR list)",
+    "allowedAddress": "Allowed address",
+    "interfacePrivateKey": "Interface private key",
+    "optionalGenerated": "optional, generated if empty",
+    "publicKeyPlaceholder": "leave empty if providing peer private key",
+    "privateKeyPlaceholder": "leave empty if providing public key",
+    "dropConf": "Drop your WireGuard .conf file here, or click to browse",
+    "dropHint": "The file contents are loaded into the editor below.",
+    "configText": "Config text",
+    "config": "Config"
+  },
+  "addServer": {
+    "title": "New VPN server",
+    "typeLabel": "VPN server type",
+    "typeLegend": "Choose VPN server type",
+    "failed": "Failed",
+    "working": "Working…",
+    "taskStatusFailed": "Failed to fetch task status.",
+    "ovpn": {
+      "creationFailed": "OpenVPN server creation failed.",
+      "certPassphraseField": "Certificate passphrase",
+      "startFailed": "Failed to start OpenVPN server creation.",
+      "certPassphrase": "Client certificate passphrase",
+      "create": "Create OpenVPN server"
+    },
+    "sstp": {
+      "setupFailed": "SSTP server setup failed.",
+      "alreadyEnabledError": "The SSTP server is already enabled on this router.",
+      "startFailed": "Failed to start SSTP server setup.",
+      "alreadyEnabledInfo": "The SSTP server is already enabled on this router. Disable it from the VPN servers list before enabling it again.",
+      "info": "Enabling SSTP issues a server certificate, starts the SSTP server on port 4433 and adds a firewall rule accepting inbound connections. Existing VPN users can sign in over SSTP.",
+      "alreadyEnabled": "SSTP server already enabled",
+      "enable": "Enable SSTP server"
+    },
+    "l2tp": {
+      "secretRequired": "IPsec secret is required.",
+      "alreadyEnabledError": "The L2TP server is already enabled on this router.",
+      "enableFailed": "Failed to enable L2TP server.",
+      "alreadyEnabledInfo": "The L2TP server is already enabled on this router. Disable it from the VPN servers list before enabling it again.",
+      "info": "Enabling L2TP starts the L2TP server with IPsec required and adds firewall rules accepting inbound L2TP and IPsec traffic. Existing VPN users can sign in over L2TP.",
+      "alreadyEnabled": "L2TP server already enabled",
+      "enable": "Enable L2TP server"
+    },
+    "wg": {
+      "cidrError": "Enter a CIDR like 10.8.0.1/24, or leave empty to auto-assign.",
+      "createFailed": "Failed to create WireGuard server.",
+      "namePlaceholder": "office",
+      "advancedGroup": "Advanced WireGuard server settings",
+      "localAddressCidr": "Local address (CIDR)",
+      "localAddressPlaceholder": "10.8.0.1/24 (auto if empty)",
+      "create": "Create WireGuard server"
+    }
+  },
+  "wgClientEdit": {
+    "loadFailed": "Failed to load WireGuard client.",
+    "updateFailed": "Failed to update WireGuard client.",
+    "title": "Edit WireGuard client - {{name}}",
+    "interfacePrivateKeyReplace": "Interface private key (replace)",
+    "peerHeading": "Peer ({{name}})",
+    "needsOnePeer": "A WireGuard client needs at least one peer",
+    "peerPublicKeyReplace": "Peer public key (replace)",
+    "presharedKeyReplace": "Preshared key (replace)",
+    "noPeers": "This WireGuard client has no peers.",
+    "deletePeerDescription": "Remove peer \"{{name}}\" from this client? This cannot be undone."
+  }
+}

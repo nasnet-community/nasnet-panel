@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../primitives/Button';
 import styles from './Dialog.module.scss';
 
@@ -102,34 +103,37 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   open,
   title,
   description,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   destructive,
   confirmVariant,
   children,
   onConfirm,
   onCancel,
-}) => (
-  <Dialog
-    open={open}
-    onClose={onCancel}
-    title={title}
-    description={description}
-    size="sm"
-    footer={
-      <>
-        <Button variant="ghost" onClick={onCancel}>
-          {cancelLabel}
-        </Button>
-        <Button
-          variant={confirmVariant ?? (destructive ? 'danger' : 'primary')}
-          onClick={onConfirm}
-        >
-          {confirmLabel}
-        </Button>
-      </>
-    }
-  >
-    {children}
-  </Dialog>
-);
+}) => {
+  const { t } = useTranslation('ui');
+  return (
+    <Dialog
+      open={open}
+      onClose={onCancel}
+      title={title}
+      description={description}
+      size="sm"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onCancel}>
+            {cancelLabel ?? t('dialog.cancel')}
+          </Button>
+          <Button
+            variant={confirmVariant ?? (destructive ? 'danger' : 'primary')}
+            onClick={onConfirm}
+          >
+            {confirmLabel ?? t('dialog.confirm')}
+          </Button>
+        </>
+      }
+    >
+      {children}
+    </Dialog>
+  );
+};

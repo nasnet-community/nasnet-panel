@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Dialog,
@@ -38,6 +39,7 @@ interface Props {
 }
 
 export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Props) {
+  const { t } = useTranslation('vpn');
   const [details, setDetails] = useState<WireguardServerDetailsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
   useEffect(() => {
     if (!creds) {
       setLoading(false);
-      setLoadError('Not connected to router.');
+      setLoadError(t('shared.notConnectedDot'));
       return;
     }
     const controller = new AbortController();
@@ -74,7 +76,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to load WireGuard interface.';
+              : t('wgInterface.loadFailed');
         setLoadError(message);
       } finally {
         setLoading(false);
@@ -82,24 +84,25 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
     })();
 
     return () => controller.abort();
-  }, [creds, server.name]);
+  }, [creds, server.name, t]);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => (d ? { ...d, [key]: value } : d));
 
-  const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
+  const markTouched = (key: string) =>
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
 
   const errors = useMemo(() => {
     if (!draft) return { listenPort: null, mtu: null };
     return {
       listenPort:
-        draft.listenPort.trim() === '' || isPort(draft.listenPort) ? null : 'Port must be 1-65535.',
+        draft.listenPort.trim() === '' || isPort(draft.listenPort) ? null : t('shared.portRange'),
       mtu:
         draft.mtu.trim() === '' || (Number.isInteger(Number(draft.mtu)) && Number(draft.mtu) > 0)
           ? null
-          : 'MTU must be a positive integer.',
+          : t('shared.mtuPositive'),
     };
-  }, [draft]);
+  }, [draft, t]);
 
   const hasErrors = Object.values(errors).some(Boolean);
   const canSubmit = !!draft && !!details && !!creds && !submitting && !hasErrors;
@@ -127,7 +130,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to update WireGuard interface.';
+            : t('wgInterface.updateFailed');
       setError(message);
       setSubmitting(false);
       return;
@@ -140,39 +143,40 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
     <Dialog
       open
       onClose={submitting ? () => undefined : onCancel}
-      title={`Edit WireGuard server - ${server.name}`}
+      title={t('wgInterface.title', { name: server.name })}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
           <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
-            {submitting ? 'Saving…' : 'Save changes'}
+            {submitting ? t('shared.saving') : t('shared.saveChanges')}
           </Button>
         </>
       }
     >
       {loading ? (
-        <p>Loading…</p>
+        <p>{t('shared.loading')}</p>
       ) : loadError ? (
         <FormError role="alert">{loadError}</FormError>
       ) : draft ? (
         <FieldStack>
           <FieldRow>
             <Label>
-              <span>Name</span>
-              <Input value={server.name} disabled aria-label="Name" />
+              <span>{t('shared.name')}</span>
+              <Input value={server.name} disabled aria-label={t('shared.name')} />
             </Label>
             <Label>
-              <span>Listen port</span>
+              <span>{t('shared.listenPort')}</span>
               <Input
                 value={draft.listenPort}
                 onChange={(e) => set('listenPort', e.target.value)}
                 onBlur={() => markTouched('listenPort')}
                 inputMode="numeric"
                 autoComplete="off"
-                aria-label="Listen port"
+                aria-label={t('shared.listenPort')}
+                dir="ltr"
                 aria-invalid={touched.listenPort && !!errors.listenPort}
               />
               {touched.listenPort && errors.listenPort ? (
@@ -187,7 +191,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
                 value={draft.mtu}
                 onChange={(e) => set('mtu', e.target.value)}
                 onBlur={() => markTouched('mtu')}
-                placeholder="leave empty to keep current"
+                placeholder={t('shared.leaveEmpty')}
                 inputMode="numeric"
                 autoComplete="off"
                 aria-label="MTU"
@@ -196,24 +200,25 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
               {touched.mtu && errors.mtu ? <FormError>{errors.mtu}</FormError> : null}
             </Label>
             <Label>
-              <span>Comment</span>
+              <span>{t('shared.comment')}</span>
               <Input
                 value={draft.comment}
                 onChange={(e) => set('comment', e.target.value)}
-                placeholder="leave empty to keep current"
+                placeholder={t('shared.leaveEmpty')}
                 autoComplete="off"
-                aria-label="Comment"
+                aria-label={t('shared.comment')}
               />
             </Label>
           </FieldRow>
           <FieldRow>
             <Label>
-              <span>Private key (replace)</span>
+              <span>{t('wgInterface.privateKeyReplace')}</span>
               <PasswordInput
                 value={draft.privateKey}
                 onChange={(e) => set('privateKey', e.target.value)}
-                placeholder="leave empty to keep current"
-                aria-label="Private key"
+                placeholder={t('shared.leaveEmpty')}
+                aria-label={t('shared.privateKey')}
+                dir="ltr"
                 autoComplete="new-password"
               />
             </Label>
@@ -221,7 +226,7 @@ export function EditWgInterfaceDialog({ creds, server, onCancel, onSaved }: Prop
           <FieldRow>
             <Label as="div">
               <Switch
-                label="Enabled"
+                label={t('shared.enabled')}
                 checked={!draft.disabled}
                 onChange={(e) => set('disabled', !e.target.checked)}
               />

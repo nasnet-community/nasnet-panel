@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@nasnet/ui';
 import {
   ApiError,
@@ -30,6 +31,7 @@ const sleep = (ms: number) =>
 export function WanPage() {
   const { id } = useParams<{ id: string }>();
   const toast = useToast();
+  const { t } = useTranslation('internet');
   const { getCredentials } = useSession();
   const router = useRouter(id);
 
@@ -65,13 +67,17 @@ export function WanPage() {
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to load interfaces.';
-        toast.notify({ title: 'Failed to load interfaces', description: message, tone: 'danger' });
+              : t('wan.loadInterfacesFailedFallback');
+        toast.notify({
+          title: t('wan.loadInterfacesFailedTitle'),
+          description: message,
+          tone: 'danger',
+        });
       } finally {
         if (!silent) setInterfacesLoading(false);
       }
     },
-    [resolveCreds, toast],
+    [resolveCreds, toast, t],
   );
 
   const loadVpn = useCallback(async () => {
@@ -89,10 +95,10 @@ export function WanPage() {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to load VPN clients.';
-      toast.notify({ title: 'Failed to load VPN', description: message, tone: 'danger' });
+            : t('wan.loadVpnFailedFallback');
+      toast.notify({ title: t('wan.loadVpnFailedTitle'), description: message, tone: 'danger' });
     }
-  }, [id, resolveCreds, toast]);
+  }, [id, resolveCreds, toast, t]);
 
   const reloadAfterWanChange = useCallback(async () => {
     void loadVpn();

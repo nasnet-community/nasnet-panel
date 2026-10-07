@@ -24,6 +24,22 @@
         } catch (_) {
           /* ignore */
         }
+        // Set direction before first paint so a Farsi session never flashes left to right.
+        try {
+          var lang = localStorage.getItem('nasnet-panel.language');
+          // Mirror the i18next detector: first browser language the panel supports.
+          var prefs = navigator.languages || [navigator.language || 'en'];
+          for (var i = 0; !lang && i < prefs.length; i++) {
+            var code = String(prefs[i]).slice(0, 2).toLowerCase();
+            if (code === 'en' || code === 'fa') lang = code;
+          }
+          if (lang === 'fa') {
+            document.documentElement.lang = 'fa';
+            document.documentElement.dir = 'rtl';
+          }
+        } catch (_) {
+          /* ignore */
+        }
       })();
     </script>
   </head>

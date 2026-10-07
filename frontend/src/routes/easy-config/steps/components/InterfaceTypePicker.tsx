@@ -1,19 +1,20 @@
 import React from 'react';
 import { EthernetPort, Radio, Smartphone, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { InterfaceType } from '../../state';
 import styles from './InterfaceTypePicker.module.scss';
 
 interface TileConfig {
   type: InterfaceType;
-  label: string;
   icon: React.ReactNode;
 }
 
+// Labels come from `wan.types.<type>` at render.
 const TILES: TileConfig[] = [
-  { type: 'ethernet', label: 'Ethernet', icon: <EthernetPort size={22} strokeWidth={1.75} /> },
-  { type: 'wireless', label: 'Wireless', icon: <Wifi size={22} strokeWidth={1.75} /> },
-  { type: 'sfp', label: 'SFP', icon: <Radio size={22} strokeWidth={1.75} /> },
-  { type: 'lte', label: 'LTE', icon: <Smartphone size={22} strokeWidth={1.75} /> },
+  { type: 'ethernet', icon: <EthernetPort size={22} strokeWidth={1.75} /> },
+  { type: 'wireless', icon: <Wifi size={22} strokeWidth={1.75} /> },
+  { type: 'sfp', icon: <Radio size={22} strokeWidth={1.75} /> },
+  { type: 'lte', icon: <Smartphone size={22} strokeWidth={1.75} /> },
 ];
 
 interface Props {
@@ -23,14 +24,18 @@ interface Props {
 }
 
 export function InterfaceTypePicker({ value, availableTypes, onChange }: Props) {
-  const visible = availableTypes ? TILES.filter((t) => availableTypes.includes(t.type)) : TILES;
+  const { t } = useTranslation('easyConfig');
+  const visible = availableTypes
+    ? TILES.filter((tile) => availableTypes.includes(tile.type))
+    : TILES;
 
   if (visible.length === 0) return null;
 
   return (
-    <div className={styles.grid} role="radiogroup" aria-label="Interface type">
+    <div className={styles.grid} role="radiogroup" aria-label={t('wan.interfaceType')}>
       {visible.map((tile) => {
         const active = value === tile.type;
+        const label = t(`wan.types.${tile.type}`);
         const className = active ? `${styles.tile} ${styles.tileActive}` : styles.tile;
         return (
           <button
@@ -38,12 +43,12 @@ export function InterfaceTypePicker({ value, availableTypes, onChange }: Props) 
             key={tile.type}
             role="radio"
             aria-checked={active}
-            aria-label={tile.label}
+            aria-label={label}
             onClick={() => onChange(tile.type)}
             className={className}
           >
             <span className={styles.iconWrap}>{tile.icon}</span>
-            <span className={styles.label}>{tile.label}</span>
+            <span className={styles.label}>{label}</span>
           </button>
         );
       })}

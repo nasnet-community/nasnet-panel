@@ -38,7 +38,7 @@
   appearance: none;
   position: absolute;
   top: 10px;
-  right: 10px;
+  inset-inline-end: 10px;
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
@@ -237,7 +237,7 @@
 .connectingPulse {
   position: absolute;
   top: 0;
-  left: -24px;
+  inset-inline-start: -24px;
   width: 24px;
   height: 100%;
   background: linear-gradient(90deg, transparent, var(--color-success), transparent);
@@ -294,10 +294,10 @@
 
 @keyframes connectingBeamRun {
   0% {
-    left: -24px;
+    inset-inline-start: -24px;
   }
   100% {
-    left: 140px;
+    inset-inline-start: 140px;
   }
 }
 

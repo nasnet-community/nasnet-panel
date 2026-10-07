@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ConfirmDialog, Stack } from '@nasnet/ui';
 import { StatsStrip } from './wireless/StatsStrip';
 import { ClientsCard } from './wireless/ClientsCard';
@@ -10,6 +11,7 @@ import { useWireless } from './wireless/useWireless';
 
 export function WirelessPage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation('wireless');
   const {
     settings,
     interfaces,
@@ -68,14 +70,17 @@ export function WirelessPage() {
       ) : null}
       <ConfirmDialog
         open={!!deletingIface}
-        title="Delete virtual interface"
+        title={t('page.deleteTitle')}
         description={
           deletingIface
-            ? `Delete ${deletingIface.ssid ?? deletingIface.name} (${deletingIface.name})? Connected clients will be disconnected. This cannot be undone.`
+            ? t('page.deleteDescription', {
+                name: deletingIface.ssid ?? deletingIface.name,
+                iface: deletingIface.name,
+              })
             : undefined
         }
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        confirmLabel={t('page.deleteConfirm')}
+        cancelLabel={t('common.cancel')}
         destructive
         onConfirm={confirmDeleteVirtual}
         onCancel={() => requestDeleteVirtual(null)}

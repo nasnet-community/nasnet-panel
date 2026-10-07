@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Inline } from '@nasnet/ui';
 import { fetchHealth } from '../api';
 import { formatBuildVersion } from '../utils/format';
@@ -8,6 +9,7 @@ import styles from './AppShell.module.scss';
 const isDev = process.env.NODE_ENV !== 'production';
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation('layout');
   const [version, setVersion] = useState('');
 
   useEffect(() => {
@@ -24,7 +26,15 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
       <main className={styles.main}>{children}</main>
       <footer className={styles.footer}>
         <Inline $gap="8px" $justify="center">
-          <span>© 2026 Nasnet Panel{version ? ` ${version}` : ''}</span>
+          <span>
+            {t('footer.copyright', { year: 2026, brand: t('brand.title') })}
+            {version ? (
+              <>
+                {' '}
+                <bdi>{version}</bdi>
+              </>
+            ) : null}
+          </span>
           {isDev ? <Badge tone="warning">DEV</Badge> : null}
         </Inline>
       </footer>

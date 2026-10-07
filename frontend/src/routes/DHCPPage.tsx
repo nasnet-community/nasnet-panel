@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Cable, Inbox, Pin, Trash2 } from 'lucide-react';
 import {
   Badge,
@@ -59,6 +60,7 @@ export function DHCPPage() {
   const router = useRouter(id);
   const { getCredentials } = useSession();
   const toast = useToast();
+  const { t } = useTranslation('network');
 
   const [leases, setLeases] = useState<SectionState<DhcpLease>>(initial<DhcpLease>());
   const [clients, setClients] = useState<SectionState<DhcpClient>>(initial<DhcpClient>());
@@ -83,7 +85,7 @@ export function DHCPPage() {
       const creds = getCredentials(id);
       const host = router?.host;
       if (!creds || !host) {
-        const missing = 'Missing router credentials for this session.';
+        const missing = t('common.missingCredentials');
         setLeases({ data: [], loading: false, error: missing });
         setClients({ data: [], loading: false, error: missing });
         return;
@@ -124,7 +126,7 @@ export function DHCPPage() {
           : {
               data: [],
               loading: false,
-              error: errorMessage(lResult.reason, 'Failed to load leases.'),
+              error: errorMessage(lResult.reason, t('dhcp.loadLeasesFailed')),
             },
       );
       setClients(
@@ -133,11 +135,11 @@ export function DHCPPage() {
           : {
               data: [],
               loading: false,
-              error: errorMessage(cResult.reason, 'Failed to load clients.'),
+              error: errorMessage(cResult.reason, t('dhcp.loadClientsFailed')),
             },
       );
     },
-    [id, router?.host, getCredentials],
+    [id, router?.host, getCredentials, t],
   );
 
   useEffect(() => {
@@ -159,21 +161,21 @@ export function DHCPPage() {
     try {
       await makeDhcpLeaseStatic({ host, ...creds }, lease.macAddress);
       toast.notify({
-        title: 'Lease made static',
+        title: t('dhcp.toasts.madeStatic'),
         description: `${lease.address} · ${lease.macAddress}`,
         tone: 'success',
       });
       await reload();
     } catch (err) {
       toast.notify({
-        title: 'Failed to make lease static',
-        description: errorMessage(err, 'Unknown error'),
+        title: t('dhcp.toasts.makeStaticFailed'),
+        description: errorMessage(err, t('common.unknownError')),
         tone: 'danger',
       });
     } finally {
       setBusyMac(null);
     }
-  }, [id, router?.host, getCredentials, leaseToMakeStatic, reload, toast]);
+  }, [id, router?.host, getCredentials, leaseToMakeStatic, reload, toast, t]);
 
   const handleRemove = useCallback(async () => {
     const lease = leaseToRemove;
@@ -186,48 +188,48 @@ export function DHCPPage() {
     try {
       await removeDhcpLease({ host, ...creds }, lease.macAddress);
       toast.notify({
-        title: 'Lease removed',
+        title: t('dhcp.toasts.removed'),
         description: `${lease.address} · ${lease.macAddress}`,
         tone: 'success',
       });
       await reload();
     } catch (err) {
       toast.notify({
-        title: 'Failed to remove lease',
-        description: errorMessage(err, 'Unknown error'),
+        title: t('dhcp.toasts.removeFailed'),
+        description: errorMessage(err, t('common.unknownError')),
         tone: 'danger',
       });
     } finally {
       setBusyMac(null);
     }
-  }, [id, router?.host, getCredentials, leaseToRemove, reload, toast]);
+  }, [id, router?.host, getCredentials, leaseToRemove, reload, toast, t]);
 
   const clearBridgeRequest = useCallback(() => setBridgeRequest(null), []);
 
   const leaseColumns: DataTableColumn<DhcpLease>[] = [
     {
       key: 'address',
-      header: 'Address',
+      header: t('dhcp.columns.address'),
       render: (r) => <span className={styles.mono}>{r.address}</span>,
     },
     {
       key: 'mac',
-      header: 'MAC',
+      header: t('dhcp.columns.mac'),
       render: (r) => <span className={styles.mono}>{r.macAddress}</span>,
     },
     {
       key: 'host',
-      header: 'Host',
+      header: t('dhcp.columns.host'),
       render: (r) => r.hostName || <span className={styles.muted}>—</span>,
     },
     {
       key: 'server',
-      header: 'Server',
+      header: t('dhcp.columns.server'),
       render: (r) => r.serverName || <span className={styles.muted}>—</span>,
     },
     {
       key: 'port',
-      header: 'Port',
+      header: t('dhcp.columns.port'),
       render: (r) =>
         r.bridgePort ? (
           <span className={styles.mono}>{r.bridgePort}</span>
@@ -237,13 +239,17 @@ export function DHCPPage() {
     },
     {
       key: 'type',
-      header: 'Type',
+      header: t('dhcp.columns.type'),
       render: (r) =>
-        r.dynamic ? <Badge tone="info">dynamic</Badge> : <Badge tone="success">static</Badge>,
+        r.dynamic ? (
+          <Badge tone="info">{t('dhcp.dynamic')}</Badge>
+        ) : (
+          <Badge tone="success">{t('dhcp.static')}</Badge>
+        ),
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('dhcp.columns.status'),
       render: (r) =>
         r.status ? (
           <Badge tone={leaseStatusTone(r.status)}>{r.status}</Badge>
@@ -253,7 +259,7 @@ export function DHCPPage() {
     },
     {
       key: 'expires',
-      header: 'Expires',
+      header: t('dhcp.columns.expires'),
       render: (r) => r.expiresAfter || <span className={styles.muted}>—</span>,
     },
     {
@@ -268,8 +274,8 @@ export function DHCPPage() {
               variant="secondary"
               onClick={() => setLeaseToMakeStatic(r)}
               disabled={busyMac === r.macAddress}
-              aria-label={`Make static ${r.macAddress}`}
-              title="Make static"
+              aria-label={t('dhcp.makeStaticAria', { mac: r.macAddress })}
+              title={t('dhcp.makeStatic')}
             >
               <Pin size={14} aria-hidden />
             </Button>
@@ -279,8 +285,8 @@ export function DHCPPage() {
             variant="danger"
             onClick={() => setLeaseToRemove(r)}
             disabled={busyMac === r.macAddress}
-            aria-label={`Remove lease ${r.macAddress}`}
-            title="Remove"
+            aria-label={t('dhcp.removeLeaseAria', { mac: r.macAddress })}
+            title={t('dhcp.remove')}
           >
             <Trash2 size={14} aria-hidden />
           </Button>
@@ -302,18 +308,18 @@ export function DHCPPage() {
   const clientColumns: DataTableColumn<DhcpClient>[] = [
     {
       key: 'interface',
-      header: 'Interface',
+      header: t('dhcp.columns.interface'),
       render: (r) => <span className={styles.mono}>{r.interface}</span>,
     },
     {
       key: 'address',
-      header: 'Address',
+      header: t('dhcp.columns.address'),
       render: (r) => <span className={styles.mono}>{r.address || '—'}</span>,
     },
-    { key: 'status', header: 'Status', render: (r) => r.status || '—' },
+    { key: 'status', header: t('dhcp.columns.status'), render: (r) => r.status || '—' },
     {
       key: 'gateway',
-      header: 'Gateway',
+      header: t('dhcp.columns.gateway'),
       render: (r) =>
         r.gateway ? (
           <span className={styles.mono}>{r.gateway}</span>
@@ -323,7 +329,7 @@ export function DHCPPage() {
     },
     {
       key: 'dns',
-      header: 'DNS',
+      header: t('dhcp.columns.dns'),
       render: (r) => {
         const dns = [r.primaryDns, r.secondaryDns].filter(Boolean).join(', ');
         return dns ? (
@@ -335,9 +341,13 @@ export function DHCPPage() {
     },
     {
       key: 'state',
-      header: 'State',
+      header: t('dhcp.columns.state'),
       render: (r) =>
-        r.disabled ? <Badge tone="warning">disabled</Badge> : <Badge tone="success">enabled</Badge>,
+        r.disabled ? (
+          <Badge tone="warning">{t('common.disabled')}</Badge>
+        ) : (
+          <Badge tone="success">{t('common.enabled')}</Badge>
+        ),
     },
   ];
 
@@ -365,10 +375,8 @@ export function DHCPPage() {
       <Card data-testid="lan-ports">
         <div className={styles.lanPortsRow}>
           <CardHeader>
-            <CardTitle>LAN ports</CardTitle>
-            <CardDescription>
-              Manage LAN-side ports. WAN ports are managed on the Internet tab.
-            </CardDescription>
+            <CardTitle>{t('dhcp.lanPorts.title')}</CardTitle>
+            <CardDescription>{t('dhcp.lanPorts.description')}</CardDescription>
           </CardHeader>
           <div className={styles.lanPortsDiagram}>
             {model ? (
@@ -394,15 +402,13 @@ export function DHCPPage() {
 
       <Card data-testid="dhcp-clients">
         <CardHeader>
-          <CardTitle>DHCP Clients</CardTitle>
-          <CardDescription>
-            Interfaces on which this router acts as a DHCP client (WAN).
-          </CardDescription>
+          <CardTitle>{t('dhcp.clients.title')}</CardTitle>
+          <CardDescription>{t('dhcp.clients.description')}</CardDescription>
         </CardHeader>
         {clients.error ? <div className={styles.errorBanner}>{clients.error}</div> : null}
         {sharedSubnets.map(([prefix, ifaces]) => (
           <div key={prefix} role="status" className={styles.warningBanner}>
-            {ifaces.join(', ')} share the {prefix}.x subnet. Change it on one upstream modem.
+            {t('dhcp.clients.sharedSubnet', { interfaces: ifaces.join(', '), prefix })}
           </div>
         ))}
         {clients.loading ? (
@@ -410,7 +416,7 @@ export function DHCPPage() {
         ) : clients.data.length === 0 ? (
           <div className={styles.empty}>
             <Cable size={22} aria-hidden className={styles.emptyIcon} />
-            <p>This router is not a DHCP client on any interface.</p>
+            <p>{t('dhcp.clients.empty')}</p>
           </div>
         ) : (
           <DataTable columns={clientColumns} rows={clients.data} rowKey={(r) => r.id} />
@@ -419,8 +425,8 @@ export function DHCPPage() {
 
       <Card data-testid="dhcp-leases">
         <CardHeader>
-          <CardTitle>DHCP Leases</CardTitle>
-          <CardDescription>Active DHCP leases issued to clients on the LAN.</CardDescription>
+          <CardTitle>{t('dhcp.leases.title')}</CardTitle>
+          <CardDescription>{t('dhcp.leases.description')}</CardDescription>
         </CardHeader>
         {leases.error ? <div className={styles.errorBanner}>{leases.error}</div> : null}
         {leases.loading ? (
@@ -428,7 +434,7 @@ export function DHCPPage() {
         ) : leases.data.length === 0 ? (
           <div className={styles.empty}>
             <Inbox size={22} aria-hidden className={styles.emptyIcon} />
-            <p>No active leases.</p>
+            <p>{t('dhcp.leases.empty')}</p>
           </div>
         ) : (
           <DataTable
@@ -441,14 +447,17 @@ export function DHCPPage() {
 
       <ConfirmDialog
         open={!!leaseToRemove}
-        title="Remove DHCP lease"
+        title={t('dhcp.confirmRemove.title')}
         description={
           leaseToRemove
-            ? `Remove the lease for ${leaseToRemove.address} (${leaseToRemove.macAddress})? This cannot be undone.`
+            ? t('dhcp.confirmRemove.description', {
+                address: leaseToRemove.address,
+                mac: leaseToRemove.macAddress,
+              })
             : undefined
         }
-        confirmLabel="Remove"
-        cancelLabel="Cancel"
+        confirmLabel={t('dhcp.remove')}
+        cancelLabel={t('common.cancel')}
         destructive
         onConfirm={handleRemove}
         onCancel={() => setLeaseToRemove(null)}
@@ -456,14 +465,17 @@ export function DHCPPage() {
 
       <ConfirmDialog
         open={!!leaseToMakeStatic}
-        title="Make DHCP lease static"
+        title={t('dhcp.confirmStatic.title')}
         description={
           leaseToMakeStatic
-            ? `Make the lease for ${leaseToMakeStatic.address} (${leaseToMakeStatic.macAddress}) static? The client will keep this address.`
+            ? t('dhcp.confirmStatic.description', {
+                address: leaseToMakeStatic.address,
+                mac: leaseToMakeStatic.macAddress,
+              })
             : undefined
         }
-        confirmLabel="Make static"
-        cancelLabel="Cancel"
+        confirmLabel={t('dhcp.makeStatic')}
+        cancelLabel={t('common.cancel')}
         onConfirm={handleMakeStatic}
         onCancel={() => setLeaseToMakeStatic(null)}
       />

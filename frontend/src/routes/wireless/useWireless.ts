@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@nasnet/ui';
 import {
   createVirtualWifiInterface,
@@ -99,10 +100,12 @@ export function useWireless(id: string | undefined) {
   const [editingSettings, setEditingSettings] = useState<WirelessSettings | null>(null);
   const [addingVirtual, setAddingVirtual] = useState(false);
   const [bridges, setBridges] = useState<BridgeResponse[]>([]);
+  // '' marks a failure with no server message; it is translated on read, below.
   const [bridgesError, setBridgesError] = useState<string | null>(null);
   const [deletingIface, setDeletingIface] = useState<Interface | null>(null);
   const activeId = useRef(id);
   const toast = useToast();
+  const { t } = useTranslation('wireless');
 
   useEffect(() => {
     activeId.current = id;
@@ -221,12 +224,12 @@ export function useWireless(id: string | undefined) {
     }
     try {
       await updateWifiSettings(creds, editingIface.name, patch);
-      toast.notify({ title: 'Wireless settings saved', tone: 'success' });
+      toast.notify({ title: t('toast.saved'), tone: 'success' });
       closeEdit();
       void reload();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save wireless settings';
-      toast.notify({ title: 'Save failed', description: message, tone: 'danger' });
+      const message = err instanceof Error ? err.message : t('toast.saveError');
+      toast.notify({ title: t('toast.saveFailed'), description: message, tone: 'danger' });
     }
   };
 
@@ -237,7 +240,7 @@ export function useWireless(id: string | undefined) {
       prev.map((i) => (i.name === ifaceName ? { ...i, disabled: !running } : i)),
     );
     toast.notify({
-      title: `${ifaceName} ${running ? 'enabled' : 'disabled'}`,
+      title: t(running ? 'toast.enabled' : 'toast.disabled', { name: ifaceName }),
       tone: 'success',
     });
   };
@@ -250,7 +253,7 @@ export function useWireless(id: string | undefined) {
       setBridges(await fetchBridges(creds));
     } catch (err) {
       setBridges([]);
-      setBridgesError(err instanceof Error ? err.message : 'Failed to load bridges');
+      setBridgesError(err instanceof Error ? err.message : '');
     }
   }, [creds]);
 
@@ -266,12 +269,12 @@ export function useWireless(id: string | undefined) {
       if (activeId.current !== requestId) return;
       const next = toInterface(created);
       setInterfaces((prev) => [...prev.filter((i) => i.name !== next.name), next]);
-      toast.notify({ title: `${next.name} created`, tone: 'success' });
+      toast.notify({ title: t('toast.created', { name: next.name }), tone: 'success' });
       closeAddVirtual();
     } catch (err) {
       if (activeId.current !== requestId) return;
-      const message = err instanceof Error ? err.message : 'Failed to create virtual interface';
-      toast.notify({ title: 'Create failed', description: message, tone: 'danger' });
+      const message = err instanceof Error ? err.message : t('toast.createError');
+      toast.notify({ title: t('toast.createFailed'), description: message, tone: 'danger' });
     }
   };
 
@@ -284,11 +287,11 @@ export function useWireless(id: string | undefined) {
       await deleteVirtualWifiInterface(creds, name);
       if (activeId.current !== requestId) return;
       setInterfaces((prev) => prev.filter((i) => i.name !== name));
-      toast.notify({ title: `${name} deleted`, tone: 'success' });
+      toast.notify({ title: t('toast.deleted', { name }), tone: 'success' });
     } catch (err) {
       if (activeId.current !== requestId) return;
-      const message = err instanceof Error ? err.message : 'Failed to delete virtual interface';
-      toast.notify({ title: 'Delete failed', description: message, tone: 'danger' });
+      const message = err instanceof Error ? err.message : t('toast.deleteError');
+      toast.notify({ title: t('toast.deleteFailed'), description: message, tone: 'danger' });
     }
   };
 
@@ -306,7 +309,7 @@ export function useWireless(id: string | undefined) {
     toggleInterface,
     addingVirtual,
     bridges,
-    bridgesError,
+    bridgesError: bridgesError === '' ? t('toast.loadBridgesError') : bridgesError,
     openAddVirtual,
     closeAddVirtual,
     createVirtual,

@@ -1,3 +1,6 @@
+import i18n from '../i18n';
+
+// Messages are translated when a validator runs, so they follow the active language.
 export const isIPv4 = (value: string): boolean => {
   const match = value.trim().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if (!match) return false;
@@ -37,10 +40,15 @@ export const isRequired = (value: string | undefined | null): boolean =>
 
 export const OVPN_PASSWORD_MIN_LENGTH = 8;
 
-export function validateOvpnSecret(value: string, label = 'Password'): string | null {
-  if (!isRequired(value)) return `${label} is required.`;
+export function validateOvpnSecret(value: string, label?: string): string | null {
+  const name = label ?? i18n.t('validators.password', { ns: 'ui' });
+  if (!isRequired(value)) return i18n.t('validators.secretRequired', { ns: 'ui', label: name });
   if (value.length < OVPN_PASSWORD_MIN_LENGTH) {
-    return `${label} must be at least ${OVPN_PASSWORD_MIN_LENGTH} characters.`;
+    return i18n.t('validators.secretTooShort', {
+      ns: 'ui',
+      label: name,
+      min: OVPN_PASSWORD_MIN_LENGTH,
+    });
   }
   return null;
 }
@@ -63,15 +71,15 @@ export const isHostOrIp = (value: string): boolean => {
 
 export function validateIdentifier(value: string): string | null {
   const v = value.trim();
-  if (!isRequired(v)) return 'Name is required.';
-  if (v.length > 64) return 'Name must be 64 characters or fewer.';
-  if (!IDENTIFIER_RE.test(v)) return 'Use letters, digits, hyphens or underscores only.';
+  if (!isRequired(v)) return i18n.t('validators.nameRequired', { ns: 'ui' });
+  if (v.length > 64) return i18n.t('validators.nameTooLong', { ns: 'ui' });
+  if (!IDENTIFIER_RE.test(v)) return i18n.t('validators.nameCharacters', { ns: 'ui' });
   return null;
 }
 
 export function validateHostOrIp(value: string): string | null {
   const v = value.trim();
-  if (!isRequired(v)) return 'Host is required.';
+  if (!isRequired(v)) return i18n.t('validators.hostRequired', { ns: 'ui' });
   if (isIPv4(v) || isHostname(v)) return null;
-  return 'Enter a valid IP address or hostname.';
+  return i18n.t('validators.hostInvalid', { ns: 'ui' });
 }

@@ -89,7 +89,7 @@
   flex-shrink: 0;
   background: var(--color-surface-alt);
   color: var(--color-text);
-  margin-right: var(--space-sm);
+  margin-inline-end: var(--space-sm);
 }
 
 .cardHeaderTitleRow {
@@ -215,8 +215,17 @@
   color: var(--color-text-muted);
   flex-shrink: 0;
 
+  // Points from current to latest version, so it follows the reading direction.
+  [dir='rtl'] & {
+    transform: scaleX(-1);
+  }
+
+  // Stacked vertically on mobile: points down in either direction.
   @media (max-width: 480px) {
-    transform: rotate(90deg);
+    &,
+    [dir='rtl'] & {
+      transform: rotate(90deg);
+    }
   }
 }
 

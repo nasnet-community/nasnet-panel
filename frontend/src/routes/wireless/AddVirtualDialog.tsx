@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Checkbox,
@@ -15,6 +16,7 @@ import {
 } from '@nasnet/ui';
 import type { BridgeResponse, CreateVirtualWifiRequest, Interface } from '../../api';
 import { isWifiPassword } from '../../utils/validators';
+import { useFormat } from '../../utils/useFormat';
 import { bridgeDescription, bridgeLabel } from '../lan/bridgeTypes';
 import { SECURITY_OPTIONS } from './WirelessFields';
 
@@ -37,6 +39,8 @@ export function AddVirtualDialog({
   onClose,
   onCreate,
 }: Props) {
+  const { t } = useTranslation('wireless');
+  const { number } = useFormat();
   const toast = useToast();
   const masterOptions = useMemo(
     () =>
@@ -65,21 +69,24 @@ export function AddVirtualDialog({
 
   const toggleType = (value: string, on: boolean) =>
     setSecurityTypes((prev) =>
-      on ? Array.from(new Set([...prev, value])) : prev.filter((t) => t !== value),
+      on ? Array.from(new Set([...prev, value])) : prev.filter((type) => type !== value),
     );
 
   const submit = async () => {
     const name = ssid.trim();
     if (!master || !bridge || !name) {
-      toast.notify({ title: 'Master interface, bridge, and SSID are required', tone: 'warning' });
+      toast.notify({ title: t('addVirtual.requiredFields'), tone: 'warning' });
       return;
     }
     if (password && !isWifiPassword(password)) {
-      toast.notify({ title: 'Password must be 8 to 63 characters', tone: 'warning' });
+      toast.notify({
+        title: t('addVirtual.passwordLength', { min: number(8), max: number(63) }),
+        tone: 'warning',
+      });
       return;
     }
     if (password && securityTypes.length === 0) {
-      toast.notify({ title: 'Select at least one security type', tone: 'warning' });
+      toast.notify({ title: t('addVirtual.selectSecurityType'), tone: 'warning' });
       return;
     }
     const request: CreateVirtualWifiRequest = { masterInterface: master, ssid: name, bridge };
@@ -104,15 +111,15 @@ export function AddVirtualDialog({
     <Dialog
       open
       onClose={close}
-      title="Add virtual wireless interface"
+      title={t('addVirtual.title')}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={close} disabled={busy}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="success" onClick={submit} disabled={busy}>
-            {busy ? 'Creating...' : 'Create'}
+            {busy ? t('addVirtual.creating') : t('addVirtual.create')}
           </Button>
         </>
       }
@@ -120,37 +127,37 @@ export function AddVirtualDialog({
       <FieldStack>
         <FieldRow>
           <Label as="div">
-            <span>Master interface</span>
+            <span>{t('addVirtual.masterInterface')}</span>
             <Select
               options={masterOptions}
               value={master}
               onChange={setMaster}
-              placeholder="Select an interface"
+              placeholder={t('addVirtual.selectInterface')}
               disabled={busy || masterOptions.length === 0}
-              aria-label="Master interface"
+              aria-label={t('addVirtual.masterInterface')}
             />
           </Label>
           <Label as="div">
-            <span>Bridge</span>
+            <span>{t('addVirtual.bridge')}</span>
             <Select
               options={bridgeOptions}
               value={bridge}
               onChange={setBridge}
               placeholder={
                 bridgesError
-                  ? 'Failed to load bridges'
+                  ? t('toast.loadBridgesError')
                   : bridgeOptions.length > 0
-                    ? 'Select a bridge'
-                    : 'No bridge available'
+                    ? t('addVirtual.selectBridge')
+                    : t('addVirtual.noBridge')
               }
               disabled={busy || bridgeOptions.length === 0}
-              aria-label="Bridge"
+              aria-label={t('addVirtual.bridge')}
             />
             {bridgesError ? (
               <Inline $gap="8px">
                 <FormError>{bridgesError}</FormError>
                 <Button size="sm" variant="ghost" onClick={onRetryBridges} disabled={busy}>
-                  Retry
+                  {t('addVirtual.retry')}
                 </Button>
               </Inline>
             ) : null}
@@ -158,22 +165,27 @@ export function AddVirtualDialog({
         </FieldRow>
         <FieldRow>
           <Label>
-            <span>SSID</span>
-            <Input value={ssid} onChange={(e) => setSsid(e.target.value)} aria-label="SSID" />
+            <span>{t('common.ssid')}</span>
+            <Input
+              value={ssid}
+              onChange={(e) => setSsid(e.target.value)}
+              aria-label={t('common.ssid')}
+              dir="auto"
+            />
           </Label>
           <Label>
-            <span>Password</span>
+            <span>{t('common.password')}</span>
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Leave empty for an open network"
-              aria-label="Password"
+              placeholder={t('addVirtual.openNetworkPlaceholder')}
+              aria-label={t('common.password')}
             />
           </Label>
         </FieldRow>
         {password ? (
           <Label as="div">
-            <span>Security</span>
+            <span>{t('common.security')}</span>
             <Inline $gap="16px">
               {SECURITY_OPTIONS.map((opt) => (
                 <Checkbox

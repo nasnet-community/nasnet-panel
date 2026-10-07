@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import { isAbortError } from './abort';
 import { BACKEND_URL } from './config';
 
@@ -45,7 +46,10 @@ export async function apiRequest<T>(path: string, init: ApiRequestInit = {}): Pr
     response = await fetch(url, { ...requestInit, headers });
   } catch (err) {
     if (isAbortError(err)) throw err;
-    throw new ApiError(err instanceof Error ? err.message : 'Network request failed', 0);
+    throw new ApiError(
+      err instanceof Error ? err.message : i18n.t('api.networkFailed', { ns: 'ui' }),
+      0,
+    );
   }
 
   let body: Envelope<T> | null = null;
@@ -56,7 +60,10 @@ export async function apiRequest<T>(path: string, init: ApiRequestInit = {}): Pr
   }
 
   if (!response.ok) {
-    const message = body?.error || body?.message || `Request failed (${response.status})`;
+    const message =
+      body?.error ||
+      body?.message ||
+      i18n.t('api.requestFailed', { ns: 'ui', status: response.status });
     if (response.status === 401 && !skipAuthRedirect) {
       unauthorizedHandler?.(headers.get('X-RouterOS-Host'));
     }

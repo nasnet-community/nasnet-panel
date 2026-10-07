@@ -1,0 +1,62 @@
+{
+  "page": {
+    "title": "Add router",
+    "subtitle": "Scan the network or add a router manually.",
+    "back": "Back",
+    "addManually": "Add manually",
+    "scanNetwork": "Scan network"
+  },
+  "duplicate": {
+    "title": "Router already added",
+    "description": "A router at {{host}} is already on your list as \"{{name}}\".",
+    "close": "Close",
+    "openRouter": "Open router"
+  },
+  "credentials": {
+    "title": "Connect to {{name}}",
+    "titleFallback": "Connect",
+    "description": "Enter credentials for {{host}}.",
+    "cancel": "Cancel",
+    "connect": "Connect"
+  },
+  "fields": {
+    "displayName": "Display name",
+    "ipAddress": "IP address",
+    "username": "Username",
+    "password": "Password"
+  },
+  "scan": {
+    "title": "Scan your subnet",
+    "description": "Probing for MikroTik devices. Pick a result to continue with credentials.",
+    "progress": "Scanning {{subnet}} ({{percent}})",
+    "scanning": "Scanning…",
+    "empty": "No devices yet. Start a scan.",
+    "failed": "Scan failed",
+    "subnet": "Subnet",
+    "start": "Start scan",
+    "columns": {
+      "ip": "IP",
+      "hostname": "Hostname",
+      "vendor": "Vendor",
+      "type": "Type",
+      "services": "Services"
+    }
+  },
+  "target": {
+    "title": "Router details",
+    "description": "Enter router information and credentials to connect.",
+    "back": "Back",
+    "connect": "Connect"
+  },
+  "errors": {
+    "usernameRequired": "Username is required.",
+    "notReachable": "{{host}} is not reachable",
+    "notMikroTik": "{{host}} does not appear to be a MikroTik device",
+    "invalidCredentials": "Invalid username or password",
+    "connectionFailed": "Connection failed"
+  },
+  "toasts": {
+    "configApplied": "Default configuration applied",
+    "configFailed": "Default config failed"
+  }
+}

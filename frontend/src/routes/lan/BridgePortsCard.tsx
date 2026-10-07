@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeftRight, Network } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
@@ -28,6 +29,7 @@ interface BridgePortsCardProps {
 }
 
 export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: BridgePortsCardProps) {
+  const { t } = useTranslation('network');
   const [ports, setPorts] = useState<BridgePortResponse[]>([]);
   const [bridges, setBridges] = useState<BridgeResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
       setPorts([]);
       setBridges([]);
       setLoading(false);
-      setError('Missing router credentials for this session.');
+      setError(t('common.missingCredentials'));
       return;
     }
     const full = { host, username, password };
@@ -57,12 +59,12 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
     } else {
       setPorts([]);
       setError(
-        pResult.reason instanceof Error ? pResult.reason.message : 'Failed to load bridge ports.',
+        pResult.reason instanceof Error ? pResult.reason.message : t('bridge.card.loadFailed'),
       );
     }
     setBridges(bResult.status === 'fulfilled' ? bResult.value : []);
     setLoading(false);
-  }, [host, username, password]);
+  }, [host, username, password, t]);
 
   useEffect(() => {
     void reload();
@@ -78,17 +80,17 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
   const columns: DataTableColumn<BridgePortResponse>[] = [
     {
       key: 'interface',
-      header: 'Interface',
+      header: t('bridge.card.columns.interface'),
       render: (r) => <span className={styles.mono}>{r.interface}</span>,
     },
     {
       key: 'bridge',
-      header: 'Bridge',
+      header: t('bridge.card.columns.bridge'),
       render: (r) => <span>{bridgeLabel(r.bridge)}</span>,
     },
     {
       key: 'behaviour',
-      header: 'Behaviour',
+      header: t('bridge.card.columns.behaviour'),
       render: (r) => {
         const description = bridgeDescription(r.bridge, r.comment);
         return description ? (
@@ -108,8 +110,8 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
             size="sm"
             variant="secondary"
             onClick={() => setPortToChange(r)}
-            aria-label={`Change bridge for ${r.interface}`}
-            title="Change bridge"
+            aria-label={t('bridge.card.changeAria', { interface: r.interface })}
+            title={t('bridge.card.changeTitle')}
           >
             <ArrowLeftRight size={14} aria-hidden />
           </Button>
@@ -121,10 +123,8 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
   return (
     <Card data-testid="bridge-ports">
       <CardHeader>
-        <CardTitle>Bridge ports</CardTitle>
-        <CardDescription>
-          Which bridge each LAN port belongs to, and therefore how its traffic is routed.
-        </CardDescription>
+        <CardTitle>{t('bridge.card.title')}</CardTitle>
+        <CardDescription>{t('bridge.card.description')}</CardDescription>
       </CardHeader>
       {error ? <div className={styles.errorBanner}>{error}</div> : null}
       {loading ? (
@@ -136,7 +136,7 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
       ) : ports.length === 0 ? (
         <div className={styles.empty}>
           <Network size={22} aria-hidden className={styles.emptyIcon} />
-          <p>No LAN bridge ports on this router.</p>
+          <p>{t('bridge.card.empty')}</p>
         </div>
       ) : (
         <DataTable columns={columns} rows={ports} rowKey={(r) => r.id || r.interface} />

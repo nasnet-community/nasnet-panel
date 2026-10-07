@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
@@ -21,22 +22,23 @@ interface Props {
 }
 
 export function TargetStep({ state, dispatch, onBack, onConnect }: Props) {
+  const { t } = useTranslation('addRouter');
   const valid = isRequired(state.name) && isIPv4(state.host) && isRequired(state.username);
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Router details</CardTitle>
-        <CardDescription>Enter router information and credentials to connect.</CardDescription>
+        <CardTitle>{t('target.title')}</CardTitle>
+        <CardDescription>{t('target.description')}</CardDescription>
       </CardHeader>
       <Stack>
         <TargetFields state={state} dispatch={dispatch} onSubmit={onConnect} canSubmit={valid} />
         {state.error ? <FormError>{state.error}</FormError> : null}
         <Inline>
           <Button variant="ghost" onClick={onBack} disabled={state.applying}>
-            Back
+            {t('target.back')}
           </Button>
           <Button variant="success" onClick={onConnect} disabled={!valid} loading={state.applying}>
-            Connect
+            {t('target.connect')}
           </Button>
         </Inline>
       </Stack>

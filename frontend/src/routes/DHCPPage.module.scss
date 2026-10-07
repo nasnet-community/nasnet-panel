@@ -9,7 +9,7 @@
 .warningBanner {
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
-  border-left: 3px solid var(--color-warning, #edc32c);
+  border-inline-start: 3px solid var(--color-warning, #edc32c);
   background: rgba(237, 195, 44, 0.12);
   color: var(--color-text);
   font-size: var(--font-sm);

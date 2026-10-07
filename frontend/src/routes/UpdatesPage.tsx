@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AppWindow,
   ArrowRight,
@@ -41,21 +42,22 @@ import {
 import { useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { RouterTabBar } from '../layout/RouterTabBar';
+import { useFormat } from '../utils/useFormat';
 import styles from './UpdatesPage.module.scss';
 
 const APP_UPDATE_TIMEOUT_MS = 8 * 60 * 1000;
 
-const APP_UPDATE_STEPS: Record<string, { value: number; label: string }> = {
-  preparing: { value: 15, label: 'Preparing update' },
-  pulling: { value: 55, label: 'Downloading new version' },
-  restarting: { value: 85, label: 'Restarting panel' },
+// `step` is a key under updates.progress in the catalog, translated at render.
+type ProgressStep = 'starting' | 'preparing' | 'pulling' | 'restarting' | 'waiting' | 'done';
+
+const APP_UPDATE_STEPS: Record<string, { value: number; step: ProgressStep }> = {
+  preparing: { value: 15, step: 'preparing' },
+  pulling: { value: 55, step: 'pulling' },
+  restarting: { value: 85, step: 'restarting' },
 };
 
-function formatReleaseDate(value: string): string | null {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? null
-    : date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+function isValidDate(value: string): boolean {
+  return !Number.isNaN(new Date(value).getTime());
 }
 
 function VersionTrackSkeleton() {
@@ -94,14 +96,15 @@ function RouterOSIcon({ size = 18 }: { size?: number }) {
 }
 
 export function UpdatesPage() {
+  const { t } = useTranslation('tools');
   return (
     <>
       <RouterTabBar />
       <PageShell>
         <PageHeader>
           <div>
-            <PageTitle>Updates</PageTitle>
-            <PageSubtitle>Keep the Nasnet Panel app and RouterOS firmware up to date.</PageSubtitle>
+            <PageTitle>{t('updates.title')}</PageTitle>
+            <PageSubtitle>{t('updates.subtitle')}</PageSubtitle>
           </div>
         </PageHeader>
 
@@ -132,10 +135,12 @@ function AppUpdateCard() {
   const [confirming, setConfirming] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
-  const [progressLabel, setProgressLabel] = useState('');
+  const [progressStep, setProgressStep] = useState<ProgressStep | null>(null);
   const [complete, setComplete] = useState(false);
   const watchingRef = useRef(false);
   const toast = useToast();
+  const { t } = useTranslation('tools');
+  const format = useFormat();
 
   useEffect(
     () => () => {
@@ -155,11 +160,11 @@ function AppUpdateCard() {
       setCheck(await checkAppForUpdates({ host, ...creds }));
     } catch (err) {
       setCheck(null);
-      setError(err instanceof Error ? err.message : 'Failed to check for updates');
+      setError(err instanceof Error ? err.message : t('updates.checkFailed'));
     } finally {
       setLoading(false);
     }
-  }, [host, creds]);
+  }, [host, creds, t]);
 
   useEffect(() => {
     void reload();
@@ -169,19 +174,19 @@ function AppUpdateCard() {
     watchingRef.current = false;
     setInstalling(false);
     setProgress(null);
-    toast.notify({ title: 'App update failed', description: message, tone: 'danger' });
+    toast.notify({ title: t('updates.app.failed'), description: message, tone: 'danger' });
   };
 
   const waitForRestart = (startedAt: number, fromVersion: string) => {
     if (!watchingRef.current || !creds || !host) return;
     setProgress(95);
-    setProgressLabel('Waiting for the panel to come back');
+    setProgressStep('waiting');
     if (Date.now() - startedAt > APP_UPDATE_TIMEOUT_MS) {
       watchingRef.current = false;
       setInstalling(false);
       toast.notify({
-        title: 'Update applied',
-        description: 'Refresh the page to load the new version.',
+        title: t('updates.app.applied'),
+        description: t('updates.app.appliedDetail'),
         tone: 'success',
       });
       return;
@@ -194,10 +199,14 @@ function AppUpdateCard() {
         if (version && version !== fromVersion) {
           watchingRef.current = false;
           setProgress(100);
-          setProgressLabel('Done');
+          setProgressStep('done');
           setComplete(true);
           setInstalling(false);
-          toast.notify({ title: 'Update complete', description: 'Reloading…', tone: 'success' });
+          toast.notify({
+            title: t('updates.app.complete'),
+            description: t('updates.app.reloading'),
+            tone: 'success',
+          });
           window.setTimeout(() => window.location.reload(), 1200);
           return;
         }
@@ -208,7 +217,7 @@ function AppUpdateCard() {
   const watchUpdate = (startedAt: number, fromVersion: string) => {
     if (!watchingRef.current || !creds || !host) return;
     if (Date.now() - startedAt > APP_UPDATE_TIMEOUT_MS) {
-      finishWithError('Timed out waiting for the update to finish');
+      finishWithError(t('updates.app.timeout'));
       return;
     }
     void fetchAppUpdateStatus({ host, ...creds })
@@ -216,7 +225,7 @@ function AppUpdateCard() {
       .then((status) => {
         if (!watchingRef.current) return;
         if (status?.phase === 'error') {
-          finishWithError(status.message || 'App update failed');
+          finishWithError(status.message || t('updates.app.failed'));
           return;
         }
         if (status && (status.phase === 'done' || status.phase === 'idle')) {
@@ -226,7 +235,7 @@ function AppUpdateCard() {
         const step = status ? APP_UPDATE_STEPS[status.phase] : undefined;
         if (step) {
           setProgress(step.value);
-          setProgressLabel(step.label);
+          setProgressStep(step.step);
         }
         window.setTimeout(() => watchUpdate(startedAt, fromVersion), 2000);
       });
@@ -238,13 +247,13 @@ function AppUpdateCard() {
     setInstalling(true);
     setComplete(false);
     setProgress(5);
-    setProgressLabel('Starting update');
+    setProgressStep('starting');
     try {
       const result = await installAppUpdate({ host, ...creds });
       if (!result.updateAvailable) {
         setInstalling(false);
         setProgress(null);
-        toast.notify({ title: 'Already up to date', tone: 'success' });
+        toast.notify({ title: t('updates.app.alreadyUpToDate'), tone: 'success' });
         await reload();
         return;
       }
@@ -254,14 +263,17 @@ function AppUpdateCard() {
       setInstalling(false);
       setProgress(null);
       toast.notify({
-        title: 'App update failed',
+        title: t('updates.app.failed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
     }
   };
 
-  const releaseDate = check?.releaseDate ? formatReleaseDate(check.releaseDate) : null;
+  const releaseDate =
+    check?.releaseDate && isValidDate(check.releaseDate)
+      ? format.date(check.releaseDate, { year: 'numeric', month: 'short', day: 'numeric' })
+      : null;
 
   return (
     <Card>
@@ -272,14 +284,14 @@ function AppUpdateCard() {
               <span className={styles.cardHeaderIcon}>
                 <AppWindow size={18} aria-hidden />
               </span>
-              <h3 style={{ margin: 0 }}>App update</h3>
+              <h3 style={{ margin: 0 }}>{t('updates.app.title')}</h3>
             </div>
             <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: 'var(--font-sm)' }}>
               {!check
-                ? 'Keep the Nasnet Panel app up to date.'
+                ? t('updates.app.keepUpToDate')
                 : check.updateAvailable
-                  ? 'A newer version of Nasnet Panel is available.'
-                  : 'You are running the latest version.'}
+                  ? t('updates.app.newerAvailable')
+                  : t('updates.app.runningLatest')}
             </p>
           </div>
           {check ? (
@@ -290,17 +302,17 @@ function AppUpdateCard() {
                     size={12}
                     strokeWidth={2.5}
                     aria-hidden
-                    style={{ marginRight: 4, verticalAlign: '-2px' }}
+                    style={{ marginInlineEnd: 4, verticalAlign: '-2px' }}
                   />
                 )}
-                {check.updateAvailable ? 'update available' : 'up to date'}
+                {check.updateAvailable ? t('updates.updateAvailable') : t('updates.upToDate')}
               </Badge>
             </span>
           ) : null}
         </div>
 
         {!ready ? (
-          <p className={styles.emptyNote}>Connect to a router first to check for app updates.</p>
+          <p className={styles.emptyNote}>{t('updates.app.connectFirst')}</p>
         ) : (
           <>
             {loading && !check ? (
@@ -332,8 +344,8 @@ function AppUpdateCard() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <ExternalLink size={14} aria-hidden />
-                      <span>Release notes</span>
+                      <ExternalLink size={14} aria-hidden className="rtl-flip" />
+                      <span>{t('updates.app.releaseNotes')}</span>
                     </a>
                   ) : null}
                 </div>
@@ -342,7 +354,7 @@ function AppUpdateCard() {
                   <div className={styles.versionTrack}>
                     <div className={styles.versionStop}>
                       <span className={styles.versionStopLabel}>
-                        <Tag size={12} aria-hidden /> Current
+                        <Tag size={12} aria-hidden /> {t('updates.current')}
                       </span>
                       <span className={styles.versionStopValue} data-testid="app-current-version">
                         {check.appVersion}
@@ -355,7 +367,7 @@ function AppUpdateCard() {
                     />
                     <div className={`${styles.versionStop} ${styles.versionStopHighlight}`}>
                       <span className={styles.versionStopLabel}>
-                        <Sparkles size={12} aria-hidden /> Latest
+                        <Sparkles size={12} aria-hidden /> {t('updates.latest')}
                       </span>
                       <span className={styles.versionStopValue} data-testid="app-latest-version">
                         {check.latestVersion}
@@ -367,7 +379,7 @@ function AppUpdateCard() {
                     <CheckCircle2 size={22} aria-hidden className={styles.upToDateIcon} />
                     <div className={styles.upToDateBody}>
                       <span className={styles.versionStopLabel}>
-                        <Tag size={12} aria-hidden /> Current
+                        <Tag size={12} aria-hidden /> {t('updates.current')}
                       </span>
                       <span className={styles.versionStopValue} data-testid="app-current-version">
                         {check.appVersion}
@@ -378,22 +390,27 @@ function AppUpdateCard() {
               </>
             ) : null}
 
-            {progress !== null ? <Progress value={progress} label={progressLabel} /> : null}
+            {progress !== null ? (
+              <Progress
+                value={progress}
+                label={progressStep ? t(`updates.progress.${progressStep}`) : ''}
+              />
+            ) : null}
 
             {check?.updateAvailable ? (
               <div className={styles.actions}>
                 <Button variant="success" onClick={() => setConfirming(true)} disabled={installing}>
                   {installing ? (
                     <>
-                      <Loader2 size={14} aria-hidden /> Installing…
+                      <Loader2 size={14} aria-hidden /> {t('updates.installing')}
                     </>
                   ) : complete ? (
                     <>
-                      <CheckCircle2 size={14} aria-hidden /> Done
+                      <CheckCircle2 size={14} aria-hidden /> {t('updates.done')}
                     </>
                   ) : (
                     <>
-                      <Download size={14} aria-hidden /> Update app
+                      <Download size={14} aria-hidden /> {t('updates.app.updateButton')}
                     </>
                   )}
                 </Button>
@@ -405,9 +422,9 @@ function AppUpdateCard() {
 
       <ConfirmDialog
         open={confirming}
-        title="Install app update?"
-        description="The panel restarts to apply the new version. The page reloads automatically once it is back."
-        confirmLabel="Confirm"
+        title={t('updates.app.confirmTitle')}
+        description={t('updates.app.confirmDescription')}
+        confirmLabel={t('updates.confirm')}
         confirmVariant="success"
         onConfirm={install}
         onCancel={() => setConfirming(false)}
@@ -436,6 +453,7 @@ function FirmwareUpdateCard() {
   const [installing, setInstalling] = useState(false);
   const [complete, setComplete] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation('tools');
 
   const reload = useCallback(async () => {
     if (!creds || !host) {
@@ -456,11 +474,11 @@ function FirmwareUpdateCard() {
     } catch (err) {
       setCheck(null);
       setMeta(null);
-      setError(err instanceof Error ? err.message : 'Failed to check for updates');
+      setError(err instanceof Error ? err.message : t('updates.checkFailed'));
     } finally {
       setLoading(false);
     }
-  }, [host, creds]);
+  }, [host, creds, t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -485,7 +503,7 @@ function FirmwareUpdateCard() {
         if (cancelled) return;
         setCheck(null);
         setMeta(null);
-        setError(err instanceof Error ? err.message : 'Failed to check for updates');
+        setError(err instanceof Error ? err.message : t('updates.checkFailed'));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -493,7 +511,7 @@ function FirmwareUpdateCard() {
     return () => {
       cancelled = true;
     };
-  }, [host, creds]);
+  }, [host, creds, t]);
 
   const install = async () => {
     setConfirming(false);
@@ -505,13 +523,13 @@ function FirmwareUpdateCard() {
       setComplete(true);
       if (result.success) {
         toast.notify({
-          title: 'Firmware update started',
-          description: result.message || 'Router will reboot to apply the update.',
+          title: t('updates.firmware.started'),
+          description: result.message || t('updates.firmware.startedDetail'),
           tone: 'success',
         });
       } else {
         toast.notify({
-          title: 'Firmware update failed',
+          title: t('updates.firmware.failed'),
           description: result.message,
           tone: 'danger',
         });
@@ -519,7 +537,7 @@ function FirmwareUpdateCard() {
       await reload();
     } catch (err) {
       toast.notify({
-        title: 'Firmware update failed',
+        title: t('updates.firmware.failed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -540,12 +558,12 @@ function FirmwareUpdateCard() {
               <span className={styles.cardHeaderIcon}>
                 <RouterOSIcon size={18} />
               </span>
-              <h3 style={{ margin: 0 }}>RouterOS firmware</h3>
+              <h3 style={{ margin: 0 }}>{t('updates.firmware.title')}</h3>
             </div>
             <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: 'var(--font-sm)' }}>
               {targetRouter
-                ? `Install the latest RouterOS release on ${targetRouter.name}.`
-                : 'Connect to a router to check firmware.'}
+                ? t('updates.firmware.installOn', { name: targetRouter.name })
+                : t('updates.firmware.connect')}
             </p>
           </div>
           {check ? (
@@ -556,19 +574,17 @@ function FirmwareUpdateCard() {
                     size={12}
                     strokeWidth={2.5}
                     aria-hidden
-                    style={{ marginRight: 4, verticalAlign: '-2px' }}
+                    style={{ marginInlineEnd: 4, verticalAlign: '-2px' }}
                   />
                 )}
-                {check.updateAvailable ? 'update available' : 'up to date'}
+                {check.updateAvailable ? t('updates.updateAvailable') : t('updates.upToDate')}
               </Badge>
             </span>
           ) : null}
         </div>
 
         {!ready ? (
-          <p className={styles.emptyNote}>
-            Connect to a router first to check for firmware updates.
-          </p>
+          <p className={styles.emptyNote}>{t('updates.firmware.connectFirst')}</p>
         ) : (
           <>
             {loading && !check ? (
@@ -603,7 +619,7 @@ function FirmwareUpdateCard() {
                   <div className={styles.versionTrack}>
                     <div className={styles.versionStop}>
                       <span className={styles.versionStopLabel}>
-                        <Tag size={12} aria-hidden /> Current
+                        <Tag size={12} aria-hidden /> {t('updates.current')}
                       </span>
                       <span className={styles.versionStopValue}>
                         {check.installedVersion || '—'}
@@ -616,7 +632,7 @@ function FirmwareUpdateCard() {
                     />
                     <div className={`${styles.versionStop} ${styles.versionStopHighlight}`}>
                       <span className={styles.versionStopLabel}>
-                        <Sparkles size={12} aria-hidden /> Latest
+                        <Sparkles size={12} aria-hidden /> {t('updates.latest')}
                       </span>
                       <span className={styles.versionStopValue}>{check.latestVersion || '—'}</span>
                     </div>
@@ -626,7 +642,7 @@ function FirmwareUpdateCard() {
                     <CheckCircle2 size={22} aria-hidden className={styles.upToDateIcon} />
                     <div className={styles.upToDateBody}>
                       <span className={styles.versionStopLabel}>
-                        <Tag size={12} aria-hidden /> Current
+                        <Tag size={12} aria-hidden /> {t('updates.current')}
                       </span>
                       <span className={styles.versionStopValue}>
                         {check.installedVersion || '—'}
@@ -646,15 +662,15 @@ function FirmwareUpdateCard() {
                 >
                   {installing ? (
                     <>
-                      <Loader2 size={14} aria-hidden /> Installing…
+                      <Loader2 size={14} aria-hidden /> {t('updates.installing')}
                     </>
                   ) : complete || downloaded ? (
                     <>
-                      <CheckCircle2 size={14} aria-hidden /> Done
+                      <CheckCircle2 size={14} aria-hidden /> {t('updates.done')}
                     </>
                   ) : (
                     <>
-                      <Download size={14} aria-hidden /> Update firmware
+                      <Download size={14} aria-hidden /> {t('updates.firmware.updateButton')}
                     </>
                   )}
                 </Button>
@@ -666,10 +682,10 @@ function FirmwareUpdateCard() {
 
       <ConfirmDialog
         open={confirming}
-        title="Install RouterOS firmware?"
-        description="The router will reboot after the package is applied. Connectivity drops briefly."
+        title={t('updates.firmware.confirmTitle')}
+        description={t('updates.firmware.confirmDescription')}
         destructive
-        confirmLabel="Confirm"
+        confirmLabel={t('updates.confirm')}
         onConfirm={install}
         onCancel={() => setConfirming(false)}
       />

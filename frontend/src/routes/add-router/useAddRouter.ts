@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@nasnet/ui';
 import { ApiError, api, testCredentials, verifyIP, type Router } from '../../api';
 import { useRouterStore } from '../../state/RouterStoreContext';
@@ -19,6 +20,7 @@ export function useAddRouter(
 ) {
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation('addRouter');
   const { routers, upsertRouter, markConnected, markConfigurationApplied } = useRouterStore();
   const { setCredentials } = useSession();
 
@@ -34,9 +36,9 @@ export function useAddRouter(
           markConfigurationApplied(router.id, updated.configurationAppliedAt);
           upsertRouter(updated);
         }
-        toast.notify({ title: 'Default configuration applied', tone: 'success' });
+        toast.notify({ title: t('toasts.configApplied'), tone: 'success' });
       } catch {
-        toast.notify({ title: 'Default config failed', tone: 'warning' });
+        toast.notify({ title: t('toasts.configFailed'), tone: 'warning' });
       }
       navigate(`/router/${router.id}`);
     },
@@ -46,6 +48,7 @@ export function useAddRouter(
       navigate,
       setCredentials,
       state.password,
+      t,
       state.username,
       toast,
       upsertRouter,
@@ -54,7 +57,7 @@ export function useAddRouter(
 
   const onConnect = useCallback(async () => {
     if (!isRequired(state.username)) {
-      dispatch({ type: 'error', message: 'Username is required.' });
+      dispatch({ type: 'error', message: t('errors.usernameRequired') });
       return;
     }
     const duplicate = routers.find((r) => r.host === state.host);
@@ -66,16 +69,16 @@ export function useAddRouter(
     try {
       const verification = await verifyIP(state.host);
       if (!verification.isOnline) {
-        throw new Error(`${state.host} is not reachable`);
+        throw new Error(t('errors.notReachable', { host: state.host }));
       }
       if (!verification.isMikroTik) {
-        throw new Error(`${state.host} does not appear to be a MikroTik device`);
+        throw new Error(t('errors.notMikroTik', { host: state.host }));
       }
       try {
         await testCredentials(state.host, state.username, state.password);
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
-          throw new Error('Invalid username or password');
+          throw new Error(t('errors.invalidCredentials'));
         }
         throw err;
       }
@@ -88,7 +91,7 @@ export function useAddRouter(
       });
       await finishAndNavigate({ ...router, hostname: verification.hostname });
     } catch (err) {
-      dispatch({ type: 'error', message: (err as Error).message ?? 'Connection failed' });
+      dispatch({ type: 'error', message: (err as Error).message ?? t('errors.connectionFailed') });
     } finally {
       dispatch({ type: 'applying', value: false });
     }
@@ -101,6 +104,7 @@ export function useAddRouter(
     state.name,
     state.password,
     state.username,
+    t,
   ]);
 
   return { onConnect };

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, FieldRow, FieldStack, FormError, Input, Label } from '@nasnet/ui';
 import { ApiError, exportOvpnClient, type VPNCredentials } from '../../../api';
 import { validateHostOrIp } from '../../../utils/validators';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function ExportOvpnDialog({ creds, serverName, defaultPublicAddress, onClose }: Props) {
+  const { t } = useTranslation('vpn');
   const [publicAddress, setPublicAddress] = useState(defaultPublicAddress ?? '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export function ExportOvpnDialog({ creds, serverName, defaultPublicAddress, onCl
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to export client config.';
+            : t('ovpnExport.failed');
       setError(message);
       setSubmitting(false);
     }
@@ -44,15 +46,15 @@ export function ExportOvpnDialog({ creds, serverName, defaultPublicAddress, onCl
     <Dialog
       open
       onClose={submitting ? () => undefined : onClose}
-      title={`Export OpenVPN client - ${serverName}`}
+      title={t('ovpnExport.title', { name: serverName })}
       size="sm"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={submitting}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
           <Button onClick={submit} disabled={!canSubmit}>
-            {submitting ? 'Exporting…' : 'Download .ovpn'}
+            {submitting ? t('ovpnExport.exporting') : t('ovpnExport.download')}
           </Button>
         </>
       }
@@ -60,13 +62,14 @@ export function ExportOvpnDialog({ creds, serverName, defaultPublicAddress, onCl
       <FieldStack>
         <FieldRow>
           <Label>
-            <span>Server public address</span>
+            <span>{t('ovpnExport.serverAddress')}</span>
             <Input
               value={publicAddress}
               onChange={(e) => setPublicAddress(e.target.value)}
               onBlur={() => setTouched(true)}
-              placeholder="vpn.example.com or 203.0.113.10"
-              aria-label="Public address"
+              placeholder={t('ovpnExport.addressPlaceholder')}
+              aria-label={t('ovpnExport.addressLabel')}
+              dir="ltr"
               aria-invalid={touched && !!addressError}
             />
             {touched && addressError ? <FormError>{addressError}</FormError> : null}

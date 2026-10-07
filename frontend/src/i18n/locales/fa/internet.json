@@ -1,0 +1,110 @@
+{
+  "internet": {
+    "title": "مسیریابی اینترنت",
+    "description": "نمای زنده از نحوهٔ دسترسی کلاینت‌ها به اینترنت از طریق لینک‌های ون و تونل‌های وی پی ان. برای فعال یا غیرفعال کردن یک تونل وی پی ان، روی آن کلیک کنید.",
+    "loadFailedTitle": "بارگذاری توپولوژی اینترنت ناموفق بود",
+    "loadFailedFallback": "بارگذاری توپولوژی مسیریابی ناموفق بود.",
+    "notSupportedTitle": "هنوز پشتیبانی نمی‌شود",
+    "notSupportedDescription": "از این نما فقط تونل‌های وی پی ان را می‌توان فعال یا غیرفعال کرد.",
+    "tunnelUpdated": "تونل وی پی ان به‌روزرسانی شد",
+    "updateFailedTitle": "به‌روزرسانی ناموفق بود",
+    "updateFailedFallback": "به‌روزرسانی تونل وی پی ان ناموفق بود.",
+    "topologyAria": "توپولوژی مسیریابی",
+    "empty": "هنوز هیچ توپولوژی مسیریابی برای این روتر پیکربندی نشده است.",
+    "loading": "در حال بارگذاری توپولوژی…",
+    "legend": {
+      "activeLink": "لینک فعال",
+      "configuredIdle": "پیکربندی‌شده، بیکار",
+      "liveTraffic": "ترافیک زنده",
+      "clickToToggle": "برای فعال/غیرفعال کردن، روی یک تونل وی پی ان کلیک کنید"
+    },
+    "columns": {
+      "group": "کلاینت‌ها",
+      "router": "روتر",
+      "wan": "ون",
+      "vpn": "وی پی ان",
+      "internet": "اینترنت"
+    },
+    "nodes": {
+      "clients": "کلاینت‌ها",
+      "router": "روتر",
+      "internet": "اینترنت",
+      "configure": "پیکربندی {{name}}"
+    },
+    "hopDialog": {
+      "title": "{{from}} ← {{to}}",
+      "description": "این مسیر را فعال یا غیرفعال کنید. تغییرات بلافاصله اعمال می‌شوند.",
+      "active": "فعال",
+      "cancel": "لغو",
+      "save": "ذخیره",
+      "saving": "در حال ذخیره…"
+    },
+    "carriers": {
+      "starlink": "استارلینک",
+      "hamrahAval": "همراه اول",
+      "irancell": "ایرانسل"
+    }
+  },
+  "wan": {
+    "loadInterfacesFailedTitle": "بارگذاری اینترفیس‌ها ناموفق بود",
+    "loadInterfacesFailedFallback": "بارگذاری اینترفیس‌ها ناموفق بود.",
+    "loadVpnFailedTitle": "بارگذاری وی پی ان ناموفق بود",
+    "loadVpnFailedFallback": "بارگذاری کلاینت‌های وی پی ان ناموفق بود.",
+    "table": {
+      "name": "نام",
+      "type": "نوع",
+      "detail": "جزئیات",
+      "enabled": "فعال",
+      "statusEnabled": "فعال",
+      "statusDisabled": "غیرفعال",
+      "toggleAria": "فعال/غیرفعال کردن {{name}}",
+      "moveTitle": "انتقال {{name}}",
+      "moveAria": "انتقال {{name}}",
+      "deleteTitle": "حذف {{name}}",
+      "deleteAria": "حذف {{name}}"
+    },
+    "section": {
+      "missingCredsTitle": "اطلاعات ورود روتر موجود نیست",
+      "missingCredsDescription": "دوباره به روتر متصل شوید و مجدداً تلاش کنید.",
+      "assignFailedFallback": "اختصاص اینترفیس ناموفق بود.",
+      "moveFailedTitle": "انتقال آپ‌لینک ناموفق بود",
+      "change": "تغییر",
+      "move": "انتقال",
+      "moving": "در حال انتقال…"
+    },
+    "foreign": {
+      "title": "خارجی / استارلینک",
+      "description": "اینترفیس‌هایی که به‌عنوان آپ‌لینک خارجی (استارلینک) برچسب خورده‌اند.",
+      "empty": "هنوز هیچ آپ‌لینک استارلینک وجود ندارد",
+      "changeFailedTitle": "تغییر آپ‌لینک استارلینک ناموفق بود",
+      "changed": "آپ‌لینک استارلینک تغییر کرد",
+      "dialogTitle": "تغییر آپ‌لینک استارلینک",
+      "moveLabel": "انتقال {{name}} به داخلی",
+      "moved": "«{{name}}» به داخلی منتقل شد",
+      "confirmTitle": "انتقال به داخلی",
+      "confirmDescription": "«{{name}}» به‌عنوان آپ‌لینک داخلی برچسب‌گذاری شود؟ به آن بخش منتقل خواهد شد."
+    },
+    "domestic": {
+      "title": "داخلی",
+      "description": "اینترفیس‌هایی که به‌عنوان آپ‌لینک داخلی برچسب خورده‌اند.",
+      "empty": "هنوز هیچ آپ‌لینک داخلی وجود ندارد",
+      "changeFailedTitle": "تغییر آپ‌لینک داخلی ناموفق بود",
+      "changed": "آپ‌لینک داخلی تغییر کرد",
+      "dialogTitle": "تغییر آپ‌لینک داخلی",
+      "moveLabel": "انتقال {{name}} به خارجی",
+      "moved": "«{{name}}» به خارجی منتقل شد",
+      "confirmTitle": "انتقال به خارجی",
+      "confirmDescription": "«{{name}}» به‌عنوان آپ‌لینک خارجی برچسب‌گذاری شود؟ به آن بخش منتقل خواهد شد."
+    },
+    "dialog": {
+      "cancel": "لغو",
+      "save": "ذخیره",
+      "saving": "در حال ذخیره…",
+      "saveFailed": "ذخیرهٔ آپ‌لینک ناموفق بود.",
+      "foreignHeading": "ون استارلینک",
+      "foreignWireless": "بی‌سیم استارلینک",
+      "domesticHeading": "ون داخلی",
+      "domesticWireless": "بی‌سیم داخلی"
+    }
+  }
+}

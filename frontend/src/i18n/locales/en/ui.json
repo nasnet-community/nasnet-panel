@@ -1,0 +1,74 @@
+{
+  "api": {
+    "networkFailed": "Network request failed",
+    "requestFailed": "Request failed ({{status}})",
+    "scanFailed": "Scan failed for {{subnet}}"
+  },
+  "dataTable": {
+    "empty": "No results"
+  },
+  "dialog": {
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "dualLinkFlow": {
+    "starlink": "Starlink",
+    "ariaLabel": "Dual-link traffic flow",
+    "domesticSite": "Domestic Site",
+    "domesticWan": "Domestic WAN",
+    "foreignSite": "Foreign Site",
+    "router": "Router",
+    "user": "USER"
+  },
+  "fileDrop": {
+    "label": "Drop your RouterOS .rsc file here, or click to browse",
+    "uploadAriaLabel": "Upload configuration file"
+  },
+  "flowDiagram": {
+    "ariaLabel": "Network flow"
+  },
+  "passwordInput": {
+    "hide": "Hide password",
+    "show": "Show password"
+  },
+  "select": {
+    "noMatches": "No matches",
+    "placeholder": "Select…",
+    "searchAriaLabel": "Search options",
+    "searchPlaceholder": "Search…",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected"
+  },
+  "session": {
+    "expiredDescription": "The saved credentials were rejected. Please sign in again.",
+    "expiredTitle": "Session expired"
+  },
+  "stepper": {
+    "ariaLabel": "Wizard progress"
+  },
+  "tabs": {
+    "showMenu": "Show {{label}} menu"
+  },
+  "themeToggle": {
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "theme": "Theme"
+  },
+  "toast": {
+    "regionLabel": "Notifications"
+  },
+  "trafficChart": {
+    "mbps": "{{value}} Mb/s"
+  },
+  "validators": {
+    "hostInvalid": "Enter a valid IP address or hostname.",
+    "hostRequired": "Host is required.",
+    "nameCharacters": "Use letters, digits, hyphens or underscores only.",
+    "nameRequired": "Name is required.",
+    "nameTooLong": "Name must be 64 characters or fewer.",
+    "password": "Password",
+    "secretRequired": "{{label}} is required.",
+    "secretTooShort": "{{label}} must be at least {{min}} characters."
+  }
+}

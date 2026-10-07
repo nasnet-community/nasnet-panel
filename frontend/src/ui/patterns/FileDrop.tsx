@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './FileDrop.module.scss';
 
 export interface FileDropProps {
@@ -12,10 +13,11 @@ const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean
 
 export const FileDrop: React.FC<FileDropProps> = ({
   accept = '.rsc,text/plain',
-  label = 'Drop your RouterOS .rsc file here, or click to browse',
+  label,
   hint,
   onFile,
 }) => {
+  const { t } = useTranslation('ui');
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,14 +41,14 @@ export const FileDrop: React.FC<FileDropProps> = ({
         if (file) void consume(file);
       }}
     >
-      <span className={styles.title}>{label}</span>
+      <span className={styles.title}>{label ?? t('fileDrop.label')}</span>
       {hint ? <span className={styles.hint}>{hint}</span> : null}
       <input
         ref={inputRef}
         type="file"
         className={styles.hidden}
         accept={accept}
-        aria-label="Upload configuration file"
+        aria-label={t('fileDrop.uploadAriaLabel')}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) void consume(file);
