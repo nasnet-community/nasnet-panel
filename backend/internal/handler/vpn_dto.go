@@ -50,6 +50,86 @@ type AddL2TPClientRequest struct {
 	Comment     string  `json:"comment,omitempty" example:"Office L2TP client"`
 }
 
+// AddSSTPClientRequest represents a request to add an SSTP client. If Name is
+// empty, a random two-word lowercase name is generated for it. Port defaults
+// to 443.
+type AddSSTPClientRequest struct {
+	Name      string `json:"name" example:"my-sstp-client"`
+	ConnectTo string `json:"connectTo" example:"vpn.example.com"`
+	Port      *int   `json:"port" example:"443"`
+	User      string `json:"user" example:"username"`
+	Password  string `json:"password" example:"password123"`
+	Disabled  *bool  `json:"disabled" example:"false"`
+	Comment   string `json:"comment,omitempty" example:"Office SSTP client"`
+}
+
+// UpdateSSTPClientRequest represents a request to update an SSTP client. Only
+// provided fields are changed.
+type UpdateSSTPClientRequest struct {
+	ConnectTo *string `json:"connectTo" example:"vpn.example.com"`
+	Port      *int    `json:"port" example:"443"`
+	User      *string `json:"user" example:"newusername"`
+	Password  *string `json:"password" example:"newpassword123"`
+	Disabled  *bool   `json:"disabled" example:"true"`
+	Comment   *string `json:"comment" example:"Office SSTP client"`
+}
+
+// SSTPClientResponse represents SSTP client details in the API response.
+type SSTPClientResponse struct {
+	ID                                 string `json:"id"`
+	Name                               string `json:"name"`
+	Disabled                           bool   `json:"disabled"`
+	Running                            bool   `json:"running"`
+	ConnectTo                          string `json:"connectTo"`
+	Port                               int    `json:"port"`
+	User                               string `json:"user"`
+	Password                           string `json:"password"`
+	Profile                            string `json:"profile"`
+	KeepaliveTimeout                   int    `json:"keepaliveTimeout"`
+	TLSVersion                         string `json:"tlsVersion"`
+	VerifyServerCertificate            bool   `json:"verifyServerCertificate"`
+	VerifyServerAddressFromCertificate bool   `json:"verifyServerAddressFromCertificate"`
+	PFS                                bool   `json:"pfs"`
+	Ciphers                            string `json:"ciphers"`
+	Authentication                     string `json:"authentication"`
+	Comment                            string `json:"comment,omitempty"`
+	Status                             string `json:"status"`
+	Uptime                             string `json:"uptime"`
+	Encoding                           string `json:"encoding"`
+	MTU                                int    `json:"mtu"`
+	LocalAddress                       string `json:"localAddress"`
+	RemoteAddress                      string `json:"remoteAddress"`
+}
+
+// ToSSTPClientResponse converts a RouterOS SSTPClientInfo to API SSTPClientResponse.
+func ToSSTPClientResponse(sstp *routeros.SSTPClientInfo) SSTPClientResponse {
+	return SSTPClientResponse{
+		ID:                                 sstp.ID,
+		Name:                               sstp.Name,
+		Disabled:                           sstp.Disabled,
+		Running:                            sstp.Running,
+		ConnectTo:                          sstp.ConnectTo,
+		Port:                               sstp.Port,
+		User:                               sstp.User,
+		Password:                           sstp.Password,
+		Profile:                            sstp.Profile,
+		KeepaliveTimeout:                   sstp.KeepaliveTimeout,
+		TLSVersion:                         sstp.TLSVersion,
+		VerifyServerCertificate:            sstp.VerifyServerCertificate,
+		VerifyServerAddressFromCertificate: sstp.VerifyServerAddressFromCertificate,
+		PFS:                                sstp.PFS,
+		Ciphers:                            sstp.Ciphers,
+		Authentication:                     sstp.Authentication,
+		Comment:                            sstp.Comment,
+		Status:                             sstp.Status,
+		Uptime:                             sstp.Uptime,
+		Encoding:                           sstp.Encoding,
+		MTU:                                sstp.MTU,
+		LocalAddress:                       sstp.LocalAddress,
+		RemoteAddress:                      sstp.RemoteAddress,
+	}
+}
+
 // UpdateL2TPClientRequest represents a request to update an L2TP client.
 // Note: useIPsec is automatically determined based on whether ipsecSecret is provided.
 // If ipsecSecret is provided, useIPsec will be true; otherwise, it will be false.

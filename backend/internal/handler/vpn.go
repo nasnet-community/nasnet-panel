@@ -495,6 +495,282 @@ func HandleAddL2TPClient(c echo.Context) error {
 	return SuccessResponse(c, http.StatusCreated, "L2TP client added successfully", response)
 }
 
+// HandleAddSSTPClient adds a new SSTP client
+// @Summary Add SSTP Client
+// @Description Add a new SSTP client connection (TLS any, no certificate verification, no PFS,
+// @Description aes256-sha and aes256-gcm-sha384 ciphers, default profile, keepalive 60, all
+// @Description authentication methods). Port defaults to 443.
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body AddSSTPClientRequest true "SSTP client configuration"
+// @Accept json
+// @Produce json
+// @Success 201 {object} Response{data=VPNClientResponse}
+// @Failure 400 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp/client [post].
+func HandleAddSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req AddSSTPClientRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if req.ConnectTo == "" || req.User == "" || req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "connectTo, user, and password are required", nil)
+	}
+
+	port := 443
+	if req.Port != nil {
+		port = *req.Port
+	}
+	if port < 1 || port > 65535 {
+		return ErrorResponse(c, http.StatusBadRequest, "port must be between 1 and 65535", nil)
+	}
+
+	name := req.Name
+	if name == "" {
+		name = utils.GenerateName(2, "-", utils.LowerCase)
+	}
+
+	interfaceName := name
+	if !strings.HasSuffix(interfaceName, "-sstp-client") {
+		interfaceName += "-sstp-client"
+	}
+
+	if _, err := client.GetVPNClient(interfaceName); err == nil {
+		return ErrorResponse(c, http.StatusConflict, "SSTP client with this name already exists", nil)
+	}
+
+	disabled := false
+	if req.Disabled != nil {
+		disabled = *req.Disabled
+	}
+
+	if err := client.AddSSTPClient(routeros.AddSSTPClientConfig{
+		Name:      interfaceName,
+		ConnectTo: req.ConnectTo,
+		Port:      port,
+		User:      req.User,
+		Password:  req.Password,
+		Comment:   req.Comment,
+		Disabled:  disabled,
+	}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add SSTP client", err)
+	}
+
+	rollback := func() {
+		for _, list := range []string{"WAN", "VPN-WAN"} {
+			if err := client.RemoveInterfaceListMember(list, interfaceName); err != nil {
+				c.Logger().Errorf("Rollback: failed to remove %s from %s interface list: %v", interfaceName, list, err)
+			}
+		}
+		if err := client.RemoveSSTPClient(interfaceName); err != nil {
+			c.Logger().Errorf("Rollback: failed to remove SSTP client %s: %v", interfaceName, err)
+		}
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, interfaceName)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to check "+list+" interface list membership; SSTP client was not created", err)
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, interfaceName); err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add SSTP client to "+list+" interface list; SSTP client was not created", err)
+		}
+	}
+
+	vpnClient, err := client.GetVPNClient(interfaceName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added SSTP client", err)
+	}
+
+	response := VPNClientResponse{
+		ID:           vpnClient.ID,
+		Name:         vpnClient.Name,
+		Type:         vpnClient.Type,
+		Running:      vpnClient.Running,
+		Disabled:     vpnClient.Disabled,
+		MTU:          vpnClient.MTU,
+		MacAddress:   vpnClient.MacAddress,
+		RxByte:       vpnClient.RxByte,
+		TxByte:       vpnClient.TxByte,
+		Rx:           utils.BytesToSizeString(vpnClient.RxByte),
+		Tx:           utils.BytesToSizeString(vpnClient.TxByte),
+		RxPacket:     vpnClient.RxPacket,
+		TxPacket:     vpnClient.TxPacket,
+		LastLinkUp:   vpnClient.LastLinkUp,
+		LastLinkDown: vpnClient.LastLinkDown,
+		LinkDowns:    vpnClient.LinkDowns,
+		Comment:      vpnClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "SSTP client added successfully", response)
+}
+
+// HandleUpdateSSTPClient updates an SSTP client
+// @Summary Update SSTP Client
+// @Description Update SSTP client settings (connection address, port, credentials, etc.)
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "SSTP client name or ID"
+// @Param request body UpdateSSTPClientRequest true "SSTP client settings to update"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=VPNClientResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp/client/{nameOrID} [put].
+func HandleUpdateSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Client name or ID is required", nil)
+	}
+
+	var req UpdateSSTPClientRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if req.Port != nil && (*req.Port < 1 || *req.Port > 65535) {
+		return ErrorResponse(c, http.StatusBadRequest, "port must be between 1 and 65535", nil)
+	}
+
+	if _, err := client.GetSSTPClientInfo(nameOrID); err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "SSTP client not found", err)
+	}
+
+	if err := client.UpdateSSTPClient(nameOrID, routeros.UpdateSSTPClientConfig{
+		ConnectTo: req.ConnectTo,
+		Port:      req.Port,
+		User:      req.User,
+		Password:  req.Password,
+		Disabled:  req.Disabled,
+		Comment:   req.Comment,
+	}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update SSTP client", err)
+	}
+
+	vpnClient, err := client.GetVPNClient(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated SSTP client", err)
+	}
+
+	response := VPNClientResponse{
+		ID:           vpnClient.ID,
+		Name:         vpnClient.Name,
+		Type:         vpnClient.Type,
+		Running:      vpnClient.Running,
+		Disabled:     vpnClient.Disabled,
+		MTU:          vpnClient.MTU,
+		MacAddress:   vpnClient.MacAddress,
+		RxByte:       vpnClient.RxByte,
+		TxByte:       vpnClient.TxByte,
+		Rx:           utils.BytesToSizeString(vpnClient.RxByte),
+		Tx:           utils.BytesToSizeString(vpnClient.TxByte),
+		RxPacket:     vpnClient.RxPacket,
+		TxPacket:     vpnClient.TxPacket,
+		LastLinkUp:   vpnClient.LastLinkUp,
+		LastLinkDown: vpnClient.LastLinkDown,
+		LinkDowns:    vpnClient.LinkDowns,
+		Comment:      vpnClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "SSTP client updated successfully", response)
+}
+
+// HandleDeleteSSTPClient deletes an SSTP client
+// @Summary Delete SSTP Client
+// @Description Remove an SSTP client connection
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "SSTP client name or ID"
+// @Produce json
+// @Success 204
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp/client/{nameOrID} [delete].
+func HandleDeleteSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Client name or ID is required", nil)
+	}
+
+	sstpClient, err := client.GetSSTPClientInfo(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "SSTP client not found", err)
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		if err := client.RemoveInterfaceListMember(list, sstpClient.Name); err != nil {
+			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", sstpClient.Name, list, err)
+		}
+	}
+
+	if err := client.RemoveSSTPClient(nameOrID); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete SSTP client", err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// HandleGetSSTPClient retrieves details about a specific SSTP client
+// @Summary Get SSTP Client Details
+// @Description Get detailed information about an SSTP client
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "SSTP client name"
+// @Produce json
+// @Success 200 {object} Response{data=SSTPClientResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Router /api/vpn/sstp/client/{name} [get].
+func HandleGetSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	name := c.Param("name")
+	if name == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "SSTP client name is required", nil)
+	}
+
+	sstpClient, err := client.GetSSTPClientInfo(name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "SSTP client not found", err)
+	}
+	sstpClient.ConnectTo = strings.TrimSuffix(sstpClient.ConnectTo, "@VRF-TunnelEnds")
+
+	return SuccessResponse(c, http.StatusOK, "SSTP client details retrieved successfully", ToSSTPClientResponse(sstpClient))
+}
+
 // HandleUpdateL2TPClient updates an L2TP client
 // @Summary Update L2TP Client
 // @Description Update L2TP client settings (connection address, credentials, etc.)

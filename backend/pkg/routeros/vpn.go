@@ -81,6 +81,57 @@ type AddL2TPClientConfig struct {
 	Disabled    bool
 }
 
+// AddSSTPClientConfig represents the parameters for adding a new SSTP client.
+// Everything else on the client (TLS version, certificate verification, PFS,
+// ciphers, profile, keepalive, authentication methods) is fixed by AddSSTPClient.
+type AddSSTPClientConfig struct {
+	Name      string
+	ConnectTo string
+	Port      int
+	User      string
+	Password  string
+	Comment   string
+	Disabled  bool
+}
+
+// SSTPClientInfo represents an SSTP client and its monitor data.
+type SSTPClientInfo struct {
+	ID                                 string
+	Name                               string
+	Disabled                           bool
+	Running                            bool
+	ConnectTo                          string
+	Port                               int
+	User                               string
+	Password                           string
+	Profile                            string
+	KeepaliveTimeout                   int
+	TLSVersion                         string
+	VerifyServerCertificate            bool
+	VerifyServerAddressFromCertificate bool
+	PFS                                bool
+	Ciphers                            string
+	Authentication                     string
+	Comment                            string
+	Status                             string
+	Uptime                             string
+	Encoding                           string
+	MTU                                int
+	LocalAddress                       string
+	RemoteAddress                      string
+}
+
+// UpdateSSTPClientConfig represents every field that can be changed on an
+// existing SSTP client via UpdateSSTPClient. Only non-nil fields are applied.
+type UpdateSSTPClientConfig struct {
+	ConnectTo *string
+	Port      *int
+	User      *string
+	Password  *string
+	Disabled  *bool
+	Comment   *string
+}
+
 // UpdateL2TPClientConfig represents every field that can be changed on an
 // existing L2TP client via UpdateL2TPClient. Only non-nil fields are
 // applied; everything else on the client is left as it was.
@@ -400,6 +451,7 @@ const (
 	VPNTypeL2TPIn    = "l2tp-in"
 	VPNTypeOVPNOut   = "ovpn-out"
 	VPNTypeOVPNIn    = "ovpn-in"
+	VPNTypeSSTPOut   = "sstp-out"
 	VPNTypePPPoEOut  = "pppoe-out"
 	VPNTypePPPoEIn   = "pppoe-in"
 	VPNTypeWireGuard = "wg"
@@ -417,6 +469,7 @@ var vpnInterfaceTypes = map[string]bool{
 	VPNTypeL2TPIn:    true,
 	VPNTypeOVPNOut:   true,
 	VPNTypeOVPNIn:    true,
+	VPNTypeSSTPOut:   true,
 	VPNTypePPPoEOut:  true,
 	VPNTypePPPoEIn:   true,
 	VPNTypeWireGuard: true,
@@ -432,6 +485,7 @@ var vpnInterfaceTypes = map[string]bool{
 var vpnClientTypes = map[string]bool{
 	VPNTypeL2TPOut:   true,
 	VPNTypeOVPNOut:   true,
+	VPNTypeSSTPOut:   true,
 	VPNTypePPTPOut:   true,
 	VPNTypeWireGuard: true,
 	VPNTypeEoIP:      true,
@@ -1503,6 +1557,39 @@ func (c *Client) AddL2TPClient(config AddL2TPClientConfig) error {
 	return nil
 }
 
+// AddSSTPClient adds a new SSTP client that accepts any TLS version, skips
+// server certificate and address verification, and offers every cipher and
+// authentication method.
+func (c *Client) AddSSTPClient(config AddSSTPClientConfig) error {
+	args := []string{
+		"=name=" + config.Name,
+		"=connect-to=" + config.ConnectTo + "@VRF-TunnelEnds",
+		"=port=" + strconv.Itoa(config.Port),
+		"=user=" + config.User,
+		"=password=" + config.Password,
+		"=profile=default",
+		"=tls-version=any",
+		"=verify-server-certificate=no",
+		"=verify-server-address-from-certificate=no",
+		"=pfs=no",
+		"=ciphers=aes256-sha,aes256-gcm-sha384",
+		"=keepalive-timeout=60",
+		"=authentication=mschap2,mschap1,chap,pap",
+		"=disabled=" + utils.ToYesNo(config.Disabled),
+	}
+
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	_, err := c.Add("/interface/sstp-client", args...)
+	if err != nil {
+		return fmt.Errorf("failed to add SSTP client %s: %w", config.Name, err)
+	}
+
+	return nil
+}
+
 // UpdateL2TPClient updates L2TP client settings.
 func (c *Client) UpdateL2TPClient(nameOrID string, config UpdateL2TPClientConfig) error {
 	// Get the L2TP client to find its ID
@@ -1568,6 +1655,117 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 	}
 
 	return nil
+}
+
+// UpdateSSTPClient updates SSTP client settings.
+func (c *Client) UpdateSSTPClient(nameOrID string, config UpdateSSTPClientConfig) error {
+	sstpClient, err := c.GetVPNClient(nameOrID)
+	if err != nil {
+		return fmt.Errorf("SSTP client not found: %w", err)
+	}
+
+	args := []string{"=.id=" + sstpClient.ID}
+
+	if config.ConnectTo != nil && *config.ConnectTo != "" {
+		args = append(args, "=connect-to="+*config.ConnectTo+"@VRF-TunnelEnds")
+	}
+
+	if config.Port != nil {
+		args = append(args, "=port="+strconv.Itoa(*config.Port))
+	}
+
+	if config.User != nil && *config.User != "" {
+		args = append(args, "=user="+*config.User)
+	}
+
+	if config.Password != nil && *config.Password != "" {
+		args = append(args, "=password="+*config.Password)
+	}
+
+	if config.Disabled != nil {
+		args = append(args, "=disabled="+utils.ToYesNo(*config.Disabled))
+	}
+
+	if config.Comment != nil {
+		args = append(args, "=comment="+*config.Comment)
+	}
+
+	if len(args) == 1 {
+		return nil
+	}
+
+	if _, err = c.Set("/interface/sstp-client", args...); err != nil {
+		return fmt.Errorf("failed to update SSTP client %s: %w", nameOrID, err)
+	}
+
+	return nil
+}
+
+// RemoveSSTPClient removes an SSTP client by name or ID.
+func (c *Client) RemoveSSTPClient(nameOrID string) error {
+	sstpClient, err := c.GetVPNClient(nameOrID)
+	if err != nil {
+		return fmt.Errorf("SSTP client not found: %w", err)
+	}
+
+	if _, err = c.Remove("/interface/sstp-client", "=.id="+sstpClient.ID); err != nil {
+		return fmt.Errorf("failed to remove SSTP client %s: %w", nameOrID, err)
+	}
+
+	return nil
+}
+
+// GetSSTPClientInfo retrieves detailed information about an SSTP client.
+func (c *Client) GetSSTPClientInfo(nameOrID string) (*SSTPClientInfo, error) {
+	var result map[string]string
+	var err error
+
+	if strings.HasPrefix(nameOrID, "*") {
+		result, err = c.GetByID("/interface/sstp-client", nameOrID)
+	} else {
+		result, err = c.GetFirst("/interface/sstp-client", "?=name="+nameOrID)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SSTP client %s: %w", nameOrID, err)
+	}
+
+	isTrue := func(v string) bool { return v == "true" || v == "yes" }
+	port, _ := strconv.Atoi(result["port"])
+	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
+
+	sstpClient := &SSTPClientInfo{
+		ID:                                 result[".id"],
+		Name:                               result["name"],
+		Disabled:                           isTrue(result["disabled"]),
+		Running:                            isTrue(result["running"]),
+		ConnectTo:                          result["connect-to"],
+		Port:                               port,
+		User:                               result["user"],
+		Password:                           result["password"],
+		Profile:                            result["profile"],
+		KeepaliveTimeout:                   keepaliveTimeout,
+		TLSVersion:                         result["tls-version"],
+		VerifyServerCertificate:            isTrue(result["verify-server-certificate"]),
+		VerifyServerAddressFromCertificate: isTrue(result["verify-server-address-from-certificate"]),
+		PFS:                                isTrue(result["pfs"]),
+		Ciphers:                            result["ciphers"],
+		Authentication:                     result["authentication"],
+		Comment:                            result["comment"],
+	}
+
+	monitorReply, err := c.Execute("/interface/sstp-client/monitor", "=once=yes", "=.id="+result[".id"])
+	if err == nil && monitorReply != nil && len(monitorReply.Re) > 0 {
+		monitor := monitorReply.Re[0].Map
+		mtu, _ := strconv.Atoi(monitor["mtu"])
+		sstpClient.Status = monitor["status"]
+		sstpClient.Uptime = utils.FormatRouterOSDuration(monitor["uptime"])
+		sstpClient.Encoding = monitor["encoding"]
+		sstpClient.MTU = mtu
+		sstpClient.LocalAddress = monitor["local-address"]
+		sstpClient.RemoteAddress = monitor["remote-address"]
+	}
+
+	return sstpClient, nil
 }
 
 // GetL2TPClientInfo retrieves detailed information about an L2TP client.
