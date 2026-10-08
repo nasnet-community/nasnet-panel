@@ -234,7 +234,7 @@ func (c *Client) ExecuteScriptString(script string) error {
 }
 
 // ImportFile imports and executes a RouterOS script file by name.
-// The filename parameter should be the name of a file stored in RouterOS (e.g., "wizard.rsc").
+// The filename parameter should be the name of a file stored in RouterOS (e.g., "nasnet-panel/wizard.rsc").
 func (c *Client) ImportFile(filename string) error {
 	if filename == "" {
 		return fmt.Errorf("filename is required")

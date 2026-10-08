@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +13,7 @@ import (
 )
 
 // diagFilename is the name of the generated diagnostic report file on the router.
-const diagFilename = "nasnet-diagnostic-report.txt"
+const diagFilename = nasnetPanelDir + "/nasnet-diagnostic-report.txt"
 
 // HandleGenerateDiag generates a diagnostic report.
 // @Summary Generate Diagnostic Report
@@ -150,7 +151,7 @@ func HandleDownloadDiag(c echo.Context) error {
 
 	c.Response().Header().Set(
 		echo.HeaderContentDisposition,
-		fmt.Sprintf("attachment; filename=%q", diagFilename),
+		fmt.Sprintf("attachment; filename=%q", path.Base(diagFilename)),
 	)
 
 	return c.Blob(

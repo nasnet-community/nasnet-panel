@@ -1,3 +1,4 @@
+:local nasnetDir "nasnet-panel"
 :local wizardRetry 0
 :local wizardSucceeded false
 
@@ -6,13 +7,24 @@
 :set WizardFailed false
 :set WizardMessage ""
 
+:global WizardProgress "2"
 
+:onerror dirErr in={
+    :if ([:len [/file find name=$nasnetDir]] = 0) do={
+        /file add name=$nasnetDir type=directory
+    }
+} do={
+    :set WizardFailed true
+    :set WizardMessage $dirErr
+    :log error ("Wizard: Creating " . $nasnetDir . " directory failed: " . $dirErr)
+    :exit
+}
 
 :global WizardProgress "5"
 :set WizardMessage "Backing up current configuration"
 :onerror backupErr in={
-    /system/backup/save name={{ .BackupTime }}
-    /export file={{ .BackupTime }}
+    /system/backup/save name=($nasnetDir . "/{{ .BackupTime }}")
+    /export file=($nasnetDir . "/{{ .BackupTime }}")
 } do={
     :set WizardFailed true
     :set WizardMessage $backupErr
@@ -620,7 +632,7 @@ set time-zone-autodetect=no time-zone-name=Asia/Tehran
 /system identity
 set name="{{ .Identity }}"
 /system logging action
-add disk-file-count=10 disk-file-name=PanelLog disk-lines-per-file=100 disk-stop-on-full=yes name=DiskC target=disk
+add disk-file-count=10 disk-file-name=($nasnetDir . "/PanelLog") disk-lines-per-file=100 disk-stop-on-full=yes name=DiskC target=disk
 /system logging
 set 0 topics=info,!netwatch
 add action=DiskC disabled=no prefix="" regex="" topics=critical,error,info,warning
@@ -714,7 +726,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 
 :global WizardProgress "99"
 :set WizardMessage "Writing wizard success marker"
-/file add name=nasnet-panel-wizard-success.txt contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
+/file add name=($nasnetDir . "/nasnet-panel-wizard-success.txt") contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
 
 :global WizardProgress "100"
 :set WizardMessage "Wizard completed successfully"

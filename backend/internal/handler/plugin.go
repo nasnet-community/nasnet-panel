@@ -832,7 +832,13 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			return
 		}
 		if !exists {
-			if _, err := client.AddContainerMount(name, mount.Src, mount.Dst); err != nil {
+			volumeDir, err := preparePluginVolumeDir(client, pluginID, mount.Src)
+			if err != nil {
+				task.set(pluginInstallPhaseError, "failed to prepare container volume directory for mount "+name+": "+err.Error())
+				log.Printf("[plugin-install %s] failed to prepare volume dir for mount %s: %v", pluginID, name, err)
+				return
+			}
+			if _, err := client.AddContainerMount(name, volumeDir, mount.Dst); err != nil {
 				task.set(pluginInstallPhaseError, "failed to create container mount "+name+": "+err.Error())
 				log.Printf("[plugin-install %s] failed to create mount %s: %v", pluginID, name, err)
 				return
@@ -851,10 +857,16 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	}
 
 	task.set(pluginInstallPhaseCreatingContainer, "creating container "+pluginID)
+	rootDir, err := preparePluginRootDir(client, pluginID)
+	if err != nil {
+		task.set(pluginInstallPhaseError, "failed to prepare plugin container directory: "+err.Error())
+		log.Printf("[plugin-install %s] failed to prepare root dir: %v", pluginID, err)
+		return
+	}
 	containerID, err := client.AddContainer(routeros.ContainerConfig{
 		Name:        pluginID,
 		Interface:   iface.Name,
-		RootDir:     "/" + pluginID,
+		RootDir:     rootDir,
 		RemoteImage: manifest.Container.Image,
 		Env:         joinEnvPairs(resolveEnvPlaceholders(manifest.Container.Env, settingsValues)),
 		MountLists:  strings.Join(mountListNames, ","),
@@ -1221,7 +1233,8 @@ func HandleGetPluginUpdateStatus(c echo.Context) error {
 // @Summary Uninstall a plugin
 // @Description Removes an installed plugin: runs the preUninstall script from its
 // @Description manifest (if it names one), stops and removes its container, then
-// @Description removes the mount lists and veth interface the manifest declares.
+// @Description removes the mount lists and veth interface the manifest declares, and
+// @Description deletes the plugin's volume directory (nasnet-panel/container-volumes/<pluginId>).
 // @Description Cleanup steps that fail once the container is already gone are
 // @Description reported in the response as warnings rather than failing the request.
 // @Tags Plugin
@@ -1334,6 +1347,12 @@ func HandleUninstallPlugin(c echo.Context) error {
 		removedLists = append(removedLists, listName)
 	}
 
+	removedVolumeDir, err := removePluginVolumeDir(client, name)
+	if err != nil {
+		warnings = append(warnings, "failed to remove plugin volume directory: "+err.Error())
+		log.Printf("[plugin-uninstall %s] failed to remove volume directory: %v", name, err)
+	}
+
 	removedInterface := strings.TrimSpace(manifest.Container.Interface.Name)
 	if removedInterface != "" {
 		if err := client.RemoveBridgeMember(pluginContainersBridge, removedInterface); err != nil {
@@ -1356,6 +1375,7 @@ func HandleUninstallPlugin(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, message, UninstallPluginResponse{
 		ID:         name,
 		MountLists: removedLists,
+		VolumeDir:  removedVolumeDir,
 		Interface:  removedInterface,
 		Warnings:   warnings,
 	})
@@ -1383,6 +1403,76 @@ func fetchPluginJSON(ctx context.Context, url string, target any) error {
 	}
 
 	return json.NewDecoder(resp.Body).Decode(target)
+}
+
+// pluginStoragePrefix returns the storage the panel's own container lives on,
+// as a path prefix ("disk1/" or "" for internal storage), read from its
+// root-dir. Internal storage is assumed when the panel container isn't found or
+// uses a different layout.
+func pluginStoragePrefix(client *routeros.Client) string {
+	panel, err := client.GetContainer(appContainerName)
+	if err != nil {
+		return ""
+	}
+	rootDir := strings.TrimPrefix(panel.RootDir, "/")
+	if idx := strings.Index(rootDir, routeros.NasnetPanelDir+"/containers/"); idx >= 0 {
+		return rootDir[:idx]
+	}
+	return ""
+}
+
+// preparePluginVolumeDir returns <storage>/nasnet-panel/container-volumes/<pluginID>/<src>,
+// the host directory backing a plugin mount whose manifest path is src, creating
+// every directory along the way.
+func preparePluginVolumeDir(client *routeros.Client, pluginID, src string) (string, error) {
+	dir := pluginStoragePrefix(client) + routeros.NasnetPanelDir
+	dirs := []string{dir}
+	for _, segment := range append([]string{"container-volumes", pluginID}, strings.Split(strings.Trim(src, "/"), "/")...) {
+		if segment == "" || segment == "." {
+			continue
+		}
+		if segment == ".." {
+			return "", fmt.Errorf("mount path %q must not contain \"..\"", src)
+		}
+		dir += "/" + segment
+		dirs = append(dirs, dir)
+	}
+
+	for _, d := range dirs {
+		if err := client.EnsureDir(d); err != nil {
+			return "", err
+		}
+	}
+	return dir, nil
+}
+
+// removePluginVolumeDir deletes <storage>/nasnet-panel/container-volumes/<pluginID>
+// along with everything in it, returning its path, or "" when it didn't exist.
+func removePluginVolumeDir(client *routeros.Client, pluginID string) (string, error) {
+	dir := pluginStoragePrefix(client) + routeros.NasnetPanelDir + "/container-volumes/" + pluginID
+	exists, err := client.FileExists(dir)
+	if err != nil || !exists {
+		return "", err
+	}
+	if err := client.DeleteFile(dir); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+// preparePluginRootDir returns <storage>/nasnet-panel/containers/<pluginID>,
+// creating its parent directories first. <storage> is the one the panel's own
+// container lives on (read from its root-dir), or the router's internal
+// storage when the panel container isn't found or uses a different layout.
+func preparePluginRootDir(client *routeros.Client, pluginID string) (string, error) {
+	panelDir := pluginStoragePrefix(client) + routeros.NasnetPanelDir
+	containersDir := panelDir + "/containers"
+	for _, dir := range []string{panelDir, containersDir} {
+		if err := client.EnsureDir(dir); err != nil {
+			return "", err
+		}
+	}
+	return containersDir + "/" + pluginID, nil
 }
 
 // runPluginScript fetches one of the RouterOS scripts a plugin's manifest names

@@ -24,14 +24,17 @@ VETH_GW="192.168.50.1"
 
 CONTAINER_NAME="nasnet-panel"
 LEGACY_CONTAINER_NAME="nnc"
-CONTAINER_IMAGES_DIR="images/nasnet-panel"
-CONTAINER_ROOT_DIR="${CONTAINER_IMAGES_DIR}"
+PANEL_DIR="nasnet-panel"
+TAR_SUBDIR="${PANEL_DIR}/container-images"
+CONTAINER_ROOT_SUBDIR="${PANEL_DIR}/containers/nasnet-panel"
+CONTAINER_ROOT_DIR="${CONTAINER_ROOT_SUBDIR}"
 STORAGE_DIR=""
 MIN_STORAGE_MB=32
 
 LAN_BRIDGE="LANBridgeSplit"
 LAN_BRIDGE_IP="192.168.10.1"
 LAN_BASELINE_RSC="nasnet-lan-baseline.rsc"
+LAN_BASELINE_REMOTE="${PANEL_DIR}/${LAN_BASELINE_RSC}"
 
 FALLBACK_DNS_SERVERS="1.1.1.1,1.0.0.1"
 DNS_SETTLE_DELAY=3
@@ -1114,7 +1117,7 @@ detect_storage() {
 }
 
 apply_storage() {
-  CONTAINER_ROOT_DIR="$(storage_path "$CONTAINER_IMAGES_DIR")"
+  CONTAINER_ROOT_DIR="$(storage_path "$CONTAINER_ROOT_SUBDIR")"
 }
 
 ensure_container_support() {
@@ -1334,10 +1337,20 @@ download_asset() {
 }
 
 # ---- upload ----------------------------------------------------------------
+ensure_panel_dirs() {
+  if [[ -n "$STORAGE_DIR" ]]; then
+    ros_ensure_dir "$STORAGE_DIR"
+  fi
+  ros_ensure_dir "$(storage_path "$PANEL_DIR")"
+  ros_ensure_dir "$(storage_path "$TAR_SUBDIR")"
+  ros_ensure_dir "$(storage_path "${PANEL_DIR}/containers")"
+}
+
 upload_tar() {
   local local_path="$1"
-  local remote_path; remote_path="$(storage_path "$ASSET_NAME")"
+  local remote_path; remote_path="$(storage_path "${TAR_SUBDIR}/${ASSET_NAME}")"
   REMOTE_TAR="$remote_path"
+  ensure_panel_dirs
 
   local local_size remote_size
   local_size="$(stat -f %z "$local_path" 2>/dev/null || stat -c %s "$local_path" 2>/dev/null)"
@@ -1358,11 +1371,14 @@ upload_tar() {
     log "[dry-run] scp upload"
     return 0
   fi
-  if [[ -n "$STORAGE_DIR" ]]; then
-    ros_ensure_dir "$STORAGE_DIR"
-  fi
   scp_pw "$local_path" "${ROUTER_USER}@${ROUTER_IP}:${remote_path}"
-  push_rollback "remove_remote_file '${remote_path}'"
+  push_rollback "remove_remote_file '${remote_path}'; remove_empty_tar_dir"
+}
+
+remove_empty_tar_dir() {
+  (( DRY_RUN )) && return 0
+  ros_cmd ":foreach d in=[/file/find where name~\"(^|/)${TAR_SUBDIR}\\\$\"] do={:local n [/file/get \$d name]; :if ([:len [/file/find where name~(\"^\" . \$n . \"/\")]] = 0) do={/file/remove \$d}}" \
+    >/dev/null 2>&1 || true
 }
 
 remove_remote_file() {
@@ -1489,6 +1505,7 @@ deploy_container() {
     printf '  + container %s (would add from %s)\n' "$CONTAINER_NAME" "$REMOTE_TAR"
     return 0
   fi
+  ensure_panel_dirs
   if ! spin "extracting tar and adding container ${CONTAINER_NAME}" \
        ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} dns=${FALLBACK_DNS_SERVERS} start-on-boot=yes logging=yes"; then
     err "failed to add container"; exit 1
@@ -1622,15 +1639,16 @@ setup_lan_baseline() {
     fi
     rsc="$tmp"
   fi
+  ros_ensure_dir "$PANEL_DIR"
   if ! spin "uploading LAN baseline script" \
-       scp_pw "$rsc" "${ROUTER_USER}@${ROUTER_IP}:${LAN_BASELINE_RSC}"; then
+       scp_pw "$rsc" "${ROUTER_USER}@${ROUTER_IP}:${LAN_BASELINE_REMOTE}"; then
     [[ -n "$tmp" ]] && rm -f "$tmp"
     err "LAN baseline upload failed; run the wizard from a wired connection or re-run install.sh"
     return 0
   fi
   [[ -n "$tmp" ]] && rm -f "$tmp"
   if ! spin "starting detached LAN baseline job" \
-       ros_cmd ":execute script={/import file-name=${LAN_BASELINE_RSC}}"; then
+       ros_cmd ":execute script={/import file-name=\"${LAN_BASELINE_REMOTE}\"}"; then
     err "LAN baseline job failed to start; run the wizard from a wired connection or re-run install.sh"
     return 0
   fi
@@ -1697,7 +1715,8 @@ uninstall_path() {
   if (( ! DRY_RUN )); then
     ros_cmd "/file/remove [find where (name~\"(^|/)${ASSET_PREFIX}-\") and (name~\"\\\\.tar\\\$\")]" \
       >/dev/null 2>&1 || true
-    remove_remote_file "$LAN_BASELINE_RSC"
+    remove_empty_tar_dir
+    remove_remote_file "$LAN_BASELINE_REMOTE"
   fi
 
   log ""

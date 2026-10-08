@@ -3147,7 +3147,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	clientCertPasswordFile := clientName + "-password.txt"
+	clientCertPasswordFile := routeros.NasnetPanelPath(clientName + "-password.txt")
 	if err := client.AddFile(clientCertPasswordFile, req.ClientCertificatePassword); err != nil {
 		setError("Failed to save client certificate password: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return

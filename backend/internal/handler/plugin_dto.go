@@ -189,6 +189,7 @@ type InstallPluginResponse struct {
 type UninstallPluginResponse struct {
 	ID         string   `json:"id"`
 	MountLists []string `json:"mountLists,omitempty"`
+	VolumeDir  string   `json:"volumeDir,omitempty"`
 	Interface  string   `json:"interface,omitempty"`
 	Warnings   []string `json:"warnings,omitempty"`
 }
