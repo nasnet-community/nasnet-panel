@@ -505,11 +505,15 @@ func (c *Client) ExportCertificate(name, passphrase string) error {
 
 	certID := results[0][".id"]
 
+	if err := c.EnsureNasnetPanelDir(); err != nil {
+		return err
+	}
+
 	// Build export command arguments
 	args := []string{
 		"=.id=" + certID,
 		"=type=pem",
-		"=file-name=" + name,
+		"=file-name=" + NasnetPanelPath(name),
 	}
 
 	// Add passphrase if provided
@@ -682,11 +686,16 @@ func (c *Client) SetCertificateKeyUsage(name string, keyUsages []string) error {
 
 // RemoveCertificateFiles deletes the certificate files from RouterOS storage.
 func (c *Client) RemoveCertificateFiles(name string) error {
-	filesToDelete := []string{
+	baseNames := []string{
 		name + ".pem",
 		name + ".key",
 		name + ".crt",
 		name + "-password.txt",
+	}
+
+	filesToDelete := make([]string, 0, 2*len(baseNames))
+	for _, baseName := range baseNames {
+		filesToDelete = append(filesToDelete, NasnetPanelPath(baseName), baseName)
 	}
 
 	var errs []error

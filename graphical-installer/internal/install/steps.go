@@ -716,8 +716,9 @@ func (e *Engine) fetchChecksum(url string) (string, error) {
 }
 
 func (e *Engine) stepUpload() error {
-	remote := e.storage.path(e.assetName)
+	remote := e.storage.path(tarSubdir + "/" + e.assetName)
 	e.remoteTar = remote
+	e.ensureStorageDirs(panelDir, tarSubdir, panelDir+"/containers")
 
 	info, err := os.Stat(e.localTar)
 	if err != nil {
@@ -744,7 +745,6 @@ func (e *Engine) stepUpload() error {
 		e.log("[dry-run] sftp upload")
 		return nil
 	}
-	e.ensureDir(e.storage.name)
 	err = e.cl.Upload(e.localTar, remote, func(done, total int64) {
 		e.ev.Progress("upload", float64(done)*100/float64(total),
 			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
@@ -753,7 +753,7 @@ func (e *Engine) stepUpload() error {
 		return err
 	}
 	e.pushRollback(func() {
-		e.removeRemoteFile(remote)
+		e.removeTarFile(remote)
 	})
 	e.note = humanBytes(localSize)
 	return nil
@@ -870,16 +870,17 @@ func (e *Engine) stepContainer() error {
 		e.log("[dry-run] would add container %s from %s", containerName, e.remoteTar)
 		return nil
 	}
+	e.ensureStorageDirs(panelDir, panelDir+"/containers")
 	e.log("extracting tar and adding container %s (this can take a few minutes)", containerName)
 	if out, err := e.cl.RunChecked(fmt.Sprintf("/container/add file=%q interface=%s root-dir=%q name=%s dns=%s start-on-boot=yes logging=yes",
-		e.remoteTar, vethName, e.storage.path(containerImagesDir), containerName, fallbackDNSServers), 5*time.Minute); err != nil {
+		e.remoteTar, vethName, e.storage.path(containerRootSubdir), containerName, fallbackDNSServers), 5*time.Minute); err != nil {
 		return fmt.Errorf("failed to add container: %w (%s)", err, strings.TrimSpace(out))
 	}
 	e.pushRollback(func() {
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/stop [find name=%s]", containerName), 15*time.Second)
 		_, _ = e.cl.RunRaw(fmt.Sprintf("/container/remove [find name=%s]", containerName), 30*time.Second)
 	})
-	e.removeRemoteFile(e.remoteTar)
+	e.removeTarFile(e.remoteTar)
 	e.note = containerName + " created"
 	return nil
 }
@@ -970,16 +971,17 @@ func (e *Engine) stepBaseline() error {
 	}
 
 	e.log("uploading LAN baseline script")
-	err := e.cl.UploadReader(bytes.NewReader(assets.LANBaseline), int64(len(assets.LANBaseline)), lanBaselineRsc, nil)
+	e.ensureDir(panelDir)
+	err := e.cl.UploadReader(bytes.NewReader(assets.LANBaseline), int64(len(assets.LANBaseline)), lanBaselineRemote, nil)
 	if err != nil {
 		e.log("LAN baseline upload failed: %v", err)
 		e.note = "upload failed, run the wizard from a wired connection or re-run the installer"
 		return nil
 	}
-	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%s; /file/remove [find name=%q]}", lanBaselineRsc, lanBaselineRsc)); err != nil {
+	if out, err := e.cl.Run(fmt.Sprintf(":execute script={/import file-name=%q; /file/remove [find name=%q]}", lanBaselineRemote, lanBaselineRemote)); err != nil {
 		e.log("LAN baseline job failed to start: %v (%s)", err, strings.TrimSpace(out))
 		e.note = "job failed to start, run the wizard from a wired connection or re-run the installer"
-		e.removeRemoteFile(lanBaselineRsc)
+		e.removeRemoteFile(lanBaselineRemote)
 		return nil
 	}
 	applied, err := e.baselineTookEffect()

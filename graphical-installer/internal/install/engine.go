@@ -31,12 +31,16 @@ const (
 
 	containerName       = "nasnet-panel"
 	legacyContainerName = "nnc"
-	containerImagesDir  = "images/nasnet-panel"
 
-	lanBridge      = "LANBridgeSplit"
-	lanBridgeIP    = "192.168.10.1"
-	lanDstNet      = "192.168.0.0/16"
-	lanBaselineRsc = "nasnet-lan-baseline.rsc"
+	panelDir            = "nasnet-panel"
+	tarSubdir           = panelDir + "/container-images"
+	containerRootSubdir = panelDir + "/containers/" + containerName
+
+	lanBridge         = "LANBridgeSplit"
+	lanBridgeIP       = "192.168.10.1"
+	lanDstNet         = "192.168.0.0/16"
+	lanBaselineRsc    = "nasnet-lan-baseline.rsc"
+	lanBaselineRemote = panelDir + "/" + lanBaselineRsc
 
 	fallbackDNSServers = "1.1.1.1,1.0.0.1"
 	dnsSettleDelay     = 3 * time.Second
@@ -346,6 +350,21 @@ func (e *Engine) removeContainerFiles() {
 	}
 	e.log("removing leftover %s-*.tar files from the router", assetPrefix)
 	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\\.tar\$"]`, assetPrefix), 30*time.Second)
+	e.removeEmptyTarDirs()
+}
+
+const removeEmptyTarDirsScript = `:foreach d in=[/file/find where name~"(^|/)` + tarSubdir + `\$"] do={:local n [/file/get $d name]; :if ([:len [/file/find where name~("^" . $n . "/")]] = 0) do={/file/remove $d}}`
+
+func (e *Engine) removeEmptyTarDirs() {
+	if e.opts.DryRun {
+		return
+	}
+	_, _ = e.cl.RunRaw(removeEmptyTarDirsScript, 30*time.Second)
+}
+
+func (e *Engine) removeTarFile(name string) {
+	e.removeRemoteFile(name)
+	e.removeEmptyTarDirs()
 }
 
 func (e *Engine) removeStaleImageDir() {
@@ -356,7 +375,7 @@ func (e *Engine) removeStaleImageDir() {
 	if e.containerActive && (e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName)) {
 		return
 	}
-	dir := e.storage.path(containerImagesDir)
+	dir := e.storage.path(containerRootSubdir)
 	if !e.exists("/file", fmt.Sprintf("name=%q", dir)) {
 		return
 	}
@@ -402,6 +421,13 @@ func (e *Engine) ensureDir(dir string) {
 		return
 	}
 	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/add name=%q type=directory", dir), 15*time.Second)
+}
+
+func (e *Engine) ensureStorageDirs(dirs ...string) {
+	e.ensureDir(e.storage.name)
+	for _, dir := range dirs {
+		e.ensureDir(e.storage.path(dir))
+	}
 }
 
 func (e *Engine) sleep(d time.Duration) error {

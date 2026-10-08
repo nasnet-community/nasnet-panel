@@ -1,7 +1,7 @@
 # NasNet Panel Diagnostic Collector - RouterOS 7.23+
 # Compatible with the standard NasNet Panel.
 #
-# Creates: nasnet-diagnostic-report.txt
+# Creates: nasnet-panel/nasnet-diagnostic-report.txt
 # Run:
 #   /import NasNet-Panel-Diagnostic.rsc
 #
@@ -10,7 +10,17 @@
 # use show-sensitive. Passwords, private keys and certificate private material
 # are not included in the report.
 
-:local reportFile "nasnet-diagnostic-report.txt"
+:local nasnetDir "nasnet-panel"
+:local reportFile ($nasnetDir . "/nasnet-diagnostic-report.txt")
+
+:do {
+    :if ([:len [/file find name=$nasnetDir]] = 0) do={
+        /file add name=$nasnetDir type=directory
+    }
+} on-error={
+    :put ("ERROR: cannot create " . $nasnetDir . " directory")
+    :error ("cannot create " . $nasnetDir . " directory")
+}
 
 :do { /file remove [find where name=$reportFile] } on-error={}
 
@@ -18,7 +28,8 @@
 
 :local jobId [:execute {
 
-    :local reportFile "nasnet-diagnostic-report.txt"
+    :local nasnetDir "nasnet-panel"
+    :local wizardSuccessFile ($nasnetDir . "/nasnet-panel-wizard-success.txt")
     :local internetTestIP "1.1.1.1"
     :local dnsTestDomain "one.one.one.one"
     :local iranProbeIP1 "217.218.127.127"
@@ -54,22 +65,22 @@
     :set DiagProgress 10
 
     :put "---------------- NASNET PANEL INSTALLATION CHECK ----------------"
-    :put "Marker file: nasnet-panel-wizard-success.txt"
-    :do { /file print detail where name="nasnet-panel-wizard-success.txt" } on-error={ :put ("INFO: cannot read file list: " . $e) }
+    :put ("Marker file: " . $wizardSuccessFile)
+    :do { /file print detail where name=$wizardSuccessFile } on-error={ :put ("INFO: cannot read file list: " . $e) }
 
     :local WizardSuccessFileFound false
     :do {
-        :set WizardSuccessFileFound ([:len [/file find name="nasnet-panel-wizard-success.txt"]] > 0)
+        :set WizardSuccessFileFound ([:len [/file find name=$wizardSuccessFile]] > 0)
     } on-error={
         :set WizardSuccessFileFound false
     }
 
     :if ($WizardSuccessFileFound = true) do={
         :put "NasNet Panel installation status: SUCCESS"
-        :put "Reason: nasnet-panel-wizard-success.txt marker file found."
+        :put ("Reason: " . $wizardSuccessFile . " marker file found.")
     } else={
         :put "NasNet Panel installation status: NOT CONFIRMED"
-        :put "Reason: nasnet-panel-wizard-success.txt marker file not found."
+        :put ("Reason: " . $wizardSuccessFile . " marker file not found.")
     }
 
     :put "Installed RouterOS scripts (names and runtime information only):"

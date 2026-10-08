@@ -128,11 +128,13 @@ func parseStorage(out string, err error) []storageInfo {
 }
 
 func (e *Engine) verifyStorageWritable(s storageInfo) error {
-	probe := s.path("nasnet-panel-write-test")
+	probe := s.path(panelDir + "/write-test")
 	if e.opts.DryRun {
 		e.log("[dry-run] would write %s to check the storage is writable", probe)
 		return nil
 	}
+	e.ensureDir(s.name)
+	e.ensureDir(s.path(panelDir))
 	payload := "nasnet-panel\n"
 	if err := e.cl.UploadReader(strings.NewReader(payload), int64(len(payload)), probe, nil); err != nil {
 		return fmt.Errorf("router storage %s is not writable (%v). Make sure the disk is formatted and mounted, then re-run the installer", s.label(), err)
