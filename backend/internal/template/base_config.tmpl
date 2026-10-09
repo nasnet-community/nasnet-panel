@@ -532,6 +532,10 @@ new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
 new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Nasnet-Panel outbound via foreign" dst-address-list=!LOCAL-IP new-routing-mark=to-Foreign passthrough=no src-address=192.168.50.2
+{{ if .DomesticEnabled}}
+add action=mark-routing chain=prerouting comment="MTProto plugin to its servers via domestic" dst-address-list="DOMAddList" new-routing-mark="to-Domestic" passthrough=no src-address=192.168.50.11
+{{ end }}
+add action=mark-routing chain=prerouting comment="MTProto plugin outbound via foreign" dst-address-list=!LOCAL-IP new-routing-mark=to-Foreign passthrough=no src-address=192.168.50.11
 add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
 add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"
