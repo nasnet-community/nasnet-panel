@@ -94,19 +94,23 @@ type NATRuleConfig struct {
 }
 
 type MangleRuleConfig struct {
-	Chain       string
-	Action      string
-	Protocol    string
-	SrcAddr     string
-	DstAddr     string
-	SrcPort     string
-	DstPort     string
-	PassThrough bool
-	InIface     string
-	OutIface    string
-	Disabled    bool
-	Log         bool
-	Comment     string
+	Chain             string
+	Action            string
+	Protocol          string
+	SrcAddr           string
+	DstAddr           string
+	SrcPort           string
+	DstPort           string
+	PassThrough       bool
+	InIface           string
+	InIfaceList       string
+	OutIface          string
+	ConnectionState   string
+	NewConnectionMark string
+	PlaceBefore       string
+	Disabled          bool
+	Log               bool
+	Comment           string
 }
 
 // FirewallAddressListItem represents an entry in a firewall address list.
@@ -472,8 +476,25 @@ func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 	if config.InIface != "" {
 		args = append(args, "=in-interface="+config.InIface)
 	}
+	if config.InIfaceList != "" {
+		args = append(args, "=in-interface-list="+config.InIfaceList)
+	}
 	if config.OutIface != "" {
 		args = append(args, "=out-interface="+config.OutIface)
+	}
+	if config.ConnectionState != "" {
+		args = append(args, "=connection-state="+config.ConnectionState)
+	}
+	if config.NewConnectionMark != "" {
+		args = append(args, "=new-connection-mark="+config.NewConnectionMark)
+	}
+	if config.PassThrough {
+		args = append(args, "=passthrough=yes")
+	} else {
+		args = append(args, "=passthrough=no")
+	}
+	if config.PlaceBefore != "" {
+		args = append(args, "=place-before="+config.PlaceBefore)
 	}
 	if config.Disabled {
 		args = append(args, "=disabled=yes")
@@ -491,6 +512,17 @@ func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 	}
 
 	return id, nil
+}
+
+// GetMangleRuleIDByComment finds a firewall mangle rule by its exact comment
+// and returns its RouterOS .id.
+func (c *Client) GetMangleRuleIDByComment(comment string) (string, error) {
+	result, err := c.GetFirst("/ip/firewall/mangle", "?=comment="+comment)
+	if err != nil {
+		return "", fmt.Errorf("failed to find mangle rule with comment %q: %w", comment, err)
+	}
+
+	return result[".id"], nil
 }
 
 func (c *Client) RemoveMangleRule(id string) error {

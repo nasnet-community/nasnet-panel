@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@nasnet/ui';
 import { ScanSearch, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Action, State } from '../../state';
 import { WirelessScanDialog } from './WirelessScanDialog';
 import styles from './WanWirelessFields.module.scss';
@@ -25,6 +26,7 @@ export function WanWirelessFields({
   label,
   interfaceName,
 }: Props) {
+  const { t } = useTranslation('easyConfig');
   const interfaceSelected = Boolean(interfaceName);
   const [open, setOpen] = useState(false);
   const ssid = state[ssidField];
@@ -43,7 +45,7 @@ export function WanWirelessFields({
           </span>
           <span className={styles.selectedSsid}>{ssid}</span>
           <Button type="button" variant="ghost" onClick={() => setOpen(true)}>
-            Change
+            {t('wan.wireless.change')}
           </Button>
         </div>
       ) : (
@@ -53,7 +55,7 @@ export function WanWirelessFields({
           onClick={() => setOpen(true)}
           disabled={!interfaceSelected}
         >
-          <ScanSearch size={14} strokeWidth={2} /> Choose wireless network
+          <ScanSearch size={14} strokeWidth={2} /> {t('wan.wireless.choose')}
         </Button>
       )}
       <WirelessScanDialog

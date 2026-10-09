@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+import './i18n';
 import { App } from './App';
 import { initSentry, store } from './api';
 import { MOCK_STORE_KEY, type Router } from '@nasnet/mocks';

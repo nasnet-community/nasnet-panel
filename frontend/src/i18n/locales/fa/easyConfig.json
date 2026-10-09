@@ -1,0 +1,245 @@
+{
+  "nav": {
+    "back": "قبلی",
+    "next": "بعدی",
+    "apply": "اعمال",
+    "applied": "اعمال شد"
+  },
+  "stepper": {
+    "mode": { "title": "انتخاب", "description": "نوع راه‌اندازی" },
+    "wan": { "title": "ون", "description": "رابط‌های اتصال" },
+    "ipmask": { "title": "پنهان‌سازی IP", "description": "کلاینت وی پی ان برای استارلینک" },
+    "wifi": { "title": "وای‌فای", "description": "شبکه بی‌سیم" },
+    "vpnsrv": { "title": "سرور وی پی ان", "description": "وی پی ان ورودی" }
+  },
+  "flow": {
+    "starlink": "استارلینک",
+    "user": "کاربر",
+    "router": "روتر",
+    "foreignSite": "سایت خارجی",
+    "starlinkOnlyAria": "مسیر ترافیک در حالت فقط استارلینک",
+    "ipMaskAria": "مسیر پنهان‌سازی IP در استارلینک"
+  },
+  "mode": {
+    "title": "حالت راه‌اندازی",
+    "description": "مشخص کنید ون شما چگونه سیم‌کشی شده است. راهنمای تنظیم بر همین اساس تنظیم می‌شود.",
+    "ariaLabel": "حالت",
+    "dualLink": {
+      "label": "دو لینک",
+      "description": "استارلینک + لینک اینترنت داخلی (DHCP، ایستا یا PPPoE)"
+    },
+    "starlinkOnly": {
+      "label": "فقط استارلینک",
+      "description": "این روتر فقط یک لینک اینترنت استارلینک دارد"
+    }
+  },
+  "wan": {
+    "titleDual": "اتصال دو لینک",
+    "titleStarlinkOnly": "اتصال فقط استارلینک",
+    "description": "مشخص کنید هر لینک اینترنت به کدام پورت وصل است؛ از رابط استارلینک شروع کنید.",
+    "starlinkHeading": "ون مربوط به استارلینک",
+    "starlinkWireless": "بی‌سیم استارلینک",
+    "domesticHeading": "ون داخلی",
+    "domesticWireless": "بی‌سیم داخلی",
+    "interfaceLabel": {
+      "ethernet": "رابط اترنت",
+      "wireless": "رابط بی‌سیم",
+      "sfp": "رابط SFP",
+      "lte": "رابط LTE"
+    },
+    "selectInterface": "انتخاب رابط",
+    "interfaceType": "نوع رابط",
+    "types": {
+      "ethernet": "اترنت",
+      "wireless": "بی‌سیم",
+      "sfp": "SFP",
+      "lte": "LTE"
+    },
+    "domestic": {
+      "ariaLabel": "نوع اتصال داخلی",
+      "dhcp": { "label": "DHCP", "description": "پیکربندی خودکار از ISP." },
+      "static": { "label": "ایستا", "description": "تعیین دستی IPها." },
+      "pppoe": { "label": "PPPoE", "description": "نام کاربری + رمز عبور." }
+    },
+    "pppoe": {
+      "username": "نام کاربری PPPoE",
+      "password": "رمز عبور PPPoE"
+    },
+    "static": {
+      "ipAddress": "آدرس IP",
+      "ipAria": "IP ایستا",
+      "gateway": "درگاه",
+      "gatewayAria": "درگاه ایستا",
+      "dns": "دی ان اس",
+      "dnsAria": "دی ان اس ایستا"
+    },
+    "wireless": {
+      "change": "تغییر",
+      "choose": "انتخاب شبکه بی‌سیم"
+    },
+    "scan": {
+      "title": "انتخاب شبکه بی‌سیم",
+      "description": "یک شبکه در محدوده انتخاب کنید. اگر رمز عبور دارد، آن را وارد کنید.",
+      "cancel": "لغو",
+      "verify": "بررسی و اتصال",
+      "network": "شبکه",
+      "networkAria": "شبکه بی‌سیم",
+      "scanningOption": "در حال جست‌وجوی شبکه‌ها…",
+      "selectNetwork": "یک شبکه انتخاب کنید",
+      "search": "جست‌وجوی شبکه‌ها…",
+      "scanning": "در حال جست‌وجوی شبکه‌های اطراف…",
+      "passwordOptional": "رمز عبور (اختیاری)",
+      "passwordAria": "رمز عبور بی‌سیم",
+      "open": "باز",
+      "missingCredentials": "اطلاعات ورود روتر یا رابط موجود نیست.",
+      "scanFailed": "جست‌وجوی شبکه‌ها ناموفق بود."
+    }
+  },
+  "ipMask": {
+    "title": "کلاینت وی پی ان پنهان‌سازی IP برای استارلینک",
+    "description": "استفاده شما از استارلینک قابل ردیابی تا هویت شماست. یک کلاینت وی پی ان تنظیم کنید تا IP مربوط به استارلینک پنهان شود.",
+    "protocolAria": "پروتکل پنهان‌سازی IP",
+    "wireguardDescription": "وی پی ان سریع و مدرن با رمزنگاری پیشرفته.",
+    "l2tpDescription": "پروتکلی با پشتیبانی گسترده و رمزنگاری IPsec.",
+    "wireguard": {
+      "placeholder": "پیکربندی WireGuard خود را اینجا جای‌گذاری کنید. فایل باید بخش‌های [Interface] و [Peer] را داشته باشد.",
+      "ariaLabel": "پیکربندی WireGuard",
+      "upload": "بارگذاری پیکربندی",
+      "paste": "جای‌گذاری پیکربندی",
+      "caption": "فایل پیکربندی WireGuard خود را جای‌گذاری یا بارگذاری کنید.",
+      "invalid": "پیکربندی WireGuard نامعتبر است: بخش [Interface] یا [Peer] وجود ندارد.",
+      "clipboardEmpty": "کلیپ‌بورد خالی است.",
+      "clipboardFailed": "خواندن از کلیپ‌بورد ممکن نیست. به‌جای آن دستی جای‌گذاری کنید."
+    },
+    "l2tp": {
+      "server": "سرور",
+      "claimFree": "دریافت وی پی ان رایگان",
+      "username": "نام کاربری",
+      "password": "رمز عبور",
+      "useIpsec": "استفاده از رمزنگاری IPsec",
+      "ipsecSecret": "کلید IPsec"
+    }
+  },
+  "hyperSpeed": {
+    "hotDeal": "پیشنهاد ویژه",
+    "availableNow": "هم‌اکنون در دسترس",
+    "title": "وی پی ان رایگان Hyper Speed از Nasnet Panel",
+    "subtitle": "بهینه‌شده برای استارلینک و ساخته‌شده برای کاربران Nasnet Panel.",
+    "comingSoon": "به‌زودی",
+    "claimYours": "وی پی ان رایگان خود را دریافت کنید",
+    "cancel": "لغو",
+    "claim": "دریافت وی پی ان رایگان",
+    "bullets": {
+      "bandwidth": "پهنای باند نامحدود",
+      "throttling": "بدون محدودسازی سرعت",
+      "servers": "سرورهای جهانی",
+      "autoConfig": "پیکربندی خودکار"
+    },
+    "validity": "اطلاعات ورود 6 ماه معتبر است و پس از انقضا می‌توانید دوباره آن را دریافت کنید.",
+    "toast": {
+      "missingTitle": "اطلاعات ورود روتر موجود نیست",
+      "missingDescription": "پیش از دریافت وی پی ان به روتر متصل شوید.",
+      "successTitle": "اطلاعات ورود وی پی ان رایگان اعمال شد",
+      "validUntil": "معتبر تا {{date}}.",
+      "failedTitle": "دریافت ناموفق بود",
+      "fallbackError": "مشکلی پیش آمد"
+    }
+  },
+  "wifi": {
+    "title": "تنظیمات بی‌سیم",
+    "description": "یک نام شبکه و رمز عبور برای وای‌فای روتر. از کلماتی مثل «starlink»، «VPN» یا «Iran» در SSID استفاده نکنید.",
+    "noHardware": "این روتر سخت‌افزار وای‌فای ندارد، بنابراین گزینه‌های بی‌سیم در دسترس نیستند.",
+    "enabled": "وای‌فای فعال",
+    "disabled": "وای‌فای غیرفعال",
+    "notAvailable": "وای‌فای در دسترس نیست",
+    "ssid": "نام شبکه (SSID)",
+    "generateSsid": "ساخت SSID",
+    "password": "رمز عبور",
+    "passwordAria": "رمز عبور وای‌فای",
+    "generatePassword": "ساخت رمز عبور وای‌فای",
+    "split": "تفکیک بین باندها ({{bands}})",
+    "bandSeparator": "، ",
+    "previewPlaceholder": "نام شبکه شما",
+    "toggleAria": "وضعیت فعال بودن بی‌سیم",
+    "toggleDisabled": "غیرفعال",
+    "toggleEnabled": "فعال"
+  },
+  "vpnServer": {
+    "title": "سرور وی پی ان",
+    "description": "برای دستگاه‌ها گواهی کلاینت OpenVPN صادر کنید تا بتوانند به این روتر وصل شوند.",
+    "enabled": "فعال",
+    "disabled": "غیرفعال",
+    "certPassphrase": "عبارت عبور گواهی",
+    "username": "نام کاربری",
+    "password": "رمز عبور",
+    "certPlaceholder": "نام‌کاربری",
+    "firstUser": {
+      "userName": "نام کاربری",
+      "userNameAria": "نام کاربری اولین کاربر",
+      "publicKey": "کلید عمومی",
+      "password": "رمز عبور",
+      "passwordAria": "رمز عبور اولین کاربر",
+      "publicKeyAria": "کلید عمومی اولین کاربر"
+    },
+    "fields": {
+      "listenPort": "پورت شنود",
+      "listenPortAria": "پورت شنود سرور وی پی ان",
+      "ipPool": "محدوده IP",
+      "ipPoolAria": "محدوده IP سرور وی پی ان",
+      "dns": "دی ان اس (اختیاری)",
+      "dnsAria": "دی ان اس سرور وی پی ان"
+    }
+  },
+  "review": {
+    "title": "بازبینی و اعمال",
+    "description": "اسکریپت RouterOS تولیدشده — اگر نیاز به تغییر دارید، مستقیم ویرایشش کنید. با اعمال، این دستورها از طریق اجراکننده دسته‌ای اجرا می‌شوند.",
+    "scriptAria": "اسکریپت RouterOS",
+    "editScript": "ویرایش اسکریپت",
+    "resetAria": "بازگشت به اسکریپت تولیدشده",
+    "resetTitle": "بازگشت به نسخه تولیدشده",
+    "doneEditing": "پایان ویرایش"
+  },
+  "apply": {
+    "applyingTitle": "در حال اعمال پیکربندی…",
+    "applyingSubtitle": "در حال اجرای دستورهای RouterOS از طریق اجراکننده دسته‌ای.",
+    "progress": "پیشرفت",
+    "emergencyWithWifi": "اگر اتصال قطع شد یا راه‌اندازی با خطا روبه‌رو شد، همچنان می‌توانید از طریق رابط‌های اضطراری به روتر دسترسی داشته باشید: به آخرین پورت اترنت وصل شوید و <strong>{{ip}}</strong> را باز کنید، یا به وای‌فای مدیریتی زیر وصل شوید و <strong>{{wifiIp}}</strong> را باز کنید.",
+    "emergency": "اگر اتصال قطع شد یا راه‌اندازی با خطا روبه‌رو شد، همچنان می‌توانید از طریق رابط‌های اضطراری به روتر دسترسی داشته باشید: به آخرین پورت اترنت وصل شوید و <strong>{{ip}}</strong> را باز کنید.",
+    "wifiName": "نام وای‌فای",
+    "password": "رمز عبور",
+    "successTitle": "پیکربندی با موفقیت اعمال شد",
+    "successSubtitle": "روتر شما اکنون با پیکربندی جدید کار می‌کند.",
+    "ok": "تأیید",
+    "failedTitle": "اعمال ناموفق بود",
+    "retry": "تلاش دوباره"
+  },
+  "errors": {
+    "timedOut": "مهلت انتظار برای پایان کار روتر به پایان رسید.",
+    "missingCredentials": "اطلاعات ورود روتر موجود نیست.",
+    "applyFailed": "اعمال ناموفق بود"
+  },
+  "validation": {
+    "pickMode": "برای ادامه یک حالت انتخاب کنید.",
+    "selectStarlink": "رابط استارلینک را انتخاب کنید.",
+    "starlinkSsidRequired": "SSID بی‌سیم استارلینک الزامی است.",
+    "starlinkPasswordShort": "رمز عبور بی‌سیم استارلینک باید دست‌کم 8 نویسه باشد.",
+    "selectDomestic": "رابط داخلی را انتخاب کنید.",
+    "domesticSsidRequired": "SSID بی‌سیم داخلی الزامی است.",
+    "domesticPasswordShort": "رمز عبور بی‌سیم داخلی باید دست‌کم 8 نویسه باشد.",
+    "pppoeRequired": "اطلاعات ورود PPPoE الزامی است.",
+    "staticIpInvalid": "یک IP ایستای معتبر وارد کنید.",
+    "endpointRequired": "Endpoint و پورت الزامی است.",
+    "peerKeyRequired": "کلید عمومی Peer الزامی است.",
+    "l2tpServerRequired": "آدرس سرور L2TP الزامی است.",
+    "l2tpCredentialsRequired": "اطلاعات ورود L2TP الزامی است.",
+    "ipsecSecretRequired": "وقتی رمزنگاری IPsec فعال است، کلید IPsec الزامی است.",
+    "ssidRequired": "SSID الزامی است.",
+    "ssidForbiddenWord": "SSID نمی‌تواند شامل «{{word}}» باشد.",
+    "wifiPasswordLength": "رمز عبور وای‌فای باید بین 8 تا 63 نویسه باشد.",
+    "usernameRequired": "نام کاربری الزامی است.",
+    "certPassphraseRequired": "عبارت عبور گواهی الزامی است.",
+    "certPassphraseShort": "عبارت عبور گواهی باید دست‌کم {{min}} نویسه باشد.",
+    "passwordRequired": "رمز عبور الزامی است.",
+    "passwordShort": "رمز عبور باید دست‌کم {{min}} نویسه باشد."
+  }
+}

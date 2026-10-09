@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Dialog,
@@ -38,6 +39,7 @@ interface Props {
 }
 
 export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
+  const { t } = useTranslation('vpn');
   const [draft, setDraft] = useState<Draft>({
     name: peer.name,
     endpointAddress: peer.endpointAddress,
@@ -56,22 +58,23 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
-  const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
+  const markTouched = (key: string) =>
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
 
   const errors = useMemo(
     () => ({
       endpointPort:
         draft.endpointPort.trim() === '' || isPort(draft.endpointPort)
           ? null
-          : 'Port must be 1-65535.',
+          : t('shared.portRange'),
       persistentKeepalive:
         draft.persistentKeepalive.trim() === '' ||
         (Number.isInteger(Number(draft.persistentKeepalive)) &&
           Number(draft.persistentKeepalive) > 0)
           ? null
-          : 'Keepalive must be a positive integer.',
+          : t('shared.keepalivePositive'),
     }),
-    [draft.endpointPort, draft.persistentKeepalive],
+    [draft.endpointPort, draft.persistentKeepalive, t],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -111,7 +114,7 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to update WireGuard peer.';
+            : t('wgPeerEdit.updateFailed');
       setError(message);
       setSubmitting(false);
       return;
@@ -124,15 +127,15 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
     <Dialog
       open
       onClose={submitting ? () => undefined : onCancel}
-      title={`Edit peer - ${peer.name}`}
+      title={t('wgPeerEdit.title', { name: peer.name })}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
           <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
-            {submitting ? 'Saving…' : 'Save changes'}
+            {submitting ? t('shared.saving') : t('shared.saveChanges')}
           </Button>
         </>
       }
@@ -140,34 +143,36 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
       <FieldStack>
         <FieldRow>
           <Label>
-            <span>Name</span>
+            <span>{t('shared.name')}</span>
             <Input
               value={draft.name}
               onChange={(e) => set('name', e.target.value)}
               autoComplete="off"
-              aria-label="Name"
+              aria-label={t('shared.name')}
             />
           </Label>
         </FieldRow>
         <FieldRow>
           <Label>
-            <span>Endpoint address</span>
+            <span>{t('shared.endpointAddress')}</span>
             <Input
               value={draft.endpointAddress}
               onChange={(e) => set('endpointAddress', e.target.value)}
               autoComplete="off"
-              aria-label="Endpoint address"
+              aria-label={t('shared.endpointAddress')}
+              dir="ltr"
             />
           </Label>
           <Label>
-            <span>Endpoint port</span>
+            <span>{t('clients.form.endpointPort')}</span>
             <Input
               value={draft.endpointPort}
               onChange={(e) => set('endpointPort', e.target.value)}
               onBlur={() => markTouched('endpointPort')}
               inputMode="numeric"
               autoComplete="off"
-              aria-label="Endpoint port"
+              aria-label={t('clients.form.endpointPort')}
+              dir="ltr"
               aria-invalid={touched.endpointPort && !!errors.endpointPort}
             />
             {touched.endpointPort && errors.endpointPort ? (
@@ -177,24 +182,25 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
         </FieldRow>
         <FieldRow>
           <Label>
-            <span>Allowed addresses</span>
+            <span>{t('shared.allowedAddresses')}</span>
             <Input
               value={draft.allowedAddresses}
               onChange={(e) => set('allowedAddresses', e.target.value)}
               autoComplete="off"
-              aria-label="Allowed addresses"
+              aria-label={t('shared.allowedAddresses')}
+              dir="ltr"
             />
           </Label>
           <Label>
-            <span>Persistent keepalive (s)</span>
+            <span>{t('shared.keepaliveSeconds')}</span>
             <Input
               value={draft.persistentKeepalive}
               onChange={(e) => set('persistentKeepalive', e.target.value)}
               onBlur={() => markTouched('persistentKeepalive')}
-              placeholder="empty = off"
+              placeholder={t('shared.keepalivePlaceholder')}
               inputMode="numeric"
               autoComplete="off"
-              aria-label="Persistent keepalive"
+              aria-label={t('shared.keepalive')}
               aria-invalid={touched.persistentKeepalive && !!errors.persistentKeepalive}
             />
             {touched.persistentKeepalive && errors.persistentKeepalive ? (
@@ -204,29 +210,30 @@ export function EditWgPeerDialog({ creds, peer, onCancel, onSaved }: Props) {
         </FieldRow>
         <FieldRow>
           <Label>
-            <span>Preshared key</span>
+            <span>{t('shared.presharedKey')}</span>
             <PasswordInput
               value={draft.preSharedKey}
               onChange={(e) => set('preSharedKey', e.target.value)}
-              aria-label="Preshared key"
+              aria-label={t('shared.presharedKey')}
+              dir="ltr"
               autoComplete="new-password"
             />
           </Label>
           <Label>
-            <span>Comment</span>
+            <span>{t('shared.comment')}</span>
             <Input
               value={draft.comment}
               onChange={(e) => set('comment', e.target.value)}
-              placeholder="leave empty to keep current"
+              placeholder={t('shared.leaveEmpty')}
               autoComplete="off"
-              aria-label="Comment"
+              aria-label={t('shared.comment')}
             />
           </Label>
         </FieldRow>
         <FieldRow>
           <Label as="div">
             <Switch
-              label="Enabled"
+              label={t('shared.enabled')}
               checked={!draft.disabled}
               onChange={(e) => set('disabled', !e.target.checked)}
             />

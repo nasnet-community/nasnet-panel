@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import { BACKEND_URL } from './config';
 import { ApiError, apiRequest } from './http';
 
@@ -23,6 +24,8 @@ export interface VPNClientResponse {
   lastLinkDown: string;
   linkDowns: number;
   comment?: string;
+  pingTime?: string;
+  peerCount?: number;
 }
 
 export interface UpdateVPNClientRequest {
@@ -219,6 +222,21 @@ export interface DeleteSstpServerResponse {
   warnings?: string[];
 }
 
+export interface CreateL2tpServerRequest {
+  ipsecSecret: string;
+}
+
+export interface CreateL2tpServerResponse {
+  enabled: boolean;
+}
+
+export interface DeleteL2tpServerResponse {
+  disabled: boolean;
+  removedFirewallRules?: string[];
+  removedMangleRules?: string[];
+  warnings?: string[];
+}
+
 export interface CreateSstpServerResponse {
   taskId: string;
   status: string;
@@ -308,7 +326,7 @@ export interface CreateWireguardPeerRequest {
   name?: string;
   endpointAddress?: string;
   endpointPort?: number;
-  allowedAddresses: string;
+  allowedAddresses?: string;
   privateKey?: string;
   publicKey?: string;
   preSharedKey?: string;
@@ -398,10 +416,24 @@ export interface ImportWireguardConfigRequest {
   comment?: string;
 }
 
-export interface ImportWireguardConfigResponse {
+/**
+ * Peer outcome of a WireGuard config import. When an interface with the
+ * same private key and IP address already exists, the backend reuses it and adds only
+ * the peers whose public key is not on it yet.
+ */
+export interface WireguardPeerImportResult {
+  /** Names of the peers created by this request; null when none were created. */
+  peerNames: string[] | null;
+  importedPeerCount: number;
+  /** True when an interface with the same private key and IP already existed and was reused. */
+  reusedExistingInterface: boolean;
+  /** Public keys of peers skipped because they already exist on the interface; may be null. */
+  skippedDuplicatePeers: string[] | null;
+}
+
+export interface ImportWireguardConfigResponse extends WireguardPeerImportResult {
   interfaceName: string;
   interfaceIP: string;
-  peerName: string;
 }
 
 function authHeaders({ host, username, password }: VPNCredentials): Record<string, string> {
@@ -493,6 +525,8 @@ export async function finalizeWizard(
 export interface WizardStatus {
   completed: boolean;
   progress: number;
+  failed?: boolean;
+  message?: string;
 }
 
 export async function fetchWizardStatus(
@@ -731,6 +765,30 @@ export async function deleteOvpnServer(
   });
 }
 
+export async function createL2tpServer(
+  creds: VPNCredentials,
+  body: CreateL2tpServerRequest,
+  signal?: AbortSignal,
+): Promise<CreateL2tpServerResponse> {
+  return apiRequest<CreateL2tpServerResponse>('/api/vpn/l2tp/server', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function deleteL2tpServer(
+  creds: VPNCredentials,
+  signal?: AbortSignal,
+): Promise<DeleteL2tpServerResponse> {
+  return apiRequest<DeleteL2tpServerResponse>('/api/vpn/l2tp/server', {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    signal,
+  });
+}
+
 export async function createSstpServer(
   creds: VPNCredentials,
   signal?: AbortSignal,
@@ -952,7 +1010,7 @@ export async function exportOvpnClient(
     signal,
   });
   if (!response.ok) {
-    let message = `Request failed (${response.status})`;
+    let message = i18n.t('api.requestFailed', { ns: 'ui', status: response.status });
     try {
       const body = (await response.json()) as { error?: string; message?: string };
       message = body.error || body.message || message;

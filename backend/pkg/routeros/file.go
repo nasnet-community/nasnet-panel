@@ -20,6 +20,49 @@ type FileInfo struct {
 	Disabled bool
 }
 
+// NasnetPanelDir is the directory in the router's root storage where the
+// wizard, diagnostic and certificate files created by NasNet Panel are kept.
+const NasnetPanelDir = "nasnet-panel"
+
+// NasnetPanelPath returns the path of a file inside NasnetPanelDir.
+func NasnetPanelPath(filename string) string {
+	return NasnetPanelDir + "/" + filename
+}
+
+// EnsureNasnetPanelDir creates NasnetPanelDir if it does not exist yet.
+func (c *Client) EnsureNasnetPanelDir() error {
+	return c.EnsureDir(NasnetPanelDir)
+}
+
+// EnsureDir creates the directory dir if it does not exist yet. Parent
+// directories must already exist.
+func (c *Client) EnsureDir(dir string) error {
+	exists, err := c.FileExists(dir)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return nil
+	}
+	if _, err := c.Execute("/file/add", "=name="+dir, "=type=directory"); err != nil {
+		return fmt.Errorf("failed to create %s directory: %w", dir, err)
+	}
+	return nil
+}
+
+// resolveNasnetFile returns the path of filename inside NasnetPanelDir, or the
+// bare name when only a copy at the storage root exists (files created before
+// NasnetPanelDir was introduced).
+func (c *Client) resolveNasnetFile(filename string) string {
+	if exists, err := c.FileExists(NasnetPanelPath(filename)); err == nil && exists {
+		return NasnetPanelPath(filename)
+	}
+	if exists, err := c.FileExists(filename); err == nil && exists {
+		return filename
+	}
+	return NasnetPanelPath(filename)
+}
+
 // GetFile retrieves file metadata by name from RouterOS /file path.
 func (c *Client) GetFile(name string) (*FileInfo, error) {
 	if name == "" {

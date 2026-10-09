@@ -27,6 +27,8 @@ type VPNClientInfo struct {
 	LastLinkDown string
 	LinkDowns    int
 	Comment      string
+	PingTime     string
+	PeerCount    *int
 }
 
 // L2TPClientInfo represents L2TP client configuration details.
@@ -77,6 +79,57 @@ type AddL2TPClientConfig struct {
 	Comment     string
 	UseIPsec    bool
 	Disabled    bool
+}
+
+// AddSSTPClientConfig represents the parameters for adding a new SSTP client.
+// Everything else on the client (TLS version, certificate verification, PFS,
+// ciphers, profile, keepalive, authentication methods) is fixed by AddSSTPClient.
+type AddSSTPClientConfig struct {
+	Name      string
+	ConnectTo string
+	Port      int
+	User      string
+	Password  string
+	Comment   string
+	Disabled  bool
+}
+
+// SSTPClientInfo represents an SSTP client and its monitor data.
+type SSTPClientInfo struct {
+	ID                                 string
+	Name                               string
+	Disabled                           bool
+	Running                            bool
+	ConnectTo                          string
+	Port                               int
+	User                               string
+	Password                           string
+	Profile                            string
+	KeepaliveTimeout                   int
+	TLSVersion                         string
+	VerifyServerCertificate            bool
+	VerifyServerAddressFromCertificate bool
+	PFS                                bool
+	Ciphers                            string
+	Authentication                     string
+	Comment                            string
+	Status                             string
+	Uptime                             string
+	Encoding                           string
+	MTU                                int
+	LocalAddress                       string
+	RemoteAddress                      string
+}
+
+// UpdateSSTPClientConfig represents every field that can be changed on an
+// existing SSTP client via UpdateSSTPClient. Only non-nil fields are applied.
+type UpdateSSTPClientConfig struct {
+	ConnectTo *string
+	Port      *int
+	User      *string
+	Password  *string
+	Disabled  *bool
+	Comment   *string
 }
 
 // UpdateL2TPClientConfig represents every field that can be changed on an
@@ -298,6 +351,7 @@ type WireGuardClientConfig struct {
 	MTU        *int
 	Disabled   *bool
 	Comment    *string
+	VRF        *string
 }
 
 // WireGuardPeerConfig contains the configuration for creating a WireGuard peer.
@@ -397,6 +451,7 @@ const (
 	VPNTypeL2TPIn    = "l2tp-in"
 	VPNTypeOVPNOut   = "ovpn-out"
 	VPNTypeOVPNIn    = "ovpn-in"
+	VPNTypeSSTPOut   = "sstp-out"
 	VPNTypePPPoEOut  = "pppoe-out"
 	VPNTypePPPoEIn   = "pppoe-in"
 	VPNTypeWireGuard = "wg"
@@ -414,6 +469,7 @@ var vpnInterfaceTypes = map[string]bool{
 	VPNTypeL2TPIn:    true,
 	VPNTypeOVPNOut:   true,
 	VPNTypeOVPNIn:    true,
+	VPNTypeSSTPOut:   true,
 	VPNTypePPPoEOut:  true,
 	VPNTypePPPoEIn:   true,
 	VPNTypeWireGuard: true,
@@ -429,6 +485,7 @@ var vpnInterfaceTypes = map[string]bool{
 var vpnClientTypes = map[string]bool{
 	VPNTypeL2TPOut:   true,
 	VPNTypeOVPNOut:   true,
+	VPNTypeSSTPOut:   true,
 	VPNTypePPTPOut:   true,
 	VPNTypeWireGuard: true,
 	VPNTypeEoIP:      true,
@@ -842,6 +899,59 @@ func (c *Client) GetL2tpServer() (*L2tpServerInfo, error) {
 		AcceptPseudowireType: result["accept-pseudowire-type"],
 		AcceptProtoVersion:   result["accept-proto-version"],
 	}, nil
+}
+
+// L2tpServerConfig holds the settings applied when enabling the L2TP server.
+type L2tpServerConfig struct {
+	Enabled        bool
+	DefaultProfile string
+	Authentication string
+	UseIPsec       bool
+	IPsecSecret    string
+}
+
+// SetL2tpServer configures RouterOS's L2TP server. UseIPsec, when true, is
+// set to "required" rather than "yes" since L2TP-over-IPsec should reject
+// any connection that doesn't negotiate IPsec.
+func (c *Client) SetL2tpServer(config L2tpServerConfig) error {
+	enabled := "no"
+	if config.Enabled {
+		enabled = "yes"
+	}
+	useIPsec := "no"
+	if config.UseIPsec {
+		useIPsec = "required"
+	}
+
+	args := []string{
+		"=enabled=" + enabled,
+		"=use-ipsec=" + useIPsec,
+	}
+	if config.DefaultProfile != "" {
+		args = append(args, "=default-profile="+config.DefaultProfile)
+	}
+	if config.Authentication != "" {
+		args = append(args, "=authentication="+config.Authentication)
+	}
+	if config.IPsecSecret != "" {
+		args = append(args, "=ipsec-secret="+config.IPsecSecret)
+	}
+
+	_, err := c.Set("/interface/l2tp-server/server", args...)
+	if err != nil {
+		return fmt.Errorf("failed to configure L2TP server: %w", err)
+	}
+
+	return nil
+}
+
+// DisableL2tpServer disables RouterOS's L2TP server.
+func (c *Client) DisableL2tpServer() error {
+	_, err := c.Set("/interface/l2tp-server/server", "=enabled=no")
+	if err != nil {
+		return fmt.Errorf("failed to disable L2TP server: %w", err)
+	}
+	return nil
 }
 
 // GetSstpServer returns the SSTP server configuration.
@@ -1424,7 +1534,7 @@ func (c *Client) CreateVPNProfile(profileName string) error {
 func (c *Client) AddL2TPClient(config AddL2TPClientConfig) error {
 	args := []string{
 		"=name=" + config.Name,
-		"=connect-to=" + config.ConnectTo,
+		"=connect-to=" + config.ConnectTo + "@VRF-TunnelEnds",
 		"=user=" + config.User,
 		"=password=" + config.Password,
 		"=profile=" + config.ProfileName,
@@ -1447,6 +1557,39 @@ func (c *Client) AddL2TPClient(config AddL2TPClientConfig) error {
 	return nil
 }
 
+// AddSSTPClient adds a new SSTP client that accepts any TLS version, skips
+// server certificate and address verification, and offers every cipher and
+// authentication method.
+func (c *Client) AddSSTPClient(config AddSSTPClientConfig) error {
+	args := []string{
+		"=name=" + config.Name,
+		"=connect-to=" + config.ConnectTo + "@VRF-TunnelEnds",
+		"=port=" + strconv.Itoa(config.Port),
+		"=user=" + config.User,
+		"=password=" + config.Password,
+		"=profile=default",
+		"=tls-version=any",
+		"=verify-server-certificate=no",
+		"=verify-server-address-from-certificate=no",
+		"=pfs=no",
+		"=ciphers=aes256-sha,aes256-gcm-sha384",
+		"=keepalive-timeout=60",
+		"=authentication=mschap2,mschap1,chap,pap",
+		"=disabled=" + utils.ToYesNo(config.Disabled),
+	}
+
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	_, err := c.Add("/interface/sstp-client", args...)
+	if err != nil {
+		return fmt.Errorf("failed to add SSTP client %s: %w", config.Name, err)
+	}
+
+	return nil
+}
+
 // UpdateL2TPClient updates L2TP client settings.
 func (c *Client) UpdateL2TPClient(nameOrID string, config UpdateL2TPClientConfig) error {
 	// Get the L2TP client to find its ID
@@ -1458,7 +1601,7 @@ func (c *Client) UpdateL2TPClient(nameOrID string, config UpdateL2TPClientConfig
 	args := []string{"=.id=" + vpnClient.ID}
 
 	if config.ConnectTo != nil && *config.ConnectTo != "" {
-		args = append(args, "=connect-to="+*config.ConnectTo)
+		args = append(args, "=connect-to="+*config.ConnectTo+"@VRF-TunnelEnds")
 	}
 
 	if config.User != nil && *config.User != "" {
@@ -1512,6 +1655,117 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 	}
 
 	return nil
+}
+
+// UpdateSSTPClient updates SSTP client settings.
+func (c *Client) UpdateSSTPClient(nameOrID string, config UpdateSSTPClientConfig) error {
+	sstpClient, err := c.GetVPNClient(nameOrID)
+	if err != nil {
+		return fmt.Errorf("SSTP client not found: %w", err)
+	}
+
+	args := []string{"=.id=" + sstpClient.ID}
+
+	if config.ConnectTo != nil && *config.ConnectTo != "" {
+		args = append(args, "=connect-to="+*config.ConnectTo+"@VRF-TunnelEnds")
+	}
+
+	if config.Port != nil {
+		args = append(args, "=port="+strconv.Itoa(*config.Port))
+	}
+
+	if config.User != nil && *config.User != "" {
+		args = append(args, "=user="+*config.User)
+	}
+
+	if config.Password != nil && *config.Password != "" {
+		args = append(args, "=password="+*config.Password)
+	}
+
+	if config.Disabled != nil {
+		args = append(args, "=disabled="+utils.ToYesNo(*config.Disabled))
+	}
+
+	if config.Comment != nil {
+		args = append(args, "=comment="+*config.Comment)
+	}
+
+	if len(args) == 1 {
+		return nil
+	}
+
+	if _, err = c.Set("/interface/sstp-client", args...); err != nil {
+		return fmt.Errorf("failed to update SSTP client %s: %w", nameOrID, err)
+	}
+
+	return nil
+}
+
+// RemoveSSTPClient removes an SSTP client by name or ID.
+func (c *Client) RemoveSSTPClient(nameOrID string) error {
+	sstpClient, err := c.GetVPNClient(nameOrID)
+	if err != nil {
+		return fmt.Errorf("SSTP client not found: %w", err)
+	}
+
+	if _, err = c.Remove("/interface/sstp-client", "=.id="+sstpClient.ID); err != nil {
+		return fmt.Errorf("failed to remove SSTP client %s: %w", nameOrID, err)
+	}
+
+	return nil
+}
+
+// GetSSTPClientInfo retrieves detailed information about an SSTP client.
+func (c *Client) GetSSTPClientInfo(nameOrID string) (*SSTPClientInfo, error) {
+	var result map[string]string
+	var err error
+
+	if strings.HasPrefix(nameOrID, "*") {
+		result, err = c.GetByID("/interface/sstp-client", nameOrID)
+	} else {
+		result, err = c.GetFirst("/interface/sstp-client", "?=name="+nameOrID)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SSTP client %s: %w", nameOrID, err)
+	}
+
+	isTrue := func(v string) bool { return v == "true" || v == "yes" }
+	port, _ := strconv.Atoi(result["port"])
+	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
+
+	sstpClient := &SSTPClientInfo{
+		ID:                                 result[".id"],
+		Name:                               result["name"],
+		Disabled:                           isTrue(result["disabled"]),
+		Running:                            isTrue(result["running"]),
+		ConnectTo:                          result["connect-to"],
+		Port:                               port,
+		User:                               result["user"],
+		Password:                           result["password"],
+		Profile:                            result["profile"],
+		KeepaliveTimeout:                   keepaliveTimeout,
+		TLSVersion:                         result["tls-version"],
+		VerifyServerCertificate:            isTrue(result["verify-server-certificate"]),
+		VerifyServerAddressFromCertificate: isTrue(result["verify-server-address-from-certificate"]),
+		PFS:                                isTrue(result["pfs"]),
+		Ciphers:                            result["ciphers"],
+		Authentication:                     result["authentication"],
+		Comment:                            result["comment"],
+	}
+
+	monitorReply, err := c.Execute("/interface/sstp-client/monitor", "=once=yes", "=.id="+result[".id"])
+	if err == nil && monitorReply != nil && len(monitorReply.Re) > 0 {
+		monitor := monitorReply.Re[0].Map
+		mtu, _ := strconv.Atoi(monitor["mtu"])
+		sstpClient.Status = monitor["status"]
+		sstpClient.Uptime = utils.FormatRouterOSDuration(monitor["uptime"])
+		sstpClient.Encoding = monitor["encoding"]
+		sstpClient.MTU = mtu
+		sstpClient.LocalAddress = monitor["local-address"]
+		sstpClient.RemoteAddress = monitor["remote-address"]
+	}
+
+	return sstpClient, nil
 }
 
 // GetL2TPClientInfo retrieves detailed information about an L2TP client.
@@ -1611,6 +1865,10 @@ func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*WireGu
 
 	if config.Comment != nil && *config.Comment != "" {
 		args = append(args, "=comment="+*config.Comment)
+	}
+
+	if config.VRF != nil && *config.VRF != "" {
+		args = append(args, "=vrf="+*config.VRF)
 	}
 
 	// Create WireGuard interface
@@ -1976,39 +2234,6 @@ func (c *Client) UpdateWireGuardPeer(peerID string, config UpdateWireGuardPeerCo
 	return err
 }
 
-// PingPeerEndpoint pings a WireGuard peer endpoint address from a specific interface.
-// Returns true if any packets were received (connection is active).
-func (c *Client) PingPeerEndpoint(interfaceName, peerEndpoint string) (bool, error) {
-	if interfaceName == "" || peerEndpoint == "" {
-		return false, fmt.Errorf("interface name and peer endpoint are required")
-	}
-
-	reply, err := c.Execute("/tool/ping",
-		"=count=1",
-		"=interface="+interfaceName,
-		"=interval=1000ms",
-		"=address="+peerEndpoint,
-	)
-	if err != nil {
-		return false, fmt.Errorf("failed to ping peer endpoint %s from interface %s: %w", peerEndpoint, interfaceName, err)
-	}
-
-	if reply == nil || len(reply.Re) == 0 {
-		return false, nil
-	}
-
-	for _, sentence := range reply.Re {
-		result := sentence.Map
-		if result != nil {
-			if received, err := strconv.Atoi(result["received"]); err == nil && received > 0 {
-				return true, nil
-			}
-		}
-	}
-
-	return false, nil
-}
-
 // UpdateWireGuardInterface updates the properties of an existing WireGuard interface.
 func (c *Client) UpdateWireGuardInterface(nameOrID string, config WireGuardClientConfig) error {
 	if nameOrID == "" {
@@ -2040,36 +2265,6 @@ func (c *Client) UpdateWireGuardInterface(nameOrID string, config WireGuardClien
 
 	_, err = c.Set("/interface/wireguard", args...)
 	return err
-}
-
-// CheckWireGuardStatus checks the status of a WireGuard interface and its connectivity.
-// Returns (running, peersConnected) tuple.
-func (c *Client) CheckWireGuardStatus(interfaceName string) (running, peersConnected bool) {
-	if interfaceName == "" {
-		return false, false
-	}
-
-	wireguard, err := c.GetWireGuard(interfaceName)
-	if err != nil {
-		return false, false
-	}
-
-	peers, err := c.GetWireGuardPeers(interfaceName)
-	if err != nil || len(peers) == 0 {
-		return wireguard.Running, false
-	}
-
-	for i := range peers {
-		if peers[i].EndpointAddress == "" {
-			continue
-		}
-		pingReply, err := c.PingPeerEndpoint(interfaceName, peers[i].EndpointAddress)
-		if err == nil && pingReply {
-			return wireguard.Running, true
-		}
-	}
-
-	return wireguard.Running, false
 }
 
 func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
@@ -2176,27 +2371,29 @@ func parseWireGuardInfo(result map[string]string) *WireGuardInfo {
 }
 
 // ExportOvpnClientConfiguration exports OpenVPN client configuration using RouterOS command.
-func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCertName, clientCertName string) (string, error) {
+// It returns the configuration text and the name of the .ovpn file RouterOS
+// wrote it to, which stays on the router until the caller deletes it. The
+// file name is returned even when reading it back fails.
+func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCertName, clientCertName string) (config, fileName string, err error) {
 	args := []string{
 		"=server=" + serverName,
 		"=server-address=" + serverAddress,
-		"=ca-certificate=" + fmt.Sprintf("%s.crt", caCertName),
-		"=client-certificate=" + fmt.Sprintf("%s.crt", clientCertName),
-		"=client-cert-key=" + fmt.Sprintf("%s.key", clientCertName),
+		"=ca-certificate=" + c.resolveNasnetFile(caCertName+".crt"),
+		"=client-certificate=" + c.resolveNasnetFile(clientCertName+".crt"),
+		"=client-cert-key=" + c.resolveNasnetFile(clientCertName+".key"),
 	}
 
 	reply, err := c.Execute("/interface/ovpn-server/server/export-client-configuration", args...)
 	if err != nil {
-		return "", fmt.Errorf("failed to export client configuration: %w", err)
+		return "", "", fmt.Errorf("failed to export client configuration: %w", err)
 	}
 
 	if reply == nil || len(reply.Re) == 0 {
-		return "", fmt.Errorf("export returned empty response")
+		return "", "", fmt.Errorf("export returned empty response")
 	}
 
 	// Extract filename from progress message using regex
 	// Response format: "ovpn client configuration 'filename.ovpn' file exported"
-	var fileName string
 	for _, sentence := range reply.Re {
 		if progressMsg, ok := sentence.Map["progress"]; ok && progressMsg != "" {
 			// Use regex to extract filename from progress message
@@ -2210,13 +2407,13 @@ func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCert
 	}
 
 	if fileName == "" {
-		return "", fmt.Errorf("failed to extract filename from export response")
+		return "", "", fmt.Errorf("failed to extract filename from export response")
 	}
 
-	config, err := c.GetFileContents(fileName, 0)
+	config, err = c.GetFileContents(fileName, 0)
 	if err != nil {
-		return "", fmt.Errorf("failed to read exported configuration: %w", err)
+		return "", fileName, fmt.Errorf("failed to read exported configuration: %w", err)
 	}
 
-	return config, nil
+	return config, fileName, nil
 }

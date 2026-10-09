@@ -17,7 +17,7 @@
 /interface list member remove [find interface=$mcvln]
 /interface/macvlan/remove [find name=$mcName]
 }
-/interface set $oldIface name="$oldDefaultName" comment="Split Network"
+/interface set $oldIface name="$oldDefaultName" comment="Split"
 :if ($oldType = "wifi") do={
 :local wlanMac  [/interface get [/interface find where default-name=$oldDefaultName] mac-address];
 :local ssid "MikroTik-$[:pick $wlanMac 9 11]$[:pick $wlanMac 12 14]$[:pick $wlanMac 15 17]"

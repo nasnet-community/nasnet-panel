@@ -70,6 +70,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+// Vazirmatn ships only its Arabic-script subset (unicode-range), so Latin text in
+// Farsi mode, such as IPs and interface names, keeps the system font.
+:root[lang='fa'] body {
+  font-family:
+    Vazirmatn,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
 a {
   color: var(--color-primary);
   text-decoration: none;
@@ -92,4 +106,17 @@ textarea {
 
 .woot--bubble-holder {
   display: none !important;
+}
+
+// Mirrors icons that point along the reading direction (back/next arrows, chevrons
+// in breadcrumbs) when the page is right to left.
+[dir='rtl'] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+// Form values are mostly IPs, hostnames, keys and passwords, so text fields stay left to
+// right in Farsi. Labels and placeholders around them still follow the page direction.
+[dir='rtl'] :is(input:not([type='checkbox'], [type='radio'], [type='range']), textarea) {
+  direction: ltr;
+  text-align: left;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Bug,
   Download,
@@ -8,6 +9,7 @@ import {
   MessageCircle,
   Play,
   RefreshCw,
+  Trash2,
   Wand2,
 } from 'lucide-react';
 import {
@@ -25,8 +27,12 @@ import {
 } from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
 import { CableTestCard } from './CableTestCard';
+import { userGuideUrl } from './help/links';
+import { useLanguage } from '../state/LanguageContext';
 import {
+  ApiError,
   DIAG_REPORT_FILENAME,
+  deleteDiagFile,
   fetchDiagReport,
   fetchDiagStatus,
   generateDiag,
@@ -42,17 +48,18 @@ const POLL_INTERVAL_MS = 1000;
 
 type Phase = 'loading' | 'idle' | 'running' | 'ready' | 'error';
 
-const DIAG_STEPS: Array<{ at: number; label: string; description: string }> = [
-  { at: 10, label: 'System info', description: 'Resources and packages' },
-  { at: 15, label: 'Installation check', description: 'Panel install status' },
-  { at: 25, label: 'Interfaces', description: 'Links and addresses' },
-  { at: 35, label: 'WiFi', description: 'Wireless interfaces' },
-  { at: 45, label: 'Routing', description: 'Tables and rules' },
-  { at: 60, label: 'DNS', description: 'Config and resolution' },
-  { at: 75, label: 'VPN', description: 'Clients and servers' },
-  { at: 90, label: 'Connectivity tests', description: 'WAN and VPN pings' },
-  { at: 95, label: 'Logs', description: 'Recent errors' },
-];
+// Labels are catalog keys (diagnostics.steps.<key>), translated at render.
+const DIAG_STEPS = [
+  { at: 10, key: 'systemInfo' },
+  { at: 15, key: 'installCheck' },
+  { at: 25, key: 'interfaces' },
+  { at: 35, key: 'wifi' },
+  { at: 45, key: 'routing' },
+  { at: 60, key: 'dns' },
+  { at: 75, key: 'vpn' },
+  { at: 90, key: 'connectivity' },
+  { at: 95, key: 'logs' },
+] as const;
 
 function triggerDownload(filename: string, content: string) {
   const blob = new Blob([content], { type: 'text/plain' });
@@ -72,6 +79,8 @@ export function DiagnosticsPage() {
   const navigate = useNavigate();
   const { getCredentials } = useSession();
   const toast = useToast();
+  const { t } = useTranslation('tools');
+  const { language } = useLanguage();
 
   const creds = useMemo<SystemCredentials | null>(() => {
     if (!id) return null;
@@ -86,6 +95,8 @@ export function DiagnosticsPage() {
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [fileMeta, setFileMeta] = useState<{ time?: string; size?: string } | null>(null);
   const [reporting, setReporting] = useState(() => isErrorReportingEnabled());
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
@@ -94,7 +105,7 @@ export function DiagnosticsPage() {
   useEffect(() => {
     if (!creds) {
       setPhase('error');
-      setError('Missing router credentials for this session.');
+      setError(t('common.missingCredentials'));
       return;
     }
     let cancelled = false;
@@ -115,15 +126,19 @@ export function DiagnosticsPage() {
         }
       } catch (err) {
         if (cancelled || isAbortError(err)) return;
+        if (err instanceof ApiError && err.status === 404) {
+          setPhase('idle');
+          return;
+        }
         setPhase('error');
-        setError(err instanceof Error ? err.message : 'Failed to load diagnostic status.');
+        setError(err instanceof Error ? err.message : t('diagnostics.statusFailed'));
       }
     })();
     return () => {
       cancelled = true;
       controller.abort();
     };
-  }, [creds]);
+  }, [creds, t]);
 
   useEffect(() => {
     if (phase !== 'running' || !creds) return;
@@ -145,7 +160,7 @@ export function DiagnosticsPage() {
         if (status.progress >= 100) {
           setFileMeta({ time: status.generateTime, size: status.fileSize });
           setPhase('ready');
-          toast.notify({ title: 'Diagnostic complete', tone: 'success' });
+          toast.notify({ title: t('diagnostics.toasts.complete'), tone: 'success' });
           return;
         }
         timer = window.setTimeout(() => {
@@ -153,8 +168,15 @@ export function DiagnosticsPage() {
         }, POLL_INTERVAL_MS);
       } catch (err) {
         if (cancelled || isAbortError(err)) return;
+        if (err instanceof ApiError && err.status === 404) {
+          freshRunRef.current = false;
+          setProgress(0);
+          setPhase('idle');
+          toast.notify({ title: t('diagnostics.toasts.notFound'), tone: 'danger' });
+          return;
+        }
         setPhase('error');
-        setError(err instanceof Error ? err.message : 'Failed to check diagnostic progress.');
+        setError(err instanceof Error ? err.message : t('diagnostics.progressFailed'));
       }
     };
     void tick();
@@ -163,7 +185,13 @@ export function DiagnosticsPage() {
       controller.abort();
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, [phase, creds, toast]);
+  }, [phase, creds, toast, t]);
+
+  const clearReport = () => {
+    setFileMeta(null);
+    setProgress(0);
+    setPhase('idle');
+  };
 
   const run = async () => {
     if (!creds) return;
@@ -177,7 +205,7 @@ export function DiagnosticsPage() {
       setPhase('running');
     } catch (err) {
       toast.notify({
-        title: 'Failed to start diagnostic',
+        title: t('diagnostics.toasts.startFailed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -192,13 +220,34 @@ export function DiagnosticsPage() {
     try {
       triggerDownload(DIAG_REPORT_FILENAME, await fetchDiagReport(creds));
     } catch (err) {
+      if (err instanceof ApiError && err.status === 404) clearReport();
       toast.notify({
-        title: 'Failed to download report',
+        title: t('diagnostics.toasts.downloadFailed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const removeReport = async () => {
+    if (!creds) return;
+    setDeleting(true);
+    try {
+      await deleteDiagFile(creds);
+      clearReport();
+      toast.notify({ title: t('diagnostics.toasts.deleted'), tone: 'success' });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) clearReport();
+      toast.notify({
+        title: t('diagnostics.toasts.deleteFailed'),
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
+      });
+    } finally {
+      setDeleting(false);
+      setDeleteConfirmOpen(false);
     }
   };
 
@@ -235,9 +284,11 @@ export function DiagnosticsPage() {
                     <span
                       className={`${styles.stepTitle} ${done || active ? styles.stepTitleActive : ''}`}
                     >
-                      {step.label}
+                      {t(`diagnostics.steps.${step.key}.label`)}
                     </span>
-                    <span className={styles.stepStatus}>{step.description}</span>
+                    <span className={styles.stepStatus}>
+                      {t(`diagnostics.steps.${step.key}.description`)}
+                    </span>
                     <span className={styles.stepTrack}>
                       <span
                         className={`${styles.stepDot} ${done ? styles.stepDotDone : ''} ${
@@ -264,20 +315,40 @@ export function DiagnosticsPage() {
                   <span className={styles.fileName}>{DIAG_REPORT_FILENAME}</span>
                   {fileMeta?.time ? (
                     <span className={styles.fileHint}>
-                      {`Generated ${fileMeta.time}${fileMeta.size ? ` (${fileMeta.size})` : ''}`}
+                      {fileMeta.size
+                        ? t('diagnostics.generatedWithSize', {
+                            time: fileMeta.time,
+                            size: fileMeta.size,
+                          })
+                        : t('diagnostics.generated', { time: fileMeta.time })}
                     </span>
                   ) : null}
                 </span>
               </div>
               <div className={styles.fileAction}>
-                <Button variant="success" onClick={download} disabled={downloading}>
-                  {downloading ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                  disabled={deleting || downloading}
+                >
+                  {deleting ? (
                     <>
-                      <Loader2 size={14} aria-hidden /> Downloading…
+                      <Loader2 size={14} aria-hidden /> {t('diagnostics.deleting')}
                     </>
                   ) : (
                     <>
-                      <Download size={14} aria-hidden /> Download
+                      <Trash2 size={14} aria-hidden /> {t('diagnostics.delete')}
+                    </>
+                  )}
+                </Button>
+                <Button variant="success" onClick={download} disabled={downloading || deleting}>
+                  {downloading ? (
+                    <>
+                      <Loader2 size={14} aria-hidden /> {t('diagnostics.downloading')}
+                    </>
+                  ) : (
+                    <>
+                      <Download size={14} aria-hidden /> {t('diagnostics.download')}
                     </>
                   )}
                 </Button>
@@ -286,24 +357,24 @@ export function DiagnosticsPage() {
           ) : null}
           <div className={`${styles.actions} ${ready ? '' : styles.actionsSpaced}`}>
             <Button variant="secondary" onClick={contactSupport}>
-              <MessageCircle size={14} aria-hidden /> Talk to support
+              <MessageCircle size={14} aria-hidden /> {t('diagnostics.talkToSupport')}
             </Button>
             <Button
               variant={ready ? 'primary' : 'success'}
               onClick={run}
-              disabled={!creds || phase === 'loading' || running || starting}
+              disabled={!creds || phase === 'loading' || running || starting || deleting}
             >
               {running || starting ? (
                 <>
-                  <Loader2 size={14} aria-hidden /> Running…
+                  <Loader2 size={14} aria-hidden /> {t('diagnostics.running')}
                 </>
               ) : ready ? (
                 <>
-                  <RefreshCw size={14} aria-hidden /> Run again
+                  <RefreshCw size={14} aria-hidden /> {t('diagnostics.runAgain')}
                 </>
               ) : (
                 <>
-                  <Play size={14} aria-hidden /> Start
+                  <Play size={14} aria-hidden /> {t('diagnostics.start')}
                 </>
               )}
             </Button>
@@ -315,16 +386,28 @@ export function DiagnosticsPage() {
           <CardHeader>
             <CardTitle>
               <Inline>
-                <Bug size={16} aria-hidden /> Error Reports
+                <Bug size={16} aria-hidden /> {t('diagnostics.errorReports.title')}
               </Inline>
             </CardTitle>
             <CardDescription>
-              Anonymous error reports help the Nasnet team fix bugs, and never include your router
-              address, credentials, or configuration.
+              <Trans
+                t={t}
+                i18nKey="diagnostics.errorReports.description"
+                components={{
+                  anchor: (
+                    // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- Trans fills in the text
+                    <a
+                      href={`${userGuideUrl(language.code)}/diagnostics/#${t('diagnostics.errorReports.guideAnchor')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  ),
+                }}
+              />
             </CardDescription>
           </CardHeader>
           <Switch
-            label="Send error reports"
+            label={t('diagnostics.errorReports.toggle')}
             checked={reporting}
             onChange={(e) => changeReporting(e.currentTarget.checked)}
           />
@@ -333,16 +416,13 @@ export function DiagnosticsPage() {
           <CardHeader>
             <CardTitle>
               <Inline>
-                <Wand2 size={16} aria-hidden /> Reset Configuration
+                <Wand2 size={16} aria-hidden /> {t('diagnostics.reset.title')}
               </Inline>
             </CardTitle>
-            <CardDescription>
-              Erase everything currently set up on this router and walk through the setup wizard
-              again from the beginning. This cannot be undone.
-            </CardDescription>
+            <CardDescription>{t('diagnostics.reset.description')}</CardDescription>
           </CardHeader>
           <Button variant="danger" onClick={() => setResetConfirmOpen(true)}>
-            Reset and Reconfigure
+            {t('diagnostics.reset.button')}
           </Button>
         </Card>
       </SectionGrid>
@@ -350,11 +430,20 @@ export function DiagnosticsPage() {
         <CableTestCard creds={creds} />
       </div>
       <ConfirmDialog
-        open={resetConfirmOpen}
-        title="Reset configuration?"
-        description="This will erase everything currently set up on this router, and the setup wizard will walk you through configuring it again from the beginning."
+        open={deleteConfirmOpen}
+        title={t('diagnostics.confirmDelete.title')}
+        description={t('diagnostics.confirmDelete.description', { file: DIAG_REPORT_FILENAME })}
         destructive
-        confirmLabel="Reset and Reconfigure"
+        confirmLabel={deleting ? t('diagnostics.deleting') : t('diagnostics.delete')}
+        onConfirm={removeReport}
+        onCancel={() => (deleting ? undefined : setDeleteConfirmOpen(false))}
+      />
+      <ConfirmDialog
+        open={resetConfirmOpen}
+        title={t('diagnostics.confirmReset.title')}
+        description={t('diagnostics.confirmReset.description')}
+        destructive
+        confirmLabel={t('diagnostics.reset.button')}
         onConfirm={openWizard}
         onCancel={() => setResetConfirmOpen(false)}
       />

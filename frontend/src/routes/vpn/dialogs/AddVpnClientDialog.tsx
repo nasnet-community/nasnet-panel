@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Cable, Globe, KeyRound, Shield, Sparkles } from 'lucide-react';
 import {
   Button,
@@ -23,7 +24,7 @@ import type {
   CreateWireguardClientRequest,
   ImportWireguardConfigRequest,
 } from '../../../api';
-import { isCIDR, isPort, validateHostOrIp } from '../../../utils/validators';
+import { isCIDR, isPort, isWireGuardKey, validateHostOrIp } from '../../../utils/validators';
 
 export type AddVpnType = 'l2tp' | 'wireguard';
 
@@ -50,6 +51,7 @@ interface Draft {
   ipsecSecret: string;
   disabled: boolean;
   // WireGuard-specific
+  interfacePrivateKey: string;
   publicKey: string;
   peerPrivateKey: string;
   endpoint: string;
@@ -70,6 +72,7 @@ const EMPTY_DRAFT: Draft = {
   useIpsec: false,
   ipsecSecret: '',
   disabled: false,
+  interfacePrivateKey: '',
   publicKey: '',
   peerPrivateKey: '',
   endpoint: '',
@@ -96,6 +99,7 @@ export function AddVpnClientDialog({
   onSubmitWireguard,
   onSubmitWireguardImport,
 }: Props) {
+  const { t } = useTranslation('vpn');
   const [type, setType] = useState<AddVpnType>('l2tp');
   const [wgMode, setWgMode] = useState<WgMode>('import');
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
@@ -106,43 +110,48 @@ export function AddVpnClientDialog({
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
-  const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
+  const markTouched = (key: string) =>
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
 
   const errors = useMemo(() => {
     const base = {} as Record<string, string | null>;
 
     if (type === 'l2tp') {
       base.connectTo = validateHostOrIp(draft.connectTo);
-      base.user = draft.user.trim() === '' ? 'User is required.' : null;
-      base.password = draft.password === '' ? 'Password is required.' : null;
+      base.user = draft.user.trim() === '' ? t('l2tpEdit.userRequired') : null;
+      base.password = draft.password === '' ? t('shared.passwordRequired') : null;
     }
 
     if (type === 'wireguard' && wgMode === 'create') {
       base.interfaceLocalAddress = isCIDR(draft.interfaceLocalAddress)
         ? null
-        : 'Enter a CIDR like 10.0.0.2/24.';
+        : t('addClient.errors.cidr');
+      base.interfacePrivateKey =
+        draft.interfacePrivateKey.trim() === '' || isWireGuardKey(draft.interfacePrivateKey)
+          ? null
+          : t('shared.wgKeyInvalid');
       base.endpoint = validateHostOrIp(draft.endpoint);
-      base.endpointPort = isPort(draft.endpointPort) ? null : 'Port must be 1-65535.';
+      base.endpointPort = isPort(draft.endpointPort) ? null : t('shared.portRange');
       base.allowedAddress =
-        draft.allowedAddress.trim() === '' ? 'Allowed address is required (e.g. 0.0.0.0/0).' : null;
+        draft.allowedAddress.trim() === '' ? t('addClient.errors.allowedAddress') : null;
       base.peerKey =
         draft.publicKey.trim() === '' && draft.peerPrivateKey.trim() === ''
-          ? 'Provide peer public key OR private key.'
+          ? t('addClient.errors.peerKey')
           : null;
       base.persistentKeepalive =
         draft.persistentKeepalive.trim() === '' ||
         (Number.isInteger(Number(draft.persistentKeepalive)) &&
           Number(draft.persistentKeepalive) > 0)
           ? null
-          : 'Keepalive must be a positive integer.';
+          : t('shared.keepalivePositive');
     }
 
     if (type === 'wireguard' && wgMode === 'import') {
-      base.configText = draft.configText.trim() === '' ? 'Paste a WireGuard config.' : null;
+      base.configText = draft.configText.trim() === '' ? t('addClient.errors.configText') : null;
     }
 
     return base;
-  }, [type, wgMode, draft]);
+  }, [type, wgMode, draft, t]);
 
   const hasErrors = Object.values(errors).some(Boolean);
   const canSubmit = !submitting && !hasErrors;
@@ -152,7 +161,7 @@ export function AddVpnClientDialog({
       acc[k] = true;
       return acc;
     }, {});
-    setTouched((t) => ({ ...t, ...allKeys }));
+    setTouched((prev) => ({ ...prev, ...allKeys }));
     if (!canSubmit) return;
     setError(null);
     setSubmitting(true);
@@ -175,6 +184,9 @@ export function AddVpnClientDialog({
           disabled: draft.disabled,
         };
         if (draft.comment.trim()) body.comment = draft.comment.trim();
+        if (draft.interfacePrivateKey.trim()) {
+          body.interfacePrivateKey = draft.interfacePrivateKey.trim();
+        }
         if (draft.publicKey.trim()) body.peerPublicKey = draft.publicKey.trim();
         if (draft.peerPrivateKey.trim()) body.peerPrivateKey = draft.peerPrivateKey.trim();
         if (draft.presharedKey.trim()) body.presharedKey = draft.presharedKey.trim();
@@ -189,7 +201,7 @@ export function AddVpnClientDialog({
         });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add VPN client.');
+      setError(err instanceof Error ? err.message : t('addClient.failed'));
       setSubmitting(false);
       return;
     }
@@ -200,23 +212,23 @@ export function AddVpnClientDialog({
     <Dialog
       open
       onClose={submitting ? () => undefined : onCancel}
-      title="New VPN client"
+      title={t('clients.form.newTitle')}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {submitting ? 'Adding…' : 'Add client'}
+            {submitting ? t('shared.adding') : t('addClient.submit')}
           </Button>
         </>
       }
     >
       <FieldStack>
         <VpnTypeTilePicker
-          ariaLabel="VPN client type"
-          legend="Choose VPN client type"
+          ariaLabel={t('addClient.typeLabel')}
+          legend={t('addClient.typeLegend')}
           value={type}
           tiles={TYPE_TILES}
           onChange={(v) => setType(v as AddVpnType)}
@@ -224,12 +236,12 @@ export function AddVpnClientDialog({
 
         <FieldRow>
           <Label>
-            <span>Name</span>
+            <span>{t('shared.name')}</span>
             <Input
               value={draft.comment}
               onChange={(e) => set('comment', e.target.value)}
-              placeholder="optional"
-              aria-label="Name"
+              placeholder={t('shared.optional')}
+              aria-label={t('shared.name')}
               autoComplete="off"
             />
           </Label>
@@ -258,7 +270,7 @@ export function AddVpnClientDialog({
             <FieldRow>
               <Label as="div">
                 <Switch
-                  label="Import existing config"
+                  label={t('addClient.importExisting')}
                   checked={wgMode === 'import'}
                   onChange={(e) => setWgMode(e.target.checked ? 'import' : 'create')}
                 />
@@ -288,7 +300,7 @@ export function AddVpnClientDialog({
           <FieldRow>
             <Label as="div">
               <Switch
-                label="Enabled on creation"
+                label={t('shared.enabledOnCreation')}
                 checked={!draft.disabled}
                 onChange={(e) => set('disabled', !e.target.checked)}
               />
@@ -296,7 +308,7 @@ export function AddVpnClientDialog({
             {type === 'l2tp' ? (
               <Label as="div">
                 <Switch
-                  label="Use IPsec"
+                  label={t('shared.useIpsec')}
                   checked={draft.useIpsec}
                   onChange={(e) => {
                     const on = e.target.checked;
@@ -330,19 +342,21 @@ interface L2tpFieldsProps {
 }
 
 function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2tpFieldsProps) {
+  const { t } = useTranslation('vpn');
   const [claimOpen, setClaimOpen] = useState(false);
   return (
     <>
       <FieldRow>
         <Label>
-          <span>Connect to</span>
+          <span>{t('shared.connectTo')}</span>
           <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
             <Input
               value={draft.connectTo}
               onChange={(e) => set('connectTo', e.target.value)}
               onBlur={() => markTouched('connectTo')}
               placeholder="192.168.1.1"
-              aria-label="Connect to"
+              aria-label={t('shared.connectTo')}
+              dir="ltr"
               autoComplete="off"
               aria-invalid={touched.connectTo && !!errors.connectTo}
               style={{ flex: 1 }}
@@ -354,7 +368,7 @@ function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2t
               style={{ whiteSpace: 'nowrap' }}
             >
               <Sparkles size={16} strokeWidth={2} />
-              Claim free VPN
+              {t('addClient.claimFree')}
             </Button>
           </div>
           {touched.connectTo && errors.connectTo ? <FormError>{errors.connectTo}</FormError> : null}
@@ -362,25 +376,25 @@ function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2t
       </FieldRow>
       <FieldRow>
         <Label>
-          <span>User</span>
+          <span>{t('shared.user')}</span>
           <Input
             value={draft.user}
             onChange={(e) => set('user', e.target.value)}
             onBlur={() => markTouched('user')}
-            placeholder="username"
-            aria-label="User"
+            placeholder={t('shared.usernamePlaceholder')}
+            aria-label={t('shared.user')}
             autoComplete="off"
             aria-invalid={touched.user && !!errors.user}
           />
           {touched.user && errors.user ? <FormError>{errors.user}</FormError> : null}
         </Label>
         <Label>
-          <span>Password</span>
+          <span>{t('shared.password')}</span>
           <PasswordInput
             value={draft.password}
             onChange={(e) => set('password', e.target.value)}
             onBlur={() => markTouched('password')}
-            aria-label="Password"
+            aria-label={t('shared.password')}
             autoComplete="new-password"
             aria-invalid={touched.password && !!errors.password}
           />
@@ -389,12 +403,12 @@ function L2tpFields({ draft, set, errors, touched, markTouched, onClaimed }: L2t
       </FieldRow>
       <FieldRow>
         <Label>
-          <span>IPsec secret</span>
+          <span>{t('shared.ipsecSecret')}</span>
           <PasswordInput
             value={draft.ipsecSecret}
             onChange={(e) => set('ipsecSecret', e.target.value)}
-            placeholder="Pre-shared key"
-            aria-label="IPsec secret"
+            placeholder={t('shared.preSharedKeyPlaceholder')}
+            aria-label={t('shared.ipsecSecret')}
             autoComplete="new-password"
             disabled={!draft.useIpsec}
           />
@@ -418,17 +432,19 @@ interface WireguardFieldsProps {
 }
 
 function WireguardFields({ draft, set, errors, touched, markTouched }: WireguardFieldsProps) {
+  const { t } = useTranslation('vpn');
   return (
     <>
       <FieldRow>
         <Label>
-          <span>Interface local address (CIDR)</span>
+          <span>{t('addClient.localAddressCidr')}</span>
           <Input
             value={draft.interfaceLocalAddress}
             onChange={(e) => set('interfaceLocalAddress', e.target.value)}
             onBlur={() => markTouched('interfaceLocalAddress')}
             placeholder="10.0.0.2/24"
-            aria-label="Interface local address"
+            aria-label={t('addClient.localAddress')}
+            dir="ltr"
             autoComplete="off"
             aria-invalid={touched.interfaceLocalAddress && !!errors.interfaceLocalAddress}
           />
@@ -437,13 +453,14 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
           ) : null}
         </Label>
         <Label>
-          <span>Allowed address (CIDR list)</span>
+          <span>{t('addClient.allowedAddressCidr')}</span>
           <Input
             value={draft.allowedAddress}
             onChange={(e) => set('allowedAddress', e.target.value)}
             onBlur={() => markTouched('allowedAddress')}
             placeholder="0.0.0.0/0"
-            aria-label="Allowed address"
+            aria-label={t('addClient.allowedAddress')}
+            dir="ltr"
             autoComplete="off"
             aria-invalid={touched.allowedAddress && !!errors.allowedAddress}
           />
@@ -454,27 +471,47 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
       </FieldRow>
       <FieldRow>
         <Label>
-          <span>Endpoint host</span>
+          <span>{t('addClient.interfacePrivateKey')}</span>
+          <PasswordInput
+            value={draft.interfacePrivateKey}
+            onChange={(e) => set('interfacePrivateKey', e.target.value)}
+            onBlur={() => markTouched('interfacePrivateKey')}
+            placeholder={t('addClient.optionalGenerated')}
+            aria-label={t('addClient.interfacePrivateKey')}
+            dir="ltr"
+            autoComplete="new-password"
+            aria-invalid={touched.interfacePrivateKey && !!errors.interfacePrivateKey}
+          />
+          {touched.interfacePrivateKey && errors.interfacePrivateKey ? (
+            <FormError>{errors.interfacePrivateKey}</FormError>
+          ) : null}
+        </Label>
+      </FieldRow>
+      <FieldRow>
+        <Label>
+          <span>{t('clients.form.endpointHost')}</span>
           <Input
             value={draft.endpoint}
             onChange={(e) => set('endpoint', e.target.value)}
             onBlur={() => markTouched('endpoint')}
             placeholder="vpn.example.com"
-            aria-label="Endpoint host"
+            aria-label={t('clients.form.endpointHost')}
+            dir="ltr"
             autoComplete="off"
             aria-invalid={touched.endpoint && !!errors.endpoint}
           />
           {touched.endpoint && errors.endpoint ? <FormError>{errors.endpoint}</FormError> : null}
         </Label>
         <Label>
-          <span>Endpoint port</span>
+          <span>{t('clients.form.endpointPort')}</span>
           <Input
             value={draft.endpointPort}
             onChange={(e) => set('endpointPort', e.target.value)}
             onBlur={() => markTouched('endpointPort')}
             placeholder="51820"
             inputMode="numeric"
-            aria-label="Endpoint port"
+            aria-label={t('clients.form.endpointPort')}
+            dir="ltr"
             autoComplete="off"
             aria-invalid={touched.endpointPort && !!errors.endpointPort}
           />
@@ -485,25 +522,27 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
       </FieldRow>
       <FieldRow>
         <Label>
-          <span>Peer public key</span>
+          <span>{t('shared.peerPublicKey')}</span>
           <Input
             value={draft.publicKey}
             onChange={(e) => set('publicKey', e.target.value)}
             onBlur={() => markTouched('peerKey')}
-            placeholder="leave empty if providing peer private key"
-            aria-label="Peer public key"
+            placeholder={t('addClient.publicKeyPlaceholder')}
+            aria-label={t('shared.peerPublicKey')}
+            dir="ltr"
             autoComplete="off"
             aria-invalid={touched.peerKey && !!errors.peerKey}
           />
         </Label>
         <Label>
-          <span>Peer private key</span>
+          <span>{t('shared.peerPrivateKey')}</span>
           <PasswordInput
             value={draft.peerPrivateKey}
             onChange={(e) => set('peerPrivateKey', e.target.value)}
             onBlur={() => markTouched('peerKey')}
-            placeholder="leave empty if providing public key"
-            aria-label="Peer private key"
+            placeholder={t('addClient.privateKeyPlaceholder')}
+            aria-label={t('shared.peerPrivateKey')}
+            dir="ltr"
             autoComplete="new-password"
           />
         </Label>
@@ -511,24 +550,25 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
       {touched.peerKey && errors.peerKey ? <FormError>{errors.peerKey}</FormError> : null}
       <FieldRow>
         <Label>
-          <span>Preshared key</span>
+          <span>{t('shared.presharedKey')}</span>
           <PasswordInput
             value={draft.presharedKey}
             onChange={(e) => set('presharedKey', e.target.value)}
-            placeholder="optional"
-            aria-label="Preshared key"
+            placeholder={t('shared.optional')}
+            aria-label={t('shared.presharedKey')}
+            dir="ltr"
             autoComplete="new-password"
           />
         </Label>
         <Label>
-          <span>Persistent keepalive (s)</span>
+          <span>{t('shared.keepaliveSeconds')}</span>
           <Input
             value={draft.persistentKeepalive}
             onChange={(e) => set('persistentKeepalive', e.target.value)}
             onBlur={() => markTouched('persistentKeepalive')}
-            placeholder="empty = off"
+            placeholder={t('shared.keepalivePlaceholder')}
             inputMode="numeric"
-            aria-label="Persistent keepalive"
+            aria-label={t('shared.keepalive')}
             autoComplete="off"
             aria-invalid={touched.persistentKeepalive && !!errors.persistentKeepalive}
           />
@@ -542,26 +582,28 @@ function WireguardFields({ draft, set, errors, touched, markTouched }: Wireguard
 }
 
 function WireguardImportFields({ draft, set, errors, touched, markTouched }: WireguardFieldsProps) {
+  const { t } = useTranslation('vpn');
   return (
     <>
       <FieldRow>
         <FileDrop
           accept=".conf,.txt,text/plain"
-          label="Drop your WireGuard .conf file here, or click to browse"
-          hint="The file contents are loaded into the editor below."
+          label={t('addClient.dropConf')}
+          hint={t('addClient.dropHint')}
           onFile={(_, text) => set('configText', text)}
         />
       </FieldRow>
       <FieldRow>
         <Label>
-          <span>Config text</span>
+          <span>{t('addClient.configText')}</span>
           <Textarea
             value={draft.configText}
             onChange={(e) => set('configText', e.target.value)}
             onBlur={() => markTouched('configText')}
             rows={12}
             placeholder={`[Interface]\nPrivateKey = ...\nAddress = 10.0.0.2/24\nListenPort = 51820\n\n[Peer]\nPublicKey = ...\nAllowedIPs = 0.0.0.0/0\nEndpoint = vpn.example.com:51820`}
-            aria-label="Config"
+            aria-label={t('addClient.config')}
+            dir="ltr"
             aria-invalid={touched.configText && !!errors.configText}
             style={{ fontFamily: 'monospace', minHeight: 200 }}
           />

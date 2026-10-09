@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Cable, Globe, Info, KeyRound, Shield, TriangleAlert } from 'lucide-react';
 import {
   Button,
@@ -16,6 +17,7 @@ import { VpnTypeTilePicker, type VpnTypeTile } from './VpnTypeTilePicker';
 import styles from './AddVpnServerDialog.module.scss';
 import {
   ApiError,
+  createL2tpServer,
   createOvpnServer,
   createSstpServer,
   createWireguardServer,
@@ -26,17 +28,15 @@ import {
   type SstpServerTaskStatus,
   type VPNCredentials,
 } from '../../../api';
-import { isCIDR, isPort, validateIdentifier, validateOvpnSecret } from '../../../utils/validators';
+import { isCIDR, isPort, validateOvpnSecret } from '../../../utils/validators';
 import { pollSstpServerTask } from '../sstpTask';
 
-export type AddVpnServerType = 'openvpn' | 'wireguard' | 'sstp';
+export type AddVpnServerType = 'openvpn' | 'wireguard' | 'l2tp' | 'sstp';
 
-type AddVpnServerTileType = AddVpnServerType | 'l2tp';
-
-const TYPE_TILES: Array<VpnTypeTile<AddVpnServerTileType>> = [
+const TYPE_TILES: Array<VpnTypeTile<AddVpnServerType>> = [
   { value: 'openvpn', label: 'OpenVPN', icon: <Globe size={26} strokeWidth={1.75} /> },
   { value: 'wireguard', label: 'WireGuard', icon: <Shield size={26} strokeWidth={1.75} /> },
-  { value: 'l2tp', label: 'L2TP', icon: <Cable size={26} strokeWidth={1.75} />, disabled: true },
+  { value: 'l2tp', label: 'L2TP', icon: <Cable size={26} strokeWidth={1.75} /> },
   { value: 'sstp', label: 'SSTP', icon: <KeyRound size={26} strokeWidth={1.75} /> },
 ];
 
@@ -47,19 +47,27 @@ const ADVANCED_WG_SERVER_FIELDS_ID = 'wg-server-advanced-fields';
 interface Props {
   creds: VPNCredentials | null;
   sstpEnabled: boolean;
+  l2tpEnabled: boolean;
   onCancel: () => void;
   onCreated: () => void;
 }
 
-export function AddVpnServerDialog({ creds, sstpEnabled, onCancel, onCreated }: Props) {
+export function AddVpnServerDialog({
+  creds,
+  sstpEnabled,
+  l2tpEnabled,
+  onCancel,
+  onCreated,
+}: Props) {
+  const { t } = useTranslation('vpn');
   const [type, setType] = useState<AddVpnServerType>('openvpn');
 
   return (
-    <Dialog open onClose={onCancel} title="New VPN server" size="md" footer={null}>
+    <Dialog open onClose={onCancel} title={t('addServer.title')} size="md" footer={null}>
       <FieldStack>
         <VpnTypeTilePicker
-          ariaLabel="VPN server type"
-          legend="Choose VPN server type"
+          ariaLabel={t('addServer.typeLabel')}
+          legend={t('addServer.typeLegend')}
           value={type}
           tiles={TYPE_TILES}
           onChange={(v) => setType(v as AddVpnServerType)}
@@ -67,6 +75,13 @@ export function AddVpnServerDialog({ creds, sstpEnabled, onCancel, onCreated }: 
 
         {type === 'openvpn' ? (
           <OvpnServerForm creds={creds} onCancel={onCancel} onCreated={onCreated} />
+        ) : type === 'l2tp' ? (
+          <L2tpServerForm
+            creds={creds}
+            l2tpEnabled={l2tpEnabled}
+            onCancel={onCancel}
+            onCreated={onCreated}
+          />
         ) : type === 'sstp' ? (
           <SstpServerForm
             creds={creds}
@@ -89,6 +104,7 @@ interface FormProps {
 }
 
 function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
+  const { t } = useTranslation('vpn');
   const [certPassphrase, setCertPassphrase] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,12 +141,12 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
         } else if (status.status === 'completed') {
           onCreatedRef.current();
         } else if (status.status === 'error') {
-          setError(status.error ?? 'OpenVPN server creation failed.');
+          setError(status.error ?? t('addServer.ovpn.creationFailed'));
           setSubmitting(false);
         }
       } catch (err) {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to fetch task status.');
+        setError(err instanceof Error ? err.message : t('addServer.taskStatusFailed'));
         setSubmitting(false);
       }
     };
@@ -140,13 +156,13 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
       cancelled = true;
       if (timeoutId !== null) window.clearTimeout(timeoutId);
     };
-  }, [taskId]);
+  }, [taskId, t]);
 
   const errors = useMemo(
     () => ({
-      certPassphrase: validateOvpnSecret(certPassphrase, 'Certificate passphrase'),
+      certPassphrase: validateOvpnSecret(certPassphrase, t('addServer.ovpn.certPassphraseField')),
     }),
-    [certPassphrase],
+    [certPassphrase, t],
   );
 
   const hasErrors = errors.certPassphrase !== null;
@@ -171,7 +187,7 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to start OpenVPN server creation.';
+            : t('addServer.ovpn.startFailed');
       setError(message);
       setSubmitting(false);
     }
@@ -183,13 +199,13 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
       <FieldStack>
         <Progress
           value={progress.progress}
-          label={failed ? 'Failed' : (progress.currentStep ?? 'Working…')}
+          label={failed ? t('addServer.failed') : (progress.currentStep ?? t('addServer.working'))}
           tone={failed ? 'danger' : 'success'}
         />
         {error ? <FormError role="alert">{error}</FormError> : null}
         <div className={styles.actions}>
           <Button variant="ghost" onClick={onCancel} disabled={!failed}>
-            Close
+            {t('shared.close')}
           </Button>
         </div>
       </FieldStack>
@@ -200,11 +216,11 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
     <FieldStack>
       <FieldRow>
         <Label>
-          <span>Client certificate passphrase</span>
+          <span>{t('addServer.ovpn.certPassphrase')}</span>
           <PasswordInput
             value={certPassphrase}
             onChange={(e) => setCertPassphrase(e.target.value)}
-            aria-label="Client certificate passphrase"
+            aria-label={t('addServer.ovpn.certPassphrase')}
             autoComplete="new-password"
             aria-invalid={submitAttempted && !!errors.certPassphrase}
           />
@@ -216,10 +232,10 @@ function OvpnServerForm({ creds, onCancel, onCreated }: FormProps) {
       {error ? <FormError role="alert">{error}</FormError> : null}
       <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancel
+          {t('shared.cancel')}
         </Button>
         <Button variant="success" onClick={submit} disabled={!canSubmit}>
-          {submitting ? 'Creating…' : 'Create OpenVPN server'}
+          {submitting ? t('shared.creating') : t('addServer.ovpn.create')}
         </Button>
       </div>
     </FieldStack>
@@ -253,6 +269,7 @@ interface SstpFormProps extends FormProps {
 }
 
 function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormProps) {
+  const { t } = useTranslation('vpn');
   const alertId = useId();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -277,17 +294,17 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
         if (status.status === 'completed') {
           onCreatedRef.current();
         } else {
-          setError(status.error ?? 'SSTP server setup failed.');
+          setError(status.error ?? t('addServer.sstp.setupFailed'));
           setSubmitting(false);
         }
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to fetch task status.');
+        setError(err instanceof Error ? err.message : t('addServer.taskStatusFailed'));
         setSubmitting(false);
       });
 
     return () => poll.cancel();
-  }, [taskId]);
+  }, [taskId, t]);
 
   const canSubmit = !!creds && !submitting && !sstpEnabled;
 
@@ -301,12 +318,12 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
     } catch (err) {
       const message =
         err instanceof ApiError && err.status === 409
-          ? 'The SSTP server is already enabled on this router.'
+          ? t('addServer.sstp.alreadyEnabledError')
           : err instanceof ApiError
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to start SSTP server setup.';
+              : t('addServer.sstp.startFailed');
       setError(message);
       setSubmitting(false);
     }
@@ -318,13 +335,13 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
       <FieldStack>
         <Progress
           value={progress.progress}
-          label={failed ? 'Failed' : (progress.currentStep ?? 'Working…')}
+          label={failed ? t('addServer.failed') : (progress.currentStep ?? t('addServer.working'))}
           tone={failed ? 'danger' : 'success'}
         />
         {error ? <InlineAlert tone="danger">{error}</InlineAlert> : null}
         <FieldRow>
           <Button variant="ghost" onClick={onCancel} disabled={!failed}>
-            Close
+            {t('shared.close')}
           </Button>
         </FieldRow>
       </FieldStack>
@@ -334,14 +351,12 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
   return (
     <FieldStack>
       <InlineAlert tone="info" id={alertId}>
-        {sstpEnabled
-          ? 'The SSTP server is already enabled on this router. Disable it from the VPN servers list before enabling it again.'
-          : 'Enabling SSTP issues a server certificate, starts the SSTP server on port 4433 and adds a firewall rule accepting inbound connections. Existing VPN users can sign in over SSTP.'}
+        {sstpEnabled ? t('addServer.sstp.alreadyEnabledInfo') : t('addServer.sstp.info')}
       </InlineAlert>
       {error ? <InlineAlert tone="danger">{error}</InlineAlert> : null}
       <FieldRow>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancel
+          {t('shared.cancel')}
         </Button>
         <Button
           variant="success"
@@ -350,10 +365,89 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
           aria-describedby={sstpEnabled ? alertId : undefined}
         >
           {sstpEnabled
-            ? 'SSTP server already enabled'
+            ? t('addServer.sstp.alreadyEnabled')
             : submitting
-              ? 'Enabling…'
-              : 'Enable SSTP server'}
+              ? t('shared.enabling')
+              : t('addServer.sstp.enable')}
+        </Button>
+      </FieldRow>
+    </FieldStack>
+  );
+}
+
+interface L2tpFormProps extends FormProps {
+  l2tpEnabled: boolean;
+}
+
+function L2tpServerForm({ creds, l2tpEnabled, onCancel, onCreated }: L2tpFormProps) {
+  const { t } = useTranslation('vpn');
+  const alertId = useId();
+  const [ipsecSecret, setIpsecSecret] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  const secretError = ipsecSecret.trim() === '' ? t('addServer.l2tp.secretRequired') : null;
+  const canSubmit = !!creds && !submitting && !l2tpEnabled;
+
+  const submit = async () => {
+    setSubmitAttempted(true);
+    if (!canSubmit || !creds || secretError) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      await createL2tpServer(creds, { ipsecSecret: ipsecSecret.trim() });
+      onCreated();
+    } catch (err) {
+      const message =
+        err instanceof ApiError && err.status === 409
+          ? t('addServer.l2tp.alreadyEnabledError')
+          : err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : t('addServer.l2tp.enableFailed');
+      setError(message);
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <FieldStack>
+      <InlineAlert tone="info" id={alertId}>
+        {l2tpEnabled ? t('addServer.l2tp.alreadyEnabledInfo') : t('addServer.l2tp.info')}
+      </InlineAlert>
+      {l2tpEnabled ? null : (
+        <FieldRow>
+          <Label>
+            <span>{t('shared.ipsecSecret')}</span>
+            <PasswordInput
+              value={ipsecSecret}
+              onChange={(e) => setIpsecSecret(e.target.value)}
+              aria-label={t('shared.ipsecSecret')}
+              autoComplete="new-password"
+              aria-invalid={submitAttempted && !!secretError}
+            />
+            {submitAttempted && secretError ? <FormError>{secretError}</FormError> : null}
+          </Label>
+        </FieldRow>
+      )}
+      {error ? <InlineAlert tone="danger">{error}</InlineAlert> : null}
+      <FieldRow>
+        <Button variant="ghost" onClick={onCancel} disabled={submitting}>
+          {t('shared.cancel')}
+        </Button>
+        <Button
+          variant="success"
+          onClick={submit}
+          disabled={!canSubmit}
+          aria-describedby={l2tpEnabled ? alertId : undefined}
+        >
+          {l2tpEnabled
+            ? t('addServer.l2tp.alreadyEnabled')
+            : submitting
+              ? t('shared.enabling')
+              : t('addServer.l2tp.enable')}
         </Button>
       </FieldRow>
     </FieldStack>
@@ -361,12 +455,12 @@ function SstpServerForm({ creds, sstpEnabled, onCancel, onCreated }: SstpFormPro
 }
 
 function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
+  const { t } = useTranslation('vpn');
   const [advanced, setAdvanced] = useState(false);
   const [name, setName] = useState('');
   const [localAddress, setLocalAddress] = useState('');
   const [listenPort, setListenPort] = useState('');
   const [mtu, setMtu] = useState('');
-  const [comment, setComment] = useState('');
   const [privateKey, setPrivateKey] = useState('');
   const [disabled, setDisabled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -375,21 +469,18 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
 
   const errors = useMemo(
     () => ({
-      name: validateIdentifier(name),
       localAddress:
         !advanced || localAddress.trim() === '' || isCIDR(localAddress)
           ? null
-          : 'Enter a CIDR like 10.8.0.1/24, or leave empty to auto-assign.',
+          : t('addServer.wg.cidrError'),
       listenPort:
-        !advanced || listenPort.trim() === '' || isPort(listenPort)
-          ? null
-          : 'Port must be 1-65535.',
+        !advanced || listenPort.trim() === '' || isPort(listenPort) ? null : t('shared.portRange'),
       mtu:
         !advanced || mtu.trim() === '' || (Number.isInteger(Number(mtu)) && Number(mtu) > 0)
           ? null
-          : 'MTU must be a positive integer.',
+          : t('shared.mtuPositive'),
     }),
-    [advanced, name, localAddress, listenPort, mtu],
+    [advanced, localAddress, listenPort, mtu, t],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -402,15 +493,15 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
     setSubmitting(true);
     const body: CreateWireguardServerRequest = advanced
       ? {
-          name: name.trim(),
+          name: '',
           localAddress: localAddress.trim() || undefined,
           listenPort: listenPort.trim() ? Number(listenPort) : undefined,
           mtu: mtu.trim() ? Number(mtu) : undefined,
-          comment: comment.trim() || undefined,
+          comment: name.trim() || undefined,
           privateKey: privateKey.trim() || undefined,
           disabled: disabled || undefined,
         }
-      : { name: name.trim() };
+      : { name: '', comment: name.trim() || undefined };
     try {
       await createWireguardServer(creds, body);
       onCreated();
@@ -420,7 +511,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to create WireGuard server.';
+            : t('addServer.wg.createFailed');
       setError(message);
       setSubmitting(false);
     }
@@ -430,22 +521,20 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
     <FieldStack>
       <FieldRow>
         <Label>
-          <span>Name</span>
+          <span>{t('shared.name')}</span>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="office"
+            placeholder={t('addServer.wg.namePlaceholder')}
             autoComplete="off"
-            aria-label="Name"
-            aria-invalid={submitAttempted && !!errors.name}
+            aria-label={t('shared.name')}
           />
-          {submitAttempted && errors.name ? <FormError>{errors.name}</FormError> : null}
         </Label>
       </FieldRow>
       <FieldRow>
         <Label as="div">
           <Switch
-            label="Advanced mode"
+            label={t('shared.advancedMode')}
             checked={advanced}
             onChange={(e) => setAdvanced(e.target.checked)}
             aria-expanded={advanced}
@@ -457,18 +546,19 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
         <FieldStack
           id={ADVANCED_WG_SERVER_FIELDS_ID}
           role="group"
-          aria-label="Advanced WireGuard server settings"
+          aria-label={t('addServer.wg.advancedGroup')}
         >
           <FieldRow>
             <Label>
-              <span>Listen port</span>
+              <span>{t('shared.listenPort')}</span>
               <Input
                 value={listenPort}
                 onChange={(e) => setListenPort(e.target.value)}
                 placeholder="51820"
                 inputMode="numeric"
                 autoComplete="off"
-                aria-label="Listen port"
+                aria-label={t('shared.listenPort')}
+                dir="ltr"
                 aria-invalid={submitAttempted && !!errors.listenPort}
               />
               {submitAttempted && errors.listenPort ? (
@@ -476,13 +566,14 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
               ) : null}
             </Label>
             <Label>
-              <span>Local address (CIDR)</span>
+              <span>{t('addServer.wg.localAddressCidr')}</span>
               <Input
                 value={localAddress}
                 onChange={(e) => setLocalAddress(e.target.value)}
-                placeholder="10.8.0.1/24 (auto if empty)"
+                placeholder={t('addServer.wg.localAddressPlaceholder')}
                 autoComplete="off"
-                aria-label="Local address"
+                aria-label={t('details.localAddress')}
+                dir="ltr"
                 aria-invalid={submitAttempted && !!errors.localAddress}
               />
               {submitAttempted && errors.localAddress ? (
@@ -504,25 +595,16 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
               />
               {submitAttempted && errors.mtu ? <FormError>{errors.mtu}</FormError> : null}
             </Label>
-            <Label>
-              <span>Comment</span>
-              <Input
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="optional"
-                autoComplete="off"
-                aria-label="Comment"
-              />
-            </Label>
           </FieldRow>
           <FieldRow>
             <Label>
-              <span>Private key</span>
+              <span>{t('shared.privateKey')}</span>
               <PasswordInput
                 value={privateKey}
                 onChange={(e) => setPrivateKey(e.target.value)}
-                placeholder="auto-generated if empty"
-                aria-label="Private key"
+                placeholder={t('shared.autoGeneratedIfEmpty')}
+                aria-label={t('shared.privateKey')}
+                dir="ltr"
                 autoComplete="new-password"
               />
             </Label>
@@ -530,7 +612,7 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
           <FieldRow>
             <Label as="div">
               <Switch
-                label="Enabled on creation"
+                label={t('shared.enabledOnCreation')}
                 checked={!disabled}
                 onChange={(e) => setDisabled(!e.target.checked)}
               />
@@ -541,10 +623,10 @@ function WireguardServerForm({ creds, onCancel, onCreated }: FormProps) {
       {error ? <FormError role="alert">{error}</FormError> : null}
       <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancel
+          {t('shared.cancel')}
         </Button>
         <Button variant="success" onClick={submit} disabled={!canSubmit}>
-          {submitting ? 'Creating…' : 'Create WireGuard server'}
+          {submitting ? t('shared.creating') : t('addServer.wg.create')}
         </Button>
       </div>
     </FieldStack>

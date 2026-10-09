@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Blocks, Download, RefreshCw, Trash2, TriangleAlert } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
+import { Blocks, Download, ExternalLink, RefreshCw, Trash2, TriangleAlert } from 'lucide-react';
 import {
   Badge,
   Button,
+  ButtonLink,
   ConfirmDialog,
   EmptyState,
   PageShell,
@@ -18,6 +20,7 @@ import {
   fetchPluginInstallStatus,
   fetchPluginUpdateStatus,
   installPlugin,
+  pluginViewUrl,
   uninstallPlugin,
   updatePlugin,
   type PluginCredentials,
@@ -38,25 +41,46 @@ import styles from './PluginsPage.module.scss';
 
 const PLUGIN_INSTALL_TIMEOUT_MS = 10 * 60 * 1000;
 
-const PLUGIN_INSTALL_STEPS: Record<string, { value: number; label: string }> = {
-  preparing: { value: 5, label: 'Preparing' },
-  creating_interface: { value: 15, label: 'Creating interface' },
-  creating_mounts: { value: 25, label: 'Creating mounts' },
-  running_pre_install_script: { value: 35, label: 'Running pre-install script' },
-  creating_container: { value: 45, label: 'Creating container' },
-  pulling: { value: 65, label: 'Pulling image' },
-  starting_container: { value: 85, label: 'Starting container' },
-  running_post_install_script: { value: 95, label: 'Running post-install script' },
+// `step` is a key under plugins.progress in the catalog, translated at render.
+type ProgressStep =
+  | 'startingInstall'
+  | 'startingUpdate'
+  | 'preparing'
+  | 'creatingInterface'
+  | 'creatingMounts'
+  | 'runningPreInstall'
+  | 'creatingContainer'
+  | 'pullingImage'
+  | 'startingContainer'
+  | 'runningPostInstall'
+  | 'checkingVersion'
+  | 'stoppingContainer'
+  | 'finishing';
+
+interface ProgressState {
+  value: number;
+  step: ProgressStep;
+}
+
+const PLUGIN_INSTALL_STEPS: Record<string, ProgressState> = {
+  preparing: { value: 5, step: 'preparing' },
+  creating_interface: { value: 15, step: 'creatingInterface' },
+  creating_mounts: { value: 25, step: 'creatingMounts' },
+  running_pre_install_script: { value: 35, step: 'runningPreInstall' },
+  creating_container: { value: 45, step: 'creatingContainer' },
+  pulling: { value: 65, step: 'pullingImage' },
+  starting_container: { value: 85, step: 'startingContainer' },
+  running_post_install_script: { value: 95, step: 'runningPostInstall' },
 };
 
 const PLUGIN_UPDATE_TIMEOUT_MS = 10 * 60 * 1000;
 
-const PLUGIN_UPDATE_STEPS: Record<string, { value: number; label: string }> = {
-  checking_version: { value: 10, label: 'Checking version' },
-  stopping_container: { value: 30, label: 'Stopping container' },
-  repulling: { value: 60, label: 'Pulling image' },
-  starting_container: { value: 85, label: 'Starting container' },
-  updating_comment: { value: 95, label: 'Finishing up' },
+const PLUGIN_UPDATE_STEPS: Record<string, ProgressState> = {
+  checking_version: { value: 10, step: 'checkingVersion' },
+  stopping_container: { value: 30, step: 'stoppingContainer' },
+  repulling: { value: 60, step: 'pullingImage' },
+  starting_container: { value: 85, step: 'startingContainer' },
+  updating_comment: { value: 95, step: 'finishing' },
 };
 
 const FALLBACK_LOGOS: Record<string, React.FC<{ size?: number }>> = {
@@ -114,11 +138,14 @@ function PluginNote({ note, failed }: { note: string; failed: boolean }) {
 function statusBadge(
   plugin: PluginInfoResponse,
   localInstalling: boolean,
-): { tone: 'success' | 'danger' | 'info' | 'neutral'; label: string } | null {
-  if (plugin.failed) return { tone: 'danger', label: 'failed' };
-  if (plugin.installing || localInstalling) return { tone: 'info', label: 'installing' };
-  if (plugin.running) return { tone: 'success', label: 'running' };
-  if (plugin.installed) return { tone: 'neutral', label: 'installed' };
+): {
+  tone: 'success' | 'danger' | 'info' | 'neutral';
+  status: 'failed' | 'installing' | 'running' | 'installed';
+} | null {
+  if (plugin.failed) return { tone: 'danger', status: 'failed' };
+  if (plugin.installing || localInstalling) return { tone: 'info', status: 'installing' };
+  if (plugin.running) return { tone: 'success', status: 'running' };
+  if (plugin.installed) return { tone: 'neutral', status: 'installed' };
   return null;
 }
 
@@ -145,18 +172,19 @@ function CardSkeleton() {
 export function PluginsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
-  const { getCredentials } = useSession();
-  const { markInstalled, markUninstalled } = useInstalledPlugins();
+  const { getCredentials, activeRouterId } = useSession();
+  const { plugins: installedPlugins, markInstalled, markUninstalled } = useInstalledPlugins();
   const toast = useToast();
+  const { t } = useTranslation('tools');
 
   const [plugins, setPlugins] = useState<PluginInfoResponse[]>([]);
   const [containerSupport, setContainerSupport] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [installs, setInstalls] = useState<Record<string, { value: number; label: string }>>({});
+  const [installs, setInstalls] = useState<Record<string, ProgressState>>({});
   const [confirmingUninstall, setConfirmingUninstall] = useState<PluginInfoResponse | null>(null);
   const [uninstallingId, setUninstallingId] = useState<string | null>(null);
-  const [updates, setUpdates] = useState<Record<string, { value: number; label: string }>>({});
+  const [updates, setUpdates] = useState<Record<string, ProgressState>>({});
   const [confirmingUpdate, setConfirmingUpdate] = useState<PluginInfoResponse | null>(null);
   const inFlightRef = useRef(false);
   const watchingRef = useRef(new Set<string>());
@@ -176,6 +204,13 @@ export function PluginsPage() {
     setContainerSupport(null);
     setLoading(true);
   }, [id]);
+
+  // The store follows the session's active router, which is set in an effect after
+  // this page first renders with a new :id, so ignore it until the two agree.
+  const installedIds = useMemo(
+    () => new Set(activeRouterId === id ? installedPlugins.map((p) => p.id) : []),
+    [activeRouterId, id, installedPlugins],
+  );
 
   const creds = useMemo<PluginCredentials | null>(() => {
     if (!id) return null;
@@ -201,7 +236,7 @@ export function PluginsPage() {
         setContainerSupport(data.containerSupport);
         if (silent) setError(null);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load plugins.';
+        const message = err instanceof Error ? err.message : t('plugins.loadFailed');
         if (activeRouterRef.current !== id) return;
         if (!silent) {
           setError(message);
@@ -214,7 +249,7 @@ export function PluginsPage() {
         }
       }
     },
-    [creds, id],
+    [creds, id, t],
   );
 
   useEffect(() => {
@@ -234,14 +269,18 @@ export function PluginsPage() {
 
   const failInstall = (pluginId: string, name: string, message: string) => {
     stopWatching(pluginId);
-    toast.notify({ title: `${name} install failed`, description: message, tone: 'danger' });
+    toast.notify({
+      title: t('plugins.toasts.installFailed', { name }),
+      description: message,
+      tone: 'danger',
+    });
     void reload(true);
   };
 
   const watchInstall = (pluginId: string, name: string, startedAt: number) => {
     if (!watchingRef.current.has(pluginId) || !creds) return;
     if (Date.now() - startedAt > PLUGIN_INSTALL_TIMEOUT_MS) {
-      failInstall(pluginId, name, 'Timed out waiting for the install to finish');
+      failInstall(pluginId, name, t('plugins.toasts.installTimeout'));
       return;
     }
     void fetchPluginInstallStatus(creds, pluginId)
@@ -257,13 +296,13 @@ export function PluginsPage() {
           return;
         }
         if (status?.phase === 'error') {
-          failInstall(pluginId, name, status.message || 'Plugin install failed');
+          failInstall(pluginId, name, status.message || t('plugins.toasts.installFailedDetail'));
           return;
         }
         if (status?.phase === 'done') {
           stopWatching(pluginId);
           markInstalled({ id: pluginId, name });
-          toast.notify({ title: `${name} installed`, tone: 'success' });
+          toast.notify({ title: t('plugins.toasts.installed', { name }), tone: 'success' });
           void reload(true);
           return;
         }
@@ -276,14 +315,14 @@ export function PluginsPage() {
   const install = async (plugin: PluginInfoResponse) => {
     if (!creds) return;
     watchingRef.current.add(plugin.id);
-    setInstalls((prev) => ({ ...prev, [plugin.id]: { value: 5, label: 'Starting install' } }));
+    setInstalls((prev) => ({ ...prev, [plugin.id]: { value: 5, step: 'startingInstall' } }));
     try {
       await installPlugin(creds, plugin.id);
       watchInstall(plugin.id, plugin.name, Date.now());
     } catch (err) {
       stopWatching(plugin.id);
       toast.notify({
-        title: `${plugin.name} install failed`,
+        title: t('plugins.toasts.installFailed', { name: plugin.name }),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -302,14 +341,18 @@ export function PluginsPage() {
 
   const failUpdate = (pluginId: string, name: string, message: string) => {
     stopUpdate(pluginId);
-    toast.notify({ title: `${name} update failed`, description: message, tone: 'danger' });
+    toast.notify({
+      title: t('plugins.toasts.updateFailed', { name }),
+      description: message,
+      tone: 'danger',
+    });
     void reload(true);
   };
 
   const watchUpdate = (pluginId: string, name: string, startedAt: number) => {
     if (!watchingRef.current.has(pluginId) || !creds) return;
     if (Date.now() - startedAt > PLUGIN_UPDATE_TIMEOUT_MS) {
-      failUpdate(pluginId, name, 'Timed out waiting for the update to finish');
+      failUpdate(pluginId, name, t('plugins.toasts.updateTimeout'));
       return;
     }
     void fetchPluginUpdateStatus(creds, pluginId)
@@ -325,15 +368,14 @@ export function PluginsPage() {
           return;
         }
         if (status?.phase === 'error') {
-          failUpdate(pluginId, name, status.message || 'Plugin update failed');
+          failUpdate(pluginId, name, status.message || t('plugins.toasts.updateFailedDetail'));
           return;
         }
         if (status?.phase === 'unconfirmed') {
           stopUpdate(pluginId);
           toast.notify({
-            title: `${name} update unconfirmed`,
-            description:
-              status.message || 'The new image could not be verified. The plugin was restarted.',
+            title: t('plugins.toasts.updateUnconfirmed', { name }),
+            description: status.message || t('plugins.toasts.updateUnconfirmedDetail'),
             tone: 'warning',
           });
           void reload(true);
@@ -342,7 +384,9 @@ export function PluginsPage() {
         if (status?.phase === 'done') {
           stopUpdate(pluginId);
           toast.notify({
-            title: status.version ? `${name} updated to v${status.version}` : `${name} updated`,
+            title: status.version
+              ? t('plugins.toasts.updatedTo', { name, version: status.version })
+              : t('plugins.toasts.updated', { name }),
             tone: 'success',
           });
           void reload(true);
@@ -359,14 +403,14 @@ export function PluginsPage() {
     setConfirmingUpdate(null);
     if (!plugin || !creds) return;
     watchingRef.current.add(plugin.id);
-    setUpdates((prev) => ({ ...prev, [plugin.id]: { value: 5, label: 'Starting update' } }));
+    setUpdates((prev) => ({ ...prev, [plugin.id]: { value: 5, step: 'startingUpdate' } }));
     try {
       await updatePlugin(creds, plugin.id);
       watchUpdate(plugin.id, plugin.name, Date.now());
     } catch (err) {
       stopUpdate(plugin.id);
       toast.notify({
-        title: `${plugin.name} update failed`,
+        title: t('plugins.toasts.updateFailed', { name: plugin.name }),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -384,16 +428,19 @@ export function PluginsPage() {
       markUninstalled(plugin.id);
       if (result.warnings?.length) {
         toast.notify({
-          title: `${plugin.name} uninstalled with warnings`,
+          title: t('plugins.toasts.uninstalledWithWarnings', { name: plugin.name }),
           description: result.warnings.join(' '),
           tone: 'warning',
         });
       } else {
-        toast.notify({ title: `${plugin.name} uninstalled`, tone: 'success' });
+        toast.notify({
+          title: t('plugins.toasts.uninstalled', { name: plugin.name }),
+          tone: 'success',
+        });
       }
     } catch (err) {
       toast.notify({
-        title: `${plugin.name} uninstall failed`,
+        title: t('plugins.toasts.uninstallFailed', { name: plugin.name }),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
@@ -408,10 +455,7 @@ export function PluginsPage() {
       {containerSupport === false ? (
         <div className={styles.unsupported} role="alert">
           <TriangleAlert size={16} aria-hidden className={styles.unsupportedIcon} />
-          <p>
-            This router cannot run plugins. Container mode is disabled or the container package is
-            not installed, so plugins can be browsed but not installed.
-          </p>
+          <p>{t('plugins.unsupported')}</p>
         </div>
       ) : null}
       {loading && plugins.length === 0 ? (
@@ -422,15 +466,12 @@ export function PluginsPage() {
         </div>
       ) : error && plugins.length === 0 ? (
         <EmptyState
-          title="Failed to load plugins"
+          title={t('plugins.loadFailedTitle')}
           description={error}
-          actions={<Button onClick={() => reload()}>Retry</Button>}
+          actions={<Button onClick={() => reload()}>{t('plugins.retry')}</Button>}
         />
       ) : plugins.length === 0 ? (
-        <EmptyState
-          title="No plugins available"
-          description="The plugin registry did not return any plugins."
-        />
+        <EmptyState title={t('plugins.noneTitle')} description={t('plugins.noneDescription')} />
       ) : (
         <div className={styles.grid}>
           {plugins.map((plugin) => {
@@ -440,6 +481,9 @@ export function PluginsPage() {
             const installing = Boolean(localInstall) || plugin.installing;
             const updating = Boolean(localUpdate);
             const progress = localInstall ?? localUpdate;
+            // The registry list lags a just-finished install until the next reload,
+            // so the installed-plugins store also counts.
+            const installed = plugin.installed || installedIds.has(plugin.id);
             return (
               <article key={plugin.id} className={styles.card}>
                 <div className={styles.cardTop}>
@@ -449,19 +493,29 @@ export function PluginsPage() {
                       {plugin.name}
                     </h3>
                     <p className={styles.cardAuthor}>
-                      by{' '}
-                      <a
-                        href={plugin.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.cardAuthorLink}
-                      >
-                        {plugin.author}
-                      </a>
+                      <Trans
+                        t={t}
+                        i18nKey="plugins.byAuthor"
+                        values={{ author: plugin.author }}
+                        components={{
+                          anchor: (
+                            // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- Trans fills in the text
+                            <a
+                              href={plugin.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.cardAuthorLink}
+                            />
+                          ),
+                        }}
+                      />
                     </p>
                     <p className={styles.cardAuthor}>
                       {plugin.updateAvailable && plugin.installedVersion
-                        ? `v${plugin.installedVersion} (v${plugin.version} available)`
+                        ? t('plugins.versionWithUpdate', {
+                            installed: plugin.installedVersion,
+                            latest: plugin.version,
+                          })
                         : `v${plugin.version}`}
                     </p>
                   </Stack>
@@ -470,29 +524,45 @@ export function PluginsPage() {
                   <Badge tone="neutral" className={styles.categoryBadge}>
                     {plugin.category}
                   </Badge>
-                  {badge ? <Badge tone={badge.tone}>{badge.label}</Badge> : null}
+                  {badge ? (
+                    <Badge tone={badge.tone}>{t(`plugins.status.${badge.status}`)}</Badge>
+                  ) : null}
                 </div>
                 <p className={styles.cardDesc}>{plugin.tagline}</p>
                 {plugin.note ? <PluginNote note={plugin.note} failed={plugin.failed} /> : null}
-                {progress ? <Progress value={progress.value} label={progress.label} /> : null}
+                {progress ? (
+                  <Progress value={progress.value} label={t(`plugins.progress.${progress.step}`)} />
+                ) : null}
                 <div className={styles.cardActions}>
                   {installing ? (
                     <Button variant="primary" size="sm" loading>
-                      Installing…
+                      {t('plugins.installing')}
                     </Button>
                   ) : updating ? (
                     <Button variant="primary" size="sm" loading>
-                      Updating…
+                      {t('plugins.updating')}
                     </Button>
-                  ) : plugin.installed ? (
+                  ) : installed ? (
                     <div className={styles.cardButtons}>
+                      {plugin.failed ? null : (
+                        <ButtonLink
+                          variant="primary"
+                          size="sm"
+                          href={pluginViewUrl(plugin.id)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink size={14} aria-hidden className="rtl-flip" />{' '}
+                          {t('plugins.open')}
+                        </ButtonLink>
+                      )}
                       {plugin.updateAvailable ? (
                         <Button
                           variant="success"
                           size="sm"
                           onClick={() => setConfirmingUpdate(plugin)}
                         >
-                          <RefreshCw size={14} aria-hidden /> Update
+                          <RefreshCw size={14} aria-hidden /> {t('plugins.update')}
                         </Button>
                       ) : null}
                       <Button
@@ -503,25 +573,25 @@ export function PluginsPage() {
                         loading={uninstallingId === plugin.id}
                       >
                         {uninstallingId === plugin.id ? (
-                          'Uninstalling…'
+                          t('plugins.uninstalling')
                         ) : (
                           <>
-                            <Trash2 size={14} aria-hidden /> Uninstall
+                            <Trash2 size={14} aria-hidden /> {t('plugins.uninstall')}
                           </>
                         )}
                       </Button>
                     </div>
                   ) : containerSupport === false ? (
                     <Button variant="secondary" size="sm" disabled>
-                      Unavailable
+                      {t('plugins.unavailable')}
                     </Button>
                   ) : plugin.canInstall ? (
                     <Button variant="primary" size="sm" onClick={() => install(plugin)}>
-                      <Download size={14} aria-hidden /> Install
+                      <Download size={14} aria-hidden /> {t('plugins.install')}
                     </Button>
                   ) : (
                     <Button variant="secondary" size="sm" disabled>
-                      Coming soon
+                      {t('plugins.comingSoon')}
                     </Button>
                   )}
                 </div>
@@ -533,19 +603,23 @@ export function PluginsPage() {
 
       <ConfirmDialog
         open={confirmingUninstall !== null}
-        title={`Uninstall ${confirmingUninstall?.name ?? 'plugin'}?`}
-        description="The plugin container and its resources are removed from the router."
+        title={t('plugins.confirmUninstall.title', {
+          name: confirmingUninstall?.name ?? t('plugins.pluginFallback'),
+        })}
+        description={t('plugins.confirmUninstall.description')}
         destructive
-        confirmLabel="Uninstall"
+        confirmLabel={t('plugins.uninstall')}
         onConfirm={uninstall}
         onCancel={() => setConfirmingUninstall(null)}
       />
 
       <ConfirmDialog
         open={confirmingUpdate !== null}
-        title={`Update ${confirmingUpdate?.name ?? 'plugin'}?`}
-        description="The plugin container restarts and is briefly offline during the update."
-        confirmLabel="Update"
+        title={t('plugins.confirmUpdate.title', {
+          name: confirmingUpdate?.name ?? t('plugins.pluginFallback'),
+        })}
+        description={t('plugins.confirmUpdate.description')}
+        confirmLabel={t('plugins.update')}
         confirmVariant="success"
         onConfirm={update}
         onCancel={() => setConfirmingUpdate(null)}

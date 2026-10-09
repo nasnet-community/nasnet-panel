@@ -1,0 +1,47 @@
+{
+  "page": {
+    "title": "Routers",
+    "subtitleEmpty": "No routers yet. Start by scanning the network or adding one manually.",
+    "subtitle": "Pick a router to open its dashboard.",
+    "loading": "Loading routers…"
+  },
+  "newTile": {
+    "ariaLabel": "New router",
+    "label": "New Router",
+    "hint": "Scan the network to find devices"
+  },
+  "connecting": {
+    "title": "Connecting to {{name}}",
+    "subtitle": "Establishing secure session with {{host}}…"
+  },
+  "remove": {
+    "title": "Remove router",
+    "description": "Remove {{name}} ({{host}}) from the list? This does not touch the device itself.",
+    "confirm": "Remove",
+    "toastTitle": "Router removed",
+    "toastDescription": "{{name}} was removed from the list."
+  },
+  "card": {
+    "status": {
+      "online": "online",
+      "offline": "offline",
+      "degraded": "degraded",
+      "unknown": "unknown"
+    },
+    "seen": "seen {{date}}",
+    "neverSeen": "never seen",
+    "removeAriaLabel": "Remove {{name}}",
+    "removeTitle": "Remove router"
+  },
+  "credentials": {
+    "title": "Connect to {{name}}",
+    "description": "Enter credentials for {{host}}.",
+    "cancel": "Cancel",
+    "connect": "Connect",
+    "username": "Username",
+    "password": "Password",
+    "usernameRequired": "Username is required.",
+    "invalidCredentials": "Invalid username or password",
+    "connectionFailed": "Connection failed"
+  }
+}

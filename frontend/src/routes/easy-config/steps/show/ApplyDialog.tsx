@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import { Button, Dialog, Inline, Progress } from '@nasnet/ui';
 import styles from '../../../EasyConfigWizard.module.scss';
 import { SuccessCheck } from './SuccessCheck';
@@ -8,6 +9,7 @@ interface Props {
   applying: boolean;
   applied: boolean;
   progress: number;
+  stage?: string;
   error: string | null;
   managementWifiSsid: string;
   managementWifiPassword: string;
@@ -21,6 +23,7 @@ export function ApplyDialog({
   applying,
   applied,
   progress,
+  stage,
   error,
   managementWifiSsid,
   managementWifiPassword,
@@ -28,6 +31,7 @@ export function ApplyDialog({
   onRetry,
   onDone,
 }: Props) {
+  const { t } = useTranslation('easyConfig');
   const showError = Boolean(error) && !applying && !applied;
   return (
     <Dialog open={open} onClose={onClose} size="sm" labelledBy="apply-dialog-title">
@@ -36,13 +40,13 @@ export function ApplyDialog({
           <>
             <div className={styles.spinner} aria-hidden="true" />
             <h2 id="apply-dialog-title" className={styles.applyTitle}>
-              Applying configuration…
+              {t('apply.applyingTitle')}
             </h2>
-            <p className={styles.applySubtitle}>
-              Running RouterOS commands via the batch executor.
+            <p className={styles.applySubtitle} aria-live="polite">
+              {stage || t('apply.applyingSubtitle')}
             </p>
             <div className={styles.applyProgress}>
-              <Progress value={progress} label="Progress" tone="success" />
+              <Progress value={progress} label={t('apply.progress')} tone="success" />
             </div>
             <div className={styles.emergencyAlert} role="alert">
               <span aria-hidden="true" className={styles.emergencyAlertIcon}>
@@ -50,25 +54,21 @@ export function ApplyDialog({
               </span>
               <div className={styles.emergencyAlertBody}>
                 <p className={styles.emergencyAlertText}>
-                  If the connection drops or setup runs into an error, you can still reach the
-                  router through the emergency interfaces: plug into the last Ethernet port and open{' '}
-                  <strong>192.168.200.1</strong>
-                  {managementWifiSsid ? (
-                    <>
-                      , or join the management WiFi below and open <strong>192.168.210.1</strong>
-                    </>
-                  ) : (
-                    '.'
-                  )}
+                  <Trans
+                    t={t}
+                    i18nKey={managementWifiSsid ? 'apply.emergencyWithWifi' : 'apply.emergency'}
+                    values={{ ip: '192.168.200.1', wifiIp: '192.168.210.1' }}
+                    components={{ strong: <strong /> }}
+                  />
                 </p>
                 {managementWifiSsid ? (
                   <dl className={styles.emergencyWifi}>
                     <div>
-                      <dt>WiFi name</dt>
+                      <dt>{t('apply.wifiName')}</dt>
                       <dd>{managementWifiSsid}</dd>
                     </div>
                     <div>
-                      <dt>Password</dt>
+                      <dt>{t('apply.password')}</dt>
                       <dd>{managementWifiPassword}</dd>
                     </div>
                   </dl>
@@ -80,28 +80,26 @@ export function ApplyDialog({
           <>
             <SuccessCheck />
             <h2 id="apply-dialog-title" className={styles.applyTitle}>
-              Configuration applied successfully
+              {t('apply.successTitle')}
             </h2>
-            <p className={styles.applySubtitle}>
-              Your router is now running the new configuration.
-            </p>
+            <p className={styles.applySubtitle}>{t('apply.successSubtitle')}</p>
             <Button variant="success" onClick={onDone}>
-              Ok
+              {t('apply.ok')}
             </Button>
           </>
         ) : showError ? (
           <>
             <ErrorCross />
             <h2 id="apply-dialog-title" className={styles.applyTitle}>
-              Apply failed
+              {t('apply.failedTitle')}
             </h2>
             <p className={styles.applySubtitle}>{error}</p>
             <Inline>
               <Button variant="ghost" onClick={onRetry}>
-                Retry
+                {t('apply.retry')}
               </Button>
               <Button variant="success" onClick={onDone}>
-                Ok
+                {t('apply.ok')}
               </Button>
             </Inline>
           </>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFormat } from '../../utils/useFormat';
 import styles from './Progress.module.scss';
 
 export type ProgressTone = 'primary' | 'success' | 'warning' | 'danger' | 'info';
@@ -18,6 +19,7 @@ export const Progress: React.FC<ProgressProps> = ({
   label,
   tone = 'primary',
 }) => {
+  const format = useFormat();
   const pct = (value / max) * 100;
   const clamped = Math.min(100, Math.max(0, pct));
   return (
@@ -25,7 +27,7 @@ export const Progress: React.FC<ProgressProps> = ({
       {label ? (
         <div className={styles.caption}>
           <span>{label}</span>
-          <span>{Math.round(pct)}%</span>
+          <span>{format.percent(Math.round(pct) / 100)}</span>
         </div>
       ) : null}
       <div

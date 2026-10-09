@@ -178,7 +178,7 @@ func (c *Client) GetWifiInterface(name string) (*WifiInfo, error) {
 
 	switch driverType {
 	case WiFiDriverWifiQcom, WiFiDriverWifiQcomAC, WiFiDriverWifiWave2, WiFiDriverWifi:
-		return c.getWiFiInterface(name)
+		return c.getWiFiInterfaceImpl(name)
 	case WiFiDriverWireless:
 		return c.getWirelessInterface(name)
 	default:
@@ -210,7 +210,7 @@ func (c *Client) RemoveWifiInterface(name string) error {
 
 	switch driverType {
 	case WiFiDriverWifiQcom, WiFiDriverWifiQcomAC, WiFiDriverWifiWave2, WiFiDriverWifi:
-		return c.removeWiFiInterface(name)
+		return c.removeWiFiInterfaceImpl(name)
 	case WiFiDriverWireless:
 		return c.removeWirelessInterface(name)
 	default:

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Tabs } from '@nasnet/ui';
 import { useSession } from '../state/SessionContext';
 import { useRouterStore } from '../state/RouterStoreContext';
@@ -14,6 +15,7 @@ export function RouterTabBar({
   activeId?: string;
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation('layout');
   const { activeRouterId } = useSession();
   const { routers, lastConnectedRouterId, selectedRouterId } = useRouterStore();
   const { plugins } = useInstalledPlugins();
@@ -35,11 +37,11 @@ export function RouterTabBar({
           items={sections}
           activeId={activeId ?? ''}
           onChange={(tabId) => {
-            const item = sections.find((t) => t.id === tabId);
+            const item = sections.find((s) => s.id === tabId);
             if (!item) return;
             navigate(`/router/${targetId}${item.path ? `/${item.path}` : ''}`);
           }}
-          ariaLabel="Router sections"
+          ariaLabel={t('sections.ariaLabel')}
         />
       </div>
     </div>

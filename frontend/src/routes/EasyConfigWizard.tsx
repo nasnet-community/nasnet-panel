@@ -1,8 +1,9 @@
 import { useParams } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, FormError, Stack, Stepper } from '@nasnet/ui';
 import styles from './EasyConfigWizard.module.scss';
-import { stepsForMode, stepTitles } from './easy-config/state';
+import { messageText, stepTitle, stepsForMode } from './easy-config/state';
 import { useEasyConfig } from './easy-config/useEasyConfig';
 import { ModeStep } from './easy-config/steps/ModeStep';
 import { WanStep } from './easy-config/steps/WanStep';
@@ -13,6 +14,7 @@ import { ApplyDialog } from './easy-config/steps/show/ApplyDialog';
 import { useApplyDialog } from './easy-config/steps/show/useApplyDialog';
 
 export function EasyConfigWizard() {
+  const { t } = useTranslation('easyConfig');
   const { id } = useParams<{ id: string }>();
   const {
     state,
@@ -50,7 +52,7 @@ export function EasyConfigWizard() {
 
   const footer = (
     <div className={styles.stepFooter}>
-      {state.error && !dialogOpen ? <FormError>{state.error}</FormError> : null}
+      {state.error && !dialogOpen ? <FormError>{messageText(state.error)}</FormError> : null}
       <div
         style={{
           display: 'flex',
@@ -62,7 +64,7 @@ export function EasyConfigWizard() {
       >
         {activeIndex > 0 ? (
           <Button variant="ghost" onClick={goPrev} disabled={state.applying}>
-            Back
+            {t('nav.back')}
           </Button>
         ) : null}
         <Button
@@ -73,13 +75,13 @@ export function EasyConfigWizard() {
         >
           {isLastStep ? (
             state.applied ? (
-              'Applied'
+              t('nav.applied')
             ) : (
-              'Apply'
+              t('nav.apply')
             )
           ) : (
             <>
-              Next <ArrowRight size={16} strokeWidth={2} />
+              {t('nav.next')} <ArrowRight size={16} strokeWidth={2} className="rtl-flip" />
             </>
           )}
         </Button>
@@ -126,11 +128,7 @@ export function EasyConfigWizard() {
       <Stepper
         orientation="horizontal"
         activeIndex={activeIndex}
-        steps={steps.map((stepId) => ({
-          id: stepId,
-          title: stepTitles[stepId].title,
-          description: stepTitles[stepId].description,
-        }))}
+        steps={steps.map((stepId) => ({ id: stepId, ...stepTitle(stepId) }))}
       />
       {renderStep()}
       <ApplyDialog
@@ -138,7 +136,8 @@ export function EasyConfigWizard() {
         applying={state.applying}
         applied={state.applied}
         progress={state.progress}
-        error={state.error}
+        stage={state.stage}
+        error={state.error ? messageText(state.error) : null}
         managementWifiSsid={state.managementWifiSsid}
         managementWifiPassword={state.managementWifiPassword}
         onClose={closeDialog}

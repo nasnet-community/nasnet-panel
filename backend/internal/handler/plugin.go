@@ -372,6 +372,9 @@ func (l *pluginLifecycle) acquire(pluginID string, op pluginLifecycleOp) (func()
 // @Description Fetches the community plugin registry and returns the list of available
 // @Description plugins, each annotated with installed/running status from the router's
 // @Description own containers (a plugin is installed as a container named after its id).
+// @Description Only plugins with visible=true in the registry are included, unless the
+// @Description build version contains "dev", in which case every plugin is listed. Hidden plugins can still be installed
+// @Description directly and are unaffected by this filter.
 // @Tags Plugin
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -413,7 +416,7 @@ func HandleListPlugins(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusOK, "Plugins retrieved", PluginListResponse{
 		ContainerSupport: containerSupport,
-		Plugins:          finalizePlugins(registry.Plugins, containers),
+		Plugins:          filterVisiblePlugins(finalizePlugins(registry.Plugins, containers)),
 	})
 }
 
@@ -829,7 +832,13 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			return
 		}
 		if !exists {
-			if _, err := client.AddContainerMount(name, mount.Src, mount.Dst); err != nil {
+			volumeDir, err := preparePluginVolumeDir(client, pluginID, mount.Src)
+			if err != nil {
+				task.set(pluginInstallPhaseError, "failed to prepare container volume directory for mount "+name+": "+err.Error())
+				log.Printf("[plugin-install %s] failed to prepare volume dir for mount %s: %v", pluginID, name, err)
+				return
+			}
+			if _, err := client.AddContainerMount(name, volumeDir, mount.Dst); err != nil {
 				task.set(pluginInstallPhaseError, "failed to create container mount "+name+": "+err.Error())
 				log.Printf("[plugin-install %s] failed to create mount %s: %v", pluginID, name, err)
 				return
@@ -840,7 +849,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 
 	if manifest.Scripts.PreInstall != "" {
 		task.set(pluginInstallPhaseRunningPreInstall, "running pre-install script")
-		if err := runPluginScript(ctx, client, pluginID, manifest.Scripts.PreInstall); err != nil {
+		if err := runPluginScript(ctx, client, pluginID, manifest.Scripts.PreInstall, settingsValues); err != nil {
 			task.set(pluginInstallPhaseError, "pre-install script failed: "+err.Error())
 			log.Printf("[plugin-install %s] pre-install script failed: %v", pluginID, err)
 			return
@@ -848,10 +857,16 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	}
 
 	task.set(pluginInstallPhaseCreatingContainer, "creating container "+pluginID)
+	rootDir, err := preparePluginRootDir(client, pluginID)
+	if err != nil {
+		task.set(pluginInstallPhaseError, "failed to prepare plugin container directory: "+err.Error())
+		log.Printf("[plugin-install %s] failed to prepare root dir: %v", pluginID, err)
+		return
+	}
 	containerID, err := client.AddContainer(routeros.ContainerConfig{
 		Name:        pluginID,
 		Interface:   iface.Name,
-		RootDir:     "/" + pluginID,
+		RootDir:     rootDir,
 		RemoteImage: manifest.Container.Image,
 		Env:         joinEnvPairs(resolveEnvPlaceholders(manifest.Container.Env, settingsValues)),
 		MountLists:  strings.Join(mountListNames, ","),
@@ -894,7 +909,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			continue
 		}
 
-		startPluginContainer(ctx, client, task, pluginID, manifest.Scripts.PostInstall)
+		startPluginContainer(ctx, client, task, pluginID, manifest.Scripts.PostInstall, settingsValues)
 		return
 	}
 
@@ -906,7 +921,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 // any) and marks the task done. Adding a container only downloads/extracts
 // its image; RouterOS never starts a container automatically, so this is a
 // required step, not an optional nicety.
-func startPluginContainer(ctx context.Context, client *routeros.Client, task *pluginInstallTask, pluginID, postInstallScript string) {
+func startPluginContainer(ctx context.Context, client *routeros.Client, task *pluginInstallTask, pluginID, postInstallScript string, settingsValues map[string]string) {
 	task.set(pluginInstallPhaseStartingContainer, "starting container "+pluginID)
 	if err := client.StartContainer(pluginID); err != nil {
 		task.set(pluginInstallPhaseError, "failed to start container: "+err.Error())
@@ -934,7 +949,7 @@ func startPluginContainer(ctx context.Context, client *routeros.Client, task *pl
 
 	if postInstallScript != "" {
 		task.set(pluginInstallPhaseRunningPostInstall, "running post-install script")
-		if err := runPluginScript(ctx, client, pluginID, postInstallScript); err != nil {
+		if err := runPluginScript(ctx, client, pluginID, postInstallScript, settingsValues); err != nil {
 			task.set(pluginInstallPhaseError, "post-install script failed: "+err.Error())
 			log.Printf("[plugin-install %s] post-install script failed: %v", pluginID, err)
 			return
@@ -1218,7 +1233,8 @@ func HandleGetPluginUpdateStatus(c echo.Context) error {
 // @Summary Uninstall a plugin
 // @Description Removes an installed plugin: runs the preUninstall script from its
 // @Description manifest (if it names one), stops and removes its container, then
-// @Description removes the mount lists and veth interface the manifest declares.
+// @Description removes the mount lists and veth interface the manifest declares, and
+// @Description deletes the plugin's volume directory (nasnet-panel/container-volumes/<pluginId>).
 // @Description Cleanup steps that fail once the container is already gone are
 // @Description reported in the response as warnings rather than failing the request.
 // @Tags Plugin
@@ -1281,7 +1297,18 @@ func HandleUninstallPlugin(c echo.Context) error {
 	if manifest.Scripts.PreUninstall != "" {
 		// A failing cleanup script must not block the uninstall, or a plugin
 		// with a broken script could never be removed.
-		if err := runPluginScript(ctx, client, name, manifest.Scripts.PreUninstall); err != nil {
+		settingsValues := map[string]string{}
+		var settingsErr error
+		if manifest.SettingsSchema != "" {
+			var settingsSchema *PluginSettingsSchema
+			if settingsSchema, settingsErr = fetchPluginSettings(ctx, name, manifest.SettingsSchema); settingsErr == nil {
+				settingsValues, settingsErr = settingsDefaults(settingsSchema)
+			}
+		}
+		if settingsErr != nil {
+			warnings = append(warnings, "pre-uninstall script skipped, failed to resolve plugin settings: "+settingsErr.Error())
+			log.Printf("[plugin-uninstall %s] failed to resolve settings for pre-uninstall script: %v", name, settingsErr)
+		} else if err := runPluginScript(ctx, client, name, manifest.Scripts.PreUninstall, settingsValues); err != nil {
 			warnings = append(warnings, "pre-uninstall script failed: "+err.Error())
 			log.Printf("[plugin-uninstall %s] pre-uninstall script failed: %v", name, err)
 		}
@@ -1320,6 +1347,12 @@ func HandleUninstallPlugin(c echo.Context) error {
 		removedLists = append(removedLists, listName)
 	}
 
+	removedVolumeDir, err := removePluginVolumeDir(client, name)
+	if err != nil {
+		warnings = append(warnings, "failed to remove plugin volume directory: "+err.Error())
+		log.Printf("[plugin-uninstall %s] failed to remove volume directory: %v", name, err)
+	}
+
 	removedInterface := strings.TrimSpace(manifest.Container.Interface.Name)
 	if removedInterface != "" {
 		if err := client.RemoveBridgeMember(pluginContainersBridge, removedInterface); err != nil {
@@ -1342,6 +1375,7 @@ func HandleUninstallPlugin(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, message, UninstallPluginResponse{
 		ID:         name,
 		MountLists: removedLists,
+		VolumeDir:  removedVolumeDir,
 		Interface:  removedInterface,
 		Warnings:   warnings,
 	})
@@ -1371,11 +1405,82 @@ func fetchPluginJSON(ctx context.Context, url string, target any) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
+// pluginStoragePrefix returns the storage the panel's own container lives on,
+// as a path prefix ("disk1/" or "" for internal storage), read from its
+// root-dir. Internal storage is assumed when the panel container isn't found or
+// uses a different layout.
+func pluginStoragePrefix(client *routeros.Client) string {
+	panel, err := client.GetContainer(appContainerName)
+	if err != nil {
+		return ""
+	}
+	rootDir := strings.TrimPrefix(panel.RootDir, "/")
+	if idx := strings.Index(rootDir, routeros.NasnetPanelDir+"/containers/"); idx >= 0 {
+		return rootDir[:idx]
+	}
+	return ""
+}
+
+// preparePluginVolumeDir returns <storage>/nasnet-panel/container-volumes/<pluginID>/<src>,
+// the host directory backing a plugin mount whose manifest path is src, creating
+// every directory along the way.
+func preparePluginVolumeDir(client *routeros.Client, pluginID, src string) (string, error) {
+	dir := pluginStoragePrefix(client) + routeros.NasnetPanelDir
+	dirs := []string{dir}
+	for _, segment := range append([]string{"container-volumes", pluginID}, strings.Split(strings.Trim(src, "/"), "/")...) {
+		if segment == "" || segment == "." {
+			continue
+		}
+		if segment == ".." {
+			return "", fmt.Errorf("mount path %q must not contain \"..\"", src)
+		}
+		dir += "/" + segment
+		dirs = append(dirs, dir)
+	}
+
+	for _, d := range dirs {
+		if err := client.EnsureDir(d); err != nil {
+			return "", err
+		}
+	}
+	return dir, nil
+}
+
+// removePluginVolumeDir deletes <storage>/nasnet-panel/container-volumes/<pluginID>
+// along with everything in it, returning its path, or "" when it didn't exist.
+func removePluginVolumeDir(client *routeros.Client, pluginID string) (string, error) {
+	dir := pluginStoragePrefix(client) + routeros.NasnetPanelDir + "/container-volumes/" + pluginID
+	exists, err := client.FileExists(dir)
+	if err != nil || !exists {
+		return "", err
+	}
+	if err := client.DeleteFile(dir); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+// preparePluginRootDir returns <storage>/nasnet-panel/containers/<pluginID>,
+// creating its parent directories first. <storage> is the one the panel's own
+// container lives on (read from its root-dir), or the router's internal
+// storage when the panel container isn't found or uses a different layout.
+func preparePluginRootDir(client *routeros.Client, pluginID string) (string, error) {
+	panelDir := pluginStoragePrefix(client) + routeros.NasnetPanelDir
+	containersDir := panelDir + "/containers"
+	for _, dir := range []string{panelDir, containersDir} {
+		if err := client.EnsureDir(dir); err != nil {
+			return "", err
+		}
+	}
+	return containersDir + "/" + pluginID, nil
+}
+
 // runPluginScript fetches one of the RouterOS scripts a plugin's manifest names
 // and executes it on the router. An empty or whitespace-only script file is a
 // no-op: ExecuteScriptString rejects an empty string, so a plugin shipping a
-// placeholder script file would otherwise fail the whole operation.
-func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scriptPath string) error {
+// placeholder script file would otherwise fail the whole operation. Any
+// "{{settings.<key>}}" placeholders are replaced from settingsValues first.
+func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scriptPath string, settingsValues map[string]string) error {
 	script, err := fetchPluginScript(ctx, pluginID, scriptPath)
 	if err != nil {
 		return fmt.Errorf("failed to fetch %s: %w", scriptPath, err)
@@ -1385,7 +1490,7 @@ func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scr
 		return nil
 	}
 
-	return client.ExecuteScriptString(script)
+	return client.ExecuteScriptString(resolveSettingsPlaceholders(script, settingsValues))
 }
 
 // fetchPluginScript fetches the raw text of a RouterOS script file (e.g. a

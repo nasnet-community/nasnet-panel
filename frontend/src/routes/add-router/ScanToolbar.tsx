@@ -1,4 +1,5 @@
 import { Radar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, FieldRow, Input, Label } from '@nasnet/ui';
 import styles from '../AddRouterWizard.module.scss';
 
@@ -10,15 +11,16 @@ interface Props {
 }
 
 export function ScanToolbar({ subnet, scanning, onSubnetChange, onStart }: Props) {
+  const { t } = useTranslation('addRouter');
   return (
     <FieldRow>
       <Label>
-        <span>Subnet</span>
+        <span>{t('scan.subnet')}</span>
         <Input
           value={subnet}
           onChange={(e) => onSubnetChange(e.target.value)}
           placeholder="192.168.10.0/24"
-          aria-label="Subnet"
+          aria-label={t('scan.subnet')}
         />
       </Label>
       <div style={{ display: 'flex', alignItems: 'end' }}>
@@ -30,7 +32,7 @@ export function ScanToolbar({ subnet, scanning, onSubnetChange, onStart }: Props
           ) : (
             <Radar size={16} aria-hidden />
           )}
-          {scanning ? 'Scanning…' : 'Start scan'}
+          {scanning ? t('scan.scanning') : t('scan.start')}
         </Button>
       </div>
     </FieldRow>

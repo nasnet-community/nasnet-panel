@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes, Navigate, useSearchParams } from 'react-router-dom';
 import { GlobalStyle, ToastProvider } from '@nasnet/ui';
 import { AppThemeProvider } from './state/ThemeContext';
+import { LanguageProvider } from './state/LanguageContext';
 import { RouterStoreProvider } from './state/RouterStoreContext';
 import { SessionProvider } from './state/SessionContext';
 import { WizardGateProvider } from './state/WizardGateContext';
@@ -34,62 +35,64 @@ function AddRouterEntry() {
 export function App() {
   return (
     <AppThemeProvider>
-      <GlobalStyle />
-      <RouterStoreProvider>
-        <SessionProvider>
-          <WizardGateProvider>
-            <InstalledPluginsProvider>
-              <ToastProvider>
-                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                  <AuthErrorRedirect />
-                  <Routes>
-                    <Route path="/" element={<RouterListPage />} />
-                    <Route
-                      path="/routers/new"
-                      element={
-                        <AppShell>
-                          <AddRouterEntry />
-                        </AppShell>
-                      }
-                    />
-                    <Route
-                      path="/router/:id"
-                      element={
-                        <AppShell>
-                          <RouterDashboard />
-                        </AppShell>
-                      }
-                    >
-                      <Route index element={<OverviewTab />} />
-                      <Route path="config" element={<EasyConfigWizard />} />
-                      <Route path="internet" element={<InternetPage />} />
-                      <Route path="wan" element={<WanPage />} />
-                      <Route path="vpn" element={<VPNPage />} />
-                      <Route path="wireless" element={<WirelessPage />} />
-                      <Route path="logs" element={<LogsPage />} />
-                      <Route path="lan" element={<DHCPPage />} />
-                      <Route path="dns" element={<DNSPage />} />
-                      <Route path="firewall" element={<FirewallPage />} />
-                      <Route path="plugins" element={<PluginsPage />} />
-                      <Route path="diagnostics" element={<DiagnosticsPage />} />
-                      <Route path="help" element={<HelpPage />} />
-                    </Route>
-                    <Route
-                      path="/updates"
-                      element={
-                        <AppShell>
-                          <UpdatesPage />
-                        </AppShell>
-                      }
-                    />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </BrowserRouter>
-              </ToastProvider>
-            </InstalledPluginsProvider>
-          </WizardGateProvider>
-        </SessionProvider>
-      </RouterStoreProvider>
+      <LanguageProvider>
+        <GlobalStyle />
+        <RouterStoreProvider>
+          <SessionProvider>
+            <WizardGateProvider>
+              <InstalledPluginsProvider>
+                <ToastProvider>
+                  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                    <AuthErrorRedirect />
+                    <Routes>
+                      <Route path="/" element={<RouterListPage />} />
+                      <Route
+                        path="/routers/new"
+                        element={
+                          <AppShell>
+                            <AddRouterEntry />
+                          </AppShell>
+                        }
+                      />
+                      <Route
+                        path="/router/:id"
+                        element={
+                          <AppShell>
+                            <RouterDashboard />
+                          </AppShell>
+                        }
+                      >
+                        <Route index element={<OverviewTab />} />
+                        <Route path="config" element={<EasyConfigWizard />} />
+                        <Route path="internet" element={<InternetPage />} />
+                        <Route path="wan" element={<WanPage />} />
+                        <Route path="vpn" element={<VPNPage />} />
+                        <Route path="wireless" element={<WirelessPage />} />
+                        <Route path="logs" element={<LogsPage />} />
+                        <Route path="lan" element={<DHCPPage />} />
+                        <Route path="dns" element={<DNSPage />} />
+                        <Route path="firewall" element={<FirewallPage />} />
+                        <Route path="plugins" element={<PluginsPage />} />
+                        <Route path="diagnostics" element={<DiagnosticsPage />} />
+                        <Route path="help" element={<HelpPage />} />
+                      </Route>
+                      <Route
+                        path="/updates"
+                        element={
+                          <AppShell>
+                            <UpdatesPage />
+                          </AppShell>
+                        }
+                      />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </BrowserRouter>
+                </ToastProvider>
+              </InstalledPluginsProvider>
+            </WizardGateProvider>
+          </SessionProvider>
+        </RouterStoreProvider>
+      </LanguageProvider>
     </AppThemeProvider>
   );
 }

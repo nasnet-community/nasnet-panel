@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './Toast.module.scss';
 
 export type ToastTone = 'info' | 'success' | 'warning' | 'danger';
@@ -28,6 +29,7 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t: translate } = useTranslation('ui');
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
@@ -72,7 +74,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className={styles.viewport} role="region" aria-label="Notifications" aria-live="polite">
+      <div
+        className={styles.viewport}
+        role="region"
+        aria-label={translate('toast.regionLabel')}
+        aria-live="polite"
+      >
         {toasts.map((t) => (
           <output key={t.id} className={cx(styles.item, styles[t.tone])}>
             <span className={styles.title}>{t.title}</span>

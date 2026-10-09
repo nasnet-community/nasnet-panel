@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { InterfaceResponse } from '../../api';
 import { PANEL_REGISTRY } from './panels';
 import { POWER_ACTION, type PowerAction, mapPorts } from './mapPorts';
@@ -24,13 +25,15 @@ export const RouterPortDiagramCard: React.FC<RouterPortDiagramCardProps> = React
     showPowerControls = true,
     ifaceRates,
   }) {
+    // mapPorts builds translated tooltips; t changes with the language, so the memo reruns.
+    const { t } = useTranslation('overview');
     const { descriptor, slots } = useMemo(() => {
       const resolved = resolveModelStrict(model);
       const baseSlots = showPowerControls
         ? resolved.slots
         : resolved.slots.filter((s) => s.kind !== 'power' && s.kind !== 'reset');
-      return { descriptor: resolved, slots: mapPorts(baseSlots, interfaces, ifaceRates) };
-    }, [model, interfaces, showPowerControls, ifaceRates]);
+      return { descriptor: resolved, slots: mapPorts(baseSlots, interfaces, ifaceRates, t) };
+    }, [model, interfaces, showPowerControls, ifaceRates, t]);
 
     const Panel = PANEL_REGISTRY[descriptor.key];
 

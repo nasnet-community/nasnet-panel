@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Check, Lock, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, useToast } from '@nasnet/ui';
 import { fetchNasnetVpnCredentials } from '../../../../api';
 import { useSession } from '../../../../state/SessionContext';
 import { useRouter } from '../../../../state/RouterStoreContext';
+import { useFormat } from '../../../../utils/useFormat';
 import styles from './HyperSpeedClaimDialog.module.scss';
 
 export interface ClaimedVpnCredentials {
@@ -20,19 +22,25 @@ interface Props {
 }
 
 export function HyperSpeedClaimDialog({ open, onClose, onClaimed }: Props) {
+  const { t } = useTranslation('easyConfig');
+  const format = useFormat();
   const { id: routerId } = useParams<{ id: string }>();
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
+  // The server's date string is shown as-is when it doesn't parse.
+  const displayDate = (value: string) =>
+    Number.isNaN(Date.parse(value)) ? value : format.date(value);
+
   const claim = async () => {
     const creds = routerId ? getCredentials(routerId) : undefined;
     const host = router?.host;
     if (!creds || !host) {
       toast.notify({
-        title: 'Missing router credentials',
-        description: 'Connect to the router before claiming a VPN.',
+        title: t('hyperSpeed.toast.missingTitle'),
+        description: t('hyperSpeed.toast.missingDescription'),
         tone: 'danger',
       });
       return;
@@ -43,15 +51,17 @@ export function HyperSpeedClaimDialog({ open, onClose, onClaimed }: Props) {
       const data = await fetchNasnetVpnCredentials({ host, ...creds });
       onClaimed({ server: data.server, username: data.username, password: data.password });
       toast.notify({
-        title: 'Free VPN credentials applied',
-        description: data.expiryDate ? `Valid until ${data.expiryDate}.` : undefined,
+        title: t('hyperSpeed.toast.successTitle'),
+        description: data.expiryDate
+          ? t('hyperSpeed.toast.validUntil', { date: displayDate(data.expiryDate) })
+          : undefined,
         tone: 'success',
       });
       onClose();
     } catch (err) {
-      const message = (err as Error).message || 'Something went wrong';
+      const message = (err as Error).message || t('hyperSpeed.toast.fallbackError');
       toast.notify({
-        title: 'Claim failed',
+        title: t('hyperSpeed.toast.failedTitle'),
         description: message,
         tone: 'danger',
       });
@@ -69,46 +79,46 @@ export function HyperSpeedClaimDialog({ open, onClose, onClaimed }: Props) {
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={loading}>
-            Cancel
+            {t('hyperSpeed.cancel')}
           </Button>
           <Button variant="success" onClick={claim} loading={loading}>
-            <Sparkles size={14} strokeWidth={2} /> Claim a free VPN
+            <Sparkles size={14} strokeWidth={2} /> {t('hyperSpeed.claim')}
           </Button>
         </>
       }
     >
       <div className={styles.promo}>
         <span className={styles.badgeRow}>
-          <span className={styles.badge}>Hot Deal</span>
-          <span>Available now</span>
+          <span className={styles.badge}>{t('hyperSpeed.hotDeal')}</span>
+          <span>{t('hyperSpeed.availableNow')}</span>
         </span>
         <h3 id="hyper-speed-title" className={styles.title}>
-          FREE Hyper Speed VPN powered by Nasnet Panel
+          {t('hyperSpeed.title')}
         </h3>
-        <p className={styles.subtitle}>Optimized for Starlink & built for Nasnet Panel users.</p>
+        <p className={styles.subtitle}>{t('hyperSpeed.subtitle')}</p>
       </div>
       <div className={styles.body}>
         <ul className={styles.bullets}>
           <li className={styles.bullet}>
             <Check size={14} strokeWidth={2.5} className={styles.bulletCheck} />
-            Unlimited bandwidth
+            {t('hyperSpeed.bullets.bandwidth')}
           </li>
           <li className={styles.bullet}>
             <Check size={14} strokeWidth={2.5} className={styles.bulletCheck} />
-            No throttling
+            {t('hyperSpeed.bullets.throttling')}
           </li>
           <li className={styles.bullet}>
             <Check size={14} strokeWidth={2.5} className={styles.bulletCheck} />
-            Global servers
+            {t('hyperSpeed.bullets.servers')}
           </li>
           <li className={styles.bullet}>
             <Check size={14} strokeWidth={2.5} className={styles.bulletCheck} />
-            Auto-configuration
+            {t('hyperSpeed.bullets.autoConfig')}
           </li>
         </ul>
         <p style={{ display: 'inline-flex', alignItems: 'center', gap: 6, margin: 0 }}>
           <Lock size={14} strokeWidth={2} />
-          Credentials valid for 6 months. And you can reclaim again after expiration.
+          {t('hyperSpeed.validity')}
         </p>
       </div>
     </Dialog>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './VpnTypeTilePicker.module.scss';
 
 export interface VpnTypeTile<V extends string> {
@@ -23,6 +24,7 @@ export function VpnTypeTilePicker<V extends string>({
   tiles,
   onChange,
 }: Props<V>) {
+  const { t } = useTranslation('vpn');
   return (
     <div className={styles.wrap}>
       <span className={styles.legend}>{legend}</span>
@@ -43,7 +45,7 @@ export function VpnTypeTilePicker<V extends string>({
             >
               <span className={styles.iconWrap}>{tile.icon}</span>
               <span className={styles.label}>{tile.label}</span>
-              {tile.disabled ? <span className={styles.soon}>Soon</span> : null}
+              {tile.disabled ? <span className={styles.soon}>{t('typePicker.soon')}</span> : null}
             </button>
           );
         })}

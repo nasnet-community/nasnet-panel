@@ -1,7 +1,26 @@
+import i18n from '../../i18n';
+import type enCatalog from '../../i18n/locales/en/easyConfig.json';
+
 export type Mode = 'starlink-only' | 'dual-link';
 export type StepId = 'mode' | 'wan' | 'ipmask' | 'wifi' | 'vpnsrv';
 export type InterfaceType = 'ethernet' | 'wireless' | 'sfp' | 'lte';
 export type VpnServerProtocol = 'wireguard' | 'openvpn' | 'l2tp';
+
+export type MessageKey =
+  | `validation.${keyof typeof enCatalog.validation}`
+  | `errors.${keyof typeof enCatalog.errors}`
+  | `wan.scan.${keyof typeof enCatalog.wan.scan}`
+  | `ipMask.wireguard.${keyof typeof enCatalog.ipMask.wireguard}`;
+
+// A user-facing message. Catalog keys are translated when shown, so a language switch
+// re-renders them; `text` carries server-supplied messages verbatim.
+export type Message =
+  { key: MessageKey; values?: Record<string, string | number> } | { text: string };
+
+export function messageText(message: Message): string {
+  if ('text' in message) return message.text;
+  return i18n.t(message.key, { ns: 'easyConfig', ...message.values });
+}
 
 export interface State {
   mode: Mode | null;
@@ -53,10 +72,11 @@ export interface State {
   firstUserKey: string;
   vpnServerCertPassphrase: string;
   currentStep: StepId;
-  error: string | null;
+  error: Message | null;
   applying: boolean;
   applied: boolean;
   progress: number;
+  stage: string;
   managementWifiSsid: string;
   managementWifiPassword: string;
 }
@@ -115,6 +135,7 @@ export const initial: State = {
   applying: false,
   applied: false,
   progress: 0,
+  stage: '',
   managementWifiSsid: '',
   managementWifiPassword: '',
 };
@@ -124,9 +145,10 @@ export type Action =
   | { type: 'setField'; field: keyof State; value: State[keyof State] }
   | { type: 'setKeys'; privateKey: string; publicKey: string }
   | { type: 'step'; step: StepId }
-  | { type: 'error'; message: string | null }
+  | { type: 'error'; message: Message | null }
   | { type: 'applying'; value: boolean }
   | { type: 'progress'; value: number }
+  | { type: 'stage'; value: string }
   | { type: 'managementWifi'; ssid: string; password: string }
   | { type: 'applied' };
 
@@ -148,10 +170,12 @@ export function reducer(state: State, action: Action): State {
       return { ...state, error: action.message };
     case 'applying':
       return action.value
-        ? { ...state, applying: true, progress: 0 }
+        ? { ...state, applying: true, progress: 0, stage: '' }
         : { ...state, applying: false };
     case 'progress':
       return { ...state, progress: Math.max(state.progress, action.value) };
+    case 'stage':
+      return { ...state, stage: action.value };
     case 'managementWifi':
       return { ...state, managementWifiSsid: action.ssid, managementWifiPassword: action.password };
     case 'applied':
@@ -167,10 +191,10 @@ export function stepsForMode(mode: Mode | null): StepId[] {
   return mode === 'starlink-only' ? stepOrder.filter((s) => s !== 'vpnsrv') : stepOrder;
 }
 
-export const stepTitles: Record<StepId, { title: string; description: string }> = {
-  mode: { title: 'Choose', description: 'Setup type' },
-  wan: { title: 'WAN', description: 'Uplink interfaces' },
-  ipmask: { title: 'IP-Mask', description: 'Starlink VPN client' },
-  wifi: { title: 'WiFi', description: 'Wireless network' },
-  vpnsrv: { title: 'VPN Server', description: 'Inbound VPN' },
-};
+// Translated at render, so step labels follow the active language.
+export function stepTitle(step: StepId): { title: string; description: string } {
+  return {
+    title: i18n.t(`stepper.${step}.title`, { ns: 'easyConfig' }),
+    description: i18n.t(`stepper.${step}.description`, { ns: 'easyConfig' }),
+  };
+}

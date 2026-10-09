@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Button, FieldStack } from '@nasnet/ui';
 import { ClipboardPaste, Upload } from 'lucide-react';
-import type { Action, State } from '../../state';
+import { useTranslation } from 'react-i18next';
+import { messageText, type Action, type Message, type State } from '../../state';
 import { parseWireguardConfig } from './parseWireguardConfig';
 import styles from './IpMaskWireguardConfig.module.scss';
 
@@ -11,13 +12,14 @@ interface Props {
 }
 
 export function IpMaskWireguardConfig({ state, dispatch }: Props) {
+  const { t } = useTranslation('easyConfig');
   const fileRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Message | null>(null);
 
   const applyConfig = (text: string) => {
     const parsed = parseWireguardConfig(text);
     if (!parsed) {
-      setError('Invalid WireGuard config: missing [Interface] or [Peer] sections.');
+      setError({ key: 'ipMask.wireguard.invalid' });
       return;
     }
     setError(null);
@@ -47,13 +49,13 @@ export function IpMaskWireguardConfig({ state, dispatch }: Props) {
     try {
       const text = await navigator.clipboard.readText();
       if (!text.trim()) {
-        setError('Clipboard is empty.');
+        setError({ key: 'ipMask.wireguard.clipboardEmpty' });
         return;
       }
       dispatch({ type: 'setField', field: 'wgConfig', value: text });
       applyConfig(text);
     } catch {
-      setError('Cannot read from clipboard. Paste manually instead.');
+      setError({ key: 'ipMask.wireguard.clipboardFailed' });
     }
   };
 
@@ -69,15 +71,15 @@ export function IpMaskWireguardConfig({ state, dispatch }: Props) {
             if (text.trim() && parseWireguardConfig(text)) applyConfig(text);
             else if (error) setError(null);
           }}
-          placeholder="Paste your Wireguard configuration here. The file should include [Interface] and [Peer] sections."
-          aria-label="WireGuard configuration"
+          placeholder={t('ipMask.wireguard.placeholder')}
+          aria-label={t('ipMask.wireguard.ariaLabel')}
         />
         <div className={styles.actions}>
           <Button type="button" variant="success" onClick={onUpload}>
-            <Upload size={14} strokeWidth={2} /> Upload Config
+            <Upload size={14} strokeWidth={2} /> {t('ipMask.wireguard.upload')}
           </Button>
           <Button type="button" variant="primary" onClick={onPaste}>
-            <ClipboardPaste size={14} strokeWidth={2} /> Paste Config
+            <ClipboardPaste size={14} strokeWidth={2} /> {t('ipMask.wireguard.paste')}
           </Button>
         </div>
       </div>
@@ -89,9 +91,9 @@ export function IpMaskWireguardConfig({ state, dispatch }: Props) {
         style={{ display: 'none' }}
       />
       {error ? (
-        <p className={styles.error}>{error}</p>
+        <p className={styles.error}>{messageText(error)}</p>
       ) : (
-        <p className={styles.caption}>Paste or upload your WireGuard configuration file.</p>
+        <p className={styles.caption}>{t('ipMask.wireguard.caption')}</p>
       )}
     </FieldStack>
   );

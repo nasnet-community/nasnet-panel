@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { EthernetPort, Radio, Smartphone, Wifi } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { FieldRow, Label, SectionHeading, Select, Skeleton, Stack } from '@nasnet/ui';
 import type { InterfaceResponse } from '../../../../api';
 import type { Action, InterfaceType, State } from '../../state';
@@ -42,16 +43,14 @@ export function availableInterfaceTypes(list: InterfaceResponse[]): InterfaceTyp
   return TYPE_ORDER.filter((t) => interfacesOfType(list, t).length > 0);
 }
 
-function interfaceLabel(type: InterfaceType): string {
-  if (type === 'wireless') return 'Wireless interface';
-  if (type === 'sfp') return 'SFP interface';
-  if (type === 'lte') return 'LTE interface';
-  return 'Ethernet interface';
-}
-
-function ifaceOptions(list: InterfaceResponse[], type: InterfaceType, exclude?: string) {
+function ifaceOptions(
+  list: InterfaceResponse[],
+  type: InterfaceType,
+  placeholder: string,
+  exclude?: string,
+) {
   return [
-    { value: '', label: 'Select interface' },
+    { value: '', label: placeholder },
     ...interfacesOfType(list, type)
       .filter((i) => !exclude || i.name !== exclude)
       .map((i) => ({ value: i.name, label: i.name })),
@@ -89,10 +88,12 @@ export function WanInterfaceSelect({
   passwordField,
   wirelessLabel,
 }: Props) {
+  const { t } = useTranslation('easyConfig');
   const type = state[typeField];
+  const placeholder = t('wan.selectInterface');
   const options = useMemo(
-    () => ifaceOptions(interfaces, type, excludeName),
-    [interfaces, type, excludeName],
+    () => ifaceOptions(interfaces, type, placeholder, excludeName),
+    [interfaces, type, placeholder, excludeName],
   );
 
   useEffect(() => {
@@ -137,7 +138,7 @@ export function WanInterfaceSelect({
       />
       <FieldRow>
         <Label>
-          <span>{interfaceLabel(type)}</span>
+          <span>{t(`wan.interfaceLabel.${type}`)}</span>
           <Select
             aria-label={ariaLabel}
             value={state[nameField]}

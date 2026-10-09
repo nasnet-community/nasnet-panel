@@ -1,4 +1,5 @@
 import { ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './CertPreview.module.scss';
 
 interface Props {
@@ -8,7 +9,8 @@ interface Props {
 const VARIANTS: Array<{ proto: 'TCP'; suffix: string }> = [{ proto: 'TCP', suffix: 'ovpn-tcp' }];
 
 export function CertPreview({ username }: Props) {
-  const name = username.trim() || 'YourUsername';
+  const { t } = useTranslation('easyConfig');
+  const name = username.trim() || t('vpnServer.certPlaceholder');
   const isPlaceholder = !username.trim();
   return (
     <div className={styles.wrap} aria-live="polite">

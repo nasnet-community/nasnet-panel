@@ -1,4 +1,8 @@
 import { useEffect } from 'react';
+import '@fontsource/vazirmatn/arabic-400.css';
+import '@fontsource/vazirmatn/arabic-500.css';
+import '@fontsource/vazirmatn/arabic-600.css';
+import '@fontsource/vazirmatn/arabic-700.css';
 import './global.scss';
 
 // Renders nothing. Importing this component guarantees the global stylesheet

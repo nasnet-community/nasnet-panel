@@ -205,6 +205,24 @@ func RouterOSDurationSeconds(routerOSTime string) int64 {
 	return int64(days)*86400 + int64(hours)*3600 + int64(minutes)*60 + int64(seconds)
 }
 
+// StripPingTimeMicroseconds drops a trailing "<digits>us" component from a
+// RouterOS ping duration (e.g. "53ms945us" -> "53ms"), since sub-millisecond
+// precision isn't useful in the API response.
+func StripPingTimeMicroseconds(pingTime string) string {
+	if !strings.HasSuffix(pingTime, "us") {
+		return pingTime
+	}
+	end := len(pingTime) - len("us")
+	start := end
+	for start > 0 && pingTime[start-1] >= '0' && pingTime[start-1] <= '9' {
+		start--
+	}
+	if start == end || start == 0 {
+		return pingTime
+	}
+	return pingTime[:start]
+}
+
 // ToYesNo converts a boolean to RouterOS yes/no format.
 func ToYesNo(b bool) string {
 	if b {

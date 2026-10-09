@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import styles from '../InternetPage.module.scss';
 import { nodeIcon, nodeSubLabel } from './icons';
-import { NODE_BOX_H, NODE_BOX_W, type Positioned } from './layout';
+import { NODE_BOX_H, NODE_BOX_W, nodeLabel, type Positioned } from './layout';
 
 interface NodeBubbleProps {
   node: Positioned;
@@ -13,12 +14,14 @@ export function NodeBubble({ node, onSelect }: NodeBubbleProps) {
     : node.kind === 'wan' || node.kind === 'vpn'
       ? `${styles.nodeIcon} ${styles.nodeIconDetached}`
       : styles.nodeIcon;
+  const { t } = useTranslation('internet');
+  const label = nodeLabel(node);
   const sub = nodeSubLabel(node);
   const inner = (
     <>
       <div className={iconClass}>{nodeIcon(node)}</div>
       <div className={styles.nodeLabelWrap}>
-        <div className={styles.nodeLabel}>{node.label}</div>
+        <div className={styles.nodeLabel}>{label}</div>
         {sub ? <div className={styles.nodeSubLabel}>{sub}</div> : null}
       </div>
     </>
@@ -35,7 +38,7 @@ export function NodeBubble({ node, onSelect }: NodeBubbleProps) {
           type="button"
           className={`${styles.nodeBubble} ${styles.nodeBubbleClickable}`}
           onClick={() => onSelect(node)}
-          aria-label={`Configure ${node.label}`}
+          aria-label={t('internet.nodes.configure', { name: label })}
         >
           {inner}
         </button>

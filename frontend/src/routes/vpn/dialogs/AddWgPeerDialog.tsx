@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Dialog,
@@ -19,7 +20,6 @@ import {
 } from '../../../api';
 import { isPort } from '../../../utils/validators';
 
-const DEFAULT_ALLOWED_ADDRESSES = '0.0.0.0/0';
 const ADVANCED_WG_PEER_FIELDS_ID = 'wg-peer-advanced-fields';
 
 interface Props {
@@ -30,11 +30,12 @@ interface Props {
 }
 
 export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: Props) {
+  const { t } = useTranslation('vpn');
   const [advanced, setAdvanced] = useState(false);
   const [name, setName] = useState('');
   const [endpointAddress, setEndpointAddress] = useState('');
   const [endpointPort, setEndpointPort] = useState('51820');
-  const [allowedAddresses, setAllowedAddresses] = useState(DEFAULT_ALLOWED_ADDRESSES);
+  const [allowedAddresses, setAllowedAddresses] = useState('');
   const [publicKey, setPublicKey] = useState('');
   const [presharedKey, setPresharedKey] = useState('');
   const [persistentKeepalive, setPersistentKeepalive] = useState('');
@@ -42,24 +43,23 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
+  const markTouched = (key: string) =>
+    setTouched((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
 
   const errors = useMemo(
     () => ({
       endpointPort:
         !advanced || endpointAddress.trim() === '' || isPort(endpointPort)
           ? null
-          : 'Port must be 1-65535.',
-      allowedAddresses:
-        advanced && allowedAddresses.trim() === '' ? 'Allowed addresses is required.' : null,
+          : t('shared.portRange'),
       persistentKeepalive:
         !advanced ||
         persistentKeepalive.trim() === '' ||
         (Number.isInteger(Number(persistentKeepalive)) && Number(persistentKeepalive) > 0)
           ? null
-          : 'Keepalive must be a positive integer.',
+          : t('shared.keepalivePositive'),
     }),
-    [advanced, endpointAddress, endpointPort, allowedAddresses, persistentKeepalive],
+    [advanced, endpointAddress, endpointPort, persistentKeepalive, t],
   );
 
   const hasErrors = Object.values(errors).some(Boolean);
@@ -68,7 +68,6 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
   const submit = async () => {
     setTouched({
       endpointPort: true,
-      allowedAddresses: true,
       persistentKeepalive: true,
     });
     if (!canSubmit || !creds) return;
@@ -77,11 +76,10 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
 
     const body: CreateWireguardPeerRequest = {
       interfaceName,
-      allowedAddresses: DEFAULT_ALLOWED_ADDRESSES,
       savePrivateKey: true,
     };
     if (advanced) {
-      body.allowedAddresses = allowedAddresses.trim();
+      if (allowedAddresses.trim()) body.allowedAddresses = allowedAddresses.trim();
       if (endpointAddress.trim()) {
         body.endpointAddress = endpointAddress.trim();
         body.endpointPort = Number(endpointPort);
@@ -104,7 +102,7 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to create WireGuard peer.';
+            : t('wgPeerAdd.createFailed');
       setError(message);
       setSubmitting(false);
       return;
@@ -117,28 +115,25 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
     <Dialog
       open
       onClose={submitting ? () => undefined : onCancel}
-      title={`Add peer to ${interfaceName}`}
+      title={t('wgPeerAdd.title', { name: interfaceName })}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
-            Cancel
+            {t('shared.cancel')}
           </Button>
           <Button onClick={submit} disabled={!canSubmit}>
-            {submitting ? 'Creating…' : 'Create peer'}
+            {submitting ? t('shared.creating') : t('wgPeerAdd.create')}
           </Button>
         </>
       }
     >
       <FieldStack>
-        <p>
-          Keys, name and addresses are generated for you. Turn on advanced mode to set them
-          yourself.
-        </p>
+        <p>{t('wgPeerAdd.intro')}</p>
         <FieldRow>
           <Label as="div">
             <Switch
-              label="Advanced mode"
+              label={t('shared.advancedMode')}
               checked={advanced}
               onChange={(e) => setAdvanced(e.target.checked)}
               aria-expanded={advanced}
@@ -150,39 +145,41 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
           <FieldStack
             id={ADVANCED_WG_PEER_FIELDS_ID}
             role="group"
-            aria-label="Advanced WireGuard peer settings"
+            aria-label={t('wgPeerAdd.advancedGroup')}
           >
             <FieldRow>
               <Label>
-                <span>Name (optional)</span>
+                <span>{t('shared.nameOptional')}</span>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="auto-generated if empty"
-                  aria-label="Name"
+                  placeholder={t('shared.autoGeneratedIfEmpty')}
+                  aria-label={t('shared.name')}
                   autoComplete="off"
                 />
               </Label>
             </FieldRow>
             <FieldRow>
               <Label>
-                <span>Endpoint address (optional)</span>
+                <span>{t('wgPeerAdd.endpointAddressOptional')}</span>
                 <Input
                   value={endpointAddress}
                   onChange={(e) => setEndpointAddress(e.target.value)}
                   placeholder="203.0.113.50"
-                  aria-label="Endpoint address"
+                  aria-label={t('shared.endpointAddress')}
+                  dir="ltr"
                   autoComplete="off"
                 />
               </Label>
               <Label>
-                <span>Endpoint port</span>
+                <span>{t('clients.form.endpointPort')}</span>
                 <Input
                   value={endpointPort}
                   onChange={(e) => setEndpointPort(e.target.value)}
                   onBlur={() => markTouched('endpointPort')}
                   inputMode="numeric"
-                  aria-label="Endpoint port"
+                  aria-label={t('clients.form.endpointPort')}
+                  dir="ltr"
                   autoComplete="off"
                   aria-invalid={touched.endpointPort && !!errors.endpointPort}
                 />
@@ -193,29 +190,25 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
             </FieldRow>
             <FieldRow>
               <Label>
-                <span>Allowed addresses</span>
+                <span>{t('wgPeerAdd.allowedAddressesOptional')}</span>
                 <Input
                   value={allowedAddresses}
                   onChange={(e) => setAllowedAddresses(e.target.value)}
-                  onBlur={() => markTouched('allowedAddresses')}
-                  placeholder="10.8.0.2/32"
-                  aria-label="Allowed addresses"
+                  placeholder={t('wgPeerAdd.peerIpIfEmpty')}
+                  aria-label={t('shared.allowedAddresses')}
+                  dir="ltr"
                   autoComplete="off"
-                  aria-invalid={touched.allowedAddresses && !!errors.allowedAddresses}
                 />
-                {touched.allowedAddresses && errors.allowedAddresses ? (
-                  <FormError>{errors.allowedAddresses}</FormError>
-                ) : null}
               </Label>
               <Label>
-                <span>Persistent keepalive (s)</span>
+                <span>{t('shared.keepaliveSeconds')}</span>
                 <Input
                   value={persistentKeepalive}
                   onChange={(e) => setPersistentKeepalive(e.target.value)}
                   onBlur={() => markTouched('persistentKeepalive')}
-                  placeholder="empty = off"
+                  placeholder={t('shared.keepalivePlaceholder')}
                   inputMode="numeric"
-                  aria-label="Persistent keepalive"
+                  aria-label={t('shared.keepalive')}
                   autoComplete="off"
                   aria-invalid={touched.persistentKeepalive && !!errors.persistentKeepalive}
                 />
@@ -226,22 +219,24 @@ export function AddWgPeerDialog({ creds, interfaceName, onCancel, onCreated }: P
             </FieldRow>
             <FieldRow>
               <Label>
-                <span>Public key (peer)</span>
+                <span>{t('wgPeerAdd.publicKeyPeer')}</span>
                 <Input
                   value={publicKey}
                   onChange={(e) => setPublicKey(e.target.value)}
-                  placeholder="leave empty to auto-generate keypair"
-                  aria-label="Public key"
+                  placeholder={t('wgPeerAdd.publicKeyPlaceholder')}
+                  aria-label={t('shared.publicKey')}
+                  dir="ltr"
                   autoComplete="off"
                 />
               </Label>
               <Label>
-                <span>Preshared key</span>
+                <span>{t('shared.presharedKey')}</span>
                 <PasswordInput
                   value={presharedKey}
                   onChange={(e) => setPresharedKey(e.target.value)}
-                  placeholder="leave empty to auto-generate"
-                  aria-label="Preshared key"
+                  placeholder={t('shared.autoGeneratePlaceholder')}
+                  aria-label={t('shared.presharedKey')}
+                  dir="ltr"
                   autoComplete="new-password"
                 />
               </Label>

@@ -10,16 +10,27 @@ The engine (`internal/install/engine.go`) runs these in order, with rollback on 
 
 1. Connect to router
 2. Check system
-3. Update RouterOS, when the router runs below the required version
-4. Enable container device-mode
-5. Download image
-6. Upload to router
-7. Configure network
-8. Deploy container
-9. Start and health check
-10. LAN baseline
+3. Prepare WAN, so the router has an uplink before it updates or downloads anything. With
+   "Use WiFi as uplink" on, this step joins a WiFi network picked from a router scan instead
+4. Update RouterOS, when the router runs below the required version
+5. Enable container device-mode
+6. Download image
+7. Upload to router
+8. Configure network
+9. Deploy container
+10. Start and health check
+11. Remove WiFi uplink, only with "Use WiFi as uplink" on (also done when the install fails or is cancelled)
+12. LAN baseline
 
 Uninstall reverses the container, network config, and uploaded files.
+
+## Image source
+
+By default the Download image step looks up the latest tagged release on GitHub
+(`releases/latest`, falling back to the `/releases/latest` redirect) and downloads its tar for the
+router's architecture. If neither lookup works, the step fails with an error. Advanced options
+offer the development snapshot (the rolling `snapshot` release), a specific release tag, or a
+local tar instead.
 
 ## LAN baseline script
 

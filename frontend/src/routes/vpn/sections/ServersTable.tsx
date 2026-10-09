@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, DataTable } from '@nasnet/ui';
 import { Download, Pencil, Power, PowerOff, Server as ServerIcon, Trash2 } from 'lucide-react';
 import type { VPNServer } from '../../../api';
+import { useFormat } from '../../../utils/useFormat';
 
 interface Props {
   rows: VPNServer[];
@@ -17,7 +19,8 @@ interface Props {
 
 const isDeletable = (s: VPNServer) => s.protocol === 'openvpn' || s.protocol === 'wireguard';
 const isEditable = (s: VPNServer) => s.protocol === 'wireguard';
-const isDisableable = (s: VPNServer) => s.protocol === 'sstp' && s.running;
+const isDisableable = (s: VPNServer) =>
+  (s.protocol === 'sstp' || s.protocol === 'l2tp') && s.running;
 const isToggleable = (s: VPNServer) => s.protocol === 'openvpn';
 const isDownloadable = (s: VPNServer) => s.protocol === 'openvpn';
 
@@ -33,27 +36,29 @@ export function ServersTable({
   canMutate = false,
   peerCounts = {},
 }: Props) {
+  const { t } = useTranslation('vpn');
+  const format = useFormat();
   return (
     <DataTable
       columns={[
-        { key: 'name', header: 'Name', render: (s: VPNServer) => s.name },
+        { key: 'name', header: t('shared.name'), render: (s: VPNServer) => s.name },
         {
           key: 'protocol',
-          header: 'Protocol',
+          header: t('shared.protocol'),
           render: (s: VPNServer) => <Badge tone="info">{s.protocol.toUpperCase()}</Badge>,
         },
         {
           key: 'status',
-          header: 'Status',
+          header: t('shared.status'),
           render: (s: VPNServer) => (
             <Badge tone={s.running ? 'success' : 'neutral'}>
-              {s.running ? 'Running' : 'Disabled'}
+              {s.running ? t('shared.running') : t('shared.disabled')}
             </Badge>
           ),
         },
         {
           key: 'port',
-          header: 'Port',
+          header: t('shared.port'),
           render: (s: VPNServer) => {
             if (!s.listenPort) return '–';
             if (!s.transport) return s.listenPort;
@@ -64,22 +69,22 @@ export function ServersTable({
         },
         {
           key: 'peers',
-          header: 'Peers',
+          header: t('servers.table.peers'),
           render: (s: VPNServer) => {
             if (s.protocol !== 'wireguard') return '–';
             const count = peerCounts[s.id];
             if (count === undefined) return '–';
-            const label = `${count} ${count === 1 ? 'peer' : 'peers'} on ${s.name}`;
+            const label = t('servers.table.peersOn', { count, name: s.name });
             return (
               <Badge tone="neutral" title={label} aria-label={label}>
-                {count}
+                {format.number(count)}
               </Badge>
             );
           },
         },
         {
           key: 'actions',
-          header: 'Actions',
+          header: t('shared.actions'),
           render: (s: VPNServer) => {
             const editable = isEditable(s);
             const deletable = isDeletable(s);
@@ -89,7 +94,9 @@ export function ServersTable({
             if (!editable && !deletable && !disableable && !toggleable && !downloadable) {
               return null;
             }
-            const toggleLabel = `${s.running ? 'Disable' : 'Enable'} ${s.name}`;
+            const toggleLabel = s.running
+              ? t('shared.disableNamed', { name: s.name })
+              : t('shared.enableNamed', { name: s.name });
             return (
               <span style={{ display: 'inline-flex', gap: 8 }}>
                 {downloadable && onDownloadConfig ? (
@@ -97,8 +104,8 @@ export function ServersTable({
                     size="sm"
                     variant="secondary"
                     disabled={!canMutate}
-                    title={`Download client config for ${s.name}`}
-                    aria-label={`Download client config for ${s.name}`}
+                    title={t('servers.table.downloadConfig', { name: s.name })}
+                    aria-label={t('servers.table.downloadConfig', { name: s.name })}
                     onClick={(e) => {
                       e.stopPropagation();
                       onDownloadConfig(s);
@@ -112,8 +119,8 @@ export function ServersTable({
                     size="sm"
                     variant="secondary"
                     disabled={!canMutate}
-                    title={`Edit ${s.name}`}
-                    aria-label={`Edit ${s.name}`}
+                    title={t('shared.editNamed', { name: s.name })}
+                    aria-label={t('shared.editNamed', { name: s.name })}
                     onClick={(e) => {
                       e.stopPropagation();
                       onEdit(s);
@@ -146,8 +153,8 @@ export function ServersTable({
                     size="sm"
                     variant="danger"
                     disabled={!canMutate}
-                    title={`Delete ${s.name}`}
-                    aria-label={`Delete ${s.name}`}
+                    title={t('shared.deleteNamed', { name: s.name })}
+                    aria-label={t('shared.deleteNamed', { name: s.name })}
                     onClick={(e) => {
                       e.stopPropagation();
                       onDelete(s);
@@ -161,8 +168,8 @@ export function ServersTable({
                     size="sm"
                     variant="danger"
                     disabled={!canMutate}
-                    title={`Disable ${s.name}`}
-                    aria-label={`Disable ${s.name}`}
+                    title={t('shared.disableNamed', { name: s.name })}
+                    aria-label={t('shared.disableNamed', { name: s.name })}
                     onClick={(e) => {
                       e.stopPropagation();
                       onDisable(s);
@@ -180,9 +187,7 @@ export function ServersTable({
       rows={rows}
       rowKey={(s) => s.id}
       onRowClick={onRowClick}
-      emptyMessage={
-        totalRows ? 'No servers match the current filters.' : 'No VPN servers configured.'
-      }
+      emptyMessage={totalRows ? t('servers.table.noMatch') : t('servers.table.empty')}
       emptyIcon={<ServerIcon size={32} aria-hidden />}
     />
   );

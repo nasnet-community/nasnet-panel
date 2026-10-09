@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strconv"
 	"strings"
 
 	"nasnet-panel/pkg/utils"
@@ -27,6 +28,8 @@ type VPNClientResponse struct {
 	LastLinkDown string `json:"lastLinkDown,omitempty"`
 	LinkDowns    int    `json:"linkDowns,omitempty"`
 	Comment      string `json:"comment,omitempty"`
+	PingTime     string `json:"pingTime,omitempty"`
+	PeerCount    *int   `json:"peerCount,omitempty"`
 }
 
 // UpdateVPNClientRequest represents a request to update VPN client settings.
@@ -45,6 +48,86 @@ type AddL2TPClientRequest struct {
 	Disabled    *bool   `json:"disabled" example:"false"`
 	IPsecSecret *string `json:"ipsecSecret" example:"secretpassphrase123"`
 	Comment     string  `json:"comment,omitempty" example:"Office L2TP client"`
+}
+
+// AddSSTPClientRequest represents a request to add an SSTP client. If Name is
+// empty, a random two-word lowercase name is generated for it. Port defaults
+// to 443.
+type AddSSTPClientRequest struct {
+	Name      string `json:"name" example:"my-sstp-client"`
+	ConnectTo string `json:"connectTo" example:"vpn.example.com"`
+	Port      *int   `json:"port" example:"443"`
+	User      string `json:"user" example:"username"`
+	Password  string `json:"password" example:"password123"`
+	Disabled  *bool  `json:"disabled" example:"false"`
+	Comment   string `json:"comment,omitempty" example:"Office SSTP client"`
+}
+
+// UpdateSSTPClientRequest represents a request to update an SSTP client. Only
+// provided fields are changed.
+type UpdateSSTPClientRequest struct {
+	ConnectTo *string `json:"connectTo" example:"vpn.example.com"`
+	Port      *int    `json:"port" example:"443"`
+	User      *string `json:"user" example:"newusername"`
+	Password  *string `json:"password" example:"newpassword123"`
+	Disabled  *bool   `json:"disabled" example:"true"`
+	Comment   *string `json:"comment" example:"Office SSTP client"`
+}
+
+// SSTPClientResponse represents SSTP client details in the API response.
+type SSTPClientResponse struct {
+	ID                                 string `json:"id"`
+	Name                               string `json:"name"`
+	Disabled                           bool   `json:"disabled"`
+	Running                            bool   `json:"running"`
+	ConnectTo                          string `json:"connectTo"`
+	Port                               int    `json:"port"`
+	User                               string `json:"user"`
+	Password                           string `json:"password"`
+	Profile                            string `json:"profile"`
+	KeepaliveTimeout                   int    `json:"keepaliveTimeout"`
+	TLSVersion                         string `json:"tlsVersion"`
+	VerifyServerCertificate            bool   `json:"verifyServerCertificate"`
+	VerifyServerAddressFromCertificate bool   `json:"verifyServerAddressFromCertificate"`
+	PFS                                bool   `json:"pfs"`
+	Ciphers                            string `json:"ciphers"`
+	Authentication                     string `json:"authentication"`
+	Comment                            string `json:"comment,omitempty"`
+	Status                             string `json:"status"`
+	Uptime                             string `json:"uptime"`
+	Encoding                           string `json:"encoding"`
+	MTU                                int    `json:"mtu"`
+	LocalAddress                       string `json:"localAddress"`
+	RemoteAddress                      string `json:"remoteAddress"`
+}
+
+// ToSSTPClientResponse converts a RouterOS SSTPClientInfo to API SSTPClientResponse.
+func ToSSTPClientResponse(sstp *routeros.SSTPClientInfo) SSTPClientResponse {
+	return SSTPClientResponse{
+		ID:                                 sstp.ID,
+		Name:                               sstp.Name,
+		Disabled:                           sstp.Disabled,
+		Running:                            sstp.Running,
+		ConnectTo:                          sstp.ConnectTo,
+		Port:                               sstp.Port,
+		User:                               sstp.User,
+		Password:                           sstp.Password,
+		Profile:                            sstp.Profile,
+		KeepaliveTimeout:                   sstp.KeepaliveTimeout,
+		TLSVersion:                         sstp.TLSVersion,
+		VerifyServerCertificate:            sstp.VerifyServerCertificate,
+		VerifyServerAddressFromCertificate: sstp.VerifyServerAddressFromCertificate,
+		PFS:                                sstp.PFS,
+		Ciphers:                            sstp.Ciphers,
+		Authentication:                     sstp.Authentication,
+		Comment:                            sstp.Comment,
+		Status:                             sstp.Status,
+		Uptime:                             sstp.Uptime,
+		Encoding:                           sstp.Encoding,
+		MTU:                                sstp.MTU,
+		LocalAddress:                       sstp.LocalAddress,
+		RemoteAddress:                      sstp.RemoteAddress,
+	}
 }
 
 // UpdateL2TPClientRequest represents a request to update an L2TP client.
@@ -117,6 +200,7 @@ type VPNServersStatusResponse struct {
 	OvpnServers []ServerStatusItem  `json:"ovpnServers"`
 	WireGuards  []ServerStatusItem  `json:"wireguards"`
 	Sstp        *SingleServerStatus `json:"sstp"`
+	L2tp        *SingleServerStatus `json:"l2tp"`
 }
 
 // OvpnServerDetailsResponse represents OpenVPN server configuration details.
@@ -163,6 +247,11 @@ type L2tpServerDetailsResponse struct {
 	ChangeTCPMSS       string           `json:"changeTcpMss"`
 	DNSServer          string           `json:"dnsServer"`
 	Secrets            []L2TPUserSecret `json:"secrets"`
+}
+
+// CreateL2tpServerRequest is the request to enable the L2TP server.
+type CreateL2tpServerRequest struct {
+	IPsecSecret string `json:"ipsecSecret" example:"secretpassphrase123"`
 }
 
 // SstpServerDetailsResponse represents SSTP server configuration details.
@@ -310,9 +399,9 @@ type WireGuardPeerResponse struct {
 	PublicKey              string `json:"publicKey"`
 	PrivateKey             string `json:"privateKey,omitempty"`
 	EndpointAddress        string `json:"endpointAddress"`
-	EndpointPort           int    `json:"endpointPort"`
+	EndpointPort           int    `json:"endpointPort,omitempty"`
 	CurrentEndpointAddress string `json:"currentEndpointAddress"`
-	CurrentEndpointPort    int    `json:"currentEndpointPort"`
+	CurrentEndpointPort    int    `json:"currentEndpointPort,omitempty"`
 	AllowedAddresses       string `json:"allowedAddresses"`
 	PreSharedKey           string `json:"preSharedKey,omitempty"`
 	PersistentKeepalive    string `json:"persistentKeepalive"`
@@ -383,6 +472,8 @@ func ToVPNClientResponse(vpn *routeros.VPNClientInfo) VPNClientResponse {
 		LastLinkDown: vpn.LastLinkDown,
 		LinkDowns:    vpn.LinkDowns,
 		Comment:      vpn.Comment,
+		PingTime:     vpn.PingTime,
+		PeerCount:    vpn.PeerCount,
 	}
 }
 
@@ -435,6 +526,11 @@ func ToL2TPClientResponse(l2tp *routeros.L2TPClientInfo) L2TPClientResponse {
 
 // ToWireGuardPeerResponse converts a RouterOS WireGuardPeerInfo to API WireGuardPeerResponse.
 func ToWireGuardPeerResponse(peer *routeros.WireGuardPeerInfo) WireGuardPeerResponse {
+	persistentKeepalive := ""
+	if strings.TrimSpace(peer.PersistentKeepalive) != "" {
+		persistentKeepalive = strconv.FormatInt(utils.RouterOSDurationSeconds(peer.PersistentKeepalive), 10)
+	}
+
 	return WireGuardPeerResponse{
 		ID:                     peer.ID,
 		Name:                   peer.Name,
@@ -447,7 +543,7 @@ func ToWireGuardPeerResponse(peer *routeros.WireGuardPeerInfo) WireGuardPeerResp
 		CurrentEndpointPort:    peer.CurrentEndpointPort,
 		AllowedAddresses:       peer.AllowedAddresses,
 		PreSharedKey:           peer.PreSharedKey,
-		PersistentKeepalive:    peer.PersistentKeepalive,
+		PersistentKeepalive:    persistentKeepalive,
 		ClientEndpoint:         peer.ClientEndpoint,
 		ClientAllowedAddress:   peer.ClientAllowedAddress,
 		LastHandshake:          peer.LastHandshake,
@@ -534,9 +630,12 @@ type ImportWireGuardConfigRequest struct {
 
 // ImportWireGuardConfigResponse represents the response after importing a WireGuard configuration.
 type ImportWireGuardConfigResponse struct {
-	InterfaceName string   `json:"interfaceName"`
-	InterfaceIP   string   `json:"interfaceIP"`
-	PeerNames     []string `json:"peerNames"`
+	InterfaceName           string   `json:"interfaceName"`
+	InterfaceIP             string   `json:"interfaceIP"`
+	PeerNames               []string `json:"peerNames"`
+	ImportedPeerCount       int      `json:"importedPeerCount"`
+	ReusedExistingInterface bool     `json:"reusedExistingInterface"`
+	SkippedDuplicatePeers   []string `json:"skippedDuplicatePeers"`
 }
 
 // CreateOvpnServerRequest represents a request to create an OpenVPN server with client certificate.

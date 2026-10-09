@@ -1,4 +1,5 @@
 import { Check, Pencil, RotateCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from '../../../EasyConfigWizard.module.scss';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function EditToolbar({ editing, edited, applied, onStartEdit, onDone, onReset }: Props) {
+  const { t } = useTranslation('easyConfig');
   if (!editing) {
     return (
       <div className={styles.editActions}>
@@ -19,8 +21,8 @@ export function EditToolbar({ editing, edited, applied, onStartEdit, onDone, onR
           className={styles.iconButton}
           onClick={onStartEdit}
           disabled={applied}
-          aria-label="Edit script"
-          title="Edit script"
+          aria-label={t('review.editScript')}
+          title={t('review.editScript')}
         >
           <Pencil size={16} />
         </button>
@@ -34,8 +36,8 @@ export function EditToolbar({ editing, edited, applied, onStartEdit, onDone, onR
           type="button"
           className={styles.iconButton}
           onClick={onReset}
-          aria-label="Reset to generated script"
-          title="Reset to generated"
+          aria-label={t('review.resetAria')}
+          title={t('review.resetTitle')}
         >
           <RotateCcw size={16} />
         </button>
@@ -44,8 +46,8 @@ export function EditToolbar({ editing, edited, applied, onStartEdit, onDone, onR
         type="button"
         className={styles.iconButton}
         onClick={onDone}
-        aria-label="Done editing"
-        title="Done editing"
+        aria-label={t('review.doneEditing')}
+        title={t('review.doneEditing')}
       >
         <Check size={16} />
       </button>

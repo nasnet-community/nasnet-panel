@@ -31,12 +31,16 @@ const (
 
 	containerName       = "nasnet-panel"
 	legacyContainerName = "nnc"
-	containerImagesDir  = "images/nasnet-panel"
 
-	lanBridge      = "LANBridgeSplit"
-	lanBridgeIP    = "192.168.10.1"
-	lanDstNet      = "192.168.0.0/16"
-	lanBaselineRsc = "nasnet-lan-baseline.rsc"
+	panelDir            = "nasnet-panel"
+	tarSubdir           = panelDir + "/container-images"
+	containerRootSubdir = panelDir + "/containers/" + containerName
+
+	lanBridge         = "LANBridgeSplit"
+	lanBridgeIP       = "192.168.10.1"
+	lanDstNet         = "192.168.0.0/16"
+	lanBaselineRsc    = "nasnet-lan-baseline.rsc"
+	lanBaselineRemote = panelDir + "/" + lanBaselineRsc
 
 	fallbackDNSServers = "1.1.1.1,1.0.0.1"
 	dnsSettleDelay     = 3 * time.Second
@@ -68,6 +72,7 @@ type Options struct {
 	SkipLANBaseline bool   `json:"skipLanBaseline"`
 	DryRun          bool   `json:"dryRun"`
 	NoRollback      bool   `json:"noRollback"`
+	WiFiUplink      bool   `json:"wifiUplink"`
 }
 
 type SystemInfo struct {
@@ -100,6 +105,7 @@ type Events struct {
 	DeviceModeDone   func()
 	RebootNotice     func(reason string)
 	StoragePrompt    func(choices []StorageChoice) string
+	WiFiPrompt       func(networks []WiFiNetwork) (WiFiChoice, bool)
 	RebootPrompt     func(reason string) bool
 	RebootTick       func(elapsed int, routerState string)
 	RebootDone       func()
@@ -132,6 +138,9 @@ type Engine struct {
 	containerActive bool
 	finalPort       int
 	baselineApplied bool
+
+	wifi    *wifiUplink
+	secrets []string
 }
 
 func New(ctx context.Context, opts Options, ev Events) *Engine {
@@ -150,10 +159,16 @@ func New(ctx context.Context, opts Options, ev Events) *Engine {
 	return &Engine{opts: opts, ev: ev, ctx: ctx}
 }
 
-func InstallStepList() []StepInfo {
-	return []StepInfo{
+// InstallStepList returns the install steps for opts, including the WiFi uplink steps when it is on.
+func InstallStepList(opts Options) []StepInfo { //nolint:revive // existing name, paired with UninstallStepList
+	wan := StepInfo{ID: "prepare-wan", Title: "Prepare WAN"}
+	if opts.WiFiUplink {
+		wan.Title = "Connect WiFi uplink"
+	}
+	steps := []StepInfo{
 		{ID: "connect", Title: "Connect to router"},
 		{ID: "check", Title: "Check system"},
+		wan,
 		{ID: "update-ros", Title: "Update RouterOS"},
 		{ID: "device-mode", Title: "Enable container support"},
 		{ID: "download", Title: "Download image"},
@@ -161,8 +176,11 @@ func InstallStepList() []StepInfo {
 		{ID: "network", Title: "Configure network"},
 		{ID: "container", Title: "Deploy container"},
 		{ID: "health", Title: "Start and health check"},
-		{ID: "baseline", Title: "LAN baseline"},
 	}
+	if opts.WiFiUplink {
+		steps = append(steps, StepInfo{ID: "wifi-remove", Title: "Remove WiFi uplink"})
+	}
+	return append(steps, StepInfo{ID: "baseline", Title: "LAN baseline"})
 }
 
 func UninstallStepList() []StepInfo {
@@ -175,9 +193,14 @@ func UninstallStepList() []StepInfo {
 }
 
 func (e *Engine) Run() error {
+	wan := e.stepPrepareWAN
+	if e.opts.WiFiUplink {
+		wan = e.stepWiFiUplink
+	}
 	steps := []step{
 		{"connect", e.stepConnect},
 		{"check", e.stepCheck},
+		{"prepare-wan", wan},
 		{"update-ros", e.stepUpdateROS},
 		{"device-mode", e.stepDeviceMode},
 		{"download", e.stepDownload},
@@ -185,11 +208,17 @@ func (e *Engine) Run() error {
 		{"network", e.stepNetwork},
 		{"container", e.stepContainer},
 		{"health", e.stepHealth},
-		{"baseline", e.stepBaseline},
 	}
+	if e.opts.WiFiUplink {
+		steps = append(steps, step{"wifi-remove", e.stepRemoveWiFi})
+	}
+	steps = append(steps, step{"baseline", e.stepBaseline})
 	err := e.runSteps(steps)
 	if err != nil && !e.opts.DryRun && !e.opts.NoRollback {
 		e.doRollback()
+	}
+	if err != nil {
+		e.removeWiFiUplink()
 	}
 	if err == nil {
 		e.removeContainerFiles()
@@ -321,6 +350,21 @@ func (e *Engine) removeContainerFiles() {
 	}
 	e.log("removing leftover %s-*.tar files from the router", assetPrefix)
 	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\\.tar\$"]`, assetPrefix), 30*time.Second)
+	e.removeEmptyTarDirs()
+}
+
+const removeEmptyTarDirsScript = `:foreach d in=[/file/find where name~"(^|/)` + tarSubdir + `\$"] do={:local n [/file/get $d name]; :if ([:len [/file/find where name~("^" . $n . "/")]] = 0) do={/file/remove $d}}`
+
+func (e *Engine) removeEmptyTarDirs() {
+	if e.opts.DryRun {
+		return
+	}
+	_, _ = e.cl.RunRaw(removeEmptyTarDirsScript, 30*time.Second)
+}
+
+func (e *Engine) removeTarFile(name string) {
+	e.removeRemoteFile(name)
+	e.removeEmptyTarDirs()
 }
 
 func (e *Engine) removeStaleImageDir() {
@@ -331,7 +375,7 @@ func (e *Engine) removeStaleImageDir() {
 	if e.containerActive && (e.exists("/container", "name="+containerName) || e.exists("/container", "name="+legacyContainerName)) {
 		return
 	}
-	dir := e.storage.path(containerImagesDir)
+	dir := e.storage.path(containerRootSubdir)
 	if !e.exists("/file", fmt.Sprintf("name=%q", dir)) {
 		return
 	}
@@ -377,6 +421,13 @@ func (e *Engine) ensureDir(dir string) {
 		return
 	}
 	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/add name=%q type=directory", dir), 15*time.Second)
+}
+
+func (e *Engine) ensureStorageDirs(dirs ...string) {
+	e.ensureDir(e.storage.name)
+	for _, dir := range dirs {
+		e.ensureDir(e.storage.path(dir))
+	}
 }
 
 func (e *Engine) sleep(d time.Duration) error {

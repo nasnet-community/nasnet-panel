@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, Card, ConfirmDialog, DataTable, Select, Stack, useToast } from '@nasnet/ui';
 import { Activity, Unplug } from 'lucide-react';
 import {
@@ -10,6 +11,7 @@ import {
   type VPNServer,
 } from '../../../api';
 import { usePolling } from '../../../utils/usePolling';
+import { useFormat } from '../../../utils/useFormat';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
 import { PAGE_SIZE } from '../utils';
@@ -27,6 +29,10 @@ interface ActiveConnection {
   callerId: string;
   uptime: string;
   details: string;
+  // WireGuard rows: shown through translated templates at render time.
+  handshake?: string;
+  rx?: string;
+  tx?: string;
 }
 
 const SERVICE_LABELS: Record<string, string> = {
@@ -64,8 +70,11 @@ function toRows(data: ActiveVPNConnectionsResponse): ActiveConnection[] {
     interfaceName: p.interfaceName,
     address: p.clientAddress || p.allowedAddresses,
     callerId: '',
-    uptime: p.lastHandshake ? `handshake ${p.lastHandshake} ago` : '',
-    details: `${p.interfaceName} rx ${p.rx} tx ${p.tx}`,
+    uptime: '',
+    details: '',
+    handshake: p.lastHandshake || undefined,
+    rx: p.rx,
+    tx: p.tx,
   }));
   return [...ppp, ...wg];
 }
@@ -86,15 +95,19 @@ const matches = (r: ActiveConnection, q: string) =>
 interface Props {
   creds: VPNCredentials | null;
   server?: VPNServer;
+  onCountChange?: (count: number) => void;
 }
 
-export function ActiveConnectionsSection({ creds, server }: Props) {
+export function ActiveConnectionsSection({ creds, server, onCountChange }: Props) {
   const toast = useToast();
+  const { t } = useTranslation('vpn');
+  const format = useFormat();
   const [rows, setRows] = useState<ActiveConnection[]>([]);
   const [pendingDisconnect, setPendingDisconnect] = useState<ActiveConnection | null>(null);
   const [disconnectSubmitting, setDisconnectSubmitting] = useState(false);
   const [service, setService] = useState('all');
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const disconnected = useRef(new Set<string>());
 
   const load = useCallback(async () => {
@@ -103,7 +116,7 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
     try {
       data = await listActiveVPNConnections(creds);
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : 'Failed to load active connections.');
+      setLoadError(err instanceof Error ? err.message : t('active.loadFailedDescription'));
       return;
     }
     setLoadError(null);
@@ -113,9 +126,14 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
       if (!present.has(k)) disconnected.current.delete(k);
     });
     setRows(next.filter((r) => !disconnected.current.has(r.key)));
-  }, [creds]);
+    setLoaded(true);
+  }, [creds, t]);
 
   usePolling(load, 5000, !!creds);
+
+  useEffect(() => {
+    if (loaded) onCountChange?.(rows.length);
+  }, [loaded, rows.length, onCountChange]);
 
   const visible = useMemo(
     () =>
@@ -128,10 +146,10 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
     const services = new Set(rows.map((r) => r.service));
     if (service !== 'all') services.add(service);
     return [
-      { value: 'all', label: 'All services' },
+      { value: 'all', label: t('active.allServices') },
       ...[...services].sort().map((s) => ({ value: s, label: serviceLabel(s) })),
     ];
-  }, [rows, service]);
+  }, [rows, service, t]);
   const paged = usePagedFilter(visible, matches);
 
   const onConfirmDisconnect = async () => {
@@ -146,8 +164,12 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to disconnect session.';
-      toast.notify({ title: 'Failed to disconnect', description: message, tone: 'danger' });
+            : t('active.toast.disconnectFailedDescription');
+      toast.notify({
+        title: t('active.toast.disconnectFailed'),
+        description: message,
+        tone: 'danger',
+      });
       setDisconnectSubmitting(false);
       return;
     }
@@ -155,7 +177,7 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
     setRows((prev) => prev.filter((r) => r.key !== target.key));
     setDisconnectSubmitting(false);
     setPendingDisconnect(null);
-    toast.notify({ title: `"${target.name}" disconnected`, tone: 'info' });
+    toast.notify({ title: t('active.toast.disconnected', { name: target.name }), tone: 'info' });
   };
 
   const table = (
@@ -163,13 +185,13 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
       <div className={styles.connectionsScroll}>
         <DataTable
           columns={[
-            { key: 'name', header: 'Name', render: (r: ActiveConnection) => r.name },
+            { key: 'name', header: t('shared.name'), render: (r: ActiveConnection) => r.name },
             ...(server
               ? []
               : [
                   {
                     key: 'service',
-                    header: 'Service',
+                    header: t('active.table.service'),
                     render: (r: ActiveConnection) => (
                       <Badge tone="info">{serviceLabel(r.service)}</Badge>
                     ),
@@ -177,31 +199,49 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
                 ]),
             {
               key: 'address',
-              header: 'Address',
-              render: (r: ActiveConnection) => r.address || '–',
+              header: t('active.table.address'),
+              render: (r: ActiveConnection) =>
+                r.address ? <span dir="ltr">{r.address}</span> : '–',
             },
             {
               key: 'callerId',
-              header: 'Caller ID',
-              render: (r: ActiveConnection) => r.callerId || '–',
+              header: t('active.table.callerId'),
+              render: (r: ActiveConnection) =>
+                r.callerId ? <span dir="ltr">{r.callerId}</span> : '–',
             },
-            { key: 'uptime', header: 'Uptime', render: (r: ActiveConnection) => r.uptime || '–' },
+            {
+              key: 'uptime',
+              header: t('active.table.uptime'),
+              render: (r: ActiveConnection) =>
+                r.kind === 'wireguard'
+                  ? r.handshake
+                    ? t('active.table.handshake', { time: r.handshake })
+                    : '–'
+                  : r.uptime || '–',
+            },
             {
               key: 'details',
-              header: 'Session',
-              render: (r: ActiveConnection) => r.details || '–',
+              header: t('active.table.session'),
+              render: (r: ActiveConnection) =>
+                r.kind === 'wireguard'
+                  ? t('active.table.wgDetails', {
+                      iface: r.interfaceName ?? '',
+                      rx: format.sizeLabel(r.rx) ?? '',
+                      tx: format.sizeLabel(r.tx) ?? '',
+                    })
+                  : r.details || '–',
             },
             {
               key: 'actions',
-              header: 'Actions',
+              header: t('shared.actions'),
               render: (r: ActiveConnection) =>
                 r.kind === 'ppp' ? (
                   <Button
                     size="sm"
                     variant="danger"
                     disabled={!creds}
-                    title={`Disconnect ${r.name}`}
-                    aria-label={`Disconnect ${r.name}`}
+                    title={t('active.disconnectNamed', { name: r.name })}
+                    aria-label={t('active.disconnectNamed', { name: r.name })}
                     onClick={() => setPendingDisconnect(r)}
                   >
                     <Unplug size={14} aria-hidden />
@@ -214,10 +254,10 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
           rowKey={(r) => r.key}
           emptyMessage={
             loadError && !rows.length
-              ? `Failed to load active connections: ${loadError}`
+              ? t('active.table.loadFailed', { error: loadError })
               : visible.length || service !== 'all'
-                ? 'No connections match the current filters.'
-                : 'No active connections.'
+                ? t('active.table.noMatch')
+                : t('active.table.empty')
           }
           emptyIcon={<Activity size={32} aria-hidden />}
         />
@@ -236,13 +276,15 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
   const confirm = (
     <ConfirmDialog
       open={!!pendingDisconnect}
-      title="Disconnect session"
+      title={t('active.confirm.title')}
       description={
         pendingDisconnect
-          ? `Disconnect "${pendingDisconnect.name}" now? The user account is kept and can reconnect.`
+          ? t('active.confirm.description', { name: pendingDisconnect.name })
           : undefined
       }
-      confirmLabel={disconnectSubmitting ? 'Disconnecting…' : 'Disconnect'}
+      confirmLabel={
+        disconnectSubmitting ? t('active.confirm.disconnecting') : t('active.confirm.disconnect')
+      }
       destructive
       onConfirm={onConfirmDisconnect}
       onCancel={() => (disconnectSubmitting ? undefined : setPendingDisconnect(null))}
@@ -251,9 +293,9 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
 
   if (server) {
     return (
-      <section aria-label="Active connections" style={{ marginTop: 16 }}>
+      <section aria-label={t('stats.activeConnections')} style={{ marginTop: 16 }}>
         <strong>
-          Active connections <Badge tone="info">{visible.length}</Badge>
+          {t('stats.activeConnections')} <Badge tone="info">{format.number(visible.length)}</Badge>
         </strong>
         <div style={{ marginTop: 8 }}>{table}</div>
         {confirm}
@@ -265,13 +307,13 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
     <Stack>
       <Card>
         <SectionHeader
-          title="Active Connections"
+          title={t('active.title')}
           count={visible.length}
-          description="Clients currently connected to your VPN servers."
+          description={t('active.description')}
           filters={
             <Select
               className={styles.headerFilter}
-              aria-label="Service filter"
+              aria-label={t('active.serviceFilter')}
               value={service}
               onChange={setService}
               options={serviceOptions}
@@ -279,8 +321,8 @@ export function ActiveConnectionsSection({ creds, server }: Props) {
           }
           search={{
             value: paged.search,
-            placeholder: 'Search connections…',
-            ariaLabel: 'Search connections',
+            placeholder: t('active.searchPlaceholder'),
+            ariaLabel: t('active.searchLabel'),
             onChange: paged.setSearch,
           }}
         />

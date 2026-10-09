@@ -62,6 +62,7 @@ func (e *Engine) stepRemoveNetwork() error {
 	e.removeObj("nat "+commentTag+"-dstnat-https", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"))
 	e.removeObj("nat "+commentTag+"-container-dns-tcp", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-container-dns-tcp"))
 	e.removeObj("nat "+commentTag+"-container-dns-udp", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-container-dns-udp"))
+	e.removeObj("dhcp-client "+wifiUplinkTag, "/ip/dhcp-client", fmt.Sprintf("comment=%q", wifiUplinkTag))
 	e.removeObj("filter forward", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward"))
 	e.removeObj("filter forward-https", "/ip/firewall/filter", fmt.Sprintf("comment=%q", commentTag+"-forward-https"))
 	e.removeObj("filter nasnet-panel-baseline-container-router", "/ip/firewall/filter", fmt.Sprintf("comment=%q", "nasnet-panel-baseline-container-router"))
@@ -82,7 +83,8 @@ func (e *Engine) stepRemoveFiles() error {
 		return nil
 	}
 	_, _ = e.cl.RunRaw(fmt.Sprintf(`/file/remove [find where name~"(^|/)%s-[^/]*\\.tar\$"]`, assetPrefix), 30*time.Second)
-	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", lanBaselineRsc), 15*time.Second)
+	e.removeEmptyTarDirs()
+	_, _ = e.cl.RunRaw(fmt.Sprintf("/file/remove [find name=%q]", lanBaselineRemote), 15*time.Second)
 	e.note = "uploaded files removed"
 	return nil
 }

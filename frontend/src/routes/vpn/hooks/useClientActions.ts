@@ -1,4 +1,5 @@
 import { useToast } from '@nasnet/ui';
+import i18n from '../../../i18n';
 import { api, type VPNClient, type VPNProtocol } from '../../../api';
 
 export function useClientActions(routerId: string, onChanged: () => void) {
@@ -21,13 +22,13 @@ export function useClientActions(routerId: string, onChanged: () => void) {
       });
     }
     onChanged();
-    toast.notify({ title: 'Client saved', tone: 'success' });
+    toast.notify({ title: i18n.t('clients.toast.saved', { ns: 'vpn' }), tone: 'success' });
   };
 
   const remove = async (id: string) => {
     await api.vpn.deleteClient(id);
     onChanged();
-    toast.notify({ title: 'Client deleted', tone: 'info' });
+    toast.notify({ title: i18n.t('clients.toast.deleted', { ns: 'vpn' }), tone: 'info' });
   };
 
   return { save, remove };

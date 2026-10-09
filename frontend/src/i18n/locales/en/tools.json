@@ -1,0 +1,259 @@
+{
+  "common": {
+    "missingCredentials": "Missing router credentials for this session.",
+    "refresh": "Refresh"
+  },
+  "logs": {
+    "loadFailed": "Failed to load logs.",
+    "title": "Logs",
+    "description": "RouterOS event stream. Filter by level or topic, search anywhere in the message.",
+    "level": "Level",
+    "searchLevel": "Search level…",
+    "allLevels": "All levels",
+    "levels": {
+      "info": "info",
+      "warning": "warning",
+      "error": "error",
+      "critical": "critical",
+      "debug": "debug"
+    },
+    "topic": "Topic",
+    "searchTopic": "Search topic…",
+    "allTopics": "All topics",
+    "search": "Search",
+    "keyword": "keyword…",
+    "empty": "No logs match the current filters.",
+    "openDetailsAria": "Open details for log {{id}}",
+    "showing": "Showing {{from}}–{{to}} of {{total}}",
+    "previousPage": "Previous page",
+    "prev": "Prev",
+    "pageOf": "Page {{page}} of {{total}}",
+    "nextPage": "Next page",
+    "next": "Next",
+    "details": {
+      "title": "Log details",
+      "close": "Close",
+      "timestamp": "Timestamp",
+      "level": "Level",
+      "topic": "Topic",
+      "message": "Message",
+      "logId": "Log ID",
+      "prefix": "Prefix",
+      "account": "Account",
+      "count": "Count"
+    }
+  },
+  "diagnostics": {
+    "steps": {
+      "systemInfo": {
+        "label": "System info",
+        "description": "Resources and packages"
+      },
+      "installCheck": {
+        "label": "Installation check",
+        "description": "Panel install status"
+      },
+      "interfaces": {
+        "label": "Interfaces",
+        "description": "Links and addresses"
+      },
+      "wifi": {
+        "label": "WiFi",
+        "description": "Wireless interfaces"
+      },
+      "routing": {
+        "label": "Routing",
+        "description": "Tables and rules"
+      },
+      "dns": {
+        "label": "DNS",
+        "description": "Config and resolution"
+      },
+      "vpn": {
+        "label": "VPN",
+        "description": "Clients and servers"
+      },
+      "connectivity": {
+        "label": "Connectivity tests",
+        "description": "WAN and VPN pings"
+      },
+      "logs": {
+        "label": "Logs",
+        "description": "Recent errors"
+      }
+    },
+    "statusFailed": "Failed to load diagnostic status.",
+    "progressFailed": "Failed to check diagnostic progress.",
+    "toasts": {
+      "complete": "Diagnostic complete",
+      "notFound": "Diagnostic report not found",
+      "startFailed": "Failed to start diagnostic",
+      "downloadFailed": "Failed to download report",
+      "deleted": "Diagnostic report deleted",
+      "deleteFailed": "Failed to delete report"
+    },
+    "generated": "Generated {{time}}",
+    "generatedWithSize": "Generated {{time}} ({{size}})",
+    "deleting": "Deleting…",
+    "delete": "Delete",
+    "downloading": "Downloading…",
+    "download": "Download",
+    "talkToSupport": "Talk to support",
+    "running": "Running…",
+    "runAgain": "Run again",
+    "start": "Start",
+    "errorReports": {
+      "title": "Error Reports",
+      "description": "Anonymous error reports help the Nasnet team fix bugs, and never include your router address, credentials, or configuration. <anchor>See what we track</anchor>",
+      "toggle": "Send error reports",
+      "guideAnchor": "what-an-error-report-sends"
+    },
+    "reset": {
+      "title": "Reset Configuration",
+      "description": "Erase everything currently set up on this router and walk through the setup wizard again from the beginning. This cannot be undone.",
+      "button": "Reset and Reconfigure"
+    },
+    "confirmDelete": {
+      "title": "Delete diagnostic report?",
+      "description": "Remove {{file}} from this router? This cannot be undone."
+    },
+    "confirmReset": {
+      "title": "Reset configuration?",
+      "description": "This will erase everything currently set up on this router, and the setup wizard will walk you through configuring it again from the beginning."
+    }
+  },
+  "help": {
+    "assistant": {
+      "title": "AI Assistant",
+      "description": "Ask our AI assistant anything, and a support agent can join the conversation when needed."
+    },
+    "chat": {
+      "error": "Couldn't load the support chat. Check your internet connection and reload the page.",
+      "loading": "Loading chat…"
+    },
+    "links": {
+      "knowledgeBase": "Knowledge base",
+      "knowledgeBaseDesc": "Browse guides and documentation",
+      "telegram": "Telegram support",
+      "telegramDesc": "Chat with the team on Telegram",
+      "github": "Report a bug on GitHub",
+      "githubDesc": "Open a new issue in the project repository"
+    }
+  },
+  "plugins": {
+    "progress": {
+      "startingInstall": "Starting install",
+      "startingUpdate": "Starting update",
+      "preparing": "Preparing",
+      "creatingInterface": "Creating interface",
+      "creatingMounts": "Creating mounts",
+      "runningPreInstall": "Running pre-install script",
+      "creatingContainer": "Creating container",
+      "pullingImage": "Pulling image",
+      "startingContainer": "Starting container",
+      "runningPostInstall": "Running post-install script",
+      "checkingVersion": "Checking version",
+      "stoppingContainer": "Stopping container",
+      "finishing": "Finishing up"
+    },
+    "status": {
+      "failed": "failed",
+      "installing": "installing",
+      "running": "running",
+      "installed": "installed"
+    },
+    "loadFailed": "Failed to load plugins.",
+    "toasts": {
+      "installFailed": "{{name}} install failed",
+      "installTimeout": "Timed out waiting for the install to finish",
+      "installFailedDetail": "Plugin install failed",
+      "installed": "{{name}} installed",
+      "updateFailed": "{{name}} update failed",
+      "updateTimeout": "Timed out waiting for the update to finish",
+      "updateFailedDetail": "Plugin update failed",
+      "updateUnconfirmed": "{{name}} update unconfirmed",
+      "updateUnconfirmedDetail": "The new image could not be verified. The plugin was restarted.",
+      "updatedTo": "{{name}} updated to v{{version}}",
+      "updated": "{{name}} updated",
+      "uninstalledWithWarnings": "{{name}} uninstalled with warnings",
+      "uninstalled": "{{name}} uninstalled",
+      "uninstallFailed": "{{name}} uninstall failed"
+    },
+    "unsupported": "This router cannot run plugins. Container mode is disabled or the container package is not installed, so plugins can be browsed but not installed.",
+    "loadFailedTitle": "Failed to load plugins",
+    "retry": "Retry",
+    "noneTitle": "No plugins available",
+    "noneDescription": "The plugin registry did not return any plugins.",
+    "byAuthor": "by <anchor>{{author}}</anchor>",
+    "versionWithUpdate": "v{{installed}} (v{{latest}} available)",
+    "installing": "Installing…",
+    "updating": "Updating…",
+    "open": "Open",
+    "update": "Update",
+    "uninstalling": "Uninstalling…",
+    "uninstall": "Uninstall",
+    "unavailable": "Unavailable",
+    "install": "Install",
+    "comingSoon": "Coming soon",
+    "pluginFallback": "plugin",
+    "confirmUninstall": {
+      "title": "Uninstall {{name}}?",
+      "description": "The plugin container and its resources are removed from the router."
+    },
+    "confirmUpdate": {
+      "title": "Update {{name}}?",
+      "description": "The plugin container restarts and is briefly offline during the update."
+    },
+    "logo": "{{name}} logo"
+  },
+  "updates": {
+    "title": "Updates",
+    "subtitle": "Keep the Nasnet Panel app and RouterOS firmware up to date.",
+    "checkFailed": "Failed to check for updates",
+    "updateAvailable": "update available",
+    "upToDate": "up to date",
+    "current": "Current",
+    "latest": "Latest",
+    "installing": "Installing…",
+    "done": "Done",
+    "confirm": "Confirm",
+    "progress": {
+      "starting": "Starting update",
+      "preparing": "Preparing update",
+      "pulling": "Downloading new version",
+      "restarting": "Restarting panel",
+      "waiting": "Waiting for the panel to come back",
+      "done": "Done"
+    },
+    "app": {
+      "title": "App update",
+      "failed": "App update failed",
+      "timeout": "Timed out waiting for the update to finish",
+      "applied": "Update applied",
+      "appliedDetail": "Refresh the page to load the new version.",
+      "complete": "Update complete",
+      "reloading": "Reloading…",
+      "alreadyUpToDate": "Already up to date",
+      "keepUpToDate": "Keep the Nasnet Panel app up to date.",
+      "newerAvailable": "A newer version of Nasnet Panel is available.",
+      "runningLatest": "You are running the latest version.",
+      "connectFirst": "Connect to a router first to check for app updates.",
+      "releaseNotes": "Release notes",
+      "updateButton": "Update app",
+      "confirmTitle": "Install app update?",
+      "confirmDescription": "The panel restarts to apply the new version. The page reloads automatically once it is back."
+    },
+    "firmware": {
+      "title": "RouterOS firmware",
+      "started": "Firmware update started",
+      "startedDetail": "Router will reboot to apply the update.",
+      "failed": "Firmware update failed",
+      "installOn": "Install the latest RouterOS release on {{name}}.",
+      "connect": "Connect to a router to check firmware.",
+      "connectFirst": "Connect to a router first to check for firmware updates.",
+      "updateButton": "Update firmware",
+      "confirmTitle": "Install RouterOS firmware?",
+      "confirmDescription": "The router will reboot after the package is applied. Connectivity drops briefly."
+    }
+  }
+}

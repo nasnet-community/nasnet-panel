@@ -71,6 +71,11 @@
   margin-bottom: calc(var(--font-xs) + 4px);
 }
 
+// Nodes reverse in RTL, so mirror the arrow and dots to keep them pointing at the next node.
+[dir='rtl'] .connector {
+  transform: scaleX(-1);
+}
+
 .track {
   position: absolute;
   inset: 50% 12px auto 0;

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './Tabs.module.scss';
 
 export interface TabMenuItem {
@@ -31,6 +32,7 @@ const VIEWPORT_MARGIN = 8;
 const HOVER_CLOSE_DELAY = 140;
 
 export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel }) => {
+  const { t: translate } = useTranslation('ui');
   const [openId, setOpenId] = useState<string | null>(null);
   const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null);
   const groupRefs = useRef<Record<string, HTMLSpanElement | null>>({});
@@ -62,7 +64,10 @@ export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel
       if (!anchor) return;
       const width = Math.max(menuRef.current?.offsetWidth ?? 0, MENU_MIN_WIDTH);
       const maxLeft = window.innerWidth - width - VIEWPORT_MARGIN;
-      const left = Math.max(VIEWPORT_MARGIN, Math.min(anchor.left, maxLeft)) + window.scrollX;
+      // Align the menu with the tab's reading-start edge: its right edge in RTL.
+      const rtl = document.documentElement.dir === 'rtl';
+      const preferred = rtl ? anchor.right - width : anchor.left;
+      const left = Math.max(VIEWPORT_MARGIN, Math.min(preferred, maxLeft)) + window.scrollX;
       const top = anchor.bottom + window.scrollY;
       setMenuPos((prev) => (prev && prev.left === left && prev.top === top ? prev : { left, top }));
     };
@@ -155,7 +160,7 @@ export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel
               className={cx(styles.menuTrigger, active && styles.menuTriggerActive)}
               aria-haspopup="menu"
               aria-expanded={open}
-              aria-label={`Show ${t.label} menu`}
+              aria-label={translate('tabs.showMenu', { label: t.label })}
               onClick={() => {
                 cancelClose();
                 if (open && !openedByHover.current) {

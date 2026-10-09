@@ -1,0 +1,88 @@
+{
+  "listSeparator": "، ",
+  "common": {
+    "cancel": "لغو",
+    "ssid": "نام شبکه (SSID)",
+    "password": "رمز عبور",
+    "security": "امنیت"
+  },
+  "page": {
+    "deleteTitle": "حذف رابط مجازی",
+    "deleteDescription": "«⁨{{name}}⁩» (⁨{{iface}}⁩) حذف شود؟ اتصال کلاینت‌های متصل قطع می‌شود. این کار قابل بازگشت نیست.",
+    "deleteConfirm": "حذف"
+  },
+  "stats": {
+    "clients": "کلاینت‌ها",
+    "connectedDevices": "دستگاه‌های متصل",
+    "active": "فعال",
+    "activeTotal": "/{{total}}",
+    "signal": "سیگنال",
+    "dbm": "{{value}} dBm",
+    "averageRssi": "میانگین RSSI",
+    "noClients": "کلاینتی وجود ندارد",
+    "bands": "باندها",
+    "interfaceCount_one": "{{value}} رابط",
+    "interfaceCount_other": "{{value}} رابط",
+    "noInterfaces": "رابطی وجود ندارد"
+  },
+  "clients": {
+    "title": "کلاینت‌های متصل",
+    "description": "دستگاه‌های متصل به شبکه بی‌سیم این روتر.",
+    "hostname": "نام میزبان",
+    "ip": "آدرس IP",
+    "mac": "آدرس MAC",
+    "band": "باند",
+    "signal": "سیگنال",
+    "throughput": "ارسال / دریافت",
+    "throughputValue": "{{tx}} / {{rx}} kbps",
+    "uptime": "مدت اتصال",
+    "empty": "هیچ کلاینتی متصل نیست"
+  },
+  "interfaces": {
+    "title": "رابط‌های بی‌سیم",
+    "description": "نام شبکه، رمز عبور، باند و امنیت.",
+    "addVirtual": "افزودن رابط مجازی",
+    "empty": "هیچ رابط بی‌سیمی پیدا نشد",
+    "virtual": "مجازی",
+    "active": "فعال",
+    "idle": "بیکار",
+    "enableAria": "فعال‌سازی {{name}}",
+    "edit": "ویرایش",
+    "deleteAria": "حذف {{name}}",
+    "delete": "حذف"
+  },
+  "edit": {
+    "title": "ویرایش تنظیمات بی‌سیم",
+    "save": "ذخیره",
+    "mode": "حالت"
+  },
+  "addVirtual": {
+    "title": "افزودن رابط بی‌سیم مجازی",
+    "creating": "در حال ایجاد...",
+    "create": "ایجاد",
+    "masterInterface": "رابط اصلی",
+    "selectInterface": "یک رابط انتخاب کنید",
+    "bridge": "بریج",
+    "selectBridge": "یک بریج انتخاب کنید",
+    "noBridge": "هیچ بریجی در دسترس نیست",
+    "retry": "تلاش دوباره",
+    "openNetworkPlaceholder": "برای شبکه باز خالی بگذارید",
+    "requiredFields": "رابط اصلی، بریج و نام شبکه (SSID) الزامی هستند",
+    "passwordLength": "رمز عبور باید بین {{min}} تا {{max}} نویسه باشد",
+    "selectSecurityType": "دست‌کم یک نوع امنیت انتخاب کنید"
+  },
+  "toast": {
+    "saved": "تنظیمات بی‌سیم ذخیره شد",
+    "saveFailed": "ذخیره ناموفق بود",
+    "saveError": "ذخیره تنظیمات بی‌سیم ناموفق بود",
+    "enabled": "⁨{{name}}⁩ فعال شد",
+    "disabled": "⁨{{name}}⁩ غیرفعال شد",
+    "loadBridgesError": "بارگذاری بریج‌ها ناموفق بود",
+    "created": "⁨{{name}}⁩ ایجاد شد",
+    "createFailed": "ایجاد ناموفق بود",
+    "createError": "ایجاد رابط مجازی ناموفق بود",
+    "deleted": "⁨{{name}}⁩ حذف شد",
+    "deleteFailed": "حذف ناموفق بود",
+    "deleteError": "حذف رابط مجازی ناموفق بود"
+  }
+}

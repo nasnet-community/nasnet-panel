@@ -81,8 +81,10 @@ type VPNCredentialsResponse struct {
 
 // WizardStatus represents the current status of a setup wizard.
 type WizardStatus struct {
-	Completed bool `json:"completed" example:"false"`
-	Progress  int  `json:"progress" example:"0"`
+	Completed bool   `json:"completed" example:"false"`
+	Progress  int    `json:"progress" example:"0"`
+	Failed    bool   `json:"failed" example:"false"`
+	Message   string `json:"message,omitempty" example:"Configuring WiFi access points"`
 }
 
 // InterfaceConfig represents a network interface configuration.

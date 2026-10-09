@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   CardDescription,
@@ -73,6 +74,7 @@ export function WifiStep({
   wifiSupported,
   footer,
 }: Props) {
+  const { t } = useTranslation('easyConfig');
   const setText = (field: keyof State) => (e: React.ChangeEvent<HTMLInputElement>) =>
     dispatch({ type: 'setField', field, value: e.target.value });
 
@@ -102,7 +104,7 @@ export function WifiStep({
   const multiBand = wirelessEntries.length > 1;
   const split = multiBand && state.wifiSplit;
   const labels = wirelessEntries.map((e) => e.label);
-  const bandList = labels.join(', ');
+  const bandList = labels.join(t('wifi.bandSeparator'));
 
   const previewBands = split
     ? wirelessEntries.map((e) => ({
@@ -115,16 +117,9 @@ export function WifiStep({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Wireless settings</CardTitle>
+        <CardTitle>{t('wifi.title')}</CardTitle>
         <CardDescription>
-          {wifiSupported ? (
-            <>
-              One network name and password for the router&apos;s Wi-Fi. Avoid words like
-              &quot;starlink&quot;, &quot;VPN&quot;, or &quot;Iran&quot; in the SSID.
-            </>
-          ) : (
-            'This router has no Wi-Fi hardware, so wireless options are unavailable.'
-          )}
+          {wifiSupported ? t('wifi.description') : t('wifi.noHardware')}
         </CardDescription>
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
@@ -133,8 +128,10 @@ export function WifiStep({
             <Switch
               label={
                 wifiSupported
-                  ? `Wi-Fi ${state.wifiEnabled ? 'enabled' : 'disabled'}`
-                  : 'Wi-Fi not available'
+                  ? state.wifiEnabled
+                    ? t('wifi.enabled')
+                    : t('wifi.disabled')
+                  : t('wifi.notAvailable')
               }
               checked={state.wifiEnabled}
               disabled={!wifiSupported}
@@ -147,16 +144,16 @@ export function WifiStep({
             <Stack>
               <FieldRow>
                 <Label>
-                  <span>Network name (SSID)</span>
+                  <span>{t('wifi.ssid')}</span>
                   <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
                     <Input
                       value={state.ssid}
                       onChange={setText('ssid')}
-                      aria-label="Network name (SSID)"
+                      aria-label={t('wifi.ssid')}
                       style={{ flex: 1 }}
                     />
                     <GenerateButton
-                      ariaLabel="Generate SSID"
+                      ariaLabel={t('wifi.generateSsid')}
                       onClick={() =>
                         dispatch({ type: 'setField', field: 'ssid', value: generateSsid() })
                       }
@@ -166,16 +163,16 @@ export function WifiStep({
               </FieldRow>
               <FieldRow>
                 <Label>
-                  <span>Password</span>
+                  <span>{t('wifi.password')}</span>
                   <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
                     <PasswordInput
                       value={state.wifiPassword}
                       onChange={setText('wifiPassword')}
-                      aria-label="Wi-Fi password"
+                      aria-label={t('wifi.passwordAria')}
                       style={{ flex: 1 }}
                     />
                     <GenerateButton
-                      ariaLabel="Generate Wi-Fi password"
+                      ariaLabel={t('wifi.generatePassword')}
                       onClick={() =>
                         dispatch({
                           type: 'setField',
@@ -190,7 +187,7 @@ export function WifiStep({
               {multiBand ? (
                 <Inline>
                   <Switch
-                    label={`Split across bands (${bandList})`}
+                    label={t('wifi.split', { bands: bandList })}
                     checked={state.wifiSplit}
                     onChange={(e) =>
                       dispatch({ type: 'setField', field: 'wifiSplit', value: e.target.checked })

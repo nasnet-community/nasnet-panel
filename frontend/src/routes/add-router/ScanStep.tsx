@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   Card,
   CardDescription,
@@ -12,29 +14,48 @@ import {
 import { api, isAbortError, type DiscoveredDevice } from '../../api';
 import { ScanToolbar } from './ScanToolbar';
 import { useSmoothedPercent } from './useSmoothedPercent';
+import { useFormat } from '../../utils/useFormat';
 
 interface Props {
   onSelect: (device: DiscoveredDevice) => void;
 }
 
-const SCAN_COLUMNS = [
-  { key: 'ip', header: 'IP', render: (d: DiscoveredDevice) => d.ip, width: '150px' },
+const scanColumns = (t: TFunction<'addRouter'>) => [
+  {
+    key: 'ip',
+    header: t('scan.columns.ip'),
+    render: (d: DiscoveredDevice) => d.ip,
+    width: '150px',
+  },
   {
     key: 'hostname',
-    header: 'Hostname',
+    header: t('scan.columns.hostname'),
     render: (d: DiscoveredDevice) => d.hostname ?? '—',
     width: '180px',
   },
-  { key: 'vendor', header: 'Vendor', render: (d: DiscoveredDevice) => d.vendor, width: '120px' },
-  { key: 'type', header: 'Type', render: (d: DiscoveredDevice) => d.type, width: '120px' },
+  {
+    key: 'vendor',
+    header: t('scan.columns.vendor'),
+    render: (d: DiscoveredDevice) => d.vendor,
+    width: '120px',
+  },
+  {
+    key: 'type',
+    header: t('scan.columns.type'),
+    render: (d: DiscoveredDevice) => d.type,
+    width: '120px',
+  },
   {
     key: 'services',
-    header: 'Services',
+    header: t('scan.columns.services'),
     render: (d: DiscoveredDevice) => (d.services.length > 0 ? d.services.join(', ') : '—'),
   },
 ];
 
 export function ScanStep({ onSelect }: Props) {
+  const { t } = useTranslation('addRouter');
+  const format = useFormat();
+  const columns = useMemo(() => scanColumns(t), [t]);
   const [subnet, setSubnet] = useState('192.168.10.0/24');
   const [scanning, setScanning] = useState(false);
   const [percent, setPercent] = useState(0);
@@ -67,14 +88,14 @@ export function ScanStep({ onSelect }: Props) {
       }
     } catch (err) {
       if (isAbortError(err)) return;
-      setError((err as Error).message ?? 'Scan failed');
+      setError((err as Error).message ?? t('scan.failed'));
     } finally {
       if (controllerRef.current === controller) {
         setScanning(false);
         controllerRef.current = null;
       }
     }
-  }, [subnet, setDisplayPercent]);
+  }, [subnet, setDisplayPercent, t]);
 
   useEffect(() => {
     void startScan();
@@ -91,10 +112,8 @@ export function ScanStep({ onSelect }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Scan your subnet</CardTitle>
-        <CardDescription>
-          Probing for MikroTik devices. Pick a result to continue with credentials.
-        </CardDescription>
+        <CardTitle>{t('scan.title')}</CardTitle>
+        <CardDescription>{t('scan.description')}</CardDescription>
       </CardHeader>
       <Stack>
         <ScanToolbar
@@ -106,17 +125,17 @@ export function ScanStep({ onSelect }: Props) {
         {scanning || displayPercent > 0 ? (
           <Progress
             value={displayPercent}
-            label={`Scanning ${subnet} (${displayPercent}%)`}
+            label={t('scan.progress', { subnet, percent: format.percent(displayPercent / 100) })}
             tone="success"
           />
         ) : null}
         {error ? <FormError>{error}</FormError> : null}
         <DataTable
-          columns={SCAN_COLUMNS}
+          columns={columns}
           rows={devices}
           rowKey={(d) => d.ip}
           onRowClick={onSelect}
-          emptyMessage={scanning ? 'Scanning…' : 'No devices yet. Start a scan.'}
+          emptyMessage={scanning ? t('scan.scanning') : t('scan.empty')}
         />
       </Stack>
     </Card>

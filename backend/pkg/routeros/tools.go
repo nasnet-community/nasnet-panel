@@ -2,6 +2,7 @@ package routeros
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -508,6 +509,41 @@ func (c *Client) DeleteNetwatch(nameOrID string) error {
 	}
 
 	return nil
+}
+
+// PingFromInterface pings an address from a specific interface, e.g. to
+// check a WireGuard peer's reachability or general connectivity through a
+// link. Returns whether any packets were received (target is reachable) and
+// the RouterOS-reported average round-trip time (e.g. "12ms345us"), which is
+// only meaningful when reachable is true.
+func (c *Client) PingFromInterface(interfaceName, address string) (reachable bool, avgRTT string, err error) {
+	if interfaceName == "" || address == "" {
+		return false, "", fmt.Errorf("interface name and address are required")
+	}
+
+	reply, err := c.Execute("/tool/ping",
+		"=count=1",
+		"=interface="+interfaceName,
+		"=interval=1000ms",
+		"=address="+address,
+	)
+	if err != nil {
+		return false, "", fmt.Errorf("failed to ping %s from interface %s: %w", address, interfaceName, err)
+	}
+	if reply == nil || len(reply.Re) == 0 {
+		return false, "", nil
+	}
+
+	for _, sentence := range reply.Re {
+		result := sentence.Map
+		if result != nil {
+			if received, err := strconv.Atoi(result["received"]); err == nil && received > 0 {
+				return true, result["avg-rtt"], nil
+			}
+		}
+	}
+
+	return false, "", nil
 }
 
 func boolToYesNo(v bool) string {

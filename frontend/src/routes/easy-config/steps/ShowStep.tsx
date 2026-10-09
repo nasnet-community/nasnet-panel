@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Card, CardDescription, CardHeader, CardTitle, Inline, Stack } from '@nasnet/ui';
 import styles from '../../EasyConfigWizard.module.scss';
-import type { State } from '../state';
+import { messageText, type State } from '../state';
 import { ApplyDialog } from './show/ApplyDialog';
 import { EditToolbar } from './show/EditToolbar';
 import { ScriptEditor } from './show/ScriptEditor';
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function ShowStep({ script, state, onApply, onBack }: Props) {
+  const { t } = useTranslation('easyConfig');
   const [edited, setEdited] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const currentScript = edited ?? script;
@@ -42,17 +44,14 @@ export function ShowStep({ script, state, onApply, onBack }: Props) {
         }}
       />
       <CardHeader>
-        <CardTitle>Review & apply</CardTitle>
-        <CardDescription>
-          Generated RouterOS script — edit directly if you need tweaks. Applying runs these commands
-          via the batch executor.
-        </CardDescription>
+        <CardTitle>{t('review.title')}</CardTitle>
+        <CardDescription>{t('review.description')}</CardDescription>
       </CardHeader>
       <Stack>
         <ScriptEditor editing={editing} script={currentScript} onScriptChange={setEdited} />
         <Inline>
           <Button variant="ghost" onClick={onBack}>
-            Back
+            {t('nav.back')}
           </Button>
           <Button
             variant="success"
@@ -60,7 +59,7 @@ export function ShowStep({ script, state, onApply, onBack }: Props) {
             loading={state.applying}
             disabled={state.applied}
           >
-            {state.applied ? 'Applied' : 'Apply'}
+            {state.applied ? t('nav.applied') : t('nav.apply')}
           </Button>
         </Inline>
       </Stack>
@@ -69,7 +68,8 @@ export function ShowStep({ script, state, onApply, onBack }: Props) {
         applying={state.applying}
         applied={state.applied}
         progress={state.progress}
-        error={state.error}
+        stage={state.stage}
+        error={state.error ? messageText(state.error) : null}
         managementWifiSsid={state.managementWifiSsid}
         managementWifiPassword={state.managementWifiPassword}
         onClose={closeDialog}

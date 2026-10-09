@@ -139,7 +139,7 @@
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     bottom: 0;
     width: var(--_pct, 0%);
     background: var(--_tone, var(--color-success));
@@ -230,9 +230,13 @@
 .chartArea {
   height: 200px;
   position: relative;
+  // Time runs left to right in every language; do not mirror the chart.
+  direction: ltr;
 }
 
 .chartAxis {
+  // Matches the chart above: oldest sample on the left, "now" on the right.
+  direction: ltr;
   display: flex;
   justify-content: space-between;
   color: var(--color-text-muted);
@@ -280,7 +284,7 @@
 .infoVal {
   color: var(--color-text);
   font-weight: var(--weight-medium);
-  text-align: right;
+  text-align: end;
 }
 
 .ifaceSelect {
@@ -355,7 +359,7 @@
 
 .vpnAddress {
   flex: 0 0 100%;
-  padding-left: calc(8px + var(--space-sm));
+  padding-inline-start: calc(8px + var(--space-sm));
   overflow-wrap: anywhere;
   color: var(--color-text-muted);
   font-size: var(--font-sm);
@@ -366,7 +370,7 @@
 }
 
 .connectivityHealth {
-  margin-left: auto;
+  margin-inline-start: auto;
   color: var(--color-text-muted);
   font-size: var(--font-sm);
 }

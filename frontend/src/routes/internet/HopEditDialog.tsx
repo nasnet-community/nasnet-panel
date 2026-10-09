@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button, Dialog, FieldStack, Switch } from '@nasnet/ui';
+import { useTranslation } from 'react-i18next';
 import type { RoutingTopology } from '@nasnet/mocks';
+import { nodeLabel } from './layout';
 
 interface EditState {
   hopId: string;
@@ -15,6 +17,7 @@ export interface HopEditDialogProps {
 }
 
 export function HopEditDialog({ topology, hopId, onClose, onSave }: HopEditDialogProps) {
+  const { t } = useTranslation('internet');
   const hop = topology.hops.find((h) => h.id === hopId);
   const fromNode = hop ? topology.nodes.find((n) => n.id === hop.fromId) : undefined;
   const toNode = hop ? topology.nodes.find((n) => n.id === hop.toId) : undefined;
@@ -40,16 +43,19 @@ export function HopEditDialog({ topology, hopId, onClose, onSave }: HopEditDialo
     <Dialog
       open
       onClose={onClose}
-      title={`${fromNode.label} → ${toNode.label}`}
-      description="Toggle this hop. Changes take effect immediately."
+      title={t('internet.hopDialog.title', {
+        from: nodeLabel(fromNode),
+        to: nodeLabel(toNode),
+      })}
+      description={t('internet.hopDialog.description')}
       size="sm"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={saving}>
-            Cancel
+            {t('internet.hopDialog.cancel')}
           </Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? t('internet.hopDialog.saving') : t('internet.hopDialog.save')}
           </Button>
         </>
       }
@@ -57,7 +63,7 @@ export function HopEditDialog({ topology, hopId, onClose, onSave }: HopEditDialo
       <FieldStack>
         <Switch
           id="hop-active"
-          label="Active"
+          label={t('internet.hopDialog.active')}
           checked={draft.isActive}
           onChange={(e) => setDraft({ ...draft, isActive: e.target.checked })}
         />

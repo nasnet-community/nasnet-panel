@@ -9,6 +9,8 @@ import {
   Shield,
   Wifi,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   Card,
   CardDescription,
@@ -26,18 +28,18 @@ import { ProtocolTilePicker, type ProtocolTile } from './components/ProtocolTile
 
 type IpMaskKind = State['ipMaskKind'];
 
-const TILES: Array<ProtocolTile<IpMaskKind>> = [
+const protocolTiles = (t: TFunction<'easyConfig'>): Array<ProtocolTile<IpMaskKind>> => [
   {
     value: 'wireguard',
     label: 'WireGuard',
-    description: 'Fast, modern VPN with state-of-the-art cryptography.',
+    description: t('ipMask.wireguardDescription'),
     icon: <Shield size={20} strokeWidth={1.75} />,
     recommended: true,
   },
   {
     value: 'l2tp',
     label: 'L2TP',
-    description: 'Widely supported protocol with IPsec encryption.',
+    description: t('ipMask.l2tpDescription'),
     icon: <Globe size={20} strokeWidth={1.75} />,
   },
 ];
@@ -61,43 +63,42 @@ function interfaceIcon(type: State['starlinkInterfaceType']): React.ReactNode {
 }
 
 function starlinkFlowNodes(
+  t: TFunction<'easyConfig'>,
   starlinkInterface: string | undefined,
   type: State['starlinkInterfaceType'],
   kind: State['ipMaskKind'],
 ) {
   return [
-    { id: 'user', icon: <Laptop size={32} strokeWidth={1.75} />, label: 'USER' },
-    { id: 'router', icon: <Wifi size={32} strokeWidth={1.75} />, label: 'Router' },
+    { id: 'user', icon: <Laptop size={32} strokeWidth={1.75} />, label: t('flow.user') },
+    { id: 'router', icon: <Wifi size={32} strokeWidth={1.75} />, label: t('flow.router') },
     {
       id: 'wan',
       icon: <SatelliteDish size={32} strokeWidth={1.75} />,
-      label: 'Starlink',
+      label: t('flow.starlink'),
       sublabel: starlinkInterface,
       sublabelIcon: starlinkInterface ? interfaceIcon(type) : undefined,
       selected: Boolean(starlinkInterface),
       badge: vpnBadge(kind),
     },
-    { id: 'site', icon: <Server size={32} strokeWidth={1.75} />, label: 'Foreign Site' },
+    { id: 'site', icon: <Server size={32} strokeWidth={1.75} />, label: t('flow.foreignSite') },
   ];
 }
 
 export function IpMaskStep({ state, dispatch, footer }: Props) {
+  const { t } = useTranslation('easyConfig');
   const isDual = state.mode === 'dual-link';
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Starlink IP-mask VPN client</CardTitle>
-        <CardDescription>
-          Your use of Starlink can be traced back to your identity. Configure a single VPN client to
-          conceal your Starlink IP.
-        </CardDescription>
+        <CardTitle>{t('ipMask.title')}</CardTitle>
+        <CardDescription>{t('ipMask.description')}</CardDescription>
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack>
           <ProtocolTilePicker
-            ariaLabel="IP-mask protocol"
+            ariaLabel={t('ipMask.protocolAria')}
             value={state.ipMaskKind}
-            tiles={TILES}
+            tiles={protocolTiles(t)}
             onChange={(next) => dispatch({ type: 'setField', field: 'ipMaskKind', value: next })}
           />
           {state.ipMaskKind === 'wireguard' ? (
@@ -124,8 +125,9 @@ export function IpMaskStep({ state, dispatch, footer }: Props) {
               />
             ) : (
               <FlowDiagram
-                ariaLabel="Starlink IP-mask flow"
+                ariaLabel={t('flow.ipMaskAria')}
                 nodes={starlinkFlowNodes(
+                  t,
                   state.starlinkInterface || undefined,
                   state.starlinkInterfaceType,
                   state.ipMaskKind,

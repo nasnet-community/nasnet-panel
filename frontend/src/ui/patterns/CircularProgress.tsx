@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFormat } from '../../utils/useFormat';
 import styles from './CircularProgress.module.scss';
 
 export interface CircularProgressProps {
@@ -18,6 +19,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   label,
   ariaLabel,
 }) => {
+  const format = useFormat();
   const clamped = Math.max(0, Math.min(100, value));
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -36,7 +38,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
       className={styles.wrap}
       style={{ width: `${size}px`, height: `${size}px` }}
       role="img"
-      aria-label={ariaLabel ?? `${clamped}%`}
+      aria-label={ariaLabel ?? format.percent(clamped / 100, 2)}
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <circle
@@ -61,7 +63,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           style={{ transition: 'stroke-dasharray 400ms ease' }}
         />
       </svg>
-      <div className={styles.inner}>{label ?? `${Math.round(clamped)}%`}</div>
+      <div className={styles.inner}>{label ?? format.percent(Math.round(clamped) / 100)}</div>
     </div>
   );
 };

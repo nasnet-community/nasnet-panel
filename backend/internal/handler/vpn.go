@@ -18,6 +18,12 @@ import (
 	"nasnet-panel/pkg/wgcfg"
 )
 
+// vpnStatusCheckIP is the well-known address pinged through a VPN client
+// interface to verify reachability and measure round-trip time, in place of
+// a peer's own endpoint address (which may not be reachable once the tunnel
+// is up). Used across VPN client types, not just WireGuard.
+const vpnStatusCheckIP = "1.0.0.1"
+
 // vpnLANAddressList is the firewall address list the VPN routing rules match
 // on as src-address-list, set up by the wizard template.
 const vpnLANAddressList = "VPN-LAN"
@@ -181,15 +187,28 @@ func HandleListVPNClients(c echo.Context) error {
 	filtered := make([]routeros.VPNClientInfo, 0)
 	for i := range vpnClients {
 		vpn := &vpnClients[i]
+
 		if vpn.Type == "wg" {
 			if strings.HasSuffix(vpn.Name, "-client") {
-				if !vpn.Disabled {
-					running, pingReply := client.CheckWireGuardStatus(vpn.Name)
-					vpn.Running = running && pingReply
+				peers, err := client.GetWireGuardPeers(vpn.Name)
+				if err == nil {
+					peerCount := len(peers)
+					vpn.PeerCount = &peerCount
+				}
+				vpn.Running = !vpn.Disabled && err == nil && wireGuardHasRecentHandshake(peers)
+				if vpn.Running {
+					if _, pingTime, err := client.PingFromInterface(vpn.Name, vpnStatusCheckIP); err == nil {
+						vpn.PingTime = utils.StripPingTimeMicroseconds(pingTime)
+					}
 				}
 				filtered = append(filtered, *vpn)
 			}
 		} else {
+			if !vpn.Disabled && vpn.Running {
+				if _, pingTime, err := client.PingFromInterface(vpn.Name, vpnStatusCheckIP); err == nil {
+					vpn.PingTime = utils.StripPingTimeMicroseconds(pingTime)
+				}
+			}
 			filtered = append(filtered, *vpn)
 		}
 	}
@@ -434,10 +453,6 @@ func HandleAddL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
 	}
 
-	if _, err := client.AddFirewallAddressListItem("VPNE", req.ConnectTo, false, interfaceName); err != nil {
-		c.Logger().Errorf("Failed to add L2TP server address to firewall list: %v", err)
-	}
-
 	for _, list := range []string{"WAN", "VPN-WAN"} {
 		onList, err := client.InterfaceListMemberExists(list, interfaceName)
 		if err != nil {
@@ -480,6 +495,282 @@ func HandleAddL2TPClient(c echo.Context) error {
 	return SuccessResponse(c, http.StatusCreated, "L2TP client added successfully", response)
 }
 
+// HandleAddSSTPClient adds a new SSTP client
+// @Summary Add SSTP Client
+// @Description Add a new SSTP client connection (TLS any, no certificate verification, no PFS,
+// @Description aes256-sha and aes256-gcm-sha384 ciphers, default profile, keepalive 60, all
+// @Description authentication methods). Port defaults to 443.
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body AddSSTPClientRequest true "SSTP client configuration"
+// @Accept json
+// @Produce json
+// @Success 201 {object} Response{data=VPNClientResponse}
+// @Failure 400 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp/client [post].
+func HandleAddSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req AddSSTPClientRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if req.ConnectTo == "" || req.User == "" || req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "connectTo, user, and password are required", nil)
+	}
+
+	port := 443
+	if req.Port != nil {
+		port = *req.Port
+	}
+	if port < 1 || port > 65535 {
+		return ErrorResponse(c, http.StatusBadRequest, "port must be between 1 and 65535", nil)
+	}
+
+	name := req.Name
+	if name == "" {
+		name = utils.GenerateName(2, "-", utils.LowerCase)
+	}
+
+	interfaceName := name
+	if !strings.HasSuffix(interfaceName, "-sstp-client") {
+		interfaceName += "-sstp-client"
+	}
+
+	if _, err := client.GetVPNClient(interfaceName); err == nil {
+		return ErrorResponse(c, http.StatusConflict, "SSTP client with this name already exists", nil)
+	}
+
+	disabled := false
+	if req.Disabled != nil {
+		disabled = *req.Disabled
+	}
+
+	if err := client.AddSSTPClient(routeros.AddSSTPClientConfig{
+		Name:      interfaceName,
+		ConnectTo: req.ConnectTo,
+		Port:      port,
+		User:      req.User,
+		Password:  req.Password,
+		Comment:   req.Comment,
+		Disabled:  disabled,
+	}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add SSTP client", err)
+	}
+
+	rollback := func() {
+		for _, list := range []string{"WAN", "VPN-WAN"} {
+			if err := client.RemoveInterfaceListMember(list, interfaceName); err != nil {
+				c.Logger().Errorf("Rollback: failed to remove %s from %s interface list: %v", interfaceName, list, err)
+			}
+		}
+		if err := client.RemoveSSTPClient(interfaceName); err != nil {
+			c.Logger().Errorf("Rollback: failed to remove SSTP client %s: %v", interfaceName, err)
+		}
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, interfaceName)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to check "+list+" interface list membership; SSTP client was not created", err)
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, interfaceName); err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add SSTP client to "+list+" interface list; SSTP client was not created", err)
+		}
+	}
+
+	vpnClient, err := client.GetVPNClient(interfaceName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added SSTP client", err)
+	}
+
+	response := VPNClientResponse{
+		ID:           vpnClient.ID,
+		Name:         vpnClient.Name,
+		Type:         vpnClient.Type,
+		Running:      vpnClient.Running,
+		Disabled:     vpnClient.Disabled,
+		MTU:          vpnClient.MTU,
+		MacAddress:   vpnClient.MacAddress,
+		RxByte:       vpnClient.RxByte,
+		TxByte:       vpnClient.TxByte,
+		Rx:           utils.BytesToSizeString(vpnClient.RxByte),
+		Tx:           utils.BytesToSizeString(vpnClient.TxByte),
+		RxPacket:     vpnClient.RxPacket,
+		TxPacket:     vpnClient.TxPacket,
+		LastLinkUp:   vpnClient.LastLinkUp,
+		LastLinkDown: vpnClient.LastLinkDown,
+		LinkDowns:    vpnClient.LinkDowns,
+		Comment:      vpnClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "SSTP client added successfully", response)
+}
+
+// HandleUpdateSSTPClient updates an SSTP client
+// @Summary Update SSTP Client
+// @Description Update SSTP client settings (connection address, port, credentials, etc.)
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "SSTP client name or ID"
+// @Param request body UpdateSSTPClientRequest true "SSTP client settings to update"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=VPNClientResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp/client/{nameOrID} [put].
+func HandleUpdateSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Client name or ID is required", nil)
+	}
+
+	var req UpdateSSTPClientRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if req.Port != nil && (*req.Port < 1 || *req.Port > 65535) {
+		return ErrorResponse(c, http.StatusBadRequest, "port must be between 1 and 65535", nil)
+	}
+
+	if _, err := client.GetSSTPClientInfo(nameOrID); err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "SSTP client not found", err)
+	}
+
+	if err := client.UpdateSSTPClient(nameOrID, routeros.UpdateSSTPClientConfig{
+		ConnectTo: req.ConnectTo,
+		Port:      req.Port,
+		User:      req.User,
+		Password:  req.Password,
+		Disabled:  req.Disabled,
+		Comment:   req.Comment,
+	}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update SSTP client", err)
+	}
+
+	vpnClient, err := client.GetVPNClient(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated SSTP client", err)
+	}
+
+	response := VPNClientResponse{
+		ID:           vpnClient.ID,
+		Name:         vpnClient.Name,
+		Type:         vpnClient.Type,
+		Running:      vpnClient.Running,
+		Disabled:     vpnClient.Disabled,
+		MTU:          vpnClient.MTU,
+		MacAddress:   vpnClient.MacAddress,
+		RxByte:       vpnClient.RxByte,
+		TxByte:       vpnClient.TxByte,
+		Rx:           utils.BytesToSizeString(vpnClient.RxByte),
+		Tx:           utils.BytesToSizeString(vpnClient.TxByte),
+		RxPacket:     vpnClient.RxPacket,
+		TxPacket:     vpnClient.TxPacket,
+		LastLinkUp:   vpnClient.LastLinkUp,
+		LastLinkDown: vpnClient.LastLinkDown,
+		LinkDowns:    vpnClient.LinkDowns,
+		Comment:      vpnClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "SSTP client updated successfully", response)
+}
+
+// HandleDeleteSSTPClient deletes an SSTP client
+// @Summary Delete SSTP Client
+// @Description Remove an SSTP client connection
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "SSTP client name or ID"
+// @Produce json
+// @Success 204
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp/client/{nameOrID} [delete].
+func HandleDeleteSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Client name or ID is required", nil)
+	}
+
+	sstpClient, err := client.GetSSTPClientInfo(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "SSTP client not found", err)
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		if err := client.RemoveInterfaceListMember(list, sstpClient.Name); err != nil {
+			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", sstpClient.Name, list, err)
+		}
+	}
+
+	if err := client.RemoveSSTPClient(nameOrID); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete SSTP client", err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// HandleGetSSTPClient retrieves details about a specific SSTP client
+// @Summary Get SSTP Client Details
+// @Description Get detailed information about an SSTP client
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "SSTP client name"
+// @Produce json
+// @Success 200 {object} Response{data=SSTPClientResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Router /api/vpn/sstp/client/{name} [get].
+func HandleGetSSTPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	name := c.Param("name")
+	if name == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "SSTP client name is required", nil)
+	}
+
+	sstpClient, err := client.GetSSTPClientInfo(name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "SSTP client not found", err)
+	}
+	sstpClient.ConnectTo = strings.TrimSuffix(sstpClient.ConnectTo, "@VRF-TunnelEnds")
+
+	return SuccessResponse(c, http.StatusOK, "SSTP client details retrieved successfully", ToSSTPClientResponse(sstpClient))
+}
+
 // HandleUpdateL2TPClient updates an L2TP client
 // @Summary Update L2TP Client
 // @Description Update L2TP client settings (connection address, credentials, etc.)
@@ -511,8 +802,7 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
-	l2tpClientBefore, err := client.GetL2TPClientInfo(nameOrID)
-	if err != nil {
+	if _, err := client.GetL2TPClientInfo(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
 	}
 
@@ -532,25 +822,6 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		UseIPsec:    useIPsec,
 	}); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update L2TP client", err)
-	}
-
-	if req.ConnectTo != nil && *req.ConnectTo != l2tpClientBefore.ConnectTo {
-		oldAddress := l2tpClientBefore.ConnectTo
-		newAddress := *req.ConnectTo
-
-		items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-			ListName: "VPNE",
-			Address:  oldAddress,
-		})
-		if err == nil && len(items) > 0 {
-			if err := client.UpdateFirewallAddressListItem(items[0].ID, newAddress); err != nil {
-				c.Logger().Errorf("Failed to update firewall address list item: %v", err)
-			}
-		} else if err != nil || len(items) == 0 {
-			if _, err := client.AddFirewallAddressListItem("VPNE", newAddress, false, l2tpClientBefore.Name); err != nil {
-				c.Logger().Errorf("Failed to add firewall address list item: %v", err)
-			}
-		}
 	}
 
 	vpnClient, err := client.GetVPNClient(nameOrID)
@@ -619,16 +890,6 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete L2TP client", err)
 	}
 
-	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-		ListName: "VPNE",
-		Address:  l2tpClient.ConnectTo,
-	})
-	if err == nil && len(items) > 0 {
-		if err := client.RemoveFirewallAddressListItem(items[0].ID); err != nil {
-			c.Logger().Errorf("Failed to remove firewall address list item: %v", err)
-		}
-	}
-
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -659,6 +920,7 @@ func HandleGetL2TPClient(c echo.Context) error {
 	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
 	}
+	l2tpClient.ConnectTo = strings.TrimSuffix(l2tpClient.ConnectTo, "@VRF-TunnelEnds")
 
 	response := ToL2TPClientResponse(l2tpClient)
 
@@ -667,10 +929,12 @@ func HandleGetL2TPClient(c echo.Context) error {
 
 // HandleListVPNServers gets the status of all VPN servers
 // @Summary List VPN Servers
-// @Description Get the list of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
+// @Description Get the list of OpenVPN, WireGuard, L2TP, and SSTP servers. By default, only
+// @Description enabled servers are returned; pass all=true to include disabled ones too.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param all query boolean false "Include disabled servers too (default: false, only enabled servers)"
 // @Produce json
 // @Success 200 {object} Response{data=VPNServersStatusResponse}
 // @Failure 500 {object} Response
@@ -681,6 +945,8 @@ func HandleListVPNServers(c echo.Context) error {
 		return err
 	}
 
+	showAll := c.QueryParam("all") == "true"
+
 	response := &VPNServersStatusResponse{
 		OvpnServers: []ServerStatusItem{},
 		WireGuards:  []ServerStatusItem{},
@@ -690,6 +956,9 @@ func HandleListVPNServers(c echo.Context) error {
 	if err == nil {
 		for i := range ovpnServers {
 			srv := ovpnServers[i]
+			if srv.Disabled && !showAll {
+				continue
+			}
 			item := ServerStatusItem{
 				Name:     srv.Name,
 				Enabled:  !srv.Disabled,
@@ -709,6 +978,9 @@ func HandleListVPNServers(c echo.Context) error {
 			if !strings.HasSuffix(wg.Name, "-server") {
 				continue
 			}
+			if wg.Disabled && !showAll {
+				continue
+			}
 			peerCount, _ := client.CountWireGuardPeers(wg.Name)
 			response.WireGuards = append(response.WireGuards, ServerStatusItem{
 				Name:      wg.Name,
@@ -721,14 +993,21 @@ func HandleListVPNServers(c echo.Context) error {
 	}
 
 	sstpServer, err := client.GetSstpServer()
-	if err == nil {
-		status := &SingleServerStatus{
+	if err == nil && (sstpServer.Enabled || showAll) {
+		response.Sstp = &SingleServerStatus{
 			Enabled:  sstpServer.Enabled,
 			Port:     sstpServer.Port,
 			Protocol: "tcp",
 		}
+	}
 
-		response.Sstp = status
+	l2tpServer, err := client.GetL2tpServer()
+	if err == nil && (l2tpServer.Enabled || showAll) {
+		response.L2tp = &SingleServerStatus{
+			Enabled:  l2tpServer.Enabled,
+			Port:     1701,
+			Protocol: "udp",
+		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "VPN servers status retrieved successfully", response)
@@ -888,6 +1167,185 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "L2TP server details retrieved successfully", response)
 }
 
+// HandleCreateL2tpServer enables the L2TP server.
+// @Summary Enable L2TP Server
+// @Description Enable the L2TP server with the given IPsec preshared key, and add the matching firewall/mangle rules
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body CreateL2tpServerRequest true "L2TP server configuration"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 400 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp/server [post].
+func HandleCreateL2tpServer(c echo.Context) error {
+	var req CreateL2tpServerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	if req.IPsecSecret == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "ipsecSecret is required", nil)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	currentStatus, err := client.GetL2tpServer()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check current L2TP server status", err)
+	}
+	if currentStatus.Enabled {
+		return ErrorResponse(c, http.StatusConflict, "L2TP server is already enabled", nil)
+	}
+
+	l2tpConfig := routeros.L2tpServerConfig{
+		Enabled:        true,
+		DefaultProfile: "default",
+		Authentication: "pap,chap,mschap1,mschap2",
+		UseIPsec:       true,
+		IPsecSecret:    req.IPsecSecret,
+	}
+	if err := client.SetL2tpServer(l2tpConfig); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to enable L2TP server", err)
+	}
+
+	const l2tpServerComment = "l2tp-server"
+
+	// L2TP-over-IPsec needs accept/mark rules for the L2TP data port itself
+	// (udp/1701) plus the IPsec negotiation traffic that carries it: IKE
+	// (udp/500), NAT-T (udp/4500), and ESP (protocol ipsec-esp, no port).
+	l2tpRuleSpecs := []struct {
+		protocol string
+		dstPort  string
+		suffix   string
+	}{
+		{protocol: "udp", dstPort: "1701", suffix: ""},
+		{protocol: "udp", dstPort: "500", suffix: "-ike"},
+		{protocol: "udp", dstPort: "4500", suffix: "-nat-t"},
+		{protocol: "ipsec-esp", dstPort: "", suffix: "-esp"},
+	}
+
+	var createdFwRuleIDs []string
+	var createdMangleRuleIDs []string
+
+	rollback := func() {
+		for _, id := range createdMangleRuleIDs {
+			if err := client.RemoveMangleRule(id); err != nil {
+				c.Logger().Errorf("Failed to remove mangle rule %s during rollback: %v", id, err)
+			}
+		}
+		for _, id := range createdFwRuleIDs {
+			if err := client.RemoveFirewallRule(id); err != nil {
+				c.Logger().Errorf("Failed to remove firewall rule %s during rollback: %v", id, err)
+			}
+		}
+		if err := client.DisableL2tpServer(); err != nil {
+			c.Logger().Errorf("Failed to disable L2TP server during rollback: %v", err)
+		}
+	}
+
+	for _, spec := range l2tpRuleSpecs {
+		fwRuleConfig := routeros.FirewallRuleConfig{
+			Chain:           "input",
+			Action:          "accept",
+			Protocol:        spec.protocol,
+			DstPort:         spec.dstPort,
+			InInterfaceList: vpnServerAllowedInterfaceList,
+			Comment:         l2tpServerComment + spec.suffix,
+		}
+		fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for L2TP", err)
+		}
+		createdFwRuleIDs = append(createdFwRuleIDs, fwRuleID)
+	}
+
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		rollback()
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
+	}
+
+	for _, spec := range l2tpRuleSpecs {
+		mangleRuleConfig := routeros.MangleRuleConfig{
+			Chain:             "input",
+			Action:            "mark-connection",
+			Comment:           "Mark Inbound " + l2tpServerComment + spec.suffix,
+			ConnectionState:   "new",
+			InIfaceList:       vpnServerAllowedInterfaceList,
+			Protocol:          spec.protocol,
+			DstPort:           spec.dstPort,
+			NewConnectionMark: "conn-vpn-server",
+			PassThrough:       true,
+			PlaceBefore:       replyRoutingRuleID,
+		}
+		mangleRuleID, err := client.AddMangleRule(mangleRuleConfig)
+		if err != nil {
+			rollback()
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for L2TP", err)
+		}
+		createdMangleRuleIDs = append(createdMangleRuleIDs, mangleRuleID)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP server enabled successfully", map[string]interface{}{
+		"enabled": true,
+	})
+}
+
+// HandleDeleteL2tpServer disables the L2TP server and cleans up its firewall/mangle rules.
+// @Summary Disable L2TP Server
+// @Description Disable RouterOS's L2TP server and remove the firewall/mangle rules added when it was enabled
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp/server [delete].
+func HandleDeleteL2tpServer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if err := client.DisableL2tpServer(); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to disable L2TP server", err)
+	}
+
+	deleteErrors := []string{}
+
+	removedRules, err := removeVpnServerFirewallRules(client, "l2tp-")
+	if err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove L2TP firewall rules: %v", err))
+	}
+
+	removedMangleRules, err := removeVpnServerMangleRules(client, "l2tp-", false)
+	if err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove L2TP mangle rules: %v", err))
+	}
+
+	if len(deleteErrors) > 0 {
+		return SuccessResponse(c, http.StatusOK, "L2TP server disabled with some errors", map[string]interface{}{
+			"disabled":             true,
+			"removedFirewallRules": removedRules,
+			"removedMangleRules":   removedMangleRules,
+			"warnings":             deleteErrors,
+		})
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP server disabled successfully", map[string]interface{}{
+		"disabled":             true,
+		"removedFirewallRules": removedRules,
+		"removedMangleRules":   removedMangleRules,
+	})
+}
+
 // HandleGetSstpServerDetails gets SSTP server details
 // @Summary Get SSTP Server Details
 // @Description Get detailed configuration of the SSTP server
@@ -993,7 +1451,7 @@ func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error
 
 // HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
-// @Description Create a new WireGuard client interface with the specified configuration
+// @Description Create a new WireGuard client interface with the specified configuration. Returns 409 if any WireGuard interface with the same private key and IP address already exists.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -1001,6 +1459,7 @@ func wireGuardInterfaceExists(client *routeros.Client, name string) (bool, error
 // @Produce json
 // @Success 200 {object} Response{data=WireGuardClientCreateResponse}
 // @Failure 400 {object} Response
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/wireguard/client [post].
 func HandleCreateWireGuardClient(c echo.Context) error {
@@ -1028,6 +1487,28 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	if req.PersistentKeepalive != nil && *req.PersistentKeepalive <= 0 {
 		return ErrorResponse(c, http.StatusBadRequest, "Persistent keepalive validation error", fmt.Errorf("persistentKeepalive must be a positive number"))
 	}
+
+	if req.InterfacePrivateKey != nil && *req.InterfacePrivateKey != "" && req.InterfaceLocalAddress != "" {
+		existingInterfaces, err := client.ListWireGuards()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard interfaces", err)
+		}
+		for i := range existingInterfaces {
+			if existingInterfaces[i].PrivateKey != *req.InterfacePrivateKey {
+				continue
+			}
+			addrs, err := client.GetIPAddressesByInterface(existingInterfaces[i].Name)
+			if err != nil {
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP addresses for interface", err)
+			}
+			for _, a := range addrs {
+				if a.Address == req.InterfaceLocalAddress {
+					return ErrorResponse(c, http.StatusConflict, "A WireGuard interface with this private key and IP address already exists", nil)
+				}
+			}
+		}
+	}
+
 	var interfaceName string
 	if req.Name != "" {
 		interfaceName = req.Name
@@ -1046,6 +1527,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to count WireGuard peers", err)
 	}
 
+	vrf := "VRF-TunnelEnds"
 	config := routeros.WireGuardClientConfig{
 		Name:       interfaceName,
 		PrivateKey: req.InterfacePrivateKey,
@@ -1053,6 +1535,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		MTU:        req.MTU,
 		Disabled:   req.Disabled,
 		Comment:    req.Comment,
+		VRF:        &vrf,
 	}
 
 	wireguard, err := client.CreateWireGuardInterface(config)
@@ -1110,12 +1593,6 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		}
 		if _, err := client.AddInterfaceListMember(list, wireguard.Name); err != nil {
 			c.Logger().Errorf("Failed to add %s to %s interface list: %v", wireguard.Name, list, err)
-		}
-	}
-
-	if req.EndpointIP != "" {
-		if _, err := client.AddFirewallAddressListItem("VPNE", req.EndpointIP, false, peerName); err != nil {
-			c.Logger().Errorf("Failed to add peer endpoint IP to firewall list: %v", err)
 		}
 	}
 
@@ -1250,9 +1727,44 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		InInterfaceList: vpnServerAllowedInterfaceList,
 		Comment:         fwComment,
 	}
-	_, err = client.AddFirewallRule(fwRuleConfig)
+	fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for WireGuard", err)
+	}
+
+	// rollbackReplyRouting undoes the firewall rule and the interface itself
+	// if setting up reply-routing for it fails partway through, so a failed
+	// create doesn't leave an orphaned interface/rule behind.
+	rollbackReplyRouting := func() {
+		if err := client.RemoveFirewallRule(fwRuleID); err != nil {
+			c.Logger().Errorf("Failed to remove firewall rule %s during rollback: %v", fwRuleID, err)
+		}
+		if err := client.DeleteWireGuardInterface(wireguard.Name); err != nil {
+			c.Logger().Errorf("Failed to remove WireGuard interface %s during rollback: %v", wireguard.Name, err)
+		}
+	}
+
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		rollbackReplyRouting()
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
+	}
+
+	mangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + fwComment,
+		ConnectionState:   "new",
+		InIfaceList:       vpnServerAllowedInterfaceList,
+		Protocol:          "udp",
+		DstPort:           fmt.Sprintf("%d", wireguard.ListenPort),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+		rollbackReplyRouting()
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for WireGuard", err)
 	}
 
 	// Add IP address to the interface
@@ -1356,6 +1868,32 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 		_, err = client.AddFirewallRule(fwRuleConfig)
 		if err != nil {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to update firewall rule for WireGuard", err)
+		}
+
+		// Remove and recreate the mangle rule so it marks the new port
+		if _, err := removeVpnServerMangleRules(client, fwComment, true); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove mangle rule for WireGuard", err)
+		}
+
+		replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
+		}
+
+		mangleRuleConfig := routeros.MangleRuleConfig{
+			Chain:             "input",
+			Action:            "mark-connection",
+			Comment:           "Mark Inbound " + fwComment,
+			ConnectionState:   "new",
+			InIfaceList:       vpnServerAllowedInterfaceList,
+			Protocol:          "udp",
+			DstPort:           fmt.Sprintf("%d", newPort),
+			NewConnectionMark: "conn-vpn-server",
+			PassThrough:       true,
+			PlaceBefore:       replyRoutingRuleID,
+		}
+		if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add mangle rule for WireGuard", err)
 		}
 	}
 
@@ -1465,25 +2003,6 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 			return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WireGuard peer", err)
-	}
-
-	if req.EndpointAddress != nil && *req.EndpointAddress != peer.EndpointAddress {
-		oldAddress := peer.EndpointAddress
-		newAddress := *req.EndpointAddress
-
-		items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-			ListName: "VPNE",
-			Address:  oldAddress,
-		})
-		if err == nil && len(items) > 0 {
-			if err := client.UpdateFirewallAddressListItem(items[0].ID, newAddress); err != nil {
-				c.Logger().Errorf("Failed to update firewall address list item: %v", err)
-			}
-		} else if err != nil || len(items) == 0 {
-			if _, err := client.AddFirewallAddressListItem("VPNE", newAddress, false, peer.Name); err != nil {
-				c.Logger().Errorf("Failed to add firewall address list item: %v", err)
-			}
-		}
 	}
 
 	// Retrieve the updated peer
@@ -1684,6 +2203,29 @@ func wireGuardUsedClientAddresses(peers []routeros.WireGuardPeerInfo) map[string
 	return used
 }
 
+// wireGuardRecentHandshakeThreshold is how recent a peer's last handshake
+// must be for the interface to be considered actively connected.
+const wireGuardRecentHandshakeThreshold = 4 * time.Minute
+
+// wireGuardHasRecentHandshake reports whether any of the given peers has had
+// a handshake within wireGuardRecentHandshakeThreshold, which is treated as
+// evidence the WireGuard interface is actively running.
+func wireGuardHasRecentHandshake(peers []routeros.WireGuardPeerInfo) bool {
+	for i := range peers {
+		if peers[i].Disabled {
+			continue
+		}
+		if peers[i].LastHandshake == "" {
+			continue
+		}
+		age := time.Duration(utils.RouterOSDurationSeconds(peers[i].LastHandshake)) * time.Second
+		if age <= wireGuardRecentHandshakeThreshold {
+			return true
+		}
+	}
+	return false
+}
+
 // wireGuardPeerCreationLocks holds one *sync.Mutex per WireGuard interface
 // name, lazily created. Locking on the interface name (rather than a single
 // global lock) serializes peer creation for that interface only, so
@@ -1780,10 +2322,6 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
 	}
 
-	if req.AllowedAddresses == "" {
-		req.AllowedAddresses = "0.0.0.0/0"
-	}
-
 	if req.ClientEndpoint != nil && net.ParseIP(*req.ClientEndpoint) == nil {
 		return ErrorResponse(c, http.StatusBadRequest, "clientEndpoint must be a valid IP address", nil)
 	}
@@ -1842,11 +2380,24 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		}
 	}
 
+	clientAllowedAddress := req.AllowedAddresses
+	if clientAllowedAddress == "" {
+		clientAllowedAddress = "0.0.0.0/0"
+	}
+
+	if req.AllowedAddresses == "" {
+		req.AllowedAddresses = clientAddress
+	}
+
+	if req.Responder == nil {
+		responder := true
+		req.Responder = &responder
+	}
+
 	clientKeepalive := 30
 	if req.ClientKeepalive != nil {
 		clientKeepalive = *req.ClientKeepalive
 	}
-	clientAllowedAddress := req.AllowedAddresses
 
 	// Determine peer name
 	var peerName string
@@ -1899,7 +2450,6 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 
 	// Parse allowed addresses
 	allowedAddrs := []string{req.AllowedAddresses}
-
 	config := routeros.WireGuardPeerConfig{
 		InterfaceName:        interfaceName,
 		PeerName:             peerName,
@@ -1997,24 +2547,12 @@ func HandleDeleteWireGuardPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard peer name or ID is required", nil)
 	}
 
-	peer, err := client.GetWireGuardPeerByNameOrID(nameOrID)
-	if err != nil {
+	if _, err := client.GetWireGuardPeerByNameOrID(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 	}
 
-	err = client.DeleteWireGuardPeer(nameOrID)
-	if err != nil {
+	if err := client.DeleteWireGuardPeer(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard peer", err)
-	}
-
-	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-		ListName: "VPNE",
-		Address:  peer.EndpointAddress,
-	})
-	if err == nil && len(items) > 0 {
-		if err := client.RemoveFirewallAddressListItem(items[0].ID); err != nil {
-			c.Logger().Errorf("Failed to remove firewall address list item: %v", err)
-		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard peer deleted successfully", nil)
@@ -2049,11 +2587,6 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
 	}
 
-	peers, err := client.GetWireGuardPeers(wireguard.Name)
-	if err != nil {
-		peers = []routeros.WireGuardPeerInfo{}
-	}
-
 	for _, list := range []string{"WAN", "VPN-WAN"} {
 		if err := client.RemoveInterfaceListMember(list, wireguard.Name); err != nil {
 			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", wireguard.Name, list, err)
@@ -2079,18 +2612,9 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		}
 	}
 
-	for i := range peers {
-		if peers[i].EndpointAddress != "" {
-			items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
-				ListName: "VPNE",
-				Address:  peers[i].EndpointAddress,
-			})
-			if err == nil && len(items) > 0 {
-				if err := client.RemoveFirewallAddressListItem(items[0].ID); err != nil {
-					c.Logger().Errorf("Failed to remove firewall address list item for peer %s: %v", peers[i].Name, err)
-				}
-			}
-		}
+	// Delete associated mangle rule
+	if _, err := removeVpnServerMangleRules(client, fwComment, true); err != nil {
+		c.Logger().Errorf("Failed to remove mangle rule for interface %s: %v", wireguard.Name, err)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard interface deleted successfully", nil)
@@ -2098,7 +2622,11 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 
 // HandleImportWireGuardConfig imports a WireGuard configuration from a config string.
 // @Summary Import WireGuard Configuration
-// @Description Import a WireGuard interface and peer from a configuration file format
+// @Description Import a WireGuard interface and peers from a configuration file format. If any
+// @Description existing WireGuard interface already has the exact same private key and IP address,
+// @Description its peers are added to that interface instead of creating a new one. A peer whose
+// @Description public key already exists on the target interface is skipped and reported in
+// @Description skippedDuplicatePeers instead of failing the import.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -2137,55 +2665,90 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		listenPort = &p
 	}
 
-	name := req.InterfaceName
-	if name == "" {
-		name = utils.GenerateName(2, "-", utils.LowerCase)
-	}
-
-	interfaceName := name
-	if !strings.HasSuffix(interfaceName, "-wg-client") {
-		interfaceName += "-wg-client"
-	}
-
-	interfaceConfig2 := routeros.WireGuardClientConfig{
-		Name:       interfaceName,
-		ListenPort: listenPort,
-	}
-	if privateKey != "" {
-		interfaceConfig2.PrivateKey = &privateKey
-	}
-
-	wg, err := client.CreateWireGuardInterface(interfaceConfig2)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
-	}
-
-	// Add firewall filter rule for the listening port using the created interface info
-	fwComment := "wireguard-" + wg.Name
-	fwRuleConfig := routeros.FirewallRuleConfig{
-		Chain:    "input",
-		Action:   "accept",
-		Protocol: "udp",
-		DstPort:  fmt.Sprintf("%d", wg.ListenPort),
-		Comment:  fwComment,
-	}
-	_, err = client.AddFirewallRule(fwRuleConfig)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add firewall rule for WireGuard", err)
-	}
-
-	// Add address to interface if specified
-	if address != "" {
-		ipConfig := routeros.IPAddressConfig{
-			Interface: wg.Name,
-			Address:   address,
+	// Reuse an existing interface if one already has this exact private key
+	// + IP address combination, instead of creating a duplicate interface.
+	var wg *routeros.WireGuardInfo
+	if privateKey != "" && address != "" {
+		existingInterfaces, err := client.ListWireGuards()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard interfaces", err)
 		}
-		if _, err := client.AddIPAddress(ipConfig); err != nil {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
+		for i := range existingInterfaces {
+			if existingInterfaces[i].PrivateKey != privateKey {
+				continue
+			}
+			addrs, err := client.GetIPAddressesByInterface(existingInterfaces[i].Name)
+			if err != nil {
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP addresses for interface", err)
+			}
+			for _, a := range addrs {
+				if a.Address == address {
+					wg = &existingInterfaces[i]
+					break
+				}
+			}
+			if wg != nil {
+				break
+			}
 		}
 	}
+
+	reusedExistingInterface := wg != nil
+
+	if wg == nil {
+		name := req.InterfaceName
+		if name == "" {
+			name = utils.GenerateName(2, "-", utils.LowerCase)
+		}
+
+		interfaceName := name
+		if !strings.HasSuffix(interfaceName, "-wg-client") {
+			interfaceName += "-wg-client"
+		}
+
+		vrf := "VRF-TunnelEnds"
+		interfaceConfig2 := routeros.WireGuardClientConfig{
+			Name:       interfaceName,
+			ListenPort: listenPort,
+			VRF:        &vrf,
+		}
+		if privateKey != "" {
+			interfaceConfig2.PrivateKey = &privateKey
+		}
+
+		created, err := client.CreateWireGuardInterface(interfaceConfig2)
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
+		}
+		wg = created
+
+		// Add address to interface if specified
+		if address != "" {
+			ipConfig := routeros.IPAddressConfig{
+				Interface: wg.Name,
+				Address:   address,
+			}
+			if _, err := client.AddIPAddress(ipConfig); err != nil {
+				return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
+			}
+		}
+	}
+
+	existingPeers, err := client.GetWireGuardPeers(wg.Name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list existing WireGuard peers", err)
+	}
+
+	usedPeerNames := make(map[string]struct{}, len(existingPeers))
+	for j := range existingPeers {
+		if existingPeers[j].Name != "" {
+			usedPeerNames[existingPeers[j].Name] = struct{}{}
+		}
+	}
+	nextPeerIndex := len(existingPeers) + 1
 
 	var peerNames []string
+	var skippedDuplicatePeers []string
 	for i := range cfg.Peers {
 		peer := cfg.Peers[i]
 
@@ -2194,9 +2757,16 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			return ErrorResponse(c, http.StatusBadRequest, "Peer PublicKey is required", nil)
 		}
 
-		allowedIPs := ""
-		if len(peer.AllowedIPs) > 0 {
-			allowedIPs = peer.AllowedIPs[0].String()
+		duplicate := false
+		for j := range existingPeers {
+			if existingPeers[j].PublicKey == publicKey {
+				duplicate = true
+				break
+			}
+		}
+		if duplicate {
+			skippedDuplicatePeers = append(skippedDuplicatePeers, publicKey)
+			continue
 		}
 
 		endpointAddr := ""
@@ -2206,8 +2776,23 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			endpointPort = int(peer.Endpoints[0].Port)
 		}
 
+		allowedIPs := ""
+		if len(peer.AllowedIPs) > 0 {
+			allowedIPs = peer.AllowedIPs[0].String()
+		}
+
 		persistentKeepalive := int(peer.PersistentKeepalive)
-		peerName := fmt.Sprintf("%s-peer%d", wg.Name, i+1)
+
+		var peerName string
+		for {
+			candidate := fmt.Sprintf("%s-peer%d", wg.Name, nextPeerIndex)
+			nextPeerIndex++
+			if _, used := usedPeerNames[candidate]; !used {
+				peerName = candidate
+				break
+			}
+		}
+		usedPeerNames[peerName] = struct{}{}
 
 		config := routeros.WireGuardPeerConfig{
 			InterfaceName:       wg.Name,
@@ -2228,17 +2813,11 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 			config.PersistentKeepalive = &persistentKeepalive
 		}
 
-		_, err = client.AddWireGuardPeer(config)
-		if err != nil {
+		if _, err := client.AddWireGuardPeer(config); err != nil {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
 		}
 
-		if endpointAddr != "" {
-			if _, err := client.AddFirewallAddressListItem("VPNE", endpointAddr, false, "wireguard-"+wg.Name); err != nil {
-				c.Logger().Errorf("Failed to add peer endpoint IP to firewall list: %v", err)
-			}
-		}
-
+		existingPeers = append(existingPeers, routeros.WireGuardPeerInfo{Name: peerName, PublicKey: publicKey})
 		peerNames = append(peerNames, peerName)
 	}
 
@@ -2257,9 +2836,12 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 	}
 
 	response := ImportWireGuardConfigResponse{
-		InterfaceName: wg.Name,
-		InterfaceIP:   address,
-		PeerNames:     peerNames,
+		InterfaceName:           wg.Name,
+		InterfaceIP:             address,
+		PeerNames:               peerNames,
+		ImportedPeerCount:       len(peerNames),
+		ReusedExistingInterface: reusedExistingInterface,
+		SkippedDuplicatePeers:   skippedDuplicatePeers,
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
@@ -2409,28 +2991,42 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		task.mu.Unlock()
 	}
 
-	rollback := func(serverConfigName, poolName, profileName string, certs []string) {
-		if serverConfigName != "" {
-			_ = client.RemoveOvpnServer(serverConfigName)
-			if profileName != "" {
-				secrets, err := client.GetPppSecretsByProfile(profileName)
-				if err == nil {
-					for _, secret := range secrets {
-						if username, ok := secret["name"]; ok {
-							_ = client.RemovePppSecret(username, "ovpn")
-						}
+	rollback := func(serverBaseName, poolName, profileName string, certs []string) {
+		if serverBaseName != "" {
+			// Both protocol variants may exist by the time a later stage
+			// fails; removing a variant that was never created is a no-op.
+			_ = client.RemoveOvpnServer(serverBaseName + "-tcp")
+			_ = client.RemoveOvpnServer(serverBaseName + "-udp")
+
+			if rules, err := client.GetFirewallRulesByChain("input"); err == nil {
+				for i := range rules {
+					if strings.HasPrefix(rules[i].Comment, serverBaseName) {
+						_ = client.RemoveFirewallRule(rules[i].ID)
 					}
 				}
 			}
+
+			_, _ = removeVpnServerMangleRules(client, serverBaseName, false)
 		}
-		if profileName != "" && profileName != "default" {
-			_ = client.RemovePppProfile(profileName)
+		if profileName != "" {
+			secrets, err := client.GetPppSecretsByProfile(profileName)
+			if err == nil {
+				for _, secret := range secrets {
+					if username, ok := secret["name"]; ok {
+						_ = client.RemovePppSecret(username, "ovpn")
+					}
+				}
+			}
+			if profileName != "default" {
+				_ = client.RemovePppProfile(profileName)
+			}
 		}
 		if poolName != "" {
 			_ = client.RemoveIPPool(poolName)
 		}
 		for _, certName := range certs {
 			_ = client.RemoveCertificate(certName)
+			_ = client.RemoveCertificateFiles(certName)
 		}
 	}
 
@@ -2551,7 +3147,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	clientCertPasswordFile := clientName + "-password.txt"
+	clientCertPasswordFile := routeros.NasnetPanelPath(clientName + "-password.txt")
 	if err := client.AddFile(clientCertPasswordFile, req.ClientCertificatePassword); err != nil {
 		setError("Failed to save client certificate password: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
@@ -2576,13 +3172,13 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	updateTask(85, "Creating OpenVPN servers")
 	tcpPort, err := client.FindNextAvailableOvpnPort(1194, "tcp")
 	if err != nil {
-		setError("Failed to find available TCP port: "+err.Error(), "", "", "default", []string{caName, serverName, clientName})
+		setError("Failed to find available TCP port: "+err.Error(), "", "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
 	udpPort, err := client.FindNextAvailableOvpnPort(1194, "udp")
 	if err != nil {
-		setError("Failed to find available UDP port: "+err.Error(), "", "", "default", []string{caName, serverName, clientName})
+		setError("Failed to find available UDP port: "+err.Error(), "", "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2603,7 +3199,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		Comment:           ovpnServerComment,
 	})
 	if err != nil {
-		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigNameTCP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to create OpenVPN TCP server: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2622,7 +3218,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		Comment:           ovpnServerComment,
 	})
 	if err != nil {
-		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to create OpenVPN UDP server: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2637,7 +3233,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 	_, err = client.AddFirewallRule(tcpFwRuleConfig)
 	if err != nil {
-		setError("Failed to add firewall rule for OpenVPN TCP: "+err.Error(), serverConfigNameTCP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to add firewall rule for OpenVPN TCP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2651,7 +3247,47 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 	}
 	_, err = client.AddFirewallRule(udpFwRuleConfig)
 	if err != nil {
-		setError("Failed to add firewall rule for OpenVPN UDP: "+err.Error(), serverConfigNameUDP, "", "default", []string{caName, serverName, clientName})
+		setError("Failed to add firewall rule for OpenVPN UDP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
+		return
+	}
+
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		setError("Failed to find reply routing mangle rule: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
+		return
+	}
+
+	tcpMangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + serverConfigNameTCP,
+		ConnectionState:   "new",
+		InIfaceList:       "Domestic-WAN",
+		Protocol:          "tcp",
+		DstPort:           fmt.Sprintf("%d", tcpPort),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(tcpMangleRuleConfig); err != nil {
+		setError("Failed to add mangle rule for OpenVPN TCP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
+		return
+	}
+
+	udpMangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + serverConfigNameUDP,
+		ConnectionState:   "new",
+		InIfaceList:       "Domestic-WAN",
+		Protocol:          "udp",
+		DstPort:           fmt.Sprintf("%d", udpPort),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(udpMangleRuleConfig); err != nil {
+		setError("Failed to add mangle rule for OpenVPN UDP: "+err.Error(), serverConfigName, "", defaultProfile, []string{caName, serverName, clientName})
 		return
 	}
 
@@ -2846,9 +3482,14 @@ func HandleDeleteSstpServer(c echo.Context) error {
 
 	deleteErrors := []string{}
 
-	removedRules, err := removeSstpFirewallRules(client)
+	removedRules, err := removeVpnServerFirewallRules(client, "sstp-")
 	if err != nil {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP firewall rules: %v", err))
+	}
+
+	removedMangleRules, err := removeVpnServerMangleRules(client, "sstp-", false)
+	if err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove SSTP mangle rules: %v", err))
 	}
 
 	// Certificate/certificate-file removal failures aren't reported: the SSTP
@@ -2873,6 +3514,7 @@ func HandleDeleteSstpServer(c echo.Context) error {
 		return SuccessResponse(c, http.StatusOK, "SSTP server disabled with some errors", map[string]interface{}{
 			"disabled":             true,
 			"removedFirewallRules": removedRules,
+			"removedMangleRules":   removedMangleRules,
 			"warnings":             deleteErrors,
 		})
 	}
@@ -2880,6 +3522,7 @@ func HandleDeleteSstpServer(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "SSTP server disabled successfully", map[string]interface{}{
 		"disabled":             true,
 		"removedFirewallRules": removedRules,
+		"removedMangleRules":   removedMangleRules,
 	})
 }
 
@@ -3024,10 +3667,38 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		Protocol:        "tcp",
 		DstPort:         fmt.Sprintf("%d", sstpConfig.Port),
 		InInterfaceList: vpnServerAllowedInterfaceList,
-		Comment:         "sstp-" + serverName,
+		Comment:         serverName,
 	}
-	if _, err := client.AddFirewallRule(fwRuleConfig); err != nil {
+	fwRuleID, err := client.AddFirewallRule(fwRuleConfig)
+	if err != nil {
 		setError("Failed to add firewall rule for SSTP: "+err.Error(), createdCerts)
+		return
+	}
+
+	replyRoutingRuleID, err := client.GetMangleRuleIDByComment("Route VPN Server Replies via Domestic WAN")
+	if err != nil {
+		_ = client.RemoveFirewallRule(fwRuleID)
+		_ = client.DisableSstpServer(false)
+		setError("Failed to find reply routing mangle rule: "+err.Error(), createdCerts)
+		return
+	}
+
+	mangleRuleConfig := routeros.MangleRuleConfig{
+		Chain:             "input",
+		Action:            "mark-connection",
+		Comment:           "Mark Inbound " + fwRuleConfig.Comment,
+		ConnectionState:   "new",
+		InIfaceList:       vpnServerAllowedInterfaceList,
+		Protocol:          "tcp",
+		DstPort:           fmt.Sprintf("%d", sstpConfig.Port),
+		NewConnectionMark: "conn-vpn-server",
+		PassThrough:       true,
+		PlaceBefore:       replyRoutingRuleID,
+	}
+	if _, err := client.AddMangleRule(mangleRuleConfig); err != nil {
+		_ = client.RemoveFirewallRule(fwRuleID)
+		_ = client.DisableSstpServer(false)
+		setError("Failed to add mangle rule for SSTP: "+err.Error(), createdCerts)
 		return
 	}
 
@@ -3083,10 +3754,10 @@ func sstpCACertificateName(serverCertName string) string {
 	return "sstp-ca-" + timestamp
 }
 
-// removeSstpFirewallRules removes every /ip/firewall/filter input-chain rule
-// added for the SSTP server, identified by its "sstp-" comment prefix, and
-// returns the comment of each rule removed.
-func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
+// removeVpnServerFirewallRules removes every /ip/firewall/filter input-chain
+// rule whose comment starts with prefix (e.g. "sstp-", "l2tp-"), and returns
+// the comment of each rule removed.
+func removeVpnServerFirewallRules(client *routeros.Client, prefix string) ([]string, error) {
 	rules, err := client.GetFirewallRulesByChain("input")
 	if err != nil {
 		return nil, err
@@ -3094,10 +3765,40 @@ func removeSstpFirewallRules(client *routeros.Client) ([]string, error) {
 
 	removed := make([]string, 0)
 	for i := range rules {
-		if !strings.HasPrefix(rules[i].Comment, "sstp-") {
+		if !strings.HasPrefix(rules[i].Comment, prefix) {
 			continue
 		}
 		if err := client.RemoveFirewallRule(rules[i].ID); err != nil {
+			return removed, err
+		}
+		removed = append(removed, rules[i].Comment)
+	}
+	return removed, nil
+}
+
+// removeVpnServerMangleRules removes mangle rules created for a VPN server,
+// matched against "Mark Inbound "+serverName. When exact is true, only a rule
+// whose comment equals that string is removed (for a single, specific
+// server); when exact is false, any rule whose comment has it as a prefix is
+// removed (for intentionally matching multiple related rules, e.g. a
+// server's -tcp/-udp pair). Returns the removed comments.
+func removeVpnServerMangleRules(client *routeros.Client, serverName string, exact bool) ([]string, error) {
+	rules, err := client.ListMangleRules()
+	if err != nil {
+		return nil, err
+	}
+
+	target := "Mark Inbound " + serverName
+	removed := make([]string, 0)
+	for i := range rules {
+		matches := rules[i].Comment == target
+		if !exact {
+			matches = strings.HasPrefix(rules[i].Comment, target)
+		}
+		if !matches {
+			continue
+		}
+		if err := client.RemoveMangleRule(rules[i].ID); err != nil {
 			return removed, err
 		}
 		removed = append(removed, rules[i].Comment)
@@ -3243,6 +3944,11 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		}
 	}
 
+	// Delete associated mangle rules
+	if _, err := removeVpnServerMangleRules(client, baseName, false); err != nil {
+		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete mangle rules: %v", err))
+	}
+
 	if timestamp != "" {
 		certNames := []string{
 			"ovpn-client-" + timestamp,
@@ -3274,7 +3980,8 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 
 // HandleExportOvpnClient exports OpenVPN client configuration.
 // @Summary Export OpenVPN Client Configuration
-// @Description Generates and returns OVPN client configuration file using RouterOS export command
+// @Description Generates and returns OVPN client configuration file using RouterOS export command.
+// @Description The exported file is deleted from the router once it has been served.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -3311,7 +4018,14 @@ func HandleExportOvpnClient(c echo.Context) error {
 	caName := strings.Replace(ovpnServerName, "server", "ca", 1)
 	clientCertName := strings.Replace(ovpnServerName, "server", "client", 1)
 
-	config, err := client.ExportOvpnClientConfiguration(serverName, publicAddress, caName, clientCertName)
+	config, exportedFile, err := client.ExportOvpnClientConfiguration(serverName, publicAddress, caName, clientCertName)
+	if exportedFile != "" {
+		defer func() {
+			if delErr := client.DeleteFile(exportedFile); delErr != nil {
+				c.Logger().Errorf("Failed to delete exported OVPN file %s: %v", exportedFile, delErr)
+			}
+		}()
+	}
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "failed to export client configuration", err)
 	}

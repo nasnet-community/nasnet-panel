@@ -97,6 +97,18 @@ type WiFiConnectRequest struct {
 	Password     string `json:"password,omitempty"`     // empty for open network
 }
 
+// CreateVirtualWiFiInterfaceRequest is the request to create a virtual WiFi
+// interface bound to a physical master interface and attach it to a bridge.
+// Password is optional; when omitted the interface is created open (no
+// security configured). When Password is supplied, SecurityTypes is required.
+type CreateVirtualWiFiInterfaceRequest struct {
+	MasterInterface string `json:"masterInterface" example:"wifi1"`
+	SSID            string `json:"ssid" example:"my-network"`
+	SecurityTypes   string `json:"securityTypes,omitempty" example:"wpa2-psk,wpa3-psk"` // comma-separated: wpa-psk,wpa2-psk,wpa3-psk; required when password is set
+	Password        string `json:"password,omitempty" example:"my-secure-password"`
+	Bridge          string `json:"bridge" example:"LANBridgeSplit"`
+}
+
 // WiFiConnectResponse is the response for WiFi connection.
 type WiFiConnectResponse struct {
 	InterfaceName string `json:"interfaceName"`

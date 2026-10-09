@@ -59,6 +59,7 @@ export interface Interface {
   band?: WirelessBand;
   securityTypes?: string[];
   mode?: string;
+  isVirtual?: boolean;
 }
 
 export interface SystemOverview {
@@ -87,14 +88,9 @@ export interface SystemOverview {
   vpnTunnels: number;
 }
 
-export type VPNProtocolLabel =
-  | 'ppp'
-  | 'wireguard'
-  | 'ipsec'
-  | 'l2tp-client'
-  | 'pptp-client'
-  | 'ovpn-client'
-  | 'sstp-client';
+type VPNClientProtocolLabel = 'l2tp-client' | 'pptp-client' | 'ovpn-client' | 'sstp-client';
+
+export type VPNProtocolLabel = 'ppp' | 'wireguard' | 'ipsec' | VPNClientProtocolLabel;
 
 export interface VPNActiveClient {
   id: string;
@@ -135,6 +131,7 @@ export interface WirelessSettings {
   band: WirelessBand;
   countryCode: string;
   hidden: boolean;
+  mode?: string;
 }
 
 export interface WirelessClient {
@@ -165,6 +162,8 @@ export interface VPNClient {
   endpointPort?: number;
   username?: string;
   comment?: string;
+  pingTime?: string;
+  peerCount?: number;
 }
 
 export interface VPNServer {
@@ -236,6 +235,7 @@ export interface RoutingNode {
   wanKind?: RoutingWanKind;
   protocol?: VPNProtocol;
   subnet?: string;
+  pingTime?: string;
 }
 
 export interface RoutingHop {

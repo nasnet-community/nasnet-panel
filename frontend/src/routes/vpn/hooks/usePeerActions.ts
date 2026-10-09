@@ -1,4 +1,5 @@
 import { useToast } from '@nasnet/ui';
+import i18n from '../../../i18n';
 import { api, type VPNPeer, type VPNServer } from '../../../api';
 
 export function usePeerActions(
@@ -19,13 +20,13 @@ export function usePeerActions(
       enabled: true,
     });
     onChanged();
-    toast.notify({ title: 'Peer added', tone: 'success' });
+    toast.notify({ title: i18n.t('peers.toast.added', { ns: 'vpn' }), tone: 'success' });
   };
 
   const remove = async (id: string) => {
     await api.vpn.deletePeer(id);
     onChanged();
-    toast.notify({ title: 'Peer deleted', tone: 'info' });
+    toast.notify({ title: i18n.t('peers.toast.deleted', { ns: 'vpn' }), tone: 'info' });
   };
 
   return { add, remove };

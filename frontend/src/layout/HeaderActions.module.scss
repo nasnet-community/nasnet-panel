@@ -1,3 +1,10 @@
+.headerBar {
+  // Language dropdown beside the theme toggle or the router menu.
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .menuRoot {
   position: relative;
   display: inline-flex;
@@ -135,6 +142,10 @@
   color: var(--color-text);
   font-weight: var(--weight-semibold);
   box-shadow: inset 2px 0 0 var(--color-success);
+
+  [dir='rtl'] & {
+    box-shadow: inset -2px 0 0 var(--color-success);
+  }
 }
 
 .onlineDot {
@@ -176,7 +187,7 @@
 .menuPanel {
   position: absolute;
   top: calc(100% + 6px);
-  right: 0;
+  inset-inline-end: 0;
   min-width: 220px;
   padding: var(--space-xs);
   background: var(--color-surface);
@@ -200,7 +211,7 @@
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
   font-size: var(--font-sm);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   transition: background var(--transition-fast);
 
@@ -278,7 +289,7 @@
 .themeSwitchThumb {
   position: absolute;
   top: 2px;
-  left: 2px;
+  inset-inline-start: 2px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -295,6 +306,10 @@
   .themeSwitchThumb {
     background: #fff;
     transform: translateX(14px);
+
+    [dir='rtl'] & {
+      transform: translateX(-14px);
+    }
   }
 }
 
@@ -337,7 +352,7 @@
 .subMenu {
   display: flex;
   flex-direction: column;
-  padding-left: var(--space-md);
+  padding-inline-start: var(--space-md);
 }
 
 .subMenuItem {

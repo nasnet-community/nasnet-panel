@@ -1,0 +1,245 @@
+{
+  "nav": {
+    "back": "Back",
+    "next": "Next",
+    "apply": "Apply",
+    "applied": "Applied"
+  },
+  "stepper": {
+    "mode": { "title": "Choose", "description": "Setup type" },
+    "wan": { "title": "WAN", "description": "Uplink interfaces" },
+    "ipmask": { "title": "IP-Mask", "description": "Starlink VPN client" },
+    "wifi": { "title": "WiFi", "description": "Wireless network" },
+    "vpnsrv": { "title": "VPN Server", "description": "Inbound VPN" }
+  },
+  "flow": {
+    "starlink": "Starlink",
+    "user": "USER",
+    "router": "Router",
+    "foreignSite": "Foreign Site",
+    "starlinkOnlyAria": "Starlink-only traffic flow",
+    "ipMaskAria": "Starlink IP-mask flow"
+  },
+  "mode": {
+    "title": "Setup mode",
+    "description": "Pick how your WAN is wired. We'll adapt the wizard accordingly.",
+    "ariaLabel": "Mode",
+    "dualLink": {
+      "label": "Dual-Link",
+      "description": "Starlink + Domestic uplink (DHCP, Static, or PPPoE)"
+    },
+    "starlinkOnly": {
+      "label": "Starlink-Only",
+      "description": "Only a Starlink uplink for this router"
+    }
+  },
+  "wan": {
+    "titleDual": "Dual-Link connection",
+    "titleStarlinkOnly": "Starlink-Only connection",
+    "description": "Tell us which ports are wired to each uplink, starting with the Starlink interface.",
+    "starlinkHeading": "Starlink WAN",
+    "starlinkWireless": "Starlink wireless",
+    "domesticHeading": "Domestic WAN",
+    "domesticWireless": "Domestic wireless",
+    "interfaceLabel": {
+      "ethernet": "Ethernet interface",
+      "wireless": "Wireless interface",
+      "sfp": "SFP interface",
+      "lte": "LTE interface"
+    },
+    "selectInterface": "Select interface",
+    "interfaceType": "Interface type",
+    "types": {
+      "ethernet": "Ethernet",
+      "wireless": "Wireless",
+      "sfp": "SFP",
+      "lte": "LTE"
+    },
+    "domestic": {
+      "ariaLabel": "Domestic connection type",
+      "dhcp": { "label": "DHCP", "description": "Auto-config from ISP." },
+      "static": { "label": "Static", "description": "Manually assign IPs." },
+      "pppoe": { "label": "PPPoE", "description": "Username + password." }
+    },
+    "pppoe": {
+      "username": "PPPoE username",
+      "password": "PPPoE password"
+    },
+    "static": {
+      "ipAddress": "IP address",
+      "ipAria": "Static IP",
+      "gateway": "Gateway",
+      "gatewayAria": "Static gateway",
+      "dns": "DNS",
+      "dnsAria": "Static DNS"
+    },
+    "wireless": {
+      "change": "Change",
+      "choose": "Choose wireless network"
+    },
+    "scan": {
+      "title": "Choose a wireless network",
+      "description": "Pick a network within range. Enter its password if it requires one.",
+      "cancel": "Cancel",
+      "verify": "Verify and connect",
+      "network": "Network",
+      "networkAria": "Wireless network",
+      "scanningOption": "Scanning networks…",
+      "selectNetwork": "Select a network",
+      "search": "Search networks…",
+      "scanning": "Scanning for nearby networks…",
+      "passwordOptional": "Password (optional)",
+      "passwordAria": "Wireless password",
+      "open": "Open",
+      "missingCredentials": "Missing router credentials or interface.",
+      "scanFailed": "Failed to scan networks."
+    }
+  },
+  "ipMask": {
+    "title": "Starlink IP-mask VPN client",
+    "description": "Your use of Starlink can be traced back to your identity. Configure a single VPN client to conceal your Starlink IP.",
+    "protocolAria": "IP-mask protocol",
+    "wireguardDescription": "Fast, modern VPN with state-of-the-art cryptography.",
+    "l2tpDescription": "Widely supported protocol with IPsec encryption.",
+    "wireguard": {
+      "placeholder": "Paste your Wireguard configuration here. The file should include [Interface] and [Peer] sections.",
+      "ariaLabel": "WireGuard configuration",
+      "upload": "Upload Config",
+      "paste": "Paste Config",
+      "caption": "Paste or upload your WireGuard configuration file.",
+      "invalid": "Invalid WireGuard config: missing [Interface] or [Peer] sections.",
+      "clipboardEmpty": "Clipboard is empty.",
+      "clipboardFailed": "Cannot read from clipboard. Paste manually instead."
+    },
+    "l2tp": {
+      "server": "Server",
+      "claimFree": "Claim free VPN",
+      "username": "Username",
+      "password": "Password",
+      "useIpsec": "Use IPsec encryption",
+      "ipsecSecret": "IPsec secret"
+    }
+  },
+  "hyperSpeed": {
+    "hotDeal": "Hot Deal",
+    "availableNow": "Available now",
+    "title": "FREE Hyper Speed VPN powered by Nasnet Panel",
+    "subtitle": "Optimized for Starlink & built for Nasnet Panel users.",
+    "comingSoon": "Coming soon",
+    "claimYours": "Claim your free VPN",
+    "cancel": "Cancel",
+    "claim": "Claim a free VPN",
+    "bullets": {
+      "bandwidth": "Unlimited bandwidth",
+      "throttling": "No throttling",
+      "servers": "Global servers",
+      "autoConfig": "Auto-configuration"
+    },
+    "validity": "Credentials valid for 6 months. And you can reclaim again after expiration.",
+    "toast": {
+      "missingTitle": "Missing router credentials",
+      "missingDescription": "Connect to the router before claiming a VPN.",
+      "successTitle": "Free VPN credentials applied",
+      "validUntil": "Valid until {{date}}.",
+      "failedTitle": "Claim failed",
+      "fallbackError": "Something went wrong"
+    }
+  },
+  "wifi": {
+    "title": "Wireless settings",
+    "description": "One network name and password for the router's Wi-Fi. Avoid words like \"starlink\", \"VPN\", or \"Iran\" in the SSID.",
+    "noHardware": "This router has no Wi-Fi hardware, so wireless options are unavailable.",
+    "enabled": "Wi-Fi enabled",
+    "disabled": "Wi-Fi disabled",
+    "notAvailable": "Wi-Fi not available",
+    "ssid": "Network name (SSID)",
+    "generateSsid": "Generate SSID",
+    "password": "Password",
+    "passwordAria": "Wi-Fi password",
+    "generatePassword": "Generate Wi-Fi password",
+    "split": "Split across bands ({{bands}})",
+    "bandSeparator": ", ",
+    "previewPlaceholder": "Your network name",
+    "toggleAria": "Wireless enabled state",
+    "toggleDisabled": "Disabled",
+    "toggleEnabled": "Enabled"
+  },
+  "vpnServer": {
+    "title": "VPN server",
+    "description": "Issue OpenVPN client certificates so devices can connect back to this router.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "certPassphrase": "Certificate passphrase",
+    "username": "Username",
+    "password": "Password",
+    "certPlaceholder": "YourUsername",
+    "firstUser": {
+      "userName": "User name",
+      "userNameAria": "First user name",
+      "publicKey": "Public key",
+      "password": "Password",
+      "passwordAria": "First user password",
+      "publicKeyAria": "First user public key"
+    },
+    "fields": {
+      "listenPort": "Listen port",
+      "listenPortAria": "VPN server listen port",
+      "ipPool": "IP pool",
+      "ipPoolAria": "VPN server IP pool",
+      "dns": "DNS (optional)",
+      "dnsAria": "VPN server DNS"
+    }
+  },
+  "review": {
+    "title": "Review & apply",
+    "description": "Generated RouterOS script — edit directly if you need tweaks. Applying runs these commands via the batch executor.",
+    "scriptAria": "RouterOS script",
+    "editScript": "Edit script",
+    "resetAria": "Reset to generated script",
+    "resetTitle": "Reset to generated",
+    "doneEditing": "Done editing"
+  },
+  "apply": {
+    "applyingTitle": "Applying configuration…",
+    "applyingSubtitle": "Running RouterOS commands via the batch executor.",
+    "progress": "Progress",
+    "emergencyWithWifi": "If the connection drops or setup runs into an error, you can still reach the router through the emergency interfaces: plug into the last Ethernet port and open <strong>{{ip}}</strong>, or join the management WiFi below and open <strong>{{wifiIp}}</strong>",
+    "emergency": "If the connection drops or setup runs into an error, you can still reach the router through the emergency interfaces: plug into the last Ethernet port and open <strong>{{ip}}</strong>.",
+    "wifiName": "WiFi name",
+    "password": "Password",
+    "successTitle": "Configuration applied successfully",
+    "successSubtitle": "Your router is now running the new configuration.",
+    "ok": "Ok",
+    "failedTitle": "Apply failed",
+    "retry": "Retry"
+  },
+  "errors": {
+    "timedOut": "Timed out waiting for the router to finish.",
+    "missingCredentials": "Missing router credentials.",
+    "applyFailed": "Apply failed"
+  },
+  "validation": {
+    "pickMode": "Pick a mode to continue.",
+    "selectStarlink": "Select the Starlink interface.",
+    "starlinkSsidRequired": "Starlink wireless SSID is required.",
+    "starlinkPasswordShort": "Starlink wireless password must be at least 8 characters.",
+    "selectDomestic": "Select the domestic interface.",
+    "domesticSsidRequired": "Domestic wireless SSID is required.",
+    "domesticPasswordShort": "Domestic wireless password must be at least 8 characters.",
+    "pppoeRequired": "PPPoE credentials are required.",
+    "staticIpInvalid": "Provide a valid static IP.",
+    "endpointRequired": "Endpoint and port are required.",
+    "peerKeyRequired": "Peer public key is required.",
+    "l2tpServerRequired": "L2TP server address is required.",
+    "l2tpCredentialsRequired": "L2TP credentials are required.",
+    "ipsecSecretRequired": "IPsec secret is required when IPsec encryption is enabled.",
+    "ssidRequired": "SSID is required.",
+    "ssidForbiddenWord": "SSID cannot contain \"{{word}}\".",
+    "wifiPasswordLength": "Wi-Fi password must be 8–63 characters.",
+    "usernameRequired": "Username is required.",
+    "certPassphraseRequired": "Certificate passphrase is required.",
+    "certPassphraseShort": "Certificate passphrase must be at least {{min}} characters.",
+    "passwordRequired": "Password is required.",
+    "passwordShort": "Password must be at least {{min}} characters."
+  }
+}

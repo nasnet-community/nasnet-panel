@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding-right: var(--space-sm);
+  padding-inline-end: var(--space-sm);
   min-width: 0;
 }
 
@@ -46,7 +46,7 @@
 .stepDot {
   position: absolute;
   top: 50%;
-  left: 0;
+  inset-inline-start: 0;
   transform: translateY(-50%);
   width: 14px;
   height: 14px;
@@ -72,8 +72,8 @@
 .stepLine {
   position: absolute;
   top: 50%;
-  left: 14px;
-  right: calc(-1 * var(--space-sm));
+  inset-inline-start: 14px;
+  inset-inline-end: calc(-1 * var(--space-sm));
   height: 2px;
   transform: translateY(-50%);
   background: var(--color-border);
@@ -105,7 +105,7 @@
     flex-direction: row;
     align-items: center;
     gap: var(--space-sm);
-    padding-right: 0;
+    padding-inline-end: 0;
     min-height: 40px;
   }
 
@@ -126,6 +126,7 @@
   .stepDot {
     top: 50%;
     left: 50%;
+    right: auto;
     transform: translate(-50%, -50%);
   }
 
@@ -182,7 +183,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  text-align: left;
+  text-align: start;
   gap: 2px;
   min-width: 0;
 }
@@ -202,6 +203,7 @@
 
 .fileAction {
   display: flex;
+  gap: var(--space-sm);
 
   > * {
     flex: 1;

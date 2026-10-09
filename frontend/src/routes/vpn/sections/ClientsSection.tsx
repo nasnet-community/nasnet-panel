@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
@@ -12,6 +13,7 @@ import {
   type CreateWireguardClientRequest,
   type CreateWireguardClientResponse,
   type ImportWireguardConfigRequest,
+  type ImportWireguardConfigResponse,
   type UpdateL2TPClientRequest,
   type VPNClient,
   type VPNClientResponse,
@@ -23,6 +25,7 @@ import { EditWgClientDialog } from '../dialogs/EditWgClientDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
 import { PAGE_SIZE } from '../utils';
+import { summarizeWireguardImport } from '../wgClientSummary';
 import { ClientsTable } from './ClientsTable';
 import { SectionHeader } from './SectionHeader';
 
@@ -49,6 +52,7 @@ export function ClientsSection({
 }: Props) {
   const paged = usePagedFilter(clients, matches);
   const toast = useToast();
+  const { t } = useTranslation('vpn');
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<VPNClient | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNClient | null>(null);
@@ -61,7 +65,7 @@ export function ClientsSection({
 
   const onSubmitL2TP = async (req: AddL2TPClientRequest) => {
     if (!creds) {
-      toast.notify({ title: 'Not connected to router', tone: 'danger' });
+      toast.notify({ title: t('shared.notConnected'), tone: 'danger' });
       return;
     }
     let created: VPNClientResponse;
@@ -73,18 +77,18 @@ export function ClientsSection({
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to add L2TP client.';
-      toast.notify({ title: 'Failed to add VPN client', description: message, tone: 'danger' });
+            : t('clients.toast.addL2tpFailedDescription');
+      toast.notify({ title: t('clients.toast.addFailed'), description: message, tone: 'danger' });
       throw err;
     }
     setAdding(false);
-    toast.notify({ title: `L2TP client "${created.name}" added`, tone: 'success' });
+    toast.notify({ title: t('clients.toast.l2tpAdded', { name: created.name }), tone: 'success' });
     onChanged();
   };
 
   const onSubmitWireguard = async (req: CreateWireguardClientRequest) => {
     if (!creds) {
-      toast.notify({ title: 'Not connected to router', tone: 'danger' });
+      toast.notify({ title: t('shared.notConnected'), tone: 'danger' });
       return;
     }
     let created: CreateWireguardClientResponse;
@@ -96,44 +100,48 @@ export function ClientsSection({
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to add WireGuard client.';
-      toast.notify({ title: 'Failed to add VPN client', description: message, tone: 'danger' });
+            : t('clients.toast.addWgFailedDescription');
+      toast.notify({ title: t('clients.toast.addFailed'), description: message, tone: 'danger' });
       throw err;
     }
     setAdding(false);
-    toast.notify({ title: `WireGuard client "${created.name}" added`, tone: 'success' });
+    toast.notify({ title: t('clients.toast.wgAdded', { name: created.name }), tone: 'success' });
     onChanged();
   };
 
   const onSubmitWireguardImport = async (req: ImportWireguardConfigRequest) => {
     if (!creds) {
-      toast.notify({ title: 'Not connected to router', tone: 'danger' });
+      toast.notify({ title: t('shared.notConnected'), tone: 'danger' });
       return;
     }
+    let imported: ImportWireguardConfigResponse;
     try {
-      await importWireguardConfig(creds, req);
+      imported = await importWireguardConfig(creds, req);
     } catch (err) {
       const message =
         err instanceof ApiError
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to import WireGuard config.';
+            : t('clients.toast.wgImportFailed');
       toast.notify({
-        title: 'Failed to import WireGuard config',
+        title: t('clients.toast.wgImportFailedTitle'),
         description: message,
         tone: 'danger',
       });
       throw err;
     }
     setAdding(false);
-    toast.notify({ title: 'WireGuard config imported', tone: 'success' });
+    toast.notify({
+      ...summarizeWireguardImport(imported.interfaceName, imported),
+      durationMs: 8000,
+    });
     onChanged();
   };
 
   const onSubmitEdit = async (req: UpdateL2TPClientRequest) => {
     if (!creds || !editing) {
-      toast.notify({ title: 'Not connected to router', tone: 'danger' });
+      toast.notify({ title: t('shared.notConnected'), tone: 'danger' });
       return;
     }
     const target = editing;
@@ -145,16 +153,16 @@ export function ClientsSection({
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to update L2TP client.';
+            : t('clients.toast.l2tpUpdateFailedDescription');
       toast.notify({
-        title: 'Failed to update L2TP client',
+        title: t('clients.toast.l2tpUpdateFailed'),
         description: message,
         tone: 'danger',
       });
       throw err;
     }
     setEditing(null);
-    toast.notify({ title: `L2TP client "${target.name}" updated`, tone: 'success' });
+    toast.notify({ title: t('clients.toast.l2tpUpdated', { name: target.name }), tone: 'success' });
     onClientUpdated({
       ...target,
       comment: req.comment ?? target.comment,
@@ -178,9 +186,9 @@ export function ClientsSection({
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to delete client.';
+            : t('clients.toast.deleteFailedDescription');
       toast.notify({
-        title: 'Failed to delete client',
+        title: t('clients.toast.deleteFailed'),
         description: message,
         tone: 'danger',
       });
@@ -189,7 +197,7 @@ export function ClientsSection({
     }
     setDeleteSubmitting(false);
     setPendingDelete(null);
-    toast.notify({ title: `Client "${target.name}" deleted`, tone: 'info' });
+    toast.notify({ title: t('clients.toast.deletedNamed', { name: target.name }), tone: 'info' });
     onChanged();
   };
 
@@ -197,10 +205,10 @@ export function ClientsSection({
     <Stack>
       <Card>
         <SectionHeader
-          title="Starlink Masking VPN Client"
-          description="VPN clients that conceal the Starlink IP."
+          title={t('clients.title')}
+          description={t('clients.description')}
           action={{
-            label: 'New',
+            label: t('clients.new'),
             disabled: !creds,
             onClick: () => setAdding(true),
           }}
@@ -248,7 +256,10 @@ export function ClientsSection({
           onSaved={(changes) => {
             const target = editing;
             setEditing(null);
-            toast.notify({ title: `WireGuard client "${target.name}" updated`, tone: 'success' });
+            toast.notify({
+              title: t('clients.toast.wgUpdated', { name: target.name }),
+              tone: 'success',
+            });
             onClientUpdated({ ...target, comment: changes.comment, enabled: !changes.disabled });
           }}
         />
@@ -256,18 +267,18 @@ export function ClientsSection({
       <ConfirmDialog
         open={!!pendingDelete}
         title={
-          pendingDelete?.protocol === 'wireguard' ? 'Delete WireGuard client' : 'Delete L2TP client'
+          pendingDelete?.protocol === 'wireguard'
+            ? t('clients.delete.wgTitle')
+            : t('clients.delete.l2tpTitle')
         }
         description={
           pendingDelete
-            ? `Remove "${pendingDelete.name}" from this router? ${
-                pendingDelete.protocol === 'wireguard'
-                  ? 'Associated peers and IP address will also be removed.'
-                  : ''
-              }This cannot be undone.`.replace(/\s+/g, ' ')
+            ? pendingDelete.protocol === 'wireguard'
+              ? t('clients.delete.wgDescription', { name: pendingDelete.name })
+              : t('clients.delete.l2tpDescription', { name: pendingDelete.name })
             : undefined
         }
-        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
+        confirmLabel={deleteSubmitting ? t('shared.deleting') : t('shared.delete')}
         destructive
         onConfirm={onConfirmDelete}
         onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}

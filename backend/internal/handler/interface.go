@@ -198,9 +198,10 @@ func parseInterfaceTypes(raw string) (interfaceTypes []string, includeSFP bool, 
 // HandleUpdateInterfaceBridge moves an interface to a different bridge.
 // @Summary Change an interface's bridge
 // @Description Edits the interface's existing bridge port to move it to the given bridge, setting
-// @Description the port's comment to the bridge's own comment, then disables the interface, waits
-// @Description 100ms, and re-enables it. The bridge name must start with "LANBridge". Rejects the
-// @Description request if the interface is already a port on the given bridge.
+// @Description the port's comment, and the interface's own comment, to the bridge's own comment,
+// @Description then disables the interface, waits 100ms, and re-enables it. The bridge name must
+// @Description start with "LANBridge". Rejects the request if the interface is already a port on
+// @Description the given bridge.
 // @Tags Interface
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -260,11 +261,14 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 
 	script := fmt.Sprintf(
 		"/interface bridge port set [find interface=\"%s\"] bridge=\"%s\" comment=\"%s\"\n"+
+			"/interface set [find name=\"%s\"] comment=\"%s\"\n"+
 			"/interface disable [find name=\"%s\"]\n"+
 			":delay 100ms\n"+
 			"/interface enable [find name=\"%s\"]",
 		utils.EscapeQuotes(req.Interface),
 		utils.EscapeQuotes(req.Bridge),
+		utils.EscapeQuotes(comment),
+		utils.EscapeQuotes(req.Interface),
 		utils.EscapeQuotes(comment),
 		utils.EscapeQuotes(req.Interface),
 		utils.EscapeQuotes(req.Interface),

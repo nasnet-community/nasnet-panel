@@ -17,7 +17,14 @@ import (
 
 // wizardSuccessFile is the marker file the wizard script itself writes to the
 // router on successful completion, containing the completion timestamp.
-const wizardSuccessFile = "nasnet-panel-wizard-success.txt"
+const wizardSuccessFile = nasnetPanelDir + "/nasnet-panel-wizard-success.txt"
+
+// wizardScriptFile is where the rendered wizard script is uploaded on the router.
+const wizardScriptFile = nasnetPanelDir + "/wizard.rsc"
+
+// nasnetPanelDir is the directory in the router's root storage where the
+// wizard and diagnostic scripts keep the files they create.
+const nasnetPanelDir = routeros.NasnetPanelDir
 
 // HandleGetVPNCredentials retrieves VPN credentials from NasNet API using system ID.
 // @Summary Get VPN Credentials
@@ -84,9 +91,23 @@ func HandleGetWizardStatus(c echo.Context) error {
 		}
 	}
 
-	if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
-		status.Progress = 100
-		status.Completed = true
+	if failed, err := client.GetEnvironmentVariable("WizardFailed"); err == nil {
+		status.Failed = failed == "true"
+	}
+
+	if message, err := client.GetEnvironmentVariable("WizardMessage"); err == nil {
+		status.Message = message
+	}
+
+	if !status.Failed {
+		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
+			status.Progress = 100
+			status.Completed = true
+		}
+	}
+
+	if status.Failed {
+		return SuccessResponse(c, http.StatusInternalServerError, status.Message, status)
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Wizard status retrieved successfully", status)
@@ -295,6 +316,10 @@ func HandleFinalizeWizard(c echo.Context) error {
 	}
 	_ = client.DeleteFile(wizardSuccessFile)
 
+	if err := client.EnsureNasnetPanelDir(); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to prepare "+nasnetPanelDir+" directory", err)
+	}
+
 	sftpConfig := sftp.Config{
 		Host:     creds.RouterOSHost,
 		Username: creds.Username,
@@ -308,7 +333,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to SFTP", err)
 	}
 
-	err = sftpClient.UploadFromString(rendered, "wizard.rsc")
+	err = sftpClient.UploadFromString(rendered, wizardScriptFile)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to upload wizard script", err)
 	}
@@ -317,7 +342,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 
 	scriptConfig := routeros.ScriptConfig{
 		Name:   "wizard",
-		Source: ":execute script={import wizard.rsc}",
+		Source: fmt.Sprintf(":execute script={/import file-name=%q}", wizardScriptFile),
 	}
 	_, err = client.AddScript(scriptConfig)
 	if err != nil {

@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, Checkbox, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
+  deleteL2tpServer,
   deleteOvpnServer,
   deleteSstpServer,
   deleteWireguardInterface,
@@ -45,6 +47,7 @@ interface Props {
 export function ServersSection({ creds, servers, peerCounts, onChanged }: Props) {
   const paged = usePagedFilter(servers, matches);
   const toast = useToast();
+  const { t } = useTranslation('vpn');
   const [selected, setSelected] = useState<VPNServer | null>(null);
   const [adding, setAdding] = useState(false);
   const [editingWg, setEditingWg] = useState<VPNServer | null>(null);
@@ -61,9 +64,11 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
   const deletePaired = pendingDelete ? ovpnPairedServer(pendingDelete, servers) : null;
 
   const sstpEnabled = servers.some((s) => s.protocol === 'sstp' && s.running);
+  const l2tpEnabled = servers.some((s) => s.protocol === 'l2tp' && s.running);
+  const disableLabel = pendingDisable?.protocol === 'l2tp' ? 'L2TP' : 'SSTP';
 
   const onCreated = () => {
-    toast.notify({ title: 'VPN server created', tone: 'success' });
+    toast.notify({ title: t('servers.toast.created'), tone: 'success' });
     setAdding(false);
     onChanged();
   };
@@ -85,9 +90,9 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to delete VPN server.';
+            : t('servers.toast.deleteFailedDescription');
       toast.notify({
-        title: 'Failed to delete server',
+        title: t('servers.toast.deleteFailed'),
         description: message,
         tone: 'danger',
       });
@@ -99,8 +104,8 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     setDeleteCertFiles(false);
     toast.notify({
       title: paired
-        ? `Servers "${target.name}" and "${paired.name}" deleted`
-        : `Server "${target.name}" deleted`,
+        ? t('servers.toast.pairDeleted', { name: target.name, paired: paired.name })
+        : t('servers.toast.deleted', { name: target.name }),
       tone: 'info',
     });
     onChanged();
@@ -111,16 +116,22 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     const target = pendingDisable;
     setDisableSubmitting(true);
     try {
-      await deleteSstpServer(creds, deleteCertFiles);
+      if (target.protocol === 'l2tp') {
+        await deleteL2tpServer(creds);
+      } else {
+        await deleteSstpServer(creds, deleteCertFiles);
+      }
     } catch (err) {
       const message =
         err instanceof ApiError
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to disable SSTP server.';
+            : t('servers.toast.disableFailedDescription', {
+                protocol: target.protocol === 'l2tp' ? 'L2TP' : 'SSTP',
+              });
       toast.notify({
-        title: 'Failed to disable server',
+        title: t('servers.toast.disableFailed'),
         description: message,
         tone: 'danger',
       });
@@ -130,7 +141,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     setDisableSubmitting(false);
     setPendingDisable(null);
     setDeleteCertFiles(false);
-    toast.notify({ title: `Server "${target.name}" disabled`, tone: 'info' });
+    toast.notify({ title: t('servers.toast.disabled', { name: target.name }), tone: 'info' });
     onChanged();
   };
 
@@ -147,9 +158,11 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
           ? err.message
           : err instanceof Error
             ? err.message
-            : `Failed to ${enable ? 'enable' : 'disable'} OpenVPN server.`;
+            : enable
+              ? t('servers.toast.ovpnEnableFailedDescription')
+              : t('servers.toast.ovpnDisableFailedDescription');
       toast.notify({
-        title: `Failed to ${enable ? 'enable' : 'disable'} server`,
+        title: enable ? t('servers.toast.enableFailed') : t('servers.toast.disableFailed'),
         description: message,
         tone: 'danger',
       });
@@ -159,7 +172,9 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     setToggleSubmitting(false);
     setPendingToggle(null);
     toast.notify({
-      title: `Server "${target.name}" ${enable ? 'enabled' : 'disabled'}`,
+      title: enable
+        ? t('servers.toast.enabled', { name: target.name })
+        : t('servers.toast.disabled', { name: target.name }),
       tone: 'info',
     });
     onChanged();
@@ -169,17 +184,17 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
     <Stack>
       <Card>
         <SectionHeader
-          title="VPN Servers"
+          title={t('servers.title')}
           count={servers.length}
-          description="Listen for inbound VPN connections."
+          description={t('servers.description')}
           search={{
             value: paged.search,
-            placeholder: 'Search servers…',
-            ariaLabel: 'Search servers',
+            placeholder: t('servers.searchPlaceholder'),
+            ariaLabel: t('servers.searchLabel'),
             onChange: paged.setSearch,
           }}
           action={{
-            label: 'Add server',
+            label: t('servers.add'),
             disabled: !creds,
             onClick: () => setAdding(true),
           }}
@@ -211,6 +226,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
         <AddVpnServerDialog
           creds={creds}
           sstpEnabled={sstpEnabled}
+          l2tpEnabled={l2tpEnabled}
           onCancel={() => setAdding(false)}
           onCreated={onCreated}
         />
@@ -222,7 +238,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
           onCancel={() => setEditingWg(null)}
           onSaved={() => {
             setEditingWg(null);
-            toast.notify({ title: 'WireGuard server updated', tone: 'success' });
+            toast.notify({ title: t('servers.toast.wgUpdated'), tone: 'success' });
             onChanged();
           }}
         />
@@ -238,19 +254,20 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       <ServerDetailsDialog server={selected} creds={creds} onClose={() => setSelected(null)} />
       <ConfirmDialog
         open={!!pendingDelete}
-        title={deletePaired ? 'Delete OpenVPN server pair' : 'Delete VPN server'}
+        title={deletePaired ? t('servers.delete.pairTitle') : t('servers.delete.title')}
         description={
           pendingDelete
-            ? `Remove "${pendingDelete.name}" from this router?${
-                pendingDelete.protocol === 'openvpn'
-                  ? `${
-                      deletePaired ? ` The paired server "${deletePaired.name}" goes with it.` : ''
-                    } Users, IP pool, profile and certificates go too.`
-                  : ' Peers and IP address go too.'
-              } This cannot be undone.`
+            ? pendingDelete.protocol !== 'openvpn'
+              ? t('servers.delete.description', { name: pendingDelete.name })
+              : deletePaired
+                ? t('servers.delete.ovpnPairDescription', {
+                    name: pendingDelete.name,
+                    paired: deletePaired.name,
+                  })
+                : t('servers.delete.ovpnDescription', { name: pendingDelete.name })
             : undefined
         }
-        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
+        confirmLabel={deleteSubmitting ? t('shared.deleting') : t('shared.delete')}
         destructive
         onConfirm={onConfirmDelete}
         onCancel={() => {
@@ -261,7 +278,7 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       >
         {pendingDelete?.protocol === 'openvpn' ? (
           <Checkbox
-            label="Also delete certificate files from device storage"
+            label={t('servers.delete.alsoDeleteCertFiles')}
             checked={deleteCertFiles}
             disabled={deleteSubmitting}
             onChange={(e) => setDeleteCertFiles(e.target.checked)}
@@ -270,22 +287,22 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       </ConfirmDialog>
       <ConfirmDialog
         open={!!pendingToggle}
-        title={toggleEnable ? 'Enable OpenVPN server' : 'Disable OpenVPN server'}
+        title={toggleEnable ? t('servers.toggle.enableTitle') : t('servers.toggle.disableTitle')}
         description={
           pendingToggle
             ? toggleEnable
-              ? `Start "${pendingToggle.name}" on this router? Clients can connect again with their existing profiles.`
-              : `Stop "${pendingToggle.name}" on this router? Connected clients are dropped and cannot reconnect until it is enabled again.`
+              ? t('servers.toggle.enableDescription', { name: pendingToggle.name })
+              : t('servers.toggle.disableDescription', { name: pendingToggle.name })
             : undefined
         }
         confirmLabel={
           toggleEnable
             ? toggleSubmitting
-              ? 'Enabling…'
-              : 'Enable'
+              ? t('shared.enabling')
+              : t('shared.enable')
             : toggleSubmitting
-              ? 'Disabling…'
-              : 'Disable'
+              ? t('shared.disabling')
+              : t('shared.disable')
         }
         destructive={!toggleEnable}
         onConfirm={onConfirmToggle}
@@ -293,9 +310,9 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
       />
       <ConfirmDialog
         open={!!pendingDisable}
-        title="Disable SSTP server"
-        description="Stop the SSTP server on this router? Firewall rules added for it are removed and clients can no longer connect over SSTP."
-        confirmLabel={disableSubmitting ? 'Disabling…' : 'Disable'}
+        title={t('servers.disable.title', { protocol: disableLabel })}
+        description={t('servers.disable.description', { protocol: disableLabel })}
+        confirmLabel={disableSubmitting ? t('shared.disabling') : t('shared.disable')}
         destructive
         onConfirm={onConfirmDisable}
         onCancel={() => {
@@ -304,12 +321,14 @@ export function ServersSection({ creds, servers, peerCounts, onChanged }: Props)
           setDeleteCertFiles(false);
         }}
       >
-        <Checkbox
-          label="Also delete certificates and their files"
-          checked={deleteCertFiles}
-          disabled={disableSubmitting}
-          onChange={(e) => setDeleteCertFiles(e.target.checked)}
-        />
+        {pendingDisable?.protocol === 'sstp' ? (
+          <Checkbox
+            label={t('servers.disable.alsoDeleteCerts')}
+            checked={deleteCertFiles}
+            disabled={disableSubmitting}
+            onChange={(e) => setDeleteCertFiles(e.target.checked)}
+          />
+        ) : null}
       </ConfirmDialog>
     </Stack>
   );

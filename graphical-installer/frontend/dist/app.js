@@ -2,6 +2,7 @@
   'use strict';
 
   var PANEL_READY_DELAY_MS = 3000;
+  var COPY_LOG_RESET_MS = 2000;
   var DEVICE_LEAD_ASK = 'After you press Proceed, within 120 seconds do one of the following:';
   var DEVICE_LEAD_WAIT = 'Within 120 seconds do one of the following:';
   var REBOOT_LEAD_ASK = 'Use the MODE button while the router is powered on:';
@@ -14,6 +15,7 @@
   var rebootTimer = null;
   var rebootElapsed = 0;
   var panelReadyTimer = null;
+  var copyLogTimer = null;
   var routerBoard = '';
 
   function $(id) {
@@ -66,6 +68,7 @@
     hide('modal-device');
     hide('modal-reboot');
     hide('modal-storage');
+    hide('modal-wifi');
     stopRebootTimer();
   }
 
@@ -131,6 +134,7 @@
     $('btn-cancel').addEventListener('click', function () {
       App.CancelRun();
     });
+    $('btn-copy-log').addEventListener('click', copyLog);
     $('btn-back').addEventListener('click', backToForm);
     $('btn-again').addEventListener('click', backToForm);
     $('btn-device-ok').addEventListener('click', function () {
@@ -149,6 +153,18 @@
     $('btn-storage-no').addEventListener('click', function () {
       hide('modal-storage');
       App.ConfirmStorage('');
+    });
+    $('btn-wifi-ok').addEventListener('click', function () {
+      var picked = document.querySelector('#wifi-list input[name="wifi"]:checked');
+      var password = $('wifi-password').value;
+      $('wifi-password').value = '';
+      hide('modal-wifi');
+      App.ConfirmWiFi(picked ? picked.value : '', password);
+    });
+    $('btn-wifi-no').addEventListener('click', function () {
+      $('wifi-password').value = '';
+      hide('modal-wifi');
+      App.ConfirmWiFi('', '');
     });
     $('btn-reboot-ok').addEventListener('click', function () {
       setRebootWaiting(true);
@@ -179,6 +195,13 @@
     });
   }
 
+  // An empty version makes the installer look up the latest tagged release.
+  function versionFor(source) {
+    if (source === 'release') return val('version');
+    if (source === 'snapshot') return 'snapshot';
+    return '';
+  }
+
   function collectOptions() {
     var source = document.querySelector('input[name="source"]:checked').value;
     return {
@@ -186,13 +209,14 @@
       sshPort: num('sshPort', 22),
       user: val('user') || 'admin',
       password: $('password').value,
-      version: source === 'release' ? val('version') : '',
+      version: versionFor(source),
       imageTar: source === 'local' ? tarPath : '',
       lanPort: num('lanPort', 8080),
       httpsLanPort: num('httpsLanPort', 8443),
       skipLanBaseline: $('skipLanBaseline').checked,
       dryRun: $('dryRun').checked,
       noRollback: $('noRollback').checked,
+      wifiUplink: $('wifiUplink').checked,
     };
   }
 
@@ -245,7 +269,7 @@
           );
           return null;
         }
-        return uninstall ? App.UninstallSteps() : App.InstallSteps();
+        return uninstall ? App.UninstallSteps() : App.InstallSteps(collectOptions());
       })
       .then(function (steps) {
         if (!steps) return null;
@@ -341,6 +365,23 @@
     log.scrollTop = log.scrollHeight;
   }
 
+  function copyLog() {
+    var label = $('copy-log-label');
+    Promise.resolve(window.runtime.ClipboardSetText($('log').textContent))
+      .then(function (ok) {
+        label.textContent = ok === false ? 'Copy failed' : 'Copied';
+      })
+      .catch(function () {
+        label.textContent = 'Copy failed';
+      })
+      .then(function () {
+        clearTimeout(copyLogTimer);
+        copyLogTimer = setTimeout(function () {
+          label.textContent = 'Copy';
+        }, COPY_LOG_RESET_MS);
+      });
+  }
+
   function bindRuntimeEvents() {
     window.runtime.EventsOn('install:step', function (data) {
       setStep(data.id, data.status, data.detail);
@@ -432,6 +473,30 @@
         list.appendChild(label);
       });
       show('modal-storage');
+    });
+
+    window.runtime.EventsOn('install:wifi', function (data) {
+      var list = $('wifi-list');
+      list.textContent = '';
+      var networks = (data && data.networks) || [];
+      networks.forEach(function (network, index) {
+        var label = document.createElement('label');
+        label.className = 'storage-option';
+        var radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'wifi';
+        radio.value = network.ssid;
+        radio.checked = index === 0;
+        var text = document.createElement('span');
+        var facts = [network.signal + ' dBm'];
+        if (network.security) facts.push(network.security);
+        text.textContent = network.ssid + ' (' + facts.join(', ') + ')';
+        label.appendChild(radio);
+        label.appendChild(text);
+        list.appendChild(label);
+      });
+      $('wifi-password').value = '';
+      show('modal-wifi');
     });
 
     window.runtime.EventsOn('install:reboot-auto', function (data) {

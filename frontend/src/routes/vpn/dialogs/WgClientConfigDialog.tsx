@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Button,
@@ -43,6 +44,7 @@ export function WgClientConfigDialog({
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation('vpn');
 
   const addressError = useMemo(() => validateHostOrIp(publicAddress), [publicAddress]);
   const canLoad = !!creds && !loading && !addressError;
@@ -71,7 +73,7 @@ export function WgClientConfigDialog({
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to export client config.';
+              : t('ovpnExport.failed');
         setConfig('');
         setError(message);
       } finally {
@@ -80,7 +82,7 @@ export function WgClientConfigDialog({
     })();
 
     return () => controller.abort();
-  }, [creds, peerNameOrID, requestedAddress, requestNonce]);
+  }, [creds, peerNameOrID, requestedAddress, requestNonce, t]);
 
   const load = () => {
     setTouched(true);
@@ -104,9 +106,9 @@ export function WgClientConfigDialog({
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(config);
-      toast.notify({ title: 'Config copied to clipboard', tone: 'success' });
+      toast.notify({ title: t('wgConfig.copied'), tone: 'success' });
     } catch {
-      toast.notify({ title: 'Failed to copy config', tone: 'danger' });
+      toast.notify({ title: t('wgConfig.copyFailed'), tone: 'danger' });
     }
   };
 
@@ -114,18 +116,18 @@ export function WgClientConfigDialog({
     <Dialog
       open
       onClose={onClose}
-      title={`Client config - ${peerName}`}
+      title={t('wgConfig.title', { name: peerName })}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Close
+            {t('shared.close')}
           </Button>
           <Button variant="secondary" onClick={copy} disabled={!config || loading}>
-            Copy
+            {t('shared.copy')}
           </Button>
           <Button onClick={download} disabled={!config || loading}>
-            Download .conf
+            {t('wgConfig.download')}
           </Button>
         </>
       }
@@ -133,7 +135,7 @@ export function WgClientConfigDialog({
       <FieldStack>
         <FieldRow>
           <Label>
-            <span>Server public address</span>
+            <span>{t('ovpnExport.serverAddress')}</span>
             <Input
               value={publicAddress}
               onChange={(e) => setPublicAddress(e.target.value)}
@@ -142,7 +144,8 @@ export function WgClientConfigDialog({
                 if (e.key === 'Enter' && !e.nativeEvent.isComposing) load();
               }}
               placeholder="203.0.113.10"
-              aria-label="Server public address"
+              aria-label={t('ovpnExport.serverAddress')}
+              dir="ltr"
               aria-invalid={touched && !!addressError}
             />
             {touched && addressError ? <FormError>{addressError}</FormError> : null}
@@ -156,7 +159,9 @@ export function WgClientConfigDialog({
                 <QRCodeSVG value={config} size={216} marginSize={0} />
               </div>
             </div>
-            <Code style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{config}</Code>
+            <Code dir="ltr" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+              {config}
+            </Code>
           </>
         ) : null}
       </FieldStack>

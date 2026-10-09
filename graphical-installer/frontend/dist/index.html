@@ -76,6 +76,10 @@
               </div>
             </div>
           </div>
+          <label class="check">
+            <input type="checkbox" id="wifiUplink" />
+            <span>Use WiFi as uplink (the router joins a WiFi network during the install)</span>
+          </label>
           <div id="form-error" class="error hidden"></div>
 
           <details>
@@ -103,8 +107,12 @@
             <fieldset>
               <legend>Image source</legend>
               <label class="radio">
-                <input type="radio" name="source" value="snapshot" checked />
-                <span>Latest snapshot</span>
+                <input type="radio" name="source" value="latest" checked />
+                <span>Latest release</span>
+              </label>
+              <label class="radio">
+                <input type="radio" name="source" value="snapshot" />
+                <span>Development snapshot</span>
               </label>
               <label class="radio">
                 <input type="radio" name="source" value="release" />
@@ -152,7 +160,24 @@
             </div>
           </div>
           <div class="card log-card">
-            <h2>Log</h2>
+            <div class="log-header">
+              <h2>Log</h2>
+              <button id="btn-copy-log" type="button" class="small">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                </svg>
+                <span id="copy-log-label">Copy</span>
+              </button>
+            </div>
             <pre id="log"></pre>
           </div>
         </div>
@@ -288,6 +313,25 @@
           <div class="actions">
             <button id="btn-storage-ok" class="primary">Use this disk</button>
             <button id="btn-storage-no">Abort</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-wifi" class="modal hidden">
+        <div class="modal-box">
+          <h3>Pick a WiFi network</h3>
+          <p>
+            The router joins this network for the install, then goes back to its own WiFi settings
+            when the install ends.
+          </p>
+          <div id="wifi-list" class="storage-list"></div>
+          <label class="field">
+            <span>WiFi password (leave empty for an open network)</span>
+            <input id="wifi-password" type="password" autocomplete="off" />
+          </label>
+          <div class="actions">
+            <button id="btn-wifi-ok" class="primary">Connect</button>
+            <button id="btn-wifi-no">Abort</button>
           </div>
         </div>
       </div>

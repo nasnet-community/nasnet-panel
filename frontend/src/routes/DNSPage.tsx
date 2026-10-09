@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Globe, Pencil, RefreshCw, RotateCcw, SearchX } from 'lucide-react';
 import {
   Badge,
@@ -19,7 +20,7 @@ import {
   type DataTableColumn,
 } from '@nasnet/ui';
 import styles from './DNSPage.module.scss';
-import { DNSChangeDialog } from './DNSChangeDialog';
+import { DNSChangeDialog, dnsTypeLabel } from './DNSChangeDialog';
 import {
   ApiError,
   changeDns,
@@ -87,6 +88,7 @@ export function DNSPage() {
   const router = useRouter(id);
   const { getCredentials } = useSession();
   const toast = useToast();
+  const { t } = useTranslation('network');
 
   const [forwarders, setForwarders] = useState<DnsForwarderListItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -116,7 +118,7 @@ export function DNSPage() {
   const reload = useCallback(async () => {
     if (!creds) {
       setLoading(false);
-      setError('Missing router credentials for this session.');
+      setError(t('common.missingCredentials'));
       return;
     }
     setLoading(true);
@@ -125,12 +127,12 @@ export function DNSPage() {
       const data = await fetchDnsForwarders(creds);
       setForwarders(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load DNS servers.';
+      const message = err instanceof Error ? err.message : t('dns.loadFailed');
       setError(message);
     } finally {
       setLoading(false);
     }
-  }, [creds]);
+  }, [creds, t]);
 
   useEffect(() => {
     void reload();
@@ -152,7 +154,7 @@ export function DNSPage() {
       if (activeRouterRef.current !== requestId) return;
       setAdBlockEnabled(next);
       toast.notify({
-        title: next ? 'Ad-block enabled' : 'Ad-block disabled',
+        title: next ? t('dns.toasts.adBlockEnabled') : t('dns.toasts.adBlockDisabled'),
         tone: 'success',
       });
     } catch (err) {
@@ -161,14 +163,14 @@ export function DNSPage() {
         if (activeRouterRef.current !== requestId) return;
         setAdBlockEnabled(next);
         toast.notify({
-          title: next ? 'Ad-block was already on' : 'Ad-block was already off',
+          title: next ? t('dns.toasts.adBlockAlreadyOn') : t('dns.toasts.adBlockAlreadyOff'),
           tone: 'info',
         });
         return;
       }
       if (activeRouterRef.current !== requestId) return;
-      const message = err instanceof Error ? err.message : 'Failed to update ad-block.';
-      toast.notify({ title: 'Failed to update ad-block', description: message, tone: 'danger' });
+      const message = err instanceof Error ? err.message : t('dns.toasts.adBlockFailedDetail');
+      toast.notify({ title: t('dns.toasts.adBlockFailed'), description: message, tone: 'danger' });
     } finally {
       if (activeRouterRef.current === requestId) {
         setAdBlockBusy(false);
@@ -182,11 +184,11 @@ export function DNSPage() {
     setResetting(true);
     try {
       await resetDns(creds);
-      toast.notify({ title: 'DNS settings reset to defaults', tone: 'success' });
+      toast.notify({ title: t('dns.toasts.resetDone'), tone: 'success' });
       await reload();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to reset DNS settings.';
-      toast.notify({ title: 'Failed to reset DNS', description: message, tone: 'danger' });
+      const message = err instanceof Error ? err.message : t('dns.toasts.resetFailedDetail');
+      toast.notify({ title: t('dns.toasts.resetFailed'), description: message, tone: 'danger' });
     } finally {
       setResetting(false);
     }
@@ -199,10 +201,10 @@ export function DNSPage() {
     let result: Parameters<typeof toast.notify>[0];
     try {
       await flushDnsCache(creds);
-      result = { title: 'DNS cache cleared', tone: 'success' };
+      result = { title: t('dns.toasts.cacheCleared'), tone: 'success' };
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to clear the DNS cache.';
-      result = { title: 'Failed to clear DNS cache', description: message, tone: 'danger' };
+      const message = err instanceof Error ? err.message : t('dns.toasts.cacheFailedDetail');
+      result = { title: t('dns.toasts.cacheFailed'), description: message, tone: 'danger' };
     }
     const elapsed = Date.now() - startedAt;
     if (elapsed < FLUSH_MIN_DURATION_MS) {
@@ -218,12 +220,12 @@ export function DNSPage() {
     setApplyingFamily(true);
     try {
       await setFamilyDns(creds);
-      toast.notify({ title: 'Family DNS enabled', tone: 'success' });
+      toast.notify({ title: t('dns.toasts.familyEnabled'), tone: 'success' });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to enable Family DNS.';
+      const message = err instanceof Error ? err.message : t('dns.toasts.familyEnableFailedDetail');
       toast.notify({
-        title: 'Failed to enable Family DNS',
-        description: `${message} Some forwarders may already have been switched, so check the list before retrying.`,
+        title: t('dns.toasts.familyEnableFailed'),
+        description: t('dns.toasts.familyPartial', { message }),
         tone: 'danger',
       });
     } finally {
@@ -239,12 +241,13 @@ export function DNSPage() {
     try {
       await changeDns(creds, { oldIp: FAMILY_FOREIGN_IP, newIp: PLAIN_FOREIGN_IP });
       await changeDns(creds, { oldIp: FAMILY_VPN_IP, newIp: PLAIN_VPN_IP });
-      toast.notify({ title: 'Family DNS disabled', tone: 'success' });
+      toast.notify({ title: t('dns.toasts.familyDisabled'), tone: 'success' });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to disable Family DNS.';
+      const message =
+        err instanceof Error ? err.message : t('dns.toasts.familyDisableFailedDetail');
       toast.notify({
-        title: 'Failed to disable Family DNS',
-        description: `${message} Some forwarders may already have been switched, so check the list before retrying.`,
+        title: t('dns.toasts.familyDisableFailed'),
+        description: t('dns.toasts.familyPartial', { message }),
         tone: 'danger',
       });
     } finally {
@@ -253,18 +256,20 @@ export function DNSPage() {
     }
   };
 
-  const familyToggleLabel = familyEnabled ? 'Disabling…' : 'Enabling…';
+  const familyToggleLabel = familyEnabled ? t('dns.disabling') : t('dns.enabling');
 
   const columns: DataTableColumn<DnsForwarderListItem>[] = [
     {
       key: 'type',
-      header: 'Type',
+      header: t('dns.columns.type'),
       width: '140px',
-      render: (row) => <Badge tone={TYPE_TONES[row.name] ?? 'neutral'}>{row.name}</Badge>,
+      render: (row) => (
+        <Badge tone={TYPE_TONES[row.name] ?? 'neutral'}>{dnsTypeLabel(t, row.name)}</Badge>
+      ),
     },
     {
       key: 'ip',
-      header: 'DNS servers',
+      header: t('dns.columns.servers'),
       render: (row) => (
         <div className={styles.serverColumn}>
           {row.ip
@@ -281,7 +286,7 @@ export function DNSPage() {
     },
     {
       key: 'description',
-      header: 'Provider',
+      header: t('dns.columns.provider'),
       render: (row) =>
         row.description ? <span>{row.description}</span> : <span className={styles.muted}>-</span>,
     },
@@ -295,9 +300,9 @@ export function DNSPage() {
           variant="secondary"
           onClick={() => setEditing(row)}
           disabled={!creds || resetting || flushing || applyingFamily}
-          aria-label={`Edit ${row.name} DNS server`}
+          aria-label={t('dns.editAria', { name: dnsTypeLabel(t, row.name) })}
         >
-          <Pencil size={14} aria-hidden /> Edit
+          <Pencil size={14} aria-hidden /> {t('dns.edit')}
         </Button>
       ),
     },
@@ -314,9 +319,7 @@ export function DNSPage() {
                   <Globe size={16} aria-hidden /> DNS
                 </Inline>
               </CardTitle>
-              <CardDescription>
-                DNS servers configured on this router, grouped by domestic, foreign and VPN traffic.
-              </CardDescription>
+              <CardDescription>{t('dns.description')}</CardDescription>
             </div>
             <div className={styles.headerActions}>
               <Button
@@ -325,7 +328,7 @@ export function DNSPage() {
                 onClick={reload}
                 disabled={loading || resetting || flushing}
               >
-                <RefreshCw size={14} aria-hidden /> Refresh
+                <RefreshCw size={14} aria-hidden /> {t('dns.refresh')}
               </Button>
               <Button
                 size="sm"
@@ -333,7 +336,8 @@ export function DNSPage() {
                 onClick={() => setConfirmingReset(true)}
                 disabled={loading || resetting || flushing || applyingFamily || !creds}
               >
-                <RotateCcw size={14} aria-hidden /> {resetting ? 'Resetting…' : 'Reset'}
+                <RotateCcw size={14} aria-hidden />{' '}
+                {resetting ? t('dns.resetting') : t('dns.reset')}
               </Button>
             </div>
           </CardHeader>
@@ -357,7 +361,7 @@ export function DNSPage() {
               columns={columns}
               rows={forwarders}
               rowKey={(row) => row.name}
-              emptyMessage="No DNS servers configured"
+              emptyMessage={t('dns.empty')}
             />
           )}
         </Card>
@@ -365,7 +369,7 @@ export function DNSPage() {
         <aside className={styles.sidebar}>
           <Card data-testid="family-dns-card">
             <div className={styles.settingRow}>
-              <span className={styles.settingTitle}>DNS cache</span>
+              <span className={styles.settingTitle}>{t('dns.cache')}</span>
               <Button
                 size="sm"
                 variant="secondary"
@@ -373,19 +377,19 @@ export function DNSPage() {
                 onClick={runFlushCache}
                 loading={flushing}
                 disabled={loading || resetting || applyingFamily || !creds}
-                aria-label="Purge DNS cache"
+                aria-label={t('dns.purgeAria')}
                 data-testid="dns-flush-cache"
               >
-                {flushing ? 'Purging…' : 'Purge cache'}
+                {flushing ? t('dns.purging') : t('dns.purge')}
               </Button>
             </div>
 
             <Divider className={styles.settingDivider} />
 
             <div className={styles.settingRow}>
-              <span className={styles.settingTitle}>Family DNS</span>
+              <span className={styles.settingTitle}>{t('dns.family')}</span>
               <Switch
-                aria-label="Family DNS"
+                aria-label={t('dns.family')}
                 checked={familyEnabled}
                 onChange={(e) =>
                   setConfirmingFamily(e.currentTarget.checked ? 'enable' : 'disable')
@@ -406,18 +410,16 @@ export function DNSPage() {
                     className={styles.hintTrigger}
                     aria-describedby="dns-adblock-details"
                   >
-                    Ad-block
+                    {t('dns.adBlock')}
                   </button>
                   <span className={styles.hintPopover} id="dns-adblock-details" role="note">
-                    <span>Blocks ad and tracker domains for every device on the network.</span>
-                    <span className={styles.hintWarning}>
-                      Some sites stop working while it is on.
-                    </span>
+                    <span>{t('dns.adBlockHint')}</span>
+                    <span className={styles.hintWarning}>{t('dns.adBlockWarning')}</span>
                   </span>
                 </span>
               </span>
               <Switch
-                aria-label="Ad-block"
+                aria-label={t('dns.adBlock')}
                 checked={adBlockEnabled}
                 onChange={(e) => {
                   void toggleAdBlock(e.target.checked);
@@ -444,9 +446,9 @@ export function DNSPage() {
 
       <ConfirmDialog
         open={confirmingReset}
-        title="Reset DNS settings?"
-        description="Every DNS server, forwarder, failover route and netwatch probe returns to its default value. Custom DNS servers are discarded."
-        confirmLabel="Reset"
+        title={t('dns.confirmReset.title')}
+        description={t('dns.confirmReset.description')}
+        confirmLabel={t('dns.reset')}
         destructive
         onConfirm={runReset}
         onCancel={() => setConfirmingReset(false)}
@@ -454,9 +456,9 @@ export function DNSPage() {
 
       <ConfirmDialog
         open={confirmingFamily === 'enable'}
-        title="Enable Family DNS?"
-        description="The Foreign and VPN forwarders switch to filtering servers."
-        confirmLabel="Enable"
+        title={t('dns.confirmEnableFamily.title')}
+        description={t('dns.confirmEnableFamily.description')}
+        confirmLabel={t('dns.confirmEnableFamily.confirm')}
         confirmVariant="success"
         onConfirm={runFamilyDns}
         onCancel={() => setConfirmingFamily(null)}
@@ -464,9 +466,9 @@ export function DNSPage() {
 
       <ConfirmDialog
         open={confirmingFamily === 'disable'}
-        title="Disable Family DNS?"
-        description="The Foreign and VPN forwarders go back to their standard servers, and filtering stops."
-        confirmLabel="Disable"
+        title={t('dns.confirmDisableFamily.title')}
+        description={t('dns.confirmDisableFamily.description')}
+        confirmLabel={t('dns.confirmDisableFamily.confirm')}
         onConfirm={stopFamilyDns}
         onCancel={() => setConfirmingFamily(null)}
       />

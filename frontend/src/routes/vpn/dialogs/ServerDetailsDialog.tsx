@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Button, ConfirmDialog, Dialog, useToast } from '@nasnet/ui';
 import { Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import styles from '../../VPNPage.module.scss';
+import i18n from '../../../i18n';
 import {
   ApiError,
   deleteWireguardPeer,
@@ -20,6 +22,7 @@ import {
   type WireguardDetailedResponse,
   type WireguardPeerResponse,
 } from '../../../api';
+import { useFormat } from '../../../utils/useFormat';
 import { ActiveConnectionsSection } from '../sections/ActiveConnectionsSection';
 import { AddWgPeerDialog } from './AddWgPeerDialog';
 import { EditWgPeerDialog } from './EditWgPeerDialog';
@@ -57,6 +60,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
   const [pendingDeletePeer, setPendingDeletePeer] = useState<WireguardPeerResponse | null>(null);
   const [peerDeleteSubmitting, setPeerDeleteSubmitting] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation('vpn');
 
   const reload = useCallback(() => setRefreshKey((k) => k + 1), []);
 
@@ -78,7 +82,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
             ? err.message
             : err instanceof Error
               ? err.message
-              : 'Failed to load server details.';
+              : t('details.loadFailed');
         setError(message);
       } finally {
         setLoading(false);
@@ -86,7 +90,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
     })();
 
     return () => controller.abort();
-  }, [server, creds, refreshKey]);
+  }, [server, creds, refreshKey, t]);
 
   const onConfirmDeletePeer = async () => {
     if (!creds || !pendingDeletePeer) return;
@@ -100,14 +104,18 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
           ? err.message
           : err instanceof Error
             ? err.message
-            : 'Failed to delete peer.';
-      toast.notify({ title: 'Failed to delete peer', description: message, tone: 'danger' });
+            : t('details.peers.deleteFailedDescription');
+      toast.notify({
+        title: t('details.peers.deleteFailed'),
+        description: message,
+        tone: 'danger',
+      });
       setPeerDeleteSubmitting(false);
       return;
     }
     setPeerDeleteSubmitting(false);
     setPendingDeletePeer(null);
-    toast.notify({ title: `Peer "${target.name}" deleted`, tone: 'info' });
+    toast.notify({ title: t('details.peers.deleted', { name: target.name }), tone: 'info' });
     reload();
   };
 
@@ -128,22 +136,26 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
       <Dialog
         open={!!server}
         onClose={onClose}
-        title={server ? `${server.protocol.toUpperCase()} server: ${server.name}` : ''}
+        title={
+          server
+            ? t('details.title', { protocol: server.protocol.toUpperCase(), name: server.name })
+            : ''
+        }
         size="lg"
         footer={
           <>
             {isOvpn ? (
               <Button variant="secondary" onClick={() => setExporting(true)} disabled={!creds}>
-                Export .ovpn
+                {t('details.exportOvpn')}
               </Button>
             ) : null}
             <Button variant="ghost" onClick={onClose}>
-              Close
+              {t('shared.close')}
             </Button>
           </>
         }
       >
-        {loading ? <p>Loading…</p> : null}
+        {loading ? <p>{t('shared.loading')}</p> : null}
         {error ? <p style={{ color: 'var(--color-danger)' }}>{error}</p> : null}
         {details && server ? (
           <DetailsBody
@@ -175,7 +187,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
           onCancel={() => setAddingPeer(false)}
           onCreated={(created) => {
             setAddingPeer(false);
-            toast.notify({ title: 'WireGuard peer created', tone: 'success' });
+            toast.notify({ title: t('details.peers.created'), tone: 'success' });
             if (created.privateKey && details.kind === 'wireguard') {
               setConfigPeer({
                 peerName: created.name,
@@ -205,7 +217,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
           onCancel={() => setEditingPeer(null)}
           onSaved={() => {
             setEditingPeer(null);
-            toast.notify({ title: 'WireGuard peer updated', tone: 'success' });
+            toast.notify({ title: t('details.peers.updated'), tone: 'success' });
             reload();
           }}
         />
@@ -213,13 +225,13 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
 
       <ConfirmDialog
         open={!!pendingDeletePeer}
-        title="Delete WireGuard peer"
+        title={t('details.peers.deleteTitle')}
         description={
           pendingDeletePeer
-            ? `Remove peer "${pendingDeletePeer.name}" from this server? This cannot be undone.`
+            ? t('details.peers.deleteDescription', { name: pendingDeletePeer.name })
             : undefined
         }
-        confirmLabel={peerDeleteSubmitting ? 'Deleting…' : 'Delete'}
+        confirmLabel={peerDeleteSubmitting ? t('shared.deleting') : t('shared.delete')}
         destructive
         onConfirm={onConfirmDeletePeer}
         onCancel={() => (peerDeleteSubmitting ? undefined : setPendingDeletePeer(null))}
@@ -249,18 +261,21 @@ async function loadDetails(
     case 'sstp':
       return { kind: 'sstp', data: await fetchSstpServerDetails(creds, signal) };
     default:
-      throw new Error(`No detail endpoint for protocol "${server.protocol}".`);
+      throw new Error(i18n.t('details.noEndpoint', { ns: 'vpn', protocol: server.protocol }));
   }
 }
 
 function SummaryRows({ server }: { server: VPNServer }) {
+  const { t } = useTranslation('vpn');
   return (
     <>
-      {server.listenPort ? <Row label="Port" value={server.listenPort} /> : null}
-      {server.localIp ? <Row label="Local IP" value={server.localIp} /> : null}
-      {server.localIpPool ? <Row label="Local IP pool" value={server.localIpPool} /> : null}
-      {server.remoteIp ? <Row label="Remote IP" value={server.remoteIp} /> : null}
-      {server.ipPool ? <Row label="Remote IP pool" value={server.ipPool} /> : null}
+      {server.listenPort ? <Row label={t('shared.port')} value={server.listenPort} ltr /> : null}
+      {server.localIp ? <Row label={t('details.localIp')} value={server.localIp} ltr /> : null}
+      {server.localIpPool ? (
+        <Row label={t('details.localIpPool')} value={server.localIpPool} ltr />
+      ) : null}
+      {server.remoteIp ? <Row label={t('details.remoteIp')} value={server.remoteIp} ltr /> : null}
+      {server.ipPool ? <Row label={t('details.remoteIpPool')} value={server.ipPool} ltr /> : null}
     </>
   );
 }
@@ -284,22 +299,27 @@ function DetailsBody({
   onDeletePeer,
   onShowPeerConfig,
 }: DetailsBodyProps) {
+  const { t } = useTranslation('vpn');
   switch (details.kind) {
     case 'openvpn': {
       const d = details.data;
       return (
         <DList>
           <SummaryRows server={server} />
-          <Row label="Name" value={d.name} />
-          <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
-          {server.listenPort ? null : <Row label="Port" value={d.port} />}
-          <Row label="Protocol" value={d.protocol} />
-          <Row label="Certificate" value={d.certificate} />
+          <Row label={t('shared.name')} value={d.name} />
+          <Row label={t('shared.enabled')} value={<BoolBadge value={d.enabled} />} />
+          {server.listenPort ? null : <Row label={t('shared.port')} value={d.port} ltr />}
+          <Row label={t('shared.protocol')} value={d.protocol} />
+          <Row label={t('details.certificate')} value={d.certificate} />
           <Row
-            label="Require client cert"
+            label={t('details.requireClientCert')}
             value={<BoolBadge value={d.requireClientCertificate} />}
           />
-          <Row label="Comment" value={d.comment ? <strong>{d.comment}</strong> : '–'} wide />
+          <Row
+            label={t('shared.comment')}
+            value={d.comment ? <strong>{d.comment}</strong> : '–'}
+            wide
+          />
         </DList>
       );
     }
@@ -309,14 +329,20 @@ function DetailsBody({
         <>
           <DList>
             <SummaryRows server={server} />
-            <Row label="Name" value={d.name} />
-            <Row label="Enabled" value={<BoolBadge value={!d.disabled} />} />
-            <Row label="Running" value={<BoolBadge value={d.running} />} />
-            {server.listenPort ? null : <Row label="Listen port" value={d.listenPort} />}
+            <Row label={t('shared.name')} value={d.name} />
+            <Row label={t('shared.enabled')} value={<BoolBadge value={!d.disabled} />} />
+            <Row label={t('shared.running')} value={<BoolBadge value={d.running} />} />
+            {server.listenPort ? null : (
+              <Row label={t('shared.listenPort')} value={d.listenPort} ltr />
+            )}
             <Row label="MTU" value={d.mtu} />
-            <Row label="Public key" value={<code>{d.publicKey}</code>} wide />
-            <Row label="Private key" value={<code>{d.privateKey}</code>} wide />
-            {d.comment ? <Row label="Comment" value={d.comment} /> : null}
+            <Row label={t('shared.publicKey')} value={<code dir="ltr">{d.publicKey}</code>} wide />
+            <Row
+              label={t('shared.privateKey')}
+              value={<code dir="ltr">{d.privateKey}</code>}
+              wide
+            />
+            {d.comment ? <Row label={t('shared.comment')} value={d.comment} /> : null}
           </DList>
           <PeersSection
             peers={d.peers}
@@ -334,16 +360,20 @@ function DetailsBody({
       return (
         <DList>
           <SummaryRows server={server} />
-          <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
-          <Row label="Auth" value={d.auth} />
-          <Row label="Profile" value={d.profile} />
-          {server.localIp ? null : <Row label="Local address" value={d.localAddress} />}
-          {server.remoteIp ? null : <Row label="Remote address" value={d.remoteAddress} />}
-          <Row label="DNS server" value={d.dnsServer} />
-          <Row label="Use compression" value={d.useCompression} />
-          <Row label="Use encryption" value={d.useEncryption} />
-          <Row label="Only one" value={d.onlyOne} />
-          <Row label="Change TCP MSS" value={d.changeTcpMss} />
+          <Row label={t('shared.enabled')} value={<BoolBadge value={d.enabled} />} />
+          <Row label={t('details.auth')} value={d.auth} />
+          <Row label={t('users.table.profile')} value={d.profile} />
+          {server.localIp ? null : (
+            <Row label={t('details.localAddress')} value={d.localAddress} ltr />
+          )}
+          {server.remoteIp ? null : (
+            <Row label={t('details.remoteAddress')} value={d.remoteAddress} ltr />
+          )}
+          <Row label={t('details.dnsServer')} value={d.dnsServer} ltr />
+          <Row label={t('details.useCompression')} value={d.useCompression} />
+          <Row label={t('details.useEncryption')} value={d.useEncryption} />
+          <Row label={t('details.onlyOne')} value={d.onlyOne} />
+          <Row label={t('details.changeTcpMss')} value={d.changeTcpMss} />
           <SecretsRow secrets={d.secrets} />
         </DList>
       );
@@ -353,24 +383,31 @@ function DetailsBody({
       return (
         <DList>
           <SummaryRows server={server} />
-          <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
-          <Row label="Auth" value={d.auth} />
-          <Row label="Profile" value={d.profile} />
-          <Row label="Protocol" value={d.protocol} />
+          <Row label={t('shared.enabled')} value={<BoolBadge value={d.enabled} />} />
+          <Row label={t('details.auth')} value={d.auth} />
+          <Row label={t('users.table.profile')} value={d.profile} />
+          <Row label={t('shared.protocol')} value={d.protocol} />
           <Row label="IPsec" value={d.ipsec} />
           <Row
-            label="IPsec secret"
-            value={d.ipsecSecret ? <code>{d.ipsecSecret}</code> : '–'}
+            label={t('shared.ipsecSecret')}
+            value={d.ipsecSecret ? <code dir="ltr">{d.ipsecSecret}</code> : '–'}
             wide
           />
-          <Row label="One session per host" value={<BoolBadge value={d.oneSessionPerHost} />} />
-          {server.localIp ? null : <Row label="Local address" value={d.localAddress} />}
-          {server.remoteIp ? null : <Row label="Remote address" value={d.remoteAddress} />}
-          <Row label="DNS server" value={d.dnsServer} />
-          <Row label="Use compression" value={d.useCompression} />
-          <Row label="Use encryption" value={d.useEncryption} />
-          <Row label="Only one" value={d.onlyOne} />
-          <Row label="Change TCP MSS" value={d.changeTcpMss} />
+          <Row
+            label={t('details.oneSessionPerHost')}
+            value={<BoolBadge value={d.oneSessionPerHost} />}
+          />
+          {server.localIp ? null : (
+            <Row label={t('details.localAddress')} value={d.localAddress} ltr />
+          )}
+          {server.remoteIp ? null : (
+            <Row label={t('details.remoteAddress')} value={d.remoteAddress} ltr />
+          )}
+          <Row label={t('details.dnsServer')} value={d.dnsServer} ltr />
+          <Row label={t('details.useCompression')} value={d.useCompression} />
+          <Row label={t('details.useEncryption')} value={d.useEncryption} />
+          <Row label={t('details.onlyOne')} value={d.onlyOne} />
+          <Row label={t('details.changeTcpMss')} value={d.changeTcpMss} />
           <SecretsRow secrets={d.secrets} />
         </DList>
       );
@@ -380,11 +417,14 @@ function DetailsBody({
       return (
         <DList>
           <SummaryRows server={server} />
-          <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
-          {server.listenPort ? null : <Row label="Port" value={d.port} />}
-          <Row label="Certificate" value={d.certificate} />
-          <Row label="Verify client cert" value={<BoolBadge value={d.verifyClientCertificate} />} />
-          <Row label="TLS version" value={d.tlsVersion} />
+          <Row label={t('shared.enabled')} value={<BoolBadge value={d.enabled} />} />
+          {server.listenPort ? null : <Row label={t('shared.port')} value={d.port} ltr />}
+          <Row label={t('details.certificate')} value={d.certificate} />
+          <Row
+            label={t('details.verifyClientCert')}
+            value={<BoolBadge value={d.verifyClientCertificate} />}
+          />
+          <Row label={t('details.tlsVersion')} value={d.tlsVersion} />
         </DList>
       );
     }
@@ -408,6 +448,8 @@ function PeersSection({
   onDelete,
   onShowConfig,
 }: PeersSectionProps) {
+  const { t } = useTranslation('vpn');
+  const format = useFormat();
   return (
     <div style={{ marginTop: 16 }}>
       <div
@@ -419,33 +461,35 @@ function PeersSection({
         }}
       >
         <strong>
-          Peers <Badge tone="info">{peers.length}</Badge>
+          {t('servers.table.peers')} <Badge tone="info">{format.number(peers.length)}</Badge>
         </strong>
         <Button size="sm" variant="success" disabled={!canMutate} onClick={onAdd}>
-          <Plus size={14} aria-hidden /> Add peer
+          <Plus size={14} aria-hidden /> {t('peers.add')}
         </Button>
       </div>
       {peers.length === 0 ? (
-        <p style={{ color: 'var(--color-muted)' }}>No peers configured.</p>
+        <p style={{ color: 'var(--color-muted)' }}>{t('details.peers.empty')}</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--color-border)' }}>
-                <th style={{ padding: '6px 8px' }}>Name</th>
-                <th style={{ padding: '6px 8px' }}>Allowed addresses</th>
-                <th style={{ padding: '6px 8px' }}>Endpoint</th>
-                <th style={{ padding: '6px 8px' }}>Last handshake</th>
-                <th style={{ padding: '6px 8px' }}>Status</th>
-                <th style={{ padding: '6px 8px', width: 160 }}>Actions</th>
+              <tr style={{ textAlign: 'start', borderBottom: '1px solid var(--color-border)' }}>
+                <th style={{ padding: '6px 8px' }}>{t('shared.name')}</th>
+                <th style={{ padding: '6px 8px' }}>{t('shared.allowedAddresses')}</th>
+                <th style={{ padding: '6px 8px' }}>{t('details.peers.endpoint')}</th>
+                <th style={{ padding: '6px 8px' }}>{t('details.peers.lastHandshake')}</th>
+                <th style={{ padding: '6px 8px' }}>{t('shared.status')}</th>
+                <th style={{ padding: '6px 8px', width: 160 }}>{t('shared.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {peers.map((p) => (
                 <tr key={p.id || p.name} style={{ borderBottom: '1px solid var(--color-border)' }}>
                   <td style={{ padding: '6px 8px' }}>{p.name}</td>
-                  <td style={{ padding: '6px 8px' }}>{p.allowedAddresses || '–'}</td>
-                  <td style={{ padding: '6px 8px' }}>
+                  <td style={{ padding: '6px 8px' }} dir="ltr">
+                    {p.allowedAddresses || '–'}
+                  </td>
+                  <td style={{ padding: '6px 8px' }} dir="ltr">
                     {p.currentEndpointAddress
                       ? `${p.currentEndpointAddress}:${p.currentEndpointPort}`
                       : p.endpointAddress
@@ -464,10 +508,10 @@ function PeersSection({
                         disabled={!p.privateKey}
                         title={
                           p.privateKey
-                            ? `Client config for ${p.name}`
-                            : 'Private key not stored on router'
+                            ? t('details.peers.configFor', { name: p.name })
+                            : t('details.peers.noPrivateKey')
                         }
-                        aria-label={`Client config for peer ${p.name}`}
+                        aria-label={t('details.peers.configForPeer', { name: p.name })}
                         onClick={() => onShowConfig(p)}
                       >
                         <QrCode size={14} aria-hidden />
@@ -476,8 +520,8 @@ function PeersSection({
                         size="sm"
                         variant="secondary"
                         disabled={!canMutate}
-                        title={`Edit ${p.name}`}
-                        aria-label={`Edit peer ${p.name}`}
+                        title={t('shared.editNamed', { name: p.name })}
+                        aria-label={t('details.peers.editPeer', { name: p.name })}
                         onClick={() => onEdit(p)}
                       >
                         <Pencil size={14} aria-hidden />
@@ -486,8 +530,8 @@ function PeersSection({
                         size="sm"
                         variant="danger"
                         disabled={!canMutate}
-                        title={`Delete ${p.name}`}
-                        aria-label={`Delete peer ${p.name}`}
+                        title={t('shared.deleteNamed', { name: p.name })}
+                        aria-label={t('details.peers.deletePeer', { name: p.name })}
                         onClick={() => onDelete(p)}
                       >
                         <Trash2 size={14} aria-hidden />
@@ -508,35 +552,50 @@ function DList({ children }: { children: React.ReactNode }) {
   return <dl className={styles.detailsList}>{children}</dl>;
 }
 
-function Row({ label, value, wide }: { label: string; value: React.ReactNode; wide?: boolean }) {
+function Row({
+  label,
+  value,
+  wide,
+  ltr,
+}: {
+  label: string;
+  value: React.ReactNode;
+  wide?: boolean;
+  // Machine values (IPs, ports, keys) keep left-to-right order in RTL layouts.
+  ltr?: boolean;
+}) {
   const empty = value === '' || value === null || value === undefined;
   return (
     <>
       <dt className={styles.detailsLabel}>{label}</dt>
       <dd className={`${styles.detailsValue}${wide ? ` ${styles.detailsValueWide}` : ''}`}>
-        {empty ? '–' : value}
+        {empty ? '–' : ltr ? <span dir="ltr">{value}</span> : value}
       </dd>
     </>
   );
 }
 
 function BoolBadge({ value }: { value: boolean }) {
-  return <Badge tone={value ? 'success' : 'neutral'}>{value ? 'Yes' : 'No'}</Badge>;
+  const { t } = useTranslation('vpn');
+  return (
+    <Badge tone={value ? 'success' : 'neutral'}>{value ? t('shared.yes') : t('shared.no')}</Badge>
+  );
 }
 
 function SecretsRow({ secrets }: { secrets: Array<{ username: string; password: string }> }) {
+  const { t } = useTranslation('vpn');
   if (!secrets || secrets.length === 0) {
-    return <Row label="Secrets" value="–" wide />;
+    return <Row label={t('details.secrets')} value="–" wide />;
   }
   return (
     <Row
-      label="Secrets"
+      label={t('details.secrets')}
       wide
       value={
-        <ul style={{ margin: 0, paddingLeft: 16 }}>
+        <ul style={{ margin: 0, paddingInlineStart: 16 }}>
           {secrets.map((s) => (
             <li key={s.username}>
-              <strong>{s.username}</strong> · <code>{s.password}</code>
+              <strong>{s.username}</strong> · <code dir="ltr">{s.password}</code>
             </li>
           ))}
         </ul>

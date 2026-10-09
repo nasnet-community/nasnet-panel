@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, Label, PasswordInput, Select } from '@nasnet/ui';
 import { scanWifiAccessPoints, type WifiAccessPointResponse } from '../../../../api';
 import { useSession } from '../../../../state/SessionContext';
 import { useRouter } from '../../../../state/RouterStoreContext';
+import { messageText, type Message } from '../../state';
 import { verifyWirelessPassword } from './wirelessScanMock';
 import styles from './WirelessScanDialog.module.scss';
 
@@ -19,9 +21,9 @@ function isOpenSecurity(security?: string): boolean {
   return s === '' || s === 'none' || s === 'open';
 }
 
-function securityLabel(security?: string): string {
+function securityLabel(openLabel: string, security?: string): string {
   const s = (security ?? '').toLowerCase();
-  if (isOpenSecurity(s)) return 'Open';
+  if (isOpenSecurity(s)) return openLabel;
   if (s.includes('wpa3')) return 'WPA3';
   if (s.includes('wpa2')) return 'WPA2';
   if (s.includes('wpa')) return 'WPA';
@@ -35,13 +37,14 @@ function signalNumber(signal?: string): number {
 }
 
 export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }: Props) {
+  const { t } = useTranslation('easyConfig');
   const { id: routerId } = useParams<{ id: string }>();
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
 
   const [networks, setNetworks] = useState<WifiAccessPointResponse[]>([]);
   const [scanning, setScanning] = useState(false);
-  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanError, setScanError] = useState<Message | null>(null);
   const [ssid, setSsid] = useState('');
   const [password, setPassword] = useState('');
   const [verifying, setVerifying] = useState(false);
@@ -58,7 +61,7 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
     const host = router?.host;
     if (!creds || !host || !interfaceName) {
       setNetworks([]);
-      setScanError('Missing router credentials or interface.');
+      setScanError({ key: 'wan.scan.missingCredentials' });
       return;
     }
 
@@ -80,7 +83,7 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
       .catch((err: Error) => {
         if (controller.signal.aborted) return;
         setNetworks([]);
-        setScanError(err?.message || 'Failed to scan networks.');
+        setScanError(err?.message ? { text: err.message } : { key: 'wan.scan.scanFailed' });
         setScanning(false);
       });
 
@@ -89,17 +92,20 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
     };
   }, [open, routerId, router?.host, interfaceName, getCredentials]);
 
+  const scanningLabel = t('wan.scan.scanningOption');
+  const selectLabel = t('wan.scan.selectNetwork');
+  const openLabel = t('wan.scan.open');
   const options = useMemo(
     () => [
-      { value: '', label: scanning ? 'Scanning networks…' : 'Select a network' },
+      { value: '', label: scanning ? scanningLabel : selectLabel },
       ...networks
         .filter((n) => n.ssid)
         .map((n) => ({
           value: n.ssid as string,
-          label: `${n.ssid} (${securityLabel(n.security)})`,
+          label: `${n.ssid} (${securityLabel(openLabel, n.security)})`,
         })),
     ],
-    [networks, scanning],
+    [networks, scanning, scanningLabel, selectLabel, openLabel],
   );
 
   const selected = networks.find((n) => n.ssid === ssid) ?? null;
@@ -124,25 +130,25 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
       open={open}
       onClose={verifying ? () => undefined : onClose}
       size="md"
-      title="Choose a wireless network"
-      description="Pick a network within range. Enter its password if it requires one."
+      title={t('wan.scan.title')}
+      description={t('wan.scan.description')}
       labelledBy="wireless-scan-title"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={verifying}>
-            Cancel
+            {t('wan.scan.cancel')}
           </Button>
           <Button variant="success" onClick={onVerify} loading={verifying} disabled={!canVerify}>
-            Verify and connect
+            {t('wan.scan.verify')}
           </Button>
         </>
       }
     >
       <div className={styles.connect}>
         <Label>
-          <span>Network</span>
+          <span>{t('wan.scan.network')}</span>
           <Select
-            aria-label="Wireless network"
+            aria-label={t('wan.scan.networkAria')}
             value={ssid}
             onChange={(v) => {
               setSsid(v);
@@ -151,7 +157,7 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
             }}
             options={options}
             searchable
-            searchPlaceholder="Search networks…"
+            searchPlaceholder={t('wan.scan.search')}
             maxOptionsHeight={126}
             disabled={scanning}
           />
@@ -159,20 +165,20 @@ export function WirelessScanDialog({ open, interfaceName, onClose, onConnected }
         {scanning ? (
           <div className={styles.scanning} role="status">
             <span className={styles.spinner} aria-hidden />
-            <span>Scanning for nearby networks…</span>
+            <span>{t('wan.scan.scanning')}</span>
           </div>
         ) : null}
         {selected ? (
           <Label>
-            <span>Password (optional)</span>
+            <span>{t('wan.scan.passwordOptional')}</span>
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              aria-label="Wireless password"
+              aria-label={t('wan.scan.passwordAria')}
             />
           </Label>
         ) : null}
-        {scanError ? <p className={styles.error}>{scanError}</p> : null}
+        {scanError ? <p className={styles.error}>{messageText(scanError)}</p> : null}
         {error ? <p className={styles.error}>{error}</p> : null}
       </div>
     </Dialog>

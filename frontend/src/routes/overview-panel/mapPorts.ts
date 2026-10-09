@@ -1,4 +1,5 @@
 import type { InterfaceResponse } from '../../api';
+import type { TFunction } from 'i18next';
 import type { IfaceLink, PortSlot, PortStatus, RateTone, ResolvedSlot, SlotKind } from './types';
 
 const PORT_KINDS: SlotKind[] = ['ethernet', 'sfp'];
@@ -10,17 +11,13 @@ export const POWER_ACTION: Partial<Record<SlotKind, PowerAction>> = {
   power: 'shutdown',
 };
 
-export const STATUS_LABEL: Record<PortStatus, string> = {
-  up: 'up',
-  down: 'down',
-  disabled: 'disabled',
-  absent: 'not detected',
-};
+type OverviewT = TFunction<'overview'>;
 
-const ACTION_TOOLTIP: Record<PowerAction, string> = {
-  reboot: 'Reboot router',
-  shutdown: 'Shutdown router',
-};
+export const statusLabel = (status: PortStatus, t: OverviewT): string =>
+  t(`ports.status.${status}`);
+
+const actionTooltip = (action: PowerAction, t: OverviewT): string =>
+  t(action === 'reboot' ? 'ports.rebootRouter' : 'ports.shutdownRouter');
 
 const findIface = (
   interfaces: InterfaceResponse[],
@@ -51,10 +48,10 @@ const deriveRateTone = (
   return actual >= nominal / 10 ? 'degraded' : 'bad';
 };
 
-const formatLinkSpeed = (link: IfaceLink | undefined): string | undefined => {
+const formatLinkSpeed = (link: IfaceLink | undefined, t: OverviewT): string | undefined => {
   if (!link) return undefined;
   if (link.fullDuplex === undefined) return link.rate;
-  return `${link.rate} ${link.fullDuplex ? 'full' : 'half'} duplex`;
+  return t(link.fullDuplex ? 'ports.duplexFull' : 'ports.duplexHalf', { rate: link.rate });
 };
 
 const deriveStatus = (iface: InterfaceResponse | undefined): PortStatus => {
@@ -66,17 +63,18 @@ const deriveStatus = (iface: InterfaceResponse | undefined): PortStatus => {
 export function mapPorts(
   slots: PortSlot[],
   interfaces: InterfaceResponse[],
-  ifaceRates?: Readonly<Record<string, IfaceLink>>,
+  ifaceRates: Readonly<Record<string, IfaceLink>> | undefined,
+  t: OverviewT,
 ): ResolvedSlot[] {
   return slots.map((slot) => {
     if (!PORT_KINDS.includes(slot.kind)) {
       const action = POWER_ACTION[slot.kind];
-      const actionTooltip = action ? ACTION_TOOLTIP[action] : undefined;
+      const tooltip = action ? actionTooltip(action, t) : undefined;
       return {
         ...slot,
         status: 'up',
-        interactive: actionTooltip !== undefined,
-        tooltip: actionTooltip ?? slot.label ?? slot.kind,
+        interactive: tooltip !== undefined,
+        tooltip: tooltip ?? slot.label ?? slot.kind,
       };
     }
     const iface = findIface(interfaces, slot.ifaceName);
@@ -87,13 +85,13 @@ export function mapPorts(
     const mtu = iface?.actualMtu;
     const link = status === 'up' ? ifaceRates?.[name.toLowerCase()] : undefined;
     const rate = link?.rate;
-    const linkSpeed = formatLinkSpeed(link);
+    const linkSpeed = formatLinkSpeed(link, t);
     const rateTone = deriveRateTone(rate, slot.nominalSpeed);
     let tooltip: string;
     if (status === 'absent') {
-      tooltip = `${name} · not detected`;
+      tooltip = `${name} · ${statusLabel('absent', t)}`;
     } else {
-      const parts = [name, STATUS_LABEL[status]];
+      const parts = [name, statusLabel(status, t)];
       if (linkSpeed) parts.push(linkSpeed);
       if (rxLabel) parts.push(`↓ ${rxLabel}`);
       if (txLabel) parts.push(`↑ ${txLabel}`);

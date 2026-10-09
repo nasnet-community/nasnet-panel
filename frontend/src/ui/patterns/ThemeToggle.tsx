@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from './ThemeToggle.module.scss';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
@@ -13,6 +14,7 @@ export interface ThemeToggleProps {
 const cx = (...parts: Array<string | undefined | false>) => parts.filter(Boolean).join(' ');
 
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, resolved, onChange }) => {
+  const { t } = useTranslation('ui');
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +46,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, resolved, onCha
       <button
         type="button"
         className={styles.trigger}
-        aria-label="Theme"
+        aria-label={t('themeToggle.theme')}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((p) => !p)}
@@ -59,7 +61,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, resolved, onCha
             className={cx(styles.item, value === 'light' && styles.itemActive)}
             onClick={() => pick('light')}
           >
-            <Sun size={14} aria-hidden /> Light
+            <Sun size={14} aria-hidden /> {t('themeToggle.light')}
           </button>
           <button
             type="button"
@@ -67,7 +69,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, resolved, onCha
             className={cx(styles.item, value === 'dark' && styles.itemActive)}
             onClick={() => pick('dark')}
           >
-            <Moon size={14} aria-hidden /> Dark
+            <Moon size={14} aria-hidden /> {t('themeToggle.dark')}
           </button>
           <button
             type="button"
@@ -75,7 +77,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, resolved, onCha
             className={cx(styles.item, value === 'system' && styles.itemActive)}
             onClick={() => pick('system')}
           >
-            <Monitor size={14} aria-hidden /> System
+            <Monitor size={14} aria-hidden /> {t('themeToggle.system')}
           </button>
         </div>
       ) : null}

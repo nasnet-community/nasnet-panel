@@ -31,8 +31,10 @@
   }
   /ip/pool remove $i
 }
+/ip vrf remove [find builtin!=yes]
 
 :global WizardProgress "10"
+:set WizardMessage "Removing dynamic firewall, routing, and system entries"
 
 /tool netwatch remove [find]
 /ip/dhcp-server remove [find interface!="LANBridgeSplit"]
@@ -41,13 +43,14 @@
 /ip firewall filter remove [find dynamic=no && comment!="nasnet-panel-installer-forward"]
 /ip firewall nat remove [find dynamic=no && comment!="nasnet-panel-installer-srcnat" && comment!="nasnet-panel-installer-dstnat"]
 /ip firewall mangle remove [find dynamic=no]
+/ip firewall raw remove [find dynamic=no]
 /ip firewall address-list remove [find dynamic=no]
 /ip dns forwarder remove [find]
 /ip dns static remove [find dynamic=no]
 /ip route remove [find dynamic=no]
 /routing table remove [find dynamic!=yes]
 /routing rule remove [find default!=yes]
-/system script environment remove [/system script environment find name !=WizardProgress && name !=WizardCurrentStep]
+/system script environment remove [/system script environment find name !=WizardProgress && name !=WizardCurrentStep && name !=WizardFailed && name !=WizardMessage]
 /system script remove [find name!="wizard"]
 /system scheduler remove [find]
 /system logging remove [find default=no]
@@ -60,12 +63,14 @@
 /interface wireguard remove [find]
 /interface wireguard peers remove [find]
 :global WizardProgress "15"
+:set WizardMessage "Removing PPP, VPN, and address configuration"
 /ppp profile remove [find default=no]
 /ppp secret remove [find]
 /interface ovpn-server server remove [find]
 /interface wifi steering remove [find]
 /interface sstp-server server set enabled=no
-
+/interface l2tp-server server set enabled=no
+/ip address remove [find dynamic!=yes interface!="LANBridgeSplit" interface!="containers"]
 :foreach i in=[/ip/nat-pmp/interfaces find] do={
   :local interface [/ip/nat-pmp/interfaces get $i interface]
   :if ($interface = "LANBridgeSplit") do={

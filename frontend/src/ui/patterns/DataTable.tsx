@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './DataTable.module.scss';
 
 export interface DataTableColumn<T> {
@@ -26,18 +27,19 @@ export function DataTable<T>({
   rows,
   rowKey,
   onRowClick,
-  emptyMessage = 'No results',
+  emptyMessage,
   emptyIcon,
   caption,
   selectedId,
 }: DataTableProps<T>): React.ReactElement {
+  const { t } = useTranslation('ui');
   if (rows.length === 0) {
     return (
       <div className={styles.scroll}>
         {caption ? <div className={styles.empty}>{caption}</div> : null}
         <div className={styles.empty}>
           {emptyIcon ? <div className={styles.emptyIcon}>{emptyIcon}</div> : null}
-          <div>{emptyMessage}</div>
+          <div>{emptyMessage ?? t('dataTable.empty')}</div>
         </div>
       </div>
     );
