@@ -2371,7 +2371,10 @@ func parseWireGuardInfo(result map[string]string) *WireGuardInfo {
 }
 
 // ExportOvpnClientConfiguration exports OpenVPN client configuration using RouterOS command.
-func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCertName, clientCertName string) (string, error) {
+// It returns the configuration text and the name of the .ovpn file RouterOS
+// wrote it to, which stays on the router until the caller deletes it. The
+// file name is returned even when reading it back fails.
+func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCertName, clientCertName string) (config, fileName string, err error) {
 	args := []string{
 		"=server=" + serverName,
 		"=server-address=" + serverAddress,
@@ -2382,16 +2385,15 @@ func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCert
 
 	reply, err := c.Execute("/interface/ovpn-server/server/export-client-configuration", args...)
 	if err != nil {
-		return "", fmt.Errorf("failed to export client configuration: %w", err)
+		return "", "", fmt.Errorf("failed to export client configuration: %w", err)
 	}
 
 	if reply == nil || len(reply.Re) == 0 {
-		return "", fmt.Errorf("export returned empty response")
+		return "", "", fmt.Errorf("export returned empty response")
 	}
 
 	// Extract filename from progress message using regex
 	// Response format: "ovpn client configuration 'filename.ovpn' file exported"
-	var fileName string
 	for _, sentence := range reply.Re {
 		if progressMsg, ok := sentence.Map["progress"]; ok && progressMsg != "" {
 			// Use regex to extract filename from progress message
@@ -2405,13 +2407,13 @@ func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCert
 	}
 
 	if fileName == "" {
-		return "", fmt.Errorf("failed to extract filename from export response")
+		return "", "", fmt.Errorf("failed to extract filename from export response")
 	}
 
-	config, err := c.GetFileContents(fileName, 0)
+	config, err = c.GetFileContents(fileName, 0)
 	if err != nil {
-		return "", fmt.Errorf("failed to read exported configuration: %w", err)
+		return "", fileName, fmt.Errorf("failed to read exported configuration: %w", err)
 	}
 
-	return config, nil
+	return config, fileName, nil
 }

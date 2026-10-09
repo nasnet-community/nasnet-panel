@@ -3980,7 +3980,8 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 
 // HandleExportOvpnClient exports OpenVPN client configuration.
 // @Summary Export OpenVPN Client Configuration
-// @Description Generates and returns OVPN client configuration file using RouterOS export command
+// @Description Generates and returns OVPN client configuration file using RouterOS export command.
+// @Description The exported file is deleted from the router once it has been served.
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -4017,7 +4018,14 @@ func HandleExportOvpnClient(c echo.Context) error {
 	caName := strings.Replace(ovpnServerName, "server", "ca", 1)
 	clientCertName := strings.Replace(ovpnServerName, "server", "client", 1)
 
-	config, err := client.ExportOvpnClientConfiguration(serverName, publicAddress, caName, clientCertName)
+	config, exportedFile, err := client.ExportOvpnClientConfiguration(serverName, publicAddress, caName, clientCertName)
+	if exportedFile != "" {
+		defer func() {
+			if delErr := client.DeleteFile(exportedFile); delErr != nil {
+				c.Logger().Errorf("Failed to delete exported OVPN file %s: %v", exportedFile, delErr)
+			}
+		}()
+	}
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "failed to export client configuration", err)
 	}
