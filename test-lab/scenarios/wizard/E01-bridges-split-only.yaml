@@ -1,0 +1,15 @@
+id: 'E01-bridges-split-only'
+stage: wizard
+title: Only the Split bridge gets ports by default
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  sections:
+    - path: /interface/bridge/port
+      key: bridge
+      present: [LANBridgeSplit]
+      absent: [LANBridgeForeign, LANBridgeDomestic, LANBridgeVPN]

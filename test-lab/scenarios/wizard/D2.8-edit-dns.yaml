@@ -1,0 +1,32 @@
+id: 'D2.8-edit-dns'
+stage: wizard
+title: DNS edits from the panel apply, and invalid input changes nothing
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api:
+      method: PUT
+      path: /api/dns/info
+      body: { servers: '9.9.9.9,2620:fe::fe', dohServer: '' }
+      status: 200
+  - do: api
+    api:
+      method: PUT
+      path: /api/dns/info
+      body: { servers: not-an-ip }
+      status: 400
+  - do: api
+    api:
+      method: PUT
+      path: /api/dns/info
+      body: { dohServer: not a url }
+      status: 400
+expect:
+  values:
+    - path: /ip/dns
+      fields: { servers: '~9.9.9.9', use-doh-server: '' }

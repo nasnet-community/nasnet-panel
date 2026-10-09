@@ -1,0 +1,23 @@
+name: hap-ac2
+model: hAP ac2 RBD52G-5HacD2HnD
+arch: arm
+memory_mb: 128
+storage_mb: 16
+cpus: 1
+capabilities: [ethernet, container, wifi, usb, needs-usb-storage]
+ports:
+  - name: ether1
+    kind: poe-in
+    role: starlink
+  - name: ether2
+    kind: ethernet
+    role: domestic
+  - name: ether3
+    kind: ethernet
+    role: split
+  - name: ether4
+    kind: ethernet
+    role: spare
+  - name: ether5
+    kind: ethernet
+    role: spare

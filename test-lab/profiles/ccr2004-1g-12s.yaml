@@ -1,0 +1,23 @@
+name: ccr2004-1g-12s
+model: CCR2004-1G-12S+2XS
+arch: arm64
+memory_mb: 4096
+storage_mb: 128
+cpus: 1
+capabilities: [ethernet, container, sfp]
+ports:
+  - name: ether1
+    kind: ethernet
+    role: split
+  - name: sfp-sfpplus1
+    kind: sfp+
+    role: starlink
+  - name: sfp-sfpplus2
+    kind: sfp+
+    role: domestic
+  - name: sfp-sfpplus3
+    kind: sfp+
+    role: spare
+  - name: sfp-sfpplus4
+    kind: sfp+
+    role: spare
