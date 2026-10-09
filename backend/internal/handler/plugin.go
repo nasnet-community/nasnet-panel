@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -19,7 +20,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const pluginRegistryURL = "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/main/plugins.json"
+// pluginCatalogURL is the community plugin registry: plugins.json at its root and
+// each plugin's files under plugins/<id>. PLUGIN_CATALOG_URL points a dev router at
+// a local copy instead; the browser still loads icons from the public one.
+var pluginCatalogURL = catalogURL(os.Getenv("PLUGIN_CATALOG_URL"))
+
+func catalogURL(override string) string {
+	if u := strings.TrimRight(strings.TrimSpace(override), "/"); u != "" {
+		return u
+	}
+	return "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/main"
+}
+
+var (
+	pluginRegistryURL = pluginCatalogURL + "/plugins.json"
+	pluginFilesURL    = pluginCatalogURL + "/plugins"
+)
 
 // pluginContainersBridge is the bridge every plugin's veth interface is
 // attached to, protected from removal by the wizard's cleanup script, and
@@ -1497,7 +1513,7 @@ func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scr
 // preInstall/postInstall entry from a plugin's manifest.json), named relative
 // to the plugin's directory in the registry repository.
 func fetchPluginScript(ctx context.Context, id, scriptPath string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, pluginAssetsBaseURL+"/"+id+"/"+scriptPath, http.NoBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, pluginFilesURL+"/"+id+"/"+scriptPath, http.NoBody)
 	if err != nil {
 		return "", err
 	}
@@ -1532,7 +1548,7 @@ func fetchPluginRegistry(ctx context.Context) (*PluginRegistry, error) {
 
 func fetchPluginManifest(ctx context.Context, id string) (*PluginManifest, error) {
 	var manifest PluginManifest
-	if err := fetchPluginJSON(ctx, pluginAssetsBaseURL+"/"+id+"/manifest.json", &manifest); err != nil {
+	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/manifest.json", &manifest); err != nil {
 		return nil, err
 	}
 	return &manifest, nil
@@ -1543,7 +1559,7 @@ func fetchPluginManifest(ctx context.Context, id string) (*PluginManifest, error
 // "settings.json", but not assumed to always be).
 func fetchPluginSettings(ctx context.Context, id, settingsSchema string) (*PluginSettingsSchema, error) {
 	var schema PluginSettingsSchema
-	if err := fetchPluginJSON(ctx, pluginAssetsBaseURL+"/"+id+"/"+settingsSchema, &schema); err != nil {
+	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/"+settingsSchema, &schema); err != nil {
 		return nil, err
 	}
 	return &schema, nil

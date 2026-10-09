@@ -11,8 +11,8 @@ import (
 	"nasnet-panel/pkg/utils"
 )
 
-// Base URL hosting per-plugin assets (such as the icon and manifest) in the
-// community plugin registry repository, keyed by plugin id.
+// Base URL the browser loads each plugin's icon from, keyed by plugin id: always
+// the public registry, even when PLUGIN_CATALOG_URL points the panel elsewhere.
 const pluginAssetsBaseURL = "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/refs/heads/main/plugins"
 
 // PluginInfo represents a single plugin entry from the community plugin registry.
