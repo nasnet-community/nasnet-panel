@@ -11,6 +11,7 @@ import (
 const (
 	domesticBlockRuleComment = "Block traffic to DOMAddList"
 	domesticAddressList      = "DOMAddList"
+	domesticWANInterfaceList = "!Domestic-WAN"
 )
 
 // HandleListFirewallFilterRules godoc
@@ -90,8 +91,9 @@ func HandleGetDomesticBlock(c echo.Context) error {
 // @Summary Block or unblock traffic to the domestic address list
 // @Description Enables (block=true) or disables (block=false) the firewall filter rules that drop
 // @Description forwarded traffic and the router's own traffic destined to DOMAddList. Any of the
-// @Description rules that doesn't exist yet is created first. Returns 409 when every rule is
-// @Description already in the requested state.
+// @Description rules that doesn't exist yet is created first. Traffic leaving through the
+// @Description Domestic-WAN interface list (e.g. replies to VPN users connected from it) is never
+// @Description blocked. Returns 409 when every rule is already in the requested state.
 // @Tags Firewall
 // @Accept json
 // @Produce json
@@ -148,8 +150,8 @@ func HandleSetDomesticBlock(c echo.Context) error {
 
 func ensureDomesticBlockRules(client *routeros.Client) ([]routeros.FirewallFilterRule, int, error) {
 	return client.EnsureFirewallFilterRulesByComment(domesticBlockRuleComment, []routeros.FirewallRuleConfig{
-		{Chain: "forward", Action: "drop", DstAddressList: domesticAddressList},
-		{Chain: "output", Action: "drop", DstAddressList: domesticAddressList},
+		{Chain: "forward", Action: "drop", DstAddressList: domesticAddressList, OutInterfaceList: domesticWANInterfaceList},
+		{Chain: "output", Action: "drop", DstAddressList: domesticAddressList, OutInterfaceList: domesticWANInterfaceList},
 	}, true)
 }
 

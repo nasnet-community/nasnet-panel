@@ -62,21 +62,22 @@ type MangleRule struct {
 }
 
 type FirewallRuleConfig struct {
-	Chain           string
-	Action          string
-	Protocol        string
-	SrcAddr         string
-	DstAddr         string
-	DstAddressList  string
-	SrcPort         string
-	DstPort         string
-	InIface         string
-	InInterfaceList string
-	OutIface        string
-	Disabled        bool
-	Log             bool
-	LogPrefix       string
-	Comment         string
+	Chain            string
+	Action           string
+	Protocol         string
+	SrcAddr          string
+	DstAddr          string
+	DstAddressList   string
+	SrcPort          string
+	DstPort          string
+	InIface          string
+	InInterfaceList  string
+	OutIface         string
+	OutInterfaceList string
+	Disabled         bool
+	Log              bool
+	LogPrefix        string
+	Comment          string
 }
 
 type NATRuleConfig struct {
@@ -287,6 +288,9 @@ func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 	}
 	if config.OutIface != "" {
 		args = append(args, "=out-interface="+config.OutIface)
+	}
+	if config.OutInterfaceList != "" {
+		args = append(args, "=out-interface-list="+config.OutInterfaceList)
 	}
 	if config.Disabled {
 		args = append(args, "=disabled=yes")
