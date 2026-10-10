@@ -3,6 +3,8 @@ package routeros
 import (
 	"fmt"
 	"net"
+
+	"nasnet-panel/pkg/utils"
 )
 
 // FirewallFilterRule represents a firewall filter rule configuration.
@@ -60,20 +62,22 @@ type MangleRule struct {
 }
 
 type FirewallRuleConfig struct {
-	Chain           string
-	Action          string
-	Protocol        string
-	SrcAddr         string
-	DstAddr         string
-	SrcPort         string
-	DstPort         string
-	InIface         string
-	InInterfaceList string
-	OutIface        string
-	Disabled        bool
-	Log             bool
-	LogPrefix       string
-	Comment         string
+	Chain            string
+	Action           string
+	Protocol         string
+	SrcAddr          string
+	DstAddr          string
+	DstAddressList   string
+	SrcPort          string
+	DstPort          string
+	InIface          string
+	InInterfaceList  string
+	OutIface         string
+	OutInterfaceList string
+	Disabled         bool
+	Log              bool
+	LogPrefix        string
+	Comment          string
 }
 
 type NATRuleConfig struct {
@@ -194,6 +198,64 @@ func (c *Client) GetFirewallRulesByChain(chain string) ([]FirewallFilterRule, er
 	return rules, nil
 }
 
+// EnsureFirewallFilterRulesByComment returns the firewall filter rules carrying
+// comment, first adding (in the given disabled state) a rule from desired for
+// every chain that has none. It also returns how many rules were added.
+func (c *Client) EnsureFirewallFilterRulesByComment(comment string, desired []FirewallRuleConfig, disabled bool) ([]FirewallFilterRule, int, error) {
+	results, err := c.GetAll("/ip/firewall/filter", "?=comment="+comment)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to find firewall rules with comment %q: %w", comment, err)
+	}
+
+	rules := make([]FirewallFilterRule, 0, len(results)+len(desired))
+	existingChains := make(map[string]bool, len(results))
+	for _, result := range results {
+		existingChains[result["chain"]] = true
+		rules = append(rules, FirewallFilterRule{
+			ID:       result[".id"],
+			Action:   result["action"],
+			Chain:    result["chain"],
+			Disabled: result["disabled"] == "true",
+			Comment:  result["comment"],
+		})
+	}
+
+	added := 0
+	for i := range desired {
+		rule := desired[i]
+		if existingChains[rule.Chain] {
+			continue
+		}
+		rule.Comment = comment
+		rule.Disabled = disabled
+		id, err := c.AddFirewallRule(rule)
+		if err != nil {
+			return rules, added, err
+		}
+		rules = append(rules, FirewallFilterRule{
+			ID:       id,
+			Action:   rule.Action,
+			Chain:    rule.Chain,
+			Disabled: disabled,
+			Comment:  comment,
+		})
+		added++
+	}
+
+	return rules, added, nil
+}
+
+// SetFirewallFilterRulesDisabled enables or disables the firewall filter rules with the given IDs.
+func (c *Client) SetFirewallFilterRulesDisabled(ids []string, disabled bool) error {
+	for _, id := range ids {
+		if _, err := c.Set("/ip/firewall/filter", "=.id="+id, "=disabled="+utils.ToYesNo(disabled)); err != nil {
+			return fmt.Errorf("failed to update firewall rule %s: %w", id, err)
+		}
+	}
+
+	return nil
+}
+
 func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 	args := []string{
 		"=chain=" + config.Chain,
@@ -209,6 +271,9 @@ func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 	if config.DstAddr != "" {
 		args = append(args, "=dst-address="+config.DstAddr)
 	}
+	if config.DstAddressList != "" {
+		args = append(args, "=dst-address-list="+config.DstAddressList)
+	}
 	if config.SrcPort != "" {
 		args = append(args, "=src-port="+config.SrcPort)
 	}
@@ -223,6 +288,9 @@ func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 	}
 	if config.OutIface != "" {
 		args = append(args, "=out-interface="+config.OutIface)
+	}
+	if config.OutInterfaceList != "" {
+		args = append(args, "=out-interface-list="+config.OutInterfaceList)
 	}
 	if config.Disabled {
 		args = append(args, "=disabled=yes")

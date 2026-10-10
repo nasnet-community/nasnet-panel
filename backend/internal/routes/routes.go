@@ -49,6 +49,8 @@ func RegisterRoutes(e *echo.Echo) {
 	systemGroup.POST("/install-update", handler.HandleInstallUpdate)
 	systemGroup.GET("/resources", handler.HandleGetResourceInfo)
 	systemGroup.PUT("/password", handler.HandleChangeUserPassword)
+	systemGroup.GET("/services", handler.HandleListIPServices)
+	systemGroup.PUT("/service/:nameOrID", handler.HandleUpdateIPService)
 	systemGroup.POST("/reboot", handler.HandleRebootSystem)
 	systemGroup.POST("/shutdown", handler.HandleShutdownSystem)
 
@@ -80,6 +82,8 @@ func RegisterRoutes(e *echo.Echo) {
 	firewallGroup := e.Group("/api/firewall")
 	firewallGroup.Use(middleware.RouterOSAuth)
 	firewallGroup.GET("/filter", handler.HandleListFirewallFilterRules)
+	firewallGroup.GET("/domestic", handler.HandleGetDomesticBlock)
+	firewallGroup.PUT("/domestic", handler.HandleSetDomesticBlock)
 
 	scanGroup := e.Group("/api/scan")
 	scanGroup.POST("", handler.HandleStartScan)

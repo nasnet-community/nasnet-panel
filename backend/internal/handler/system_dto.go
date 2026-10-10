@@ -100,6 +100,39 @@ type ClockInfoResponse struct {
 // ToSystemInfoResponse converts SystemInfo to SystemInfoResponse.
 //
 
+// IPServiceResponse represents an /ip/service entry in the API response.
+type IPServiceResponse struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Port        int    `json:"port"`
+	Proto       string `json:"proto,omitempty"`
+	Address     string `json:"address,omitempty"`
+	Certificate string `json:"certificate,omitempty"`
+	TLSVersion  string `json:"tlsVersion,omitempty"`
+	VRF         string `json:"vrf,omitempty"`
+	MaxSessions int    `json:"maxSessions,omitempty"`
+	Local       string `json:"local,omitempty"`
+	Remote      string `json:"remote,omitempty"`
+	Container   string `json:"container,omitempty"`
+	Netns       string `json:"netns,omitempty"`
+	Connection  bool   `json:"connection,omitempty"`
+	Disabled    bool   `json:"disabled"`
+	Dynamic     bool   `json:"dynamic"`
+	Invalid     bool   `json:"invalid"`
+	Editable    bool   `json:"editable"`
+}
+
+// UpdateIPServiceRequest represents the fields that can be changed on an /ip/service entry.
+type UpdateIPServiceRequest struct {
+	Port        *int    `json:"port" example:"2222"`
+	Address     *string `json:"address" example:"192.168.88.0/24,10.0.0.0/8"`
+	Certificate *string `json:"certificate" example:"none"`
+	TLSVersion  *string `json:"tlsVersion" example:"only-1.2"`
+	VRF         *string `json:"vrf" example:"main"`
+	MaxSessions *int    `json:"maxSessions" example:"20"`
+	Disabled    *bool   `json:"disabled" example:"false"`
+}
+
 func ToSystemInfoResponse(si *routeros.SystemInfo) *SystemInfoResponse {
 	if si == nil {
 		return nil
@@ -139,6 +172,30 @@ func ToSystemIdentityResponse(id *routeros.Identity) *SystemIdentityResponse {
 
 	return &SystemIdentityResponse{
 		Name: id.Name,
+	}
+}
+
+// ToIPServiceResponse converts a RouterOS IPServiceInfo to API IPServiceResponse.
+func ToIPServiceResponse(service *routeros.IPServiceInfo) IPServiceResponse {
+	return IPServiceResponse{
+		ID:          service.ID,
+		Name:        service.Name,
+		Port:        service.Port,
+		Proto:       service.Proto,
+		Address:     service.Address,
+		Certificate: service.Certificate,
+		TLSVersion:  service.TLSVersion,
+		VRF:         service.VRF,
+		MaxSessions: service.MaxSessions,
+		Local:       service.Local,
+		Remote:      service.Remote,
+		Container:   service.Container,
+		Netns:       service.Netns,
+		Connection:  service.Connection,
+		Disabled:    service.Disabled,
+		Dynamic:     service.Dynamic,
+		Invalid:     service.Invalid,
+		Editable:    isIPServiceEditable(service),
 	}
 }
 

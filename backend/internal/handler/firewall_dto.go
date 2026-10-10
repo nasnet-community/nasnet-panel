@@ -20,6 +20,26 @@ type FirewallRuleResponse struct {
 	Packets  string `json:"packets,omitempty"`
 }
 
+// SetDomesticBlockRequest represents a request to enable or disable blocking of traffic to the domestic address list.
+type SetDomesticBlockRequest struct {
+	Block *bool `json:"block" example:"true"`
+}
+
+// DomesticBlockRuleResponse describes one of the rules that block traffic to the domestic address list.
+type DomesticBlockRuleResponse struct {
+	ID       string `json:"id"`
+	Chain    string `json:"chain"`
+	Disabled bool   `json:"disabled"`
+}
+
+// DomesticBlockResponse reports whether traffic to the domestic address list is blocked.
+// Block is true only when every rule is enabled; Rules shows each rule so a partial state is visible.
+type DomesticBlockResponse struct {
+	Block      bool                        `json:"block"`
+	Rules      []DomesticBlockRuleResponse `json:"rules"`
+	AddedRules int                         `json:"addedRules,omitempty"`
+}
+
 type NATRuleResponse struct {
 	ID          string `json:"id"`
 	Chain       string `json:"chain"`
