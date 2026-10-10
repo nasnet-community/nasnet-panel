@@ -1,7 +1,11 @@
 package handler
 
 import (
+	"errors"
+	"fmt"
+	"net"
 	"net/http"
+	"strings"
 
 	"nasnet-panel/pkg/routeros"
 
@@ -327,4 +331,152 @@ func HandleInstallUpdate(c echo.Context) error {
 
 	response := ToUpdateInstallResponse(installResult)
 	return SuccessResponse(c, statusCode, "Firmware update installation result", response)
+}
+
+var nonEditableIPServices = map[string]bool{
+	"api": true,
+}
+
+func normalizeIPServiceAddress(address string) (string, error) {
+	if strings.TrimSpace(address) == "" {
+		return "", nil
+	}
+
+	parts := strings.Split(address, ",")
+	cleaned := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if _, _, err := net.ParseCIDR(part); err != nil && net.ParseIP(part) == nil {
+			return "", fmt.Errorf("invalid address %q: expected an IP or CIDR prefix", part)
+		}
+		cleaned = append(cleaned, part)
+	}
+
+	return strings.Join(cleaned, ","), nil
+}
+
+func isIPServiceEditable(service *routeros.IPServiceInfo) bool {
+	return !service.Dynamic && !nonEditableIPServices[service.Name]
+}
+
+// HandleListIPServices godoc
+// @Summary List IP services
+// @Description List the entries of /ip/service. Dynamic services and services on the
+// @Description non-editable list (currently api) are reported with editable=false.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} Response{data=[]IPServiceResponse} "IP services"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/system/services [get].
+func HandleListIPServices(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	services, err := client.ListIPServices()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list IP services", err)
+	}
+
+	response := make([]IPServiceResponse, 0, len(services))
+	for i := range services {
+		response = append(response, ToIPServiceResponse(&services[i]))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "IP services retrieved successfully", response)
+}
+
+// HandleUpdateIPService godoc
+// @Summary Update an IP service
+// @Description Update an /ip/service entry by name or ID. Services that are not editable
+// @Description (dynamic or on the non-editable list) are rejected with 403.
+// @Description address takes one or more IPs or CIDR prefixes separated by commas; an empty
+// @Description string allows access from anywhere.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Service name or ID"
+// @Param body body UpdateIPServiceRequest true "Service settings to update"
+// @Success 200 {object} Response{data=IPServiceResponse} "Updated IP service"
+// @Failure 400 {object} Response "Bad request"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 403 {object} Response "Service is not editable"
+// @Failure 404 {object} Response "Service not found"
+// @Failure 500 {object} Response "Internal server error"
+// @Failure 502 {object} Response "RouterOS lookup failed"
+// @Router /api/system/service/{nameOrID} [put].
+func HandleUpdateIPService(c echo.Context) error {
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Service name or ID is required", nil)
+	}
+
+	var req UpdateIPServiceRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	}
+
+	if req.Port != nil && (*req.Port < 1 || *req.Port > 65535) {
+		return ErrorResponse(c, http.StatusBadRequest, "port must be between 1 and 65535", nil)
+	}
+	if req.MaxSessions != nil && (*req.MaxSessions < 1 || *req.MaxSessions > 1000) {
+		return ErrorResponse(c, http.StatusBadRequest, "maxSessions must be between 1 and 1000", nil)
+	}
+	if req.Address != nil {
+		address, err := normalizeIPServiceAddress(*req.Address)
+		if err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid address", err)
+		}
+		req.Address = &address
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	service, err := client.GetIPService(nameOrID)
+	if err != nil {
+		switch {
+		case errors.Is(err, routeros.ErrIPServiceNotFound):
+			return ErrorResponse(c, http.StatusNotFound, "IP service not found", err)
+		case IsCredentialError(err):
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		default:
+			return ErrorResponse(c, http.StatusBadGateway, "Failed to look up IP service", err)
+		}
+	}
+
+	if !isIPServiceEditable(service) {
+		return ErrorResponse(c, http.StatusForbidden, "IP service "+service.Name+" is not editable", nil)
+	}
+
+	if err := client.UpdateIPService(service.ID, routeros.UpdateIPServiceParams{
+		Port:        req.Port,
+		Address:     req.Address,
+		Certificate: req.Certificate,
+		TLSVersion:  req.TLSVersion,
+		VRF:         req.VRF,
+		MaxSessions: req.MaxSessions,
+		Disabled:    req.Disabled,
+	}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update IP service", err)
+	}
+
+	updated, err := client.GetIPService(service.ID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated IP service", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "IP service updated successfully", ToIPServiceResponse(updated))
 }
