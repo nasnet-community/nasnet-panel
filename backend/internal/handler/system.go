@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -412,6 +413,7 @@ func HandleListIPServices(c echo.Context) error {
 // @Failure 403 {object} Response "Service is not editable"
 // @Failure 404 {object} Response "Service not found"
 // @Failure 500 {object} Response "Internal server error"
+// @Failure 502 {object} Response "RouterOS lookup failed"
 // @Router /api/system/service/{nameOrID} [put].
 func HandleUpdateIPService(c echo.Context) error {
 	nameOrID := c.Param("nameOrID")
@@ -445,10 +447,14 @@ func HandleUpdateIPService(c echo.Context) error {
 
 	service, err := client.GetIPService(nameOrID)
 	if err != nil {
-		if IsCredentialError(err) {
+		switch {
+		case errors.Is(err, routeros.ErrIPServiceNotFound):
+			return ErrorResponse(c, http.StatusNotFound, "IP service not found", err)
+		case IsCredentialError(err):
 			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		default:
+			return ErrorResponse(c, http.StatusBadGateway, "Failed to look up IP service", err)
 		}
-		return ErrorResponse(c, http.StatusNotFound, "IP service not found", err)
 	}
 
 	if !isIPServiceEditable(service) {

@@ -1,11 +1,15 @@
 package routeros
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
 	"nasnet-panel/pkg/utils"
 )
+
+// ErrIPServiceNotFound is returned by GetIPService when no entry matches.
+var ErrIPServiceNotFound = errors.New("IP service not found")
 
 // IPServiceInfo represents an /ip/service entry.
 type IPServiceInfo struct {
@@ -92,7 +96,7 @@ func (c *Client) GetIPService(nameOrID string) (*IPServiceInfo, error) {
 		return nil, fmt.Errorf("failed to get IP service %s: %w", nameOrID, err)
 	}
 	if len(results) == 0 {
-		return nil, fmt.Errorf("failed to get IP service %s: no results found", nameOrID)
+		return nil, fmt.Errorf("%w: %s", ErrIPServiceNotFound, nameOrID)
 	}
 
 	service := parseIPServiceInfo(results[0])
