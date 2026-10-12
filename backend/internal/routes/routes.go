@@ -103,6 +103,7 @@ func RegisterRoutes(e *echo.Echo) {
 	interfaceGroup.GET("/ethernet/:nameOrID", handler.HandleGetEthernetInterface)
 	interfaceGroup.POST("/ethernet/cable-test/:nameOrID", handler.HandleTestEthernetCable)
 	interfaceGroup.GET("/graph/:nameOrID", handler.HandleGetInterfaceGraph)
+	interfaceGroup.DELETE("/traffic-counter/:nameOrID", handler.HandleResetInterfaceTrafficCounter)
 	interfaceGroup.GET("/bridges", handler.HandleListBridges)
 	interfaceGroup.GET("/bridge/ports", handler.HandleListBridgePorts)
 	interfaceGroup.PUT("/bridge/port", handler.HandleUpdateInterfaceBridge)

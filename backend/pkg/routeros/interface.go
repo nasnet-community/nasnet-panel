@@ -1,6 +1,7 @@
 package routeros
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -1174,6 +1175,30 @@ func (c *Client) RemoveVethInterface(name string) error {
 		if _, err := c.Remove("/interface/veth", "=.id="+id); err != nil {
 			return fmt.Errorf("failed to remove veth interface %s: %w", name, err)
 		}
+	}
+
+	return nil
+}
+
+// ErrInterfaceNotFound is returned by ResetInterfaceCounters when no interface matches.
+var ErrInterfaceNotFound = errors.New("interface not found")
+
+// ResetInterfaceCounters resets the traffic counters of the interface identified by name or .id.
+func (c *Client) ResetInterfaceCounters(nameOrID string) error {
+	if nameOrID == "" {
+		return fmt.Errorf("interface name or ID is required")
+	}
+
+	results, err := c.GetAll("/interface", nameOrIDFilterArg(nameOrID))
+	if err != nil {
+		return fmt.Errorf("failed to look up interface %s: %w", nameOrID, err)
+	}
+	if len(results) == 0 {
+		return fmt.Errorf("%w: %s", ErrInterfaceNotFound, nameOrID)
+	}
+
+	if _, err := c.Execute("/interface/reset-counters", "=numbers="+results[0][".id"]); err != nil {
+		return fmt.Errorf("failed to reset counters for interface %s: %w", nameOrID, err)
 	}
 
 	return nil

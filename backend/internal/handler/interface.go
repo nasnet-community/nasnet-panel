@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -455,4 +456,43 @@ func HandleGetInterfaceGraph(c echo.Context) error {
 		"interfaceName": nameOrID,
 		"trafficData":   stats,
 	})
+}
+
+// HandleResetInterfaceTrafficCounter resets the traffic counters of an interface.
+// @Summary Reset interface traffic counter
+// @Description Resets the traffic counters (rx/tx bytes and packets) of the interface identified by name or ID
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Interface name or ID"
+// @Produce json
+// @Success 204
+// @Failure 400 {object} Response
+// @Failure 401 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/interface/traffic-counter/{nameOrID} [delete].
+func HandleResetInterfaceTrafficCounter(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Interface name or ID is required", nil)
+	}
+
+	if err := client.ResetInterfaceCounters(nameOrID); err != nil {
+		switch {
+		case errors.Is(err, routeros.ErrInterfaceNotFound):
+			return ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
+		case IsCredentialError(err):
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		default:
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to reset interface traffic counter", err)
+		}
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
