@@ -121,6 +121,11 @@ func RegisterRoutes(e *echo.Echo) {
 	dnsGroup.POST("/adblock", handler.HandleSetAdBlock)
 	dnsGroup.DELETE("/cache", handler.HandleFlushDNSCache)
 	dnsGroup.POST("/reset", handler.HandleResetDNS)
+	dnsGroup.GET("/static", handler.HandleListStaticDNS)
+	dnsGroup.POST("/static", handler.HandleCreateStaticDNS)
+	dnsGroup.GET("/static/:nameOrID", handler.HandleGetStaticDNS)
+	dnsGroup.PUT("/static/:nameOrID", handler.HandleUpdateStaticDNS)
+	dnsGroup.DELETE("/static/:nameOrID", handler.HandleDeleteStaticDNS)
 
 	vpnGroup := e.Group("/api/vpn")
 	vpnGroup.Use(middleware.RouterOSAuth)

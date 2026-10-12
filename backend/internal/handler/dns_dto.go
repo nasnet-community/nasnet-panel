@@ -186,6 +186,29 @@ type DNSSuggestResponse struct {
 	Foreign  []DNSSuggestion `json:"foreign,omitempty"`
 }
 
+// CreateStaticDNSRequest represents a request to add a static DNS A record.
+type CreateStaticDNSRequest struct {
+	Name    string `json:"name" example:"router.lan"`
+	Address string `json:"address" example:"192.168.88.1"`
+}
+
+// UpdateStaticDNSRequest represents the fields that can be changed on a static DNS A record.
+type UpdateStaticDNSRequest struct {
+	Name     *string `json:"name" example:"router.lan"`
+	Address  *string `json:"address" example:"192.168.88.2"`
+	Disabled *bool   `json:"disabled" example:"false"`
+}
+
+// StaticDNSResponse represents a user defined static DNS entry in the API response.
+type StaticDNSResponse struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Address  string `json:"address"`
+	Type     string `json:"type"`
+	TTL      string `json:"ttl"`
+	Disabled bool   `json:"disabled"`
+}
+
 // domesticDNSSuggestions lists known-good domestic (Iranian) DNS server IPs.
 var domesticDNSSuggestions = []DNSSuggestion{
 	{IP: "217.218.127.127", Description: "ICT DNS"},
@@ -282,5 +305,17 @@ func convertDNSInfoResponse(info *routeros.DNSInfo) *DNSInfoResponse {
 		Servers:        info.Servers,
 		DynamicServers: info.DynamicServers,
 		DOHServer:      info.DOHServer,
+	}
+}
+
+// ToStaticDNSResponse converts a RouterOS StaticDNSEntry to API StaticDNSResponse.
+func ToStaticDNSResponse(entry *routeros.StaticDNSEntry) StaticDNSResponse {
+	return StaticDNSResponse{
+		ID:       entry.ID,
+		Name:     entry.Name,
+		Address:  entry.Address,
+		Type:     entry.Type,
+		TTL:      entry.TTL,
+		Disabled: entry.Disabled,
 	}
 }

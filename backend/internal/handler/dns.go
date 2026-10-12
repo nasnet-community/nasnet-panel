@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -35,6 +36,8 @@ const (
 	// The adlist URL POST /api/dns/adblock enables/disables.
 	dnsAdBlockURL = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 )
+
+var staticDNSNamePattern = regexp.MustCompile(`^[A-Za-z0-9*_.-]+$`)
 
 // HandleGetDNSInfo godoc
 // @Summary Get DNS information
@@ -1058,4 +1061,243 @@ func validateDNSServers(servers string) error {
 		}
 	}
 	return nil
+}
+
+func validateStaticDNSName(name string) error {
+	if name == "" {
+		return fmt.Errorf("name is required")
+	}
+	if len(name) > 253 || !staticDNSNamePattern.MatchString(name) {
+		return fmt.Errorf("name %q is not a valid DNS name", name)
+	}
+	return nil
+}
+
+func validateStaticDNSAddress(address string) error {
+	ip := net.ParseIP(address)
+	if ip == nil || ip.To4() == nil || strings.Contains(address, ":") {
+		return fmt.Errorf("address %q is not a valid IPv4 address", address)
+	}
+	return nil
+}
+
+func staticDNSLookupError(c echo.Context, err error) error {
+	switch {
+	case errors.Is(err, routeros.ErrStaticDNSNotFound):
+		return ErrorResponse(c, http.StatusNotFound, "Static DNS entry not found", err)
+	case IsCredentialError(err):
+		return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+	default:
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to look up static DNS entry", err)
+	}
+}
+
+// HandleListStaticDNS godoc
+// @Summary List user defined static DNS entries
+// @Description Lists the static DNS A records created through the API. Entries created any other way are not returned.
+// @Tags DNS
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} Response{data=[]StaticDNSResponse} "Static DNS entries"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/dns/static [get].
+func HandleListStaticDNS(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	entries, err := client.ListUserStaticDNS()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list static DNS entries", err)
+	}
+
+	response := make([]StaticDNSResponse, 0, len(entries))
+	for i := range entries {
+		response = append(response, ToStaticDNSResponse(&entries[i]))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Static DNS entries retrieved", response)
+}
+
+// HandleGetStaticDNS godoc
+// @Summary Get a user defined static DNS entry
+// @Description Gets a static DNS A record created through the API, by name or ID
+// @Tags DNS
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Entry name or ID"
+// @Success 200 {object} Response{data=StaticDNSResponse} "Static DNS entry"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 404 {object} Response "Entry not found"
+// @Failure 502 {object} Response "RouterOS lookup failed"
+// @Router /api/dns/static/{nameOrID} [get].
+func HandleGetStaticDNS(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	entry, err := client.GetUserStaticDNS(c.Param("nameOrID"))
+	if err != nil {
+		return staticDNSLookupError(c, err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Static DNS entry retrieved", ToStaticDNSResponse(entry))
+}
+
+// HandleCreateStaticDNS godoc
+// @Summary Add a static DNS entry
+// @Description Adds a static DNS A record. The type is always A, the TTL is one day, and the entry is marked as user defined.
+// @Tags DNS
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body CreateStaticDNSRequest true "Static DNS entry"
+// @Success 201 {object} Response{data=StaticDNSResponse} "Created entry"
+// @Failure 400 {object} Response "Bad request"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/dns/static [post].
+func HandleCreateStaticDNS(c echo.Context) error {
+	var req CreateStaticDNSRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	}
+
+	req.Name = strings.TrimSpace(req.Name)
+	req.Address = strings.TrimSpace(req.Address)
+	if err := validateStaticDNSName(req.Name); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid name", err)
+	}
+	if err := validateStaticDNSAddress(req.Address); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid address", err)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	id, err := client.AddUserStaticDNS(req.Name, req.Address)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add static DNS entry", err)
+	}
+
+	entry, err := client.GetUserStaticDNS(id)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added static DNS entry", err)
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "Static DNS entry added", ToStaticDNSResponse(entry))
+}
+
+// HandleUpdateStaticDNS godoc
+// @Summary Update a static DNS entry
+// @Description Updates the name, address or disabled state of a static DNS A record created through the API
+// @Tags DNS
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Entry name or ID"
+// @Param body body UpdateStaticDNSRequest true "Fields to update"
+// @Success 200 {object} Response{data=StaticDNSResponse} "Updated entry"
+// @Failure 400 {object} Response "Bad request"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 404 {object} Response "Entry not found"
+// @Failure 500 {object} Response "Internal server error"
+// @Failure 502 {object} Response "RouterOS lookup failed"
+// @Router /api/dns/static/{nameOrID} [put].
+func HandleUpdateStaticDNS(c echo.Context) error {
+	var req UpdateStaticDNSRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	}
+
+	if req.Name == nil && req.Address == nil && req.Disabled == nil {
+		return ErrorResponse(c, http.StatusBadRequest, "At least one of name, address or disabled is required", nil)
+	}
+	if req.Name != nil {
+		name := strings.TrimSpace(*req.Name)
+		if err := validateStaticDNSName(name); err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid name", err)
+		}
+		req.Name = &name
+	}
+	if req.Address != nil {
+		address := strings.TrimSpace(*req.Address)
+		if err := validateStaticDNSAddress(address); err != nil {
+			return ErrorResponse(c, http.StatusBadRequest, "Invalid address", err)
+		}
+		req.Address = &address
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	entry, err := client.GetUserStaticDNS(c.Param("nameOrID"))
+	if err != nil {
+		return staticDNSLookupError(c, err)
+	}
+
+	if err := client.UpdateUserStaticDNS(entry.ID, routeros.UpdateStaticDNSParams{
+		Name:     req.Name,
+		Address:  req.Address,
+		Disabled: req.Disabled,
+	}); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update static DNS entry", err)
+	}
+
+	updated, err := client.GetUserStaticDNS(entry.ID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated static DNS entry", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Static DNS entry updated", ToStaticDNSResponse(updated))
+}
+
+// HandleDeleteStaticDNS godoc
+// @Summary Delete a static DNS entry
+// @Description Deletes a static DNS A record created through the API, by name or ID
+// @Tags DNS
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "Entry name or ID"
+// @Success 204
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 404 {object} Response "Entry not found"
+// @Failure 500 {object} Response "Internal server error"
+// @Failure 502 {object} Response "RouterOS lookup failed"
+// @Router /api/dns/static/{nameOrID} [delete].
+func HandleDeleteStaticDNS(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if err := client.RemoveUserStaticDNS(c.Param("nameOrID")); err != nil {
+		if errors.Is(err, routeros.ErrStaticDNSNotFound) || IsCredentialError(err) {
+			return staticDNSLookupError(c, err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete static DNS entry", err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

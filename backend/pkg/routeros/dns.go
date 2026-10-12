@@ -1,9 +1,12 @@
 package routeros
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"nasnet-panel/pkg/utils"
 )
 
 // DNSInfo represents DNS configuration information.
@@ -64,6 +67,34 @@ type DNSAdListUpdateConfig struct {
 	Disabled  *bool
 	Comment   *string
 }
+
+// StaticDNSEntry represents a user defined /ip/dns/static entry.
+type StaticDNSEntry struct {
+	ID       string
+	Name     string
+	Address  string
+	Type     string
+	TTL      string
+	Comment  string
+	Disabled bool
+}
+
+// UpdateStaticDNSParams holds the optional fields for updating a user defined static DNS entry.
+type UpdateStaticDNSParams struct {
+	Name     *string
+	Address  *string
+	Disabled *bool
+}
+
+const (
+	// UserDefinedStaticDNSComment marks the static DNS entries managed through the API.
+	UserDefinedStaticDNSComment = "NasNet: user defined"
+	staticDNSTTL                = "1d"
+	staticDNSType               = "A"
+)
+
+// ErrStaticDNSNotFound is returned when no user defined static DNS entry matches.
+var ErrStaticDNSNotFound = errors.New("static DNS entry not found")
 
 // GetDNSInfo retrieves DNS configuration from RouterOS.
 func (c *Client) GetDNSInfo() (*DNSInfo, error) {
@@ -397,4 +428,113 @@ func parseStringList(value string) []string {
 		}
 	}
 	return items
+}
+
+func parseStaticDNSEntry(result map[string]string) StaticDNSEntry {
+	entryType := result["type"]
+	if entryType == "" {
+		entryType = staticDNSType
+	}
+
+	return StaticDNSEntry{
+		ID:       result[".id"],
+		Name:     result["name"],
+		Address:  result["address"],
+		Type:     entryType,
+		TTL:      result["ttl"],
+		Comment:  result["comment"],
+		Disabled: parseRouterOSBool(result["disabled"]),
+	}
+}
+
+// ListUserStaticDNS returns the static DNS entries created through the API.
+func (c *Client) ListUserStaticDNS() ([]StaticDNSEntry, error) {
+	results, err := c.GetAll("/ip/dns/static", "?=comment="+UserDefinedStaticDNSComment)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list static DNS entries: %w", err)
+	}
+
+	entries := make([]StaticDNSEntry, 0, len(results))
+	for _, result := range results {
+		entries = append(entries, parseStaticDNSEntry(result))
+	}
+
+	return entries, nil
+}
+
+// GetUserStaticDNS returns a user defined static DNS entry by name or .id.
+func (c *Client) GetUserStaticDNS(nameOrID string) (*StaticDNSEntry, error) {
+	if nameOrID == "" {
+		return nil, fmt.Errorf("static DNS entry name or ID is required")
+	}
+
+	results, err := c.GetAll("/ip/dns/static", nameOrIDFilterArg(nameOrID), "?=comment="+UserDefinedStaticDNSComment)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get static DNS entry %s: %w", nameOrID, err)
+	}
+	if len(results) == 0 {
+		return nil, fmt.Errorf("%w: %s", ErrStaticDNSNotFound, nameOrID)
+	}
+
+	entry := parseStaticDNSEntry(results[0])
+	return &entry, nil
+}
+
+// AddUserStaticDNS adds an A record with a one day TTL, marked as user defined, and returns its .id.
+func (c *Client) AddUserStaticDNS(name, address string) (string, error) {
+	id, err := c.Add("/ip/dns/static",
+		"=name="+name,
+		"=address="+address,
+		"=type="+staticDNSType,
+		"=ttl="+staticDNSTTL,
+		"=comment="+UserDefinedStaticDNSComment,
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to add static DNS entry %s: %w", name, err)
+	}
+
+	return id, nil
+}
+
+// UpdateUserStaticDNS applies params' non-nil fields to the static DNS entry with the given .id.
+func (c *Client) UpdateUserStaticDNS(id string, params UpdateStaticDNSParams) error {
+	if id == "" {
+		return fmt.Errorf("static DNS entry ID is required")
+	}
+
+	args := []string{"=.id=" + id}
+	if params.Name != nil {
+		args = append(args, "=name="+*params.Name)
+	}
+	if params.Address != nil {
+		args = append(args, "=address="+*params.Address)
+	}
+	if params.Disabled != nil {
+		args = append(args, "=disabled="+utils.ToYesNo(*params.Disabled))
+	}
+
+	if len(args) == 1 {
+		return nil
+	}
+
+	if _, err := c.Set("/ip/dns/static", args...); err != nil {
+		return fmt.Errorf("failed to update static DNS entry %s: %w", id, err)
+	}
+
+	return nil
+}
+
+// RemoveUserStaticDNS deletes a static DNS entry by name or .id, but only if
+// it is user defined; any other entry is reported as not found and left alone.
+func (c *Client) RemoveUserStaticDNS(nameOrID string) error {
+	entry, err := c.GetUserStaticDNS(nameOrID)
+	if err != nil {
+		return err
+	}
+
+	if _, err := c.Remove("/ip/dns/static", "=.id="+entry.ID); err != nil {
+		return fmt.Errorf("failed to remove static DNS entry %s: %w", nameOrID, err)
+	}
+
+	return nil
 }
