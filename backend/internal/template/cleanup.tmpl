@@ -1,4 +1,10 @@
 :foreach w in=[/interface wifi find] do={
+  :if ([:len [/interface/wifi get $w default-name]] = 0) do={
+    :do { /interface wifi remove $w } on-error={}
+  }
+}
+
+:foreach w in=[/interface wifi find] do={
 :local defaultName [/interface/wifi get $w default-name]
   :if ([:len $defaultName] = 0) do={
   :continue

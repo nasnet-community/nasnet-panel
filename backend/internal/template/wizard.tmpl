@@ -146,28 +146,40 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 :log info ("Connecting Domestic WAN to WiFi: {{ .DomesticInterface.SSID }}")
 /interface wifi
 set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticInterface.Interface }}-Domestic-WAN" comment="WAN - Domestic Link" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
-security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+security.authentication-types=wpa2-psk,wpa3-psk security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 :local domesticWifi [/interface/wifi get [ find default-name={{ .DomesticInterface.Interface }} ] name]
-:local maxWait   30
+:local domesticAuthTypes {"wpa2-psk,wpa3-psk"; "wpa-psk,wpa2-psk"}
+:local domesticMaxWaits {30; 30}
 :local waited 0
 :local connected false
-:while (($waited < $maxWait) && ($connected = false)) do={
-    :if ([/interface/wifi/get $domesticWifi inactive] = false) do={
-        :set connected true
-    } else={
-        :put ("Waiting for WiFi connection to {{ .DomesticInterface.SSID }} ... (" . $waited . "s)")
-        :log info ("Waiting for WiFi connection to {{ .DomesticInterface.SSID }}... (" . $waited . "s)")
-        :delay 1s
-        :set waited ($waited + 1)
+:for domesticAttempt from=0 to=1 do={
+    :if ($connected = false) do={
+        :local authTypes ($domesticAuthTypes->$domesticAttempt)
+        :local maxWait ($domesticMaxWaits->$domesticAttempt)
+        :if ($domesticAttempt > 0) do={
+            :log warning ("wifi station (" . $domesticWifi . ") did not connect with wpa2-psk,wpa3-psk, retrying with " . $authTypes)
+            /interface/wifi set $domesticWifi security.authentication-types=$authTypes
+        }
+        :set waited 0
+        :while (($waited < $maxWait) && ($connected = false)) do={
+            :if ([/interface/wifi/get $domesticWifi inactive] = false) do={
+                :set connected true
+            } else={
+                :put ("Waiting for WiFi connection to {{ .DomesticInterface.SSID }} using " . $authTypes . " ... (" . $waited . "s)")
+                :log info ("Waiting for WiFi connection to {{ .DomesticInterface.SSID }} using " . $authTypes . "... (" . $waited . "s)")
+                :delay 1s
+                :set waited ($waited + 1)
+            }
+        }
     }
 }
 :if ($connected = true) do={
     :put ("Connected to {{ .DomesticInterface.SSID }} after " . $waited . "s")
     :log info ("wifi station (" . $domesticWifi . ") connected to SSID={{ .DomesticInterface.SSID }}")
 } else={
-    :put ("Failed to connect to {{ .DomesticInterface.SSID }} within " . $maxWait . "s")
-    :log warning ("wifi station (" . $domesticWifi . ") failed to connect to SSID={{ .DomesticInterface.SSID }} within " . $maxWait . "s")
+    :put ("Failed to connect to {{ .DomesticInterface.SSID }} with wpa2-psk,wpa3-psk or wpa-psk,wpa2-psk")
+    :log warning ("wifi station (" . $domesticWifi . ") failed to connect to SSID={{ .DomesticInterface.SSID }} with wpa2-psk,wpa3-psk or wpa-psk,wpa2-psk")
 }
 {{ end }}
 :global WizardProgress "40"
