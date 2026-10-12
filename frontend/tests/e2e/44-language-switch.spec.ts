@@ -68,9 +68,9 @@ test.describe('Language switch', () => {
     await expect(page.locator('footer')).toContainText('© 2026 Nasnet Panel');
     await chooseLanguage(page, 'فارسی');
 
-    await expect(page.locator('header')).toContainText('نسنت پنل');
+    await expect(page.locator('header')).toContainText('نس‌نت پنل');
     // Farsi always writes numbers in Persian digits.
-    await expect(page.locator('footer')).toContainText('© ۲۰۲۶ نسنت پنل');
+    await expect(page.locator('footer')).toContainText('© ۲۰۲۶ نس‌نت پنل');
     await expect(page.getByRole('tab', { name: 'نمای کلی' }).first()).toBeAttached();
     await expect(page.getByRole('link', { name: 'مطالعهٔ راهنمای کاربر' })).toHaveAttribute(
       'href',
