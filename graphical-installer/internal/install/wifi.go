@@ -282,6 +282,12 @@ func (e *Engine) joinWiFi(pkg wifiPkg, iface, ssid, password string) error {
 		return fmt.Errorf("could not set %s to station mode: %w (%s)", iface, err, e.redact(strings.TrimSpace(out)))
 	}
 
+	wanList := fmt.Sprintf(`:if ([:len [/interface/list find where name="WAN"]] = 0) do={/interface/list add name=WAN comment="nasnet-panel-baseline"}; `+
+		`:if ([:len [/interface/list/member find where list="WAN" interface=%[1]s]] = 0) do={/interface/list/member add list=WAN interface=%[1]s comment=%[2]s}`, rosQuote(iface), rosQuote(wifiUplinkTag))
+	if out, err := e.cl.RunChecked(wanList, 15*time.Second); err != nil {
+		return fmt.Errorf("could not add %s to the WAN interface list: %w (%s)", iface, err, strings.TrimSpace(out))
+	}
+
 	dhcp := fmt.Sprintf(`:if ([:len [/ip/dhcp-client find where interface=%[1]s]] = 0) do={/ip/dhcp-client add interface=%[1]s add-default-route=yes default-route-distance=1 use-peer-dns=yes use-peer-ntp=yes disabled=no comment=%[2]s}`, rosQuote(iface), rosQuote(wifiUplinkTag))
 	if out, err := e.cl.RunChecked(dhcp, 15*time.Second); err != nil {
 		return fmt.Errorf("could not add a DHCP client on %s: %w (%s)", iface, err, strings.TrimSpace(out))
@@ -337,6 +343,7 @@ func (e *Engine) removeWiFiUplink() {
 	}
 	e.log("removing the WiFi uplink on %s", up.iface)
 	_, _ = e.cl.RunRaw(fmt.Sprintf("/ip/dhcp-client remove [find where comment=%s]", rosQuote(wifiUplinkTag)), 15*time.Second)
+	_, _ = e.cl.RunRaw(fmt.Sprintf(`/interface/list/member remove [find where list="WAN" comment=%s]`, rosQuote(wifiUplinkTag)), 15*time.Second)
 
 	sel := "[find name=" + rosQuote(up.iface) + "]"
 	for _, prop := range up.pkg.savedProps() {

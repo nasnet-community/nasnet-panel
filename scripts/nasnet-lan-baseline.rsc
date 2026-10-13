@@ -259,7 +259,7 @@
                 :error ("expected one static address on " . $lanBridge . ", found " . [:len $addrIDs])
             }
 
-            /interface/bridge set [find name=$lanBridge] name=$lanBridgeName comment="Split"
+            /interface/bridge set [find name=$lanBridge] name=$lanBridgeName comment="Split" dhcp-snooping=yes
             :set lanBridge $lanBridgeName
             :if ([:len [/interface/list/member find list=LAN interface=$lanBridgeName]] = 0) do={
                 /interface/list/member add list=LAN interface=$lanBridgeName comment="Split"

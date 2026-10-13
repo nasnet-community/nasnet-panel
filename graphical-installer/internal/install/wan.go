@@ -20,6 +20,7 @@ const wanProbeScript = `:local up ""; :local src ""; ` +
 	`:if ($up = "") do={:do {:foreach i in=[/interface find where (name="lte1" || type="lte")] do={:if ($up = "") do={:set up [/interface get $i name]; :set src "lte"}}} on-error={}}; ` +
 	`:if ($up = "") do={:do {:foreach r in=[/ip/route find where dst-address=0.0.0.0/0 active] do={:if ($up = "") do={:local g ""; :do {:set g [:tostr [/ip/route get $r immediate-gw]]} on-error={}; :local p [:find $g "%"]; :if ([:typeof $p] = "num") do={:set g [:pick $g ($p + 1) [:len $g]]}; :if ($g = "") do={:set g "default route"}; :set up $g; :set src "route"}}} on-error={}}; ` +
 	`:put ("U=" . $up); :put ("S=" . $src); ` +
+	`:put ("T=" . [:len [/interface find where (name="lte1" || type="lte")]]); ` +
 	`:put ("E=" . [:len [/interface find where name="ether1"]]); ` +
 	`:put ("B=" . [:len [/interface/bridge/port find where interface="ether1"]]); ` +
 	`:put ("L=" . [:len [/interface/bridge find where name="LANBridgeSplit"]])`
@@ -31,7 +32,7 @@ const installerSeenOnScript = `:local mac ""; :do {:set mac [:tostr [/ip/arp get
 
 const wanEther1Script = `:foreach p in=[/interface/bridge/port find where interface="ether1"] do={/interface/bridge/port remove $p}; ` +
 	`/interface/list/member remove [find where list="LAN" interface="ether1"]; ` +
-	`:if ([:len [/ip/dhcp-client find where interface="ether1"]] = 0) do={/ip/dhcp-client add interface=ether1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment="nasnet-panel-baseline: WAN uplink"}`
+	`:if ([:len [/ip/dhcp-client find where interface="ether1"]] = 0) do={/ip/dhcp-client add interface=ether1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment="nasnet-panel-baseline: WAN uplink"} else={/ip/dhcp-client set [find where interface="ether1"] disabled=no}`
 
 const wanListScript = `:if ([:len [/interface/list find where name="WAN"]] = 0) do={/interface/list add name=WAN comment="nasnet-panel-baseline"}; ` +
 	`:if ([:len [/interface/list/member find where list="WAN" interface="%[1]s"]] = 0) do={/interface/list/member add list=WAN interface="%[1]s" comment="nasnet-panel-baseline"}; ` +
@@ -40,6 +41,7 @@ const wanListScript = `:if ([:len [/interface/list find where name="WAN"]] = 0) 
 type wanState struct {
 	uplink        string
 	source        string
+	hasLTE        bool
 	hasEther1     bool
 	ether1Bridged bool
 	layoutPresent bool
@@ -62,6 +64,8 @@ func (e *Engine) probeWAN() (wanState, error) {
 			st.uplink = value
 		case "S":
 			st.source = value
+		case "T":
+			st.hasLTE = value != "" && value != "0"
 		case "E":
 			st.hasEther1 = value != "" && value != "0"
 		case "B":
@@ -80,7 +84,13 @@ func (e *Engine) stepPrepareWAN() error {
 	}
 
 	if st.uplink != "" {
-		return e.keepUplink(st)
+		if err := e.keepUplink(st); err != nil {
+			return err
+		}
+		if st.hasLTE && st.hasEther1 {
+			return e.useEther1WithLTE(st)
+		}
+		return nil
 	}
 	if st.layoutPresent {
 		e.log("%s already exists and no uplink was found, the WAN is left as it is", lanBridge)
@@ -146,6 +156,26 @@ func (e *Engine) useEther1(st wanState) error {
 		return nil
 	}
 	e.note = wanPort + " set up as WAN"
+	return nil
+}
+
+func (e *Engine) useEther1WithLTE(st wanState) error {
+	e.log("the router has an LTE interface, also using %s as a WAN port", wanPort)
+	if st.ether1Bridged && e.installerOn(wanPort) {
+		return fmt.Errorf("this computer is connected to the router through %s, which the installer has to turn into a WAN port. Plug the computer into another LAN port of the router, then run the installer again", wanPort)
+	}
+	if e.opts.DryRun {
+		e.log("[dry-run] would take %s out of its bridge, enable a DHCP client on it, and add it to the WAN list", wanPort)
+		return nil
+	}
+	if out, err := e.cl.RunChecked(wanEther1Script, 20*time.Second); err != nil {
+		return fmt.Errorf("could not set %s up as a WAN port: %w (%s)", wanPort, err, strings.TrimSpace(out))
+	}
+	if out, err := e.cl.RunChecked(fmt.Sprintf(wanListScript, wanPort), 20*time.Second); err != nil {
+		return fmt.Errorf("could not add %s to the WAN interface list: %w (%s)", wanPort, err, strings.TrimSpace(out))
+	}
+	e.log("%s is now a WAN port with a DHCP client", wanPort)
+	e.note = st.uplink + " kept, " + wanPort + " added as a WAN port"
 	return nil
 }
 

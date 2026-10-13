@@ -697,6 +697,9 @@ join_wifi() {
   if ! spin "${iface} joining \"${ssid}\" in station mode" ros_cmd "$cmd"; then
     err "could not set ${iface} to station mode"; exit 1
   fi
+  if ! spin "${iface} in the WAN interface list" ros_cmd ":if ([:len [/interface/list find where name=\"WAN\"]] = 0) do={/interface/list add name=WAN comment=\"nasnet-panel-baseline\"}; :if ([:len [/interface/list/member find where list=\"WAN\" interface=$(ros_quote "$iface")]] = 0) do={/interface/list/member add list=WAN interface=$(ros_quote "$iface") comment=$(ros_quote "$WIFI_UPLINK_TAG")}"; then
+    err "could not add ${iface} to the WAN interface list"; exit 1
+  fi
   if ! spin "DHCP client on ${iface}" ros_cmd ":if ([:len [/ip/dhcp-client find where interface=$(ros_quote "$iface")]] = 0) do={/ip/dhcp-client add interface=$(ros_quote "$iface") add-default-route=yes default-route-distance=1 use-peer-dns=yes use-peer-ntp=yes disabled=no comment=$(ros_quote "$WIFI_UPLINK_TAG")}"; then
     err "could not add a DHCP client on ${iface}"; exit 1
   fi
@@ -744,6 +747,7 @@ remove_wifi_uplink() {
     return 0
   fi
   ros_cmd "/ip/dhcp-client remove [find where comment=$(ros_quote "$WIFI_UPLINK_TAG")]" >/dev/null 2>&1 || true
+  ros_cmd "/interface/list/member remove [find where list=WAN comment=$(ros_quote "$WIFI_UPLINK_TAG")]" >/dev/null 2>&1 || true
 
   local sel i prop value cmd
   sel="[find name=$(ros_quote "$WIFI_IFACE")]"
@@ -774,13 +778,33 @@ WAN_LEASE_TIMEOUT=30
 
 # Reports the uplink the router already has: a WAN list member, an LTE
 # interface, or the interface holding the active default route, in that order.
-WAN_PROBE_SCRIPT=':local up ""; :local src ""; :do {:foreach m in=[/interface/list/member find where list="WAN" disabled=no] do={:if ($up = "") do={:set up [:tostr [/interface/list/member get $m interface]]; :set src "wan-list"}}} on-error={}; :if ($up = "") do={:do {:foreach i in=[/interface find where (name="lte1" || type="lte")] do={:if ($up = "") do={:set up [/interface get $i name]; :set src "lte"}}} on-error={}}; :if ($up = "") do={:do {:foreach r in=[/ip/route find where dst-address=0.0.0.0/0 active] do={:if ($up = "") do={:local g ""; :do {:set g [:tostr [/ip/route get $r immediate-gw]]} on-error={}; :local p [:find $g "%"]; :if ([:typeof $p] = "num") do={:set g [:pick $g ($p + 1) [:len $g]]}; :if ($g = "") do={:set g "default route"}; :set up $g; :set src "route"}}} on-error={}}; :put ("U=" . $up); :put ("S=" . $src); :put ("E=" . [:len [/interface find where name="ether1"]]); :put ("B=" . [:len [/interface/bridge/port find where interface="ether1"]]); :put ("L=" . [:len [/interface/bridge find where name="LANBridgeSplit"]])'
+WAN_PROBE_SCRIPT=':local up ""; :local src ""; :do {:foreach m in=[/interface/list/member find where list="WAN" disabled=no] do={:if ($up = "") do={:set up [:tostr [/interface/list/member get $m interface]]; :set src "wan-list"}}} on-error={}; :if ($up = "") do={:do {:foreach i in=[/interface find where (name="lte1" || type="lte")] do={:if ($up = "") do={:set up [/interface get $i name]; :set src "lte"}}} on-error={}}; :if ($up = "") do={:do {:foreach r in=[/ip/route find where dst-address=0.0.0.0/0 active] do={:if ($up = "") do={:local g ""; :do {:set g [:tostr [/ip/route get $r immediate-gw]]} on-error={}; :local p [:find $g "%"]; :if ([:typeof $p] = "num") do={:set g [:pick $g ($p + 1) [:len $g]]}; :if ($g = "") do={:set g "default route"}; :set up $g; :set src "route"}}} on-error={}}; :put ("U=" . $up); :put ("S=" . $src); :put ("T=" . [:len [/interface find where (name="lte1" || type="lte")]]); :put ("E=" . [:len [/interface find where name="ether1"]]); :put ("B=" . [:len [/interface/bridge/port find where interface="ether1"]]); :put ("L=" . [:len [/interface/bridge find where name="LANBridgeSplit"]])'
 
-WAN_ETHER1_SCRIPT=':foreach p in=[/interface/bridge/port find where interface="ether1"] do={/interface/bridge/port remove $p}; /interface/list/member remove [find where list="LAN" interface="ether1"]; :if ([:len [/ip/dhcp-client find where interface="ether1"]] = 0) do={/ip/dhcp-client add interface=ether1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment="nasnet-panel-baseline: WAN uplink"}'
+WAN_ETHER1_SCRIPT=':foreach p in=[/interface/bridge/port find where interface="ether1"] do={/interface/bridge/port remove $p}; /interface/list/member remove [find where list="LAN" interface="ether1"]; :if ([:len [/ip/dhcp-client find where interface="ether1"]] = 0) do={/ip/dhcp-client add interface=ether1 add-default-route=yes use-peer-dns=yes use-peer-ntp=yes disabled=no comment="nasnet-panel-baseline: WAN uplink"} else={/ip/dhcp-client set [find where interface="ether1"] disabled=no}'
 
 wan_list_script() {
   local iface="$1"
   printf '%s' ":if ([:len [/interface/list find where name=\"WAN\"]] = 0) do={/interface/list add name=WAN comment=\"nasnet-panel-baseline\"}; :if ([:len [/interface/list/member find where list=\"WAN\" interface=\"${iface}\"]] = 0) do={/interface/list/member add list=WAN interface=\"${iface}\" comment=\"nasnet-panel-baseline\"}; :if ([:len [/ip/firewall/nat find where chain=\"srcnat\" action=\"masquerade\" out-interface-list=\"WAN\"]] = 0) do={/ip/firewall/nat add chain=srcnat action=masquerade out-interface-list=WAN comment=\"nasnet-panel-baseline: masquerade WAN\"}"
+}
+
+use_ether1_with_lte() {
+  local bridged="$1"
+  log "  the router has an LTE interface, also using ${WAN_PORT} as a WAN port"
+  if (( bridged )) && installer_seen_on "$WAN_PORT"; then
+    err "this computer is connected to the router through ${WAN_PORT}, which the installer has to turn into a WAN port"
+    err "plug the computer into another LAN port of the router, then run the installer again"
+    exit 1
+  fi
+  if (( DRY_RUN )); then
+    log "  [dry-run] would take ${WAN_PORT} out of its bridge, enable a DHCP client on it, and add it to the WAN list"
+    return 0
+  fi
+  if ! spin "${WAN_PORT} as a WAN port with a DHCP client" ros_cmd "$WAN_ETHER1_SCRIPT"; then
+    err "could not set ${WAN_PORT} up as a WAN port"; exit 1
+  fi
+  if ! spin "${WAN_PORT} in the WAN interface list" ros_cmd "$(wan_list_script "$WAN_PORT")"; then
+    err "could not add ${WAN_PORT} to the WAN interface list"; exit 1
+  fi
 }
 
 prepare_wan() {
@@ -797,13 +821,14 @@ prepare_wan() {
     err "could not read the router WAN setup"; exit 1
   fi
 
-  local line key value uplink="" source="" has_ether1=0 ether1_bridged=0 layout=0
+  local line key value uplink="" source="" has_lte=0 has_ether1=0 ether1_bridged=0 layout=0
   while IFS= read -r line; do
     line="$(trim "$line")"
     key="${line%%=*}"; value="${line#*=}"
     case "$key" in
       U) uplink="$value" ;;
       S) source="$value" ;;
+      T) [[ "$value" =~ ^[1-9] ]] && has_lte=1 ;;
       E) [[ "$value" =~ ^[1-9] ]] && has_ether1=1 ;;
       B) [[ "$value" =~ ^[1-9] ]] && ether1_bridged=1 ;;
       L) [[ "$value" =~ ^[1-9] ]] && layout=1 ;;
@@ -816,13 +841,15 @@ prepare_wan() {
       lte)      log "  keeping the LTE uplink ${uplink}" ;;
       *)        log "  keeping ${uplink}, which holds the default route" ;;
     esac
-    [[ "$source" == "route" ]] && return 0
-    if (( DRY_RUN )); then
-      log "  [dry-run] would make sure ${uplink} is in the WAN list and the WAN list is masqueraded"
-      return 0
+    if [[ "$source" != "route" ]]; then
+      if (( DRY_RUN )); then
+        log "  [dry-run] would make sure ${uplink} is in the WAN list and the WAN list is masqueraded"
+      elif ! spin "${uplink} in the WAN interface list" ros_cmd "$(wan_list_script "$uplink")"; then
+        err "could not add ${uplink} to the WAN interface list"; exit 1
+      fi
     fi
-    if ! spin "${uplink} in the WAN interface list" ros_cmd "$(wan_list_script "$uplink")"; then
-      err "could not add ${uplink} to the WAN interface list"; exit 1
+    if (( has_lte && has_ether1 )); then
+      use_ether1_with_lte "$ether1_bridged"
     fi
     return 0
   fi

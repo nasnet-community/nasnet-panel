@@ -17,6 +17,202 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/app/check-for-updates": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Compares the running version against the latest GitHub release",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Check for a newer nasnet-panel release",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.CheckForUpdatesResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/app/install-update": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Checks the latest GitHub release and, if newer than the running\nversion, pulls it into a fresh nasnet-panel-update container alongside\nthe running one. Once the pull finishes, nasnet-panel-update is promoted\ninto nasnet-panel's place and started; poll /api/app/update-status for\nprogress.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Install the latest nasnet-panel release",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.InstallUpdateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/app/update-status": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns the current phase of an in-progress or completed self-update",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Get self-update status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.UpdateStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/app/version": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns the current running version of nasnet-panel",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Get panel version",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.AppVersionResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/dhcp/client/{nameOrID}": {
             "post": {
                 "security": [
@@ -442,6 +638,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/diag/file": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Delete the generated diagnostic report file from the RouterOS device",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Diagnostics"
+                ],
+                "summary": "Delete Diagnostic Report File",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/diag/generate": {
             "post": {
                 "security": [
@@ -515,6 +763,268 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/adblock": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Checks the current status of the /ip/dns/adlist entry whose url is\nhttps://raw.githubusercontent.com/StevenBlack/hosts/master/hosts, and returns a\nconflict error if it's already in the requested state. If enabled is true: enables\nthe entry if it exists, or creates it (with ssl-verify=no) and enables it if it\ndoesn't. If enabled is false: disables the entry if it exists, or does nothing if\nit doesn't.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Enable or disable the StevenBlack hosts adlist ad-blocker",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Desired ad-block state",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.AdBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/cache": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Runs /ip/dns/cache/flush on the RouterOS device",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Clear the RouterOS DNS cache",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/change": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Runs the same guard checks as GET /api/dns/validate that don't depend on the\nold IP's forwarder type (oldIp and newIp must differ, and newIp must not\nalready be used by any DNS forwarder), then replaces oldIp with newIp in the\n/ip/dns servers list, in the dns-servers list of every DNS forwarder that\ncontains it (a forwarder may hold more than one IP), in every /ip/route entry\nwhose dst-address is oldIp, in every /ip/route entry whose gateway is oldIp, and\nin every /tool/netwatch probe whose host is oldIp.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Change a DNS server IP across /ip/dns, DNS forwarders, /ip/route and netwatch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "IP change to apply",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ChangeDNSRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.DNSChangeResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/family": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Finds the current DNS server IP of the \"Foreign\" and \"VPN\" DNS forwarders, then\nruns the same change as POST /api/dns/change for each: Foreign's current IP is\nreplaced with the Cloudflare Family Primary IP (1.1.1.3), and VPN's current IP is\nreplaced with the Cloudflare Family Secondary IP (1.0.0.3), across /ip/dns\nservers, DNS forwarders, the \"DNS\" firewall address list, dst-nat NAT rules, IP\nroutes, and netwatch probes. A forwarder already set to its target family IP is\nleft unchanged rather than erroring. No request body is required. If the Foreign\nswap succeeds but the VPN swap then fails, the error response's data still\nincludes the completed Foreign result, so the caller can see what was actually\napplied to the router.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Apply Cloudflare Family DNS to the Foreign and VPN forwarders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.DNSFamilyResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -653,6 +1163,794 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/dns/list": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Lists every /ip/dns/forwarders entry except \"General\", with its name, IP\naddress(es) and comment. If any of the forwarder's IPs is a known suggestion\nfrom GET /api/dns/suggest, its description is included too.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "List DNS forwarders",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.DNSForwarderListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/reset": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Replaces /ip/dns's servers with 1.0.0.1, 217.218.127.127 and 1.1.1.1, and finds\nthe existing Domestic, Foreign, General and VPN /ip/dns/forwarders\nentries by name, updating each one's dns-servers to its default: Domestic\n(217.218.127.127), Foreign (1.1.1.1), General (1.0.0.1, 217.218.127.127, 1.1.1.1) and\nVPN (1.0.0.1). A forwarder that doesn't already exist is left uncreated and skipped,\nrather than being treated as an error.\nAlso resets the gateway of every /ip/route entry commented CheckIP-Route-to-\nDomestic-Domestic Link to 217.218.127.127, CheckIP-Route-to-Foreign-Foreign Link\nto 1.1.1.1, and CheckIP-Route-to-VPN-Client to 1.0.0.1. And, unless its\ndst-address is already the default route (0.0.0.0/0), resets the dst-address of\nevery /ip/route entry commented Route-to-Domestic-Domestic Link to\n217.218.127.127, Route-to-Foreign-Foreign Link to 1.1.1.1, and\nRoute-to-VPN-Client to 1.0.0.1. Also resets the host of every /tool/netwatch\nprobe commented \"Failover Netwatch - Domestic Link\" to 217.218.127.127,\n\"Failover Netwatch - Foreign Link\" to 1.1.1.1, and \"Failover Netwatch -\nVPN-Client\" to 1.0.0.1. Also removes every existing \"DNS\" firewall\naddress-list item and recreates one per reset DNS server IP, each with\nlist name \"DNS\" and comment \"DNS\". Also updates every /ip/firewall/nat rule whose\naction is dst-nat: rules commented \"DNS Split\", \"DNS VPN\" or \"DNS containers\" get\nto-addresses 1.0.0.1, rules commented \"DNS Foreign\" get 1.1.1.1, and rules commented\n\"DNS Domestic\" get 217.218.127.127. All Domestic-related creations and changes above (the\nDomestic forwarder, and the Domestic CheckIP route, dst-address route and\nnetwatch probe) are skipped entirely, and any existing Domestic forwarder is left\nin place, unless an /interface entry commented \"WAN - Domestic Link\" exists.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Reset all DNS-related settings to their default configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.DNSResetResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/static": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Lists the static DNS A records created through the API. Entries created any other way are not returned.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "List user defined static DNS entries",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Static DNS entries",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.StaticDNSResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Adds a static DNS A record. The type is always A, the TTL is one day, and the entry is marked as user defined.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Add a static DNS entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Static DNS entry",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateStaticDNSRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created entry",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.StaticDNSResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/static/{nameOrID}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Gets a static DNS A record created through the API, by name or ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Get a user defined static DNS entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Entry name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Static DNS entry",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.StaticDNSResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Entry not found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Updates the name, address or disabled state of a static DNS A record created through the API",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Update a static DNS entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Entry name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateStaticDNSRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated entry",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.StaticDNSResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Entry not found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Deletes a static DNS A record created through the API, by name or ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Delete a static DNS entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Entry name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Entry not found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/suggest": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns a curated list of domestic and foreign DNS server IPs, each with a\nshort description of who operates it. The optional type query param restricts\nthe response to just \"domestic\" or \"foreign\" (case-insensitive); omitted, both\ngroups are returned.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Suggest DNS server IPs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Restrict to domestic or foreign (case-insensitive); omit for both",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.DNSSuggestResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/dns/validate": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "oldIP and newIP must differ. Finds the DNS forwarder whose dns-servers is\nexactly oldIP, reads its role (Domestic/Foreign/VPN) from its name, and rejects\nnewIP outright if it's already used by any DNS forwarder. If newIP matches one\nof the hardcoded IPs from GET /api/dns/suggest for the old forwarder's own type,\nit is trusted as suitable immediately, skipping the DOMAddList lookup below.\nOtherwise checks whether newIP is a member of the DOMAddList firewall address\nlist, first confirming DOMAddList itself looks healthy (over 1000 entries, or\nits newest entry is under a month old). A Domestic forwarder is suitable to\nupdate only if newIP is in DOMAddList; a Foreign/VPN forwarder is suitable to\nupdate only if newIP is NOT in DOMAddList.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DNS"
+                ],
+                "summary": "Check whether a DNS IP swap is safe",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Current DNS forwarder IP",
+                        "name": "oldIP",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Candidate replacement IP",
+                        "name": "newIP",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.DNSCheckResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/firewall/domestic": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Reports whether traffic to DOMAddList is blocked (block is true only when every\nblocking rule is enabled). Any blocking rule that doesn't exist yet is created\nin the disabled state first, and reported in addedRules.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Firewall"
+                ],
+                "summary": "Get the domestic traffic block status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Block status",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.DomesticBlockResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Enables (block=true) or disables (block=false) the firewall filter rules that drop\nforwarded traffic and the router's own traffic destined to DOMAddList. Any of the\nrules that doesn't exist yet is created first. Traffic leaving through the\nDomestic-WAN interface list (e.g. replies to VPN users connected from it) is never\nblocked. Returns 409 when every rule is already in the requested state.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Firewall"
+                ],
+                "summary": "Block or unblock traffic to the domestic address list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Block setting",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SetDomesticBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Block setting applied",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.DomesticBlockResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Already in the requested state",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/firewall/filter": {
             "get": {
                 "security": [
@@ -718,6 +2016,269 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/interface/bridge/port": {
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Edits the interface's existing bridge port to move it to the given bridge, setting\nthe port's comment, and the interface's own comment, to the bridge's own comment,\nthen disables the interface, waits 100ms, and re-enables it. The bridge name must\nstart with \"LANBridge\". Rejects the request if the interface is already a port on\nthe given bridge.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Change an interface's bridge",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Interface and target bridge",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateInterfaceBridgeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/bridge/ports": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get every /interface/bridge/port entry whose bridge name starts with \"LANBridge\"",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "List bridge ports",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.BridgePortResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/bridges": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get every /interface/bridge entry whose name starts with \"LANBridge\"",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "List LAN bridges",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.BridgeResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/ethernet/cable-test/{nameOrID}": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Run /interface/ethernet/cable-test against an ethernet interface. RouterOS\nblocks for the duration of the test (a few seconds), so this request blocks\naccordingly. The response's cablePairs field is only present when status is\n\"no-link\".",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Test ethernet cable",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.CableTestResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/interface/ethernet/{nameOrID}": {
             "get": {
                 "security": [
@@ -761,7 +2322,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ethernetResponse"
+                                            "$ref": "#/definitions/handler.EthernetResponse"
                                         }
                                     }
                                 }
@@ -827,7 +2388,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.ethernetResponse"
+                                                "$ref": "#/definitions/handler.EthernetResponse"
                                             }
                                         }
                                     }
@@ -960,7 +2521,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.interfaceResponse"
+                                                "$ref": "#/definitions/handler.InterfaceResponse"
                                             }
                                         }
                                     }
@@ -976,6 +2537,68 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/traffic-counter/{nameOrID}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Resets the traffic counters (rx/tx bytes and packets) of the interface identified by name or ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Reset interface traffic counter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -1199,6 +2822,704 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/api/plugin/env/{pluginId}": {
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Adds or overwrites one entry in the container's own env property, identified by\npluginId (a plugin is installed as a container named after its id). Only\nvariables set this way (as opposed to ones pulled in from a resolved\n/container/envs list) can be changed; see GET /api/plugin/envs/{pluginId}'s\nchangeable field.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Set a plugin's container environment variable",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin id",
+                        "name": "pluginId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Environment variable to set",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SetPluginEnvVarRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.EnvVar"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/envs/{pluginId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns the effective environment variables of the container installed for\npluginId (a plugin is installed as a container named after its id): the\ncontainer's resolved env-current when set, falling back to its own env\notherwise. Each entry's changeable flag is true only if its key is also set\ndirectly on the container's own env property, since only those can be edited;\na key present only via a resolved /container/envs list cannot be.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "List a plugin's container environment variables",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin id",
+                        "name": "pluginId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.EnvVar"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/install": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Starts an async install of a plugin from the community registry:\ncreates the veth interface its manifest specifies (if not already\npresent), creates its mounts, and adds its container, then waits for\nthe image to finish pulling. Poll GET /api/plugin/install/status/{pluginId} for\nprogress. At most one install per plugin id may run at a time;\ndifferent plugins may install concurrently.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Install a plugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Plugin to install",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.InstallPluginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.InstallPluginResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/install/status/{pluginId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns the current phase of an in-progress or completed plugin\ninstallation task.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Get plugin installation status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin id passed to POST /api/plugin/install",
+                        "name": "pluginId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.PluginInstallStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/installed": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Fetches the community plugin registry and the router's own containers, then\nreturns just the id and name of every registry plugin currently installed (a\nplugin is installed as a container named after its id).\nReturns an empty list without touching the registry if container mode isn't\nenabled or the container package isn't installed on the device.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "List installed plugins",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.InstalledPluginInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/plugin/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Removes an installed plugin: runs the preUninstall script from its\nmanifest (if it names one), stops and removes its container, then\nremoves the mount lists and veth interface the manifest declares, and\ndeletes the plugin's volume directory (nasnet-panel/container-volumes/\u003cpluginId\u003e).\nCleanup steps that fail once the container is already gone are\nreported in the response as warnings rather than failing the request.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Uninstall a plugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin id, which is also its container name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.UninstallPluginResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/plugins": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Fetches the community plugin registry and returns the list of available\nplugins, each annotated with installed/running status from the router's\nown containers (a plugin is installed as a container named after its id).\nOnly plugins with visible=true in the registry are included, unless the\nbuild version contains \"dev\", in which case every plugin is listed. Hidden plugins can still be installed\ndirectly and are unaffected by this filter.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "List available plugins",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.PluginListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/update/status/{pluginId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns the current phase of an in-progress or completed plugin\nupdate task.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Get plugin update status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin id passed to POST /api/plugin/update/{pluginId}",
+                        "name": "pluginId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.PluginUpdateStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/update/{pluginId}": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Checks the community registry's version for pluginId against the\nversion recorded in its container's comment; if the registry version\nis newer, starts an async update: repulls the container's image from\nthe registry-declared image, restarts the container, then records the\nnew version in the container's comment. Poll\nGET /api/plugin/update/status/{pluginId} for progress.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Update an installed plugin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plugin id, which is also its container name",
+                        "name": "pluginId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.UpdatePluginResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin/view/{pluginID}": {
+            "get": {
+                "description": "Proxies a plugin's own web UI, resolving its target from the plugin's manifest:\nthe container interface's address (its IP, without the subnet) as host, and the\ncontainerPort of the first entry in container.ports whose description starts\nwith \"web\" (case-insensitive) as port. The resolved target is cached in-memory\nper plugin id, so the manifest is only fetched once per plugin.\nTest mode: no redirect/cookie/CSS/JS rewriting is performed; a \u003cbase href\u003e\ntag pointing at this route's own base URL is injected into HTML responses only.\n/api/plugin/view/{pluginID} is the base URL for the plugin's web UI; any path\nappended after it (assets, API calls, etc.) is forwarded to the same target,\nrelative to that base.\nDoes not require RouterOS auth: it proxies the plugin's own web UI, not RouterOS.",
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Proxy a plugin's web UI (test mode: base-tag injection only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Plugin id",
+                        "name": "pluginID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/plugin/view/{pluginID}/{path}": {
+            "get": {
+                "description": "Proxies a plugin's own web UI, resolving its target from the plugin's manifest:\nthe container interface's address (its IP, without the subnet) as host, and the\ncontainerPort of the first entry in container.ports whose description starts\nwith \"web\" (case-insensitive) as port. The resolved target is cached in-memory\nper plugin id, so the manifest is only fetched once per plugin.\nTest mode: no redirect/cookie/CSS/JS rewriting is performed; a \u003cbase href\u003e\ntag pointing at this route's own base URL is injected into HTML responses only.\n/api/plugin/view/{pluginID} is the base URL for the plugin's web UI; any path\nappended after it (assets, API calls, etc.) is forwarded to the same target,\nrelative to that base.\nDoes not require RouterOS auth: it proxies the plugin's own web UI, not RouterOS.",
+                "tags": [
+                    "Plugin"
+                ],
+                "summary": "Proxy a plugin's web UI (test mode: base-tag injection only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Plugin id",
+                        "name": "pluginID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/api/route/foreign-gateway": {
@@ -2002,6 +4323,171 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/system/service/{nameOrID}": {
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Update an /ip/service entry by name or ID. Services that are not editable\n(dynamic or on the non-editable list) are rejected with 403.\naddress takes one or more IPs or CIDR prefixes separated by commas; an empty\nstring allows access from anywhere.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Update an IP service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Service name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Service settings to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateIPServiceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated IP service",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.IPServiceResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Service is not editable",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Service not found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/system/services": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "List the entries of /ip/service. Dynamic services and services on the\nnon-editable list (currently api) are reported with editable=false.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "List IP services",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "IP services",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.IPServiceResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/system/shutdown": {
             "post": {
                 "security": [
@@ -2121,6 +4607,111 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/active": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns every currently active (connected) VPN connection across all VPN\ntypes: PPP-based sessions (PPTP, L2TP, SSTP, OVPN, PPPoE) from /ppp/active,\nand WireGuard peers that have completed at least one handshake.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "List Active VPN Connections",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.ActiveVPNConnectionsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/active/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Disconnects an active PPP-based VPN session (PPTP, L2TP, SSTP, OVPN or PPPoE),\nidentified by its /ppp/active id, without touching its underlying PPP secret.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Remove Active VPN Connection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Active PPP session id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -2645,6 +5236,106 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Enable the L2TP server with the given IPsec preshared key, and add the matching firewall/mangle rules",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Enable L2TP Server",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "L2TP server configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateL2tpServerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Disable RouterOS's L2TP server and remove the firewall/mangle rules added when it was enabled",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Disable L2TP Server",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
             }
         },
         "/api/vpn/ovpn/server": {
@@ -2718,7 +5409,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Generates and returns OVPN client configuration file using RouterOS export command",
+                "description": "Generates and returns OVPN client configuration file using RouterOS export command.\nThe exported file is deleted from the router once it has been served.",
                 "produces": [
                     "text/plain"
                 ],
@@ -2885,6 +5576,81 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Enable or disable an existing OpenVPN server by name. Rejects the request if the\nserver is already in the requested state.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Enable/Disable OpenVPN Server",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OpenVPN server name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Enabled state to apply",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateOvpnServerEnabledRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -3084,7 +5850,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Get the list of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers",
+                "description": "Get the list of OpenVPN, WireGuard, L2TP, and SSTP servers. By default, only\nenabled servers are returned; pass all=true to include disabled ones too.",
                 "produces": [
                     "application/json"
                 ],
@@ -3099,6 +5865,12 @@ const docTemplate = `{
                         "name": "X-RouterOS-Host",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include disabled servers too (default: false, only enabled servers)",
+                        "name": "all",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3122,6 +5894,284 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/sstp/client": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new SSTP client connection (TLS any, no certificate verification, no PFS,\naes256-sha and aes256-gcm-sha384 ciphers, default profile, keepalive 60, all\nauthentication methods). Port defaults to 443.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Add SSTP Client",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "SSTP client configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.AddSSTPClientRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/sstp/client/{nameOrID}": {
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Update SSTP client settings (connection address, port, credentials, etc.)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Update SSTP Client",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SSTP client name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "SSTP client settings to update",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateSSTPClientRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Remove an SSTP client connection",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Delete SSTP Client",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SSTP client name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/sstp/client/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed information about an SSTP client",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get SSTP Client Details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "SSTP client name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.SSTPClientResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -3174,6 +6224,156 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Start an asynchronous SSTP server enable task: a CA and server certificate are\ncreated (the same way as for OpenVPN server creation), the SSTP server is enabled\non port 4433 with the default profile, authentication pap/chap/mschap1/mschap2,\nverify-client-certificate disabled, and ciphers aes256-sha/aes256-gcm-sha384, and a\nfirewall rule is added accepting TCP port 4433 from the \"Domestic-WAN\" interface\nlist. If a certificate named starting with \"sstp-server-\" already exists (left\nover from an earlier enable), it's reused as-is instead of creating a new CA/server\ncertificate pair. Rejects the request outright, before starting the task, if the\nSSTP server is already enabled. Takes no request body.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create SSTP Server",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Disables RouterOS's SSTP server. If deleteCertificateFiles is true, also\nremoves its certificate from the system and deletes the certificate's files\nfrom storage. Rejected while an SSTP server creation task is still running, so\nthat task can't re-enable SSTP after this call disables it.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Delete SSTP Server",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Also delete the certificate and its files (default: false)",
+                        "name": "deleteCertificateFiles",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/sstp/server/status/{taskId}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get the status and progress of an SSTP server configuration task",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get SSTP Server Task Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "taskId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -3475,7 +6675,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Create a new WireGuard client interface with the specified configuration",
+                "description": "Create a new WireGuard client interface with the specified configuration. Returns 409 if any WireGuard interface with the same private key and IP address already exists.",
                 "produces": [
                     "application/json"
                 ],
@@ -3522,6 +6722,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/handler.Response"
                         }
@@ -3607,7 +6813,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Import a WireGuard interface and peer from a configuration file format",
+                "description": "Import a WireGuard interface and peers from a configuration file format. If any\nexisting WireGuard interface already has the exact same private key and IP address,\nits peers are added to that interface instead of creating a new one. A peer whose\npublic key already exists on the target interface is skipped and reported in\nskippedDuplicatePeers instead of failing the import.",
                 "produces": [
                     "application/json"
                 ],
@@ -3874,7 +7080,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Add a new peer to an existing WireGuard server interface with auto-generated keys",
+                "description": "Add a new peer to an existing WireGuard server interface with auto-generated keys.\nThe client's address, DNS, keepalive, allowed-address and listen-port are all\nderived automatically: address is the next free IP after the interface's own\naddress within its subnet, DNS is the interface's own address, keepalive is 30,\nallowed-address matches the peer's own allowedAddresses, and listen-port matches\nthe interface's listen port. Only the client endpoint may be supplied by the caller.",
                 "produces": [
                     "application/json"
                 ],
@@ -3917,6 +7123,78 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/wireguard/peer/export": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Generates and returns a peer's client configuration using RouterOS's\n/interface/wireguard/peers/show-client-config command",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Export WireGuard Peer Client Configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WireGuard peer name or ID",
+                        "name": "nameOrID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Public IP address to set as the peer's client-endpoint",
+                        "name": "publicAddress",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
                         }
                     },
                     "400": {
@@ -4830,7 +8108,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.wiFiAccessPointResponse"
+                                                "$ref": "#/definitions/handler.WiFiAccessPointResponse"
                                             }
                                         }
                                     }
@@ -4941,6 +8219,13 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     },
+                    "409": {
+                        "description": "Mode change requested for a virtual interface",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
@@ -5033,6 +8318,147 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/wifi/virtual": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Create a virtual WiFi interface bound to a physical master interface and attach it to a LAN bridge",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WiFi"
+                ],
+                "summary": "Create a virtual WiFi interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Virtual WiFi interface configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateVirtualWiFiInterfaceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.WiFiInterfaceResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/wifi/virtual/{nameOrID}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Remove a virtual WiFi interface's bridge port (if any) then the interface itself",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WiFi"
+                ],
+                "summary": "Delete a virtual WiFi interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Virtual WiFi interface name or ID",
+                        "name": "nameOrID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
                         }
                     }
                 }
@@ -5149,74 +8575,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Update wizard configuration status, only supplied fields are updated",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Wizard"
-                ],
-                "summary": "Update Wizard Status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "RouterOS host address",
-                        "name": "X-RouterOS-Host",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Wizard status updates",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.UpdateWizardStatusRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/handler.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/handler.WizardStatus"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.Response"
-                        }
-                    }
-                }
             }
         },
         "/api/wizard/vpn": {
@@ -5291,10 +8649,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/handler.HealthCheckResponse"
                         }
                     }
                 }
@@ -5302,9 +8657,84 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.ActiveVPNConnectionsResponse": {
+            "type": "object",
+            "properties": {
+                "pppSessions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.PPPActiveSessionResponse"
+                    }
+                },
+                "wireguardPeers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.ActiveWireGuardPeerResponse"
+                    }
+                }
+            }
+        },
+        "handler.ActiveWireGuardPeerResponse": {
+            "type": "object",
+            "properties": {
+                "allowedAddresses": {
+                    "type": "string"
+                },
+                "clientAddress": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "dynamic": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interfaceName": {
+                    "type": "string"
+                },
+                "lastHandshake": {
+                    "type": "string",
+                    "example": "1d 12:12:12"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "publicKey": {
+                    "type": "string"
+                },
+                "rx": {
+                    "type": "string"
+                },
+                "rxBytes": {
+                    "type": "integer"
+                },
+                "tx": {
+                    "type": "string"
+                },
+                "txBytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.AdBlockRequest": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
         "handler.AddL2TPClientRequest": {
             "type": "object",
             "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office L2TP client"
+                },
                 "connectTo": {
                     "type": "string",
                     "example": "192.168.1.1"
@@ -5331,6 +8761,115 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.AddSSTPClientRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office SSTP client"
+                },
+                "connectTo": {
+                    "type": "string",
+                    "example": "vpn.example.com"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "type": "string",
+                    "example": "my-sstp-client"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                },
+                "port": {
+                    "type": "integer",
+                    "example": 443
+                },
+                "user": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
+        "handler.AppVersionResponse": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.BridgePortResponse": {
+            "type": "object",
+            "properties": {
+                "bridge": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "edge": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "pathCost": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.BridgeResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.CableTestResponse": {
+            "type": "object",
+            "properties": {
+                "cablePairs": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ChangeDNSRequest": {
+            "type": "object",
+            "properties": {
+                "newIp": {
+                    "type": "string"
+                },
+                "oldIp": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.ChangeUserPasswordRequest": {
             "type": "object",
             "properties": {
@@ -5347,6 +8886,26 @@ const docTemplate = `{
             "properties": {
                 "passphrase": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.CheckForUpdatesResponse": {
+            "type": "object",
+            "properties": {
+                "appVersion": {
+                    "type": "string"
+                },
+                "latestVersion": {
+                    "type": "string"
+                },
+                "releaseDate": {
+                    "type": "string"
+                },
+                "releaseUrl": {
+                    "type": "string"
+                },
+                "updateAvailable": {
+                    "type": "boolean"
                 }
             }
         },
@@ -5373,6 +8932,15 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateL2tpServerRequest": {
+            "type": "object",
+            "properties": {
+                "ipsecSecret": {
+                    "type": "string",
+                    "example": "secretpassphrase123"
+                }
+            }
+        },
         "handler.CreateOvpnServerRequest": {
             "type": "object",
             "required": [
@@ -5389,6 +8957,19 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/handler.VpnUser"
                     }
+                }
+            }
+        },
+        "handler.CreateStaticDNSRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "192.168.88.1"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "router.lan"
                 }
             }
         },
@@ -5418,14 +8999,39 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateVirtualWiFiInterfaceRequest": {
+            "type": "object",
+            "properties": {
+                "bridge": {
+                    "type": "string",
+                    "example": "LANBridgeSplit"
+                },
+                "masterInterface": {
+                    "type": "string",
+                    "example": "wifi1"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "my-secure-password"
+                },
+                "securityTypes": {
+                    "description": "comma-separated: wpa-psk,wpa2-psk,wpa3-psk; required when password is set",
+                    "type": "string",
+                    "example": "wpa2-psk,wpa3-psk"
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "my-network"
+                }
+            }
+        },
         "handler.CreateWireGuardInterfaceRequest": {
             "type": "object",
             "required": [
                 "allowedAddress",
                 "endpointIP",
                 "endpointPort",
-                "interfaceLocalAddress",
-                "name"
+                "interfaceLocalAddress"
             ],
             "properties": {
                 "allowedAddress": {
@@ -5489,7 +9095,6 @@ const docTemplate = `{
         "handler.CreateWireGuardServerPeerRequest": {
             "type": "object",
             "required": [
-                "allowedAddresses",
                 "endpointAddress",
                 "endpointPort",
                 "interfaceName"
@@ -5501,11 +9106,7 @@ const docTemplate = `{
                 },
                 "clientAddress": {
                     "type": "string",
-                    "example": "10.0.0.2/32"
-                },
-                "clientAllowedAddress": {
-                    "type": "string",
-                    "example": "10.0.0.0/24"
+                    "example": "10.0.0.2"
                 },
                 "clientDNS": {
                     "type": "string",
@@ -5513,11 +9114,11 @@ const docTemplate = `{
                 },
                 "clientEndpoint": {
                     "type": "string",
-                    "example": "10.0.0.1:51820"
+                    "example": "10.0.0.1"
                 },
                 "clientKeepalive": {
                     "type": "integer",
-                    "example": 10
+                    "example": 30
                 },
                 "clientListenPort": {
                     "type": "integer",
@@ -5575,9 +9176,6 @@ const docTemplate = `{
         },
         "handler.CreateWireGuardServerRequest": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
                 "comment": {
                     "type": "string",
@@ -5609,14 +9207,372 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.DNSChangeResponse": {
+            "type": "object",
+            "properties": {
+                "newIp": {
+                    "type": "string"
+                },
+                "oldIp": {
+                    "type": "string"
+                },
+                "servers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedAddressListItems": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedDstAddressRoutes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedForwarders": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedGatewayRoutes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedNatRules": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedNetwatchProbes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "handler.DNSCheckResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "newIp": {
+                    "type": "string"
+                },
+                "oldIp": {
+                    "type": "string"
+                },
+                "oldIpType": {
+                    "type": "string",
+                    "example": "Domestic"
+                },
+                "suitable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.DNSFamilyResponse": {
+            "type": "object",
+            "properties": {
+                "foreign": {
+                    "$ref": "#/definitions/handler.DNSChangeResponse"
+                },
+                "vpn": {
+                    "$ref": "#/definitions/handler.DNSChangeResponse"
+                }
+            }
+        },
+        "handler.DNSForwarderListItem": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.DNSForwarderResult": {
+            "type": "object",
+            "properties": {
+                "dnsServers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.DNSResetResponse": {
+            "type": "object",
+            "properties": {
+                "createdAddressListItems": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "forwarders": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.DNSForwarderResult"
+                    }
+                },
+                "servers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedCheckIpRoutes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedNatRules": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedNetwatchProbes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedRouteDstAddresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "handler.DNSSuggestResponse": {
+            "type": "object",
+            "properties": {
+                "domestic": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.DNSSuggestion"
+                    }
+                },
+                "foreign": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.DNSSuggestion"
+                    }
+                }
+            }
+        },
+        "handler.DNSSuggestion": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.DomesticBlockResponse": {
+            "type": "object",
+            "properties": {
+                "addedRules": {
+                    "type": "integer"
+                },
+                "block": {
+                    "type": "boolean"
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.DomesticBlockRuleResponse"
+                    }
+                }
+            }
+        },
+        "handler.DomesticBlockRuleResponse": {
+            "type": "object",
+            "properties": {
+                "chain": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.EnvVar": {
+            "type": "object",
+            "properties": {
+                "changeable": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.EthernetResponse": {
+            "type": "object",
+            "properties": {
+                "advertise": {
+                    "type": "string"
+                },
+                "advertising": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "arp": {
+                    "type": "string"
+                },
+                "arpTimeout": {
+                    "type": "string"
+                },
+                "autoNegotiation": {
+                    "type": "boolean"
+                },
+                "bandwidth": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "defaultName": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "fullDuplex": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "l2Mtu": {
+                    "type": "integer"
+                },
+                "linkPartnerAdvertising": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "loopProtect": {
+                    "type": "string"
+                },
+                "loopProtectDisableTime": {
+                    "type": "string"
+                },
+                "loopProtectSendInterval": {
+                    "type": "string"
+                },
+                "loopProtectStatus": {
+                    "type": "string"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "monitorAutoNegotiation": {
+                    "type": "string"
+                },
+                "monitorRxFlowControl": {
+                    "type": "boolean"
+                },
+                "monitorTxFlowControl": {
+                    "type": "boolean"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "origMacAddress": {
+                    "type": "string"
+                },
+                "poeOut": {
+                    "type": "string"
+                },
+                "poePriority": {
+                    "type": "integer"
+                },
+                "powerCycleInterval": {
+                    "type": "string"
+                },
+                "powerCyclePingEnabled": {
+                    "type": "boolean"
+                },
+                "rate": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "rxFlowControl": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "supported": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "switch": {
+                    "type": "string"
+                },
+                "txFlowControl": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.FinalizeWizardRequest": {
             "type": "object",
             "properties": {
                 "domestic": {
-                    "$ref": "#/definitions/handler.InterfaceConfig"
+                    "$ref": "#/definitions/handler.InterfaceConfigRequest"
                 },
                 "foreign": {
-                    "$ref": "#/definitions/handler.InterfaceConfig"
+                    "$ref": "#/definitions/handler.InterfaceConfigRequest"
                 },
                 "l2tpClient": {
                     "$ref": "#/definitions/handler.L2tpClientConfig"
@@ -5669,6 +9625,79 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "server": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.IPServiceResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "certificate": {
+                    "type": "string"
+                },
+                "connection": {
+                    "type": "boolean"
+                },
+                "container": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "dynamic": {
+                    "type": "boolean"
+                },
+                "editable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invalid": {
+                    "type": "boolean"
+                },
+                "local": {
+                    "type": "string"
+                },
+                "maxSessions": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "netns": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "proto": {
+                    "type": "string"
+                },
+                "remote": {
+                    "type": "string"
+                },
+                "tlsVersion": {
+                    "type": "string"
+                },
+                "vrf": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.IPVerifyRequest": {
             "type": "object",
             "properties": {
@@ -5680,8 +9709,7 @@ const docTemplate = `{
         "handler.ImportWireGuardConfigRequest": {
             "type": "object",
             "required": [
-                "config",
-                "interfaceName"
+                "config"
             ],
             "properties": {
                 "config": {
@@ -5697,6 +9725,9 @@ const docTemplate = `{
         "handler.ImportWireGuardConfigResponse": {
             "type": "object",
             "properties": {
+                "importedPeerCount": {
+                    "type": "integer"
+                },
                 "interfaceIP": {
                     "type": "string"
                 },
@@ -5708,10 +9739,63 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "reusedExistingInterface": {
+                    "type": "boolean"
+                },
+                "skippedDuplicatePeers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
-        "handler.InterfaceConfig": {
+        "handler.InstallPluginRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.InstallPluginResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "pluginId": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.InstallUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "fromVersion": {
+                    "type": "string"
+                },
+                "toVersion": {
+                    "type": "string"
+                },
+                "updateAvailable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.InstalledPluginInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.InterfaceConfigRequest": {
             "type": "object",
             "properties": {
                 "interface": {
@@ -5729,6 +9813,122 @@ const docTemplate = `{
                 "type": {
                     "type": "string",
                     "example": "ether"
+                }
+            }
+        },
+        "handler.InterfaceResponse": {
+            "type": "object",
+            "properties": {
+                "actualMtu": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "defaultName": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "dynamic": {
+                    "type": "boolean"
+                },
+                "fpRpsDrop": {
+                    "type": "integer"
+                },
+                "fpRx": {
+                    "type": "string"
+                },
+                "fpRxByte": {
+                    "type": "integer"
+                },
+                "fpRxPacket": {
+                    "type": "integer"
+                },
+                "fpTx": {
+                    "type": "string"
+                },
+                "fpTxByte": {
+                    "type": "integer"
+                },
+                "fpTxPacket": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inactive": {
+                    "type": "boolean"
+                },
+                "l2Mtu": {
+                    "type": "integer"
+                },
+                "lastLinkDownTime": {
+                    "type": "string"
+                },
+                "lastLinkUpTime": {
+                    "type": "string"
+                },
+                "linkDowns": {
+                    "type": "integer"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "maxL2Mtu": {
+                    "type": "integer"
+                },
+                "mtu": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "rx": {
+                    "type": "string"
+                },
+                "rxByte": {
+                    "type": "integer"
+                },
+                "rxDrop": {
+                    "type": "integer"
+                },
+                "rxError": {
+                    "type": "integer"
+                },
+                "rxPacket": {
+                    "type": "integer"
+                },
+                "slave": {
+                    "type": "boolean"
+                },
+                "tx": {
+                    "type": "string"
+                },
+                "txByte": {
+                    "type": "integer"
+                },
+                "txDrop": {
+                    "type": "integer"
+                },
+                "txError": {
+                    "type": "integer"
+                },
+                "txPacket": {
+                    "type": "integer"
+                },
+                "txQueueDrop": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "vrf": {
+                    "type": "string"
                 }
             }
         },
@@ -6011,6 +10211,151 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.PPPActiveSessionResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "callerID": {
+                    "type": "string"
+                },
+                "encoding": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "service": {
+                    "type": "string",
+                    "example": "sstp"
+                },
+                "sessionID": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.PluginInfo": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "canInstall": {
+                    "type": "boolean"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "failed": {
+                    "type": "boolean"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "installed": {
+                    "type": "boolean"
+                },
+                "installedVersion": {
+                    "type": "string"
+                },
+                "installing": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "tagline": {
+                    "type": "string"
+                },
+                "updateAvailable": {
+                    "type": "boolean"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.PluginInstallStatusResponse": {
+            "type": "object",
+            "properties": {
+                "containerId": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "phase": {
+                    "description": "preparing, creating_interface, creating_mounts, running_pre_install_script, creating_container, pulling, starting_container, running_post_install_script, done, error",
+                    "type": "string"
+                },
+                "pluginId": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.PluginListResponse": {
+            "type": "object",
+            "properties": {
+                "containerSupport": {
+                    "type": "boolean"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.PluginInfo"
+                    }
+                }
+            }
+        },
+        "handler.PluginUpdateStatusResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "phase": {
+                    "description": "checking_version, stopping_container, repulling, starting_container, updating_comment, done, unconfirmed, error",
+                    "type": "string"
+                },
+                "pluginId": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.PptpServerDetailsResponse": {
             "type": "object",
             "properties": {
@@ -6061,6 +10406,80 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.SSTPClientResponse": {
+            "type": "object",
+            "properties": {
+                "authentication": {
+                    "type": "string"
+                },
+                "ciphers": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "connectTo": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "encoding": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "keepaliveTimeout": {
+                    "type": "integer"
+                },
+                "localAddress": {
+                    "type": "string"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "pfs": {
+                    "type": "boolean"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "profile": {
+                    "type": "string"
+                },
+                "remoteAddress": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tlsVersion": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                },
+                "verifyServerAddressFromCertificate": {
+                    "type": "boolean"
+                },
+                "verifyServerCertificate": {
+                    "type": "boolean"
+                }
+            }
+        },
         "handler.ScanRequest": {
             "type": "object",
             "properties": {
@@ -6078,10 +10497,33 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "peerCount": {
+                    "type": "integer"
+                },
                 "port": {
                     "type": "integer"
                 },
                 "protocol": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.SetDomesticBlockRequest": {
+            "type": "object",
+            "properties": {
+                "block": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "handler.SetPluginEnvVarRequest": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -6161,6 +10603,55 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.StaticDNSResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ttl": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UninstallPluginResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "mountLists": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "volumeDir": {
+                    "type": "string"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "handler.UpdateCheckResponse": {
             "type": "object",
             "properties": {
@@ -6200,6 +10691,39 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateIPServiceRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "192.168.88.0/24,10.0.0.0/8"
+                },
+                "certificate": {
+                    "type": "string",
+                    "example": "none"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "maxSessions": {
+                    "type": "integer",
+                    "example": 20
+                },
+                "port": {
+                    "type": "integer",
+                    "example": 2222
+                },
+                "tlsVersion": {
+                    "type": "string",
+                    "example": "only-1.2"
+                },
+                "vrf": {
+                    "type": "string",
+                    "example": "main"
+                }
+            }
+        },
         "handler.UpdateInfoResponse": {
             "type": "object",
             "properties": {
@@ -6234,9 +10758,30 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.UpdateInterfaceBridgeRequest": {
+            "type": "object",
+            "required": [
+                "bridge",
+                "interface"
+            ],
+            "properties": {
+                "bridge": {
+                    "type": "string",
+                    "example": "LANBridge1"
+                },
+                "interface": {
+                    "type": "string",
+                    "example": "ether1"
+                }
+            }
+        },
         "handler.UpdateL2TPClientRequest": {
             "type": "object",
             "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office L2TP client"
+                },
                 "connectTo": {
                     "type": "string",
                     "example": "192.168.1.2"
@@ -6256,6 +10801,87 @@ const docTemplate = `{
                 "user": {
                     "type": "string",
                     "example": "newusername"
+                }
+            }
+        },
+        "handler.UpdateOvpnServerEnabledRequest": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "handler.UpdatePluginResponse": {
+            "type": "object",
+            "properties": {
+                "pluginId": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UpdateSSTPClientRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office SSTP client"
+                },
+                "connectTo": {
+                    "type": "string",
+                    "example": "vpn.example.com"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "password": {
+                    "type": "string",
+                    "example": "newpassword123"
+                },
+                "port": {
+                    "type": "integer",
+                    "example": 443
+                },
+                "user": {
+                    "type": "string",
+                    "example": "newusername"
+                }
+            }
+        },
+        "handler.UpdateStaticDNSRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "192.168.88.2"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "type": "string",
+                    "example": "router.lan"
+                }
+            }
+        },
+        "handler.UpdateStatusResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "phase": {
+                    "description": "idle, preparing, pulling, restarting, done, error",
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
@@ -6380,7 +11006,7 @@ const docTemplate = `{
                 },
                 "clientAddress": {
                     "type": "string",
-                    "example": "10.0.0.2/32"
+                    "example": "10.0.0.2"
                 },
                 "clientAllowedAddress": {
                     "type": "string",
@@ -6392,7 +11018,7 @@ const docTemplate = `{
                 },
                 "clientEndpoint": {
                     "type": "string",
-                    "example": "10.0.0.1:51820"
+                    "example": "10.0.0.1"
                 },
                 "clientKeepalive": {
                     "type": "integer",
@@ -6444,19 +11070,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateWizardStatusRequest": {
-            "type": "object",
-            "properties": {
-                "completed": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "progress": {
-                    "type": "integer",
-                    "example": 50
-                }
-            }
-        },
         "handler.VPNClientResponse": {
             "type": "object",
             "properties": {
@@ -6485,6 +11098,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "peerCount": {
+                    "type": "integer"
+                },
+                "pingTime": {
                     "type": "string"
                 },
                 "running": {
@@ -6588,9 +11207,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/handler.ServerStatusItem"
                     }
                 },
-                "pptp": {
-                    "$ref": "#/definitions/handler.SingleServerStatus"
-                },
                 "sstp": {
                     "$ref": "#/definitions/handler.SingleServerStatus"
                 },
@@ -6664,9 +11280,33 @@ const docTemplate = `{
                     "type": "string",
                     "example": "apPassword123"
                 },
+                "split": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "ssid": {
                     "type": "string",
                     "example": "MyAccessPoint"
+                }
+            }
+        },
+        "handler.WiFiAccessPointResponse": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "security": {
+                    "type": "string"
+                },
+                "signal": {
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
                 }
             }
         },
@@ -6679,6 +11319,62 @@ const docTemplate = `{
                 },
                 "securityType": {
                     "description": "e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)",
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.WiFiInterfaceResponse": {
+            "type": "object",
+            "properties": {
+                "band": {
+                    "type": "string"
+                },
+                "channelWidth": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "defaultName": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "frequency": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inactive": {
+                    "type": "boolean"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "isVirtual": {
+                    "type": "boolean"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "passphrase": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "securityType": {
                     "type": "string"
                 },
                 "ssid": {
@@ -6940,6 +11636,24 @@ const docTemplate = `{
                 "allowedAddresses": {
                     "type": "string"
                 },
+                "clientAddress": {
+                    "type": "string"
+                },
+                "clientAllowedAddress": {
+                    "type": "string"
+                },
+                "clientDNS": {
+                    "type": "string"
+                },
+                "clientEndpoint": {
+                    "type": "string"
+                },
+                "clientKeepalive": {
+                    "type": "integer"
+                },
+                "clientListenPort": {
+                    "type": "integer"
+                },
                 "disabled": {
                     "type": "boolean"
                 },
@@ -6976,268 +11690,17 @@ const docTemplate = `{
                     "type": "boolean",
                     "example": false
                 },
-                "completedAt": {
+                "failed": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "message": {
                     "type": "string",
-                    "example": "null"
+                    "example": "Configuring WiFi access points"
                 },
                 "progress": {
                     "type": "integer",
                     "example": 0
-                }
-            }
-        },
-        "handler.ethernetResponse": {
-            "type": "object",
-            "properties": {
-                "advertise": {
-                    "type": "string"
-                },
-                "advertising": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "arp": {
-                    "type": "string"
-                },
-                "arpTimeout": {
-                    "type": "string"
-                },
-                "autoNegotiation": {
-                    "type": "boolean"
-                },
-                "bandwidth": {
-                    "type": "string"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "defaultName": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "fullDuplex": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "l2Mtu": {
-                    "type": "integer"
-                },
-                "linkPartnerAdvertising": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "loopProtect": {
-                    "type": "string"
-                },
-                "loopProtectDisableTime": {
-                    "type": "string"
-                },
-                "loopProtectSendInterval": {
-                    "type": "string"
-                },
-                "loopProtectStatus": {
-                    "type": "string"
-                },
-                "macAddress": {
-                    "type": "string"
-                },
-                "monitorAutoNegotiation": {
-                    "type": "string"
-                },
-                "monitorRxFlowControl": {
-                    "type": "boolean"
-                },
-                "monitorTxFlowControl": {
-                    "type": "boolean"
-                },
-                "mtu": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "origMacAddress": {
-                    "type": "string"
-                },
-                "poeOut": {
-                    "type": "string"
-                },
-                "poePriority": {
-                    "type": "integer"
-                },
-                "powerCycleInterval": {
-                    "type": "string"
-                },
-                "powerCyclePingEnabled": {
-                    "type": "boolean"
-                },
-                "rate": {
-                    "type": "string"
-                },
-                "running": {
-                    "type": "boolean"
-                },
-                "rxFlowControl": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "supported": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "switch": {
-                    "type": "string"
-                },
-                "txFlowControl": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.interfaceResponse": {
-            "type": "object",
-            "properties": {
-                "actualMtu": {
-                    "type": "integer"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "defaultName": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "dynamic": {
-                    "type": "boolean"
-                },
-                "fpRpsDrop": {
-                    "type": "integer"
-                },
-                "fpRx": {
-                    "type": "string"
-                },
-                "fpRxByte": {
-                    "type": "integer"
-                },
-                "fpRxPacket": {
-                    "type": "integer"
-                },
-                "fpTx": {
-                    "type": "string"
-                },
-                "fpTxByte": {
-                    "type": "integer"
-                },
-                "fpTxPacket": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "inactive": {
-                    "type": "boolean"
-                },
-                "l2Mtu": {
-                    "type": "integer"
-                },
-                "lastLinkDownTime": {
-                    "type": "string"
-                },
-                "lastLinkUpTime": {
-                    "type": "string"
-                },
-                "linkDowns": {
-                    "type": "integer"
-                },
-                "macAddress": {
-                    "type": "string"
-                },
-                "maxL2Mtu": {
-                    "type": "integer"
-                },
-                "mtu": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "running": {
-                    "type": "boolean"
-                },
-                "rx": {
-                    "type": "string"
-                },
-                "rxByte": {
-                    "type": "integer"
-                },
-                "rxDrop": {
-                    "type": "integer"
-                },
-                "rxError": {
-                    "type": "integer"
-                },
-                "rxPacket": {
-                    "type": "integer"
-                },
-                "slave": {
-                    "type": "boolean"
-                },
-                "tx": {
-                    "type": "string"
-                },
-                "txByte": {
-                    "type": "integer"
-                },
-                "txDrop": {
-                    "type": "integer"
-                },
-                "txError": {
-                    "type": "integer"
-                },
-                "txPacket": {
-                    "type": "integer"
-                },
-                "txQueueDrop": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "vrf": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.wiFiAccessPointResponse": {
-            "type": "object",
-            "properties": {
-                "channel": {
-                    "type": "string"
-                },
-                "macAddress": {
-                    "type": "string"
-                },
-                "security": {
-                    "type": "string"
-                },
-                "signal": {
-                    "type": "string"
-                },
-                "ssid": {
-                    "type": "string"
                 }
             }
         }
