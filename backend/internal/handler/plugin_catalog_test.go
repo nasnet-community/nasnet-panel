@@ -14,3 +14,14 @@ func TestCatalogURL(t *testing.T) {
 		}
 	}
 }
+
+func TestIconURL(t *testing.T) {
+	for override, want := range map[string]string{
+		"":                               "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/refs/heads/main/plugins",
+		"http://127.0.0.1:8787/plugins/": "http://127.0.0.1:8787/plugins",
+	} {
+		if got := iconURL(override); got != want {
+			t.Errorf("iconURL(%q) = %q, want %q", override, got, want)
+		}
+	}
+}

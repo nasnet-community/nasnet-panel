@@ -22,7 +22,7 @@ import (
 
 // pluginCatalogURL is the community plugin registry: plugins.json at its root and
 // each plugin's files under plugins/<id>. PLUGIN_CATALOG_URL points a dev router at
-// a local copy instead; the browser still loads icons from the public one.
+// a local copy instead; PLUGIN_ICON_URL does the same for the icons the browser loads.
 var pluginCatalogURL = catalogURL(os.Getenv("PLUGIN_CATALOG_URL"))
 
 func catalogURL(override string) string {
