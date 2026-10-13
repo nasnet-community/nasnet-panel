@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 
@@ -11,9 +12,17 @@ import (
 	"nasnet-panel/pkg/utils"
 )
 
-// Base URL the browser loads each plugin's icon from, keyed by plugin id: always
-// the public registry, even when PLUGIN_CATALOG_URL points the panel elsewhere.
-const pluginAssetsBaseURL = "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/refs/heads/main/plugins"
+// Base URL the browser loads each plugin's icon from, keyed by plugin id: the public
+// registry, unless PLUGIN_ICON_URL points a dev browser at a local copy. It is apart
+// from PLUGIN_CATALOG_URL because the browser and the router reach that copy differently.
+var pluginAssetsBaseURL = iconURL(os.Getenv("PLUGIN_ICON_URL"))
+
+func iconURL(override string) string {
+	if u := strings.TrimRight(strings.TrimSpace(override), "/"); u != "" {
+		return u
+	}
+	return "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/refs/heads/main/plugins"
+}
 
 // PluginInfo represents a single plugin entry from the community plugin registry.
 type PluginInfo struct {
