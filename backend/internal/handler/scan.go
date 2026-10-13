@@ -83,15 +83,13 @@ func HandleVerifyIP(c echo.Context) error {
 	result.Services = device.Services
 
 	if result.IsMikroTik {
-		for _, port := range []int{80, 443, 8728, 8729, 8291} {
+		for _, port := range []int{8728, 8729, 8291} {
 			if pkgScanner.ContainsPort(device.Ports, port) {
 				var info *pkgScanner.RouterOSInfo
 				if port == 8728 || port == 8729 {
 					info = pkgScanner.CheckNativeRouterOSAPI(ctx, req.IP, port, scanConfig.Timeout)
-				} else if port == 8291 {
-					info = pkgScanner.CheckWinBoxAPI(ctx, req.IP, port, scanConfig.Timeout)
 				} else {
-					info = pkgScanner.CheckRouterOSAPI(ctx, req.IP, port, scanConfig.Timeout)
+					info = pkgScanner.CheckWinBoxAPI(ctx, req.IP, port, scanConfig.Timeout)
 				}
 				if info != nil {
 					confidence := pkgScanner.CalculateNativeAPIConfidence(device.Ports)

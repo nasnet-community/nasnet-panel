@@ -91,19 +91,6 @@ func ScanIP(ctx context.Context, ip string, ports []int, timeout time.Duration) 
 	if ContainsPort(openPorts, 8728) || ContainsPort(openPorts, 8729) || ContainsPort(openPorts, 8291) { //nolint:nestif // port detection logic
 		deviceType = "router"
 		vendor = mikrotikVendor
-	} else if ContainsPort(openPorts, 80) || ContainsPort(openPorts, 443) {
-		for _, port := range []int{80, 443} {
-			if ContainsPort(openPorts, port) {
-				if info := CheckRouterOSAPI(ctx, ip, port, timeout); info != nil && info.IsValid {
-					deviceType = "router"
-					vendor = mikrotikVendor
-					break
-				}
-			}
-		}
-		if deviceType == unknownVendor {
-			return nil
-		}
 	}
 
 	if vendor == mikrotikVendor || ContainsPort(openPorts, 8728) || ContainsPort(openPorts, 8729) || ContainsPort(openPorts, 8291) {
