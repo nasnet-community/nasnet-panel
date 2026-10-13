@@ -488,6 +488,7 @@ WIFI_ACTIVE=0
 WIFI_MENU=""
 WIFI_IFACE=""
 WIFI_BRIDGED=0
+WIFI_WAN_MEMBER=0
 WIFI_RADIOS=()
 WIFI_SAVED_PROPS=()
 WIFI_SAVED_VALS=()
@@ -697,9 +698,14 @@ join_wifi() {
   if ! spin "${iface} joining \"${ssid}\" in station mode" ros_cmd "$cmd"; then
     err "could not set ${iface} to station mode"; exit 1
   fi
+  local wan_preexisting=0
+  if ros_exists /interface/list/member "where list=WAN interface=$(ros_quote "$iface") comment!=$(ros_quote "$WIFI_UPLINK_TAG")"; then
+    wan_preexisting=1
+  fi
   if ! spin "${iface} in the WAN interface list" ros_cmd ":if ([:len [/interface/list find where name=\"WAN\"]] = 0) do={/interface/list add name=WAN comment=\"nasnet-panel-baseline\"}; :if ([:len [/interface/list/member find where list=\"WAN\" interface=$(ros_quote "$iface")]] = 0) do={/interface/list/member add list=WAN interface=$(ros_quote "$iface") comment=$(ros_quote "$WIFI_UPLINK_TAG")}"; then
     err "could not add ${iface} to the WAN interface list"; exit 1
   fi
+  (( wan_preexisting )) || WIFI_WAN_MEMBER=1
   if ! spin "DHCP client on ${iface}" ros_cmd ":if ([:len [/ip/dhcp-client find where interface=$(ros_quote "$iface")]] = 0) do={/ip/dhcp-client add interface=$(ros_quote "$iface") add-default-route=yes default-route-distance=1 use-peer-dns=yes use-peer-ntp=yes disabled=no comment=$(ros_quote "$WIFI_UPLINK_TAG")}"; then
     err "could not add a DHCP client on ${iface}"; exit 1
   fi
@@ -747,7 +753,9 @@ remove_wifi_uplink() {
     return 0
   fi
   ros_cmd "/ip/dhcp-client remove [find where comment=$(ros_quote "$WIFI_UPLINK_TAG")]" >/dev/null 2>&1 || true
-  ros_cmd "/interface/list/member remove [find where list=WAN comment=$(ros_quote "$WIFI_UPLINK_TAG")]" >/dev/null 2>&1 || true
+  if (( WIFI_WAN_MEMBER )); then
+    ros_cmd "/interface/list/member remove [find where list=WAN comment=$(ros_quote "$WIFI_UPLINK_TAG")]" >/dev/null 2>&1 || true
+  fi
 
   local sel i prop value cmd
   sel="[find name=$(ros_quote "$WIFI_IFACE")]"
