@@ -18,7 +18,7 @@ React SPA + Go API، در قالب یک کانتینر کوچک و واحد که
 
 [English](README.md) - فارسی
 
-[وب‌سایت](https://joinnasnet.com) - [قابلیت‌ها](#features) - [معماری](#architecture) - [نصب](#installation) - [پیکربندی](#configuration) - [توسعه](#development) - [مشارکت](#contributing)
+[وب‌سایت](https://www.joinnasnet.com/fa/) - [قابلیت‌ها](#features) - [معماری](#architecture) - [نصب](#installation) - [پیکربندی](#configuration) - [توسعه](#development) - [مشارکت](#contributing)
 
 </div>
 
