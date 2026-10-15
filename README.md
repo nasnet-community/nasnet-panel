@@ -16,6 +16,8 @@ React SPA + Go API, shipped as a single small container that runs anywhere, incl
 [![RouterOS](https://img.shields.io/badge/RouterOS-v7%2B-blue)](https://mikrotik.com/)
 [![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20arm64%20%7C%20arm%2Fv7-2496ED?logo=docker&logoColor=white)](https://github.com/nasnet-community/nasnet-panel/pkgs/container/nasnet-panel)
 
+English - [فارسی](README.fa.md)
+
 [Website](https://joinnasnet.com) - [Features](#features) - [Architecture](#architecture) - [Install](#installation) - [Configuration](#configuration) - [Development](#development) - [Contributing](#contributing)
 
 </div>
