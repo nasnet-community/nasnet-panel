@@ -1,0 +1,23 @@
+name: chateau-lte18-ax
+model: Chateau LTE18 ax S53UG+5HaxD2HaxD-TC&RG502Q-EA
+arch: arm64
+memory_mb: 1024
+storage_mb: 128
+cpus: 1
+capabilities: [ethernet, container, wifi, lte, usb, 2.5g]
+ports:
+  - name: ether1
+    kind: 2.5g
+    role: starlink
+  - name: ether2
+    kind: ethernet
+    role: domestic
+  - name: ether3
+    kind: ethernet
+    role: split
+  - name: ether4
+    kind: ethernet
+    role: spare
+  - name: ether5
+    kind: ethernet
+    role: spare

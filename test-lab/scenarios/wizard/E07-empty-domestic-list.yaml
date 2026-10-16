@@ -1,0 +1,16 @@
+id: 'E07-empty-domestic-list'
+stage: wizard
+title: Split internet is blocked until the domestic IP list loads
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+steps:
+  - do: filter
+    with: { target: list-source }
+  - do: wizard
+    wizard:
+      foreign: starlink
+      domestic: domestic
+expect:
+  traffic:
+    - { from: split, to: foreign-host, exits: blocked }
+    - { from: split, to: domestic-host, exits: blocked }

@@ -1,0 +1,28 @@
+id: '2.5-egress-split'
+stage: wizard
+title: Foreign and domestic destinations leave through their intended links
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  traffic:
+    - { from: split, to: domestic-host, exits: domestic }
+    - {
+        from: split,
+        to: foreign-host,
+        exits: starlink,
+        known_bug: Split without a VPN client blackholes foreign traffic,
+      }
+    - { from: router, to: domestic-host, exits: domestic }
+    - {
+        from: router,
+        to: foreign-host,
+        exits: starlink,
+        known_bug: The router's own traffic prefers the domestic link,
+      }
+  leak:
+    domestic_to_foreign: true
+    known_bug: Router DNS and services reach foreign destinations over the domestic link

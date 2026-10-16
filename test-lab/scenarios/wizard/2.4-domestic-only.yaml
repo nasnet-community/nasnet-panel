@@ -1,0 +1,11 @@
+id: '2.4-domestic-only'
+stage: wizard
+title: Domestic-only setup gives internet over the domestic link
+profiles: [all]
+requires: { roles: [domestic, split] }
+wizard:
+  domestic: domestic
+  known_bug: The wizard requires a foreign link, so a domestic-only setup is not possible
+expect:
+  traffic:
+    - { from: split, to: domestic-host, exits: domestic }

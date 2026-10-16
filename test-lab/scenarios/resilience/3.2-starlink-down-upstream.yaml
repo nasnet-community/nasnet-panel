@@ -1,0 +1,39 @@
+id: '3.2-starlink-down-upstream'
+stage: resilience
+title: Starlink down (upstream) blocks foreign traffic within 15s and recovers within 30s
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: link_down
+    with: { link: starlink, mode: upstream }
+    expect:
+      traffic:
+        - { from: split, to: foreign-host, exits: blocked, within: 15s }
+        - {
+            from: router,
+            to: foreign-host,
+            exits: blocked,
+            within: 15s,
+            known_bug: The router's own traffic falls back to the other link,
+          }
+        - { from: split, to: domestic-host, exits: domestic }
+  - do: link_up
+    with: { link: starlink, mode: upstream }
+    expect:
+      traffic:
+        - {
+            from: split,
+            to: foreign-host,
+            exits: starlink,
+            within: 30s,
+            known_bug: Split without a VPN client blackholes foreign traffic,
+          }
+      values:
+        - path: /ip/route
+          where: { comment: CheckIP-Route-to-Foreign-Foreign Link }
+          fields: { disabled: 'no' }
+          within: 30s

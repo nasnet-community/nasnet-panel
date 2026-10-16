@@ -1,0 +1,19 @@
+id: '2.7-l2tp'
+stage: wizard
+title: Internet works through an L2TP client and tunnel traffic shows the VPN IP
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [l2tp] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  l2tp_client: true
+  wait_domestic_list: true
+expect:
+  tunnels:
+    - { type: l2tp, up: true }
+  traffic:
+    - { from: split, to: foreign-host, exits: vpn }
+    - { from: split, to: domestic-host, exits: domestic }
+    - { from: router, to: foreign-host, exits: vpn }
+  leak:
+    starlink_to_domestic: true

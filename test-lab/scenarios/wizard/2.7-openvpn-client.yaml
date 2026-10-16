@@ -1,0 +1,9 @@
+id: '2.7-openvpn-client'
+stage: wizard
+title: Internet works through an OpenVPN client
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  openvpn_client: true
