@@ -27,6 +27,9 @@ LEGACY_CONTAINER_NAME="nnc"
 PANEL_DIR="nasnet-panel"
 TAR_SUBDIR="${PANEL_DIR}/container-images"
 CONTAINER_ROOT_SUBDIR="${PANEL_DIR}/containers/nasnet-panel"
+DATABASE_SUBDIR="${PANEL_DIR}/database"
+DATABASE_CONTAINER_DIR="/${DATABASE_SUBDIR}"
+DATABASE_MOUNT_NAME="nasnet-panel-database"
 CONTAINER_ROOT_DIR="${CONTAINER_ROOT_SUBDIR}"
 STORAGE_DIR=""
 MIN_STORAGE_MB=32
@@ -1379,6 +1382,7 @@ ensure_panel_dirs() {
   ros_ensure_dir "$(storage_path "$PANEL_DIR")"
   ros_ensure_dir "$(storage_path "$TAR_SUBDIR")"
   ros_ensure_dir "$(storage_path "${PANEL_DIR}/containers")"
+  ros_ensure_dir "$(storage_path "$DATABASE_SUBDIR")"
 }
 
 upload_tar() {
@@ -1541,8 +1545,13 @@ deploy_container() {
     return 0
   fi
   ensure_panel_dirs
+  ros_remove "mount ${DATABASE_MOUNT_NAME}" /container/mounts "name=${DATABASE_MOUNT_NAME}"
+  if ! ros_cmd "/container/mounts/add name=${DATABASE_MOUNT_NAME} src=\"/$(storage_path "$DATABASE_SUBDIR")\" dst=\"${DATABASE_CONTAINER_DIR}\"" >/dev/null; then
+    err "failed to add the database mount"; exit 1
+  fi
+  push_rollback "ros_cmd '/container/mounts/remove [find name=${DATABASE_MOUNT_NAME}]' >/dev/null 2>&1 || true"
   if ! spin "extracting tar and adding container ${CONTAINER_NAME}" \
-       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} dns=${FALLBACK_DNS_SERVERS} start-on-boot=yes logging=yes"; then
+       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} dns=${FALLBACK_DNS_SERVERS} mounts=${DATABASE_MOUNT_NAME} start-on-boot=yes logging=yes"; then
     err "failed to add container"; exit 1
   fi
   push_rollback "ros_cmd '/container/remove [find name=${CONTAINER_NAME}]' >/dev/null 2>&1 || true"
@@ -1730,6 +1739,8 @@ uninstall_path() {
       ros_remove "container ${name}" /container "name=${name}"
     fi
   done
+
+  ros_remove "mount ${DATABASE_MOUNT_NAME}" /container/mounts "name=${DATABASE_MOUNT_NAME}"
 
   ros_remove "nat ${COMMENT_TAG}-srcnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""

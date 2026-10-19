@@ -493,12 +493,12 @@ func HandleChangeDNS(c echo.Context) error {
 		return err
 	}
 
+	defer persistDNSServers(c, client)
+
 	result, err := changeDNSIP(client, req.OldIP, req.NewIP)
 	if err != nil {
 		return respondDNSChangeStepError(c, err)
 	}
-
-	persistDNSServers(c, client)
 
 	return SuccessResponse(c, http.StatusOK, "DNS forwarder IP changed successfully", result)
 }
@@ -754,6 +754,8 @@ func HandleSetFamilyDNS(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "VPN DNS forwarder not found or has no server configured", nil)
 	}
 
+	defer persistDNSServers(c, client)
+
 	foreignResult, err := changeDNSIPOrNoop(client, foreignIP, dnsFamilyPrimaryIP)
 	if err != nil {
 		return respondDNSChangeStepError(c, err)
@@ -766,8 +768,6 @@ func HandleSetFamilyDNS(c echo.Context) error {
 		// nothing was applied.
 		return respondDNSChangeStepErrorWithData(c, err, DNSFamilyResponse{Foreign: *foreignResult})
 	}
-
-	persistDNSServers(c, client)
 
 	return SuccessResponse(c, http.StatusOK, "Cloudflare Family DNS applied successfully", DNSFamilyResponse{
 		Foreign: *foreignResult,
@@ -863,6 +863,8 @@ func HandleResetDNS(c echo.Context) error {
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to reset DNS configuration", err)
 	}
+
+	defer persistDNSServers(c, client)
 
 	existingForwarders, err := client.ListDNSForwarders()
 	if err != nil {
@@ -1009,8 +1011,6 @@ func HandleResetDNS(c echo.Context) error {
 			updatedNetwatchProbes = append(updatedNetwatchProbes, matches[i].ID)
 		}
 	}
-
-	persistDNSServers(c, client)
 
 	return SuccessResponse(c, http.StatusOK, "DNS settings reset successfully", DNSResetResponse{
 		Servers:                  strings.Split(dnsResetServers, ","),

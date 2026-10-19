@@ -16,6 +16,7 @@ type Config struct {
 	WireGuard   *WireGuardInterface
 	L2TP        *L2TPClient
 	WiFis       []WiFi
+	BridgePorts []BridgePort
 	OvpnServers []OvpnServer
 	VPNUsers    []VPNUser
 	DNSServers  []DNSServer
@@ -79,6 +80,17 @@ func saveConfigImpl(ctx context.Context, tx *sqlx.Tx, cfg *Config) error {
 		wifiNames = append(wifiNames, cfg.WiFis[i].Name)
 	}
 	if err := deleteMissing(ctx, tx, "wifis", "name", wifiNames, ""); err != nil {
+		return err
+	}
+
+	bridgeInterfaces := make([]string, 0, len(cfg.BridgePorts))
+	for i := range cfg.BridgePorts {
+		if err := upsertBridgePortImpl(ctx, tx, &cfg.BridgePorts[i]); err != nil {
+			return err
+		}
+		bridgeInterfaces = append(bridgeInterfaces, cfg.BridgePorts[i].Interface)
+	}
+	if err := deleteMissing(ctx, tx, "bridge_ports", "interface", bridgeInterfaces, ""); err != nil {
 		return err
 	}
 

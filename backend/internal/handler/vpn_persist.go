@@ -110,8 +110,12 @@ func wireGuardInterfaceRecord(client *routeros.Client, nameOrID string) (*db.Wir
 		return nil, err
 	}
 
+	addresses, err := client.GetIPAddressesByInterface(wg.Name)
+	if err != nil {
+		return nil, err
+	}
 	address := ""
-	if addresses, err := client.GetIPAddressesByInterface(wg.Name); err == nil && len(addresses) > 0 {
+	if len(addresses) > 0 {
 		address = addresses[0].Address
 	}
 

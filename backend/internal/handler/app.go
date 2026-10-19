@@ -375,7 +375,12 @@ func routerSettingsDB(c echo.Context) (conn *sqlx.DB, ok bool, handled error) {
 		return nil, false, ErrorResponse(c, http.StatusBadGateway, "Failed to read the router system ID", err)
 	}
 
-	conn, err = appDatabases.ForRouter(c.Request().Context(), systemID)
+	registry := appDatabases
+	if registry == nil {
+		return nil, false, ErrorResponse(c, http.StatusInternalServerError, "The router database is not available", nil)
+	}
+
+	conn, err = registry.ForRouter(c.Request().Context(), systemID)
 	if err != nil {
 		return nil, false, ErrorResponse(c, http.StatusInternalServerError, "Failed to open the router database", err)
 	}
@@ -390,7 +395,12 @@ func databaseForClient(ctx context.Context, client *routeros.Client) (*sqlx.DB, 
 		return nil, fmt.Errorf("failed to read the router system ID: %w", err)
 	}
 
-	conn, err := appDatabases.ForRouter(ctx, systemID)
+	registry := appDatabases
+	if registry == nil {
+		return nil, errors.New("the router database is not available")
+	}
+
+	conn, err := registry.ForRouter(ctx, systemID)
 	if err != nil {
 		return nil, err
 	}

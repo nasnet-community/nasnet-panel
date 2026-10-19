@@ -28,6 +28,7 @@ type WizardSaveData struct {
 	WireGuard            *WireGuardClientTemplateData
 	CertificateTimestamp int64
 	WifiAPs              []WiFiAP
+	BridgePorts          []BridgePort
 }
 
 // WireGuardClientTemplateData is the wizard template's WireGuard client block.

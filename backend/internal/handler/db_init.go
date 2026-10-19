@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -23,9 +24,9 @@ const (
 )
 
 var (
-	initialSyncMu sync.Mutex
-	initialSynced sync.Map
-	initStarted   sync.Map
+	initialSyncLocks sync.Map
+	initialSynced    sync.Map
+	initStarted      sync.Map
 )
 
 // startDatabaseInit creates the router's database and fills it from the router's existing
@@ -59,8 +60,13 @@ func ensureInitialSync(ctx context.Context, client *routeros.Client, systemID st
 		return
 	}
 
-	initialSyncMu.Lock()
-	defer initialSyncMu.Unlock()
+	lock, _ := initialSyncLocks.LoadOrStore(systemID, &sync.Mutex{})
+	mu, ok := lock.(*sync.Mutex)
+	if !ok {
+		return
+	}
+	mu.Lock()
+	defer mu.Unlock()
 	if _, ok := initialSynced.Load(systemID); ok {
 		return
 	}
@@ -88,6 +94,7 @@ func syncExistingConfig(ctx context.Context, client *routeros.Client, conn *sqlx
 	}{
 		{"WAN links", syncExistingWANs},
 		{"WiFi interfaces", syncExistingWiFis},
+		{"bridge ports", syncExistingBridgePorts},
 		{"VPN clients", syncExistingVPNClients},
 		{"WireGuard interfaces", syncExistingWireGuardInterfaces},
 		{"OpenVPN servers", syncExistingOvpnServers},
@@ -371,4 +378,21 @@ func validWifiMode(mode string) bool {
 		return true
 	}
 	return false
+}
+
+func syncExistingBridgePorts(ctx context.Context, client *routeros.Client, conn *sqlx.DB) error {
+	ports, err := client.ListAllBridgePorts()
+	if err != nil {
+		return err
+	}
+
+	var errs []error
+	for i := range ports {
+		if !strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
+			continue
+		}
+		errs = append(errs, db.UpsertBridgePort(ctx, conn, bridgePortRecord(&ports[i])))
+	}
+
+	return errors.Join(errs...)
 }

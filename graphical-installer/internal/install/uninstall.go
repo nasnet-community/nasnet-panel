@@ -57,6 +57,9 @@ func (e *Engine) stepRemoveContainer() error {
 }
 
 func (e *Engine) stepRemoveNetwork() error {
+	if e.containerActive {
+		e.removeObj("mount "+databaseMountName, "/container/mounts", "name="+databaseMountName)
+	}
 	e.removeObj("nat "+commentTag+"-srcnat", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-srcnat"))
 	e.removeObj("nat "+commentTag+"-dstnat", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat"))
 	e.removeObj("nat "+commentTag+"-dstnat-https", "/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"))

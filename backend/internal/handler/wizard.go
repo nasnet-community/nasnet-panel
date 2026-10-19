@@ -29,10 +29,11 @@ const (
 	wizardL2TPName    = "wizard-l2tp-client"
 	wizardL2TPComment = "L2TP-Client L2TP"
 
-	wizardLANBridge     = "LANBridgeSplit"
-	wizardWifiAuthTypes = "wpa2-psk,wpa3-psk"
-	wizardWifiModeAP    = "ap"
-	wizardWifiModeWAN   = "station-pseudobridge"
+	wizardLANBridge         = "LANBridgeSplit"
+	wizardBridgePortComment = "Split"
+	wizardWifiAuthTypes     = "wpa2-psk,wpa3-psk"
+	wizardWifiModeAP        = "ap"
+	wizardWifiModeWAN       = "station-pseudobridge"
 )
 
 // wizardSuccessFile is the marker file the wizard script itself writes to the
@@ -328,16 +329,6 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
 
-	saveWizardConfig(c, client, &WizardSaveData{
-		Request:              &req,
-		DomesticEnabled:      domesticEnabled,
-		Foreign:              &foreignInterface,
-		Domestic:             &domesticInterface,
-		WireGuard:            wgData,
-		CertificateTimestamp: currentTimestamp,
-		WifiAPs:              wifiAPs,
-	})
-
 	rendered, err := utils.RenderTemplate("wizard.tmpl", templateData)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
@@ -386,6 +377,18 @@ func HandleFinalizeWizard(c echo.Context) error {
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
 	}
+
+	saveWizardConfig(c, client, &WizardSaveData{
+		Request:              &req,
+		DomesticEnabled:      domesticEnabled,
+		Foreign:              &foreignInterface,
+		Domestic:             &domesticInterface,
+		WireGuard:            wgData,
+		CertificateTimestamp: currentTimestamp,
+		WifiAPs:              wifiAPs,
+		BridgePorts:          bridgePorts,
+	})
+
 	if managementWifi.SSID == "" || managementWifi.Password == "" {
 		return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", nil)
 	}
@@ -448,6 +451,7 @@ func saveWizardConfig(c echo.Context, client *routeros.Client, data *WizardSaveD
 	}
 
 	cfg.WiFis = wizardWiFis(data)
+	cfg.BridgePorts = wizardBridgePorts(data)
 	cfg.DNSServers = wizardDNSServers(data.DomesticEnabled)
 
 	if req.OvpnServer != nil && data.DomesticEnabled {
@@ -474,6 +478,23 @@ func saveWizardConfig(c echo.Context, client *routeros.Client, data *WizardSaveD
 	if err != nil {
 		c.Logger().Errorf("Failed to save the wizard configuration: %v", err)
 	}
+}
+
+func wizardBridgePorts(data *WizardSaveData) []db.BridgePort {
+	ports := make([]db.BridgePort, 0, len(data.BridgePorts))
+
+	for i := range data.BridgePorts {
+		port := &data.BridgePorts[i]
+		name := port.Name
+		for j := range data.WifiAPs {
+			if data.WifiAPs[j].DefaultName == port.DefaultName {
+				name = data.WifiAPs[j].NameToSet
+			}
+		}
+		ports = append(ports, db.BridgePort{Bridge: wizardLANBridge, Interface: name, Comment: wizardBridgePortComment, Enabled: true})
+	}
+
+	return ports
 }
 
 func wizardWiFis(data *WizardSaveData) []db.WiFi {

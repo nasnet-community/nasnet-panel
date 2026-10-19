@@ -52,3 +52,12 @@ func upsertWiFiImpl(ctx context.Context, ext sqlx.ExtContext, wifi *WiFi) error 
 	}
 	return nil
 }
+
+// UpdateWiFiBridge sets the bridge of the stored WiFi with the given name, if there is one.
+func UpdateWiFiBridge(ctx context.Context, conn *sqlx.DB, name, bridge string) error {
+	if _, err := conn.ExecContext(ctx,
+		`UPDATE wifis SET bridge = ?, updated_at = CURRENT_TIMESTAMP WHERE name = ?`, bridge, name); err != nil {
+		return fmt.Errorf("failed to update the bridge of WiFi %s: %w", name, err)
+	}
+	return nil
+}

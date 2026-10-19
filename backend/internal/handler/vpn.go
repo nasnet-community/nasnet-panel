@@ -3973,8 +3973,11 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 	deleteErrors := []string{}
 
 	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
+	var removedServers []string
 	if err := client.RemoveOvpnServer(serverName); err != nil {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to delete OpenVPN server: %v", err))
+	} else {
+		removedServers = append(removedServers, serverName)
 	}
 
 	otherServer := ""
@@ -3985,7 +3988,9 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 	}
 
 	if otherServer != "" {
-		_ = client.RemoveOvpnServer(otherServer)
+		if err := client.RemoveOvpnServer(otherServer); err == nil {
+			removedServers = append(removedServers, otherServer)
+		}
 	}
 
 	// Delete associated firewall rules
@@ -4022,7 +4027,9 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		}
 	}
 
-	removeOvpnServersFromDB(c, client, serverName, otherServer)
+	if len(removedServers) > 0 {
+		removeOvpnServersFromDB(c, client, removedServers...)
+	}
 
 	if len(deleteErrors) > 0 {
 		return SuccessResponse(c, http.StatusOK, "OpenVPN server deleted with some errors", map[string]interface{}{

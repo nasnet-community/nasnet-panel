@@ -278,6 +278,8 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update interface bridge", err)
 	}
 
+	persistBridgePort(c, client, req.Interface, req.Bridge)
+
 	return SuccessResponse(c, http.StatusOK, "Interface bridge updated successfully", map[string]interface{}{
 		"interface": req.Interface,
 		"bridge":    req.Bridge,
