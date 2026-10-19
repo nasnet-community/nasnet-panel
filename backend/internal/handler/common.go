@@ -105,6 +105,9 @@ func NewRouterOSClient(c echo.Context, creds *auth.Credentials) (*routeros.Clien
 		_ = ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to RouterOS device", err)
 		return nil, ErrClientCreationFailed
 	}
+
+	startDatabaseInit(creds.RouterOSHost, client)
+
 	return client, nil
 }
 

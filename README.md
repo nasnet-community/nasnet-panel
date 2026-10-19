@@ -236,13 +236,14 @@ Requires Node.js 20+ and Go 1.26+.
 
 The backend reads its configuration from environment variables. See `backend/.env.example`.
 
-| Variable      | Default                        | Purpose                                                                                                                |
-| ------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `PORT`        | `8080` (dev), `80` (container) | TCP port the API and embedded SPA listen on.                                                                           |
-| `HOST`        | `0.0.0.0`                      | Bind address.                                                                                                          |
-| `ENVIRONMENT` | `development`                  | `production` disables dev-only routes (notably Swagger UI).                                                            |
-| `BACKEND_URL` | _empty_                        | Build-time. Empty means the SPA uses relative URLs to its own origin (the common case for the embedded build).         |
-| `SENTRY_DSN`  | Nasnet project DSN             | Build-time. Where the panel UI sends crash reports. Set to an empty string to build with error reporting compiled out. |
+| Variable       | Default                                             | Purpose                                                                                                                                                                                                                               |
+| -------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`         | `8080` (dev), `80` (container)                      | TCP port the API and embedded SPA listen on.                                                                                                                                                                                          |
+| `HOST`         | `0.0.0.0`                                           | Bind address.                                                                                                                                                                                                                         |
+| `ENVIRONMENT`  | `development`                                       | `production` disables dev-only routes (notably Swagger UI).                                                                                                                                                                           |
+| `DATABASE_DIR` | `/nasnet-panel/database` (production), `data` (dev) | Directory holding the SQLite databases, one file per router named after its system ID (`<system-id>.db`, lower case letters and digits only). Created if it does not exist; a router's database is created and migrated on first use. |
+| `BACKEND_URL`  | _empty_                                             | Build-time. Empty means the SPA uses relative URLs to its own origin (the common case for the embedded build).                                                                                                                        |
+| `SENTRY_DSN`   | Nasnet project DSN                                  | Build-time. Where the panel UI sends crash reports. Set to an empty string to build with error reporting compiled out.                                                                                                                |
 
 ## Error reporting
 

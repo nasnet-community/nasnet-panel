@@ -18,6 +18,11 @@ func RegisterRoutes(e *echo.Echo) {
 	appGroup.GET("/check-for-updates", handler.HandleAppCheckForUpdates)
 	appGroup.POST("/install-update", handler.HandleAppInstallUpdate)
 	appGroup.GET("/update-status", handler.HandleAppUpdateStatus)
+	appGroup.GET("/settings", handler.HandleListSettings)
+	appGroup.POST("/settings", handler.HandleCreateSetting)
+	appGroup.GET("/settings/:key", handler.HandleGetSetting)
+	appGroup.PUT("/settings/:key", handler.HandleUpdateSetting)
+	appGroup.DELETE("/settings/:key", handler.HandleDeleteSetting)
 
 	// Registered directly on e, not pluginGroup, so it skips RouterOSAuth: this
 	// endpoint proxies a plugin's own web UI and doesn't touch RouterOS itself.

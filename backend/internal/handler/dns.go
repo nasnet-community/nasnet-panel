@@ -175,6 +175,8 @@ func HandleSetAdBlock(c echo.Context) error {
 		}
 	}
 
+	persistAdBlockSetting(c, client, req.Enabled)
+
 	return SuccessResponse(c, http.StatusOK, "Ad-block state updated successfully", map[string]interface{}{
 		"enabled": req.Enabled,
 	})
@@ -297,6 +299,8 @@ func HandleUpdateDNS(c echo.Context) error {
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update DNS configuration", err)
 	}
+
+	persistDNSServers(c, client)
 
 	return SuccessResponse(c, http.StatusOK, "DNS configuration updated successfully", nil)
 }
@@ -493,6 +497,8 @@ func HandleChangeDNS(c echo.Context) error {
 	if err != nil {
 		return respondDNSChangeStepError(c, err)
 	}
+
+	persistDNSServers(c, client)
 
 	return SuccessResponse(c, http.StatusOK, "DNS forwarder IP changed successfully", result)
 }
@@ -761,6 +767,8 @@ func HandleSetFamilyDNS(c echo.Context) error {
 		return respondDNSChangeStepErrorWithData(c, err, DNSFamilyResponse{Foreign: *foreignResult})
 	}
 
+	persistDNSServers(c, client)
+
 	return SuccessResponse(c, http.StatusOK, "Cloudflare Family DNS applied successfully", DNSFamilyResponse{
 		Foreign: *foreignResult,
 		VPN:     *vpnResult,
@@ -1002,6 +1010,8 @@ func HandleResetDNS(c echo.Context) error {
 		}
 	}
 
+	persistDNSServers(c, client)
+
 	return SuccessResponse(c, http.StatusOK, "DNS settings reset successfully", DNSResetResponse{
 		Servers:                  strings.Split(dnsResetServers, ","),
 		Forwarders:               updatedForwarders,
@@ -1201,6 +1211,8 @@ func HandleCreateStaticDNS(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added static DNS entry", err)
 	}
 
+	persistDNSStaticEntry(c, client, entry)
+
 	return SuccessResponse(c, http.StatusCreated, "Static DNS entry added", ToStaticDNSResponse(entry))
 }
 
@@ -1268,6 +1280,8 @@ func HandleUpdateStaticDNS(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated static DNS entry", err)
 	}
 
+	persistDNSStaticEntry(c, client, updated)
+
 	return SuccessResponse(c, http.StatusOK, "Static DNS entry updated", ToStaticDNSResponse(updated))
 }
 
@@ -1292,12 +1306,15 @@ func HandleDeleteStaticDNS(c echo.Context) error {
 		return err
 	}
 
-	if err := client.RemoveUserStaticDNS(c.Param("nameOrID")); err != nil {
+	removedID, err := client.RemoveUserStaticDNS(c.Param("nameOrID"))
+	if err != nil {
 		if errors.Is(err, routeros.ErrStaticDNSNotFound) || IsCredentialError(err) {
 			return staticDNSLookupError(c, err)
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete static DNS entry", err)
 	}
+
+	removeDNSStaticEntryFromDB(c, client, removedID)
 
 	return c.NoContent(http.StatusNoContent)
 }

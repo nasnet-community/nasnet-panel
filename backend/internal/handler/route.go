@@ -92,6 +92,8 @@ func HandleUpdateForeignGateway(c echo.Context) error {
 		}
 	}
 
+	persistForeignGatewaySetting(c, client, req.Gateway)
+
 	resp := ForeignGatewayResponse{
 		Gateway:       req.Gateway,
 		RoutesUpdated: len(routes),

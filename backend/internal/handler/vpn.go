@@ -13,6 +13,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"nasnet-panel/internal/db"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 	"nasnet-panel/pkg/wgcfg"
@@ -379,6 +380,8 @@ func HandleUpdateVPNClient(c echo.Context) error {
 		Comment:      vpnClient.Comment,
 	}
 
+	persistVPNClient(c, client, vpnClient)
+
 	return SuccessResponse(c, http.StatusOK, "VPN client updated successfully", response)
 }
 
@@ -491,6 +494,8 @@ func HandleAddL2TPClient(c echo.Context) error {
 		LinkDowns:    vpnClient.LinkDowns,
 		Comment:      vpnClient.Comment,
 	}
+
+	persistL2TPClient(c, client, interfaceName)
 
 	return SuccessResponse(c, http.StatusCreated, "L2TP client added successfully", response)
 }
@@ -616,6 +621,8 @@ func HandleAddSSTPClient(c echo.Context) error {
 		Comment:      vpnClient.Comment,
 	}
 
+	persistSSTPClient(c, client, interfaceName)
+
 	return SuccessResponse(c, http.StatusCreated, "SSTP client added successfully", response)
 }
 
@@ -694,6 +701,8 @@ func HandleUpdateSSTPClient(c echo.Context) error {
 		Comment:      vpnClient.Comment,
 	}
 
+	persistSSTPClient(c, client, nameOrID)
+
 	return SuccessResponse(c, http.StatusOK, "SSTP client updated successfully", response)
 }
 
@@ -735,6 +744,8 @@ func HandleDeleteSSTPClient(c echo.Context) error {
 	if err := client.RemoveSSTPClient(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete SSTP client", err)
 	}
+
+	removeSSTPClientFromDB(c, client, sstpClient.Name)
 
 	return c.NoContent(http.StatusNoContent)
 }
@@ -849,6 +860,8 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 		Comment:      vpnClient.Comment,
 	}
 
+	persistL2TPClient(c, client, nameOrID)
+
 	return SuccessResponse(c, http.StatusOK, "L2TP client updated successfully", response)
 }
 
@@ -889,6 +902,8 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 	if err := client.RemoveL2TPClient(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete L2TP client", err)
 	}
+
+	removeL2TPClientFromDB(c, client, l2tpClient.Name)
 
 	return c.NoContent(http.StatusNoContent)
 }
@@ -1293,6 +1308,8 @@ func HandleCreateL2tpServer(c echo.Context) error {
 		createdMangleRuleIDs = append(createdMangleRuleIDs, mangleRuleID)
 	}
 
+	persistL2TPServer(c, client)
+
 	return SuccessResponse(c, http.StatusOK, "L2TP server enabled successfully", map[string]interface{}{
 		"enabled": true,
 	})
@@ -1329,6 +1346,8 @@ func HandleDeleteL2tpServer(c echo.Context) error {
 	if err != nil {
 		deleteErrors = append(deleteErrors, fmt.Sprintf("failed to remove L2TP mangle rules: %v", err))
 	}
+
+	removeVPNServerFromDB(c, client, db.VPNServerTypeL2TP)
 
 	if len(deleteErrors) > 0 {
 		return SuccessResponse(c, http.StatusOK, "L2TP server disabled with some errors", map[string]interface{}{
@@ -1613,6 +1632,8 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		AllowedAddress:        req.AllowedAddress,
 	}
 
+	persistWireGuardInterface(c, client, wireguard.Name)
+
 	return SuccessResponse(c, http.StatusOK, "WireGuard client interface created successfully", response)
 }
 
@@ -1783,6 +1804,8 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add address to VPN-LAN address list", err)
 	}
 
+	persistWireGuardInterface(c, client, wireguard.Name)
+
 	response := ToWireGuardServerCreateResponse(wireguard)
 	response.LocalAddress = *localAddress
 	return SuccessResponse(c, http.StatusOK, "WireGuard server interface created successfully", response)
@@ -1903,6 +1926,8 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 	}
 
 	response := ToWireGuardInterfaceResponse(wireguard)
+	persistWireGuardInterface(c, client, wireguard.Name)
+
 	return SuccessResponse(c, http.StatusOK, "WireGuard interface updated successfully", response)
 }
 
@@ -2006,6 +2031,11 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 	}
 
 	// Retrieve the updated peer
+	if req.PublicKey != nil && *req.PublicKey != "" && *req.PublicKey != peer.PublicKey {
+		renameWireGuardPeerKeyInDB(c, client, peer.InterfaceName, peer.PublicKey, *req.PublicKey)
+	}
+	persistWireGuardInterface(c, client, peer.InterfaceName)
+
 	updatedPeer, err := client.GetWireGuardPeerByNameOrID(nameOrID)
 	if err == nil && updatedPeer != nil {
 		response := ToWireGuardPeerResponse(updatedPeer)
@@ -2520,6 +2550,8 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		response.ClientListenPort = *req.ClientListenPort
 	}
 
+	persistWireGuardInterface(c, client, interfaceName)
+
 	return SuccessResponse(c, http.StatusOK, "WireGuard server peer created successfully", response)
 }
 
@@ -2547,13 +2579,16 @@ func HandleDeleteWireGuardPeer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "WireGuard peer name or ID is required", nil)
 	}
 
-	if _, err := client.GetWireGuardPeerByNameOrID(nameOrID); err != nil {
+	peer, err := client.GetWireGuardPeerByNameOrID(nameOrID)
+	if err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
 	}
 
 	if err := client.DeleteWireGuardPeer(nameOrID); err != nil {
 		return ErrorResponse(c, http.StatusNotFound, "Failed to delete WireGuard peer", err)
 	}
+
+	persistWireGuardInterface(c, client, peer.InterfaceName)
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard peer deleted successfully", nil)
 }
@@ -2616,6 +2651,8 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 	if _, err := removeVpnServerMangleRules(client, fwComment, true); err != nil {
 		c.Logger().Errorf("Failed to remove mangle rule for interface %s: %v", wireguard.Name, err)
 	}
+
+	removeWireGuardInterfaceFromDB(c, client, wireguard.Name)
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard interface deleted successfully", nil)
 }
@@ -2843,6 +2880,8 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		ReusedExistingInterface: reusedExistingInterface,
 		SkippedDuplicatePeers:   skippedDuplicatePeers,
 	}
+
+	persistWireGuardInterface(c, client, wg.Name)
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard configuration imported successfully", response)
 }
@@ -3293,6 +3332,17 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 
 	updateTask(100, "Completed")
 
+	certificateTimestamp, _ := strconv.ParseInt(timestamp, 10, 64)
+	createdServers := []db.OvpnServer{
+		{Name: serverConfigNameTCP, CertificateTimestamp: certificateTimestamp, Protocol: "tcp", Port: tcpPort, ClientCertificatePassword: req.ClientCertificatePassword, Enabled: true},
+		{Name: serverConfigNameUDP, CertificateTimestamp: certificateTimestamp, Protocol: "udp", Port: udpPort, ClientCertificatePassword: req.ClientCertificatePassword, Enabled: true},
+	}
+	createdVPNUsers := make([]db.VPNUser, 0, len(req.Users))
+	for i := range req.Users {
+		createdVPNUsers = append(createdVPNUsers, db.VPNUser{Username: req.Users[i].Username, Password: req.Users[i].Password, Profile: defaultProfile})
+	}
+	persistCreatedOvpnServers(client, createdServers, createdVPNUsers)
+
 	task.mu.Lock()
 	task.Status = "completed"
 	task.CompletedTime = time.Now()
@@ -3510,6 +3560,8 @@ func HandleDeleteSstpServer(c echo.Context) error {
 		}
 	}
 
+	removeVPNServerFromDB(c, client, db.VPNServerTypeSSTP)
+
 	if len(deleteErrors) > 0 {
 		return SuccessResponse(c, http.StatusOK, "SSTP server disabled with some errors", map[string]interface{}{
 			"disabled":             true,
@@ -3704,6 +3756,8 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 
 	updateTask(100, "Completed")
 
+	persistCreatedSstpServer(client, &sstpConfig)
+
 	task.mu.Lock()
 	task.Status = "completed"
 	task.CompletedTime = time.Now()
@@ -3858,6 +3912,8 @@ func HandleUpdateOvpnServerEnabled(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update OpenVPN server", err)
 	}
 
+	persistOvpnServer(c, client, serverName)
+
 	return SuccessResponse(c, http.StatusOK, "OpenVPN server updated successfully", map[string]interface{}{
 		"name":    serverName,
 		"enabled": req.Enabled,
@@ -3965,6 +4021,8 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 			}
 		}
 	}
+
+	removeOvpnServersFromDB(c, client, serverName, otherServer)
 
 	if len(deleteErrors) > 0 {
 		return SuccessResponse(c, http.StatusOK, "OpenVPN server deleted with some errors", map[string]interface{}{
@@ -4184,6 +4242,8 @@ func HandleCreateVPNUser(c echo.Context) error {
 		Disabled: created["disabled"] == "true" || created["disabled"] == "yes",
 	}
 
+	persistVPNUser(c, client, "", &db.VPNUser{Username: secret.Name, Password: secret.Password, Profile: secret.Profile})
+
 	return SuccessResponse(c, http.StatusCreated, "VPN user created successfully", toVPNUserResponse(secret))
 }
 
@@ -4245,6 +4305,13 @@ func HandleUpdateVPNUserByID(c echo.Context) error {
 		}
 	}
 
+	oldUsername := ""
+	if req.Name != nil && *req.Name != "" {
+		if existing, err := client.GetPppSecretByNameOrID(nameOrID); err == nil {
+			oldUsername = existing["name"]
+		}
+	}
+
 	params := routeros.UpdatePppSecretParams{
 		Name:          req.Name,
 		Password:      req.Password,
@@ -4275,6 +4342,8 @@ func HandleUpdateVPNUserByID(c echo.Context) error {
 		Disabled: updated["disabled"] == "true" || updated["disabled"] == "yes",
 	}
 
+	persistVPNUser(c, client, oldUsername, &db.VPNUser{Username: secret.Name, Password: secret.Password, Profile: secret.Profile})
+
 	return SuccessResponse(c, http.StatusOK, "VPN user updated successfully", toVPNUserResponse(secret))
 }
 
@@ -4303,7 +4372,7 @@ func HandleDeleteVPNUserByID(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "nameOrID is required", nil)
 	}
 
-	err = client.RemovePppSecretByNameOrID(nameOrID)
+	removedUsername, err := client.RemovePppSecretByNameOrID(nameOrID)
 	if err != nil {
 		if IsCredentialError(err) {
 			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
@@ -4313,6 +4382,8 @@ func HandleDeleteVPNUserByID(c echo.Context) error {
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete VPN user", err)
 	}
+
+	removeVPNUserFromDB(c, client, removedUsername)
 
 	return SimpleSuccessResponse(c, http.StatusOK, "VPN user deleted successfully")
 }

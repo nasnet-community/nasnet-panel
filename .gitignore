@@ -55,3 +55,4 @@ vendor/
 # Test coverage
 *.out
 *.prof
+backend/data/

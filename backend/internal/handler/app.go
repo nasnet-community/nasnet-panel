@@ -6,17 +6,21 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	"nasnet-panel/internal/buildinfo"
+	"nasnet-panel/internal/db"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,6 +36,21 @@ const (
 
 	minUpdateFreeStorageBytes = 30 * 1024 * 1024 // 30MB, headroom for the pulled image layers
 )
+
+const (
+	maxSettingKeyLength   = 128
+	maxSettingValueLength = 64 * 1024
+)
+
+var (
+	settingKeyPattern = regexp.MustCompile(`^[A-Za-z0-9_.:-]+$`)
+	appDatabases      *db.Registry
+)
+
+// SetDatabases gives the handlers the registry of per-router SQLite databases that backs the app settings endpoints.
+func SetDatabases(registry *db.Registry) {
+	appDatabases = registry
+}
 
 // HandleAppVersion godoc
 // @Summary Get panel version
@@ -340,4 +359,246 @@ func fetchLatestGitHubRelease(ctx context.Context) (*githubRelease, error) {
 		return nil, err
 	}
 	return &release, nil
+}
+
+func routerSettingsDB(c echo.Context) (conn *sqlx.DB, ok bool, handled error) {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return nil, false, err
+	}
+
+	systemID, err := client.GetSystemID()
+	if err != nil {
+		if IsCredentialError(err) {
+			return nil, false, ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return nil, false, ErrorResponse(c, http.StatusBadGateway, "Failed to read the router system ID", err)
+	}
+
+	conn, err = appDatabases.ForRouter(c.Request().Context(), systemID)
+	if err != nil {
+		return nil, false, ErrorResponse(c, http.StatusInternalServerError, "Failed to open the router database", err)
+	}
+	ensureInitialSync(c.Request().Context(), client, systemID, conn)
+
+	return conn, true, nil
+}
+
+func databaseForClient(ctx context.Context, client *routeros.Client) (*sqlx.DB, error) {
+	systemID, err := client.GetSystemID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the router system ID: %w", err)
+	}
+
+	conn, err := appDatabases.ForRouter(ctx, systemID)
+	if err != nil {
+		return nil, err
+	}
+	ensureInitialSync(ctx, client, systemID, conn)
+
+	return conn, nil
+}
+
+func validateSettingKey(key string) error {
+	if key == "" {
+		return errors.New("key is required")
+	}
+	if len(key) > maxSettingKeyLength || !settingKeyPattern.MatchString(key) {
+		return fmt.Errorf("key must be 1-%d characters of letters, digits and _ . : -", maxSettingKeyLength)
+	}
+	return nil
+}
+
+func validateSettingValue(value string) error {
+	if len(value) > maxSettingValueLength {
+		return fmt.Errorf("value must be at most %d bytes", maxSettingValueLength)
+	}
+	return nil
+}
+
+func settingError(c echo.Context, err error, message string) error {
+	switch {
+	case errors.Is(err, db.ErrSettingNotFound):
+		return ErrorResponse(c, http.StatusNotFound, "Setting not found", err)
+	case errors.Is(err, db.ErrSettingExists):
+		return ErrorResponse(c, http.StatusConflict, "Setting already exists", err)
+	default:
+		return ErrorResponse(c, http.StatusInternalServerError, message, err)
+	}
+}
+
+// HandleListSettings godoc
+// @Summary List app settings
+// @Description Returns every setting stored in the database of the router named by X-RouterOS-Host, ordered by key
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=[]SettingResponse}
+// @Failure 500 {object} Response
+// @Router /api/app/settings [get].
+func HandleListSettings(c echo.Context) error {
+	conn, ok, err := routerSettingsDB(c)
+	if !ok {
+		return err
+	}
+
+	settings, err := db.ListSettings(c.Request().Context(), conn)
+	if err != nil {
+		return settingError(c, err, "Failed to list settings")
+	}
+
+	response := make([]SettingResponse, 0, len(settings))
+	for i := range settings {
+		response = append(response, ToSettingResponse(&settings[i]))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Settings retrieved", response)
+}
+
+// HandleGetSetting godoc
+// @Summary Get an app setting
+// @Description Returns one setting by key
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param key path string true "Setting key"
+// @Produce json
+// @Success 200 {object} Response{data=SettingResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/app/settings/{key} [get].
+func HandleGetSetting(c echo.Context) error {
+	key := c.Param("key")
+	if err := validateSettingKey(key); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid key", err)
+	}
+
+	conn, ok, err := routerSettingsDB(c)
+	if !ok {
+		return err
+	}
+
+	setting, err := db.GetSetting(c.Request().Context(), conn, key)
+	if err != nil {
+		return settingError(c, err, "Failed to get setting")
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Setting retrieved", ToSettingResponse(setting))
+}
+
+// HandleCreateSetting godoc
+// @Summary Create an app setting
+// @Description Stores a new setting. Returns 409 if the key already exists
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body CreateSettingRequest true "Setting to create"
+// @Accept json
+// @Produce json
+// @Success 201 {object} Response{data=SettingResponse}
+// @Failure 400 {object} Response
+// @Failure 409 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/app/settings [post].
+func HandleCreateSetting(c echo.Context) error {
+	var req CreateSettingRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	}
+	if err := validateSettingKey(req.Key); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid key", err)
+	}
+	if err := validateSettingValue(req.Value); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid value", err)
+	}
+
+	conn, ok, err := routerSettingsDB(c)
+	if !ok {
+		return err
+	}
+
+	setting, err := db.CreateSetting(c.Request().Context(), conn, req.Key, req.Value)
+	if err != nil {
+		return settingError(c, err, "Failed to create setting")
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "Setting created", ToSettingResponse(setting))
+}
+
+// HandleUpdateSetting godoc
+// @Summary Update an app setting
+// @Description Changes the value of an existing setting
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param key path string true "Setting key"
+// @Param body body UpdateSettingRequest true "New value"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=SettingResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/app/settings/{key} [put].
+func HandleUpdateSetting(c echo.Context) error {
+	key := c.Param("key")
+	if err := validateSettingKey(key); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid key", err)
+	}
+
+	var req UpdateSettingRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	}
+	if req.Value == nil {
+		return ErrorResponse(c, http.StatusBadRequest, "value is required", nil)
+	}
+	if err := validateSettingValue(*req.Value); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid value", err)
+	}
+
+	conn, ok, err := routerSettingsDB(c)
+	if !ok {
+		return err
+	}
+
+	setting, err := db.UpdateSetting(c.Request().Context(), conn, key, *req.Value)
+	if err != nil {
+		return settingError(c, err, "Failed to update setting")
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Setting updated", ToSettingResponse(setting))
+}
+
+// HandleDeleteSetting godoc
+// @Summary Delete an app setting
+// @Description Removes a setting by key
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param key path string true "Setting key"
+// @Produce json
+// @Success 204
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/app/settings/{key} [delete].
+func HandleDeleteSetting(c echo.Context) error {
+	key := c.Param("key")
+	if err := validateSettingKey(key); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid key", err)
+	}
+
+	conn, ok, err := routerSettingsDB(c)
+	if !ok {
+		return err
+	}
+
+	if err := db.DeleteSetting(c.Request().Context(), conn, key); err != nil {
+		return settingError(c, err, "Failed to delete setting")
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

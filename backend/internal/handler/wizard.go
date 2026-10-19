@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"nasnet-panel/internal/db"
+
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/sftp"
 
@@ -13,6 +15,24 @@ import (
 
 	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/utils"
+)
+
+const (
+	wizardWireGuardName    = "wireguard-client-wg-client"
+	wizardWireGuardComment = "wg-client-wg-client"
+
+	wizardWireGuardPeerName    = "wireguard-client-wg-client-peer"
+	wizardWireGuardPeerComment = "wireguard-client-wg-client-peer"
+
+	wizardOvpnPort    = 1194
+	wizardVPNProfile  = "VPN-VPN"
+	wizardL2TPName    = "wizard-l2tp-client"
+	wizardL2TPComment = "L2TP-Client L2TP"
+
+	wizardLANBridge     = "LANBridgeSplit"
+	wizardWifiAuthTypes = "wpa2-psk,wpa3-psk"
+	wizardWifiModeAP    = "ap"
+	wizardWifiModeWAN   = "station-pseudobridge"
 )
 
 // wizardSuccessFile is the marker file the wizard script itself writes to the
@@ -272,6 +292,8 @@ func HandleFinalizeWizard(c echo.Context) error {
 		wifiSplit = req.WiFiAP.Split
 	}
 
+	currentTimestamp := time.Now().Unix()
+
 	templateData := map[string]any{
 		"DomesticEnabled":   domesticEnabled,
 		"ManagementWifi":    managementWifi,
@@ -281,7 +303,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"WifiSplit":         wifiSplit,
 		"BridgePorts":       bridgePorts,
 		"CurrentDate":       time.Now().Format("Jan/02/2006"),
-		"CurrentTimestamp":  time.Now().Unix(),
+		"CurrentTimestamp":  currentTimestamp,
 		"BackupTime":        backupTime,
 		"Identity":          identity,
 		"RouterUsername":    creds.Username,
@@ -293,8 +315,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["L2tpClient"] = req.L2tpClient
 	}
 
+	var wgData *WireGuardClientTemplateData
 	if req.WireGuardClient != nil && req.WireGuardClient.Config != "" {
-		wgData, err := buildWireGuardClientTemplateData(req.WireGuardClient.Config)
+		wgData, err = buildWireGuardClientTemplateData(req.WireGuardClient.Config)
 		if err != nil {
 			return ErrorResponse(c, http.StatusBadRequest, "Failed to parse WireGuard config", err)
 		}
@@ -304,6 +327,16 @@ func HandleFinalizeWizard(c echo.Context) error {
 	if req.OvpnServer != nil {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
+
+	saveWizardConfig(c, client, &WizardSaveData{
+		Request:              &req,
+		DomesticEnabled:      domesticEnabled,
+		Foreign:              &foreignInterface,
+		Domestic:             &domesticInterface,
+		WireGuard:            wgData,
+		CertificateTimestamp: currentTimestamp,
+		WifiAPs:              wifiAPs,
+	})
 
 	rendered, err := utils.RenderTemplate("wizard.tmpl", templateData)
 	if err != nil {
@@ -359,4 +392,129 @@ func HandleFinalizeWizard(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
 		"managementWiFiSSID": managementWifi.SSID, "managementWiFiPassword": managementWifi.Password,
 	})
+}
+
+func saveWizardConfig(c echo.Context, client *routeros.Client, data *WizardSaveData) {
+	req := data.Request
+	cfg := db.Config{
+		WANs: []db.WAN{wizardWAN("foreign", data.Foreign)},
+	}
+	if data.DomesticEnabled {
+		cfg.WANs = append(cfg.WANs, wizardWAN("domestic", data.Domestic))
+	}
+
+	if data.WireGuard != nil {
+		wg := &db.WireGuardInterface{
+			Name:       wizardWireGuardName,
+			Comment:    wizardWireGuardComment,
+			Type:       db.WireGuardTypeClient,
+			PrivateKey: data.WireGuard.InterfacePrivateKey,
+			Address:    data.WireGuard.InterfaceAddress,
+			Enabled:    true,
+		}
+		for i := range data.WireGuard.Peers {
+			peer := &data.WireGuard.Peers[i]
+			port, _ := strconv.Atoi(peer.EndpointPort)
+			keepalive, _ := strconv.Atoi(peer.PersistentKeepalive)
+			wg.Peers = append(wg.Peers, db.WireGuardPeer{
+				Name:                wizardWireGuardPeerName,
+				Comment:             wizardWireGuardPeerComment,
+				Enabled:             true,
+				PublicKey:           peer.PublicKey,
+				PresharedKey:        peer.PreSharedKey,
+				EndpointAddress:     peer.EndpointAddress,
+				EndpointPort:        port,
+				AllowedAddress:      peer.AllowedAddress,
+				PersistentKeepalive: keepalive,
+			})
+		}
+		cfg.WireGuard = wg
+		cfg.Settings = map[string]string{settingKeyForeignGateway: wizardWireGuardName}
+	}
+
+	if req.L2tpClient != nil {
+		cfg.L2TP = &db.L2TPClient{
+			Name:        wizardL2TPName,
+			Comment:     wizardL2TPComment,
+			ConnectTo:   req.L2tpClient.ConnectTo,
+			User:        req.L2tpClient.User,
+			Password:    req.L2tpClient.Password,
+			IPsecSecret: req.L2tpClient.IPsecSecret,
+			Enabled:     true,
+		}
+		if cfg.Settings == nil {
+			cfg.Settings = map[string]string{settingKeyForeignGateway: wizardL2TPName}
+		}
+	}
+
+	cfg.WiFis = wizardWiFis(data)
+	cfg.DNSServers = wizardDNSServers(data.DomesticEnabled)
+
+	if req.OvpnServer != nil && data.DomesticEnabled {
+		baseName := fmt.Sprintf("ovpn-server-%d", data.CertificateTimestamp)
+		for _, protocol := range []string{"tcp", "udp"} {
+			cfg.OvpnServers = append(cfg.OvpnServers, db.OvpnServer{
+				Name:                      baseName + "-" + protocol,
+				CertificateTimestamp:      data.CertificateTimestamp,
+				Protocol:                  protocol,
+				Port:                      wizardOvpnPort,
+				ClientCertificatePassword: req.OvpnServer.ClientCertificatePassword,
+				Enabled:                   true,
+			})
+		}
+		for _, user := range req.OvpnServer.Users {
+			cfg.VPNUsers = append(cfg.VPNUsers, db.VPNUser{Username: user.Username, Password: user.Password, Profile: wizardVPNProfile})
+		}
+	}
+
+	conn, err := databaseForClient(c.Request().Context(), client)
+	if err == nil {
+		err = db.SaveConfig(c.Request().Context(), conn, &cfg)
+	}
+	if err != nil {
+		c.Logger().Errorf("Failed to save the wizard configuration: %v", err)
+	}
+}
+
+func wizardWiFis(data *WizardSaveData) []db.WiFi {
+	wifis := make([]db.WiFi, 0, len(data.WifiAPs)+2)
+
+	for i := range data.WifiAPs {
+		ap := &data.WifiAPs[i]
+		wifis = append(wifis, db.WiFi{
+			Name:        ap.NameToSet,
+			DefaultName: ap.DefaultName,
+			SSID:        ap.SSID,
+			Password:    ap.Password,
+			Enabled:     true,
+			Mode:        wizardWifiModeAP,
+			Bridge:      wizardLANBridge,
+			AuthTypes:   wizardWifiAuthTypes,
+		})
+	}
+
+	if data.Foreign.Type == string(routeros.InterfaceTypeWiFi) {
+		wifis = append(wifis, wizardWANWiFi(data.Foreign, "Foreign", ""))
+	}
+	if data.DomesticEnabled && data.Domestic.Type == string(routeros.InterfaceTypeWiFi) {
+		wifis = append(wifis, wizardWANWiFi(data.Domestic, "Domestic", wizardWifiAuthTypes))
+	}
+
+	return wifis
+}
+
+func wizardWANWiFi(iface *InterfaceConfig, link, authTypes string) db.WiFi {
+	return db.WiFi{
+		Name:        iface.Interface + "-" + link + "-WAN",
+		DefaultName: iface.Interface,
+		SSID:        iface.SSID,
+		Password:    iface.Password,
+		Enabled:     true,
+		Mode:        wizardWifiModeWAN,
+		AuthTypes:   authTypes,
+	}
+}
+
+func wizardWAN(wanType string, iface *InterfaceConfig) db.WAN {
+	return db.WAN{Type: wanType, InterfaceType: iface.Type, Interface: iface.Interface}
 }

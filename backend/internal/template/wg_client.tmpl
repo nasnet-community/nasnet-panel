@@ -6,9 +6,9 @@ add name="LANBridgeVPN-wg-client" comment="VPN-wg-client"
 add name="wireguard-client-wg-client" private-key="{{ .WireGuardClient.InterfacePrivateKey }}" comment="wg-client-wg-client" vrf="VRF-TunnelEnds"
 /interface wireguard peers
 {{ range .WireGuardClient.Peers }}
-add interface="wireguard-client-wg-client" public-key="{{ .PublicKey }}" \
+add name="wireguard-client-wg-client-peer" interface="wireguard-client-wg-client" public-key="{{ .PublicKey }}" \
 {{ if .EndpointAddress }}endpoint-address="{{ .EndpointAddress }}" endpoint-port={{ .EndpointPort }} \
-{{ end }}allowed-address="{{ .AllowedAddress }}" comment="wg-client-peer-wg-client"{{ if .PreSharedKey }} preshared-key="{{ .PreSharedKey }}"{{ end }}{{ if .PersistentKeepalive }} \
+{{ end }}allowed-address="{{ .AllowedAddress }}" comment="wireguard-client-wg-client-peer"{{ if .PreSharedKey }} preshared-key="{{ .PreSharedKey }}"{{ end }}{{ if .PersistentKeepalive }} \
 persistent-keepalive={{ .PersistentKeepalive }}{{ end }}
 {{ end }}
 
