@@ -17,7 +17,7 @@ Requires Node.js 20+ and Go 1.26+. The frontend runs on `http://localhost:3000`,
 
 ## Branches
 
-- Base your work on `dev`. Releases are cut from `main`; do not branch from `main`.
+- Base your work on `dev`. Releases are cut from `dev` as well.
 - Name branches descriptively, e.g. `wireless-client-table`, `fix-dhcp-lease-parse`.
 
 ## Commits

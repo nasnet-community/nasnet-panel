@@ -16,7 +16,9 @@ React SPA + Go API, shipped as a single small container that runs anywhere, incl
 [![RouterOS](https://img.shields.io/badge/RouterOS-v7%2B-blue)](https://mikrotik.com/)
 [![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20arm64%20%7C%20arm%2Fv7-2496ED?logo=docker&logoColor=white)](https://github.com/nasnet-community/nasnet-panel/pkgs/container/nasnet-panel)
 
-[Features](#features) - [Architecture](#architecture) - [Install](#installation) - [Configuration](#configuration) - [Development](#development) - [Contributing](#contributing)
+English - [فارسی](README.fa.md)
+
+[Website](https://joinnasnet.com) - [Features](#features) - [Architecture](#architecture) - [Install](#installation) - [Configuration](#configuration) - [Development](#development) - [Contributing](#contributing)
 
 </div>
 
@@ -120,7 +122,7 @@ The backend speaks multiple protocols to RouterOS and falls back automatically: 
 
 ## Installation
 
-Three supported paths, in order of expected use.
+Four supported paths, in order of expected use.
 
 ### 1. Docker (recommended)
 
@@ -219,7 +221,30 @@ To remove everything: `bash scripts/install.sh --uninstall --config router.env`.
 
 See [`scripts/INSTALL.md`](scripts/INSTALL.md) for the full installation guide. It walks through both the automated script and a manual route via Winbox or the RouterOS terminal, reproducing every networking, firewall, and container command the installer runs.
 
-### 3. From source (development)
+### 3. MikroTik RouterOS via the graphical installer (Windows and macOS)
+
+If you would rather not use a terminal, a desktop installer deploys Nasnet Panel to a RouterOS v7 router as a container. It runs on Windows and macOS and does the same job as `scripts/install.sh` through a guided window.
+
+**Get it**
+
+Download the installer for your computer from the [Releases page](https://github.com/nasnet-community/nasnet-panel/releases), along with its `.sha256` checksum:
+
+- Windows: `nasnet-panel-installer-windows-<version>.exe`
+- macOS: `nasnet-panel-installer-macos-<version>.dmg`
+
+**What it does**
+
+1. Connects to the router and checks the system.
+2. Prepares an internet uplink for the router, optionally by joining a WiFi network the router scans for.
+3. Updates RouterOS when it is below the required version, and enables container `device-mode`.
+4. Downloads the container image for the router's architecture, uploads it, sets up the container networking, and starts the container.
+5. Checks the panel's health and applies the LAN baseline.
+
+Every step rolls back if the install fails, and the installer can also uninstall what it set up. By default it installs the latest tagged release. Advanced options let you pick the development snapshot, a specific release tag, or a local image tar.
+
+See [`graphical-installer/README.md`](graphical-installer/README.md) for the full list of steps and how to build the installer from source.
+
+### 4. From source (development)
 
 ```bash
 git clone https://github.com/nasnet-community/nasnet-panel.git
@@ -303,10 +328,11 @@ docker buildx build \
 
 ## Releases
 
-Tagged releases are cut from `main`. Each release publishes:
+Tagged releases are cut from `dev`. Each release publishes:
 
 - Multi-arch container images at `ghcr.io/nasnet-community/nasnet-panel:<tag>` and `:latest`.
-- Per-architecture tarballs `nasnet-panel-<version>-<arch>.tar` plus matching `.sha256`, consumed by `scripts/install.sh`.
+- Per-architecture tarballs `nasnet-panel-<version>-<arch>.tar` plus matching `.sha256`, consumed by `scripts/install.sh` and the graphical installer.
+- The graphical installer for Windows (`nasnet-panel-installer-windows-<version>.exe`) and macOS (`nasnet-panel-installer-macos-<version>.dmg`), each with a matching `.sha256`.
 
 See the [Releases page](https://github.com/nasnet-community/nasnet-panel/releases).
 
@@ -317,10 +343,6 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, bra
 ## Security
 
 If you find a vulnerability, please **do not** open a public issue. See [SECURITY.md](SECURITY.md) for the private reporting process.
-
-## Code of conduct
-
-By participating in this project you agree to abide by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Changelog
 
