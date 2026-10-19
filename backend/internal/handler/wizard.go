@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -34,6 +36,11 @@ const (
 	wizardWifiAuthTypes     = "wpa2-psk,wpa3-psk"
 	wizardWifiModeAP        = "ap"
 	wizardWifiModeWAN       = "station-pseudobridge"
+)
+
+const (
+	wizardSaveTimeout      = 30 * time.Minute
+	wizardSavePollInterval = 5 * time.Second
 )
 
 // wizardSuccessFile is the marker file the wizard script itself writes to the
@@ -338,6 +345,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update wizard progress", err)
 	}
+	if err := client.SetEnvironmentVariable("WizardFailed", "false"); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to reset the wizard failure flag", err)
+	}
 	_ = client.DeleteFile(wizardSuccessFile)
 
 	if err := client.EnsureNasnetPanelDir(); err != nil {
@@ -378,7 +388,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
 	}
 
-	saveWizardConfig(c, client, &WizardSaveData{
+	go saveWizardConfigWhenDone(client, &WizardSaveData{
 		Request:              &req,
 		DomesticEnabled:      domesticEnabled,
 		Foreign:              &foreignInterface,
@@ -397,7 +407,33 @@ func HandleFinalizeWizard(c echo.Context) error {
 	})
 }
 
-func saveWizardConfig(c echo.Context, client *routeros.Client, data *WizardSaveData) {
+func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {
+	ctx, cancel := context.WithTimeout(context.Background(), wizardSaveTimeout)
+	defer cancel()
+
+	ticker := time.NewTicker(wizardSavePollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("The wizard did not finish in time, its configuration was not saved to the database")
+			return
+		case <-ticker.C:
+		}
+
+		if failed, err := client.GetEnvironmentVariable("WizardFailed"); err == nil && failed == "true" {
+			log.Printf("The wizard failed, its configuration was not saved to the database")
+			return
+		}
+		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
+			saveWizardConfig(ctx, client, data)
+			return
+		}
+	}
+}
+
+func saveWizardConfig(ctx context.Context, client *routeros.Client, data *WizardSaveData) {
 	req := data.Request
 	cfg := db.Config{
 		WANs: []db.WAN{wizardWAN("foreign", data.Foreign)},
@@ -471,12 +507,12 @@ func saveWizardConfig(c echo.Context, client *routeros.Client, data *WizardSaveD
 		}
 	}
 
-	conn, err := databaseForClient(c.Request().Context(), client)
+	conn, err := databaseForClient(ctx, client)
 	if err == nil {
-		err = db.SaveConfig(c.Request().Context(), conn, &cfg)
+		err = db.SaveConfig(ctx, conn, &cfg)
 	}
 	if err != nil {
-		c.Logger().Errorf("Failed to save the wizard configuration: %v", err)
+		log.Printf("Failed to save the wizard configuration: %v", err)
 	}
 }
 

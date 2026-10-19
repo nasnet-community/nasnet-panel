@@ -37,7 +37,7 @@ const (
 	containerRootSubdir  = panelDir + "/containers/" + containerName
 	databaseSubdir       = panelDir + "/database"
 	databaseContainerDir = "/" + databaseSubdir
-	databaseMountName    = "nasnet-panel-database"
+	databaseMountList    = "nasnet-panel-database"
 
 	lanBridge         = "LANBridgeSplit"
 	lanBridgeIP       = "192.168.10.1"

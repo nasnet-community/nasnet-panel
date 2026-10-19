@@ -29,6 +29,8 @@ const (
 	appContainerImage      = "ghcr.io/nasnet-community/nasnet-panel"
 	appContainerName       = "nasnet-panel" // matches CONTAINER_NAME in scripts/install.sh
 	appUpdateContainerName = "nasnet-panel-update"
+	appDatabaseMountList   = "nasnet-panel-database"
+	appDatabaseDir         = routeros.NasnetPanelDir + "/database"
 
 	updateWatchInterval         = 3 * time.Second
 	updateWatchTimeout          = 5 * time.Minute
@@ -253,12 +255,20 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 	}
 	rootDir := fmt.Sprintf("disk1/images/%s-%s-%s", appContainerName, version, hex.EncodeToString(randSuffix))
 
+	mountLists, err := ensureDatabaseMount(client, running.MountLists)
+	if err != nil {
+		appUpdate.set(updatePhaseError, releaseTag, "failed to prepare the database mount: "+err.Error())
+		log.Printf("[app-update] failed to prepare the database mount: %v", err)
+		return
+	}
+
 	appUpdate.set(updatePhasePreparing, releaseTag, "creating "+appUpdateContainerName)
 	if _, err := client.AddContainer(routeros.ContainerConfig{
 		Name:        appUpdateContainerName,
 		Interface:   running.Interface,
 		RootDir:     rootDir,
 		RemoteImage: remoteImage,
+		MountLists:  mountLists,
 		Logging:     true,
 		StartOnBoot: false,
 	}); err != nil {
@@ -312,6 +322,42 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 	}
 
 	appUpdate.set(updatePhaseError, releaseTag, "timed out waiting for image pull to finish")
+}
+
+// ensureDatabaseMount makes sure the database mount list exists on the router and is part of
+// mountLists, the comma separated mount lists of the running container, and returns the lists
+// the update container must be created with. A container installed before the database mount
+// existed gets the list added here, so its database survives the update.
+func ensureDatabaseMount(client *routeros.Client, mountLists string) (string, error) {
+	var lists []string
+	for _, list := range strings.Split(mountLists, ",") {
+		list = strings.TrimSpace(list)
+		if list == appDatabaseMountList {
+			return mountLists, nil
+		}
+		if list != "" {
+			lists = append(lists, list)
+		}
+	}
+
+	if err := client.EnsureNasnetPanelDir(); err != nil {
+		return "", err
+	}
+	if err := client.EnsureDir(appDatabaseDir); err != nil {
+		return "", err
+	}
+
+	exists, err := client.ContainerMountExists(appDatabaseMountList)
+	if err != nil {
+		return "", err
+	}
+	if !exists {
+		if _, err := client.AddContainerMount(appDatabaseMountList, "/"+appDatabaseDir, "/"+appDatabaseDir); err != nil {
+			return "", err
+		}
+	}
+
+	return strings.Join(append(lists, appDatabaseMountList), ","), nil
 }
 
 // HandleAppUpdateStatus godoc
