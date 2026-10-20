@@ -57,14 +57,17 @@ func (e *Engine) stepCheck() error {
 		}
 	}
 	e.sys.FreeMB = freeBytes / 1024 / 1024
-	e.sys.CHR = e.sys.Board == chrBoardName
-	if e.sys.CHR {
+	if e.chrBoard() {
 		e.sys.License = e.readLicenseLevel()
+		e.sys.CHR = !e.hasLANBridge()
 	}
 	e.ev.SysInfo(e.sys)
 	e.log("board %s, arch %s, RouterOS %s, %d MB free", e.sys.Board, e.sys.Arch, e.sys.Version, e.sys.FreeMB)
-	if e.sys.CHR {
-		e.log("this is a CHR (Cloud Hosted Router, %s license): device-mode is confirmed with a cold boot of the VM, the uplink and the firewall are left as they are, and the panel is published on the router's own address over HTTPS", e.sys.License)
+	switch {
+	case e.sys.CHR:
+		e.log("this is a CHR (Cloud Hosted Router, %s license) without a LAN bridge: device-mode is confirmed with a cold boot of the VM, the uplink and the firewall are left as they are, and the panel is published on the router's own address over HTTPS", e.sys.License)
+	case e.chrBoard():
+		e.log("this is a CHR (Cloud Hosted Router, %s license) with a LAN bridge: it is installed like any other router, but device-mode is confirmed with a cold boot of the VM", e.sys.License)
 	}
 
 	if _, err := assetSuffix(e.sys.Arch); err != nil {
@@ -117,7 +120,7 @@ func (e *Engine) readLicenseLevel() string {
 
 // warnFreeLicense explains a slow transfer to a CHR on the free license.
 func (e *Engine) warnFreeLicense(size int64, what string) {
-	if !e.sys.CHR || e.sys.License != chrFreeLicense {
+	if !e.chrBoard() || e.sys.License != chrFreeLicense {
 		return
 	}
 	e.log("this CHR runs the free license, which limits every interface to 1 Mbit/s, so uploading the %s (%s) can take about %s. A local image file does not avoid this: the file still has to reach the router",
@@ -570,12 +573,12 @@ func (e *Engine) enableDeviceMode() error {
 	}
 
 	window := e.deviceModeWindow()
-	if e.sys.CHR {
+	if e.chrBoard() {
 		e.log("device-mode needs %s, confirm it by shutting the VM down and starting it again from the hypervisor", strings.Join(pending, " "))
 	} else {
 		e.log("device-mode needs %s, physical confirmation required", strings.Join(pending, " "))
 	}
-	if !e.ev.DeviceModePrompt(DeviceModePromptInfo{TimeoutSeconds: int(window / time.Second), CHR: e.sys.CHR}) {
+	if !e.ev.DeviceModePrompt(DeviceModePromptInfo{TimeoutSeconds: int(window / time.Second), CHR: e.chrBoard()}) {
 		return errors.New("device-mode enable declined by user")
 	}
 	update := "/system/device-mode/update " + strings.Join(all, " ")
@@ -606,7 +609,7 @@ func (e *Engine) enableDeviceMode() error {
 		}
 		e.ev.DeviceModeTick(max(int((window-time.Since(start))/time.Second), 0), state)
 	}
-	if e.sys.CHR {
+	if e.chrBoard() {
 		return fmt.Errorf("device-mode change not confirmed within %s. Shut the VM down completely and start it again from the hypervisor, then run the installer again. After three failed attempts RouterOS needs one more cold boot before it accepts a new attempt", window)
 	}
 	return fmt.Errorf("device-mode change not confirmed within %s", window)
@@ -618,7 +621,7 @@ func (e *Engine) enableDeviceMode() error {
 // the router's default window when the router rejects the parameter right away.
 func (e *Engine) startDeviceModeUpdate(update string, window time.Duration) {
 	go func() {
-		if e.sys.CHR {
+		if e.chrBoard() {
 			started := time.Now()
 			withWindow := fmt.Sprintf("%s activation-timeout=%dm", update, int(window/time.Minute))
 			_, err := e.cl.RunChecked(withWindow, window+30*time.Second)

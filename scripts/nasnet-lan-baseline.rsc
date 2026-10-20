@@ -17,25 +17,18 @@
 
     :log info "nasnet-panel: baseline v5 starting"
 
-    # A CHR (Cloud Hosted Router) is a VM with a public uplink and no LAN: no bridge, no DHCP
-    # server, no default configuration. On a CHR the baseline keeps the uplink and the firewall
-    # as they are and only prepares DNS, NTP and the container's path to the router.
-    :local isCHR false
+    # A CHR (Cloud Hosted Router) without a LAN bridge is a VM with a public uplink and no
+    # LAN: no default configuration, nothing to serve. On such a router the baseline keeps the
+    # uplink and the firewall as they are and only prepares DNS, NTP and the container's path
+    # to the router. A CHR that does carry a LAN bridge is treated like any other router.
+    :local isCHRBoard false
     :onerror ignore in={
-        :if ([/system/resource/get board-name] = "CHR") do={ :set isCHR true }
+        :if ([/system/resource/get board-name] = "CHR") do={ :set isCHRBoard true }
     } do={}
-    :if ($isCHR) do={
-        :log info "nasnet-panel: board is CHR; LAN discovery, firewall cleanup and WAN rewiring are skipped"
-    }
+    :local isCHR false
 
     :local layoutPresent false
     :local lanBridge ""
-    :if ($isCHR) do={
-        :if ([:len [/interface/bridge find name=$lanBridgeName]] > 0) do={
-            :set layoutPresent true
-            :set lanBridge $lanBridgeName
-        }
-    } else={
     :onerror err in={
         :if ([:len [/interface/bridge find name=$lanBridgeName]] > 0) do={
             :set layoutPresent true
@@ -61,15 +54,20 @@
                     }
                 }
             }
-            :if ($lanBridge = "") do={
+            :if (($lanBridge = "") && $isCHRBoard && ([:len $candidates] = 0)) do={
+                :set isCHR true
+                :log info "nasnet-panel: CHR without a LAN bridge; LAN discovery, firewall cleanup and WAN rewiring are skipped"
+            }
+            :if (($lanBridge = "") && !$isCHR) do={
                 :error ("no unambiguous LAN bridge found (candidates: " . [:tostr $candidates] . ")")
             }
-            :log info ("nasnet-panel: LAN bridge is " . $lanBridge)
+            :if ($lanBridge != "") do={
+                :log info ("nasnet-panel: LAN bridge is " . $lanBridge)
+            }
         }
     } do={
         :set failed true
         :log error ("nasnet-panel: LAN bridge discovery failed: " . $err)
-    }
     }
 
     :if (!$isCHR) do={

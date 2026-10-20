@@ -37,9 +37,11 @@ LAN_DST_NET="192.168.0.0/16"
 LAN_BASELINE_RSC="nasnet-lan-baseline.rsc"
 LAN_BASELINE_REMOTE="${PANEL_DIR}/${LAN_BASELINE_RSC}"
 
-# A CHR (Cloud Hosted Router) is a VM with a public uplink and no LAN. It confirms
-# device-mode with a cold boot from the hypervisor, the free license caps every
-# interface at 1 Mbit/s, and the panel is published on its own address over HTTPS.
+# A CHR (Cloud Hosted Router) confirms device-mode with a cold boot from the hypervisor,
+# and its free license caps every interface at 1 Mbit/s. A CHR without a LAN bridge is a
+# VM with a public uplink and nothing to serve: the uplink and the firewall are left as
+# they are and the panel is published on its own address over HTTPS. A CHR that carries a
+# LAN bridge is installed like any other router.
 CHR_BOARD_NAME="CHR"
 CHR_FREE_LICENSE="free"
 CHR_FREE_LICENSE_BPS=125000
@@ -79,6 +81,7 @@ WIFI_UPLINK=0
 WIFI_SSID=""
 WIFI_PASSWORD="${WIFI_PASSWORD:-}"
 CHR_OVERRIDE=""
+CHR_BOARD=0
 IS_CHR=0
 ROUTEROS_LICENSE=""
 
@@ -106,7 +109,7 @@ Usage: install.sh [options]
   --wifi-ssid <ssid>   WiFi network to join (default: pick from a scan).
   --wifi-password <pw> WiFi password (default: prompt; empty for an open network).
   --chr / --no-chr     Force the CHR (Cloud Hosted Router) path on or off. By default it is
-                       taken when the router reports the CHR board.
+                       taken when the router reports the CHR board and has no LAN bridge.
   --no-rollback        Do not undo partial state on failure.
   -v, --verbose        Verbose output.
   -h, --help           This help.
@@ -420,7 +423,7 @@ print_router_box() {
   printf '  ╭%s╮\n' "$hline"
   printf '  │  %-*s│\n' $((inner_w-2)) 'MikroTik'
   printf '  │%-*s│\n' $inner_w ''
-  if (( IS_CHR )); then
+  if (( CHR_BOARD )); then
     printf '  │  %-*s│\n' $((inner_w-2)) "Board     ${ROUTEROS_BOARD} (Cloud Hosted Router)"
   else
     printf '  │  %-*s│\n' $((inner_w-2)) "Board     ${ROUTEROS_BOARD}"
@@ -428,7 +431,7 @@ print_router_box() {
   printf '  │  %-*s│\n' $((inner_w-2)) "Arch      ${ROUTEROS_ARCH}"
   printf '  │  %-*s│\n' $((inner_w-2)) "RouterOS  ${ROUTEROS_VERSION}"
   printf '  │  %-*s│\n' $((inner_w-2)) "Memory    ${ROUTEROS_FREE_MB} MB free"
-  if (( IS_CHR )); then
+  if (( CHR_BOARD )); then
     if [[ "$ROUTEROS_LICENSE" == "$CHR_FREE_LICENSE" ]]; then
       printf '  │  %-*s│\n' $((inner_w-2)) "License   ${ROUTEROS_LICENSE} (1 Mbit/s per interface)"
     else
@@ -465,7 +468,7 @@ human_seconds() {
 # Explains a slow transfer to a CHR on the free license. $1 is the size in bytes, $2 what is sent.
 warn_free_license() {
   local size="$1" what="$2"
-  (( IS_CHR )) && [[ "$ROUTEROS_LICENSE" == "$CHR_FREE_LICENSE" ]] || return 0
+  (( CHR_BOARD )) && [[ "$ROUTEROS_LICENSE" == "$CHR_FREE_LICENSE" ]] || return 0
   [[ "$size" =~ ^[0-9]+$ ]] || return 0
   log "  \033[33m⚠  This CHR runs the free license, which limits every interface to 1 Mbit/s.\033[0m"
   log "     Uploading the ${what} ($(human_bytes "$size")) can take about $(human_seconds $(( size / CHR_FREE_LICENSE_BPS ))),"
@@ -531,23 +534,27 @@ probe() {
   done <<< "$out"
   ROUTEROS_FREE_MB=$(( free_mem / 1024 / 1024 ))
 
-  IS_CHR=0
-  [[ "$ROUTEROS_BOARD" == "$CHR_BOARD_NAME" ]] && IS_CHR=1
-  case "$CHR_OVERRIDE" in
-    1) (( IS_CHR )) || log "  \033[33m⚠  --chr given, but the router reports board ${ROUTEROS_BOARD:-unknown}; taking the CHR path anyway\033[0m"; IS_CHR=1 ;;
-    0) (( IS_CHR )) && log "  \033[33m⚠  --no-chr given on a CHR; taking the normal router path\033[0m"; IS_CHR=0 ;;
-  esac
-  if (( IS_CHR )); then
+  CHR_BOARD=0; IS_CHR=0
+  if [[ "$ROUTEROS_BOARD" == "$CHR_BOARD_NAME" ]]; then
+    CHR_BOARD=1
     ROUTEROS_LICENSE="$(trim "$(ros_cmd ':do {:put [/system/license/get level]} on-error={}' 2>/dev/null || true)")"
     ROUTEROS_LICENSE="${ROUTEROS_LICENSE:-unknown}"
+    has_lan_bridge || IS_CHR=1
   fi
+  case "$CHR_OVERRIDE" in
+    1) (( IS_CHR )) || log "  \033[33m⚠  --chr given on a router with a LAN bridge or a ${ROUTEROS_BOARD:-unknown} board; taking the CHR path anyway\033[0m"; IS_CHR=1 ;;
+    0) (( IS_CHR )) && log "  \033[33m⚠  --no-chr given on a CHR without a LAN bridge; taking the normal router path\033[0m"; IS_CHR=0 ;;
+  esac
 
   print_router_box
 
   if (( IS_CHR )); then
-    log "  CHR path: device-mode is confirmed with a cold boot of the VM, the uplink and the"
-    log "  firewall are left as they are, and the panel is published on the router's own address"
-    log "  over HTTPS."
+    log "  CHR without a LAN bridge: device-mode is confirmed with a cold boot of the VM, the"
+    log "  uplink and the firewall are left as they are, and the panel is published on the"
+    log "  router's own address over HTTPS."
+  elif (( CHR_BOARD )); then
+    log "  CHR with a LAN bridge: installed like any other router, but device-mode is confirmed"
+    log "  with a cold boot of the VM."
   fi
 
   case "$ROUTEROS_ARCH" in
@@ -557,6 +564,17 @@ probe() {
   if (( ROUTEROS_FREE_MB < MIN_FREE_MB )); then
     err "free memory ${ROUTEROS_FREE_MB}MB below threshold ${MIN_FREE_MB}MB"; exit 1
   fi
+}
+
+# Succeeds when the router serves a LAN: the NasNet bridge exists, or a bridge other than
+# the container bridge carries a static address and a DHCP server. Mirrors the discovery in
+# the baseline script. An unreadable answer counts as a LAN, so the normal path is taken
+# when in doubt.
+has_lan_bridge() {
+  local out
+  out="$(ros_cmd ":local n [:len [/interface/bridge find name=\"${LAN_BRIDGE}\"]]; :foreach b in=[/interface/bridge find] do={:local bn [/interface/bridge get \$b name]; :if (\$bn != \"${BRIDGE_NAME}\") do={:if (([:len [/ip/address find interface=\$bn dynamic=no]] > 0) && ([:len [/ip/dhcp-server find interface=\$bn]] > 0)) do={:set n (\$n + 1)}}}; :put (\"N=\" . \$n)" 2>/dev/null)" || return 0
+  out="$(printf '%s' "$out" | sed -n 's/^[[:space:]]*N=//p' | head -1)"
+  [[ "$(trim "$out")" != "0" ]]
 }
 
 # ---- WiFi uplink -----------------------------------------------------------
@@ -1298,7 +1316,7 @@ enable_device_mode() {
 
   log "  \033[31m✗ device-mode needs ${DM_PENDING}\033[0m"
   log ""
-  if (( IS_CHR )); then
+  if (( CHR_BOARD )); then
     DEVICE_MODE_TIMEOUT="$CHR_DEVICE_MODE_TIMEOUT"
     log "RouterOS enables container mode on a CHR only after a cold boot of the virtual machine."
   else
@@ -1315,7 +1333,7 @@ enable_device_mode() {
   log ""
   log "  \033[33m⚠  Action required on the router\033[0m"
   log ""
-  if (( IS_CHR )); then
+  if (( CHR_BOARD )); then
     log "  Within the next $(human_seconds "$DEVICE_MODE_TIMEOUT"):"
     log ""
     log "    \033[1m1.\033[0m \033[1mShut the virtual machine down completely\033[0m from your hypervisor"
@@ -1339,7 +1357,7 @@ enable_device_mode() {
   local update_pid=$!
 
   local i=0 start_ts=$SECONDS elapsed=0 last_poll=0 router_state="online" waiting_for
-  if (( IS_CHR )); then waiting_for="the VM to come back"; else waiting_for="physical confirmation"; fi
+  if (( CHR_BOARD )); then waiting_for="the VM to come back"; else waiting_for="physical confirmation"; fi
   tput civis 2>/dev/null || true
   while (( elapsed < DEVICE_MODE_TIMEOUT )); do
     elapsed=$(( SECONDS - start_ts ))
@@ -1370,7 +1388,7 @@ enable_device_mode() {
   kill "$update_pid" 2>/dev/null || true
   wait "$update_pid" 2>/dev/null || true
   err "device-mode change not confirmed within ${DEVICE_MODE_TIMEOUT}s"
-  if (( IS_CHR )); then
+  if (( CHR_BOARD )); then
     err "shut the VM down completely and start it again from the hypervisor, then run the installer again"
     err "after three failed attempts RouterOS needs one more cold boot before it accepts a new attempt"
   fi
@@ -1382,7 +1400,7 @@ enable_device_mode() {
 # router's default window when the router rejects the parameter right away.
 device_mode_update_job() {
   local out started
-  if (( IS_CHR )); then
+  if (( CHR_BOARD )); then
     started=$SECONDS
     out="$(ros_cmd "/system/device-mode/update ${DM_ALL} activation-timeout=$(( CHR_DEVICE_MODE_TIMEOUT / 60 ))m" 2>&1)" || true
     if ! grep -qiE 'syntax error|input does not match|no such argument|bad command name|expected end of command' <<< "$out"; then

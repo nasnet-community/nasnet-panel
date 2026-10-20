@@ -92,7 +92,9 @@ type SystemInfo struct {
 	FreeMB        int64  `json:"freeMb"`
 	Storage       string `json:"storage"`
 	StorageFreeMB int64  `json:"storageFreeMb"`
-	// CHR is true on a Cloud Hosted Router, where the installer takes the CHR path.
+	// CHR is true on a Cloud Hosted Router without a LAN bridge: a VM with a public uplink
+	// and nothing to serve, where the installer takes the CHR path. A CHR that carries a
+	// LAN bridge is installed like any other router.
 	CHR bool `json:"chr"`
 	// License is the CHR license level (free, p1, p10, p-unlimited), empty elsewhere.
 	License string `json:"license"`
@@ -495,12 +497,41 @@ func assetSuffix(arch string) (string, error) {
 	}
 }
 
+// chrBoard reports whether the router is a CHR at all. Every CHR, with or without a LAN,
+// confirms device-mode with a cold boot of the VM.
+func (e *Engine) chrBoard() bool {
+	return e.sys.Board == chrBoardName
+}
+
 // deviceModeWindow is how long the installer waits for the device-mode confirmation.
 func (e *Engine) deviceModeWindow() time.Duration {
-	if e.sys.CHR {
+	if e.chrBoard() {
 		return chrDeviceModeTimeout
 	}
 	return deviceModeTimeout
+}
+
+// lanBridgeProbeScript prints N=<n>, the number of LAN bridges: the NasNet bridge, or any
+// bridge other than the container bridge that carries a static address and a DHCP server.
+// It mirrors the discovery in the baseline script.
+const lanBridgeProbeScript = `:local n [:len [/interface/bridge find name="` + lanBridge + `"]]; ` +
+	`:foreach b in=[/interface/bridge find] do={:local bn [/interface/bridge get $b name]; ` +
+	`:if ($bn != "` + bridgeName + `") do={:if (([:len [/ip/address find interface=$bn dynamic=no]] > 0) && ([:len [/ip/dhcp-server find interface=$bn]] > 0)) do={:set n ($n + 1)}}}; ` +
+	`:put ("N=" . $n)`
+
+// hasLANBridge reports whether the router serves a LAN. An unreadable answer counts as a
+// LAN, so the normal path is taken when in doubt.
+func (e *Engine) hasLANBridge() bool {
+	out, err := e.cl.RunRaw(lanBridgeProbeScript, 20*time.Second)
+	if err != nil {
+		return true
+	}
+	for _, line := range strings.Split(out, "\n") {
+		if v, ok := strings.CutPrefix(strings.TrimSpace(line), "N="); ok {
+			return strings.TrimSpace(v) != "0"
+		}
+	}
+	return true
 }
 
 // freeLicenseETA estimates how long n bytes take at the CHR free-license rate.

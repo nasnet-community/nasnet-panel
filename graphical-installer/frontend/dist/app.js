@@ -442,14 +442,18 @@
       routerBoard = info.board || '';
       var el = $('router-info');
       el.innerHTML = '';
+      var isCHRBoard = info.board === 'CHR';
       var facts = [
-        info.chr ? 'Board: CHR (Cloud Hosted Router)' : 'Board: ' + info.board,
+        isCHRBoard ? 'Board: CHR (Cloud Hosted Router)' : 'Board: ' + info.board,
         'Arch: ' + info.arch,
         'RouterOS ' + info.version,
         info.freeMb + ' MB free',
       ];
-      if (info.chr && info.license) {
+      if (isCHRBoard && info.license) {
         facts.push('License: ' + info.license + (info.license === 'free' ? ' (1 Mbit/s per interface)' : ''));
+      }
+      if (info.chr) {
+        facts.push('No LAN bridge: panel on the router address over HTTPS');
       }
       if (info.storage) {
         facts.push(
