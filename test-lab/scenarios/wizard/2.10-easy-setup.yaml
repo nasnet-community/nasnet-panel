@@ -1,0 +1,48 @@
+id: '2.10-easy-setup'
+stage: wizard
+title: Minimal wizard inputs give a working, leak-free setup
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }
+  traffic:
+    - { from: split, to: domestic-host, exits: domestic }
+    - {
+        from: split,
+        to: foreign-host,
+        exits: starlink,
+        known_bug: Split without a VPN client blackholes foreign traffic,
+      }
+  leak:
+    starlink_to_domestic: true

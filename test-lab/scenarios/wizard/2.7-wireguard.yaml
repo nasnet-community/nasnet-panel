@@ -1,0 +1,19 @@
+id: '2.7-wireguard'
+stage: wizard
+title: Internet works through a WireGuard client and tunnel traffic shows the VPN IP
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [wireguard] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wireguard_client: true
+  wait_domestic_list: true
+expect:
+  tunnels:
+    - { type: wireguard, up: true }
+  traffic:
+    - { from: split, to: foreign-host, exits: vpn }
+    - { from: split, to: domestic-host, exits: domestic }
+    - { from: router, to: foreign-host, exits: vpn }
+  leak:
+    starlink_to_domestic: true

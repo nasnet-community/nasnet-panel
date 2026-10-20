@@ -1,0 +1,22 @@
+id: 'P3.3-panel-restart'
+stage: resilience
+title: Panel restart mid-install converges to the real router state
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: api
+    api: { method: POST, path: /api/plugin/install, body: { id: lab-echo }, status: 200 }
+  - do: restart_panel
+expect:
+  plugins:
+    - { id: lab-echo, installed: false, within: 1m }
+  container:
+    - name: lab-echo
+      present: false

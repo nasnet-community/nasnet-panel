@@ -1,0 +1,38 @@
+id: '2.2-applied-report'
+stage: wizard
+title: Every config section is applied
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }

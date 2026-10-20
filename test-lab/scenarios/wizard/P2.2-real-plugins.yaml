@@ -1,0 +1,30 @@
+id: 'P2.2-real-plugins'
+stage: wizard
+title: Real community plugins install and run
+profiles: [chr-x86]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar, internet] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: telegram-mtproto }
+  - do: plugin_install
+    with: { id: xray-server }
+  - do: plugin_install
+    with: { id: deltachat-madmail }
+  - do: plugin_install
+    with: { id: ooni-probe }
+  - do: plugin_install
+    with: { id: nasnet-monitor }
+expect:
+  plugins:
+    - { id: telegram-mtproto, installed: true, running: true, within: 5m }
+    - { id: xray-server, installed: true, running: true, within: 5m }
+    - { id: deltachat-madmail, installed: true, running: true, within: 5m }
+    - { id: ooni-probe, installed: true, running: true, within: 5m }
+    - { id: nasnet-monitor, installed: true, running: true, within: 5m }

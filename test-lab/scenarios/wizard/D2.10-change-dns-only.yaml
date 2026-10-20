@@ -1,0 +1,34 @@
+id: 'D2.10-change-dns-only'
+stage: wizard
+title: Changing a DNS IP changes DNS only, not failover
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api:
+      method: POST
+      path: /api/dns/change
+      body: { oldIp: 1.1.1.1, newIp: 208.67.222.222 }
+      status: 200
+      json:
+        {
+          updatedNetwatchProbes.#: '0',
+          updatedDstAddressRoutes.#: '0',
+          updatedGatewayRoutes.#: '0',
+        }
+      known_bug: Changing a DNS IP also rewrites failover probes and routes
+expect:
+  values:
+    - path: /ip/dns/forwarders
+      where: { name: Foreign }
+      fields: { dns-servers: '~208.67.222.222' }
+    - path: /tool/netwatch
+      where: { host: 1.1.1.1 }
+      count: 1
+      known_bug: Changing a DNS IP also rewrites failover probes and routes
+  dns:
+    - { from: split, name: s4i.co, resolver: foreign-alt, exits: starlink }

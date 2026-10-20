@@ -1,0 +1,15 @@
+id: 'E12-user-id'
+stage: wizard
+title: Both IP list scripts send the router's own random id
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  values:
+    - path: /system/script
+      where: { name: DomesticIPUpdate-OneTime }
+      fields: { source: '!~4972616e-6973-746f-6265-7265626f726e' }
+      known_bug: The one-time IP list script sends a shared hardcoded user id

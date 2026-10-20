@@ -1,0 +1,14 @@
+id: 'E11-wifi-country'
+stage: wizard
+title: WiFi regulatory country defaults to Iran
+profiles: [all]
+requires: { roles: [starlink, domestic, split], capabilities: [wifi] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wifi: { ssid: LabWiFi, password: labwifi123 }
+expect:
+  values:
+    - path: /interface/wifi
+      fields: { configuration.country: '~Iran' }
+      known_bug: The wizard hardcodes the United States as the WiFi country
