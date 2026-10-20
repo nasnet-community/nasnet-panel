@@ -527,7 +527,7 @@ func wizardBridgePorts(data *WizardSaveData) []db.BridgePort {
 				name = data.WifiAPs[j].NameToSet
 			}
 		}
-		ports = append(ports, db.BridgePort{Bridge: wizardLANBridge, Interface: name, Comment: wizardBridgePortComment, Enabled: true})
+		ports = append(ports, db.BridgePort{Bridge: wizardLANBridge, Interface: name, DefaultName: port.DefaultName, Comment: wizardBridgePortComment, Enabled: true})
 	}
 
 	return ports

@@ -39,14 +39,7 @@ func SaveConfig(ctx context.Context, conn *sqlx.DB, cfg *Config) error {
 }
 
 func saveConfigImpl(ctx context.Context, tx *sqlx.Tx, cfg *Config) error {
-	wanTypes := make([]string, 0, len(cfg.WANs))
-	for i := range cfg.WANs {
-		if err := upsertWANImpl(ctx, tx, &cfg.WANs[i]); err != nil {
-			return err
-		}
-		wanTypes = append(wanTypes, cfg.WANs[i].Type)
-	}
-	if err := deleteMissing(ctx, tx, "wans", "type", wanTypes, ""); err != nil {
+	if err := saveWANs(ctx, tx, cfg.WANs); err != nil {
 		return err
 	}
 
@@ -72,25 +65,11 @@ func saveConfigImpl(ctx context.Context, tx *sqlx.Tx, cfg *Config) error {
 		return err
 	}
 
-	wifiNames := make([]string, 0, len(cfg.WiFis))
-	for i := range cfg.WiFis {
-		if err := upsertWiFiImpl(ctx, tx, &cfg.WiFis[i]); err != nil {
-			return err
-		}
-		wifiNames = append(wifiNames, cfg.WiFis[i].Name)
-	}
-	if err := deleteMissing(ctx, tx, "wifis", "name", wifiNames, ""); err != nil {
+	if err := saveWiFis(ctx, tx, cfg.WiFis); err != nil {
 		return err
 	}
 
-	bridgeInterfaces := make([]string, 0, len(cfg.BridgePorts))
-	for i := range cfg.BridgePorts {
-		if err := upsertBridgePortImpl(ctx, tx, &cfg.BridgePorts[i]); err != nil {
-			return err
-		}
-		bridgeInterfaces = append(bridgeInterfaces, cfg.BridgePorts[i].Interface)
-	}
-	if err := deleteMissing(ctx, tx, "bridge_ports", "interface", bridgeInterfaces, ""); err != nil {
+	if err := saveBridgePorts(ctx, tx, cfg.BridgePorts); err != nil {
 		return err
 	}
 
@@ -139,4 +118,67 @@ func saveConfigImpl(ctx context.Context, tx *sqlx.Tx, cfg *Config) error {
 		return fmt.Errorf("failed to disable the VPN servers: %w", err)
 	}
 	return nil
+}
+
+// NetworkConfig is the WANs, WiFi interfaces and bridge ports of a router.
+type NetworkConfig struct {
+	WANs        []WAN
+	WiFis       []WiFi
+	BridgePorts []BridgePort
+}
+
+// SaveNetworkConfig makes the stored WANs, WiFis and bridge ports match cfg in one transaction.
+// Rows no longer in cfg are removed.
+func SaveNetworkConfig(ctx context.Context, conn *sqlx.DB, cfg *NetworkConfig) error {
+	tx, err := conn.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	err = saveWANs(ctx, tx, cfg.WANs)
+	if err == nil {
+		err = saveWiFis(ctx, tx, cfg.WiFis)
+	}
+	if err == nil {
+		err = saveBridgePorts(ctx, tx, cfg.BridgePorts)
+	}
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func saveWANs(ctx context.Context, tx *sqlx.Tx, wans []WAN) error {
+	wanTypes := make([]string, 0, len(wans))
+	for i := range wans {
+		if err := upsertWANImpl(ctx, tx, &wans[i]); err != nil {
+			return err
+		}
+		wanTypes = append(wanTypes, wans[i].Type)
+	}
+	return deleteMissing(ctx, tx, "wans", "type", wanTypes, "")
+}
+
+func saveWiFis(ctx context.Context, tx *sqlx.Tx, wifis []WiFi) error {
+	wifiNames := make([]string, 0, len(wifis))
+	for i := range wifis {
+		if err := upsertWiFiImpl(ctx, tx, &wifis[i]); err != nil {
+			return err
+		}
+		wifiNames = append(wifiNames, wifis[i].Name)
+	}
+	return deleteMissing(ctx, tx, "wifis", "name", wifiNames, "")
+}
+
+func saveBridgePorts(ctx context.Context, tx *sqlx.Tx, ports []BridgePort) error {
+	bridgeInterfaces := make([]string, 0, len(ports))
+	for i := range ports {
+		if err := upsertBridgePortImpl(ctx, tx, &ports[i]); err != nil {
+			return err
+		}
+		bridgeInterfaces = append(bridgeInterfaces, ports[i].Interface)
+	}
+	return deleteMissing(ctx, tx, "bridge_ports", "interface", bridgeInterfaces, "")
 }

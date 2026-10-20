@@ -18,13 +18,16 @@
 /interface/macvlan/remove [find name=$mcName]
 }
 /interface set $oldIface name="$oldDefaultName" comment="Split"
+:local oldNewName $oldDefaultName
+{{ range $defaultName, $name := .OldWiFiNames }}:if ($oldDefaultName = "{{ $defaultName }}") do={ :set oldNewName "{{ $name }}" }
+{{ end }}:if ($oldNewName != $oldDefaultName) do={ /interface set $oldIface name=$oldNewName }
 :if ($oldType = "wifi") do={
 :local wlanMac  [/interface get [/interface find where default-name=$oldDefaultName] mac-address];
 :local ssid "MikroTik-$[:pick $wlanMac 9 11]$[:pick $wlanMac 12 14]$[:pick $wlanMac 15 17]"
 /interface wifi set $oldIface configuration.mode=ap configuration.ssid=$ssid
 }
-:if ([:len [/interface bridge port find where interface="$oldDefaultName"] ] = 0) do={
-/interface bridge port add bridge=LANBridgeSplit interface="$oldDefaultName" comment="Split"
+:if ([:len [/interface bridge port find where interface="$oldNewName"] ] = 0) do={
+/interface bridge port add bridge=LANBridgeSplit interface="$oldNewName" comment="Split"
 }
 }
 
@@ -134,3 +137,4 @@ distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
 add dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-$newIfaceName-Domestic Link" \
 routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
 {{ end }}
+:global ChangeWANDone "{{ .DoneToken }}"

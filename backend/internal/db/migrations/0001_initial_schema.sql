@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS bridge_ports (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     bridge     TEXT NOT NULL,
     interface  TEXT NOT NULL UNIQUE,
+    default_name TEXT NOT NULL DEFAULT '',
     comment    TEXT NOT NULL DEFAULT '',
     enabled    INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP

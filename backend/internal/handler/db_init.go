@@ -92,9 +92,7 @@ func syncExistingConfig(ctx context.Context, client *routeros.Client, conn *sqlx
 		name string
 		run  func(context.Context, *routeros.Client, *sqlx.DB) error
 	}{
-		{"WAN links", syncExistingWANs},
-		{"WiFi interfaces", syncExistingWiFis},
-		{"bridge ports", syncExistingBridgePorts},
+		{"WANs, WiFi interfaces and bridge ports", syncExistingNetwork},
 		{"VPN clients", syncExistingVPNClients},
 		{"WireGuard interfaces", syncExistingWireGuardInterfaces},
 		{"OpenVPN servers", syncExistingOvpnServers},
@@ -285,12 +283,12 @@ func wanTypeFromComment(comment *string) (string, bool) {
 	return "", false
 }
 
-func syncExistingWANs(ctx context.Context, client *routeros.Client, conn *sqlx.DB) error {
-	var errs []error
+func routerNetworkConfig(client *routeros.Client) (*db.NetworkConfig, error) {
+	cfg := &db.NetworkConfig{}
 
 	ethernets, err := client.GetEthernetInterfaces()
 	if err != nil {
-		errs = append(errs, err)
+		return nil, err
 	}
 	for i := range ethernets {
 		wanType, ok := wanTypeFromComment(ethernets[i].Comment)
@@ -301,56 +299,44 @@ func syncExistingWANs(ctx context.Context, client *routeros.Client, conn *sqlx.D
 		if ethernets[i].DefaultName != nil && *ethernets[i].DefaultName != "" {
 			name = *ethernets[i].DefaultName
 		}
-		errs = append(errs, db.UpsertWAN(ctx, conn, &db.WAN{
-			Type:          wanType,
-			InterfaceType: string(routeros.InterfaceTypeEther),
-			Interface:     name,
-		}))
+		cfg.WANs = append(cfg.WANs, db.WAN{Type: wanType, InterfaceType: string(routeros.InterfaceTypeEther), Interface: name})
 	}
 
 	wifis, err := client.ListWifiInterfaces()
-	if err != nil {
-		errs = append(errs, err)
+	if err != nil && !strings.Contains(err.Error(), "no WiFi package") {
+		return nil, err
 	}
-	for i := range wifis {
-		comment := wifis[i].Comment
-		wanType, ok := wanTypeFromComment(&comment)
-		if !ok {
+
+	ports, err := client.ListAllBridgePorts()
+	if err != nil {
+		return nil, err
+	}
+	defaultNames, err := interfaceDefaultNames(client)
+	if err != nil {
+		return nil, err
+	}
+	bridged := make(map[string]bool)
+	for i := range ports {
+		if !strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
 			continue
 		}
-		errs = append(errs, db.UpsertWAN(ctx, conn, &db.WAN{
-			Type:          wanType,
-			InterfaceType: string(routeros.InterfaceTypeWiFi),
-			Interface:     wifis[i].DefaultName,
-		}))
+		cfg.BridgePorts = append(cfg.BridgePorts, *bridgePortRecord(&ports[i], defaultNames))
+		if ports[i].Bridge == wizardLANBridge {
+			bridged[ports[i].Interface] = true
+		}
 	}
 
-	return errors.Join(errs...)
-}
-
-func syncExistingWiFis(ctx context.Context, client *routeros.Client, conn *sqlx.DB) error {
-	wifis, err := client.ListWifiInterfaces()
-	if err != nil {
-		return err
-	}
-
-	bridged := make(map[string]bool)
-	ports, err := client.ListBridgePorts(wizardLANBridge)
-	if err != nil {
-		return err
-	}
-	for i := range ports {
-		bridged[ports[i].Interface] = true
-	}
-
-	var errs []error
 	for i := range wifis {
 		w := &wifis[i]
+		comment := w.Comment
+		if wanType, ok := wanTypeFromComment(&comment); ok {
+			cfg.WANs = append(cfg.WANs, db.WAN{Type: wanType, InterfaceType: string(routeros.InterfaceTypeWiFi), Interface: w.DefaultName})
+		}
 		if w.Name == managementWifiName || w.SSID == "" || !validWifiMode(w.Mode) {
 			continue
 		}
 
-		record := &db.WiFi{
+		record := db.WiFi{
 			Name:        w.Name,
 			DefaultName: w.DefaultName,
 			SSID:        w.SSID,
@@ -366,10 +352,19 @@ func syncExistingWiFis(ctx context.Context, client *routeros.Client, conn *sqlx.
 		if bridged[w.Name] {
 			record.Bridge = wizardLANBridge
 		}
-		errs = append(errs, db.UpsertWiFi(ctx, conn, record))
+		cfg.WiFis = append(cfg.WiFis, record)
 	}
 
-	return errors.Join(errs...)
+	return cfg, nil
+}
+
+func syncExistingNetwork(ctx context.Context, client *routeros.Client, conn *sqlx.DB) error {
+	cfg, err := routerNetworkConfig(client)
+	if err != nil {
+		return err
+	}
+
+	return db.SaveNetworkConfig(ctx, conn, cfg)
 }
 
 func validWifiMode(mode string) bool {
@@ -378,21 +373,4 @@ func validWifiMode(mode string) bool {
 		return true
 	}
 	return false
-}
-
-func syncExistingBridgePorts(ctx context.Context, client *routeros.Client, conn *sqlx.DB) error {
-	ports, err := client.ListAllBridgePorts()
-	if err != nil {
-		return err
-	}
-
-	var errs []error
-	for i := range ports {
-		if !strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
-			continue
-		}
-		errs = append(errs, db.UpsertBridgePort(ctx, conn, bridgePortRecord(&ports[i])))
-	}
-
-	return errors.Join(errs...)
 }

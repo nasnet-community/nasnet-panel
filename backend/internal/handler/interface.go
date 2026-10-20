@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"nasnet-panel/pkg/utils"
 
@@ -406,10 +408,20 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		req.Interface = *iface.DefaultName
 	}
 
-	script, err := utils.RenderTemplate("change_wan.tmpl", req)
+	doneToken := strconv.FormatInt(time.Now().UnixNano(), 10)
+	script, err := utils.RenderTemplate("change_wan.tmpl", wanChangeTemplateData{
+		UpdateWANInterfaceRequest: req,
+		DoneToken:                 doneToken,
+		OldWiFiNames:              oldWANWiFiNames(client, req.Type),
+	})
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render change_wan template", err)
 	}
+
+	defer func() {
+		waitForScriptDone(client, wanChangeDoneVariable, doneToken)
+		persistNetworkConfig(c, client)
+	}()
 
 	if err := client.ExecuteScriptString(script); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute WAN change script", err)
@@ -419,6 +431,31 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		"interface": req.Interface,
 		"type":      req.Type,
 	})
+}
+
+func oldWANWiFiNames(client *routeros.Client, wanType string) map[string]string {
+	names := make(map[string]string)
+
+	wifis, err := client.ListWifiInterfaces()
+	if err != nil {
+		return names
+	}
+	radios, err := client.GetWiFiRadios()
+	if err != nil {
+		return names
+	}
+
+	for i := range wifis {
+		comment := wifis[i].Comment
+		if t, ok := wanTypeFromComment(&comment); !ok || t != wanType || wifis[i].DefaultName == "" {
+			continue
+		}
+		if band := getWifiBandFromRadios(radios, wifis[i].Name); band != "" {
+			names[wifis[i].DefaultName] = fmt.Sprintf("wifi-%sGhz", band)
+		}
+	}
+
+	return names
 }
 
 // HandleGetInterfaceGraph returns traffic statistics for a specific interface.
