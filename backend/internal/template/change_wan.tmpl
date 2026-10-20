@@ -33,7 +33,7 @@
 
 #reset new
 :delay 1s
-:local newIface [/interface/find where default-name="{{ .Interface }}"]
+:local newIface [/interface/find where name="{{ .Interface }}" or default-name="{{ .Interface }}"]
 :local newIfaceName [/interface/get $newIface name]
 :local newDefaultName [/interface/get $newIface default-name]
 :local newType [/interface/get $newIface type]
@@ -50,6 +50,7 @@
 }
 
 /interface set $newIface name="$newDefaultName" comment=""
+:set newIfaceName $newDefaultName
 /interface bridge port remove [find interface="$newDefaultName"]
 
 {{ if eq .Type "foreign" }}
