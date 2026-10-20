@@ -418,14 +418,11 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render change_wan template", err)
 	}
 
-	defer func() {
-		waitForScriptDone(client, wanChangeDoneVariable, doneToken)
-		persistNetworkConfig(c, client)
-	}()
-
 	if err := client.ExecuteScriptString(script); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute WAN change script", err)
 	}
+
+	go persistNetworkConfigWhenDone(client, wanChangeDoneVariable, doneToken)
 
 	return SuccessResponse(c, http.StatusOK, "WAN interface configured successfully", map[string]interface{}{
 		"interface": req.Interface,

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"nasnet-panel/internal/db"
@@ -32,13 +33,19 @@ const (
 	scriptDonePollEvery   = 500 * time.Millisecond
 )
 
-func waitForScriptDone(client *routeros.Client, variable, token string) {
-	deadline := time.Now().Add(scriptDoneTimeout)
-	for time.Now().Before(deadline) {
+func waitForScriptDone(ctx context.Context, client *routeros.Client, variable, token string) bool {
+	ticker := time.NewTicker(scriptDonePollEvery)
+	defer ticker.Stop()
+
+	for {
 		if value, err := client.GetEnvironmentVariable(variable); err == nil && value == token {
-			return
+			return true
 		}
-		time.Sleep(scriptDonePollEvery)
+		select {
+		case <-ctx.Done():
+			return false
+		case <-ticker.C:
+		}
 	}
 }
 
@@ -76,14 +83,22 @@ func persistBridgePort(c echo.Context, client *routeros.Client, iface, bridge st
 	})
 }
 
-func persistNetworkConfig(c echo.Context, client *routeros.Client) {
-	cfg, err := routerNetworkConfig(client)
-	if err != nil {
-		c.Logger().Errorf("Failed to read the network configuration for the database: %v", err)
+func persistNetworkConfigWhenDone(client *routeros.Client, variable, token string) {
+	ctx, cancel := context.WithTimeout(context.Background(), scriptDoneTimeout)
+	defer cancel()
+
+	if !waitForScriptDone(ctx, client, variable, token) {
+		log.Printf("The %s script did not finish in time, its changes were not saved to the database", variable)
 		return
 	}
 
-	withRouterDB(c, client, "save the network configuration", func(ctx context.Context, conn *sqlx.DB) error {
+	cfg, err := routerNetworkConfig(client)
+	if err != nil {
+		log.Printf("Failed to read the network configuration for the database: %v", err)
+		return
+	}
+
+	persistInRouterDB(ctx, log.Printf, client, "save the network configuration", func(ctx context.Context, conn *sqlx.DB) error {
 		return db.SaveNetworkConfig(ctx, conn, cfg)
 	})
 }

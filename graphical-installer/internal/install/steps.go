@@ -55,10 +55,14 @@ func (e *Engine) stepCheck() error {
 			freeBytes, _ = strconv.ParseInt(strings.TrimPrefix(line, "F="), 10, 64)
 		}
 	}
+	e.sys.Version = strings.TrimSpace(e.sys.Version)
 	e.sys.FreeMB = freeBytes / 1024 / 1024
 	e.ev.SysInfo(e.sys)
 	e.log("board %s, arch %s, RouterOS %s, %d MB free", e.sys.Board, e.sys.Arch, e.sys.Version, e.sys.FreeMB)
 
+	if !rosVersionRe.MatchString(e.sys.Version) {
+		return fmt.Errorf("could not parse the RouterOS version %q reported by the router", e.sys.Version)
+	}
 	if _, err := assetSuffix(e.sys.Arch); err != nil {
 		return err
 	}
