@@ -37,3 +37,11 @@ func upsertBridgePortImpl(ctx context.Context, ext sqlx.ExtContext, port *Bridge
 	}
 	return nil
 }
+
+// DeleteBridgePort removes the stored port of the given interface, if there is one.
+func DeleteBridgePort(ctx context.Context, conn *sqlx.DB, iface string) error {
+	if _, err := conn.ExecContext(ctx, `DELETE FROM bridge_ports WHERE interface = ?`, iface); err != nil {
+		return fmt.Errorf("failed to delete bridge port %s: %w", iface, err)
+	}
+	return nil
+}

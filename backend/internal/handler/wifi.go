@@ -407,6 +407,8 @@ func HandleChangeWiFiPassphrase(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to change WiFi passphrase", err)
 	}
 
+	persistWiFi(c, client, name)
+
 	return SimpleSuccessResponse(c, http.StatusOK, "WiFi passphrase changed")
 }
 
@@ -462,6 +464,7 @@ func HandleUpdateWiFiInterface(c echo.Context) error {
 			}
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to enable WiFi interface", err)
 		}
+		persistWiFi(c, client, name)
 		return SimpleSuccessResponse(c, http.StatusOK, "WiFi interface enabled")
 	}
 
@@ -473,6 +476,7 @@ func HandleUpdateWiFiInterface(c echo.Context) error {
 			}
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to disable WiFi interface", err)
 		}
+		persistWiFi(c, client, name)
 		return SimpleSuccessResponse(c, http.StatusOK, "WiFi interface disabled")
 	}
 
@@ -570,6 +574,8 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WiFi settings", err)
 	}
 
+	persistWiFi(c, client, name)
+
 	// Fetch updated interface to return in response
 	updated, err := client.GetWifiInterface(name)
 	if err == nil && updated != nil {
@@ -657,6 +663,8 @@ func HandleConnectWiFi(c echo.Context) error {
 		}
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to access point", err)
 	}
+
+	persistWiFi(c, client, iface.Name)
 
 	response := WiFiConnectResponse{
 		InterfaceName: iface.Name,
@@ -799,6 +807,8 @@ func HandleCreateVirtualWiFiInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve created virtual WiFi interface", err)
 	}
 
+	persistVirtualWiFi(c, client, iface, master.DefaultName, req.Bridge)
+
 	response := ToWiFiInterfaceResponse(iface)
 	return SuccessResponse(c, http.StatusOK, "Virtual WiFi interface created successfully", response)
 }
@@ -846,12 +856,15 @@ func HandleDeleteVirtualWiFiInterface(c echo.Context) error {
 		if err := client.RemoveBridgePort(ports[i].Bridge, iface.Name); err != nil {
 			return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove bridge port", err)
 		}
+		removeBridgePortFromDB(c, client, iface.Name)
 		break
 	}
 
 	if err := client.RemoveWifiInterface(iface.Name); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove virtual WiFi interface", err)
 	}
+
+	removeWiFiFromDB(c, client, iface.Name)
 
 	return SuccessResponse(c, http.StatusOK, "Virtual WiFi interface deleted successfully", nil)
 }

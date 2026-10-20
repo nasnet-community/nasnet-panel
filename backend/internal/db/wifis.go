@@ -61,3 +61,11 @@ func UpdateWiFiBridge(ctx context.Context, conn *sqlx.DB, name, bridge string) e
 	}
 	return nil
 }
+
+// DeleteWiFi removes the stored WiFi with the given name, if there is one.
+func DeleteWiFi(ctx context.Context, conn *sqlx.DB, name string) error {
+	if _, err := conn.ExecContext(ctx, `DELETE FROM wifis WHERE name = ?`, name); err != nil {
+		return fmt.Errorf("failed to delete WiFi %s: %w", name, err)
+	}
+	return nil
+}
