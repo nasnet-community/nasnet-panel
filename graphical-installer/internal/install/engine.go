@@ -50,14 +50,24 @@ const (
 	minROSMajor       = 7
 	minROSMinor       = 24
 	deviceModeTimeout = 120 * time.Second
-	updateTimeout     = 10 * time.Minute
-	startTimeout      = 120 * time.Second
-	stopTimeout       = 60 * time.Second
-	baselineTimeout   = 30 * time.Second
-	rebootSettle      = 15 * time.Second
-	rebootTimeout     = 5 * time.Minute
-	downloadAttempts  = 3
-	downloadRetryWait = 3 * time.Second
+	// A CHR confirms device-mode with a cold boot of the VM from the hypervisor, which takes
+	// longer than pressing a button. RouterOS accepts the window as activation-timeout.
+	chrDeviceModeTimeout = 10 * time.Minute
+	// chrBoardName is what /system/resource reports on a Cloud Hosted Router.
+	chrBoardName = "CHR"
+	// chrFreeLicense is the CHR license level that caps each interface at 1 Mbit/s.
+	chrFreeLicense    = "free"
+	chrFreeLicenseBps = 1_000_000 / 8
+	// containerRouterRule is the input accept the baseline adds on a CHR for the container.
+	containerRouterRule = "nasnet-panel-baseline-container-router"
+	updateTimeout       = 10 * time.Minute
+	startTimeout        = 120 * time.Second
+	stopTimeout         = 60 * time.Second
+	baselineTimeout     = 30 * time.Second
+	rebootSettle        = 15 * time.Second
+	rebootTimeout       = 5 * time.Minute
+	downloadAttempts    = 3
+	downloadRetryWait   = 3 * time.Second
 )
 
 type Options struct {
@@ -82,6 +92,16 @@ type SystemInfo struct {
 	FreeMB        int64  `json:"freeMb"`
 	Storage       string `json:"storage"`
 	StorageFreeMB int64  `json:"storageFreeMb"`
+	// CHR is true on a Cloud Hosted Router, where the installer takes the CHR path.
+	CHR bool `json:"chr"`
+	// License is the CHR license level (free, p1, p10, p-unlimited), empty elsewhere.
+	License string `json:"license"`
+}
+
+// DeviceModePromptInfo tells the frontend how the device-mode change is confirmed.
+type DeviceModePromptInfo struct {
+	TimeoutSeconds int  `json:"timeout"`
+	CHR            bool `json:"chr"`
 }
 
 type StorageChoice struct {
@@ -100,7 +120,7 @@ type Events struct {
 	Log              func(line string)
 	Progress         func(id string, percent float64, detail string)
 	SysInfo          func(info SystemInfo)
-	DeviceModePrompt func() bool
+	DeviceModePrompt func(info DeviceModePromptInfo) bool
 	DeviceModeTick   func(remaining int, routerState string)
 	DeviceModeDone   func()
 	RebootNotice     func(reason string)
@@ -137,6 +157,7 @@ type Engine struct {
 	pkgInstalled    bool
 	containerActive bool
 	finalPort       int
+	finalHTTPSPort  int
 	baselineApplied bool
 
 	wifi    *wifiUplink
@@ -261,11 +282,18 @@ func (e *Engine) finish() {
 	if port == 0 {
 		port = e.opts.LANPort
 	}
+	httpsPort := e.finalHTTPSPort
+	if httpsPort == 0 {
+		httpsPort = e.opts.HTTPSLANPort
+	}
 	var urls []string
 	var note string
 	switch {
 	case e.opts.DryRun:
 		note = "Dry run complete, no changes were made."
+	case e.sys.CHR:
+		urls = []string{fmt.Sprintf("https://%s:%d/", e.opts.Host, httpsPort)}
+		note = fmt.Sprintf("The panel is published on this CHR's own address over HTTPS, so it is reachable from the internet. Use a strong router password. HTTP on port %d answers only from private addresses (192.168.0.0/16), for example over a VPN.", port)
 	case e.baselineApplied:
 		urls = []string{
 			fmt.Sprintf("http://%s:%d/", lanBridgeIP, port),
@@ -464,6 +492,45 @@ func assetSuffix(arch string) (string, error) {
 		return "armv7", nil
 	default:
 		return "", fmt.Errorf("unsupported architecture: %s (need arm, arm64, or x86_64)", arch)
+	}
+}
+
+// deviceModeWindow is how long the installer waits for the device-mode confirmation.
+func (e *Engine) deviceModeWindow() time.Duration {
+	if e.sys.CHR {
+		return chrDeviceModeTimeout
+	}
+	return deviceModeTimeout
+}
+
+// freeLicenseETA estimates how long n bytes take at the CHR free-license rate.
+func freeLicenseETA(n int64) time.Duration {
+	return (time.Duration(n/chrFreeLicenseBps) * time.Second).Round(time.Minute)
+}
+
+// transferProgress returns a progress callback for an upload that reports the rate and the
+// time left next to the byte counts.
+func (e *Engine) transferProgress(stepID string) func(done, total int64) {
+	start := time.Now()
+	return func(done, total int64) {
+		detail := fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total))
+		if elapsed := time.Since(start); elapsed >= 2*time.Second && done > 0 {
+			rate := float64(done) / elapsed.Seconds()
+			left := time.Duration(float64(total-done)/rate) * time.Second
+			detail += fmt.Sprintf(", %s/s, about %s left", humanBytes(int64(rate)), humanDuration(left))
+		}
+		e.ev.Progress(stepID, float64(done)*100/float64(total), detail)
+	}
+}
+
+func humanDuration(d time.Duration) string {
+	switch {
+	case d >= time.Hour:
+		return fmt.Sprintf("%dh %dm", int(d.Hours()), int(d.Minutes())%60)
+	case d >= time.Minute:
+		return fmt.Sprintf("%dm", int(d.Round(time.Minute).Minutes()))
+	default:
+		return fmt.Sprintf("%ds", int(d.Seconds()))
 	}
 }
 

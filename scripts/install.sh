@@ -33,8 +33,18 @@ MIN_STORAGE_MB=32
 
 LAN_BRIDGE="LANBridgeSplit"
 LAN_BRIDGE_IP="192.168.10.1"
+LAN_DST_NET="192.168.0.0/16"
 LAN_BASELINE_RSC="nasnet-lan-baseline.rsc"
 LAN_BASELINE_REMOTE="${PANEL_DIR}/${LAN_BASELINE_RSC}"
+
+# A CHR (Cloud Hosted Router) is a VM with a public uplink and no LAN. It confirms
+# device-mode with a cold boot from the hypervisor, the free license caps every
+# interface at 1 Mbit/s, and the panel is published on its own address over HTTPS.
+CHR_BOARD_NAME="CHR"
+CHR_FREE_LICENSE="free"
+CHR_FREE_LICENSE_BPS=125000
+CHR_DEVICE_MODE_TIMEOUT=600
+CONTAINER_ROUTER_RULE="nasnet-panel-baseline-container-router"
 
 FALLBACK_DNS_SERVERS="1.1.1.1,1.0.0.1"
 DNS_SETTLE_DELAY=3
@@ -68,6 +78,9 @@ HTTPS_LAN_PORT=8443
 WIFI_UPLINK=0
 WIFI_SSID=""
 WIFI_PASSWORD="${WIFI_PASSWORD:-}"
+CHR_OVERRIDE=""
+IS_CHR=0
+ROUTEROS_LICENSE=""
 
 ROUTER_IP=""
 ROUTER_USER=""
@@ -92,6 +105,8 @@ Usage: install.sh [options]
   --wifi-uplink        Join a WiFi network as the router uplink for the install, removed at the end.
   --wifi-ssid <ssid>   WiFi network to join (default: pick from a scan).
   --wifi-password <pw> WiFi password (default: prompt; empty for an open network).
+  --chr / --no-chr     Force the CHR (Cloud Hosted Router) path on or off. By default it is
+                       taken when the router reports the CHR board.
   --no-rollback        Do not undo partial state on failure.
   -v, --verbose        Verbose output.
   -h, --help           This help.
@@ -134,6 +149,8 @@ while [[ $# -gt 0 ]]; do
     --wifi-uplink)   WIFI_UPLINK=1 ;;
     --wifi-ssid)     WIFI_SSID="${2:?--wifi-ssid requires a name}"; WIFI_UPLINK=1; shift ;;
     --wifi-password) WIFI_PASSWORD="${2?--wifi-password requires a value}"; WIFI_UPLINK=1; shift ;;
+    --chr)         CHR_OVERRIDE=1 ;;
+    --no-chr)      CHR_OVERRIDE=0 ;;
     --no-rollback) NO_ROLLBACK=1 ;;
     -v|--verbose)  VERBOSE=1 ;;
     -h|--help)     usage; exit 0 ;;
@@ -403,11 +420,56 @@ print_router_box() {
   printf '  ╭%s╮\n' "$hline"
   printf '  │  %-*s│\n' $((inner_w-2)) 'MikroTik'
   printf '  │%-*s│\n' $inner_w ''
-  printf '  │  %-*s│\n' $((inner_w-2)) "Board     ${ROUTEROS_BOARD}"
+  if (( IS_CHR )); then
+    printf '  │  %-*s│\n' $((inner_w-2)) "Board     ${ROUTEROS_BOARD} (Cloud Hosted Router)"
+  else
+    printf '  │  %-*s│\n' $((inner_w-2)) "Board     ${ROUTEROS_BOARD}"
+  fi
   printf '  │  %-*s│\n' $((inner_w-2)) "Arch      ${ROUTEROS_ARCH}"
   printf '  │  %-*s│\n' $((inner_w-2)) "RouterOS  ${ROUTEROS_VERSION}"
   printf '  │  %-*s│\n' $((inner_w-2)) "Memory    ${ROUTEROS_FREE_MB} MB free"
+  if (( IS_CHR )); then
+    if [[ "$ROUTEROS_LICENSE" == "$CHR_FREE_LICENSE" ]]; then
+      printf '  │  %-*s│\n' $((inner_w-2)) "License   ${ROUTEROS_LICENSE} (1 Mbit/s per interface)"
+    else
+      printf '  │  %-*s│\n' $((inner_w-2)) "License   ${ROUTEROS_LICENSE:-unknown}"
+    fi
+  fi
   printf '  ╰%s╯\n' "$hline"
+}
+
+# Prints a byte count as MB or KB.
+human_bytes() {
+  local n="$1"
+  if (( n >= 1048576 )); then
+    printf '%d.%d MB' $(( n / 1048576 )) $(( (n % 1048576) * 10 / 1048576 ))
+  elif (( n >= 1024 )); then
+    printf '%d KB' $(( n / 1024 ))
+  else
+    printf '%d B' "$n"
+  fi
+}
+
+# Prints a number of seconds as minutes or seconds.
+human_seconds() {
+  local s="$1"
+  if (( s >= 3600 )); then
+    printf '%dh %dm' $(( s / 3600 )) $(( (s % 3600) / 60 ))
+  elif (( s >= 60 )); then
+    printf '%dm' $(( (s + 30) / 60 ))
+  else
+    printf '%ds' "$s"
+  fi
+}
+
+# Explains a slow transfer to a CHR on the free license. $1 is the size in bytes, $2 what is sent.
+warn_free_license() {
+  local size="$1" what="$2"
+  (( IS_CHR )) && [[ "$ROUTEROS_LICENSE" == "$CHR_FREE_LICENSE" ]] || return 0
+  [[ "$size" =~ ^[0-9]+$ ]] || return 0
+  log "  \033[33m⚠  This CHR runs the free license, which limits every interface to 1 Mbit/s.\033[0m"
+  log "     Uploading the ${what} ($(human_bytes "$size")) can take about $(human_seconds $(( size / CHR_FREE_LICENSE_BPS ))),"
+  log "     and a local image file does not avoid it: the file still has to reach the router."
 }
 
 # ---- rollback --------------------------------------------------------------
@@ -469,7 +531,24 @@ probe() {
   done <<< "$out"
   ROUTEROS_FREE_MB=$(( free_mem / 1024 / 1024 ))
 
+  IS_CHR=0
+  [[ "$ROUTEROS_BOARD" == "$CHR_BOARD_NAME" ]] && IS_CHR=1
+  case "$CHR_OVERRIDE" in
+    1) (( IS_CHR )) || log "  \033[33m⚠  --chr given, but the router reports board ${ROUTEROS_BOARD:-unknown}; taking the CHR path anyway\033[0m"; IS_CHR=1 ;;
+    0) (( IS_CHR )) && log "  \033[33m⚠  --no-chr given on a CHR; taking the normal router path\033[0m"; IS_CHR=0 ;;
+  esac
+  if (( IS_CHR )); then
+    ROUTEROS_LICENSE="$(trim "$(ros_cmd ':do {:put [/system/license/get level]} on-error={}' 2>/dev/null || true)")"
+    ROUTEROS_LICENSE="${ROUTEROS_LICENSE:-unknown}"
+  fi
+
   print_router_box
+
+  if (( IS_CHR )); then
+    log "  CHR path: device-mode is confirmed with a cold boot of the VM, the uplink and the"
+    log "  firewall are left as they are, and the panel is published on the router's own address"
+    log "  over HTTPS."
+  fi
 
   case "$ROUTEROS_ARCH" in
     arm|arm64|x86_64) ;;
@@ -819,6 +898,14 @@ prepare_wan() {
   log ""
   log "Preparing WAN ..."
 
+  if (( IS_CHR )); then
+    if (( WIFI_UPLINK )); then
+      err "a CHR has no WiFi, run the installer without --wifi-uplink"; exit 1
+    fi
+    log "  CHR: the uplink and its address are left as they are"
+    return 0
+  fi
+
   if (( WIFI_UPLINK )); then
     setup_wifi_uplink
     return 0
@@ -1001,6 +1088,7 @@ install_container_package() {
     err "install it via WebFig/Winbox 'System > Packages' instead"
     return 1
   fi
+  warn_free_license "$(file_size "$local_npk")" "container package"
   if ! spin "uploading ${name}" scp_pw "$local_npk" "${ROUTER_USER}@${ROUTER_IP}:${name}"; then
     err "could not upload the container package to the router"; return 1
   fi
@@ -1210,7 +1298,12 @@ enable_device_mode() {
 
   log "  \033[31m✗ device-mode needs ${DM_PENDING}\033[0m"
   log ""
-  log "RouterOS requires physical confirmation when changing device mode."
+  if (( IS_CHR )); then
+    DEVICE_MODE_TIMEOUT="$CHR_DEVICE_MODE_TIMEOUT"
+    log "RouterOS enables container mode on a CHR only after a cold boot of the virtual machine."
+  else
+    log "RouterOS requires physical confirmation when changing device mode."
+  fi
   read -r -p "Proceed? [y/N]: " ans
   [[ "$ans" =~ ^[yY] ]] || { err "aborted by user"; exit 1; }
 
@@ -1222,28 +1315,41 @@ enable_device_mode() {
   log ""
   log "  \033[33m⚠  Action required on the router\033[0m"
   log ""
-  log "  Within the next ${DEVICE_MODE_TIMEOUT}s, do \033[1mone\033[0m of the following:"
-  log ""
-  log "    \033[1m1.\033[0m If your router has a \033[1mreset/mode button\033[0m:"
-  log "       press it briefly while the router is powered on."
-  log ""
-  log "    \033[1m2.\033[0m If your router has \033[1mno button\033[0m (x86 / CHR):"
-  log "       perform a cold power-cycle (unplug power, plug back in)."
+  if (( IS_CHR )); then
+    log "  Within the next $(human_seconds "$DEVICE_MODE_TIMEOUT"):"
+    log ""
+    log "    \033[1m1.\033[0m \033[1mShut the virtual machine down completely\033[0m from your hypervisor"
+    log "       or VPS control panel (Power off / Stop, not Reboot)."
+    log "    \033[1m2.\033[0m Start the virtual machine again."
+    log ""
+    log "    A reboot from inside RouterOS, or a \"soft reboot\" from the provider, does not"
+    log "    count. The installer waits for the router to come back and carries on by itself."
+  else
+    log "  Within the next ${DEVICE_MODE_TIMEOUT}s, do \033[1mone\033[0m of the following:"
+    log ""
+    log "    \033[1m1.\033[0m If your router has a \033[1mreset/mode button\033[0m:"
+    log "       press it briefly while the router is powered on."
+    log ""
+    log "    \033[1m2.\033[0m If your router has \033[1mno button\033[0m (x86):"
+    log "       perform a cold power-cycle (unplug power, plug back in)."
+  fi
   log ""
 
-  ( ros_cmd "/system/device-mode/update ${DM_ALL}" >/dev/null 2>&1 ) &
+  device_mode_update_job &
   local update_pid=$!
 
-  local i=0 elapsed=0 router_state="online"
+  local i=0 start_ts=$SECONDS elapsed=0 last_poll=0 router_state="online" waiting_for
+  if (( IS_CHR )); then waiting_for="the VM to come back"; else waiting_for="physical confirmation"; fi
   tput civis 2>/dev/null || true
   while (( elapsed < DEVICE_MODE_TIMEOUT )); do
-    printf '\r  %s waiting for physical confirmation ... %3ds left  [router: %-7s] ' \
-           "${SPIN_FRAMES[i % ${#SPIN_FRAMES[@]}]}" $((DEVICE_MODE_TIMEOUT - elapsed)) "$router_state"
+    elapsed=$(( SECONDS - start_ts ))
+    printf '\r  %s waiting for %s ... %3ds left  [router: %-7s] ' \
+           "${SPIN_FRAMES[i % ${#SPIN_FRAMES[@]}]}" "$waiting_for" $(( DEVICE_MODE_TIMEOUT - elapsed > 0 ? DEVICE_MODE_TIMEOUT - elapsed : 0 )) "$router_state"
     i=$(( i + 1 ))
     sleep 0.5
-    elapsed=$(( elapsed + 1 ))
 
-    if (( elapsed % 4 == 0 )); then
+    if (( elapsed - last_poll >= 2 )); then
+      last_poll=$elapsed
       if raw="$(ros_cmd ':put [/system/device-mode/get]' 2>/dev/null)"; then
         router_state="online"
         raw="$(trim "$raw")"
@@ -1264,7 +1370,28 @@ enable_device_mode() {
   kill "$update_pid" 2>/dev/null || true
   wait "$update_pid" 2>/dev/null || true
   err "device-mode change not confirmed within ${DEVICE_MODE_TIMEOUT}s"
+  if (( IS_CHR )); then
+    err "shut the VM down completely and start it again from the hypervisor, then run the installer again"
+    err "after three failed attempts RouterOS needs one more cold boot before it accepts a new attempt"
+  fi
   exit 1
+}
+
+# Runs the blocking device-mode update; RouterOS waits for the confirmation inside it. On a
+# CHR it asks for the longer window with activation-timeout first and falls back to the
+# router's default window when the router rejects the parameter right away.
+device_mode_update_job() {
+  local out started
+  if (( IS_CHR )); then
+    started=$SECONDS
+    out="$(ros_cmd "/system/device-mode/update ${DM_ALL} activation-timeout=$(( CHR_DEVICE_MODE_TIMEOUT / 60 ))m" 2>&1)" || true
+    if ! grep -qiE 'syntax error|input does not match|no such argument|bad command name|expected end of command' <<< "$out"; then
+      return 0
+    fi
+    (( SECONDS - started > 10 )) && return 0
+    v "the router did not accept activation-timeout, using its default confirmation window"
+  fi
+  ros_cmd "/system/device-mode/update ${DM_ALL}" >/dev/null 2>&1 || true
 }
 
 # ---- image download --------------------------------------------------------
@@ -1381,6 +1508,10 @@ ensure_panel_dirs() {
   ros_ensure_dir "$(storage_path "${PANEL_DIR}/containers")"
 }
 
+file_size() {
+  stat -f %z "$1" 2>/dev/null || stat -c %s "$1" 2>/dev/null || true
+}
+
 upload_tar() {
   local local_path="$1"
   local remote_path; remote_path="$(storage_path "${TAR_SUBDIR}/${ASSET_NAME}")"
@@ -1388,7 +1519,7 @@ upload_tar() {
   ensure_panel_dirs
 
   local local_size remote_size
-  local_size="$(stat -f %z "$local_path" 2>/dev/null || stat -c %s "$local_path" 2>/dev/null)"
+  local_size="$(file_size "$local_path")"
 
   if ros_exists /file "name=\"${remote_path}\""; then
     remote_size="$(trim "$(ros_cmd ":put [/file/get [find name=\"${remote_path}\"] size]" 2>/dev/null || true)")"
@@ -1401,12 +1532,17 @@ upload_tar() {
       ros_cmd "/file/remove [find name=\"${remote_path}\"]" >/dev/null 2>&1 || true
     fi
   fi
-  log "Uploading $(basename "$local_path") -> ${remote_path} ..."
+  warn_free_license "$local_size" "image"
+  log "Uploading $(basename "$local_path") ($(human_bytes "${local_size:-0}")) -> ${remote_path} ..."
   if (( DRY_RUN )); then
     log "[dry-run] scp upload"
     return 0
   fi
+  local started=$SECONDS
   scp_pw "$local_path" "${ROUTER_USER}@${ROUTER_IP}:${remote_path}"
+  if [[ "$local_size" =~ ^[0-9]+$ ]] && (( SECONDS - started > 0 )); then
+    log "  uploaded in $(human_seconds $(( SECONDS - started ))) ($(human_bytes $(( local_size / (SECONDS - started) )))/s)"
+  fi
   push_rollback "remove_remote_file '${remote_path}'; remove_empty_tar_dir"
 }
 
@@ -1489,9 +1625,16 @@ configure_network() {
     /ip/firewall/nat "comment=\"${COMMENT_TAG}-srcnat\"" \
     "chain=srcnat action=masquerade src-address=${BRIDGE_NET} comment=\"${COMMENT_TAG}-srcnat\""
 
+  # On a CHR the only address is public: HTTPS is published on every address, while
+  # plain HTTP, which carries the router credentials, answers private addresses only.
+  local http_dst=""
+  if (( IS_CHR )); then
+    http_dst="dst-address=${LAN_DST_NET} "
+    log "  CHR: publishing HTTPS port ${HTTPS_LAN_PORT} on every router address, HTTP port ${LAN_PORT} on ${LAN_DST_NET} only"
+  fi
   ros_ensure "dstnat tcp/${LAN_PORT} -> ${VETH_IP}:80" \
     /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat\"" \
-    "chain=dstnat action=dst-nat protocol=tcp dst-port=${LAN_PORT} to-addresses=${VETH_IP} to-ports=80 comment=\"${COMMENT_TAG}-dstnat\""
+    "chain=dstnat action=dst-nat protocol=tcp ${http_dst}dst-port=${LAN_PORT} to-addresses=${VETH_IP} to-ports=80 comment=\"${COMMENT_TAG}-dstnat\""
   ros_move_to_top /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat\""
 
   ros_ensure "dstnat tcp/${HTTPS_LAN_PORT} -> ${VETH_IP}:443" \
@@ -1585,6 +1728,14 @@ get_container_field() {
     | head -1
 }
 
+# Prints the dst-port of the installer's NAT rule with comment $1, or $2 when it is not found.
+nat_port() {
+  local port
+  port="$(ros_cmd "/ip/firewall/nat/print detail where comment=\"$1\"" 2>/dev/null \
+            | sed -nE 's/.*dst-port=([0-9]+).*/\1/p' | head -1)"
+  printf '%s' "${port:-$2}"
+}
+
 start_and_poll() {
   log ""
   log "Starting container ${CONTAINER_NAME} ..."
@@ -1602,11 +1753,14 @@ start_and_poll() {
   fi
   [[ -n "$start_out" ]] && v "/container/start: ${start_out}"
 
-  local actual_port
-  actual_port="$(ros_cmd "/ip/firewall/nat/print detail where comment=\"${COMMENT_TAG}-dstnat\"" 2>/dev/null \
-                  | sed -nE 's/.*dst-port=([0-9]+).*/\1/p' | head -1)"
-  [[ -z "$actual_port" ]] && actual_port="$LAN_PORT"
-  local health_url="http://${ROUTER_IP}:${actual_port}/health"
+  local health_url curl_tls=()
+  if (( IS_CHR )); then
+    # Only HTTPS is published on the CHR's address, and the panel uses a self-signed certificate.
+    health_url="https://${ROUTER_IP}:$(nat_port "${COMMENT_TAG}-dstnat-https" "$HTTPS_LAN_PORT")/health"
+    curl_tls=(-k)
+  else
+    health_url="http://${ROUTER_IP}:$(nat_port "${COMMENT_TAG}-dstnat" "$LAN_PORT")/health"
+  fi
   log "Polling ${health_url} ..."
 
   local start_ts=$SECONDS elapsed=0 i=0 last_poll=-10 http_code="--"
@@ -1622,7 +1776,7 @@ start_and_poll() {
 
     if (( elapsed - last_poll >= 2 )); then
       last_poll=$elapsed
-      http_code="$(curl -sS --connect-timeout 2 --max-time 4 \
+      http_code="$(curl -sS "${curl_tls[@]}" --connect-timeout 2 --max-time 4 \
                         -o /dev/null -w '%{http_code}' "$health_url" 2>/dev/null || echo '--')"
       if [[ "$http_code" == "200" ]]; then
         tput cnorm 2>/dev/null || true
@@ -1647,7 +1801,66 @@ start_and_poll() {
 }
 
 # ---- LAN baseline ----------------------------------------------------------
+# Sets BASELINE_RSC to the baseline script: the copy next to install.sh, or a download.
+# BASELINE_TMP holds the temporary file when it was downloaded.
+BASELINE_RSC=""
+BASELINE_TMP=""
+resolve_baseline_script() {
+  BASELINE_RSC="${SCRIPT_DIR}/${LAN_BASELINE_RSC}"
+  BASELINE_TMP=""
+  [[ -r "$BASELINE_RSC" ]] && return 0
+  local ref="${RELEASE_TAG:-${VERSION:-$SNAPSHOT_RELEASE}}"
+  [[ "$ref" == "$SNAPSHOT_RELEASE" ]] && ref="$SNAPSHOT_CHANNEL"
+  local url="https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${ref}/scripts/${LAN_BASELINE_RSC}"
+  BASELINE_TMP="$(mktemp)"
+  if ! spin "downloading LAN baseline script" curl -fsSL "$url" -o "$BASELINE_TMP"; then
+    rm -f "$BASELINE_TMP"; BASELINE_TMP=""; BASELINE_RSC=""
+    err "LAN baseline script not found next to install.sh and download failed: ${url}"
+    return 1
+  fi
+  BASELINE_RSC="$BASELINE_TMP"
+}
+
+# On a CHR the baseline changes no address, so it runs in the foreground and its own
+# errors come straight back. The panel is already healthy here, so a failure is
+# reported, not fatal.
+setup_chr_baseline() {
+  log ""
+  log "Configuring the CHR baseline (DNS, NTP, container rules; the uplink and the firewall stay as they are) ..."
+  if (( DRY_RUN )); then
+    log "[dry-run] would import ${LAN_BASELINE_RSC} on the router"
+    return 0
+  fi
+  local out
+  resolve_baseline_script || return 0
+  ros_ensure_dir "$PANEL_DIR"
+  if ! spin "uploading baseline script" \
+       scp_pw "$BASELINE_RSC" "${ROUTER_USER}@${ROUTER_IP}:${LAN_BASELINE_REMOTE}"; then
+    [[ -n "$BASELINE_TMP" ]] && rm -f "$BASELINE_TMP"
+    err "baseline upload failed; re-run install.sh"
+    return 0
+  fi
+  [[ -n "$BASELINE_TMP" ]] && rm -f "$BASELINE_TMP"
+  local rc=0
+  spin_out "running the baseline on the router" out \
+    ros_cmd "/import file-name=\"${LAN_BASELINE_REMOTE}\"" || rc=$?
+  [[ -n "$out" ]] && sed 's/^/      /' <<< "$out"
+  remove_remote_file "$LAN_BASELINE_REMOTE"
+  if (( rc != 0 )) || grep -qiE 'script error|failure:' <<< "$out"; then
+    err "the baseline script failed; check the nasnet-panel lines in the router log (/log print where message~\"nasnet-panel\")"
+    return 0
+  fi
+  if ! ros_exists /ip/firewall/filter "comment=\"${CONTAINER_ROUTER_RULE}\""; then
+    err "the baseline finished, but the container input rule is missing; check the nasnet-panel lines in the router log"
+  fi
+}
+
 setup_lan_baseline() {
+  if (( IS_CHR )); then
+    setup_chr_baseline
+    return 0
+  fi
+
   log ""
   log "Configuring baseline LAN (bridge ${LAN_BRIDGE}, ${LAN_BRIDGE_IP}/24) ..."
 
@@ -1660,20 +1873,11 @@ setup_lan_baseline() {
     return 0
   fi
 
-  local rsc="${SCRIPT_DIR}/${LAN_BASELINE_RSC}" tmp=""
-  if [[ ! -r "$rsc" ]]; then
-    local ref="${RELEASE_TAG:-${VERSION:-$SNAPSHOT_RELEASE}}"
-    [[ "$ref" == "$SNAPSHOT_RELEASE" ]] && ref="$SNAPSHOT_CHANNEL"
-    local url="https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${ref}/scripts/${LAN_BASELINE_RSC}"
-    tmp="$(mktemp)"
-    if ! spin "downloading LAN baseline script" curl -fsSL "$url" -o "$tmp"; then
-      rm -f "$tmp"
-      err "LAN baseline script not found next to install.sh and download failed: ${url}"
-      err "skipping LAN baseline; run the wizard from a wired connection or re-run install.sh"
-      return 0
-    fi
-    rsc="$tmp"
-  fi
+  resolve_baseline_script || {
+    err "skipping LAN baseline; run the wizard from a wired connection or re-run install.sh"
+    return 0
+  }
+  local rsc="$BASELINE_RSC" tmp="$BASELINE_TMP"
   ros_ensure_dir "$PANEL_DIR"
   if ! spin "uploading LAN baseline script" \
        scp_pw "$rsc" "${ROUTER_USER}@${ROUTER_IP}:${LAN_BASELINE_REMOTE}"; then
@@ -1800,10 +2004,9 @@ main() {
   deploy_container
   start_and_poll
 
-  local final_port
-  final_port="$(ros_cmd "/ip/firewall/nat/print detail where comment=\"${COMMENT_TAG}-dstnat\"" 2>/dev/null \
-                  | sed -nE 's/.*dst-port=([0-9]+).*/\1/p' | head -1)"
-  [[ -z "$final_port" ]] && final_port="$LAN_PORT"
+  local final_port final_https_port
+  final_port="$(nat_port "${COMMENT_TAG}-dstnat" "$LAN_PORT")"
+  final_https_port="$(nat_port "${COMMENT_TAG}-dstnat-https" "$HTTPS_LAN_PORT")"
 
   remove_wifi_uplink
 
@@ -1812,7 +2015,12 @@ main() {
   fi
 
   log ""
-  if (( LAN_BASELINE_APPLIED )); then
+  if (( IS_CHR )); then
+    log "\033[32m✓ Done. Panel reachable at https://${ROUTER_IP}:${final_https_port}/\033[0m"
+    log "  The panel is published on this CHR's own address, so it is reachable from the internet."
+    log "  Use a strong router password. HTTP on port ${final_port} answers only from private"
+    log "  addresses (${LAN_DST_NET}), for example over a VPN."
+  elif (( LAN_BASELINE_APPLIED )); then
     log "\033[32m✓ Done. Baseline LAN ${LAN_BRIDGE_IP%.*}.0/24 (bridge ${LAN_BRIDGE}) configured.\033[0m"
     log "  Reconnect (or renew your DHCP lease) on the ${LAN_BRIDGE_IP%.*}.x network,"
     log "  then open \033[1mhttp://${LAN_BRIDGE_IP}:${final_port}/\033[0m"

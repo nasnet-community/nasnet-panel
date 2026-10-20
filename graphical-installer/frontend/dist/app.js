@@ -3,8 +3,11 @@
 
   var PANEL_READY_DELAY_MS = 3000;
   var COPY_LOG_RESET_MS = 2000;
-  var DEVICE_LEAD_ASK = 'After you press Proceed, within 120 seconds do one of the following:';
-  var DEVICE_LEAD_WAIT = 'Within 120 seconds do one of the following:';
+  var DEVICE_LEAD_ASK = 'After you press Proceed, within {t} do one of the following:';
+  var DEVICE_LEAD_WAIT = 'Within {t} do one of the following:';
+  var DEVICE_LEAD_CHR_ASK = 'After you press Proceed, within {t}:';
+  var DEVICE_LEAD_CHR_WAIT = 'Within {t}:';
+  var DEVICE_TIMEOUT_DEFAULT = 120;
   var REBOOT_LEAD_ASK = 'Use the MODE button while the router is powered on:';
   var REBOOT_LEAD_WAIT =
     'If the router does not come back on its own, restart it with the MODE button while it is powered on:';
@@ -17,6 +20,8 @@
   var panelReadyTimer = null;
   var copyLogTimer = null;
   var routerBoard = '';
+  var routerIsCHR = false;
+  var deviceTimeout = DEVICE_TIMEOUT_DEFAULT;
 
   function $(id) {
     return document.getElementById(id);
@@ -51,10 +56,39 @@
       : 'hAP ax3, MODE button on the front panel next to the USB port';
   }
 
+  function humanSeconds(s) {
+    if (s % 60 === 0 && s >= 60) return s / 60 + ' minutes';
+    return s + ' seconds';
+  }
+
   function setDeviceWaiting(waiting) {
-    $('device-lead').textContent = waiting ? DEVICE_LEAD_WAIT : DEVICE_LEAD_ASK;
+    var lead = routerIsCHR
+      ? waiting
+        ? DEVICE_LEAD_CHR_WAIT
+        : DEVICE_LEAD_CHR_ASK
+      : waiting
+        ? DEVICE_LEAD_WAIT
+        : DEVICE_LEAD_ASK;
+    $('device-lead').textContent = lead.replace('{t}', humanSeconds(deviceTimeout));
     $('device-wait').classList.toggle('hidden', !waiting);
     $('device-actions').classList.toggle('hidden', waiting);
+  }
+
+  // A CHR has no button: the change is confirmed with a cold boot of the VM.
+  function setDeviceModeKind(chr) {
+    routerIsCHR = chr;
+    $('device-steps-router').classList.toggle('hidden', chr);
+    $('device-figure').classList.toggle('hidden', chr);
+    $('device-steps-chr').classList.toggle('hidden', !chr);
+    $('device-title').textContent = chr
+      ? 'Cold boot of the VM required'
+      : 'Physical confirmation required';
+    $('device-intro').textContent = chr
+      ? 'RouterOS enables container mode only after a full power-off of the virtual machine.'
+      : 'RouterOS requires physical confirmation to enable container mode.';
+    $('device-waiting').textContent = chr
+      ? 'Waiting for the VM to come back after the cold boot...'
+      : 'Waiting for physical confirmation...';
   }
 
   function setRebootWaiting(waiting) {
@@ -409,11 +443,14 @@
       var el = $('router-info');
       el.innerHTML = '';
       var facts = [
-        'Board: ' + info.board,
+        info.chr ? 'Board: CHR (Cloud Hosted Router)' : 'Board: ' + info.board,
         'Arch: ' + info.arch,
         'RouterOS ' + info.version,
         info.freeMb + ' MB free',
       ];
+      if (info.chr && info.license) {
+        facts.push('License: ' + info.license + (info.license === 'free' ? ' (1 Mbit/s per interface)' : ''));
+      }
       if (info.storage) {
         facts.push(
           info.storageFreeMb > 0
@@ -429,7 +466,10 @@
       el.classList.remove('hidden');
     });
 
-    window.runtime.EventsOn('install:device-mode', function () {
+    window.runtime.EventsOn('install:device-mode', function (data) {
+      deviceTimeout = (data && data.timeout) || DEVICE_TIMEOUT_DEFAULT;
+      setDeviceModeKind(Boolean(data && data.chr));
+      $('device-remaining').textContent = deviceTimeout;
       applyButtonImage('device');
       setDeviceWaiting(false);
       show('modal-device');
