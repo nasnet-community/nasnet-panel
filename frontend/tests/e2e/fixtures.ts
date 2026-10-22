@@ -88,6 +88,8 @@ export interface EasyConfigBackendInterface {
   running?: boolean;
   disabled?: boolean;
   defaultName?: string;
+  /** Virtual WiFi interfaces have no default name on RouterOS. */
+  virtual?: boolean;
 }
 
 export interface EasyConfigBackendWifiInterface {
@@ -648,7 +650,7 @@ export const test = base.extend<TestFixtures>({
         type: i.type ?? 'ether',
         running: i.running ?? true,
         disabled: i.disabled ?? false,
-        defaultName: i.defaultName,
+        defaultName: i.virtual ? undefined : (i.defaultName ?? i.name),
       }));
 
       const wifiIfaces = (
