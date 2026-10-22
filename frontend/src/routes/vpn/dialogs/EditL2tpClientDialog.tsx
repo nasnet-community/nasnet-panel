@@ -99,7 +99,7 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
     return {
       connectTo:
         draft.connectTo.trim() === '' ? t('shared.required') : validateHostOrIp(draft.connectTo),
-      user: draft.user.trim() === '' ? t('l2tpEdit.userRequired') : null,
+      user: draft.user.trim() === '' ? t('shared.userRequired') : null,
     };
   }, [draft, t]);
 

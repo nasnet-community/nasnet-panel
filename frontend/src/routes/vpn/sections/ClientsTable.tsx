@@ -13,6 +13,8 @@ import {
 import { useFormat } from '../../../utils/useFormat';
 import { useThemeColors } from '../../../utils/theme-colors';
 
+const EDITABLE_PROTOCOLS = new Set<VPNClient['protocol']>(['l2tp', 'sstp', 'wireguard']);
+
 interface Props {
   rows: VPNClient[];
   totalRows: number;
@@ -217,7 +219,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
           key: 'actions',
           header: t('shared.actions'),
           render: (c: VPNClient) => {
-            if (c.protocol !== 'l2tp' && c.protocol !== 'wireguard') return null;
+            if (!EDITABLE_PROTOCOLS.has(c.protocol)) return null;
             return (
               <span style={{ display: 'inline-flex', gap: 8 }}>
                 <Button

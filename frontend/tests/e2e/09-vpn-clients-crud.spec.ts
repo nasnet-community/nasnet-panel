@@ -22,6 +22,13 @@ const baseClient = {
   linkDowns: 0,
 };
 
+const sstpClient = {
+  ...baseClient,
+  id: '*7',
+  name: 'office-sstp-client',
+  type: 'sstp-out',
+};
+
 const WG_KEY = 'yAnz5TF+lXXJte14tji3zlMNq+hd2rYUIgJBgB3fBmk=';
 
 const wgCreated = {
@@ -448,13 +455,122 @@ test.describe('WAN VPN clients section', () => {
     const openvpn = types.getByRole('radio', { name: 'OpenVPN' });
     const sstp = types.getByRole('radio', { name: 'SSTP' });
     await expect(openvpn).toBeDisabled();
-    await expect(sstp).toBeDisabled();
+    await expect(sstp).toBeEnabled();
     await expect(openvpn).not.toBeChecked();
     await expect(sstp).not.toBeChecked();
 
     await openvpn.click({ force: true });
     await expect(types.getByRole('radio', { name: 'WireGuard' })).toBeChecked();
     await expect(dialog.getByRole('textbox', { name: 'Config' })).toBeVisible();
+
+    await sstp.click();
+    await expect(sstp).toBeChecked();
+    await expect(dialog.getByLabel('Connect to')).toBeVisible();
+    await expect(dialog.getByLabel('Port')).toHaveValue('443');
+    await expect(dialog.getByRole('switch', { name: 'Use IPsec' })).toHaveCount(0);
+    await expect(dialog.getByRole('button', { name: 'Claim free VPN' })).toHaveCount(0);
+  });
+
+  test('submits SSTP client via POST and refreshes the list', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    let listCalls = 0;
+    await context.route('**/api/vpn/clients', async (route) => {
+      listCalls += 1;
+      const body = listCalls === 1 ? [] : [{ ...sstpClient, disabled: false }];
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope(body),
+      });
+    });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+
+    let lastPostBody = null as {
+      name?: string;
+      comment?: string;
+      connectTo?: string;
+      port?: number;
+      user?: string;
+      password?: string;
+      disabled?: boolean;
+    } | null;
+    await context.route('**/api/vpn/sstp/client', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      lastPostBody = route.request().postDataJSON() as typeof lastPostBody;
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: envelope({ ...sstpClient, disabled: false }),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await page.getByRole('button', { name: 'New' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog
+      .getByRole('radiogroup', { name: 'VPN client type' })
+      .getByRole('radio', { name: 'SSTP' })
+      .click();
+
+    const submit = dialog.getByRole('button', { name: 'Add client' });
+    await expect(submit).toBeDisabled();
+
+    await dialog.getByLabel('Name', { exact: true }).fill('Office link');
+    await dialog.getByLabel('Connect to').fill('sstp.example.com');
+    const port = dialog.getByLabel('Port');
+    await port.fill('70000');
+    await port.blur();
+    await expect(dialog.getByText('Port must be 1-65535.')).toBeVisible();
+    await port.fill('4443');
+    await dialog.getByLabel('User').fill('bob');
+    await dialog.getByLabel('Password', { exact: true }).fill('s3cret');
+    await expect(submit).toBeEnabled();
+    await submit.click();
+
+    await expect.poll(() => lastPostBody?.comment).toBe('Office link');
+    expect(lastPostBody?.name).toBeUndefined();
+    expect(lastPostBody).toMatchObject({
+      comment: 'Office link',
+      connectTo: 'sstp.example.com',
+      port: 4443,
+      user: 'bob',
+      password: 's3cret',
+      disabled: false,
+    });
+
+    await expect(dialog).toBeHidden();
+    const row = page.getByRole('row', { name: /office-sstp/ });
+    await expect(row).toBeVisible();
+    await expect(row.getByText('SSTP', { exact: true })).toBeVisible();
   });
 
   test('submits L2TP client via POST and refreshes the list', async ({
@@ -970,6 +1086,200 @@ test.describe('WAN VPN clients section', () => {
 
     await expect.poll(() => deleteCalls).toBe(1);
     await expect(page.getByRole('row', { name: /home-l2tp/ })).toBeHidden();
+  });
+
+  test('edits SSTP client via PUT after prefilling from GET endpoint', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([{ ...sstpClient, disabled: false, comment: lastPutBody?.comment }]),
+      });
+    });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+
+    await context.route('**/api/vpn/sstp/client/office-sstp-client', async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({
+            id: '*7',
+            name: 'office-sstp-client',
+            disabled: false,
+            running: false,
+            connectTo: 'sstp.old.example.com',
+            port: 443,
+            user: 'bob',
+            password: 'oldpass',
+            profile: 'default',
+            keepaliveTimeout: 60,
+            tlsVersion: 'any',
+            verifyServerCertificate: false,
+            verifyServerAddressFromCertificate: false,
+            pfs: false,
+            ciphers: 'aes256-sha,aes256-gcm-sha384',
+            authentication: 'mschap2,mschap1,chap,pap',
+            comment: '',
+            status: 'disconnected',
+            uptime: '',
+            encoding: '',
+            mtu: 1500,
+            localAddress: '',
+            remoteAddress: '',
+          }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    let lastPutBody: {
+      comment?: string;
+      connectTo?: string;
+      port?: number;
+      user?: string;
+      password?: string;
+      disabled?: boolean;
+    } | null = null;
+    await context.route('**/api/vpn/sstp/client/*7', async (route) => {
+      if (route.request().method() === 'PUT') {
+        lastPutBody = route.request().postDataJSON() as typeof lastPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ ...sstpClient, disabled: false }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    const row = page.getByRole('row', { name: /office-sstp-client/ });
+    await row.getByRole('button', { name: /edit office-sstp-client/i }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByRole('heading', { name: 'Edit SSTP client - office-sstp-client' }),
+    ).toBeVisible();
+
+    await expect(dialog.getByLabel('Name')).toHaveValue('office-sstp-client');
+    await expect(dialog.getByLabel('Connect to')).toHaveValue('sstp.old.example.com');
+    await expect(dialog.getByLabel('Port')).toHaveValue('443');
+    await expect(dialog.getByLabel('User')).toHaveValue('bob');
+    await expect(dialog.getByRole('switch', { name: 'Use IPsec' })).toHaveCount(0);
+
+    await dialog.getByLabel('Name').fill('Office link');
+    await dialog.getByLabel('Connect to').fill('sstp.new.example.com');
+    await dialog.getByLabel('Port').fill('8443');
+    await dialog.getByRole('button', { name: /save changes/i }).click();
+
+    await expect.poll(() => lastPutBody?.connectTo).toBe('sstp.new.example.com');
+    expect(lastPutBody).toEqual({
+      comment: 'Office link',
+      connectTo: 'sstp.new.example.com',
+      port: 8443,
+    });
+    await expect(dialog).toBeHidden();
+    await expect(page.getByRole('row', { name: /Office link/ })).toBeVisible();
+  });
+
+  test('deletes SSTP client via DELETE after confirm', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    let listCalls = 0;
+    await context.route('**/api/vpn/clients', async (route) => {
+      listCalls += 1;
+      const body = listCalls === 1 ? [{ ...sstpClient, disabled: false }] : [];
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope(body),
+      });
+    });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+
+    let deleteCalls = 0;
+    await context.route('**/api/vpn/sstp/client/*7', async (route) => {
+      if (route.request().method() === 'DELETE') {
+        deleteCalls += 1;
+        await route.fulfill({ status: 204, body: '' });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    const row = page.getByRole('row', { name: /office-sstp-client/ });
+    await row.getByRole('button', { name: /delete office-sstp-client/i }).click();
+
+    const confirm = page.getByRole('dialog');
+    await expect(confirm).toBeVisible();
+    await expect(confirm.getByRole('heading', { name: 'Delete SSTP client' })).toBeVisible();
+    await confirm.getByRole('button', { name: 'Delete' }).click();
+
+    await expect.poll(() => deleteCalls).toBe(1);
+    await expect(page.getByRole('row', { name: /office-sstp-client/ })).toBeHidden();
   });
 
   test('renders empty-state icon when no clients are configured', async ({

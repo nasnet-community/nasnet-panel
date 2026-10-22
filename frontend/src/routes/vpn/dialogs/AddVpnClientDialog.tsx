@@ -21,14 +21,17 @@ import {
 } from '../../easy-config/steps/ipmask/HyperSpeedClaimDialog';
 import type {
   AddL2TPClientRequest,
+  AddSSTPClientRequest,
   CreateWireguardClientRequest,
   ImportWireguardConfigRequest,
 } from '../../../api';
 import { isCIDR, isPort, isWireGuardKey, validateHostOrIp } from '../../../utils/validators';
 
-export type AddVpnType = 'l2tp' | 'wireguard';
+export type AddVpnType = 'l2tp' | 'wireguard' | 'sstp';
 
-type AddVpnTileType = AddVpnType | 'openvpn' | 'sstp';
+type AddVpnTileType = AddVpnType | 'openvpn';
+
+const SSTP_DEFAULT_PORT = '443';
 
 const TYPE_TILES: Array<VpnTypeTile<AddVpnTileType>> = [
   { value: 'l2tp', label: 'L2TP', icon: <Cable size={26} strokeWidth={1.75} /> },
@@ -39,7 +42,7 @@ const TYPE_TILES: Array<VpnTypeTile<AddVpnTileType>> = [
     icon: <Globe size={26} strokeWidth={1.75} />,
     disabled: true,
   },
-  { value: 'sstp', label: 'SSTP', icon: <KeyRound size={26} strokeWidth={1.75} />, disabled: true },
+  { value: 'sstp', label: 'SSTP', icon: <KeyRound size={26} strokeWidth={1.75} /> },
 ];
 
 interface Draft {
@@ -50,6 +53,8 @@ interface Draft {
   useIpsec: boolean;
   ipsecSecret: string;
   disabled: boolean;
+  // SSTP-specific
+  port: string;
   // WireGuard-specific
   interfacePrivateKey: string;
   publicKey: string;
@@ -72,6 +77,7 @@ const EMPTY_DRAFT: Draft = {
   useIpsec: false,
   ipsecSecret: '',
   disabled: false,
+  port: SSTP_DEFAULT_PORT,
   interfacePrivateKey: '',
   publicKey: '',
   peerPrivateKey: '',
@@ -89,6 +95,7 @@ type WgMode = 'create' | 'import';
 interface Props {
   onCancel: () => void;
   onSubmitL2TP: (req: AddL2TPClientRequest) => Promise<void>;
+  onSubmitSSTP: (req: AddSSTPClientRequest) => Promise<void>;
   onSubmitWireguard: (req: CreateWireguardClientRequest) => Promise<void>;
   onSubmitWireguardImport: (req: ImportWireguardConfigRequest) => Promise<void>;
 }
@@ -96,6 +103,7 @@ interface Props {
 export function AddVpnClientDialog({
   onCancel,
   onSubmitL2TP,
+  onSubmitSSTP,
   onSubmitWireguard,
   onSubmitWireguardImport,
 }: Props) {
@@ -116,10 +124,14 @@ export function AddVpnClientDialog({
   const errors = useMemo(() => {
     const base = {} as Record<string, string | null>;
 
-    if (type === 'l2tp') {
+    if (type === 'l2tp' || type === 'sstp') {
       base.connectTo = validateHostOrIp(draft.connectTo);
-      base.user = draft.user.trim() === '' ? t('l2tpEdit.userRequired') : null;
+      base.user = draft.user.trim() === '' ? t('shared.userRequired') : null;
       base.password = draft.password === '' ? t('shared.passwordRequired') : null;
+    }
+
+    if (type === 'sstp') {
+      base.port = isPort(draft.port) ? null : t('shared.portRange');
     }
 
     if (type === 'wireguard' && wgMode === 'create') {
@@ -173,6 +185,15 @@ export function AddVpnClientDialog({
           password: draft.password,
           disabled: draft.disabled,
           ipsecSecret: draft.useIpsec ? draft.ipsecSecret.trim() || undefined : undefined,
+          comment: draft.comment.trim() || undefined,
+        });
+      } else if (type === 'sstp') {
+        await onSubmitSSTP({
+          connectTo: draft.connectTo.trim(),
+          port: Number(draft.port),
+          user: draft.user.trim(),
+          password: draft.password,
+          disabled: draft.disabled,
           comment: draft.comment.trim() || undefined,
         });
       } else if (type === 'wireguard' && wgMode === 'create') {
@@ -262,6 +283,16 @@ export function AddVpnClientDialog({
                 password: creds.password,
               }))
             }
+          />
+        ) : null}
+
+        {type === 'sstp' ? (
+          <SstpFields
+            draft={draft}
+            set={set}
+            errors={errors}
+            touched={touched}
+            markTouched={markTouched}
           />
         ) : null}
 
@@ -429,6 +460,72 @@ interface WireguardFieldsProps {
   errors: Record<string, string | null>;
   touched: Record<string, boolean>;
   markTouched: (key: string) => void;
+}
+
+function SstpFields({ draft, set, errors, touched, markTouched }: WireguardFieldsProps) {
+  const { t } = useTranslation('vpn');
+  return (
+    <>
+      <FieldRow>
+        <Label>
+          <span>{t('shared.connectTo')}</span>
+          <Input
+            value={draft.connectTo}
+            onChange={(e) => set('connectTo', e.target.value)}
+            onBlur={() => markTouched('connectTo')}
+            placeholder="vpn.example.com"
+            aria-label={t('shared.connectTo')}
+            dir="ltr"
+            autoComplete="off"
+            aria-invalid={touched.connectTo && !!errors.connectTo}
+          />
+          {touched.connectTo && errors.connectTo ? <FormError>{errors.connectTo}</FormError> : null}
+        </Label>
+        <Label>
+          <span>{t('shared.port')}</span>
+          <Input
+            value={draft.port}
+            onChange={(e) => set('port', e.target.value)}
+            onBlur={() => markTouched('port')}
+            placeholder={SSTP_DEFAULT_PORT}
+            inputMode="numeric"
+            aria-label={t('shared.port')}
+            dir="ltr"
+            autoComplete="off"
+            aria-invalid={touched.port && !!errors.port}
+          />
+          {touched.port && errors.port ? <FormError>{errors.port}</FormError> : null}
+        </Label>
+      </FieldRow>
+      <FieldRow>
+        <Label>
+          <span>{t('shared.user')}</span>
+          <Input
+            value={draft.user}
+            onChange={(e) => set('user', e.target.value)}
+            onBlur={() => markTouched('user')}
+            placeholder={t('shared.usernamePlaceholder')}
+            aria-label={t('shared.user')}
+            autoComplete="off"
+            aria-invalid={touched.user && !!errors.user}
+          />
+          {touched.user && errors.user ? <FormError>{errors.user}</FormError> : null}
+        </Label>
+        <Label>
+          <span>{t('shared.password')}</span>
+          <PasswordInput
+            value={draft.password}
+            onChange={(e) => set('password', e.target.value)}
+            onBlur={() => markTouched('password')}
+            aria-label={t('shared.password')}
+            autoComplete="new-password"
+            aria-invalid={touched.password && !!errors.password}
+          />
+          {touched.password && errors.password ? <FormError>{errors.password}</FormError> : null}
+        </Label>
+      </FieldRow>
+    </>
+  );
 }
 
 function WireguardFields({ draft, set, errors, touched, markTouched }: WireguardFieldsProps) {

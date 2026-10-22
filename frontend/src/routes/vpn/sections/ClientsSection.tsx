@@ -4,23 +4,29 @@ import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
   addL2TPClient,
+  addSSTPClient,
   createWireguardClient,
   deleteL2TPClient,
+  deleteSSTPClient,
   deleteWireguardInterface,
   importWireguardConfig,
   updateL2TPClient,
+  updateSSTPClient,
   type AddL2TPClientRequest,
+  type AddSSTPClientRequest,
   type CreateWireguardClientRequest,
   type CreateWireguardClientResponse,
   type ImportWireguardConfigRequest,
   type ImportWireguardConfigResponse,
   type UpdateL2TPClientRequest,
+  type UpdateSSTPClientRequest,
   type VPNClient,
   type VPNClientResponse,
   type VPNCredentials,
 } from '../../../api';
 import { AddVpnClientDialog } from '../dialogs/AddVpnClientDialog';
 import { EditL2tpClientDialog } from '../dialogs/EditL2tpClientDialog';
+import { EditSstpClientDialog } from '../dialogs/EditSstpClientDialog';
 import { EditWgClientDialog } from '../dialogs/EditWgClientDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
@@ -34,6 +40,9 @@ const matches = (c: VPNClient, q: string) =>
   (c.endpoint ?? '').toLowerCase().includes(q) ||
   (c.username ?? '').toLowerCase().includes(q) ||
   (c.comment ?? '').toLowerCase().includes(q);
+
+const deleteKey = (c: VPNClient | null): 'wg' | 'sstp' | 'l2tp' =>
+  c?.protocol === 'wireguard' ? 'wg' : c?.protocol === 'sstp' ? 'sstp' : 'l2tp';
 
 interface Props {
   creds: VPNCredentials | null;
@@ -83,6 +92,29 @@ export function ClientsSection({
     }
     setAdding(false);
     toast.notify({ title: t('clients.toast.l2tpAdded', { name: created.name }), tone: 'success' });
+    onChanged();
+  };
+
+  const onSubmitSSTP = async (req: AddSSTPClientRequest) => {
+    if (!creds) {
+      toast.notify({ title: t('shared.notConnected'), tone: 'danger' });
+      return;
+    }
+    let created: VPNClientResponse;
+    try {
+      created = await addSSTPClient(creds, req);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : t('clients.toast.addSstpFailedDescription');
+      toast.notify({ title: t('clients.toast.addFailed'), description: message, tone: 'danger' });
+      throw err;
+    }
+    setAdding(false);
+    toast.notify({ title: t('clients.toast.sstpAdded', { name: created.name }), tone: 'success' });
     onChanged();
   };
 
@@ -170,6 +202,37 @@ export function ClientsSection({
     });
   };
 
+  const onSubmitSstpEdit = async (req: UpdateSSTPClientRequest) => {
+    if (!creds || !editing) {
+      toast.notify({ title: t('shared.notConnected'), tone: 'danger' });
+      return;
+    }
+    const target = editing;
+    try {
+      await updateSSTPClient(creds, target.id, req);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : t('clients.toast.sstpUpdateFailedDescription');
+      toast.notify({
+        title: t('clients.toast.sstpUpdateFailed'),
+        description: message,
+        tone: 'danger',
+      });
+      throw err;
+    }
+    setEditing(null);
+    toast.notify({ title: t('clients.toast.sstpUpdated', { name: target.name }), tone: 'success' });
+    onClientUpdated({
+      ...target,
+      comment: req.comment ?? target.comment,
+      enabled: req.disabled === undefined ? target.enabled : !req.disabled,
+    });
+  };
+
   const onConfirmDelete = async () => {
     if (!creds || !pendingDelete) return;
     const target = pendingDelete;
@@ -177,6 +240,8 @@ export function ClientsSection({
     try {
       if (target.protocol === 'wireguard') {
         await deleteWireguardInterface(creds, target.name);
+      } else if (target.protocol === 'sstp') {
+        await deleteSSTPClient(creds, target.id);
       } else {
         await deleteL2TPClient(creds, target.id);
       }
@@ -236,6 +301,7 @@ export function ClientsSection({
         <AddVpnClientDialog
           onCancel={() => setAdding(false)}
           onSubmitL2TP={onSubmitL2TP}
+          onSubmitSSTP={onSubmitSSTP}
           onSubmitWireguard={onSubmitWireguard}
           onSubmitWireguardImport={onSubmitWireguardImport}
         />
@@ -246,6 +312,14 @@ export function ClientsSection({
           creds={creds}
           onCancel={() => setEditing(null)}
           onSubmit={onSubmitEdit}
+        />
+      ) : null}
+      {editing && editing.protocol === 'sstp' ? (
+        <EditSstpClientDialog
+          clientName={editing.name}
+          creds={creds}
+          onCancel={() => setEditing(null)}
+          onSubmit={onSubmitSstpEdit}
         />
       ) : null}
       {editing && editing.protocol === 'wireguard' ? (
@@ -266,16 +340,12 @@ export function ClientsSection({
       ) : null}
       <ConfirmDialog
         open={!!pendingDelete}
-        title={
-          pendingDelete?.protocol === 'wireguard'
-            ? t('clients.delete.wgTitle')
-            : t('clients.delete.l2tpTitle')
-        }
+        title={t(`clients.delete.${deleteKey(pendingDelete)}Title`)}
         description={
           pendingDelete
-            ? pendingDelete.protocol === 'wireguard'
-              ? t('clients.delete.wgDescription', { name: pendingDelete.name })
-              : t('clients.delete.l2tpDescription', { name: pendingDelete.name })
+            ? t(`clients.delete.${deleteKey(pendingDelete)}Description`, {
+                name: pendingDelete.name,
+              })
             : undefined
         }
         confirmLabel={deleteSubmitting ? t('shared.deleting') : t('shared.delete')}
