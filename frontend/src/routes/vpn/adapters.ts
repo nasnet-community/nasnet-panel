@@ -7,6 +7,8 @@ const TYPE_TO_PROTOCOL: Record<string, VPNProtocol> = {
   'l2tp-in': 'l2tp',
   'pptp-out': 'pptp',
   'pptp-in': 'pptp',
+  'sstp-out': 'sstp',
+  'sstp-in': 'sstp',
   'ovpn-out': 'openvpn',
   'ovpn-in': 'openvpn',
 };
