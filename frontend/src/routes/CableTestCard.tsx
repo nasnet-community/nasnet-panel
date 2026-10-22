@@ -14,6 +14,7 @@ import {
   Label,
   Select,
   Stack,
+  leadingNumber,
   type DataTableColumn,
 } from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
@@ -57,6 +58,7 @@ const pairColumns = (t: TFunction<'overview'>): DataTableColumn<CablePair>[] => 
     key: 'pair',
     header: t('cableTest.pairHeader'),
     render: (p) => t('cableTest.pairN', { index: p.index }),
+    sortValue: (p) => p.index,
   },
   {
     key: 'state',
@@ -72,6 +74,7 @@ const pairColumns = (t: TFunction<'overview'>): DataTableColumn<CablePair>[] => 
     header: t('cableTest.distanceHeader'),
     render: (p) =>
       p.distance !== undefined ? t('cableTest.distance', { value: p.distance }) : '-',
+    sortValue: (p) => leadingNumber(p.distance) ?? p.distance,
   },
 ];
 

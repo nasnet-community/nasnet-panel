@@ -395,6 +395,7 @@ export function FirewallPage() {
           <span className={styles.muted}>{t('firewall.any')}</span>
         );
       },
+      sortValue: (r) => addrWithPort(r.srcAddress, r.srcPort),
     },
     {
       key: 'dst',
@@ -407,6 +408,7 @@ export function FirewallPage() {
           <span className={styles.muted}>{t('firewall.any')}</span>
         );
       },
+      sortValue: (r) => addrWithPort(r.dstAddress, r.dstPort),
     },
     {
       key: 'in',
@@ -417,6 +419,7 @@ export function FirewallPage() {
         ) : (
           <span className={styles.muted}>—</span>
         ),
+      sortValue: (r) => r.inInterface,
     },
     {
       key: 'out',
@@ -427,6 +430,7 @@ export function FirewallPage() {
         ) : (
           <span className={styles.muted}>—</span>
         ),
+      sortValue: (r) => r.outInterface,
     },
     {
       key: 'bytes',
@@ -437,6 +441,7 @@ export function FirewallPage() {
         ) : (
           <span className={styles.muted}>0</span>
         ),
+      sortValue: (r) => Number(r.bytes ?? 0),
     },
     {
       key: 'packets',
@@ -447,6 +452,7 @@ export function FirewallPage() {
         ) : (
           <span className={styles.muted}>0</span>
         ),
+      sortValue: (r) => Number(r.packets ?? 0),
     },
     {
       key: 'comment',
@@ -456,6 +462,7 @@ export function FirewallPage() {
     {
       key: 'status',
       header: t('firewall.columns.status'),
+      sortValue: (r) => !r.disabled,
       render: (r) => (
         <Inline>
           {r.disabled ? (
