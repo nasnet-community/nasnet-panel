@@ -3,6 +3,7 @@ package install
 import (
 	"bytes"
 	"crypto/sha256"
+	"crypto/tls"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -57,8 +58,18 @@ func (e *Engine) stepCheck() error {
 	}
 	e.sys.Version = strings.TrimSpace(e.sys.Version)
 	e.sys.FreeMB = freeBytes / 1024 / 1024
+	if e.chrBoard() {
+		e.sys.License = e.readLicenseLevel()
+		e.sys.CHR = !e.hasLANBridge()
+	}
 	e.ev.SysInfo(e.sys)
 	e.log("board %s, arch %s, RouterOS %s, %d MB free", e.sys.Board, e.sys.Arch, e.sys.Version, e.sys.FreeMB)
+	switch {
+	case e.sys.CHR:
+		e.log("this is a CHR (Cloud Hosted Router, %s license) without a LAN bridge: device-mode is confirmed with a cold boot of the VM, the uplink and the firewall are left as they are, and the panel is published on the router's own address over HTTPS", e.sys.License)
+	case e.chrBoard():
+		e.log("this is a CHR (Cloud Hosted Router, %s license) with a LAN bridge: it is installed like any other router, but device-mode is confirmed with a cold boot of the VM", e.sys.License)
+	}
 
 	if !rosVersionRe.MatchString(e.sys.Version) {
 		return fmt.Errorf("could not parse the RouterOS version %q reported by the router", e.sys.Version)
@@ -95,6 +106,29 @@ func (e *Engine) stepCheck() error {
 
 	e.note = fmt.Sprintf("%s, RouterOS %s, %d MB free, storage %s", e.sys.Arch, e.sys.Version, e.sys.FreeMB, st.label())
 	return nil
+}
+
+// readLicenseLevel returns the CHR license level (free, p1, p10, p-unlimited), or "unknown".
+func (e *Engine) readLicenseLevel() string {
+	out, err := e.cl.RunRaw(`:do {:put ("L=" . [/system/license/get level])} on-error={}`, 15*time.Second)
+	if err != nil {
+		return "unknown"
+	}
+	for _, line := range strings.Split(out, "\n") {
+		if v, ok := strings.CutPrefix(strings.TrimSpace(line), "L="); ok && strings.TrimSpace(v) != "" {
+			return strings.TrimSpace(v)
+		}
+	}
+	return "unknown"
+}
+
+// warnFreeLicense explains a slow transfer to a CHR on the free license.
+func (e *Engine) warnFreeLicense(size int64, what string) {
+	if !e.chrBoard() || e.sys.License != chrFreeLicense {
+		return
+	}
+	e.log("this CHR runs the free license, which limits every interface to 1 Mbit/s, so uploading the %s (%s) can take about %s. A local image file does not avoid this: the file still has to reach the router",
+		what, humanBytes(size), humanDuration(freeLicenseETA(size)))
 }
 
 func (e *Engine) removeExistingContainer() error {
@@ -268,11 +302,11 @@ func (e *Engine) installContainerPackage() error {
 		return fmt.Errorf("could not download the container package for RouterOS %s (%s): %w. Install it via WebFig/Winbox (System > Packages) instead", e.sys.Version, e.sys.Arch, err)
 	}
 
+	if info, err := os.Stat(local); err == nil {
+		e.warnFreeLicense(info.Size(), "container package")
+	}
 	e.log("uploading %s to the router", name)
-	if err := e.cl.Upload(local, name, func(done, total int64) {
-		e.ev.Progress("device-mode", float64(done)*100/float64(total),
-			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
-	}); err != nil {
+	if err := e.cl.Upload(local, name, e.transferProgress("device-mode")); err != nil {
 		return fmt.Errorf("could not upload the container package: %w", err)
 	}
 
@@ -542,8 +576,13 @@ func (e *Engine) enableDeviceMode() error {
 		return nil
 	}
 
-	e.log("device-mode needs %s, physical confirmation required", strings.Join(pending, " "))
-	if !e.ev.DeviceModePrompt() {
+	window := e.deviceModeWindow()
+	if e.chrBoard() {
+		e.log("device-mode needs %s, confirm it by shutting the VM down and starting it again from the hypervisor", strings.Join(pending, " "))
+	} else {
+		e.log("device-mode needs %s, physical confirmation required", strings.Join(pending, " "))
+	}
+	if !e.ev.DeviceModePrompt(DeviceModePromptInfo{TimeoutSeconds: int(window / time.Second), CHR: e.chrBoard()}) {
 		return errors.New("device-mode enable declined by user")
 	}
 	update := "/system/device-mode/update " + strings.Join(all, " ")
@@ -553,13 +592,11 @@ func (e *Engine) enableDeviceMode() error {
 		return nil
 	}
 
-	go func() {
-		_, _ = e.cl.RunRaw(update, deviceModeTimeout+30*time.Second)
-	}()
+	e.startDeviceModeUpdate(update, window)
 
-	total := int(deviceModeTimeout / time.Second)
+	start := time.Now()
 	state := "online"
-	for elapsed := 0; elapsed < total; elapsed += 2 {
+	for time.Since(start) < window {
 		if err := e.sleep(2 * time.Second); err != nil {
 			return err
 		}
@@ -574,9 +611,31 @@ func (e *Engine) enableDeviceMode() error {
 				return nil
 			}
 		}
-		e.ev.DeviceModeTick(total-elapsed-2, state)
+		e.ev.DeviceModeTick(max(int((window-time.Since(start))/time.Second), 0), state)
 	}
-	return fmt.Errorf("device-mode change not confirmed within %s", deviceModeTimeout)
+	if e.chrBoard() {
+		return fmt.Errorf("device-mode change not confirmed within %s. Shut the VM down completely and start it again from the hypervisor, then run the installer again. After three failed attempts RouterOS needs one more cold boot before it accepts a new attempt", window)
+	}
+	return fmt.Errorf("device-mode change not confirmed within %s", window)
+}
+
+// startDeviceModeUpdate runs the blocking update command in the background. RouterOS waits
+// for the confirmation inside that command, so the caller polls the device-mode state instead.
+// On a CHR it asks RouterOS for the longer window with activation-timeout, and falls back to
+// the router's default window when the router rejects the parameter right away.
+func (e *Engine) startDeviceModeUpdate(update string, window time.Duration) {
+	go func() {
+		if e.chrBoard() {
+			started := time.Now()
+			withWindow := fmt.Sprintf("%s activation-timeout=%dm", update, int(window/time.Minute))
+			_, err := e.cl.RunChecked(withWindow, window+30*time.Second)
+			if err == nil || time.Since(started) > 10*time.Second {
+				return
+			}
+			e.log("the router did not accept activation-timeout (%v), using its default confirmation window", err)
+		}
+		_, _ = e.cl.RunRaw(update, window+30*time.Second)
+	}()
 }
 
 func (e *Engine) stepDownload() error {
@@ -744,15 +803,13 @@ func (e *Engine) stepUpload() error {
 		}
 	}
 
+	e.warnFreeLicense(localSize, "image")
 	e.log("uploading %s to %s", filepath.Base(e.localTar), remote)
 	if e.opts.DryRun {
 		e.log("[dry-run] sftp upload")
 		return nil
 	}
-	err = e.cl.Upload(e.localTar, remote, func(done, total int64) {
-		e.ev.Progress("upload", float64(done)*100/float64(total),
-			fmt.Sprintf("%s / %s", humanBytes(done), humanBytes(total)))
-	})
+	err = e.cl.Upload(e.localTar, remote, e.transferProgress("upload"))
 	if err != nil {
 		return err
 	}
@@ -835,6 +892,13 @@ func (e *Engine) stepNetwork() error {
 		fmt.Sprintf("chain=srcnat action=masquerade src-address=%s comment=%q", bridgeNet, commentTag+"-srcnat")); err != nil {
 		return err
 	}
+	// The panel is published on private addresses only. A CHR has no private address, so
+	// its HTTPS port is published on every address; plain HTTP stays private there.
+	httpsDst := "dst-address=" + lanDstNet + " "
+	if e.sys.CHR {
+		httpsDst = ""
+		e.log("CHR: publishing HTTPS port %d on every router address, HTTP port %d on %s only", e.opts.HTTPSLANPort, e.opts.LANPort, lanDstNet)
+	}
 	if err := e.ensure(fmt.Sprintf("dstnat tcp/%d to %s:80", e.opts.LANPort, vethIP),
 		"/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat"),
 		fmt.Sprintf("chain=dstnat action=dst-nat protocol=tcp dst-address=%s dst-port=%d to-addresses=%s to-ports=80 comment=%q", lanDstNet, e.opts.LANPort, vethIP, commentTag+"-dstnat")); err != nil {
@@ -844,7 +908,7 @@ func (e *Engine) stepNetwork() error {
 
 	if err := e.ensure(fmt.Sprintf("dstnat tcp/%d to %s:443", e.opts.HTTPSLANPort, vethIP),
 		"/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"),
-		fmt.Sprintf("chain=dstnat action=dst-nat protocol=tcp dst-address=%s dst-port=%d to-addresses=%s to-ports=443 comment=%q", lanDstNet, e.opts.HTTPSLANPort, vethIP, commentTag+"-dstnat-https")); err != nil {
+		fmt.Sprintf("chain=dstnat action=dst-nat protocol=tcp %sdst-port=%d to-addresses=%s to-ports=443 comment=%q", httpsDst, e.opts.HTTPSLANPort, vethIP, commentTag+"-dstnat-https")); err != nil {
 		return err
 	}
 	e.moveToTop("/ip/firewall/nat", fmt.Sprintf("comment=%q", commentTag+"-dstnat-https"))
@@ -899,8 +963,8 @@ func (e *Engine) stepContainer() error {
 
 var dstPortRe = regexp.MustCompile(`dst-port=(\d+)`)
 
-func (e *Engine) natPort() int {
-	out, err := e.cl.RunRaw(fmt.Sprintf("/ip/firewall/nat/print detail where comment=%q", commentTag+"-dstnat"), 15*time.Second)
+func (e *Engine) natPort(comment string, fallback int) int {
+	out, err := e.cl.RunRaw(fmt.Sprintf("/ip/firewall/nat/print detail where comment=%q", comment), 15*time.Second)
 	if err == nil {
 		if m := dstPortRe.FindStringSubmatch(out); m != nil {
 			if p, perr := strconv.Atoi(m[1]); perr == nil {
@@ -908,7 +972,7 @@ func (e *Engine) natPort() int {
 			}
 		}
 	}
-	return e.opts.LANPort
+	return fallback
 }
 
 func (e *Engine) stepHealth() error {
@@ -920,11 +984,17 @@ func (e *Engine) stepHealth() error {
 		return fmt.Errorf("/container/start failed: %w (%s)", err, strings.TrimSpace(out))
 	}
 
-	e.finalPort = e.natPort()
+	e.finalPort = e.natPort(commentTag+"-dstnat", e.opts.LANPort)
+	e.finalHTTPSPort = e.natPort(commentTag+"-dstnat-https", e.opts.HTTPSLANPort)
 	healthURL := fmt.Sprintf("http://%s:%d/health", e.opts.Host, e.finalPort)
+	client := &http.Client{Timeout: 4 * time.Second}
+	if e.sys.CHR {
+		// Only HTTPS is published on the CHR's address, and the panel uses a self-signed certificate.
+		healthURL = fmt.Sprintf("https://%s:%d/health", e.opts.Host, e.finalHTTPSPort)
+		client.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}} //nolint:gosec // self-signed panel certificate
+	}
 	e.log("polling %s", healthURL)
 
-	client := &http.Client{Timeout: 4 * time.Second}
 	start := time.Now()
 	last := "--"
 	for time.Since(start) < startTimeout {
@@ -973,6 +1043,9 @@ func (e *Engine) stepBaseline() error {
 		e.note = "skipped by option"
 		return errSkipped
 	}
+	if e.sys.CHR {
+		return e.stepBaselineCHR()
+	}
 	if e.exists("/interface/bridge", "name="+lanBridge) {
 		e.note = lanBridge + " already exists, skipped"
 		return nil
@@ -1007,6 +1080,44 @@ func (e *Engine) stepBaseline() error {
 	}
 	e.baselineApplied = true
 	e.note = fmt.Sprintf("%s %s/24 applied", lanBridge, lanBridgeIP)
+	return nil
+}
+
+// stepBaselineCHR runs the baseline in the foreground. On a CHR the script changes no address,
+// so the connection survives and its own errors come straight back instead of being lost in a
+// detached job. The panel is already healthy at this point, so a failure is reported, not fatal.
+func (e *Engine) stepBaselineCHR() error {
+	if e.opts.DryRun {
+		e.log("[dry-run] would run the baseline on the CHR: DNS, NTP, container DNS and the container input rule, no LAN or firewall changes")
+		return nil
+	}
+	e.log("uploading the baseline script")
+	e.ensureDir(panelDir)
+	if err := e.cl.UploadReader(bytes.NewReader(assets.LANBaseline), int64(len(assets.LANBaseline)), lanBaselineRemote, nil); err != nil {
+		e.log("baseline upload failed: %v", err)
+		e.note = "upload failed, re-run the installer"
+		return nil
+	}
+	defer e.removeRemoteFile(lanBaselineRemote)
+	out, err := e.cl.RunChecked(fmt.Sprintf("/import file-name=%q", lanBaselineRemote), 2*time.Minute)
+	for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+		if line = strings.TrimSpace(line); line != "" {
+			e.log("baseline: %s", line)
+		}
+	}
+	if err == nil && strings.Contains(strings.ToLower(out), "script error") {
+		err = errors.New(strings.TrimSpace(out))
+	}
+	if err != nil {
+		e.log("the baseline script failed: %v", err)
+		e.note = "failed, check the nasnet-panel lines in the router log"
+		return nil
+	}
+	if !e.exists("/ip/firewall/filter", fmt.Sprintf("comment=%q", containerRouterRule)) {
+		e.note = "finished, but the container input rule is missing; check the nasnet-panel lines in the router log"
+		return nil
+	}
+	e.note = "CHR: DNS, NTP and container rules set, the uplink and the firewall are untouched"
 	return nil
 }
 
