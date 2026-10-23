@@ -87,6 +87,7 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
       key: 'bridge',
       header: t('bridge.card.columns.bridge'),
       render: (r) => <span>{bridgeLabel(r.bridge)}</span>,
+      sortValue: (r) => bridgeLabel(r.bridge),
     },
     {
       key: 'behaviour',
@@ -99,10 +100,12 @@ export function BridgePortsCard({ creds, openForInterface, onOpenHandled }: Brid
           <span className={styles.muted}>—</span>
         );
       },
+      sortValue: (r) => bridgeDescription(r.bridge, r.comment),
     },
     {
       key: 'actions',
       header: '',
+      sortable: false,
       width: '80px',
       render: (r) => (
         <div className={styles.rowActions}>

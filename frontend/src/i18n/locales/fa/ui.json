@@ -5,7 +5,8 @@
     "scanFailed": "اسکن {{subnet}} ناموفق بود"
   },
   "dataTable": {
-    "empty": "نتیجه‌ای یافت نشد"
+    "empty": "نتیجه‌ای یافت نشد",
+    "sortBy": "مرتب‌سازی بر اساس {{column}}"
   },
   "dialog": {
     "cancel": "لغو",

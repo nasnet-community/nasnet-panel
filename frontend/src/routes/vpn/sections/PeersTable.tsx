@@ -14,10 +14,16 @@ export function PeersTable({ rows, hasServer, onDelete }: Props) {
     <DataTable
       columns={[
         { key: 'name', header: t('shared.name'), render: (p: VPNPeer) => p.name },
-        { key: 'allowed', header: t('shared.allowedIps'), render: (p: VPNPeer) => p.allowedIps },
+        {
+          key: 'allowed',
+          header: t('shared.allowedIps'),
+          render: (p: VPNPeer) => p.allowedIps,
+          sortValue: (p: VPNPeer) => p.allowedIps,
+        },
         {
           key: 'actions',
           header: t('shared.actions'),
+          sortable: false,
           render: (p: VPNPeer) => (
             <Button size="sm" variant="danger" onClick={() => onDelete(p.id)}>
               {t('shared.delete')}

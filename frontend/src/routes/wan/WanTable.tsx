@@ -42,16 +42,23 @@ export function WanTable<T>({
       emptyIcon={emptyIcon}
       emptyMessage={emptyMessage}
       columns={[
-        { key: 'name', header: t('wan.table.name'), render: (r) => name(r) },
+        { key: 'name', header: t('wan.table.name'), render: (r) => name(r), sortValue: name },
         {
           key: 'tag',
           header: t('wan.table.type'),
           render: (r) => <Badge tone="primary">{tag(r)}</Badge>,
+          sortValue: tag,
         },
-        { key: 'detail', header: t('wan.table.detail'), render: (r) => detail(r) },
+        {
+          key: 'detail',
+          header: t('wan.table.detail'),
+          render: (r) => detail(r),
+          sortValue: detail,
+        },
         {
           key: 'status',
           header: t('wan.table.enabled'),
+          sortValue: enabled,
           render: (r) =>
             onToggle ? (
               <Switch
@@ -70,6 +77,7 @@ export function WanTable<T>({
               {
                 key: 'actions',
                 header: '',
+                sortable: false,
                 render: (r: T) => (
                   <span className={styles.rowActions}>
                     {onMove ? (
