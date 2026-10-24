@@ -16,7 +16,8 @@
       "activeLink": "Active link",
       "configuredIdle": "Configured, idle",
       "liveTraffic": "Live traffic",
-      "clickToToggle": "Click a VPN tunnel to toggle"
+      "clickToToggle": "Click a VPN tunnel to toggle",
+      "directNote": "Direct (no VPN)"
     },
     "columns": {
       "group": "Clients",
@@ -43,6 +44,35 @@
       "starlink": "Starlink",
       "hamrahAval": "Hamrah-e-Aval",
       "irancell": "Irancell"
+    },
+    "direct": {
+      "title": "Direct foreign mode",
+      "description": "Emergency switch for when the VPN is not working. Normally, all VPN traffic is blocked if the VPN goes down. Direct mode sends it straight out of the foreign (Starlink) link instead, with no VPN in the path, and returns to the VPN by itself when the VPN recovers.",
+      "stateVpn": "VPN routing",
+      "stateVpnHint": "Traffic goes through the VPN. It is blocked if the VPN is down.",
+      "stateDirect": "Direct",
+      "stateDirectHint": "Traffic bypasses the VPN and leaves directly through the foreign link.",
+      "noForeignRoute": "Foreign link has no default route",
+      "enable": "Bypass the VPN (go direct)…",
+      "restore": "Restore VPN routing",
+      "confirmTitle": "Connect directly without the VPN?",
+      "confirmDescription": "Clients that normally use the VPN will reach the internet straight through the foreign link.",
+      "risks": [
+        "Your real foreign public IP is exposed to every site and service you visit.",
+        "The VPN's protection and privacy no longer apply to this traffic.",
+        "Active connections of the affected clients are reset when the mode changes.",
+        "Switches back to the VPN automatically when the VPN recovers. You can also turn it off yourself at any time."
+      ],
+      "acknowledge": "I understand the risks and want to use the internet without the VPN.",
+      "cancel": "Cancel",
+      "confirm": "Go direct",
+      "enabledToast": "Direct foreign mode enabled. The VPN is bypassed.",
+      "disabledToast": "VPN routing restored.",
+      "failedTitle": "Could not change direct foreign mode",
+      "vpnDialogHint": "The VPN not working?",
+      "vpnDialogAction": "Bypass the VPN (go direct)…",
+      "loadFailed": "Could not refresh the status",
+      "retry": "Retry"
     }
   },
   "wan": {

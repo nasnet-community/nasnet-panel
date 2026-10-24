@@ -49,4 +49,4 @@ add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100
 /tool netwatch
 add host="1.0.0.1" interval=5s timeout=2s \
 ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
-up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - VPN-Client"
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; /ip firewall mangle disable [find where comment~\"Direct-Foreign-Bypass\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - VPN-Client"

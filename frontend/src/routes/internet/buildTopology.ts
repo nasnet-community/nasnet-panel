@@ -1,6 +1,8 @@
 import {
+  fetchDirectForeign,
   fetchForeignGateway,
   fetchInterfaces,
+  isDirectForeignActive,
   fetchNetStatus,
   listVPNClients,
   type InterfaceResponse,
@@ -75,12 +77,14 @@ export async function buildTopology(
   creds: Creds,
   signal?: AbortSignal,
 ): Promise<RoutingTopology> {
-  const [ifaces, foreignGateway, netStatus, vpnClients] = await Promise.all([
+  const [ifaces, foreignGateway, netStatus, vpnClients, directStatus] = await Promise.all([
     fetchInterfaces(creds, signal),
     fetchForeignGateway(creds, signal).catch(() => null),
     fetchNetStatus(creds, signal).catch((): NetStatusEntry[] => []),
     listVPNClients(creds, signal).catch(() => []),
+    fetchDirectForeign(creds, signal).catch(() => null),
   ]);
+  const direct = isDirectForeignActive(directStatus);
   const pingByName = new Map(vpnClients.map((c) => [c.name, c.pingTime]));
 
   const isNetDown = (type: NetStatusEntry['type']) =>
@@ -140,7 +144,7 @@ export async function buildTopology(
         id: `h_vpn_${vpn.name}`,
         fromId: `wan_${vpnUpstream.name}`,
         toId: id,
-        isActive: !!vpn.running && isRouted(vpn.name) && !vpnDown,
+        isActive: !!vpn.running && isRouted(vpn.name) && !vpnDown && !direct,
       });
     }
   });
@@ -152,7 +156,7 @@ export async function buildTopology(
         id: `h_internet_vpn_${vpn.name}`,
         fromId: `vpn_${vpn.name}`,
         toId: INTERNET_ID,
-        isActive: !!vpn.running && isRouted(vpn.name) && !vpnDown,
+        isActive: !!vpn.running && isRouted(vpn.name) && !vpnDown && !direct,
       });
     });
     domesticWans.forEach((wan) => {
@@ -163,7 +167,15 @@ export async function buildTopology(
         isActive: !domesticDown,
       });
     });
+    if (directStatus && vpnUpstream && !domesticWans.includes(vpnUpstream)) {
+      hops.push({
+        id: `h_internet_wan_${vpnUpstream.name}`,
+        fromId: `wan_${vpnUpstream.name}`,
+        toId: INTERNET_ID,
+        isActive: direct && directStatus.foreignRouteReady && !!vpnUpstream.running && !foreignDown,
+      });
+    }
   }
 
-  return { routerId, nodes, hops };
+  return { routerId, nodes, hops, directForeign: direct };
 }

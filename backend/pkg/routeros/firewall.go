@@ -109,8 +109,11 @@ type MangleRuleConfig struct {
 	InIface           string
 	InIfaceList       string
 	OutIface          string
+	SrcAddressList    string
+	DstAddressList    string
 	ConnectionState   string
 	NewConnectionMark string
+	NewRoutingMark    string
 	PlaceBefore       string
 	Disabled          bool
 	Log               bool
@@ -563,8 +566,17 @@ func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 	if config.OutIface != "" {
 		args = append(args, "=out-interface="+config.OutIface)
 	}
+	if config.SrcAddressList != "" {
+		args = append(args, "=src-address-list="+config.SrcAddressList)
+	}
+	if config.DstAddressList != "" {
+		args = append(args, "=dst-address-list="+config.DstAddressList)
+	}
 	if config.ConnectionState != "" {
 		args = append(args, "=connection-state="+config.ConnectionState)
+	}
+	if config.NewRoutingMark != "" {
+		args = append(args, "=new-routing-mark="+config.NewRoutingMark)
 	}
 	if config.NewConnectionMark != "" {
 		args = append(args, "=new-connection-mark="+config.NewConnectionMark)
@@ -593,6 +605,17 @@ func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 	}
 
 	return id, nil
+}
+
+// SetMangleRulesDisabled enables or disables the mangle rules with the given IDs.
+func (c *Client) SetMangleRulesDisabled(ids []string, disabled bool) error {
+	for _, id := range ids {
+		if _, err := c.Set("/ip/firewall/mangle", "=.id="+id, "=disabled="+utils.ToYesNo(disabled)); err != nil {
+			return fmt.Errorf("failed to update mangle rule %s: %w", id, err)
+		}
+	}
+
+	return nil
 }
 
 // GetMangleRuleIDByComment finds a firewall mangle rule by its exact comment

@@ -512,17 +512,20 @@ add action=mark-routing chain=prerouting comment="Split-DOM" dst-address-list="S
 new-routing-mark="to-Domestic" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-DOM" \
 dst-address-list="DOMAddList" new-routing-mark="to-Domestic" passthrough=no src-address-list="Split-LAN"
+add action=mark-routing chain=prerouting comment="Direct-Foreign-Bypass: Split-!DOM" disabled=yes dst-address-list="!DOMAddList" new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-!DOM"\
 dst-address-list="!DOMAddList" new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Domestic Routing" new-routing-mark="to-Domestic" passthrough=no src-address-list="Domestic-LAN"
 add action=mark-routing chain=prerouting comment="Domestic-Domestic Link Routing" new-routing-mark="to-Domestic-Domestic Link" passthrough=no src-address-list="Domestic-Domestic Link-LAN"
 add action=mark-routing chain=output comment="Route VPN Server Replies via Domestic WAN" connection-mark=conn-vpn-server new-routing-mark=to-Domestic passthrough=no
 {{ end }}
+add action=mark-routing chain=prerouting comment="Direct-Foreign-Bypass: Split-VPN" disabled=yes dst-address-list="SplitVPNAddList" new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-VPN" dst-address-list="SplitVPNAddList" \
 new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
 new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Nasnet-Panel outbound via foreign" dst-address-list=!LOCAL-IP new-routing-mark=to-Foreign passthrough=no src-address=192.168.50.2
+add action=mark-routing chain=prerouting comment="Direct-Foreign-Bypass: VPN Routing" disabled=yes new-routing-mark="to-Foreign" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
 add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"

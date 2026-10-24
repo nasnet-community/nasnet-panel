@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Direct foreign mode: an emergency switch that sends VPN-bound traffic straight out of the foreign link while the VPN is down, with an explicit risk acknowledgement. Available on the Internet and VPN pages and shown in the routing graph.
+
 ### Changed
 
 ### Deprecated

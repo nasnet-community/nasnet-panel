@@ -18,6 +18,7 @@ import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
 import { mapClientFromBE, mapServersStatusToList } from './vpn/adapters';
+import { DirectForeignCard } from './internet/DirectForeignCard';
 import { StatsStrip } from './vpn/StatsStrip';
 import { ActiveConnectionsSection } from './vpn/sections/ActiveConnectionsSection';
 import { ServersSection } from './vpn/sections/ServersSection';
@@ -110,6 +111,7 @@ export function VPNPage() {
         protocols={protocols}
         loading={!loaded}
       />
+      <DirectForeignCard creds={creds} />
       <ServersSection creds={creds} servers={servers} peerCounts={peerCounts} onChanged={reload} />
       <ActiveConnectionsSection creds={creds} onCountChange={setActiveConnections} />
       <UsersSection creds={creds} users={users} onChanged={reload} />

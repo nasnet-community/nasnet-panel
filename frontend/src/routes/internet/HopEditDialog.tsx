@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Dialog, FieldStack, Switch } from '@nasnet/ui';
+import { Button, Dialog, FieldStack, Inline, Switch } from '@nasnet/ui';
 import { useTranslation } from 'react-i18next';
 import type { RoutingTopology } from '@nasnet/mocks';
 import { nodeLabel } from './layout';
@@ -14,9 +14,16 @@ export interface HopEditDialogProps {
   hopId: string;
   onClose: () => void;
   onSave: (next: { hopId: string; isActive: boolean }) => Promise<void>;
+  onRequestDirect?: () => void;
 }
 
-export function HopEditDialog({ topology, hopId, onClose, onSave }: HopEditDialogProps) {
+export function HopEditDialog({
+  topology,
+  hopId,
+  onClose,
+  onSave,
+  onRequestDirect,
+}: HopEditDialogProps) {
   const { t } = useTranslation('internet');
   const hop = topology.hops.find((h) => h.id === hopId);
   const fromNode = hop ? topology.nodes.find((n) => n.id === hop.fromId) : undefined;
@@ -67,6 +74,22 @@ export function HopEditDialog({ topology, hopId, onClose, onSave }: HopEditDialo
           checked={draft.isActive}
           onChange={(e) => setDraft({ ...draft, isActive: e.target.checked })}
         />
+        {onRequestDirect && toNode.kind === 'vpn' ? (
+          <Inline>
+            <span>{t('internet.direct.vpnDialogHint')}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={saving}
+              onClick={() => {
+                onClose();
+                onRequestDirect();
+              }}
+            >
+              {t('internet.direct.vpnDialogAction')}
+            </Button>
+          </Inline>
+        ) : null}
       </FieldStack>
     </Dialog>
   );

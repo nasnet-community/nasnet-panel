@@ -259,6 +259,21 @@ func syncExistingSettings(ctx context.Context, client *routeros.Client, conn *sq
 		errs = append(errs, db.UpsertSetting(ctx, conn, settingKeyDomesticBlockEnabled, strconv.FormatBool(domesticBlockRulesMatch(rules, true))))
 	}
 
+	mangleRules, err := client.ListMangleRules()
+	if err != nil {
+		errs = append(errs, err)
+	} else {
+		directRules := make([]routeros.MangleRule, 0, len(directForeignRules))
+		for i := range mangleRules {
+			if strings.HasPrefix(mangleRules[i].Comment, directForeignRulePrefix) {
+				directRules = append(directRules, mangleRules[i])
+			}
+		}
+		if len(directRules) > 0 {
+			errs = append(errs, db.UpsertSetting(ctx, conn, settingKeyDirectForeignEnabled, strconv.FormatBool(directForeignRulesMatch(directRules, true))))
+		}
+	}
+
 	routes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Comment: "Route-to-VPN-Client", RoutingTable: "main"})
 	switch {
 	case err != nil:

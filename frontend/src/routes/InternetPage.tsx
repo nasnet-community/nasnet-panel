@@ -10,6 +10,7 @@ import { usePolling } from '../utils/usePolling';
 import { buildTopology } from './internet/buildTopology';
 import { computeColumnLayout } from './internet/columnLayout';
 import { Edge } from './internet/Edge';
+import { DirectForeignCard } from './internet/DirectForeignCard';
 import { HopEditDialog } from './internet/HopEditDialog';
 import { NodeBubble } from './internet/NodeBubble';
 import { COLUMN_ORDER, computeReachable, hopForNode, type Positioned } from './internet/layout';
@@ -26,6 +27,7 @@ export function InternetPage() {
   const [topology, setTopology] = useState<RoutingTopology | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [editingHopId, setEditingHopId] = useState<string | null>(null);
+  const [directRequest, setDirectRequest] = useState(0);
 
   const creds = useMemo(() => {
     if (!id) return null;
@@ -127,6 +129,7 @@ export function InternetPage() {
 
   return (
     <Stack>
+      <DirectForeignCard creds={creds} onChanged={reload} openRequest={directRequest} />
       <Card>
         <CardHeader>
           <CardTitle>{t('internet.title')}</CardTitle>
@@ -242,6 +245,9 @@ export function InternetPage() {
               {t('internet.legend.liveTraffic')}
             </span>
             <span className={styles.legendItem}>{t('internet.legend.clickToToggle')}</span>
+            {topology?.directForeign ? (
+              <span className={styles.legendItem}>{t('internet.legend.directNote')}</span>
+            ) : null}
           </div>
         </div>
       </Card>
@@ -251,6 +257,7 @@ export function InternetPage() {
           hopId={editingHopId}
           onClose={() => setEditingHopId(null)}
           onSave={handleSaveHop}
+          onRequestDirect={() => setDirectRequest((n) => n + 1)}
         />
       ) : null}
     </Stack>

@@ -249,4 +249,5 @@ export interface RoutingTopology {
   routerId: string;
   nodes: RoutingNode[];
   hops: RoutingHop[];
+  directForeign?: boolean;
 }

@@ -41,6 +41,7 @@ add address="192.168.41.1/24" interface="LANBridgeVPN-L2TP-Client" network="192.
 add address="192.168.41.0/24" list="VPN-L2TP-Client-LAN" comment="VPN-L2TP-Client"
 
 /ip firewall mangle
+add action=mark-routing chain=prerouting comment="Direct-Foreign-Bypass: VPN-Client Routing" disabled=yes new-routing-mark="to-Foreign" passthrough=no src-address-list="VPN-L2TP-Client-LAN"
 add action=mark-routing chain=prerouting comment="VPN-L2TP-Client Routing" new-routing-mark="to-VPN-Client" passthrough=no src-address-list="VPN-L2TP-Client-LAN"
 
 /ip firewall nat
@@ -65,4 +66,4 @@ add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100
 
 /tool netwatch
 add host="1.0.0.1" interval=5s timeout=2s ignore-initial-down=no ignore-initial-up=yes start-delay=0ms startup-delay=0s \
-up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - VPN-Client"
+up-script="/ip route enable [find comment=\"CheckIP-Route-to-VPN-Client\"]; /ip firewall mangle disable [find where comment~\"Direct-Foreign-Bypass\"]; " down-script="/ip route disable [find comment=\"CheckIP-Route-to-VPN-Client\"]; " comment="Failover Netwatch - VPN-Client"
