@@ -3,14 +3,48 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
 )
+
+const (
+	systemUpdatePollInterval = 5 * time.Second
+	systemUpdateTimeout      = 15 * time.Minute
+	systemUpdateFailGrace    = 2 * time.Minute
+)
+
+type systemUpdatePhase string
+
+const (
+	systemUpdatePhaseIdle        systemUpdatePhase = "idle"
+	systemUpdatePhaseDownloading systemUpdatePhase = "downloading"
+	systemUpdatePhaseRebooting   systemUpdatePhase = "rebooting"
+	systemUpdatePhaseDone        systemUpdatePhase = "done"
+	systemUpdatePhaseError       systemUpdatePhase = "error"
+)
+
+type systemUpdateEntry struct {
+	phase       systemUpdatePhase
+	message     string
+	fromVersion string
+	toVersion   string
+	startedAt   time.Time
+}
+
+type systemUpdateState struct {
+	mu      sync.RWMutex
+	entries map[string]*systemUpdateEntry
+}
+
+var systemUpdates = &systemUpdateState{entries: make(map[string]*systemUpdateEntry)}
 
 // HandleGetSystemInfo godoc
 // @Summary Get system information
@@ -303,34 +337,171 @@ func HandleCheckForUpdates(c echo.Context) error {
 
 // HandleInstallUpdate godoc
 // @Summary Install package update
-// @Description Install the latest available package update
+// @Description Starts installing the latest available RouterOS package update in the background and
+// @Description returns immediately. The router reboots when the download finishes; poll
+// @Description /api/system/update-status for progress.
 // @Tags System
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Produce json
-// @Success 200 {object} Response{data=UpdateInstallResponse}
+// @Success 200 {object} Response{data=InstallUpdateResponse}
+// @Failure 409 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/system/install-update [post].
 func HandleInstallUpdate(c echo.Context) error {
-	client, err := GetRouterOSClient(c)
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+	client, err := NewRouterOSClient(c, creds)
 	if err != nil {
 		return err
 	}
 
-	installResult, err := client.InstallUpdate()
+	if busy, phase := systemUpdates.inProgress(creds.RouterOSHost); busy {
+		return ErrorResponse(c, http.StatusConflict, "An update is already in progress",
+			fmt.Errorf("current phase: %s", phase))
+	}
+
+	checkResult, err := client.CheckForUpdates()
 	if err != nil {
-		// Even if there's an error, return the result with status
-		response := ToUpdateInstallResponse(installResult)
-		return SuccessResponse(c, http.StatusOK, "Firmware update check and installation attempted", response)
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check for updates", err)
+	}
+	if !checkResult.UpdateAvailable {
+		return SuccessResponse(c, http.StatusOK, checkResult.Status, InstallUpdateResponse{
+			UpdateAvailable: false,
+			FromVersion:     checkResult.InstalledVersion,
+			ToVersion:       checkResult.LatestVersion,
+		})
 	}
 
-	statusCode := http.StatusOK
-	if !installResult.Success {
-		statusCode = http.StatusBadRequest
+	systemUpdates.begin(creds.RouterOSHost, checkResult.InstalledVersion, checkResult.LatestVersion)
+
+	go watchSystemUpdate(routeros.ConnectionConfig{
+		Address:  creds.RouterOSHost,
+		Username: creds.Username,
+		Password: creds.Password,
+	}, client, checkResult.LatestVersion)
+
+	return SuccessResponse(c, http.StatusOK, "Update started", InstallUpdateResponse{
+		UpdateAvailable: true,
+		FromVersion:     checkResult.InstalledVersion,
+		ToVersion:       checkResult.LatestVersion,
+	})
+}
+
+func (s *systemUpdateState) begin(host, from, to string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.entries[host] = &systemUpdateEntry{
+		phase:       systemUpdatePhaseDownloading,
+		message:     "downloading and installing the update",
+		fromVersion: from,
+		toVersion:   to,
+		startedAt:   time.Now(),
+	}
+}
+
+func (s *systemUpdateState) set(host string, phase systemUpdatePhase, message string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if entry, ok := s.entries[host]; ok {
+		entry.phase = phase
+		entry.message = message
+	}
+}
+
+func (s *systemUpdateState) inProgress(host string) (bool, systemUpdatePhase) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	entry, ok := s.entries[host]
+	if !ok {
+		return false, systemUpdatePhaseIdle
+	}
+	busy := entry.phase == systemUpdatePhaseDownloading || entry.phase == systemUpdatePhaseRebooting
+	return busy, entry.phase
+}
+
+func (s *systemUpdateState) snapshot(host string) SystemUpdateStatusResponse {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	entry, ok := s.entries[host]
+	if !ok {
+		return SystemUpdateStatusResponse{Phase: string(systemUpdatePhaseIdle)}
+	}
+	return SystemUpdateStatusResponse{
+		Phase:       string(entry.phase),
+		Message:     entry.message,
+		FromVersion: entry.fromVersion,
+		ToVersion:   entry.toVersion,
+		StartedAt:   entry.startedAt.Format(time.RFC3339),
+	}
+}
+
+// watchSystemUpdate starts the package installation and follows it until the router reports the
+// target version again. It runs detached from the request that started it, because RouterOS
+// reboots during the update and the connection of that request is lost.
+func watchSystemUpdate(config routeros.ConnectionConfig, client *routeros.Client, toVersion string) {
+	host := config.Address
+	startedAt := time.Now()
+
+	installErr := client.StartPackageUpdateInstall()
+	systemUpdates.set(host, systemUpdatePhaseRebooting, "update installed, waiting for the router to reboot")
+
+	sawOffline := false
+	ticker := time.NewTicker(systemUpdatePollInterval)
+	defer ticker.Stop()
+
+	for time.Since(startedAt) < systemUpdateTimeout {
+		<-ticker.C
+
+		current, err := routeros.GetOrCreateClient(config)
+		if err != nil {
+			sawOffline = true
+			systemUpdates.set(host, systemUpdatePhaseRebooting, "waiting for the router to come back")
+			continue
+		}
+		info, err := current.GetUpdateStatus()
+		if err != nil {
+			sawOffline = true
+			continue
+		}
+
+		if info.InstalledVersion == toVersion {
+			systemUpdates.set(host, systemUpdatePhaseDone, "router updated to "+toVersion)
+			return
+		}
+		if strings.Contains(strings.ToLower(info.Status), "download") {
+			systemUpdates.set(host, systemUpdatePhaseDownloading, info.Status)
+			continue
+		}
+		if installErr != nil && !sawOffline && time.Since(startedAt) > systemUpdateFailGrace {
+			systemUpdates.set(host, systemUpdatePhaseError, installErr.Error())
+			log.Printf("[system-update] install failed on %s: %v", host, installErr)
+			return
+		}
 	}
 
-	response := ToUpdateInstallResponse(installResult)
-	return SuccessResponse(c, statusCode, "Firmware update installation result", response)
+	systemUpdates.set(host, systemUpdatePhaseError, "timed out waiting for the router to finish updating")
+}
+
+// HandleGetSystemUpdateStatus godoc
+// @Summary Get RouterOS update status
+// @Description Returns the phase of the RouterOS package update started by POST /api/system/install-update
+// @Tags System
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=SystemUpdateStatusResponse}
+// @Router /api/system/update-status [get].
+func HandleGetSystemUpdateStatus(c echo.Context) error {
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Update status retrieved", systemUpdates.snapshot(creds.RouterOSHost))
 }
 
 var nonEditableIPServices = map[string]bool{

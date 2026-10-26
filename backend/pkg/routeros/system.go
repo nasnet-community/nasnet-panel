@@ -597,6 +597,11 @@ func (c *Client) CheckForUpdates() (*UpdateCheckInfo, error) {
 		return nil, fmt.Errorf("failed to check for updates: %w", err)
 	}
 
+	return c.GetUpdateStatus()
+}
+
+// GetUpdateStatus reads /system/package/update without asking RouterOS to check for updates first.
+func (c *Client) GetUpdateStatus() (*UpdateCheckInfo, error) {
 	result, err := c.GetFirst("/system/package/update")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get update status: %w", err)
@@ -614,6 +619,15 @@ func (c *Client) CheckForUpdates() (*UpdateCheckInfo, error) {
 		Status:           status,
 		UpdateAvailable:  updateAvailable,
 	}, nil
+}
+
+// StartPackageUpdateInstall asks RouterOS to download and install the latest packages. RouterOS
+// reboots when the download is done, so the connection is usually lost before this returns.
+func (c *Client) StartPackageUpdateInstall() error {
+	if _, err := c.conn.Run("/system/package/update/install"); err != nil {
+		return fmt.Errorf("failed to install update: %w", err)
+	}
+	return nil
 }
 
 // InstallUpdate installs the latest package update.
