@@ -30,6 +30,7 @@ export function UsersTable({ rows, totalRows, onEdit, onDelete, canMutate = fals
               {u.disabled ? t('shared.disabled') : t('shared.enabled')}
             </Badge>
           ),
+          sortValue: (u: VPNUserResponse) => !u.disabled,
         },
         {
           key: 'comment',
@@ -39,6 +40,7 @@ export function UsersTable({ rows, totalRows, onEdit, onDelete, canMutate = fals
         {
           key: 'actions',
           header: t('shared.actions'),
+          sortable: false,
           render: (u: VPNUserResponse) => (
             <span style={{ display: 'inline-flex', gap: 8 }}>
               {onEdit ? (

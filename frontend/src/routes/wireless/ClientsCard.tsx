@@ -1,6 +1,14 @@
 import { SignalHigh } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Card, CardDescription, CardHeader, CardTitle, DataTable } from '@nasnet/ui';
+import {
+  Badge,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  DataTable,
+  parseRouterOSDuration,
+} from '@nasnet/ui';
 import type { WirelessClient } from '../../api';
 import { useFormat } from '../../utils/useFormat';
 import styles from '../WirelessPage.module.scss';
@@ -55,17 +63,21 @@ export function ClientsCard({ clients }: Props) {
                   {t('stats.dbm', { value: plain(c.signalDbm) })}
                 </Badge>
               ),
+              sortValue: (c: WirelessClient) => c.signalDbm,
             },
             {
               key: 'throughput',
               header: t('clients.throughput'),
               render: (c: WirelessClient) =>
                 t('clients.throughputValue', { tx: plain(c.txKbps), rx: plain(c.rxKbps) }),
+              sortValue: (c: WirelessClient) => c.txKbps + c.rxKbps,
             },
             {
               key: 'connectedFor',
               header: t('clients.uptime'),
               render: (c: WirelessClient) => c.connectedFor,
+              sortValue: (c: WirelessClient) =>
+                parseRouterOSDuration(c.connectedFor) ?? c.connectedFor,
             },
           ]}
           rows={clients}

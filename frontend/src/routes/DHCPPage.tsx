@@ -12,6 +12,7 @@ import {
   ConfirmDialog,
   DataTable,
   type DataTableColumn,
+  parseRouterOSDuration,
   Skeleton,
   Stack,
   useToast,
@@ -216,16 +217,19 @@ export function DHCPPage() {
       key: 'mac',
       header: t('dhcp.columns.mac'),
       render: (r) => <span className={styles.mono}>{r.macAddress}</span>,
+      sortValue: (r) => r.macAddress,
     },
     {
       key: 'host',
       header: t('dhcp.columns.host'),
       render: (r) => r.hostName || <span className={styles.muted}>—</span>,
+      sortValue: (r) => r.hostName,
     },
     {
       key: 'server',
       header: t('dhcp.columns.server'),
       render: (r) => r.serverName || <span className={styles.muted}>—</span>,
+      sortValue: (r) => r.serverName,
     },
     {
       key: 'port',
@@ -236,6 +240,7 @@ export function DHCPPage() {
         ) : (
           <span className={styles.muted}>—</span>
         ),
+      sortValue: (r) => r.bridgePort,
     },
     {
       key: 'type',
@@ -246,6 +251,7 @@ export function DHCPPage() {
         ) : (
           <Badge tone="success">{t('dhcp.static')}</Badge>
         ),
+      sortValue: (r) => r.dynamic,
     },
     {
       key: 'status',
@@ -261,10 +267,12 @@ export function DHCPPage() {
       key: 'expires',
       header: t('dhcp.columns.expires'),
       render: (r) => r.expiresAfter || <span className={styles.muted}>—</span>,
+      sortValue: (r) => parseRouterOSDuration(r.expiresAfter) ?? r.expiresAfter,
     },
     {
       key: 'actions',
       header: '',
+      sortable: false,
       width: '200px',
       render: (r) => (
         <div className={styles.rowActions}>
@@ -338,10 +346,12 @@ export function DHCPPage() {
           <span className={styles.muted}>—</span>
         );
       },
+      sortValue: (r) => [r.primaryDns, r.secondaryDns].filter(Boolean).join(', '),
     },
     {
       key: 'state',
       header: t('dhcp.columns.state'),
+      sortValue: (r) => !r.disabled,
       render: (r) =>
         r.disabled ? (
           <Badge tone="warning">{t('common.disabled')}</Badge>

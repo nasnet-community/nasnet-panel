@@ -20,6 +20,56 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.thSortable {
+  padding: 0;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+}
+
+.sortIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 120ms ease;
+
+  .sortButton:hover &,
+  .sortButton:focus-visible & {
+    opacity: 0.6;
+  }
+
+  .sortButtonActive & {
+    opacity: 1;
+  }
+}
+
+.sortButtonActive {
+  color: var(--color-text);
+}
+
 .tr {
   background: transparent;
   cursor: default;
