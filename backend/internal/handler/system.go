@@ -375,7 +375,10 @@ func HandleInstallUpdate(c echo.Context) error {
 		})
 	}
 
-	systemUpdates.begin(creds.RouterOSHost, checkResult.InstalledVersion, checkResult.LatestVersion)
+	if started, phase := systemUpdates.tryBegin(creds.RouterOSHost, checkResult.InstalledVersion, checkResult.LatestVersion); !started {
+		return ErrorResponse(c, http.StatusConflict, "An update is already in progress",
+			fmt.Errorf("current phase: %s", phase))
+	}
 
 	go watchSystemUpdate(routeros.ConnectionConfig{
 		Address:  creds.RouterOSHost,
@@ -390,9 +393,15 @@ func HandleInstallUpdate(c echo.Context) error {
 	})
 }
 
-func (s *systemUpdateState) begin(host, from, to string) {
+func (s *systemUpdateState) tryBegin(host, from, to string) (bool, systemUpdatePhase) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	if entry, ok := s.entries[host]; ok &&
+		(entry.phase == systemUpdatePhaseDownloading || entry.phase == systemUpdatePhaseRebooting) {
+		return false, entry.phase
+	}
+
 	s.entries[host] = &systemUpdateEntry{
 		phase:       systemUpdatePhaseDownloading,
 		message:     "downloading and installing the update",
@@ -400,6 +409,7 @@ func (s *systemUpdateState) begin(host, from, to string) {
 		toVersion:   to,
 		startedAt:   time.Now(),
 	}
+	return true, systemUpdatePhaseDownloading
 }
 
 func (s *systemUpdateState) set(host string, phase systemUpdatePhase, message string) {
@@ -446,24 +456,50 @@ func watchSystemUpdate(config routeros.ConnectionConfig, client *routeros.Client
 	host := config.Address
 	startedAt := time.Now()
 
-	installErr := client.StartPackageUpdateInstall()
-	systemUpdates.set(host, systemUpdatePhaseRebooting, "update installed, waiting for the router to reboot")
+	installResult := make(chan error, 1)
+	go func() {
+		installResult <- client.StartPackageUpdateInstall()
+	}()
 
+	var installErr error
 	sawOffline := false
+	var poller *routeros.Client
+	defer func() {
+		if poller != nil {
+			_ = poller.Close()
+		}
+	}()
+
 	ticker := time.NewTicker(systemUpdatePollInterval)
 	defer ticker.Stop()
+	timeout := time.NewTimer(systemUpdateTimeout)
+	defer timeout.Stop()
 
-	for time.Since(startedAt) < systemUpdateTimeout {
-		<-ticker.C
-
-		current, err := routeros.GetOrCreateClient(config)
-		if err != nil {
-			sawOffline = true
-			systemUpdates.set(host, systemUpdatePhaseRebooting, "waiting for the router to come back")
+	for {
+		select {
+		case <-timeout.C:
+			systemUpdates.set(host, systemUpdatePhaseError, "timed out waiting for the router to finish updating")
+			return
+		case installErr = <-installResult:
+			installResult = nil
+			systemUpdates.set(host, systemUpdatePhaseRebooting, "update installed, waiting for the router to reboot")
 			continue
+		case <-ticker.C:
 		}
-		info, err := current.GetUpdateStatus()
+
+		if poller == nil {
+			var err error
+			if poller, err = routeros.NewClient(config); err != nil {
+				poller = nil
+				sawOffline = true
+				systemUpdates.set(host, systemUpdatePhaseRebooting, "waiting for the router to come back")
+				continue
+			}
+		}
+		info, err := poller.GetUpdateStatus()
 		if err != nil {
+			_ = poller.Close()
+			poller = nil
 			sawOffline = true
 			continue
 		}
@@ -482,8 +518,6 @@ func watchSystemUpdate(config routeros.ConnectionConfig, client *routeros.Client
 			return
 		}
 	}
-
-	systemUpdates.set(host, systemUpdatePhaseError, "timed out waiting for the router to finish updating")
 }
 
 // HandleGetSystemUpdateStatus godoc

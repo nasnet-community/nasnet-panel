@@ -624,7 +624,14 @@ func (c *Client) GetUpdateStatus() (*UpdateCheckInfo, error) {
 // StartPackageUpdateInstall asks RouterOS to download and install the latest packages. RouterOS
 // reboots when the download is done, so the connection is usually lost before this returns.
 func (c *Client) StartPackageUpdateInstall() error {
-	if _, err := c.conn.Run("/system/package/update/install"); err != nil {
+	c.mu.Lock()
+	conn := c.conn
+	c.mu.Unlock()
+
+	if conn == nil {
+		return fmt.Errorf("failed to install update: not connected to RouterOS")
+	}
+	if _, err := conn.Run("/system/package/update/install"); err != nil {
 		return fmt.Errorf("failed to install update: %w", err)
 	}
 	return nil
