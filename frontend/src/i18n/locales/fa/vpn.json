@@ -22,6 +22,11 @@
       "l2tpUpdateFailed": "به‌روزرسانی کلاینت L2TP ناموفق بود",
       "l2tpUpdateFailedDescription": "به‌روزرسانی کلاینت L2TP ناموفق بود.",
       "l2tpUpdated": "کلاینت L2TP «{{name}}» به‌روزرسانی شد",
+      "addSstpFailedDescription": "افزودن کلاینت SSTP ناموفق بود.",
+      "sstpAdded": "کلاینت SSTP «{{name}}» افزوده شد",
+      "sstpUpdateFailed": "به‌روزرسانی کلاینت SSTP ناموفق بود",
+      "sstpUpdateFailedDescription": "به‌روزرسانی کلاینت SSTP ناموفق بود.",
+      "sstpUpdated": "کلاینت SSTP «{{name}}» به‌روزرسانی شد",
       "deleteFailed": "حذف کلاینت ناموفق بود",
       "deleteFailedDescription": "حذف کلاینت ناموفق بود.",
       "deletedNamed": "کلاینت «{{name}}» حذف شد",
@@ -47,7 +52,9 @@
       "wgTitle": "حذف کلاینت WireGuard",
       "l2tpTitle": "حذف کلاینت L2TP",
       "wgDescription": "«{{name}}» از این روتر حذف شود؟ همتاها و آدرس IP مرتبط هم حذف می‌شوند. این کار برگشت‌پذیر نیست.",
-      "l2tpDescription": "«{{name}}» از این روتر حذف شود؟ این کار برگشت‌پذیر نیست."
+      "l2tpDescription": "«{{name}}» از این روتر حذف شود؟ این کار برگشت‌پذیر نیست.",
+      "sstpTitle": "حذف کلاینت SSTP",
+      "sstpDescription": "«{{name}}» از این روتر حذف شود؟ این کار برگشت‌پذیر نیست."
     },
     "form": {
       "editTitle": "ویرایش کلاینت وی پی ان",
@@ -168,6 +175,7 @@
     "yes": "بله",
     "no": "خیر",
     "passwordRequired": "رمز عبور الزامی است.",
+    "userRequired": "کاربر الزامی است.",
     "wgKeyInvalid": "یک کلید معتبر WireGuard وارد کنید (base64 با ۴۴ کاراکتر).",
     "adding": "در حال افزودن…",
     "enabledOnCreation": "فعال هنگام ساخت",
@@ -315,8 +323,11 @@
   },
   "l2tpEdit": {
     "loadFailed": "بارگذاری کلاینت L2TP ناموفق بود.",
-    "userRequired": "کاربر الزامی است.",
     "title": "ویرایش کلاینت L2TP - {{name}}"
+  },
+  "sstpEdit": {
+    "loadFailed": "بارگذاری کلاینت SSTP ناموفق بود.",
+    "title": "ویرایش کلاینت SSTP - {{name}}"
   },
   "wgPeerEdit": {
     "updateFailed": "به‌روزرسانی همتای WireGuard ناموفق بود.",

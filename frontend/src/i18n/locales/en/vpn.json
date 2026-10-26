@@ -22,6 +22,11 @@
       "l2tpUpdateFailed": "Failed to update L2TP client",
       "l2tpUpdateFailedDescription": "Failed to update L2TP client.",
       "l2tpUpdated": "L2TP client \"{{name}}\" updated",
+      "addSstpFailedDescription": "Failed to add SSTP client.",
+      "sstpAdded": "SSTP client \"{{name}}\" added",
+      "sstpUpdateFailed": "Failed to update SSTP client",
+      "sstpUpdateFailedDescription": "Failed to update SSTP client.",
+      "sstpUpdated": "SSTP client \"{{name}}\" updated",
       "deleteFailed": "Failed to delete client",
       "deleteFailedDescription": "Failed to delete client.",
       "deletedNamed": "Client \"{{name}}\" deleted",
@@ -47,7 +52,9 @@
       "wgTitle": "Delete WireGuard client",
       "l2tpTitle": "Delete L2TP client",
       "wgDescription": "Remove \"{{name}}\" from this router? Associated peers and IP address will also be removed. This cannot be undone.",
-      "l2tpDescription": "Remove \"{{name}}\" from this router? This cannot be undone."
+      "l2tpDescription": "Remove \"{{name}}\" from this router? This cannot be undone.",
+      "sstpTitle": "Delete SSTP client",
+      "sstpDescription": "Remove \"{{name}}\" from this router? This cannot be undone."
     },
     "form": {
       "editTitle": "Edit VPN client",
@@ -168,6 +175,7 @@
     "yes": "Yes",
     "no": "No",
     "passwordRequired": "Password is required.",
+    "userRequired": "User is required.",
     "wgKeyInvalid": "Enter a valid WireGuard key (44-character base64).",
     "adding": "Adding…",
     "enabledOnCreation": "Enabled on creation",
@@ -315,8 +323,11 @@
   },
   "l2tpEdit": {
     "loadFailed": "Failed to load L2TP client.",
-    "userRequired": "User is required.",
     "title": "Edit L2TP client - {{name}}"
+  },
+  "sstpEdit": {
+    "loadFailed": "Failed to load SSTP client.",
+    "title": "Edit SSTP client - {{name}}"
   },
   "wgPeerEdit": {
     "updateFailed": "Failed to update WireGuard peer.",
