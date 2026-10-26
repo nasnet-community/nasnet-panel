@@ -19,6 +19,7 @@ interface WanRouteState {
     running: boolean;
     disabled: boolean;
     comment?: string;
+    defaultName?: string;
   }>;
   vpnClients: Array<{
     id: string;
@@ -319,6 +320,40 @@ test.describe('WAN tab', () => {
     await expect(dialog).toBeHidden();
   });
 
+  test('virtual WiFi interfaces are not offered as uplinks', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
+    await setSessionCreds(context, ROUTER_ID);
+    const state = blankState();
+    state.interfaces.push(
+      {
+        id: '*3',
+        name: 'wifi1',
+        type: 'wifi',
+        running: true,
+        disabled: false,
+        defaultName: 'wifi1',
+      },
+      { id: '*4', name: 'guest-wifi', type: 'wifi', running: true, disabled: false },
+    );
+    await setupWanRoutes(context, state);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await changeButton(page, 0).click();
+    const dialog = page.getByRole('dialog', { name: 'Change Starlink uplink' });
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByRole('radio', { name: 'Wireless' }).click();
+    await dialog.getByLabel('Starlink WAN').click();
+    await expect(page.getByRole('option', { name: 'wifi1' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'guest-wifi' })).toHaveCount(0);
+  });
+
   test('add a wireless Starlink uplink sends ssid and password', async ({
     page,
     context,
@@ -335,6 +370,7 @@ test.describe('WAN tab', () => {
       type: 'wifi',
       running: true,
       disabled: false,
+      defaultName: 'wifi1',
     });
     await setupWanRoutes(context, state);
     await page.goto(`/router/${ROUTER_ID}/wan`);

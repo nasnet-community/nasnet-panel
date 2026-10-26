@@ -52,6 +52,51 @@ export interface UpdateL2TPClientRequest {
   comment?: string;
 }
 
+export interface AddSSTPClientRequest {
+  name?: string;
+  connectTo: string;
+  port?: number;
+  user: string;
+  password: string;
+  disabled?: boolean;
+  comment?: string;
+}
+
+export interface UpdateSSTPClientRequest {
+  connectTo?: string;
+  port?: number;
+  user?: string;
+  password?: string;
+  disabled?: boolean;
+  comment?: string;
+}
+
+export interface SSTPClientDetailsResponse {
+  id: string;
+  name: string;
+  disabled: boolean;
+  running: boolean;
+  connectTo: string;
+  port: number;
+  user: string;
+  password: string;
+  profile: string;
+  keepaliveTimeout: number;
+  tlsVersion: string;
+  verifyServerCertificate: boolean;
+  verifyServerAddressFromCertificate: boolean;
+  pfs: boolean;
+  ciphers: string;
+  authentication: string;
+  comment?: string;
+  status: string;
+  uptime: string;
+  encoding: string;
+  mtu: number;
+  localAddress: string;
+  remoteAddress: string;
+}
+
 export interface L2TPClientDetailsResponse {
   id: string;
   name: string;
@@ -612,6 +657,59 @@ export async function deleteL2TPClient(
   signal?: AbortSignal,
 ): Promise<void> {
   await apiRequest<void>(`/api/vpn/l2tp/client/${encodeURIComponent(nameOrID)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function addSSTPClient(
+  creds: VPNCredentials,
+  body: AddSSTPClientRequest,
+  signal?: AbortSignal,
+): Promise<VPNClientResponse> {
+  return apiRequest<VPNClientResponse>('/api/vpn/sstp/client', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function fetchSSTPClientDetails(
+  creds: VPNCredentials,
+  name: string,
+  signal?: AbortSignal,
+): Promise<SSTPClientDetailsResponse> {
+  return apiRequest<SSTPClientDetailsResponse>(`/api/vpn/sstp/client/${encodeURIComponent(name)}`, {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function updateSSTPClient(
+  creds: VPNCredentials,
+  nameOrID: string,
+  body: UpdateSSTPClientRequest,
+  signal?: AbortSignal,
+): Promise<VPNClientResponse> {
+  return apiRequest<VPNClientResponse>(`/api/vpn/sstp/client/${encodeURIComponent(nameOrID)}`, {
+    method: 'PUT',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function deleteSSTPClient(
+  creds: VPNCredentials,
+  nameOrID: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest<void>(`/api/vpn/sstp/client/${encodeURIComponent(nameOrID)}`, {
     method: 'DELETE',
     headers: authHeaders(creds),
     cache: 'no-store',
