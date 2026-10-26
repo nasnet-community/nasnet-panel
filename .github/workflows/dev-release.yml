@@ -1,0 +1,75 @@
+name: Dev release
+
+# Every merge to dev gets its own pre-release: the next version is derived from the conventional
+# commit titles since the last stable tag and built as
+# vX.Y.Z-dev.<date>.<n> through release.yml. Stable (vX.Y.Z) and release candidate
+# (vX.Y.Z-rc.N) builds are made by pushing that tag by hand.
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.next.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: next
+        run: |
+          set -euo pipefail
+          LAST_TAG="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | { grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; } | head -n 1)"
+          LAST="${LAST_TAG#v}"
+          LAST="${LAST:-0.0.0}"
+          MESSAGES="$(git log --format=%B "${LAST_TAG:+${LAST_TAG}..}${GITHUB_SHA}")"
+
+          BUMP=patch
+          if grep -qE '^feat(\([^)]*\))?:' <<<"$MESSAGES"; then BUMP=minor; fi
+          if grep -qE '^[A-Za-z]+(\([^)]*\))?!:|^BREAKING[ -]CHANGE' <<<"$MESSAGES"; then BUMP=major; fi
+
+          IFS=. read -r MAJOR MINOR PATCH <<<"$LAST"
+          case "$BUMP" in
+            major) MAJOR=$(( MAJOR + 1 )); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$(( MINOR + 1 )); PATCH=0 ;;
+            patch) PATCH=$(( PATCH + 1 )) ;;
+          esac
+
+          PREFIX="v${MAJOR}.${MINOR}.${PATCH}-dev.$(date -u +%Y%m%d)."
+          HIGHEST="$(git tag --list "${PREFIX}*" | sed "s/^${PREFIX}//" | sort -n | tail -n 1)"
+          TAG="${PREFIX}$(( ${HIGHEST:-0} + 1 ))"
+          echo "Last stable ${LAST}, ${BUMP} bump -> ${TAG}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Tag the merged commit
+        env:
+          TAG: ${{ steps.next.outputs.tag }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Development release $TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$TAG"
+
+  release:
+    needs: version
+    permissions:
+      contents: write
+      packages: write
+    uses: ./.github/workflows/release.yml
+    with:
+      release_tag: ${{ needs.version.outputs.tag }}
+    secrets: inherit
