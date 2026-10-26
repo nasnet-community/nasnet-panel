@@ -28,7 +28,14 @@ export type { ToastTone } from './patterns/Toast';
 export { Tooltip } from './patterns/Tooltip';
 export type { TooltipProps } from './patterns/Tooltip';
 export { DataTable } from './patterns/DataTable';
-export type { DataTableColumn, DataTableProps } from './patterns/DataTable';
+export type {
+  DataTableColumn,
+  DataTableProps,
+  SortDirection,
+  SortState,
+  SortValue,
+} from './patterns/DataTable';
+export { leadingNumber, parseRouterOSDuration } from './patterns/sortRows';
 export { FileDrop } from './patterns/FileDrop';
 export type { FileDropProps } from './patterns/FileDrop';
 export { Progress } from './patterns/Progress';

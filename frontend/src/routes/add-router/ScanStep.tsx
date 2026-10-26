@@ -49,6 +49,7 @@ const scanColumns = (t: TFunction<'addRouter'>) => [
     key: 'services',
     header: t('scan.columns.services'),
     render: (d: DiscoveredDevice) => (d.services.length > 0 ? d.services.join(', ') : '—'),
+    sortValue: (d: DiscoveredDevice) => d.services.join(', '),
   },
 ];
 

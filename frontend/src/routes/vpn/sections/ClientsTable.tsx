@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Button, DataTable, Switch, useToast } from '@nasnet/ui';
+import { Badge, Button, DataTable, Switch, leadingNumber, useToast } from '@nasnet/ui';
 import { ArrowDown, ArrowUp, Cable, Pencil, Trash2 } from 'lucide-react';
 import {
   ApiError,
@@ -61,6 +61,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
           key: 'name',
           header: t('shared.name'),
           render: (c: VPNClient) => c.comment || c.name,
+          sortValue: (c: VPNClient) => c.comment || c.name,
         },
         {
           key: 'status',
@@ -70,6 +71,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
               {c.running ? t('shared.connected') : t('shared.disconnected')}
             </Badge>
           ),
+          sortValue: (c: VPNClient) => c.running,
         },
         {
           key: 'protocol',
@@ -80,6 +82,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
           key: 'ping',
           header: t('clients.table.ping'),
           render: (c: VPNClient) => c.pingTime || '–',
+          sortValue: (c: VPNClient) => leadingNumber(c.pingTime) ?? c.pingTime,
         },
         {
           key: 'peers',
@@ -88,10 +91,12 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
             c.protocol === 'wireguard' && c.peerCount !== undefined
               ? format.number(c.peerCount)
               : '–',
+          sortValue: (c: VPNClient) => (c.protocol === 'wireguard' ? c.peerCount : null),
         },
         {
           key: 'traffic',
           header: t('clients.table.traffic'),
+          sortValue: (c: VPNClient) => (c.rxByte ?? 0) + (c.txByte ?? 0),
           render: (c: VPNClient) => {
             const rx = c.rxByte ?? 0;
             const tx = c.txByte ?? 0;
@@ -116,6 +121,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
         {
           key: 'lastLink',
           header: t('clients.table.lastLink'),
+          sortValue: (c: VPNClient) => (c.running ? c.lastLinkUp : c.lastLinkDown),
           render: (c: VPNClient) => {
             const ts = c.running ? c.lastLinkUp : c.lastLinkDown;
             if (!ts) return '–';
@@ -127,6 +133,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
         {
           key: 'enabled',
           header: t('shared.enabled'),
+          sortValue: (c: VPNClient) => checkedFor(c),
           render: (c: VPNClient) => {
             const busy = isPending(c.id);
             const next = !checkedFor(c);
@@ -171,6 +178,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
         {
           key: 'gateway',
           header: t('clients.table.starlinkGateway'),
+          sortValue: (c: VPNClient) => gateway === c.name,
           render: (c: VPNClient) => {
             if (gateway === c.name) {
               return <Badge tone="success">{t('clients.table.gateway')}</Badge>;
@@ -218,6 +226,7 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
         {
           key: 'actions',
           header: t('shared.actions'),
+          sortable: false,
           render: (c: VPNClient) => {
             if (!EDITABLE_PROTOCOLS.has(c.protocol)) return null;
             return (

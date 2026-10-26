@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Button, Card, ConfirmDialog, DataTable, Select, Stack, useToast } from '@nasnet/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  ConfirmDialog,
+  DataTable,
+  parseRouterOSDuration,
+  Select,
+  Stack,
+  useToast,
+} from '@nasnet/ui';
 import { Activity, Unplug } from 'lucide-react';
 import {
   ApiError,
@@ -195,6 +205,7 @@ export function ActiveConnectionsSection({ creds, server, onCountChange }: Props
                     render: (r: ActiveConnection) => (
                       <Badge tone="info">{serviceLabel(r.service)}</Badge>
                     ),
+                    sortValue: (r: ActiveConnection) => serviceLabel(r.service),
                   },
                 ]),
             {
@@ -218,6 +229,10 @@ export function ActiveConnectionsSection({ creds, server, onCountChange }: Props
                     ? t('active.table.handshake', { time: r.handshake })
                     : '–'
                   : r.uptime || '–',
+              sortValue: (r: ActiveConnection) => {
+                const text = r.kind === 'wireguard' ? r.handshake : r.uptime;
+                return parseRouterOSDuration(text) ?? text;
+              },
             },
             {
               key: 'details',
@@ -230,10 +245,13 @@ export function ActiveConnectionsSection({ creds, server, onCountChange }: Props
                       tx: format.sizeLabel(r.tx) ?? '',
                     })
                   : r.details || '–',
+              sortValue: (r: ActiveConnection) =>
+                r.kind === 'wireguard' ? Number(r.rx ?? 0) + Number(r.tx ?? 0) : r.details,
             },
             {
               key: 'actions',
               header: t('shared.actions'),
+              sortable: false,
               render: (r: ActiveConnection) =>
                 r.kind === 'ppp' ? (
                   <Button

@@ -55,6 +55,7 @@ export function ServersTable({
               {s.running ? t('shared.running') : t('shared.disabled')}
             </Badge>
           ),
+          sortValue: (s: VPNServer) => s.running,
         },
         {
           key: 'port',
@@ -66,6 +67,7 @@ export function ServersTable({
             const tone = transport === 'tcp' ? 'primary' : transport === 'udp' ? 'info' : 'neutral';
             return <Badge tone={tone}>{`${transport}:${s.listenPort}`}</Badge>;
           },
+          sortValue: (s: VPNServer) => s.listenPort || null,
         },
         {
           key: 'peers',
@@ -81,10 +83,12 @@ export function ServersTable({
               </Badge>
             );
           },
+          sortValue: (s: VPNServer) => (s.protocol === 'wireguard' ? peerCounts[s.id] : null),
         },
         {
           key: 'actions',
           header: t('shared.actions'),
+          sortable: false,
           render: (s: VPNServer) => {
             const editable = isEditable(s);
             const deletable = isDeletable(s);
