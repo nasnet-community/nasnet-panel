@@ -282,3 +282,9 @@ type UpdateWANInterfaceRequest struct {
 	SSID      string `json:"ssid"      example:"MyNetwork"`
 	Password  string `json:"password"  example:"secret"`
 }
+
+type wanChangeTemplateData struct {
+	UpdateWANInterfaceRequest
+	DoneToken    string
+	OldWiFiNames map[string]string
+}

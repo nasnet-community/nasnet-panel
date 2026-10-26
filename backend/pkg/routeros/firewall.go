@@ -198,19 +198,15 @@ func (c *Client) GetFirewallRulesByChain(chain string) ([]FirewallFilterRule, er
 	return rules, nil
 }
 
-// EnsureFirewallFilterRulesByComment returns the firewall filter rules carrying
-// comment, first adding (in the given disabled state) a rule from desired for
-// every chain that has none. It also returns how many rules were added.
-func (c *Client) EnsureFirewallFilterRulesByComment(comment string, desired []FirewallRuleConfig, disabled bool) ([]FirewallFilterRule, int, error) {
+// ListFirewallFilterRulesByComment returns the firewall filter rules carrying comment, without changing anything.
+func (c *Client) ListFirewallFilterRulesByComment(comment string) ([]FirewallFilterRule, error) {
 	results, err := c.GetAll("/ip/firewall/filter", "?=comment="+comment)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to find firewall rules with comment %q: %w", comment, err)
+		return nil, fmt.Errorf("failed to find firewall rules with comment %q: %w", comment, err)
 	}
 
-	rules := make([]FirewallFilterRule, 0, len(results)+len(desired))
-	existingChains := make(map[string]bool, len(results))
+	rules := make([]FirewallFilterRule, 0, len(results))
 	for _, result := range results {
-		existingChains[result["chain"]] = true
 		rules = append(rules, FirewallFilterRule{
 			ID:       result[".id"],
 			Action:   result["action"],
@@ -218,6 +214,23 @@ func (c *Client) EnsureFirewallFilterRulesByComment(comment string, desired []Fi
 			Disabled: result["disabled"] == "true",
 			Comment:  result["comment"],
 		})
+	}
+
+	return rules, nil
+}
+
+// EnsureFirewallFilterRulesByComment returns the firewall filter rules carrying
+// comment, first adding (in the given disabled state) a rule from desired for
+// every chain that has none. It also returns how many rules were added.
+func (c *Client) EnsureFirewallFilterRulesByComment(comment string, desired []FirewallRuleConfig, disabled bool) ([]FirewallFilterRule, int, error) {
+	rules, err := c.ListFirewallFilterRulesByComment(comment)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	existingChains := make(map[string]bool, len(rules))
+	for i := range rules {
+		existingChains[rules[i].Chain] = true
 	}
 
 	added := 0

@@ -32,9 +32,12 @@ const (
 	containerName       = "nasnet-panel"
 	legacyContainerName = "nnc"
 
-	panelDir            = "nasnet-panel"
-	tarSubdir           = panelDir + "/container-images"
-	containerRootSubdir = panelDir + "/containers/" + containerName
+	panelDir             = "nasnet-panel"
+	tarSubdir            = panelDir + "/container-images"
+	containerRootSubdir  = panelDir + "/containers/" + containerName
+	databaseSubdir       = panelDir + "/database"
+	databaseContainerDir = "/" + databaseSubdir
+	databaseMountList    = "nasnet-panel-database"
 
 	lanBridge         = "LANBridgeSplit"
 	lanBridgeIP       = "192.168.10.1"

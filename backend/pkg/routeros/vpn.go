@@ -1219,8 +1219,18 @@ func (c *Client) RemovePppSecret(username, service string) error {
 	return nil
 }
 
-// RemovePppSecretByNameOrID deletes a PPP secret by username or ID, regardless of service type.
-func (c *Client) RemovePppSecretByNameOrID(usernameOrID string) error {
+// GetPppSecretByNameOrID returns a PPP secret by username or ID, regardless of service type.
+func (c *Client) GetPppSecretByNameOrID(usernameOrID string) (map[string]string, error) {
+	result, err := c.GetFirst("/ppp/secret", nameOrIDFilterArg(usernameOrID))
+	if err != nil {
+		return nil, fmt.Errorf("failed to find PPP secret %s: %w", usernameOrID, err)
+	}
+	return result, nil
+}
+
+// RemovePppSecretByNameOrID deletes a PPP secret by username or ID, regardless of
+// service type, and returns the username of the secret it removed.
+func (c *Client) RemovePppSecretByNameOrID(usernameOrID string) (string, error) {
 	var result map[string]string
 	var err error
 
@@ -1233,14 +1243,14 @@ func (c *Client) RemovePppSecretByNameOrID(usernameOrID string) error {
 	}
 
 	if err != nil {
-		return fmt.Errorf("failed to find PPP secret %s: %w", usernameOrID, err)
+		return "", fmt.Errorf("failed to find PPP secret %s: %w", usernameOrID, err)
 	}
 
 	_, err = c.Remove("/ppp/secret", "=.id="+result[".id"])
 	if err != nil {
-		return fmt.Errorf("failed to remove PPP secret %s: %w", usernameOrID, err)
+		return "", fmt.Errorf("failed to remove PPP secret %s: %w", usernameOrID, err)
 	}
-	return nil
+	return result["name"], nil
 }
 
 // UpdatePppSecretParams represents parameters for updating a PPP secret.

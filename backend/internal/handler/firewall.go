@@ -133,6 +133,7 @@ func HandleSetDomesticBlock(c echo.Context) error {
 		if *req.Block {
 			state = "enabled"
 		}
+		persistDomesticBlockSetting(c, client, *req.Block)
 		return ErrorResponse(c, http.StatusConflict, "Domestic block is already "+state, nil)
 	}
 
@@ -144,6 +145,8 @@ func HandleSetDomesticBlock(c echo.Context) error {
 	if err := client.SetFirewallFilterRulesDisabled(ids, !*req.Block); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update domestic block rules", err)
 	}
+
+	persistDomesticBlockSetting(c, client, *req.Block)
 
 	return SuccessResponse(c, http.StatusOK, "Domestic block setting applied", toDomesticBlockResponse(rules, added))
 }

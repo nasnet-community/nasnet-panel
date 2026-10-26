@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Button, ConfirmDialog, Dialog, useToast } from '@nasnet/ui';
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  DataTable,
+  Dialog,
+  parseRouterOSDuration,
+  useToast,
+} from '@nasnet/ui';
 import { Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import styles from '../../VPNPage.module.scss';
 import i18n from '../../../i18n';
@@ -470,82 +478,92 @@ function PeersSection({
       {peers.length === 0 ? (
         <p style={{ color: 'var(--color-muted)' }}>{t('details.peers.empty')}</p>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', minWidth: 560, borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ textAlign: 'start', borderBottom: '1px solid var(--color-border)' }}>
-                <th style={{ padding: '6px 8px' }}>{t('shared.name')}</th>
-                <th style={{ padding: '6px 8px' }}>{t('shared.allowedAddresses')}</th>
-                <th style={{ padding: '6px 8px' }}>{t('details.peers.endpoint')}</th>
-                <th style={{ padding: '6px 8px' }}>{t('details.peers.lastHandshake')}</th>
-                <th style={{ padding: '6px 8px' }}>{t('shared.status')}</th>
-                <th style={{ padding: '6px 8px', width: 160 }}>{t('shared.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {peers.map((p) => (
-                <tr key={p.id || p.name} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                  <td style={{ padding: '6px 8px' }}>{p.name}</td>
-                  <td style={{ padding: '6px 8px' }} dir="ltr">
-                    {p.allowedAddresses || '–'}
-                  </td>
-                  <td style={{ padding: '6px 8px' }} dir="ltr">
-                    {p.currentEndpointAddress
-                      ? `${p.currentEndpointAddress}:${p.currentEndpointPort}`
-                      : p.endpointAddress
-                        ? `${p.endpointAddress}:${p.endpointPort}`
-                        : '–'}
-                  </td>
-                  <td style={{ padding: '6px 8px' }}>{p.lastHandshake || '–'}</td>
-                  <td style={{ padding: '6px 8px' }}>
-                    <BoolBadge value={!p.disabled} />
-                  </td>
-                  <td style={{ padding: '6px 8px' }}>
-                    <span style={{ display: 'inline-flex', gap: 8 }}>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={!p.privateKey}
-                        title={
-                          p.privateKey
-                            ? t('details.peers.configFor', { name: p.name })
-                            : t('details.peers.noPrivateKey')
-                        }
-                        aria-label={t('details.peers.configForPeer', { name: p.name })}
-                        onClick={() => onShowConfig(p)}
-                      >
-                        <QrCode size={14} aria-hidden />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={!canMutate}
-                        title={t('shared.editNamed', { name: p.name })}
-                        aria-label={t('details.peers.editPeer', { name: p.name })}
-                        onClick={() => onEdit(p)}
-                      >
-                        <Pencil size={14} aria-hidden />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        disabled={!canMutate}
-                        title={t('shared.deleteNamed', { name: p.name })}
-                        aria-label={t('details.peers.deletePeer', { name: p.name })}
-                        onClick={() => onDelete(p)}
-                      >
-                        <Trash2 size={14} aria-hidden />
-                      </Button>
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            { key: 'name', header: t('shared.name'), render: (p: WireguardPeerResponse) => p.name },
+            {
+              key: 'allowedAddresses',
+              header: t('shared.allowedAddresses'),
+              render: (p: WireguardPeerResponse) => (
+                <span dir="ltr">{p.allowedAddresses || '–'}</span>
+              ),
+            },
+            {
+              key: 'endpoint',
+              header: t('details.peers.endpoint'),
+              render: (p: WireguardPeerResponse) => <span dir="ltr">{peerEndpoint(p) || '–'}</span>,
+              sortValue: peerEndpoint,
+            },
+            {
+              key: 'lastHandshake',
+              header: t('details.peers.lastHandshake'),
+              render: (p: WireguardPeerResponse) => p.lastHandshake || '–',
+              sortValue: (p: WireguardPeerResponse) =>
+                parseRouterOSDuration(p.lastHandshake) ?? p.lastHandshake,
+            },
+            {
+              key: 'status',
+              header: t('shared.status'),
+              render: (p: WireguardPeerResponse) => <BoolBadge value={!p.disabled} />,
+              sortValue: (p: WireguardPeerResponse) => !p.disabled,
+            },
+            {
+              key: 'actions',
+              header: t('shared.actions'),
+              sortable: false,
+              width: '160px',
+              render: (p: WireguardPeerResponse) => (
+                <span style={{ display: 'inline-flex', gap: 8 }}>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={!p.privateKey}
+                    title={
+                      p.privateKey
+                        ? t('details.peers.configFor', { name: p.name })
+                        : t('details.peers.noPrivateKey')
+                    }
+                    aria-label={t('details.peers.configForPeer', { name: p.name })}
+                    onClick={() => onShowConfig(p)}
+                  >
+                    <QrCode size={14} aria-hidden />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={!canMutate}
+                    title={t('shared.editNamed', { name: p.name })}
+                    aria-label={t('details.peers.editPeer', { name: p.name })}
+                    onClick={() => onEdit(p)}
+                  >
+                    <Pencil size={14} aria-hidden />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={!canMutate}
+                    title={t('shared.deleteNamed', { name: p.name })}
+                    aria-label={t('details.peers.deletePeer', { name: p.name })}
+                    onClick={() => onDelete(p)}
+                  >
+                    <Trash2 size={14} aria-hidden />
+                  </Button>
+                </span>
+              ),
+            },
+          ]}
+          rows={peers}
+          rowKey={(p) => p.id || p.name}
+        />
       )}
     </div>
   );
+}
+
+function peerEndpoint(p: WireguardPeerResponse): string {
+  if (p.currentEndpointAddress) return `${p.currentEndpointAddress}:${p.currentEndpointPort}`;
+  if (p.endpointAddress) return `${p.endpointAddress}:${p.endpointPort}`;
+  return '';
 }
 
 function DList({ children }: { children: React.ReactNode }) {

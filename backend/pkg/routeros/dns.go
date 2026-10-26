@@ -526,15 +526,16 @@ func (c *Client) UpdateUserStaticDNS(id string, params UpdateStaticDNSParams) er
 
 // RemoveUserStaticDNS deletes a static DNS entry by name or .id, but only if
 // it is user defined; any other entry is reported as not found and left alone.
-func (c *Client) RemoveUserStaticDNS(nameOrID string) error {
+// It returns the .id of the entry it removed.
+func (c *Client) RemoveUserStaticDNS(nameOrID string) (string, error) {
 	entry, err := c.GetUserStaticDNS(nameOrID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if _, err := c.Remove("/ip/dns/static", "=.id="+entry.ID); err != nil {
-		return fmt.Errorf("failed to remove static DNS entry %s: %w", nameOrID, err)
+		return "", fmt.Errorf("failed to remove static DNS entry %s: %w", nameOrID, err)
 	}
 
-	return nil
+	return entry.ID, nil
 }

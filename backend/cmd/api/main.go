@@ -10,6 +10,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"nasnet-panel/internal/db"
+	"nasnet-panel/internal/handler"
 	"nasnet-panel/internal/middleware"
 	"nasnet-panel/internal/routes"
 	"nasnet-panel/internal/server"
@@ -25,6 +27,13 @@ import (
 // @schemes http https
 // @securityDefinitions.basic BasicAuth
 func main() {
+	databases, err := db.NewRegistry(databaseDir())
+	if err != nil {
+		log.Fatalf("Failed to prepare database directory: %v", err)
+	}
+	defer func() { _ = databases.Close() }()
+	handler.SetDatabases(databases)
+
 	e := echo.New()
 
 	e.HideBanner = true
@@ -64,6 +73,16 @@ func main() {
 	if err := server.ServeTLS(e, ":"+httpsPort, tlsConfig); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("HTTPS server error: %v", err)
 	}
+}
+
+func databaseDir() string {
+	if dir := os.Getenv("DATABASE_DIR"); dir != "" {
+		return dir
+	}
+	if os.Getenv("ENVIRONMENT") == "production" {
+		return "/nasnet-panel/database"
+	}
+	return "data"
 }
 
 func printStartupInfo(httpPort, httpsPort string) {

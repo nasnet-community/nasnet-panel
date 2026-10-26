@@ -5,7 +5,8 @@
     "scanFailed": "Scan failed for {{subnet}}"
   },
   "dataTable": {
-    "empty": "No results"
+    "empty": "No results",
+    "sortBy": "Sort by {{column}}"
   },
   "dialog": {
     "cancel": "Cancel",

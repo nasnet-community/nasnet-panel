@@ -27,6 +27,9 @@ LEGACY_CONTAINER_NAME="nnc"
 PANEL_DIR="nasnet-panel"
 TAR_SUBDIR="${PANEL_DIR}/container-images"
 CONTAINER_ROOT_SUBDIR="${PANEL_DIR}/containers/nasnet-panel"
+DATABASE_SUBDIR="${PANEL_DIR}/database"
+DATABASE_CONTAINER_DIR="/${DATABASE_SUBDIR}"
+DATABASE_MOUNT_LIST="nasnet-panel-database"
 CONTAINER_ROOT_DIR="${CONTAINER_ROOT_SUBDIR}"
 STORAGE_DIR=""
 MIN_STORAGE_MB=32
@@ -1524,6 +1527,7 @@ ensure_panel_dirs() {
   ros_ensure_dir "$(storage_path "$PANEL_DIR")"
   ros_ensure_dir "$(storage_path "$TAR_SUBDIR")"
   ros_ensure_dir "$(storage_path "${PANEL_DIR}/containers")"
+  ros_ensure_dir "$(storage_path "$DATABASE_SUBDIR")"
 }
 
 file_size() {
@@ -1671,6 +1675,23 @@ configure_network() {
   ros_move_to_top /ip/firewall/filter "comment=\"${COMMENT_TAG}-forward-https\""
 }
 
+mount_uses_lists() {
+  local version="${ROUTEROS_VERSION%% *}" major minor
+  version="${version%%(*}"
+  major="${version%%.*}"
+  minor="${version#*.}"; minor="${minor%%.*}"
+  [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ ]] || return 0
+  (( major > 7 || (major == 7 && minor >= 21) ))
+}
+
+set_mount_props() {
+  if mount_uses_lists; then
+    MOUNT_PROP="list"; CONTAINER_MOUNT_PROP="mountlists"
+  else
+    MOUNT_PROP="name"; CONTAINER_MOUNT_PROP="mounts"
+  fi
+}
+
 remove_existing_container() {
   ros_exists /container "name=${CONTAINER_NAME}" || return 0
   log ""
@@ -1702,8 +1723,14 @@ deploy_container() {
     return 0
   fi
   ensure_panel_dirs
+  set_mount_props
+  ros_remove "mount ${DATABASE_MOUNT_LIST}" /container/mounts "${MOUNT_PROP}=${DATABASE_MOUNT_LIST}"
+  if ! ros_cmd "/container/mounts/add ${MOUNT_PROP}=${DATABASE_MOUNT_LIST} src=\"/$(storage_path "$DATABASE_SUBDIR")\" dst=\"${DATABASE_CONTAINER_DIR}\"" >/dev/null; then
+    err "failed to add the database mount"; exit 1
+  fi
+  push_rollback "ros_cmd '/container/mounts/remove [find ${MOUNT_PROP}=${DATABASE_MOUNT_LIST}]' >/dev/null 2>&1 || true"
   if ! spin "extracting tar and adding container ${CONTAINER_NAME}" \
-       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} dns=${FALLBACK_DNS_SERVERS} start-on-boot=yes logging=yes"; then
+       ros_cmd "/container/add file=${REMOTE_TAR} interface=${VETH_NAME} root-dir=${CONTAINER_ROOT_DIR} name=${CONTAINER_NAME} dns=${FALLBACK_DNS_SERVERS} ${CONTAINER_MOUNT_PROP}=${DATABASE_MOUNT_LIST} start-on-boot=yes logging=yes"; then
     err "failed to add container"; exit 1
   fi
   push_rollback "ros_cmd '/container/remove [find name=${CONTAINER_NAME}]' >/dev/null 2>&1 || true"
@@ -1952,6 +1979,9 @@ uninstall_path() {
       ros_remove "container ${name}" /container "name=${name}"
     fi
   done
+
+  set_mount_props
+  ros_remove "mount ${DATABASE_MOUNT_LIST}" /container/mounts "${MOUNT_PROP}=${DATABASE_MOUNT_LIST}"
 
   ros_remove "nat ${COMMENT_TAG}-srcnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-srcnat\""
   ros_remove "nat ${COMMENT_TAG}-dstnat"       /ip/firewall/nat    "comment=\"${COMMENT_TAG}-dstnat\""

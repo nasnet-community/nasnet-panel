@@ -271,3 +271,12 @@ func ToUpdateInstallResponse(ui *routeros.UpdateInstallResult) *UpdateInstallRes
 		LatestVersion:    ui.LatestVersion,
 	}
 }
+
+// SystemUpdateStatusResponse is the response for GET /api/system/update-status.
+type SystemUpdateStatusResponse struct {
+	Phase       string `json:"phase" example:"rebooting"` // idle, downloading, rebooting, done, error
+	Message     string `json:"message,omitempty"`
+	FromVersion string `json:"fromVersion,omitempty"`
+	ToVersion   string `json:"toVersion,omitempty"`
+	StartedAt   string `json:"startedAt,omitempty"`
+}

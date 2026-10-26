@@ -266,6 +266,7 @@ export function DNSPage() {
       render: (row) => (
         <Badge tone={TYPE_TONES[row.name] ?? 'neutral'}>{dnsTypeLabel(t, row.name)}</Badge>
       ),
+      sortValue: (row) => dnsTypeLabel(t, row.name),
     },
     {
       key: 'ip',
@@ -293,6 +294,7 @@ export function DNSPage() {
     {
       key: 'actions',
       header: '',
+      sortable: false,
       width: '110px',
       render: (row) => (
         <Button

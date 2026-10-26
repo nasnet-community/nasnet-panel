@@ -121,6 +121,341 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/app/settings": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns every setting stored in the database of the router named by X-RouterOS-Host, ordered by key",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "List app settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/handler.SettingResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Stores a new setting. Returns 409 if the key already exists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Create an app setting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Setting to create",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.SettingResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/app/settings/{key}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns one setting by key",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Get an app setting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Setting key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.SettingResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Changes the value of an existing setting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Update an app setting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Setting key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New value",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.UpdateSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.SettingResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Removes a setting by key",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "App"
+                ],
+                "summary": "Delete an app setting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Setting key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/app/update-status": {
             "get": {
                 "security": [
@@ -8960,6 +9295,19 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateSettingRequest": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "example": "theme"
+                },
+                "value": {
+                    "type": "string",
+                    "example": "dark"
+                }
+            }
+        },
         "handler.CreateStaticDNSRequest": {
             "type": "object",
             "properties": {
@@ -10536,6 +10884,20 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.SettingResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.SingleServerStatus": {
             "type": "object",
             "properties": {
@@ -10847,6 +11209,15 @@ const docTemplate = `{
                 "user": {
                     "type": "string",
                     "example": "newusername"
+                }
+            }
+        },
+        "handler.UpdateSettingRequest": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "example": "light"
                 }
             }
         },

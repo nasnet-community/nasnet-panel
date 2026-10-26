@@ -18,6 +18,19 @@ type WireGuardPeerTemplateData struct {
 	PersistentKeepalive string
 }
 
+// WizardSaveData is what HandleFinalizeWizard hands to the code that stores the
+// wizard configuration in the router's database.
+type WizardSaveData struct {
+	Request              *FinalizeWizardRequest
+	DomesticEnabled      bool
+	Foreign              *InterfaceConfig
+	Domestic             *InterfaceConfig
+	WireGuard            *WireGuardClientTemplateData
+	CertificateTimestamp int64
+	WifiAPs              []WiFiAP
+	BridgePorts          []BridgePort
+}
+
 // WireGuardClientTemplateData is the wizard template's WireGuard client block.
 type WireGuardClientTemplateData struct {
 	InterfacePrivateKey string
