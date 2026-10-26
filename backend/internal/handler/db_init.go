@@ -315,15 +315,18 @@ func routerNetworkConfig(client *routeros.Client) (*db.NetworkConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	bridged := make(map[string]bool)
+	bridges := make(map[string]string)
 	for i := range ports {
 		if !strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
 			continue
 		}
 		cfg.BridgePorts = append(cfg.BridgePorts, *bridgePortRecord(&ports[i], defaultNames))
-		if ports[i].Bridge == wizardLANBridge {
-			bridged[ports[i].Interface] = true
-		}
+		bridges[ports[i].Interface] = ports[i].Bridge
+	}
+
+	masters := make(map[string]string, len(wifis))
+	for i := range wifis {
+		masters[wifis[i].Name] = wifis[i].DefaultName
 	}
 
 	for i := range wifis {
@@ -332,27 +335,11 @@ func routerNetworkConfig(client *routeros.Client) (*db.NetworkConfig, error) {
 		if wanType, ok := wanTypeFromComment(&comment); ok {
 			cfg.WANs = append(cfg.WANs, db.WAN{Type: wanType, InterfaceType: string(routeros.InterfaceTypeWiFi), Interface: w.DefaultName})
 		}
-		if w.Name == managementWifiName || w.SSID == "" || !validWifiMode(w.Mode) {
+		if !storableWiFi(w) {
 			continue
 		}
 
-		record := db.WiFi{
-			Name:        w.Name,
-			DefaultName: w.DefaultName,
-			SSID:        w.SSID,
-			Password:    w.Passphrase,
-			Enabled:     !w.Disabled,
-			Mode:        w.Mode,
-			IsVirtual:   w.IsVirtual,
-			AuthTypes:   w.SecurityType,
-		}
-		if w.IsVirtual {
-			record.Master = w.Interface
-		}
-		if bridged[w.Name] {
-			record.Bridge = wizardLANBridge
-		}
-		cfg.WiFis = append(cfg.WiFis, record)
+		cfg.WiFis = append(cfg.WiFis, *wifiRecord(w, masters[w.Interface], bridges[w.Name]))
 	}
 
 	return cfg, nil
