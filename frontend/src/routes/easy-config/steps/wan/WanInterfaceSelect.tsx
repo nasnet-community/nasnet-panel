@@ -30,11 +30,21 @@ export function classifyInterface(iface: InterfaceResponse): InterfaceType | nul
   return null;
 }
 
+/**
+ * Virtual WiFi interfaces (extra SSIDs bound to a physical radio through
+ * `master-interface`) share that radio and cannot serve as a WAN uplink.
+ * RouterOS reports a `default-name` only for physical interfaces, so a
+ * wireless interface without one is virtual.
+ */
+export function isVirtualWirelessInterface(iface: InterfaceResponse): boolean {
+  return classifyInterface(iface) === 'wireless' && !iface.defaultName;
+}
+
 export function interfacesOfType(
   list: InterfaceResponse[],
   type: InterfaceType,
 ): InterfaceResponse[] {
-  return list.filter((i) => classifyInterface(i) === type);
+  return list.filter((i) => classifyInterface(i) === type && !isVirtualWirelessInterface(i));
 }
 
 const TYPE_ORDER: InterfaceType[] = ['ethernet', 'wireless', 'sfp', 'lte'];
