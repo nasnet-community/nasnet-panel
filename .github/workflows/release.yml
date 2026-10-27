@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_call:
+    inputs:
+      release_tag:
+        description: 'Release tag already created on the commit being built (e.g. v1.3.0-dev.20261026.1)'
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       tag:
@@ -24,7 +30,39 @@ env:
   IMAGE: ghcr.io/nasnet-community/nasnet-panel
 
 jobs:
+  # Stable (v1.2.3), release candidate (v1.3.0-rc.1) and development
+  # (v1.3.0-dev.20261026.1) builds all flow through this workflow. A tag push
+  # triggers it directly; dev-release.yml calls it with release_tag, in which
+  # case github.ref_name is the branch, so the tag is resolved once here.
+  meta:
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      release: ${{ steps.resolve.outputs.release }}
+    steps:
+      # release is true for a pushed tag and for a call from dev-release.yml, and false for
+      # workflow_dispatch test builds, which publish images under an arbitrary tag only.
+      - id: resolve
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          DISPATCH_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          RELEASE=true
+          if [ -n "$RELEASE_TAG" ]; then
+            TAG="$RELEASE_TAG"
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG="$DISPATCH_TAG"
+            RELEASE=false
+          else
+            TAG="$GITHUB_REF_NAME"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "release=${RELEASE}" >> "$GITHUB_OUTPUT"
+          echo "Building ${TAG} (release: ${RELEASE})"
+
   build:
+    needs: meta
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -38,6 +76,9 @@ jobs:
             suffix: armv7
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
       - uses: docker/setup-qemu-action@v4
 
@@ -57,8 +98,8 @@ jobs:
           # race and leave it pointing at whichever arch pushed last.
           flavor: latest=false
           tags: |
-            type=semver,pattern={{version}},suffix=-${{ matrix.suffix }}
-            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.suffix }}
+            type=semver,pattern={{version}},suffix=-${{ matrix.suffix }},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.suffix }},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
             type=raw,value=${{ inputs.tag }}-${{ matrix.suffix }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - id: build
@@ -72,7 +113,7 @@ jobs:
           sbom: false
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
-            APP_VERSION=${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+            APP_VERSION=${{ needs.meta.outputs.tag }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
 
@@ -94,8 +135,10 @@ jobs:
           fi
 
   manifest:
-    needs: build
+    needs: [meta, build]
     runs-on: ubuntu-24.04
+    env:
+      TAG: ${{ needs.meta.outputs.tag }}
     steps:
       # A tag cut from an older commit (backport, or a re-tag of history) must
       # not hijack `latest`. Only the default-branch tip is allowed to move it.
@@ -106,7 +149,7 @@ jobs:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" != "push" ]; then
+          if [ "${{ needs.meta.outputs.release }}" != "true" ]; then
             echo "is_tip=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -117,10 +160,10 @@ jobs:
             | jq -r .sha)
           if [ "$TIP" = "$GITHUB_SHA" ]; then
             echo "is_tip=true" >> "$GITHUB_OUTPUT"
-            echo "${GITHUB_REF_NAME} is at ${DEFAULT_BRANCH} tip; :latest will move"
+            echo "${TAG} is at ${DEFAULT_BRANCH} tip; :latest will move"
           else
             echo "is_tip=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::${GITHUB_REF_NAME} (${GITHUB_SHA}) is not at ${DEFAULT_BRANCH} tip (${TIP}); leaving :latest unchanged"
+            echo "::notice::${TAG} (${GITHUB_SHA}) is not at ${DEFAULT_BRANCH} tip (${TIP}); leaving :latest unchanged"
           fi
 
       - uses: docker/login-action@v4
@@ -137,35 +180,37 @@ jobs:
           # so the prerelease and dispatch conditions are visible here.
           flavor: latest=false
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ github.event_name == 'push' && !contains(github.ref_name, '-') && steps.gate.outputs.is_tip == 'true' }}
+            type=semver,pattern={{version}},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
+            type=raw,value=latest,enable=${{ needs.meta.outputs.release == 'true' && !contains(needs.meta.outputs.tag, '-') && steps.gate.outputs.is_tip == 'true' }}
             type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Create multi-arch manifests
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BASE="${{ inputs.tag }}"
+            BASE="${TAG}"
           else
-            BASE="${GITHUB_REF_NAME#v}"
+            BASE="${TAG#v}"
           fi
           echo "Combining per-arch images for base: $BASE"
-          while IFS= read -r TAG; do
-            [ -z "$TAG" ] && continue
-            echo "  -> $TAG"
-            docker buildx imagetools create --tag "$TAG" \
+          while IFS= read -r IMAGE_TAG; do
+            [ -z "$IMAGE_TAG" ] && continue
+            echo "  -> $IMAGE_TAG"
+            docker buildx imagetools create --tag "$IMAGE_TAG" \
               "${{ env.IMAGE }}:${BASE}-amd64" \
               "${{ env.IMAGE }}:${BASE}-arm64" \
               "${{ env.IMAGE }}:${BASE}-armv7"
           done <<< "${{ steps.meta.outputs.tags }}"
 
-  # Only real tag pushes get a GitHub Release; workflow_dispatch builds test
-  # images under an arbitrary tag and must not publish one.
+  # Only real releases (a pushed tag or a call from dev-release.yml) get a GitHub Release;
+  # workflow_dispatch builds test images under an arbitrary tag and must not publish one.
   package:
-    needs: [build, manifest]
-    if: github.event_name == 'push'
+    needs: [meta, build, manifest]
+    if: needs.meta.outputs.release == 'true'
     runs-on: ubuntu-24.04
+    env:
+      TAG: ${{ needs.meta.outputs.tag }}
     permissions:
       contents: write
       packages: read
@@ -184,7 +229,7 @@ jobs:
         name: Package per-arch RouterOS container tars
         run: |
           set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           mkdir -p dist
           for SUFFIX in amd64 arm64 armv7; do
@@ -198,15 +243,15 @@ jobs:
       - name: Publish release with container tars
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: NasNet Panel ${{ github.ref_name }}
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          tag_name: ${{ needs.meta.outputs.tag }}
+          name: NasNet Panel ${{ needs.meta.outputs.tag }}
+          prerelease: ${{ contains(needs.meta.outputs.tag, '-') }}
           generate_release_notes: true
           body: |
             Install on RouterOS:
 
             ```
-            ./install.sh --version ${{ github.ref_name }}
+            ./install.sh --version ${{ needs.meta.outputs.tag }}
             ```
 
             RouterOS container image tars consumed by `scripts/install.sh`:
@@ -224,15 +269,18 @@ jobs:
             dist/*.tar.sha256
 
   installer-windows:
-    needs: package
-    if: github.event_name == 'push'
+    needs: [meta, package]
+    if: needs.meta.outputs.release == 'true'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:
-      APP_VERSION: ${{ github.ref_name }}
+      APP_VERSION: ${{ needs.meta.outputs.tag }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
       - uses: ./.github/actions/setup-go-backend
         with:
@@ -240,7 +288,7 @@ jobs:
           cache-dependency-path: graphical-installer/go.sum
 
       - name: Resolve asset version
-        run: echo "ASSET_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+        run: echo "ASSET_VERSION=${APP_VERSION#v}" >> "$GITHUB_ENV"
 
       - name: Stage LAN baseline script
         run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
@@ -262,22 +310,26 @@ jobs:
       - name: Publish installer to release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          tag_name: ${{ needs.meta.outputs.tag }}
+          prerelease: ${{ contains(needs.meta.outputs.tag, '-') }}
           files: |
             graphical-installer/dist/*.exe
             graphical-installer/dist/*.exe.sha256
 
   installer-macos:
-    needs: package
-    if: github.event_name == 'push'
+    needs: [meta, package]
+    if: needs.meta.outputs.release == 'true'
     runs-on: macos-latest
     permissions:
       contents: write
     env:
-      APP_VERSION: ${{ github.ref_name }}
+      APP_VERSION: ${{ needs.meta.outputs.tag }}
+      BUNDLE_BUILD: ${{ github.run_id }}.${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
       - uses: ./.github/actions/setup-go-backend
         with:
@@ -285,7 +337,7 @@ jobs:
           cache-dependency-path: graphical-installer/go.sum
 
       - name: Resolve asset version
-        run: echo "ASSET_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+        run: echo "ASSET_VERSION=${APP_VERSION#v}" >> "$GITHUB_ENV"
 
       - name: Stage LAN baseline script
         run: cp scripts/nasnet-lan-baseline.rsc graphical-installer/assets/
@@ -308,8 +360,10 @@ jobs:
           APP="dist/Nasnet Panel Installer.app"
           mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
           cp darwin/Info.plist "$APP/Contents/Info.plist"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_VERSION#v}" \
-            -c "Set :CFBundleVersion ${APP_VERSION#v}" "$APP/Contents/Info.plist"
+          BUNDLE_VERSION="${APP_VERSION#v}"
+          BUNDLE_VERSION="${BUNDLE_VERSION%%-*}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${BUNDLE_VERSION}" \
+            -c "Set :CFBundleVersion ${BUNDLE_BUILD}" "$APP/Contents/Info.plist"
           cp dist/nasnet-panel-installer "$APP/Contents/MacOS/nasnet-panel-installer"
           ICONSET=dist/appicon.iconset
           mkdir -p "$ICONSET"
@@ -333,8 +387,8 @@ jobs:
       - name: Publish installer to release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          tag_name: ${{ needs.meta.outputs.tag }}
+          prerelease: ${{ contains(needs.meta.outputs.tag, '-') }}
           files: |
             graphical-installer/dist/*.dmg
             graphical-installer/dist/*.dmg.sha256

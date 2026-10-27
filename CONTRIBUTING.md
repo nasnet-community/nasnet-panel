@@ -34,6 +34,20 @@ Requires Node.js 20+ and Go 1.26+. The frontend runs on `http://localhost:3000`,
 - Keep the description tight: a short summary and the bullet points that matter. The diff already shows what changed; the description explains why.
 - Re-base or merge in the latest `dev` before opening the PR. This project prefers `git merge` over `git rebase` for syncing feature branches.
 
+## Releases
+
+Every merge to `dev` is released automatically as a pre-release. The version is worked out from the conventional-commit titles since the last stable tag: `feat(scope)!:` (or a `BREAKING CHANGE` line) bumps the major, `feat(scope):` the minor, and anything else, such as `fix(scope):`, the patch. The build is tagged and published as `vX.Y.Z-dev.<date>.<n>`.
+
+| Build             | Tag                     | How it is made                    |
+| ----------------- | ----------------------- | --------------------------------- |
+| Development       | `v1.3.0-dev.20261026.1` | automatic on every merge to `dev` |
+| Release candidate | `v1.3.0-rc.1`           | push the tag                      |
+| Stable            | `v1.2.3`                | push the tag                      |
+
+The rolling `snapshot` release is still rebuilt on every merge to `dev`.
+
+Stable tags move the `latest` image tag when they are on the tip of the default branch. Release candidate and development builds never do. `backend/release-tag.sh` creates and pushes a tag.
+
 ## What CI and the pre-push hook check
 
 Husky runs the following on every `git push`, and CI re-runs them on the PR:
