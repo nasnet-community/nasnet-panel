@@ -38,11 +38,11 @@ Requires Node.js 20+ and Go 1.26+. The frontend runs on `http://localhost:3000`,
 
 Every merge to `dev` is released automatically as a pre-release. The version is worked out from the conventional-commit titles since the last stable tag: `feat(scope)!:` (or a `BREAKING CHANGE` line) bumps the major, `feat(scope):` the minor, and anything else, such as `fix(scope):`, the patch. The build is tagged and published as `vX.Y.Z-dev.<date>.<n>`.
 
-| Build             | Tag                           | How it is made                  |
-| ----------------- | ----------------------------- | ------------------------------- |
-| Development       | `v1.3.0-dev.20261026.1`       | automatic on every merge to `dev` |
-| Release candidate | `v1.3.0-rc.1`                 | push the tag                    |
-| Stable            | `v1.2.3`                      | push the tag                    |
+| Build             | Tag                     | How it is made                    |
+| ----------------- | ----------------------- | --------------------------------- |
+| Development       | `v1.3.0-dev.20261026.1` | automatic on every merge to `dev` |
+| Release candidate | `v1.3.0-rc.1`           | push the tag                      |
+| Stable            | `v1.2.3`                | push the tag                      |
 
 The rolling `snapshot` release is still rebuilt on every merge to `dev`.
 

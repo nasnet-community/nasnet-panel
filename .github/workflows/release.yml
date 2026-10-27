@@ -72,6 +72,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
 
       - uses: docker/setup-qemu-action@v4
 
@@ -187,10 +188,10 @@ jobs:
             BASE="${TAG#v}"
           fi
           echo "Combining per-arch images for base: $BASE"
-          while IFS= read -r TAG; do
-            [ -z "$TAG" ] && continue
-            echo "  -> $TAG"
-            docker buildx imagetools create --tag "$TAG" \
+          while IFS= read -r IMAGE_TAG; do
+            [ -z "$IMAGE_TAG" ] && continue
+            echo "  -> $IMAGE_TAG"
+            docker buildx imagetools create --tag "$IMAGE_TAG" \
               "${{ env.IMAGE }}:${BASE}-amd64" \
               "${{ env.IMAGE }}:${BASE}-arm64" \
               "${{ env.IMAGE }}:${BASE}-armv7"
@@ -273,6 +274,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
 
       - uses: ./.github/actions/setup-go-backend
         with:
@@ -320,6 +322,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.sha }}
+          persist-credentials: false
 
       - uses: ./.github/actions/setup-go-backend
         with:
@@ -350,8 +353,10 @@ jobs:
           APP="dist/Nasnet Panel Installer.app"
           mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
           cp darwin/Info.plist "$APP/Contents/Info.plist"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_VERSION#v}" \
-            -c "Set :CFBundleVersion ${APP_VERSION#v}" "$APP/Contents/Info.plist"
+          BUNDLE_VERSION="${APP_VERSION#v}"
+          BUNDLE_VERSION="${BUNDLE_VERSION%%-*}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${BUNDLE_VERSION}" \
+            -c "Set :CFBundleVersion ${BUNDLE_VERSION}" "$APP/Contents/Info.plist"
           cp dist/nasnet-panel-installer "$APP/Contents/MacOS/nasnet-panel-installer"
           ICONSET=dist/appicon.iconset
           mkdir -p "$ICONSET"
