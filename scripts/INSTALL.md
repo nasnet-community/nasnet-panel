@@ -6,7 +6,7 @@ This guide explains how to install Nasnet Panel on a MikroTik RouterOS device. T
 
 You will need the following, regardless of which route you choose.
 
-- A MikroTik router running RouterOS v7.x.
+- A MikroTik router running RouterOS v7.24 or newer.
 - The `container` package installed and enabled. Install it from **System > Packages** in WebFig or Winbox, or download the matching architecture from mikrotik.com. After enabling, reboot the router.
 - Container `device-mode` enabled. The first time this is switched on, RouterOS demands physical confirmation: press the reset/mode button briefly, or perform a cold power-cycle (unplug, plug back in) for boards without a button.
 - External storage available. The container, its tarball, and root directory live under `disk1/` by default.

@@ -13,7 +13,7 @@ React SPA + Go API، در قالب یک کانتینر کوچک و واحد که
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-20%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Go](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://golang.org/)
-[![RouterOS](https://img.shields.io/badge/RouterOS-v7%2B-blue)](https://mikrotik.com/)
+[![RouterOS](https://img.shields.io/badge/RouterOS-v7.24%2B-blue)](https://mikrotik.com/)
 [![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20arm64%20%7C%20arm%2Fv7-2496ED?logo=docker&logoColor=white)](https://github.com/nasnet-community/nasnet-panel/pkgs/container/nasnet-panel)
 
 [English](README.md) - فارسی
@@ -194,7 +194,7 @@ services:
 
 **پیش‌نیازها**
 
-- RouterOS نسخه‌ی v7.x با بسته‌ی `container` نصب‌شده و فعال.
+- RouterOS نسخه‌ی v7.24 یا جدیدتر با بسته‌ی `container` نصب‌شده و فعال.
 - `device-mode` کانتینر فعال باشد (در اولین فعال‌سازی به تأیید فیزیکی نیاز دارد: دکمه‌ی reset یا راه‌اندازی مجدد سرد).
 - حافظه‌ی خارجی (اسکریپت به‌صورت پیش‌فرض از `disk1/` استفاده می‌کند).
 - حداقل ۳۰ مگابایت RAM آزاد روی روتر.

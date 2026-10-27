@@ -1,0 +1,7 @@
+{
+  "routeros": {
+    "minVersion": "7.24",
+    "requiredPackages": ["container"],
+    "architectures": ["arm", "arm64", "x86_64"]
+  }
+}

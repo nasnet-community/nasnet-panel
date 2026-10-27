@@ -46,6 +46,8 @@ Every merge to `dev` is released automatically as a pre-release. The version is 
 
 The rolling `snapshot` release is still rebuilt on every merge to `dev`.
 
+`release-meta.json` (RouterOS compatibility and similar metadata) is embedded as a hidden `<!-- nasnet-meta: {...} -->` comment in the body of new versioned releases, so it can be read from the GitHub releases API in one call. Releases published before this was added, and the rolling `snapshot` release, do not contain the comment, so consumers must use a fallback when it is absent. Edit that file when compatibility changes.
+
 Stable tags move the `latest` image tag when they are on the tip of the default branch. Release candidate and development builds never do. `backend/release-tag.sh` creates and pushes a tag.
 
 ## What CI and the pre-push hook check
