@@ -13,7 +13,7 @@ React SPA + Go API, shipped as a single small container that runs anywhere, incl
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-20%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Go](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://golang.org/)
-[![RouterOS](https://img.shields.io/badge/RouterOS-v7%2B-blue)](https://mikrotik.com/)
+[![RouterOS](https://img.shields.io/badge/RouterOS-v7.24%2B-blue)](https://mikrotik.com/)
 [![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20arm64%20%7C%20arm%2Fv7-2496ED?logo=docker&logoColor=white)](https://github.com/nasnet-community/nasnet-panel/pkgs/container/nasnet-panel)
 
 English - [فارسی](README.fa.md)
@@ -166,7 +166,7 @@ Supported platforms: `linux/amd64`, `linux/arm64`, `linux/arm/v7`. Image is buil
 
 **Prerequisites**
 
-- RouterOS v7.x with the `container` package installed and enabled.
+- RouterOS v7.24 or newer with the `container` package installed and enabled.
 - Container `device-mode` enabled (requires physical confirmation on first activation: reset button or cold reboot).
 - External storage (the script defaults to `disk1/`).
 - ≥ 30 MB free RAM on the router.
