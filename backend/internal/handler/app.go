@@ -30,6 +30,7 @@ const (
 	githubReleasesURL      = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases?per_page=100"
 	githubAPIPrefix        = "https://api.github.com/"
 	maxGitHubReleasePages  = 10
+	releaseListCacheTTL    = 5 * time.Minute
 	appContainerImage      = "ghcr.io/nasnet-community/nasnet-panel"
 	appContainerName       = "nasnet-panel" // matches CONTAINER_NAME in scripts/install.sh
 	appUpdateContainerName = "nasnet-panel-update"
@@ -91,6 +92,12 @@ type routerOSVersion struct {
 	major, minor, patch int
 	preRank             int
 	preNumber           int
+}
+
+type releaseCache struct {
+	mu        sync.Mutex
+	releases  []githubReleaseEntry
+	fetchedAt time.Time
 }
 
 type releaseMeta struct {
@@ -174,9 +181,7 @@ func HandleAppUpdates(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "hideLowerVer must be true or false", nil)
 	}
 
-	releases, err := fetchGitHubReleases(c.Request().Context(), func(releases []githubReleaseEntry) bool {
-		return hasReleaseInChannel(releases, channel)
-	})
+	releases, err := allGitHubReleases(c.Request().Context())
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch releases from GitHub", err)
 	}
@@ -464,7 +469,10 @@ func (s *appUpdateState) snapshot() UpdateStatusResponse {
 	return resp
 }
 
-var appUpdate = &appUpdateState{phase: updatePhaseIdle}
+var (
+	appUpdate        = &appUpdateState{phase: updatePhaseIdle}
+	releaseListCache = &releaseCache{}
+)
 
 // HandleAppInstallUpdate godoc
 // @Summary Install the latest nasnet-panel release
@@ -858,13 +866,20 @@ func fetchGitHubReleases(ctx context.Context, done func([]githubReleaseEntry) bo
 	return releases, nil
 }
 
-func hasReleaseInChannel(releases []githubReleaseEntry, channel string) bool {
-	for i := range releases {
-		if !releases[i].Draft && releaseChannel(releases[i].TagName) == channel {
-			return true
-		}
+func allGitHubReleases(ctx context.Context) ([]githubReleaseEntry, error) {
+	releaseListCache.mu.Lock()
+	defer releaseListCache.mu.Unlock()
+
+	if releaseListCache.releases != nil && time.Since(releaseListCache.fetchedAt) < releaseListCacheTTL {
+		return releaseListCache.releases, nil
 	}
-	return false
+
+	releases, err := fetchGitHubReleases(ctx, func([]githubReleaseEntry) bool { return false })
+	if err != nil {
+		return nil, err
+	}
+	releaseListCache.releases, releaseListCache.fetchedAt = releases, time.Now()
+	return releases, nil
 }
 
 func fetchGitHubJSON(ctx context.Context, url string, out any) error {
