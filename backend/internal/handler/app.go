@@ -163,7 +163,6 @@ func HandleAppCheckForUpdates(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} Response{data=[]ReleaseUpdateResponse}
 // @Failure 400 {object} Response
-// @Failure 401 {object} Response
 // @Failure 502 {object} Response
 // @Router /api/app/updates [get].
 func HandleAppUpdates(c echo.Context) error {
@@ -183,17 +182,12 @@ func HandleAppUpdates(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "hideLowerVer must be true or false", nil)
 	}
 
-	client, err := GetRouterOSClient(c)
-	if err != nil {
-		return err
-	}
-
 	releases, err := allGitHubReleases(c.Request().Context())
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch releases from GitHub", err)
 	}
 
-	persistUpdateChannelSetting(c, client, channel)
+	persistUpdateChannelSetting(c, channel)
 
 	current, currentOK := parseReleaseVersion(buildinfo.Version)
 
@@ -393,7 +387,10 @@ func releaseMinRouterOSVersion(body string) string {
 	}
 
 	var meta releaseMeta
-	if err := json.Unmarshal([]byte(match[1]), &meta); err != nil || meta.RouterOS.MinVersion == "" {
+	if err := json.Unmarshal([]byte(match[1]), &meta); err != nil {
+		return defaultMinRouterOSVersion
+	}
+	if _, ok := parseRouterOSVersion(meta.RouterOS.MinVersion); !ok {
 		return defaultMinRouterOSVersion
 	}
 	return meta.RouterOS.MinVersion
