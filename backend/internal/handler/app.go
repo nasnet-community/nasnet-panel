@@ -31,6 +31,7 @@ const (
 	githubAPIPrefix        = "https://api.github.com/"
 	maxGitHubReleasePages  = 10
 	releaseListCacheTTL    = 5 * time.Minute
+	releaseFetchTimeout    = 30 * time.Second
 	appContainerImage      = "ghcr.io/nasnet-community/nasnet-panel"
 	appContainerName       = "nasnet-panel" // matches CONTAINER_NAME in scripts/install.sh
 	appUpdateContainerName = "nasnet-panel-update"
@@ -162,6 +163,7 @@ func HandleAppCheckForUpdates(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} Response{data=[]ReleaseUpdateResponse}
 // @Failure 400 {object} Response
+// @Failure 401 {object} Response
 // @Failure 502 {object} Response
 // @Router /api/app/updates [get].
 func HandleAppUpdates(c echo.Context) error {
@@ -181,14 +183,17 @@ func HandleAppUpdates(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "hideLowerVer must be true or false", nil)
 	}
 
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
 	releases, err := allGitHubReleases(c.Request().Context())
 	if err != nil {
 		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch releases from GitHub", err)
 	}
 
-	if client, err := GetRouterOSClient(c); err == nil {
-		persistUpdateChannelSetting(c, client, channel)
-	}
+	persistUpdateChannelSetting(c, client, channel)
 
 	current, currentOK := parseReleaseVersion(buildinfo.Version)
 
@@ -874,7 +879,10 @@ func allGitHubReleases(ctx context.Context) ([]githubReleaseEntry, error) {
 		return releaseListCache.releases, nil
 	}
 
-	releases, err := fetchGitHubReleases(ctx, func([]githubReleaseEntry) bool { return false })
+	fetchCtx, cancel := context.WithTimeout(ctx, releaseFetchTimeout)
+	defer cancel()
+
+	releases, err := fetchGitHubReleases(fetchCtx, func([]githubReleaseEntry) bool { return false })
 	if err != nil {
 		return nil, err
 	}
