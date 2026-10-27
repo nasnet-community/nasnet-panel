@@ -215,6 +215,20 @@ jobs:
       contents: write
       packages: read
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: release-meta.json
+          sparse-checkout-cone-mode: false
+
+      - id: relmeta
+        name: Read release metadata
+        run: |
+          meta="$(jq -c . release-meta.json)"
+          case "$meta" in *--*) echo "release-meta.json must not contain '--'" >&2; exit 1 ;; esac
+          echo "json=${meta}" >> "$GITHUB_OUTPUT"
+
       - name: Install skopeo
         run: |
           sudo apt-get update
@@ -264,6 +278,8 @@ jobs:
             - `nasnet-panel-installer-macos-${{ steps.pkg.outputs.version }}.dmg` (macOS)
 
             Container image: `${{ env.IMAGE }}:${{ steps.pkg.outputs.version }}`
+
+            <!-- nasnet-meta: ${{ steps.relmeta.outputs.json }} -->
           files: |
             dist/*.tar
             dist/*.tar.sha256
