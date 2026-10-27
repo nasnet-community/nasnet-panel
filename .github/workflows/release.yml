@@ -38,22 +38,28 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.resolve.outputs.tag }}
+      release: ${{ steps.resolve.outputs.release }}
     steps:
+      # release is true for a pushed tag and for a call from dev-release.yml, and false for
+      # workflow_dispatch test builds, which publish images under an arbitrary tag only.
       - id: resolve
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
           DISPATCH_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
+          RELEASE=true
           if [ -n "$RELEASE_TAG" ]; then
             TAG="$RELEASE_TAG"
           elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             TAG="$DISPATCH_TAG"
+            RELEASE=false
           else
             TAG="$GITHUB_REF_NAME"
           fi
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "Building ${TAG}"
+          echo "release=${RELEASE}" >> "$GITHUB_OUTPUT"
+          echo "Building ${TAG} (release: ${RELEASE})"
 
   build:
     needs: meta
@@ -92,8 +98,8 @@ jobs:
           # race and leave it pointing at whichever arch pushed last.
           flavor: latest=false
           tags: |
-            type=semver,pattern={{version}},suffix=-${{ matrix.suffix }},value=${{ github.event_name == 'push' && needs.meta.outputs.tag || '' }}
-            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.suffix }},value=${{ github.event_name == 'push' && needs.meta.outputs.tag || '' }}
+            type=semver,pattern={{version}},suffix=-${{ matrix.suffix }},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.suffix }},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
             type=raw,value=${{ inputs.tag }}-${{ matrix.suffix }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - id: build
@@ -143,7 +149,7 @@ jobs:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" != "push" ]; then
+          if [ "${{ needs.meta.outputs.release }}" != "true" ]; then
             echo "is_tip=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -174,9 +180,9 @@ jobs:
           # so the prerelease and dispatch conditions are visible here.
           flavor: latest=false
           tags: |
-            type=semver,pattern={{version}},value=${{ github.event_name == 'push' && needs.meta.outputs.tag || '' }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ github.event_name == 'push' && needs.meta.outputs.tag || '' }}
-            type=raw,value=latest,enable=${{ github.event_name == 'push' && !contains(needs.meta.outputs.tag, '-') && steps.gate.outputs.is_tip == 'true' }}
+            type=semver,pattern={{version}},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
+            type=raw,value=latest,enable=${{ needs.meta.outputs.release == 'true' && !contains(needs.meta.outputs.tag, '-') && steps.gate.outputs.is_tip == 'true' }}
             type=raw,value=${{ inputs.tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Create multi-arch manifests
@@ -197,11 +203,11 @@ jobs:
               "${{ env.IMAGE }}:${BASE}-armv7"
           done <<< "${{ steps.meta.outputs.tags }}"
 
-  # Only real tag pushes get a GitHub Release; workflow_dispatch builds test
-  # images under an arbitrary tag and must not publish one.
+  # Only real releases (a pushed tag or a call from dev-release.yml) get a GitHub Release;
+  # workflow_dispatch builds test images under an arbitrary tag and must not publish one.
   package:
     needs: [meta, build, manifest]
-    if: github.event_name == 'push'
+    if: needs.meta.outputs.release == 'true'
     runs-on: ubuntu-24.04
     env:
       TAG: ${{ needs.meta.outputs.tag }}
@@ -264,7 +270,7 @@ jobs:
 
   installer-windows:
     needs: [meta, package]
-    if: github.event_name == 'push'
+    if: needs.meta.outputs.release == 'true'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -312,12 +318,13 @@ jobs:
 
   installer-macos:
     needs: [meta, package]
-    if: github.event_name == 'push'
+    if: needs.meta.outputs.release == 'true'
     runs-on: macos-latest
     permissions:
       contents: write
     env:
       APP_VERSION: ${{ needs.meta.outputs.tag }}
+      BUNDLE_BUILD: ${{ github.run_id }}.${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -356,7 +363,7 @@ jobs:
           BUNDLE_VERSION="${APP_VERSION#v}"
           BUNDLE_VERSION="${BUNDLE_VERSION%%-*}"
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${BUNDLE_VERSION}" \
-            -c "Set :CFBundleVersion ${BUNDLE_VERSION}" "$APP/Contents/Info.plist"
+            -c "Set :CFBundleVersion ${BUNDLE_BUILD}" "$APP/Contents/Info.plist"
           cp dist/nasnet-panel-installer "$APP/Contents/MacOS/nasnet-panel-installer"
           ICONSET=dist/appicon.iconset
           mkdir -p "$ICONSET"
