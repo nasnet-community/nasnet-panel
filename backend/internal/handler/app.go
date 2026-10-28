@@ -3,8 +3,6 @@ package handler
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -685,6 +683,16 @@ func updateStorageError(freeBytes int64) error {
 	return fmt.Errorf("%s free, %s required", utils.BytesToSizeString(freeBytes), utils.BytesToSizeString(minUpdateFreeStorageBytes))
 }
 
+// removeStaleRootDir deletes dir and everything in it when it exists, so a
+// pull never extracts on top of files left by an earlier failed attempt.
+func removeStaleRootDir(client *routeros.Client, dir string) error {
+	exists, err := client.FileExists(dir)
+	if err != nil || !exists {
+		return err
+	}
+	return client.DeleteFile(dir)
+}
+
 // watchNewContainerAndPromote removes any leftover nasnet-panel-update container,
 // creates a fresh one pulling the target release, polls its download/extract
 // state, and once the pull finishes promotes it into the running nasnet-panel
@@ -713,13 +721,23 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 	version := strings.TrimPrefix(releaseTag, "v")
 	remoteImage := appContainerImage + ":" + version
 
-	randSuffix := make([]byte, 2)
-	if _, err := rand.Read(randSuffix); err != nil {
-		appUpdate.set(updatePhaseError, releaseTag, "failed to generate random root-dir suffix: "+err.Error())
-		log.Printf("[app-update] failed to generate random root-dir suffix: %v", err)
+	rootDir, err := preparePluginRootDir(client, appContainerName+"-"+version)
+	if err != nil {
+		appUpdate.set(updatePhaseError, releaseTag, "failed to prepare the container directory: "+err.Error())
+		log.Printf("[app-update] failed to prepare the container directory: %v", err)
 		return
 	}
-	rootDir := fmt.Sprintf("disk1/images/%s-%s-%s", appContainerName, version, hex.EncodeToString(randSuffix))
+
+	if strings.TrimPrefix(running.RootDir, "/") == rootDir {
+		appUpdate.set(updatePhaseError, releaseTag, "target directory "+rootDir+" is used by the running container")
+		log.Printf("[app-update] target directory %s is used by the running container", rootDir)
+		return
+	}
+	if err := removeStaleRootDir(client, rootDir); err != nil {
+		appUpdate.set(updatePhaseError, releaseTag, "failed to clear leftover files in "+rootDir+": "+err.Error())
+		log.Printf("[app-update] failed to clear %s: %v", rootDir, err)
+		return
+	}
 
 	mountLists, err := ensureDatabaseMount(client, running.MountLists)
 	if err != nil {
@@ -762,11 +780,14 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 			if msg == "" {
 				msg = "image pull failed"
 			}
-			appUpdate.set(updatePhaseError, releaseTag, msg)
 			log.Printf("[app-update] pull failed for container %s: %s", appUpdateContainerName, msg)
 			if rmErr := client.RemoveContainer(appUpdateContainerName); rmErr != nil {
 				log.Printf("[app-update] failed to clean up failed update container %s: %v", appUpdateContainerName, rmErr)
 			}
+			if rmErr := removeStaleRootDir(client, rootDir); rmErr != nil {
+				log.Printf("[app-update] failed to clean up %s: %v", rootDir, rmErr)
+			}
+			appUpdate.set(updatePhaseError, releaseTag, msg)
 			return
 		}
 
