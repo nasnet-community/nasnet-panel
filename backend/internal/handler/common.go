@@ -111,6 +111,28 @@ func NewRouterOSClient(c echo.Context, creds *auth.Credentials) (*routeros.Clien
 	return client, nil
 }
 
+// TryGetRouterOSClient returns the RouterOS client of the request without writing an HTTP response
+// when that fails, for handlers where the router is optional.
+func TryGetRouterOSClient(c echo.Context) (*routeros.Client, error) {
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := routeros.GetOrCreateClient(routeros.ConnectionConfig{
+		Address:  creds.RouterOSHost,
+		Username: creds.Username,
+		Password: creds.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	startDatabaseInit(creds.RouterOSHost, client)
+
+	return client, nil
+}
+
 func GetRouterOSClient(c echo.Context) (*routeros.Client, error) {
 	creds, err := GetRouterOSCredentials(c)
 	if err != nil {

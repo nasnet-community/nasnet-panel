@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -26,6 +27,11 @@ import (
 
 const (
 	githubLatestReleaseURL = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases/latest"
+	githubReleasesURL      = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases?per_page=100"
+	githubAPIPrefix        = "https://api.github.com/"
+	maxGitHubReleasePages  = 10
+	releaseListCacheTTL    = 5 * time.Minute
+	releaseFetchTimeout    = 30 * time.Second
 	appContainerImage      = "ghcr.io/nasnet-community/nasnet-panel"
 	appContainerName       = "nasnet-panel" // matches CONTAINER_NAME in scripts/install.sh
 	appUpdateContainerName = "nasnet-panel-update"
@@ -42,12 +48,64 @@ const (
 const (
 	maxSettingKeyLength   = 128
 	maxSettingValueLength = 64 * 1024
+
+	releaseChannelStable = "stable"
+	releaseChannelRC     = "rc"
+	releaseChannelDev    = "dev"
+
+	defaultMinRouterOSVersion = "7.24"
 )
 
 var (
-	settingKeyPattern = regexp.MustCompile(`^[A-Za-z0-9_.:-]+$`)
-	appDatabases      *db.Registry
+	githubNextLinkPattern  = regexp.MustCompile(`<([^>]+)>;\s*rel="next"`)
+	settingKeyPattern      = regexp.MustCompile(`^[A-Za-z0-9_.:-]+$`)
+	stableTagPattern       = regexp.MustCompile(`^v?\d+\.\d+\.\d+$`)
+	releaseMetaPattern     = regexp.MustCompile(`(?s)<!--\s*nasnet-meta:\s*(\{.*?\})\s*-->`)
+	appDatabases           *db.Registry
+	releaseVersionPattern  = regexp.MustCompile(`^v?(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+)|-dev\.(\d{8})\.(\d+))?$`)
+	routerOSVersionPattern = regexp.MustCompile(`^(\d+)\.(\d+)(?:\.(\d+))?(?:(beta|rc)(\d+))?`)
 )
+
+type githubRelease struct {
+	TagName     string `json:"tag_name"`
+	HTMLURL     string `json:"html_url"`
+	PublishedAt string `json:"published_at"`
+}
+
+type githubReleaseEntry struct {
+	TagName     string `json:"tag_name"`
+	HTMLURL     string `json:"html_url"`
+	Prerelease  bool   `json:"prerelease"`
+	Draft       bool   `json:"draft"`
+	PublishedAt string `json:"published_at"`
+	Body        string `json:"body"`
+}
+
+type releaseVersion struct {
+	major, minor, patch int
+	channel             string
+	rc                  int
+	date                int
+	build               int
+}
+
+type routerOSVersion struct {
+	major, minor, patch int
+	preRank             int
+	preNumber           int
+}
+
+type releaseCache struct {
+	mu        sync.Mutex
+	releases  []githubReleaseEntry
+	fetchedAt time.Time
+}
+
+type releaseMeta struct {
+	RouterOS struct {
+		MinVersion string `json:"minVersion"`
+	} `json:"routeros"`
+}
 
 // SetDatabases gives the handlers the registry of per-router SQLite databases that backs the app settings endpoints.
 func SetDatabases(registry *db.Registry) {
@@ -94,6 +152,250 @@ func HandleAppCheckForUpdates(c echo.Context) error {
 	})
 }
 
+// HandleAppUpdates godoc
+// @Summary List nasnet-panel releases of a channel
+// @Description Lists the GitHub releases whose tag belongs to the channel: stable (vX.Y.Z), rc (vX.Y.Z-rc.N) or dev (vX.Y.Z-dev.DATE.N). The minimum RouterOS version comes from the metadata embedded in the release body, 7.24 when the release has none
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param channel query string true "Release channel" Enums(stable, rc, dev)
+// @Param hideLowerVer query bool false "Hide releases lower than the running version. Versions are compared across channels, and by each channel's own numbering within one. Nothing is hidden when the running version is not a release version" default(false)
+// @Produce json
+// @Success 200 {object} Response{data=[]ReleaseUpdateResponse}
+// @Failure 400 {object} Response
+// @Failure 502 {object} Response
+// @Router /api/app/updates [get].
+func HandleAppUpdates(c echo.Context) error {
+	channel := c.QueryParam("channel")
+	switch channel {
+	case releaseChannelStable, releaseChannelRC, releaseChannelDev:
+	default:
+		return ErrorResponse(c, http.StatusBadRequest, "channel must be one of stable, rc, dev", nil)
+	}
+
+	hideLower := false
+	switch c.QueryParam("hideLowerVer") {
+	case "", "false":
+	case "true":
+		hideLower = true
+	default:
+		return ErrorResponse(c, http.StatusBadRequest, "hideLowerVer must be true or false", nil)
+	}
+
+	releases, err := allGitHubReleases(c.Request().Context())
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch releases from GitHub", err)
+	}
+
+	persistUpdateChannelSetting(c, channel)
+
+	current, currentOK := parseReleaseVersion(buildinfo.Version)
+
+	updates := make([]ReleaseUpdateResponse, 0, len(releases))
+	for i := range releases {
+		release := &releases[i]
+		if release.Draft || releaseChannel(release.TagName) != channel {
+			continue
+		}
+		if hideLower && currentOK {
+			if version, ok := parseReleaseVersion(release.TagName); ok && compareReleaseVersions(version, current) < 0 {
+				continue
+			}
+		}
+		updates = append(updates, ReleaseUpdateResponse{
+			Tag:                release.TagName,
+			Prerelease:         release.Prerelease,
+			ReleaseDate:        release.PublishedAt,
+			ReleaseURL:         release.HTMLURL,
+			MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
+		})
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Releases retrieved", updates)
+}
+
+// HandleAppUpdateChannel godoc
+// @Summary Get the last used update channel
+// @Description Returns the channel last requested from GET /api/app/updates for the router named by X-RouterOS-Host, stable when none was requested yet
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=UpdateChannelResponse}
+// @Failure 500 {object} Response
+// @Router /api/app/update/channel [get].
+func HandleAppUpdateChannel(c echo.Context) error {
+	conn, ok, err := routerSettingsDB(c)
+	if !ok {
+		return err
+	}
+
+	channel := releaseChannelStable
+	setting, err := db.GetSetting(c.Request().Context(), conn, settingKeyUpdateChannel)
+	switch {
+	case err == nil:
+		channel = setting.Value
+	case !errors.Is(err, db.ErrSettingNotFound):
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to get the update channel", err)
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Update channel retrieved", UpdateChannelResponse{Channel: channel})
+}
+
+func parseReleaseVersion(v string) (releaseVersion, bool) {
+	m := releaseVersionPattern.FindStringSubmatch(v)
+	if m == nil {
+		return releaseVersion{}, false
+	}
+
+	n := func(s string) int {
+		i, _ := strconv.Atoi(s)
+		return i
+	}
+	rv := releaseVersion{major: n(m[1]), minor: n(m[2]), patch: n(m[3]), channel: releaseChannelStable}
+	switch {
+	case m[4] != "":
+		rv.channel, rv.rc = releaseChannelRC, n(m[4])
+	case m[5] != "":
+		rv.channel, rv.date, rv.build = releaseChannelDev, n(m[5]), n(m[6])
+	}
+	return rv, true
+}
+
+func (v releaseVersion) base() [3]int {
+	return [3]int{v.major, v.minor, v.patch}
+}
+
+func channelRank(channel string) int {
+	switch channel {
+	case releaseChannelDev:
+		return 0
+	case releaseChannelRC:
+		return 1
+	}
+	return 2
+}
+
+func compareInts(a, b int) int {
+	switch {
+	case a < b:
+		return -1
+	case a > b:
+		return 1
+	}
+	return 0
+}
+
+func compareBase(a, b releaseVersion) int {
+	ab, bb := a.base(), b.base()
+	for i := range ab {
+		if c := compareInts(ab[i], bb[i]); c != 0 {
+			return c
+		}
+	}
+	return 0
+}
+
+// compareReleaseVersions orders two release versions. Within one channel it follows how that channel
+// is numbered: stable by X.Y.Z, rc by X.Y.Z then the rc number, dev by build date, then X.Y.Z, then the
+// build number of that day. Across channels it compares X.Y.Z first and, when equal, ranks
+// dev below rc below stable.
+func compareReleaseVersions(a, b releaseVersion) int {
+	if a.channel != b.channel {
+		if c := compareBase(a, b); c != 0 {
+			return c
+		}
+		return compareInts(channelRank(a.channel), channelRank(b.channel))
+	}
+
+	switch a.channel {
+	case releaseChannelDev:
+		if c := compareInts(a.date, b.date); c != 0 {
+			return c
+		}
+		if c := compareBase(a, b); c != 0 {
+			return c
+		}
+		return compareInts(a.build, b.build)
+	case releaseChannelRC:
+		if c := compareBase(a, b); c != 0 {
+			return c
+		}
+		return compareInts(a.rc, b.rc)
+	}
+	return compareBase(a, b)
+}
+
+func parseRouterOSVersion(v string) (routerOSVersion, bool) {
+	m := routerOSVersionPattern.FindStringSubmatch(strings.TrimSpace(v))
+	if m == nil {
+		return routerOSVersion{}, false
+	}
+
+	n := func(s string) int {
+		i, _ := strconv.Atoi(s)
+		return i
+	}
+	rv := routerOSVersion{major: n(m[1]), minor: n(m[2]), patch: n(m[3]), preRank: 2}
+	switch m[4] {
+	case "beta":
+		rv.preRank, rv.preNumber = 0, n(m[5])
+	case "rc":
+		rv.preRank, rv.preNumber = 1, n(m[5])
+	}
+	return rv, true
+}
+
+// routerOSVersionBelow reports whether installed is older than required. A beta or rc counts as older than the final release of the same number. The second result is false when either version cannot be parsed.
+func routerOSVersionBelow(installed, required string) (below, ok bool) {
+	iv, ok1 := parseRouterOSVersion(installed)
+	rv, ok2 := parseRouterOSVersion(required)
+	if !ok1 || !ok2 {
+		return false, false
+	}
+
+	for _, c := range []int{
+		compareInts(iv.major, rv.major),
+		compareInts(iv.minor, rv.minor),
+		compareInts(iv.patch, rv.patch),
+		compareInts(iv.preRank, rv.preRank),
+		compareInts(iv.preNumber, rv.preNumber),
+	} {
+		if c != 0 {
+			return c < 0, true
+		}
+	}
+	return false, true
+}
+
+func releaseChannel(tag string) string {
+	switch {
+	case stableTagPattern.MatchString(tag):
+		return releaseChannelStable
+	case strings.Contains(tag, "-rc."):
+		return releaseChannelRC
+	case strings.Contains(tag, "-dev."):
+		return releaseChannelDev
+	}
+	return ""
+}
+
+func releaseMinRouterOSVersion(body string) string {
+	match := releaseMetaPattern.FindStringSubmatch(body)
+	if match == nil {
+		return defaultMinRouterOSVersion
+	}
+
+	var meta releaseMeta
+	if err := json.Unmarshal([]byte(match[1]), &meta); err != nil {
+		return defaultMinRouterOSVersion
+	}
+	if _, ok := parseRouterOSVersion(meta.RouterOS.MinVersion); !ok {
+		return defaultMinRouterOSVersion
+	}
+	return meta.RouterOS.MinVersion
+}
+
 // appUpdatePhase enumerates the stages of a self-update, tracked in-process so
 // /api/app/update-status has something to report while the background watch
 // goroutine runs independently of the request that started it.
@@ -127,12 +429,31 @@ func (s *appUpdateState) set(phase appUpdatePhase, version, message string) {
 	}
 }
 
-// inProgress reports whether a prepare, pull, or restart is currently running.
-func (s *appUpdateState) inProgress() (bool, appUpdatePhase) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	busy := s.phase == updatePhasePreparing || s.phase == updatePhasePulling || s.phase == updatePhaseRestarting
-	return busy, s.phase
+func (s *appUpdateState) busyLocked() bool {
+	return s.phase == updatePhasePreparing || s.phase == updatePhasePulling || s.phase == updatePhaseRestarting
+}
+
+// tryBegin claims the update slot when no prepare, pull, or restart is running. Two requests
+// therefore cannot both start an update. Call rollback to restore the state from before the claim when
+// the handler returns without starting the update. When the claim fails, phase is the one holding the slot.
+func (s *appUpdateState) tryBegin() (rollback func(), phase appUpdatePhase, ok bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.busyLocked() {
+		return nil, s.phase, false
+	}
+
+	prevPhase, prevMessage, prevVersion, prevStartedAt := s.phase, s.message, s.version, s.startedAt
+	s.phase = updatePhasePreparing
+	s.message = "checking the update"
+	s.version = ""
+	s.startedAt = time.Now()
+
+	return func() {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		s.phase, s.message, s.version, s.startedAt = prevPhase, prevMessage, prevVersion, prevStartedAt
+	}, s.phase, true
 }
 
 func (s *appUpdateState) snapshot() UpdateStatusResponse {
@@ -150,7 +471,10 @@ func (s *appUpdateState) snapshot() UpdateStatusResponse {
 	return resp
 }
 
-var appUpdate = &appUpdateState{phase: updatePhaseIdle}
+var (
+	appUpdate        = &appUpdateState{phase: updatePhaseIdle}
+	releaseListCache = &releaseCache{}
+)
 
 // HandleAppInstallUpdate godoc
 // @Summary Install the latest nasnet-panel release
@@ -172,10 +496,17 @@ func HandleAppInstallUpdate(c echo.Context) error {
 		return err
 	}
 
-	if busy, phase := appUpdate.inProgress(); busy {
+	rollback, phase, claimed := appUpdate.tryBegin()
+	if !claimed {
 		return ErrorResponse(c, http.StatusConflict, "An update is already in progress",
 			fmt.Errorf("current phase: %s", phase))
 	}
+	started := false
+	defer func() {
+		if !started {
+			rollback()
+		}
+	}()
 
 	sysUpdate, err := client.CheckForUpdates()
 	if err != nil {
@@ -203,12 +534,12 @@ func HandleAppInstallUpdate(c echo.Context) error {
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check available storage", err)
 	}
-	if resources.HDDFree < minUpdateFreeStorageBytes {
-		return ErrorResponse(c, http.StatusInsufficientStorage, "Not enough storage to update",
-			fmt.Errorf("%s free, %s required", utils.BytesToSizeString(resources.HDDFree), utils.BytesToSizeString(minUpdateFreeStorageBytes)))
+	if err := updateStorageError(resources.HDDFree); err != nil {
+		return ErrorResponse(c, http.StatusInsufficientStorage, "Not enough storage to update", err)
 	}
 
 	appUpdate.set(updatePhasePreparing, release.TagName, "starting update")
+	started = true
 
 	go watchNewContainerAndPromote(client, release.TagName)
 
@@ -217,6 +548,141 @@ func HandleAppInstallUpdate(c echo.Context) error {
 		FromVersion:     buildinfo.Version,
 		ToVersion:       release.TagName,
 	})
+}
+
+// HandleAppUpdate godoc
+// @Summary Update nasnet-panel to a chosen release
+// @Description Looks the version up among the GitHub releases and reads its minimum RouterOS version
+// @Description from the metadata embedded in the release body, 7.24 when the release has none. When the
+// @Description router runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal
+// @Description to the running one answers 200 with updateAvailable false, a lower one answers 400. Otherwise
+// @Description pulls the release into a fresh nasnet-panel-update container and promotes it in the
+// @Description background; poll /api/app/update/status for progress.
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body StartUpdateRequest true "Release to update to"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=InstallUpdateResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Failure 412 {object} Response
+// @Failure 502 {object} Response
+// @Failure 507 {object} Response
+// @Router /api/app/update [post].
+func HandleAppUpdate(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req StartUpdateRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	target, ok := parseReleaseVersion(req.Version)
+	if !ok {
+		return ErrorResponse(c, http.StatusBadRequest, "version must be a release tag such as v1.3.0, v1.3.0-rc.1 or v1.3.0-dev.20261026.1", nil)
+	}
+
+	rollback, phase, claimed := appUpdate.tryBegin()
+	if !claimed {
+		return ErrorResponse(c, http.StatusConflict, "An update is already in progress",
+			fmt.Errorf("current phase: %s", phase))
+	}
+	started := false
+	defer func() {
+		if !started {
+			rollback()
+		}
+	}()
+
+	if current, ok := parseReleaseVersion(buildinfo.Version); ok {
+		switch compareReleaseVersions(target, current) {
+		case 0:
+			return SuccessResponse(c, http.StatusOK, "Already up to date", InstallUpdateResponse{
+				UpdateAvailable: false,
+				FromVersion:     buildinfo.Version,
+				ToVersion:       req.Version,
+			})
+		case -1:
+			return ErrorResponse(c, http.StatusBadRequest, "Target version is lower than the running version; only newer versions can be installed",
+				fmt.Errorf("running %s, requested %s", buildinfo.Version, req.Version))
+		}
+	}
+
+	releases, err := fetchGitHubReleases(c.Request().Context(), func(releases []githubReleaseEntry) bool {
+		return findRelease(releases, req.Version) != nil
+	})
+	if err != nil {
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch releases from GitHub", err)
+	}
+	release := findRelease(releases, req.Version)
+	if release == nil {
+		return ErrorResponse(c, http.StatusNotFound, "Release not found", fmt.Errorf("no release tagged %s", req.Version))
+	}
+
+	resources, err := client.GetResourceInfo()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to read the RouterOS version and storage", err)
+	}
+
+	required := releaseMinRouterOSVersion(release.Body)
+	below, ok := routerOSVersionBelow(resources.Version, required)
+	if !ok {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to compare RouterOS versions",
+			fmt.Errorf("installed %q, required %q", resources.Version, required))
+	}
+	if below {
+		return ErrorResponse(c, http.StatusPreconditionFailed, "RouterOS update required; update RouterOS before updating the panel",
+			fmt.Errorf("RouterOS %s installed, %s or newer required by %s", resources.Version, required, release.TagName))
+	}
+
+	if err := updateStorageError(resources.HDDFree); err != nil {
+		return ErrorResponse(c, http.StatusInsufficientStorage, "Not enough storage to update", err)
+	}
+
+	appUpdate.set(updatePhasePreparing, release.TagName, "starting update")
+	started = true
+
+	go watchNewContainerAndPromote(client, release.TagName)
+
+	return SuccessResponse(c, http.StatusOK, "Update started", InstallUpdateResponse{
+		UpdateAvailable: true,
+		FromVersion:     buildinfo.Version,
+		ToVersion:       release.TagName,
+	})
+}
+
+// HandleAppUpdateProgress godoc
+// @Summary Get the progress of POST /api/app/update
+// @Description Returns the current phase of an in-progress or completed self-update, the same state /api/app/update-status reports
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=UpdateStatusResponse}
+// @Router /api/app/update/status [get].
+func HandleAppUpdateProgress(c echo.Context) error {
+	return SuccessResponse(c, http.StatusOK, "Update status retrieved", appUpdate.snapshot())
+}
+
+func findRelease(releases []githubReleaseEntry, tag string) *githubReleaseEntry {
+	for i := range releases {
+		if !releases[i].Draft && releases[i].TagName == tag {
+			return &releases[i]
+		}
+	}
+	return nil
+}
+
+func updateStorageError(freeBytes int64) error {
+	if freeBytes >= minUpdateFreeStorageBytes {
+		return nil
+	}
+	return fmt.Errorf("%s free, %s required", utils.BytesToSizeString(freeBytes), utils.BytesToSizeString(minUpdateFreeStorageBytes))
 }
 
 // watchNewContainerAndPromote removes any leftover nasnet-panel-update container,
@@ -373,38 +839,88 @@ func HandleAppUpdateStatus(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Update status retrieved", appUpdate.snapshot())
 }
 
-type githubRelease struct {
-	TagName     string `json:"tag_name"`
-	HTMLURL     string `json:"html_url"`
-	PublishedAt string `json:"published_at"`
+func fetchLatestGitHubRelease(ctx context.Context) (*githubRelease, error) {
+	var release githubRelease
+	if err := fetchGitHubJSON(ctx, githubLatestReleaseURL, &release); err != nil {
+		return nil, err
+	}
+	return &release, nil
 }
 
-func fetchLatestGitHubRelease(ctx context.Context) (*githubRelease, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, githubLatestReleaseURL, http.NoBody)
+// fetchGitHubReleases reads the releases page by page, following GitHub's Link rel="next", and
+// stops once done accepts the releases collected so far, there is no next page, or
+// maxGitHubReleasePages pages were read.
+func fetchGitHubReleases(ctx context.Context, done func([]githubReleaseEntry) bool) ([]githubReleaseEntry, error) {
+	var releases []githubReleaseEntry
+	url := githubReleasesURL
+	for page := 0; page < maxGitHubReleasePages && url != ""; page++ {
+		var batch []githubReleaseEntry
+		next, err := fetchGitHubPage(ctx, url, &batch)
+		if err != nil {
+			return nil, err
+		}
+		releases = append(releases, batch...)
+		if done(releases) {
+			break
+		}
+		url = next
+	}
+	return releases, nil
+}
+
+func allGitHubReleases(ctx context.Context) ([]githubReleaseEntry, error) {
+	releaseListCache.mu.Lock()
+	defer releaseListCache.mu.Unlock()
+
+	if releaseListCache.releases != nil && time.Since(releaseListCache.fetchedAt) < releaseListCacheTTL {
+		return releaseListCache.releases, nil
+	}
+
+	fetchCtx, cancel := context.WithTimeout(ctx, releaseFetchTimeout)
+	defer cancel()
+
+	releases, err := fetchGitHubReleases(fetchCtx, func([]githubReleaseEntry) bool { return false })
 	if err != nil {
 		return nil, err
+	}
+	releaseListCache.releases, releaseListCache.fetchedAt = releases, time.Now()
+	return releases, nil
+}
+
+func fetchGitHubJSON(ctx context.Context, url string, out any) error {
+	_, err := fetchGitHubPage(ctx, url, out)
+	return err
+}
+
+func fetchGitHubPage(ctx context.Context, url string, out any) (next string, err error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
+	if err != nil {
+		return "", err
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
 	req.Header.Set("User-Agent", "nasnet-panel/"+buildinfo.Version)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if resp == nil {
-		return nil, fmt.Errorf("empty response from GitHub API")
+		return "", fmt.Errorf("empty response from GitHub API")
 	}
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GitHub API returned %d", resp.StatusCode)
+		return "", fmt.Errorf("GitHub API returned %d", resp.StatusCode)
 	}
 
-	var release githubRelease
-	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
-		return nil, err
+	if err := json.NewDecoder(resp.Body).Decode(out); err != nil {
+		return "", err
 	}
-	return &release, nil
+
+	if m := githubNextLinkPattern.FindStringSubmatch(resp.Header.Get("Link")); len(m) > 1 && strings.HasPrefix(m[1], githubAPIPrefix) {
+		return m[1], nil
+	}
+	return "", nil
 }
 
 func routerSettingsDB(c echo.Context) (conn *sqlx.DB, ok bool, handled error) {
