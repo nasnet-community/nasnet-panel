@@ -780,7 +780,6 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 			if msg == "" {
 				msg = "image pull failed"
 			}
-			appUpdate.set(updatePhaseError, releaseTag, msg)
 			log.Printf("[app-update] pull failed for container %s: %s", appUpdateContainerName, msg)
 			if rmErr := client.RemoveContainer(appUpdateContainerName); rmErr != nil {
 				log.Printf("[app-update] failed to clean up failed update container %s: %v", appUpdateContainerName, rmErr)
@@ -788,6 +787,7 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 			if rmErr := removeStaleRootDir(client, rootDir); rmErr != nil {
 				log.Printf("[app-update] failed to clean up %s: %v", rootDir, rmErr)
 			}
+			appUpdate.set(updatePhaseError, releaseTag, msg)
 			return
 		}
 
