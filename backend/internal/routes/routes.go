@@ -61,6 +61,7 @@ func RegisterRoutes(e *echo.Echo) {
 	systemGroup.PUT("/password", handler.HandleChangeUserPassword)
 	systemGroup.GET("/services", handler.HandleListIPServices)
 	systemGroup.POST("/backup", handler.HandleCreateBackup)
+	systemGroup.GET("/backup/download/:filename", handler.HandleDownloadBackup)
 	systemGroup.DELETE("/backup/:filename", handler.HandleDeleteBackup)
 	systemGroup.POST("/restore", handler.HandleRestoreBackup)
 	systemGroup.GET("/backups", handler.HandleListBackups)

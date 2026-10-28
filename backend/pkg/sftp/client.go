@@ -219,6 +219,31 @@ func (c *Client) Download(remotePath, localPath string) error {
 	return nil
 }
 
+// Open opens a remote file for reading and returns it with its size. The caller
+// must close the returned reader.
+func (c *Client) Open(remotePath string) (io.ReadCloser, int64, error) {
+	if c.sftpClient == nil {
+		return nil, 0, fmt.Errorf("SFTP client not connected")
+	}
+
+	if remotePath == "" {
+		return nil, 0, fmt.Errorf("remote path is required")
+	}
+
+	remoteFile, err := c.sftpClient.Open(remotePath)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to open remote file %s: %w", remotePath, err)
+	}
+
+	info, err := remoteFile.Stat()
+	if err != nil {
+		_ = remoteFile.Close()
+		return nil, 0, fmt.Errorf("failed to stat remote file %s: %w", remotePath, err)
+	}
+
+	return remoteFile, info.Size(), nil
+}
+
 // ListFiles lists files in the remote directory.
 func (c *Client) ListFiles(remotePath string) ([]os.FileInfo, error) {
 	if c.sftpClient == nil {

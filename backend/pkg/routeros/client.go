@@ -168,6 +168,24 @@ func (c *Client) Execute(command string, args ...string) (*ros.Reply, error) {
 	return c.Run(sentence)
 }
 
+// ExecuteOnce runs a command exactly once, without the reconnect-and-retry
+// that Execute applies to connection errors. Use it for commands that must
+// never be resent, such as ones that make the router drop the connection.
+func (c *Client) ExecuteOnce(command string, args ...string) (*ros.Reply, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.conn == nil {
+		return nil, fmt.Errorf("connection is closed")
+	}
+
+	sentence := make([]string, 0, len(args)+1)
+	sentence = append(sentence, command)
+	sentence = append(sentence, args...)
+
+	return c.conn.Run(sentence...)
+}
+
 func (c *Client) Query(path string, args ...string) (*ros.Reply, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
