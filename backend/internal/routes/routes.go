@@ -20,6 +20,7 @@ func RegisterRoutes(e *echo.Echo) {
 	appGroup.GET("/update/channel", handler.HandleAppUpdateChannel)
 	appGroup.POST("/update", handler.HandleAppUpdate)
 	appGroup.GET("/update/status", handler.HandleAppUpdateProgress)
+	appGroup.GET("/update/:tag", handler.HandleAppUpdateRelease)
 	appGroup.POST("/install-update", handler.HandleAppInstallUpdate)
 	appGroup.GET("/update-status", handler.HandleAppUpdateStatus)
 	appGroup.GET("/settings", handler.HandleListSettings)

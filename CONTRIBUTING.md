@@ -36,7 +36,7 @@ Requires Node.js 20+ and Go 1.26+. The frontend runs on `http://localhost:3000`,
 
 ## Releases
 
-Every merge to `dev` is released automatically as a pre-release. The version is worked out from the conventional-commit titles since the last stable tag: `feat(scope)!:` (or a `BREAKING CHANGE` line) bumps the major, `feat(scope):` the minor, and anything else, such as `fix(scope):`, the patch. The build is tagged and published as `vX.Y.Z-dev.<date>.<n>`.
+Every merge to `dev` is released automatically as a pre-release. The version is not bumped: the newest stable or release candidate version gets a dev suffix, so the build is tagged `vX.Y.Z-dev.<date>.<n>`.
 
 | Build             | Tag                     | How it is made                    |
 | ----------------- | ----------------------- | --------------------------------- |
@@ -46,7 +46,7 @@ Every merge to `dev` is released automatically as a pre-release. The version is 
 
 The rolling `snapshot` release is still rebuilt on every merge to `dev`.
 
-`release-meta.json` (RouterOS compatibility and similar metadata) is embedded as a hidden `<!-- nasnet-meta: {...} -->` comment in the body of new versioned releases, so it can be read from the GitHub releases API in one call. Releases published before this was added, and the rolling `snapshot` release, do not contain the comment, so consumers must use a fallback when it is absent. Edit that file when compatibility changes.
+`release-meta.json` (the minimum app version a release can be installed from, RouterOS compatibility and similar metadata) is embedded as a hidden `<!-- nasnet-meta: {...} -->` comment in the body of new versioned releases, so it can be read from the GitHub releases API in one call. Releases published before this was added, and the rolling `snapshot` release, do not contain the comment, so consumers must use a fallback when it is absent. Edit that file when compatibility changes.
 
 Stable tags move the `latest` image tag when they are on the tip of the default branch. Release candidate and development builds never do. `backend/release-tag.sh` creates and pushes a tag.
 
