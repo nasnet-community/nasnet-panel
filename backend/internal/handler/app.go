@@ -111,8 +111,10 @@ type releaseCache struct {
 }
 
 type releaseMeta struct {
-	MinAppVersion string `json:"minAppVersion"`
-	RouterOS      struct {
+	App struct {
+		MinVersion string `json:"minVersion"`
+	} `json:"app"`
+	RouterOS struct {
 		MinVersion string `json:"minVersion"`
 	} `json:"routeros"`
 }
@@ -473,8 +475,8 @@ func parseReleaseMeta(body string) (releaseMeta, bool) {
 	if err := json.Unmarshal([]byte(match[1]), &fields); err != nil {
 		return meta, false
 	}
-	if raw, ok := fields["minAppVersion"]; ok {
-		_ = json.Unmarshal(raw, &meta.MinAppVersion)
+	if raw, ok := fields["app"]; ok {
+		_ = json.Unmarshal(raw, &meta.App)
 	}
 	if raw, ok := fields["routeros"]; ok {
 		_ = json.Unmarshal(raw, &meta.RouterOS)
@@ -535,10 +537,10 @@ func releaseMinAppVersion(tag, body string) string {
 	}
 
 	meta, ok := parseReleaseMeta(body)
-	if !ok || !minAppVersionPattern.MatchString(meta.MinAppVersion) {
+	if !ok || !minAppVersionPattern.MatchString(meta.App.MinVersion) {
 		return defaultMinAppVersion
 	}
-	return meta.MinAppVersion
+	return meta.App.MinVersion
 }
 
 // appUpdatePhase enumerates the stages of a self-update, tracked in-process so

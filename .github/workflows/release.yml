@@ -52,7 +52,7 @@ jobs:
         name: Read and validate release metadata
         run: |
           meta="$(jq -c . release-meta.json)"
-          jq -e '.minAppVersion | strings | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")' release-meta.json >/dev/null || { echo "release-meta.json needs a minAppVersion like 1.2.0" >&2; exit 1; }
+          jq -e '.app.minVersion | strings | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")' release-meta.json >/dev/null || { echo "release-meta.json needs app.minVersion like 1.2.0" >&2; exit 1; }
           case "$meta" in *--*) echo "release-meta.json must not contain '--'" >&2; exit 1 ;; esac
           echo "json=${meta}" >> "$GITHUB_OUTPUT"
 
