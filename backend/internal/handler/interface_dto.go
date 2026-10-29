@@ -283,6 +283,12 @@ type UpdateWANInterfaceRequest struct {
 	Password  string `json:"password"  example:"secret"`
 }
 
+func (r UpdateWANInterfaceRequest) escaped() UpdateWANInterfaceRequest {
+	r.SSID = utils.EscapeRouterOSString(r.SSID)
+	r.Password = utils.EscapeRouterOSString(r.Password)
+	return r
+}
+
 type wanChangeTemplateData struct {
 	UpdateWANInterfaceRequest
 	DoneToken    string

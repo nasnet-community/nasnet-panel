@@ -20,7 +20,7 @@ sign ovpn-client-{{ .CurrentTimestamp }} ca=ovpn-ca-{{ .CurrentTimestamp }}
 /certificate
 export-certificate ovpn-ca-{{ .CurrentTimestamp }} file-name=($nasnetDir . "/ovpn-ca-{{ .CurrentTimestamp }}") type=pem
 export-certificate ovpn-server-{{ .CurrentTimestamp }} file-name=($nasnetDir . "/ovpn-server-{{ .CurrentTimestamp }}") type=pem
-export-certificate ovpn-client-{{ .CurrentTimestamp }} file-name=($nasnetDir . "/ovpn-client-{{ .CurrentTimestamp }}") type=pem export-passphrase={{ .OvpnServer.ClientCertificatePassword }}
+export-certificate ovpn-client-{{ .CurrentTimestamp }} file-name=($nasnetDir . "/ovpn-client-{{ .CurrentTimestamp }}") type=pem export-passphrase="{{ .OvpnServer.ClientCertificatePassword }}"
 :global WizardProgress "90"
 :set WizardMessage "Creating OpenVPN TCP and UDP servers"
 /interface ovpn-server server
