@@ -315,7 +315,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"BackupTime":        backupTime,
 		"Identity":          identity,
 		"RouterUsername":    creds.Username,
-		"RouterPassword":    utils.EscapeQuotes(creds.Password),
+		"RouterPassword":    creds.Password,
 		"RandomUserID":      randomUserID,
 	}
 
@@ -336,7 +336,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
 
-	rendered, err := utils.RenderTemplate("wizard.tmpl", templateData)
+	rendered, err := utils.RenderTemplate("wizard.tmpl", escapeWizardTemplateData(templateData))
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}

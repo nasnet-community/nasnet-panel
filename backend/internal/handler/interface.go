@@ -410,7 +410,7 @@ func HandleUpdateWANInterface(c echo.Context) error {
 
 	doneToken := strconv.FormatInt(time.Now().UnixNano(), 10)
 	script, err := utils.RenderTemplate("change_wan.tmpl", wanChangeTemplateData{
-		UpdateWANInterfaceRequest: req,
+		UpdateWANInterfaceRequest: req.escaped(),
 		DoneToken:                 doneToken,
 		OldWiFiNames:              oldWANWiFiNames(client, req.Type),
 	})

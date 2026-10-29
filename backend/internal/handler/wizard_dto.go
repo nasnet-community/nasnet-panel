@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/utils"
 	"nasnet-panel/pkg/wgcfg"
 )
 
@@ -176,4 +177,87 @@ type FinalizeWizardRequest struct {
 	WireGuardClient *WireGuardClientConfig  `json:"wireguardClient,omitempty"`
 	WiFiAP          *WiFiAPConfig           `json:"wifiAp,omitempty"`
 	OvpnServer      *OvpnServerConfig       `json:"ovpnServer,omitempty"`
+}
+
+func escapeWiFiAP(ap WiFiAP) WiFiAP {
+	ap.NameToSet = utils.EscapeRouterOSString(ap.NameToSet)
+	ap.SSID = utils.EscapeRouterOSString(ap.SSID)
+	ap.Password = utils.EscapeRouterOSString(ap.Password)
+	return ap
+}
+
+func escapeInterfaceConfig(cfg InterfaceConfig) InterfaceConfig {
+	cfg.SSID = utils.EscapeRouterOSString(cfg.SSID)
+	cfg.Password = utils.EscapeRouterOSString(cfg.Password)
+	return cfg
+}
+
+// escapeWizardTemplateData returns a copy of the wizard.tmpl data in which every
+// user-supplied string is escaped for a double-quoted RouterOS string, which is
+// how the template writes them.
+func escapeWizardTemplateData(data map[string]any) map[string]any {
+	escaped := make(map[string]any, len(data))
+	for key, value := range data {
+		escaped[key] = value
+	}
+
+	if v, ok := data["ManagementWifi"].(WiFiAP); ok {
+		escaped["ManagementWifi"] = escapeWiFiAP(v)
+	}
+	if v, ok := data["ForeignInterface"].(InterfaceConfig); ok {
+		escaped["ForeignInterface"] = escapeInterfaceConfig(v)
+	}
+	if v, ok := data["DomesticInterface"].(InterfaceConfig); ok {
+		escaped["DomesticInterface"] = escapeInterfaceConfig(v)
+	}
+	if v, ok := data["WifiAPs"].([]WiFiAP); ok {
+		aps := make([]WiFiAP, len(v))
+		for i := range v {
+			aps[i] = escapeWiFiAP(v[i])
+		}
+		escaped["WifiAPs"] = aps
+	}
+	for _, key := range []string{"Identity", "RouterUsername", "RouterPassword"} {
+		if v, ok := data[key].(string); ok {
+			escaped[key] = utils.EscapeRouterOSString(v)
+		}
+	}
+	if v, ok := data["L2tpClient"].(*L2tpClientConfig); ok && v != nil {
+		escaped["L2tpClient"] = &L2tpClientConfig{
+			ConnectTo:   utils.EscapeRouterOSString(v.ConnectTo),
+			User:        utils.EscapeRouterOSString(v.User),
+			Password:    utils.EscapeRouterOSString(v.Password),
+			IPsecSecret: utils.EscapeRouterOSString(v.IPsecSecret),
+		}
+	}
+	if v, ok := data["OvpnServer"].(*OvpnServerConfig); ok && v != nil {
+		users := make([]OvpnUser, len(v.Users))
+		for i, user := range v.Users {
+			users[i] = OvpnUser{
+				Username: utils.EscapeRouterOSString(user.Username),
+				Password: utils.EscapeRouterOSString(user.Password),
+			}
+		}
+		escaped["OvpnServer"] = &OvpnServerConfig{
+			ClientCertificatePassword: utils.EscapeRouterOSString(v.ClientCertificatePassword),
+			Users:                     users,
+		}
+	}
+	if v, ok := data["WireGuardClient"].(*WireGuardClientTemplateData); ok && v != nil {
+		peers := make([]WireGuardPeerTemplateData, len(v.Peers))
+		for i, peer := range v.Peers {
+			peer.PublicKey = utils.EscapeRouterOSString(peer.PublicKey)
+			peer.EndpointAddress = utils.EscapeRouterOSString(peer.EndpointAddress)
+			peer.AllowedAddress = utils.EscapeRouterOSString(peer.AllowedAddress)
+			peer.PreSharedKey = utils.EscapeRouterOSString(peer.PreSharedKey)
+			peers[i] = peer
+		}
+		escaped["WireGuardClient"] = &WireGuardClientTemplateData{
+			InterfacePrivateKey: utils.EscapeRouterOSString(v.InterfacePrivateKey),
+			InterfaceAddress:    utils.EscapeRouterOSString(v.InterfaceAddress),
+			Peers:               peers,
+		}
+	}
+
+	return escaped
 }

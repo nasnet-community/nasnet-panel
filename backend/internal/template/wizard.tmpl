@@ -57,8 +57,8 @@
 :if ([:len [/interface wifi find]] > 0) do={
 /interface wifi
 set [ find default-name=wifi1 ] disabled=no
-add name=wifi-management master-interface=wifi1 configuration.mode=ap configuration.ssid={{ .ManagementWifi.SSID }} \
-security.authentication-types=wpa2-psk,wpa3-psk security.passphrase={{ .ManagementWifi.Password }} disabled=no comment="Management WiFi"
+add name=wifi-management master-interface=wifi1 configuration.mode=ap configuration.ssid="{{ .ManagementWifi.SSID }}" \
+security.authentication-types=wpa2-psk,wpa3-psk security.passphrase="{{ .ManagementWifi.Password }}" disabled=no comment="Management WiFi"
 /ip address add address="192.168.210.1/24" interface=wifi-management network="192.168.210.0" comment="WiFi Static Management Port"
 /ip pool
 add name="DHCP-pool-management-wifi" ranges="192.168.210.2-192.168.210.254" comment="Management Wifi"
@@ -343,8 +343,8 @@ add interface="LANBridgeDomestic-Domestic Link" list="LAN" comment="Domestic-Dom
 add interface="LANBridgeDomestic-Domestic Link" list="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
 {{ end }}
 {{range .WifiAPs}}
-add interface={{ .NameToSet }} list="Split-LAN" comment="SplitLAN"
-add interface={{ .NameToSet }} list="LAN" comment="SplitLAN"
+add interface="{{ .NameToSet }}" list="Split-LAN" comment="SplitLAN"
+add interface="{{ .NameToSet }}" list="LAN" comment="SplitLAN"
 {{end}}
 add interface="LANBridgeSplit" list="LAN" comment="Split"
 add interface="LANBridgeSplit" list="Split-LAN" comment="Split"
@@ -696,7 +696,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :set WizardMessage "Updating router credentials"
 
 :delay 1s
-/user set {{ .RouterUsername }} password="{{ .RouterPassword }}"
+/user set "{{ .RouterUsername }}" password="{{ .RouterPassword }}"
 
 :global WizardProgress "90"
 :set WizardMessage "Renewing DHCP clients to pick up new routes"
