@@ -24,6 +24,7 @@ type ReleaseUpdateResponse struct {
 	ReleaseURL         string   `json:"releaseUrl"`
 	MinRouterosVersion string   `json:"minRouterosVersion"`
 	MinAppVersion      string   `json:"minAppVersion"`
+	Installable        bool     `json:"installable"`
 	Changelog          []string `json:"changelog"`
 }
 

@@ -63,6 +63,7 @@ var (
 	githubNextLinkPattern  = regexp.MustCompile(`<([^>]+)>;\s*rel="next"`)
 	settingKeyPattern      = regexp.MustCompile(`^[A-Za-z0-9_.:-]+$`)
 	stableTagPattern       = regexp.MustCompile(`^v?\d+\.\d+\.\d+$`)
+	minAppVersionPattern   = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 	releaseMetaPattern     = regexp.MustCompile(`(?s)<!--\s*nasnet-meta:\s*(\{.*?\})\s*-->`)
 	releaseChangesHeading  = regexp.MustCompile(`(?i)^#+\s*what's changed\s*$`)
 	changePrefixPattern    = regexp.MustCompile(`^[A-Za-z]+(?:\([^)]*\))?!?:\s*`)
@@ -206,7 +207,7 @@ func HandleAppUpdates(c echo.Context) error {
 			continue
 		}
 		if hideLower && currentOK {
-			if version, ok := parseReleaseVersion(release.TagName); ok && compareReleaseVersions(version, current) < 0 {
+			if version, ok := parseReleaseVersion(release.TagName); ok && compareForInstall(version, current) < 0 {
 				continue
 			}
 		}
@@ -253,13 +254,15 @@ func HandleAppUpdateRelease(c echo.Context) error {
 }
 
 func toReleaseUpdateResponse(release *githubReleaseEntry) ReleaseUpdateResponse {
+	minAppVersion := releaseMinAppVersion(release.Body)
 	return ReleaseUpdateResponse{
 		Tag:                release.TagName,
 		Prerelease:         release.Prerelease,
 		ReleaseDate:        release.PublishedAt,
 		ReleaseURL:         release.HTMLURL,
 		MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
-		MinAppVersion:      releaseMinAppVersion(release.Body),
+		MinAppVersion:      minAppVersion,
+		Installable:        releaseInstallable(release.TagName, minAppVersion),
 		Changelog:          releaseChanges(release.Body),
 	}
 }
@@ -465,8 +468,15 @@ func parseReleaseMeta(body string) (releaseMeta, bool) {
 	if match == nil {
 		return meta, false
 	}
-	if err := json.Unmarshal([]byte(match[1]), &meta); err != nil {
-		return releaseMeta{}, false
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(match[1]), &fields); err != nil {
+		return meta, false
+	}
+	if raw, ok := fields["minAppVersion"]; ok {
+		_ = json.Unmarshal(raw, &meta.MinAppVersion)
+	}
+	if raw, ok := fields["routeros"]; ok {
+		_ = json.Unmarshal(raw, &meta.RouterOS)
 	}
 	return meta, true
 }
@@ -482,12 +492,33 @@ func releaseMinRouterOSVersion(body string) string {
 	return meta.RouterOS.MinVersion
 }
 
+func compareForInstall(target, current releaseVersion) int {
+	cmp := compareReleaseVersions(target, current)
+	if cmp < 0 && target.channel == releaseChannelDev && current.channel != releaseChannelDev && compareBase(target, current) == 0 {
+		return 1
+	}
+	return cmp
+}
+
+func releaseInstallable(tag, minAppVersion string) bool {
+	current, ok := parseReleaseVersion(buildinfo.Version)
+	if !ok {
+		return false
+	}
+	target, ok := parseReleaseVersion(tag)
+	if !ok || compareForInstall(target, current) <= 0 {
+		return false
+	}
+	minimum, ok := parseReleaseVersion(minAppVersion)
+	return ok && compareReleaseVersions(current, minimum) >= 0
+}
+
 func releaseMinAppVersion(body string) string {
 	meta, ok := parseReleaseMeta(body)
 	if !ok {
 		return defaultMinAppVersion
 	}
-	if _, ok := parseReleaseVersion(meta.MinAppVersion); !ok {
+	if !minAppVersionPattern.MatchString(meta.MinAppVersion) {
 		return defaultMinAppVersion
 	}
 	return meta.MinAppVersion
@@ -697,7 +728,7 @@ func HandleAppUpdate(c echo.Context) error {
 	}()
 
 	if current, ok := parseReleaseVersion(buildinfo.Version); ok {
-		switch compareReleaseVersions(target, current) {
+		switch compareForInstall(target, current) {
 		case 0:
 			return SuccessResponse(c, http.StatusOK, "Already up to date", InstallUpdateResponse{
 				UpdateAvailable: false,
