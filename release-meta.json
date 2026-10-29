@@ -1,4 +1,7 @@
 {
+  "app": {
+    "minVersion": "1.2.0"
+  },
   "routeros": {
     "minVersion": "7.24",
     "requiredPackages": ["container"],

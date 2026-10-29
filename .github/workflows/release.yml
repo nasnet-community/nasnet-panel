@@ -39,7 +39,23 @@ jobs:
     outputs:
       tag: ${{ steps.resolve.outputs.tag }}
       release: ${{ steps.resolve.outputs.release }}
+      relmeta: ${{ steps.relmeta.outputs.json }}
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: release-meta.json
+          sparse-checkout-cone-mode: false
+
+      - id: relmeta
+        name: Read and validate release metadata
+        run: |
+          meta="$(jq -c . release-meta.json)"
+          jq -e '.app.minVersion | strings | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")' release-meta.json >/dev/null || { echo "release-meta.json needs app.minVersion like 1.2.0" >&2; exit 1; }
+          case "$meta" in *--*) echo "release-meta.json must not contain '--'" >&2; exit 1 ;; esac
+          echo "json=${meta}" >> "$GITHUB_OUTPUT"
+
       # release is true for a pushed tag and for a call from dev-release.yml, and false for
       # workflow_dispatch test builds, which publish images under an arbitrary tag only.
       - id: resolve
@@ -215,20 +231,6 @@ jobs:
       contents: write
       packages: read
     steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-          sparse-checkout: release-meta.json
-          sparse-checkout-cone-mode: false
-
-      - id: relmeta
-        name: Read release metadata
-        run: |
-          meta="$(jq -c . release-meta.json)"
-          case "$meta" in *--*) echo "release-meta.json must not contain '--'" >&2; exit 1 ;; esac
-          echo "json=${meta}" >> "$GITHUB_OUTPUT"
-
       - name: Install skopeo
         run: |
           sudo apt-get update
@@ -279,7 +281,7 @@ jobs:
 
             Container image: `${{ env.IMAGE }}:${{ steps.pkg.outputs.version }}`
 
-            <!-- nasnet-meta: ${{ steps.relmeta.outputs.json }} -->
+            <!-- nasnet-meta: ${{ needs.meta.outputs.relmeta }} -->
           files: |
             dist/*.tar
             dist/*.tar.sha256

@@ -18,11 +18,14 @@ type CheckForUpdatesResponse struct {
 
 // ReleaseUpdateResponse is one release in the response for GET /api/app/updates.
 type ReleaseUpdateResponse struct {
-	Tag                string `json:"tag"`
-	Prerelease         bool   `json:"prerelease"`
-	ReleaseDate        string `json:"releaseDate"`
-	ReleaseURL         string `json:"releaseUrl"`
-	MinRouterosVersion string `json:"minRouterosVersion"`
+	Tag                string   `json:"tag"`
+	Prerelease         bool     `json:"prerelease"`
+	ReleaseDate        string   `json:"releaseDate"`
+	ReleaseURL         string   `json:"releaseUrl"`
+	MinRouterosVersion string   `json:"minRouterosVersion"`
+	MinAppVersion      string   `json:"minAppVersion"`
+	Installable        bool     `json:"installable"`
+	Changelog          []string `json:"changelog"`
 }
 
 // StartUpdateRequest is the request body for POST /api/app/update.

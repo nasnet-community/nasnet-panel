@@ -8,11 +8,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/db"
@@ -26,6 +29,7 @@ import (
 const (
 	githubLatestReleaseURL = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases/latest"
 	githubReleasesURL      = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases?per_page=100"
+	githubReleaseByTagURL  = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases/tags/"
 	githubAPIPrefix        = "https://api.github.com/"
 	maxGitHubReleasePages  = 10
 	releaseListCacheTTL    = 5 * time.Minute
@@ -52,13 +56,20 @@ const (
 	releaseChannelDev    = "dev"
 
 	defaultMinRouterOSVersion = "7.24"
+	defaultMinAppVersion      = "1.2.0"
+	localDevVersion           = "v0.0.0-dev"
 )
 
 var (
 	githubNextLinkPattern  = regexp.MustCompile(`<([^>]+)>;\s*rel="next"`)
 	settingKeyPattern      = regexp.MustCompile(`^[A-Za-z0-9_.:-]+$`)
 	stableTagPattern       = regexp.MustCompile(`^v?\d+\.\d+\.\d+$`)
+	minAppVersionPattern   = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 	releaseMetaPattern     = regexp.MustCompile(`(?s)<!--\s*nasnet-meta:\s*(\{.*?\})\s*-->`)
+	releaseChangesHeading  = regexp.MustCompile(`(?i)^#+\s*what's changed\s*$`)
+	changePrefixPattern    = regexp.MustCompile(`^[A-Za-z]+(?:\([^)]*\))?!?:\s*`)
+	changeSuffixPattern    = regexp.MustCompile(`\s+by\s+@\S+\s+in\s+(?:https?://\S+|#\d+)\s*$`)
+	errGitHubNotFound      = errors.New("GitHub API returned 404")
 	appDatabases           *db.Registry
 	releaseVersionPattern  = regexp.MustCompile(`^v?(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+)|-dev\.(\d{8})\.(\d+))?$`)
 	routerOSVersionPattern = regexp.MustCompile(`^(\d+)\.(\d+)(?:\.(\d+))?(?:(beta|rc)(\d+))?`)
@@ -100,6 +111,9 @@ type releaseCache struct {
 }
 
 type releaseMeta struct {
+	App struct {
+		MinVersion string `json:"minVersion"`
+	} `json:"app"`
 	RouterOS struct {
 		MinVersion string `json:"minVersion"`
 	} `json:"routeros"`
@@ -196,20 +210,64 @@ func HandleAppUpdates(c echo.Context) error {
 			continue
 		}
 		if hideLower && currentOK {
-			if version, ok := parseReleaseVersion(release.TagName); ok && compareReleaseVersions(version, current) < 0 {
+			if version, ok := parseReleaseVersion(release.TagName); ok && compareForInstall(version, current) < 0 {
 				continue
 			}
 		}
-		updates = append(updates, ReleaseUpdateResponse{
-			Tag:                release.TagName,
-			Prerelease:         release.Prerelease,
-			ReleaseDate:        release.PublishedAt,
-			ReleaseURL:         release.HTMLURL,
-			MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
-		})
+		updates = append(updates, toReleaseUpdateResponse(release))
 	}
 
 	return SuccessResponse(c, http.StatusOK, "Releases retrieved", updates)
+}
+
+// HandleAppUpdateRelease godoc
+// @Summary Get a single nasnet-panel release
+// @Description Returns one GitHub release by tag, in the same format as the entries of GET /api/app/updates
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param tag path string true "Release tag" example(v0.0.2)
+// @Produce json
+// @Success 200 {object} Response{data=ReleaseUpdateResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 502 {object} Response
+// @Router /api/app/update/{tag} [get].
+func HandleAppUpdateRelease(c echo.Context) error {
+	tag := c.Param("tag")
+	if _, ok := parseReleaseVersion(tag); !ok {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid release tag", fmt.Errorf("%q is not a release version", tag))
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request().Context(), releaseFetchTimeout)
+	defer cancel()
+
+	var release githubReleaseEntry
+	if err := fetchGitHubJSON(ctx, githubReleaseByTagURL+url.PathEscape(tag), &release); err != nil {
+		if errors.Is(err, errGitHubNotFound) {
+			return ErrorResponse(c, http.StatusNotFound, "Release not found", fmt.Errorf("no release tagged %s", tag))
+		}
+		return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch the release from GitHub", err)
+	}
+	if release.Draft {
+		return ErrorResponse(c, http.StatusNotFound, "Release not found", fmt.Errorf("no release tagged %s", tag))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Release retrieved", toReleaseUpdateResponse(&release))
+}
+
+func toReleaseUpdateResponse(release *githubReleaseEntry) ReleaseUpdateResponse {
+	minAppVersion := releaseMinAppVersion(release.TagName, release.Body)
+	return ReleaseUpdateResponse{
+		Tag:                release.TagName,
+		Prerelease:         release.Prerelease,
+		ReleaseDate:        release.PublishedAt,
+		ReleaseURL:         release.HTMLURL,
+		MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
+		MinAppVersion:      minAppVersion,
+		Installable:        releaseInstallable(release.TagName, minAppVersion),
+		Changelog:          releaseChanges(release.Body),
+	}
 }
 
 // HandleAppUpdateChannel godoc
@@ -378,20 +436,111 @@ func releaseChannel(tag string) string {
 	return ""
 }
 
-func releaseMinRouterOSVersion(body string) string {
+func releaseChanges(body string) []string {
+	changes := []string{}
+	inSection := false
+	for _, line := range strings.Split(body, "\n") {
+		line = strings.TrimSpace(line)
+		if releaseChangesHeading.MatchString(line) {
+			inSection = true
+			continue
+		}
+		if !inSection {
+			continue
+		}
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "**") {
+			break
+		}
+		if !strings.HasPrefix(line, "* ") && !strings.HasPrefix(line, "- ") {
+			continue
+		}
+		change := strings.TrimSpace(line[2:])
+		change = changeSuffixPattern.ReplaceAllString(change, "")
+		change = strings.TrimSpace(changePrefixPattern.ReplaceAllString(change, ""))
+		if change != "" {
+			first, size := utf8.DecodeRuneInString(change)
+			changes = append(changes, string(unicode.ToUpper(first))+change[size:])
+		}
+	}
+	return changes
+}
+
+func parseReleaseMeta(body string) (releaseMeta, bool) {
+	var meta releaseMeta
 	match := releaseMetaPattern.FindStringSubmatch(body)
 	if match == nil {
-		return defaultMinRouterOSVersion
+		return meta, false
 	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(match[1]), &fields); err != nil {
+		return meta, false
+	}
+	if raw, ok := fields["app"]; ok {
+		_ = json.Unmarshal(raw, &meta.App)
+	}
+	if raw, ok := fields["routeros"]; ok {
+		_ = json.Unmarshal(raw, &meta.RouterOS)
+	}
+	return meta, true
+}
 
-	var meta releaseMeta
-	if err := json.Unmarshal([]byte(match[1]), &meta); err != nil {
+func releaseMinRouterOSVersion(body string) string {
+	meta, ok := parseReleaseMeta(body)
+	if !ok {
 		return defaultMinRouterOSVersion
 	}
 	if _, ok := parseRouterOSVersion(meta.RouterOS.MinVersion); !ok {
 		return defaultMinRouterOSVersion
 	}
 	return meta.RouterOS.MinVersion
+}
+
+func compareForInstall(target, current releaseVersion) int {
+	cmp := compareReleaseVersions(target, current)
+	if cmp < 0 && target.channel == releaseChannelDev && current.channel != releaseChannelDev && compareBase(target, current) == 0 {
+		return 1
+	}
+	return cmp
+}
+
+func releaseInstallable(tag, minAppVersion string) bool {
+	if buildinfo.Version == localDevVersion {
+		_, ok := parseReleaseVersion(tag)
+		return ok
+	}
+	current, ok := parseReleaseVersion(buildinfo.Version)
+	if !ok {
+		return false
+	}
+	target, ok := parseReleaseVersion(tag)
+	if !ok || compareForInstall(target, current) <= 0 {
+		return false
+	}
+	minimum, ok := parseReleaseVersion(minAppVersion)
+	return ok && compareReleaseVersions(current, minimum) >= 0
+}
+
+func releaseMinAppVersion(tag, body string) string {
+	if version, ok := parseReleaseVersion(tag); ok {
+		if version.channel == releaseChannelDev {
+			return "1.0.0"
+		}
+		oldest, _ := parseReleaseVersion("1.1.0")
+		if compareBase(version, oldest) <= 0 {
+			return "0.0.0"
+		}
+		for _, line := range []string{"1.2.0", "1.3.0"} {
+			if known, _ := parseReleaseVersion(line); compareBase(version, known) == 0 {
+				return "1.0.0"
+			}
+		}
+	}
+
+	meta, ok := parseReleaseMeta(body)
+	if !ok || !minAppVersionPattern.MatchString(meta.App.MinVersion) {
+		return defaultMinAppVersion
+	}
+	return meta.App.MinVersion
 }
 
 // appUpdatePhase enumerates the stages of a self-update, tracked in-process so
@@ -598,7 +747,7 @@ func HandleAppUpdate(c echo.Context) error {
 	}()
 
 	if current, ok := parseReleaseVersion(buildinfo.Version); ok {
-		switch compareReleaseVersions(target, current) {
+		switch compareForInstall(target, current) {
 		case 0:
 			return SuccessResponse(c, http.StatusOK, "Already up to date", InstallUpdateResponse{
 				UpdateAvailable: false,
@@ -930,6 +1079,9 @@ func fetchGitHubPage(ctx context.Context, url string, out any) (next string, err
 	}
 	defer func() { _ = resp.Body.Close() }()
 
+	if resp.StatusCode == http.StatusNotFound {
+		return "", errGitHubNotFound
+	}
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("GitHub API returned %d", resp.StatusCode)
 	}
