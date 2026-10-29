@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +24,12 @@ type FileInfo struct {
 // NasnetPanelDir is the directory in the router's root storage where the
 // wizard, diagnostic and certificate files created by NasNet Panel are kept.
 const NasnetPanelDir = "nasnet-panel"
+
+// NasnetBackupsDir is the directory inside NasnetPanelDir where the wizard
+// saves the router backups it creates before running.
+const NasnetBackupsDir = NasnetPanelDir + "/backups"
+
+var fileTimeLayouts = []string{"2006-01-02 15:04:05", "Jan/02/2006 15:04:05", "Jan/02/2006"}
 
 // NasnetPanelPath returns the path of a file inside NasnetPanelDir.
 func NasnetPanelPath(filename string) string {
@@ -156,6 +163,54 @@ func (c *Client) ListFiles() ([]FileInfo, error) {
 	}
 
 	return files, nil
+}
+
+// ListBackupFiles returns the .backup files in NasnetBackupsDir, newest first.
+// Files whose modification time cannot be parsed are ordered by name, which
+// the wizard builds from a sortable timestamp.
+func (c *Client) ListBackupFiles() ([]FileInfo, error) {
+	files, err := c.ListFiles()
+	if err != nil {
+		return nil, err
+	}
+
+	prefix := NasnetBackupsDir + "/"
+	backups := make([]FileInfo, 0, len(files))
+	for i := range files {
+		name := files[i].Name
+		if strings.HasPrefix(name, prefix) && strings.HasSuffix(name, ".backup") && !strings.Contains(strings.TrimPrefix(name, prefix), "/") {
+			backups = append(backups, files[i])
+		}
+	}
+
+	sort.SliceStable(backups, func(i, j int) bool {
+		ti, okI := parseFileTime(backups[i].ModTime)
+		tj, okJ := parseFileTime(backups[j].ModTime)
+		if okI && okJ && !ti.Equal(tj) {
+			return ti.After(tj)
+		}
+		return backups[i].Name > backups[j].Name
+	})
+
+	return backups, nil
+}
+
+// parseFileTime parses a RouterOS file time. The format depends on the
+// RouterOS version, and older versions use lower-case month names.
+func parseFileTime(value string) (time.Time, bool) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return time.Time{}, false
+	}
+	if len(value) > 3 && value[3] == '/' {
+		value = strings.ToUpper(value[:1]) + value[1:]
+	}
+	for _, layout := range fileTimeLayouts {
+		if t, err := time.Parse(layout, value); err == nil {
+			return t, true
+		}
+	}
+	return time.Time{}, false
 }
 
 // FileExists checks if a file exists in RouterOS by name.
@@ -369,12 +424,17 @@ func parseFileInfo(fileMap map[string]string) *FileInfo {
 
 	disabled := fileMap["disabled"] == "true"
 
+	modTime := fileMap["last-modified"]
+	if modTime == "" {
+		modTime = fileMap["creation-time"]
+	}
+
 	return &FileInfo{
 		ID:       fileMap[".id"],
 		Name:     fileMap["name"],
 		Size:     size,
 		Type:     fileMap["type"],
-		ModTime:  fileMap["last-modified"],
+		ModTime:  modTime,
 		Comment:  fileMap["comment"],
 		Disabled: disabled,
 	}

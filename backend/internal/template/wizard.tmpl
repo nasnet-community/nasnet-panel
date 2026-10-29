@@ -22,9 +22,13 @@
 
 :global WizardProgress "5"
 :set WizardMessage "Backing up current configuration"
+:local backupDir ($nasnetDir . "/backups")
 :onerror backupErr in={
-    /system/backup/save name=($nasnetDir . "/{{ .BackupTime }}")
-    /export file=($nasnetDir . "/{{ .BackupTime }}")
+    :if ([:len [/file find name=$backupDir]] = 0) do={
+        /file add name=$backupDir type=directory
+    }
+    /system/backup/save name=($backupDir . "/{{ .BackupTime }}")
+    /export file=($backupDir . "/{{ .BackupTime }}")
 } do={
     :set WizardFailed true
     :set WizardMessage $backupErr

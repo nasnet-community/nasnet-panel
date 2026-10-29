@@ -1,12 +1,19 @@
 package handler
 
 import (
+	"strings"
+
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 )
 
 type SetSystemIdentityRequest struct {
 	Name string `json:"name" form:"name"`
+}
+
+// RestoreBackupRequest names the backup file to restore from nasnet-panel/backups.
+type RestoreBackupRequest struct {
+	Filename string `json:"filename" form:"filename"`
 }
 
 type ChangeUserPasswordRequest struct {
@@ -100,6 +107,14 @@ type ClockInfoResponse struct {
 // ToSystemInfoResponse converts SystemInfo to SystemInfoResponse.
 //
 
+// BackupFileResponse represents a router backup file in the API response.
+type BackupFileResponse struct {
+	Filename  string `json:"filename"`
+	Size      string `json:"size"`
+	SizeBytes int64  `json:"sizeBytes"`
+	Date      string `json:"date"`
+}
+
 // IPServiceResponse represents an /ip/service entry in the API response.
 type IPServiceResponse struct {
 	ID          string `json:"id"`
@@ -176,6 +191,15 @@ func ToSystemIdentityResponse(id *routeros.Identity) *SystemIdentityResponse {
 }
 
 // ToIPServiceResponse converts a RouterOS IPServiceInfo to API IPServiceResponse.
+func ToBackupFileResponse(file *routeros.FileInfo) BackupFileResponse {
+	return BackupFileResponse{
+		Filename:  strings.TrimPrefix(file.Name, routeros.NasnetBackupsDir+"/"),
+		Size:      utils.BytesToSizeString(file.Size),
+		SizeBytes: file.Size,
+		Date:      file.ModTime,
+	}
+}
+
 func ToIPServiceResponse(service *routeros.IPServiceInfo) IPServiceResponse {
 	return IPServiceResponse{
 		ID:          service.ID,

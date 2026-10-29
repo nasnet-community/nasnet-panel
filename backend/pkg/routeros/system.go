@@ -353,6 +353,24 @@ func (c *Client) BackupSystem(name string) error {
 	return nil
 }
 
+// RestoreBackup loads the backup file name (a path under /file, including its
+// extension) with an empty password, matching BackupSystem, which saves
+// unencrypted backups. RouterOS rejects the command without the password
+// argument. RouterOS reboots as soon as the load starts, so a dropped
+// connection after the command was sent is treated as success. The command is
+// sent once and never retried, so a reconnect cannot trigger a second restore.
+func (c *Client) RestoreBackup(name string) error {
+	if name == "" {
+		return fmt.Errorf("backup name is required")
+	}
+
+	if _, err := c.ExecuteOnce("/system/backup/load", "=name="+name, "=password="); err != nil && !isNetworkError(err) {
+		return fmt.Errorf("failed to restore backup %s: %w", name, err)
+	}
+
+	return nil
+}
+
 func (c *Client) RebootSystem() error {
 	_, err := c.Execute("/system/reboot")
 	if err != nil {

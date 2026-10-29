@@ -4,13 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"mime"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/sftp"
 
 	"github.com/labstack/echo/v4"
 )
@@ -45,6 +48,62 @@ type systemUpdateState struct {
 }
 
 var systemUpdates = &systemUpdateState{entries: make(map[string]*systemUpdateEntry)}
+
+const backupFileTimeLayout = "2006-01-02_15-04-05"
+
+const restoreCooldown = 3 * time.Minute
+
+var (
+	backupsInProgress  sync.Map
+	restoresInProgress sync.Map
+	deletesInProgress  sync.Map
+	backupOpGuard      sync.Mutex
+)
+
+func beginBackup(host string) (conflict string) {
+	backupOpGuard.Lock()
+	defer backupOpGuard.Unlock()
+	if _, restoring := restoresInProgress.Load(host); restoring {
+		return "restore"
+	}
+	if _, deleting := deletesInProgress.Load(host); deleting {
+		return "delete"
+	}
+	if _, busy := backupsInProgress.LoadOrStore(host, struct{}{}); busy {
+		return "backup"
+	}
+	return ""
+}
+
+func beginRestore(host string) (conflict string) {
+	backupOpGuard.Lock()
+	defer backupOpGuard.Unlock()
+	if _, busy := backupsInProgress.Load(host); busy {
+		return "backup"
+	}
+	if _, deleting := deletesInProgress.Load(host); deleting {
+		return "delete"
+	}
+	if _, busy := restoresInProgress.LoadOrStore(host, struct{}{}); busy {
+		return "restore"
+	}
+	return ""
+}
+
+func beginDelete(host string) (conflict string) {
+	backupOpGuard.Lock()
+	defer backupOpGuard.Unlock()
+	if _, busy := backupsInProgress.Load(host); busy {
+		return "backup"
+	}
+	if _, busy := restoresInProgress.Load(host); busy {
+		return "restore"
+	}
+	if _, busy := deletesInProgress.LoadOrStore(host, struct{}{}); busy {
+		return "delete"
+	}
+	return ""
+}
 
 // HandleGetSystemInfo godoc
 // @Summary Get system information
@@ -597,6 +656,331 @@ func HandleListIPServices(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "IP services retrieved successfully", response)
+}
+
+// HandleListBackups godoc
+// @Summary List wizard backups
+// @Description List the .backup files in nasnet-panel/backups on the router, newest first.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} Response{data=[]BackupFileResponse} "Backup files"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/system/backups [get].
+func HandleListBackups(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	files, err := client.ListBackupFiles()
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list backups", err)
+	}
+
+	response := make([]BackupFileResponse, 0, len(files))
+	for i := range files {
+		response = append(response, ToBackupFileResponse(&files[i]))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Backups retrieved successfully", response)
+}
+
+// HandleCreateBackup godoc
+// @Summary Create a system backup
+// @Description Save a binary system backup as nasnet-panel/backups/<yyyy-mm-dd_hh-mm-ss>.backup on the router.
+// @Description Returns 409 when a backup is already in progress for the router.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 201 {object} Response{data=BackupFileResponse} "Backup created"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 409 {object} Response "A backup is already in progress"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/system/backup [post].
+func HandleCreateBackup(c echo.Context) error {
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	switch beginBackup(creds.RouterOSHost) {
+	case "restore":
+		return ErrorResponse(c, http.StatusConflict, "A restore is in progress",
+			errors.New("the router is restoring a backup and cannot create a new one now"))
+	case "delete":
+		return ErrorResponse(c, http.StatusConflict, "A backup deletion is in progress",
+			errors.New("wait for the running deletion to finish before creating a backup"))
+	case "backup":
+		return ErrorResponse(c, http.StatusConflict, "A backup is already in progress",
+			errors.New("another backup is still being saved on this router"))
+	}
+	defer backupsInProgress.Delete(creds.RouterOSHost)
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if err := client.EnsureNasnetPanelDir(); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to prepare the backups directory", err)
+	}
+	if err := client.EnsureDir(routeros.NasnetBackupsDir); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to prepare the backups directory", err)
+	}
+
+	name := routeros.NasnetBackupsDir + "/" + time.Now().Format(backupFileTimeLayout)
+	if err := client.BackupSystem(name); err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create backup", err)
+	}
+
+	file, err := client.GetFile(name + ".backup")
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Backup was saved but could not be read back", err)
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "Backup created successfully", ToBackupFileResponse(file))
+}
+
+func isValidBackupFilename(name string) bool {
+	return strings.HasSuffix(name, ".backup") && !strings.ContainsAny(name, `/\`) && !strings.Contains(name, "..")
+}
+
+// HandleDownloadBackup godoc
+// @Summary Download a system backup
+// @Description Load a .backup file stored in nasnet-panel/backups from the router over SFTP and stream it to
+// @Description the client over HTTP. Returns 400 for an invalid file name and 404 when the file does not exist.
+// @Tags System
+// @Produce application/octet-stream
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param filename path string true "Backup file name, e.g. 2026-10-29_01-02-03.backup"
+// @Success 200 {file} file "Backup file"
+// @Failure 400 {object} Response "Invalid file name"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 404 {object} Response "Backup not found"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/system/backup/download/{filename} [get].
+func HandleDownloadBackup(c echo.Context) error {
+	filename := strings.TrimSpace(c.Param("filename"))
+	if !isValidBackupFilename(filename) {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid backup file name",
+			errors.New("file name must be a .backup file inside nasnet-panel/backups"))
+	}
+
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	path := routeros.NasnetBackupsDir + "/" + filename
+	exists, err := client.FileExists(path)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check the backup file", err)
+	}
+	if !exists {
+		return ErrorResponse(c, http.StatusNotFound, "Backup file not found",
+			fmt.Errorf("%s does not exist", path))
+	}
+
+	sftpClient := sftp.NewClient(sftp.Config{
+		Host:     creds.RouterOSHost,
+		Username: creds.Username,
+		Password: creds.Password,
+	})
+	if err := sftpClient.Connect(); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to SFTP", err)
+	}
+	defer func() { _ = sftpClient.Close() }()
+
+	file, size, err := sftpClient.Open(path)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to open the backup file", err)
+	}
+	defer func() { _ = file.Close() }()
+
+	h := c.Response().Header()
+	h.Set(echo.HeaderContentDisposition, mime.FormatMediaType("attachment", map[string]string{"filename": filename}))
+	h.Set(echo.HeaderContentLength, strconv.FormatInt(size, 10))
+
+	return c.Stream(http.StatusOK, echo.MIMEOctetStream, file)
+}
+
+// HandleDeleteBackup godoc
+// @Summary Delete a system backup
+// @Description Delete a .backup file stored in nasnet-panel/backups on the router. Returns 400 for an invalid
+// @Description file name, 404 when the file does not exist and 409 when a backup, restore or deletion is in progress.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param filename path string true "Backup file name, e.g. 2026-10-29_01-02-03.backup"
+// @Success 200 {object} Response "Backup deleted"
+// @Failure 400 {object} Response "Invalid file name"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 404 {object} Response "Backup not found"
+// @Failure 409 {object} Response "A backup or restore is in progress"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/system/backup/{filename} [delete].
+func HandleDeleteBackup(c echo.Context) error {
+	filename := strings.TrimSpace(c.Param("filename"))
+	if !isValidBackupFilename(filename) {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid backup file name",
+			errors.New("file name must be a .backup file inside nasnet-panel/backups"))
+	}
+
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	switch beginDelete(creds.RouterOSHost) {
+	case "restore":
+		return ErrorResponse(c, http.StatusConflict, "A restore is in progress",
+			errors.New("wait for the restore to finish before deleting backups"))
+	case "backup":
+		return ErrorResponse(c, http.StatusConflict, "A backup is in progress",
+			errors.New("wait for the running backup to finish before deleting backups"))
+	case "delete":
+		return ErrorResponse(c, http.StatusConflict, "A backup deletion is already in progress",
+			errors.New("another deletion is still running on this router"))
+	}
+	defer deletesInProgress.Delete(creds.RouterOSHost)
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	path := routeros.NasnetBackupsDir + "/" + filename
+	exists, err := client.FileExists(path)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check the backup file", err)
+	}
+	if !exists {
+		return ErrorResponse(c, http.StatusNotFound, "Backup file not found",
+			fmt.Errorf("%s does not exist", path))
+	}
+
+	if err := client.DeleteFile(path); err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete backup", err)
+	}
+
+	return SimpleSuccessResponse(c, http.StatusOK, "Backup deleted successfully")
+}
+
+// HandleRestoreBackup godoc
+// @Summary Restore a system backup
+// @Description Restore a .backup file stored in nasnet-panel/backups on the router. The router reboots
+// @Description to apply it. Returns 400 for an invalid file name, 404 when the file does not exist
+// @Description and 409 when a backup or restore is already in progress for the router.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body RestoreBackupRequest true "Backup file name"
+// @Success 202 {object} Response "Restore initiated"
+// @Failure 400 {object} Response "Invalid file name"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 404 {object} Response "Backup not found"
+// @Failure 409 {object} Response "A backup or restore is already in progress"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/system/restore [post].
+func HandleRestoreBackup(c echo.Context) error {
+	var req RestoreBackupRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	}
+
+	filename := strings.TrimSpace(req.Filename)
+	if filename == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Backup file name is required", nil)
+	}
+	if !isValidBackupFilename(filename) {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid backup file name",
+			errors.New("file name must be a .backup file inside nasnet-panel/backups"))
+	}
+
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	switch beginRestore(creds.RouterOSHost) {
+	case "backup":
+		return ErrorResponse(c, http.StatusConflict, "A backup is in progress",
+			errors.New("wait for the running backup to finish before restoring"))
+	case "delete":
+		return ErrorResponse(c, http.StatusConflict, "A backup deletion is in progress",
+			errors.New("wait for the running deletion to finish before restoring"))
+	case "restore":
+		return ErrorResponse(c, http.StatusConflict, "A restore is already in progress",
+			errors.New("another restore is still running on this router"))
+	}
+	started := false
+	defer func() {
+		if !started {
+			restoresInProgress.Delete(creds.RouterOSHost)
+		}
+	}()
+
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	path := routeros.NasnetBackupsDir + "/" + filename
+	exists, err := client.FileExists(path)
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check the backup file", err)
+	}
+	if !exists {
+		return ErrorResponse(c, http.StatusNotFound, "Backup file not found",
+			fmt.Errorf("%s does not exist", path))
+	}
+
+	if err := client.RestoreBackup(path); err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to restore backup", err)
+	}
+
+	started = true
+	host := creds.RouterOSHost
+	time.AfterFunc(restoreCooldown, func() { restoresInProgress.Delete(host) })
+
+	return SimpleSuccessResponse(c, http.StatusAccepted, "Restore initiated; the router will reboot to apply the backup")
 }
 
 // HandleUpdateIPService godoc
