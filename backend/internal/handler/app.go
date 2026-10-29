@@ -56,7 +56,8 @@ const (
 	releaseChannelDev    = "dev"
 
 	defaultMinRouterOSVersion = "7.24"
-	defaultMinAppVersion      = "1.0.0"
+	defaultMinAppVersion      = "1.2.0"
+	localDevVersion           = "v0.0.0-dev"
 )
 
 var (
@@ -254,7 +255,7 @@ func HandleAppUpdateRelease(c echo.Context) error {
 }
 
 func toReleaseUpdateResponse(release *githubReleaseEntry) ReleaseUpdateResponse {
-	minAppVersion := releaseMinAppVersion(release.Body)
+	minAppVersion := releaseMinAppVersion(release.TagName, release.Body)
 	return ReleaseUpdateResponse{
 		Tag:                release.TagName,
 		Prerelease:         release.Prerelease,
@@ -501,6 +502,10 @@ func compareForInstall(target, current releaseVersion) int {
 }
 
 func releaseInstallable(tag, minAppVersion string) bool {
+	if buildinfo.Version == localDevVersion {
+		_, ok := parseReleaseVersion(tag)
+		return ok
+	}
 	current, ok := parseReleaseVersion(buildinfo.Version)
 	if !ok {
 		return false
@@ -513,12 +518,24 @@ func releaseInstallable(tag, minAppVersion string) bool {
 	return ok && compareReleaseVersions(current, minimum) >= 0
 }
 
-func releaseMinAppVersion(body string) string {
-	meta, ok := parseReleaseMeta(body)
-	if !ok {
-		return defaultMinAppVersion
+func releaseMinAppVersion(tag, body string) string {
+	if version, ok := parseReleaseVersion(tag); ok {
+		if version.channel == releaseChannelDev {
+			return "1.0.0"
+		}
+		oldest, _ := parseReleaseVersion("1.1.0")
+		if compareBase(version, oldest) <= 0 {
+			return "0.0.0"
+		}
+		for _, line := range []string{"1.2.0", "1.3.0"} {
+			if known, _ := parseReleaseVersion(line); compareBase(version, known) == 0 {
+				return "1.0.0"
+			}
+		}
 	}
-	if !minAppVersionPattern.MatchString(meta.MinAppVersion) {
+
+	meta, ok := parseReleaseMeta(body)
+	if !ok || !minAppVersionPattern.MatchString(meta.MinAppVersion) {
 		return defaultMinAppVersion
 	}
 	return meta.MinAppVersion
