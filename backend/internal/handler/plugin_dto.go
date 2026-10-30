@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net/netip"
 	"os"
 	"regexp"
 	"sort"
@@ -74,9 +75,70 @@ type PluginRegistry struct {
 // PluginManifestInterface describes the veth interface a plugin's container
 // is attached to.
 type PluginManifestInterface struct {
-	Name    string `json:"name"`
-	Address string `json:"address"`
-	Gateway string `json:"gateway"`
+	Name    string          `json:"name"`
+	Address PluginAddresses `json:"address"`
+	Gateway string          `json:"gateway"`
+}
+
+// PluginAddresses are the addresses of a plugin's veth, each with its prefix
+// length ("192.168.50.16/24"). A manifest writes one as a plain string, as they
+// all used to, or several as a list. A string holding a comma-separated list is
+// a list too: it is how RouterOS takes them, and how a manifest already does.
+// The first address is the container's own.
+type PluginAddresses []string
+
+// UnmarshalJSON accepts a string or a list of strings.
+func (a *PluginAddresses) UnmarshalJSON(data []byte) error {
+	var one string
+	if err := json.Unmarshal(data, &one); err == nil {
+		if strings.TrimSpace(one) == "" {
+			*a = nil // the same as leaving the field out
+			return nil
+		}
+		*a = splitAddresses([]string{one})
+		return nil
+	}
+
+	var many []string
+	if err := json.Unmarshal(data, &many); err != nil {
+		return errors.New("must be an address string or a list of address strings")
+	}
+	*a = splitAddresses(many)
+	return nil
+}
+
+// splitAddresses flattens comma-separated entries and trims each address. A
+// blank one is kept so that validation can name it.
+func splitAddresses(entries []string) PluginAddresses {
+	var addresses PluginAddresses
+	for _, entry := range entries {
+		for _, address := range strings.Split(entry, ",") {
+			addresses = append(addresses, strings.TrimSpace(address))
+		}
+	}
+	return addresses
+}
+
+// Primary is the container's own address, with its prefix length.
+func (a PluginAddresses) Primary() string {
+	if len(a) == 0 {
+		return ""
+	}
+	return a[0]
+}
+
+// RouterOS renders the list as /interface/veth takes it.
+func (a PluginAddresses) RouterOS() string {
+	return strings.Join(a, ",")
+}
+
+// hosts returns the addresses without their prefix lengths.
+func (a PluginAddresses) hosts() []string {
+	hosts := make([]string, len(a))
+	for i, address := range a {
+		hosts[i], _, _ = strings.Cut(address, "/")
+	}
+	return hosts
 }
 
 // PluginManifestMount describes one directory a plugin's container mounts.
@@ -157,6 +219,31 @@ type PluginManifestScripts struct {
 	PreInstall   string `json:"preInstall"`
 	PostInstall  string `json:"postInstall"`
 	PreUninstall string `json:"preUninstall"`
+	// PostWizard runs after the wizard has rebuilt the router, which wipes what
+	// install scripts set up. The panel keeps a copy on the router from install
+	// on, so running it needs no network.
+	PostWizard string `json:"postWizard"`
+}
+
+// The links a plugin's address can be sent out through. Each one is a routing
+// table the wizard creates; "domestic" only exists when the router has a
+// Domestic link.
+const (
+	pluginViaForeign  = "foreign"
+	pluginViaDomestic = "domestic"
+	pluginViaVPN      = "vpn"
+)
+
+// PluginRoute sends one source address of the plugin's veth out through one of
+// the router's links, and the router decides on that address alone, so a
+// container that picks its source address by purpose is routed by purpose.
+type PluginRoute struct {
+	Address string `json:"address"` // one of the veth's addresses, without a prefix length
+	Via     string `json:"via"`     // foreign, domestic or vpn
+	// DomesticDirect sends what is bound for domestic destinations (the router's
+	// DOMAddList) out the Domestic link instead of Via, when the router has one.
+	// Only for foreign.
+	DomesticDirect bool `json:"domesticDirect,omitempty"`
 }
 
 // PluginManifest is the per-plugin manifest.json fetched from the community
@@ -176,6 +263,12 @@ type PluginManifest struct {
 	Container      PluginManifestContainer `json:"container"`
 	Scripts        PluginManifestScripts   `json:"scripts"`
 	SettingsSchema string                  `json:"settingsSchema"`
+	// MinRouterOS is the oldest RouterOS the plugin works on ("7.11"). An install
+	// on an older router is refused.
+	MinRouterOS string `json:"minRouterOS"`
+	// Routing sends each of the veth's addresses out through one of the router's
+	// links. The panel applies it at install and again whenever the wizard runs.
+	Routing []PluginRoute `json:"routing"`
 	// KeepDataOnUninstall is for plugins whose data folder holds something that
 	// is hard to recreate (a certificate authority, say): uninstalling leaves the
 	// folder in place unless the request asks for it to be deleted.
@@ -621,4 +714,95 @@ func parseRestartInterval(value string) (string, error) {
 		return "", fmt.Errorf("%q must be more than zero, leave the field out for no restart", value)
 	}
 	return value, nil
+}
+
+// validate checks what a manifest says about the router: the veth's addresses,
+// the routing that refers to them and the RouterOS floor. It runs as the
+// manifest is fetched, so a bad one is refused before anything is built from it.
+func (m *PluginManifest) validate() error {
+	addresses := m.Container.Interface.Address
+	if err := validateVethAddresses(addresses); err != nil {
+		return fmt.Errorf("container.interface.address: %w", err)
+	}
+
+	if m.MinRouterOS != "" {
+		if _, err := routeros.ParseVersion(m.MinRouterOS); err != nil {
+			return fmt.Errorf("minRouterOS: %w", err)
+		}
+	}
+
+	if err := validatePluginRoutes(m.Routing); err != nil {
+		return err
+	}
+	own := make(map[string]bool, len(addresses))
+	for _, host := range addresses.hosts() {
+		own[host] = true
+	}
+	for i, route := range m.Routing {
+		if !own[route.Address] {
+			return fmt.Errorf("routing[%d]: address %s is not one of the veth's addresses (%s)",
+				i, route.Address, describeAddresses(addresses))
+		}
+	}
+	return nil
+}
+
+func describeAddresses(addresses PluginAddresses) string {
+	if len(addresses) == 0 {
+		return "it has none"
+	}
+	return strings.Join(addresses.hosts(), ", ")
+}
+
+// validateVethAddresses checks that each address is an IP with its prefix
+// length, which RouterOS insists on, and that none is listed twice.
+func validateVethAddresses(addresses PluginAddresses) error {
+	seen := make(map[netip.Addr]bool, len(addresses))
+	for _, address := range addresses {
+		if address == "" {
+			return errors.New("the list has an empty entry, a stray comma perhaps")
+		}
+		prefix, err := netip.ParsePrefix(address)
+		if err != nil {
+			return fmt.Errorf("%q is not an address with its prefix length, such as 192.168.50.16/24", address)
+		}
+		if seen[prefix.Addr()] {
+			return fmt.Errorf("%s is listed twice", prefix.Addr())
+		}
+		seen[prefix.Addr()] = true
+	}
+	return nil
+}
+
+// validatePluginRoutes checks each route on its own and against the others:
+// the address is a plain IPv4 address, the link is a known one, and no address
+// is routed twice. Whether the address belongs to the veth is for the manifest
+// to check, since the copy kept on the router has nothing to compare it with.
+func validatePluginRoutes(routes []PluginRoute) error {
+	routed := make(map[netip.Addr]int, len(routes))
+	for i, route := range routes {
+		addr, err := netip.ParseAddr(route.Address)
+		if err != nil || !addr.Is4() {
+			return fmt.Errorf("routing[%d]: address %q is not an IPv4 address, write it without a prefix length such as 192.168.50.16", i, route.Address)
+		}
+		if route.Address != addr.String() {
+			return fmt.Errorf("routing[%d]: write address %q as %s", i, route.Address, addr)
+		}
+
+		switch route.Via {
+		case pluginViaForeign, pluginViaDomestic, pluginViaVPN:
+		default:
+			return fmt.Errorf("routing[%d]: via %q is not one of %s, %s or %s",
+				i, route.Via, pluginViaForeign, pluginViaDomestic, pluginViaVPN)
+		}
+		if route.DomesticDirect && route.Via != pluginViaForeign {
+			return fmt.Errorf("routing[%d]: domesticDirect goes with via %q only", i, pluginViaForeign)
+		}
+
+		if first, dup := routed[addr]; dup {
+			return fmt.Errorf("routing[%d]: address %s is already routed by routing[%d]", i, addr, first)
+		}
+		routed[addr] = i
+	}
+	return nil
 }

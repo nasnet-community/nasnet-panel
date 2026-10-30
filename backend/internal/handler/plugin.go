@@ -664,7 +664,7 @@ func HandleViewPlugin(c echo.Context) error {
 			return ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
 		}
 
-		host, _, _ := strings.Cut(manifest.Container.Interface.Address, "/")
+		host, _, _ := strings.Cut(manifest.Container.Interface.Address.Primary(), "/")
 		if host == "" {
 			return ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no interface address", nil)
 		}
@@ -861,7 +861,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	if _, err := client.GetInterface(iface.Name); err != nil {
 		if _, err := client.AddVethInterface(routeros.VethConfig{
 			Name:    iface.Name,
-			Address: iface.Address,
+			Address: iface.Address.RouterOS(),
 			Gateway: iface.Gateway,
 		}); err != nil {
 			task.set(pluginInstallPhaseError, "failed to create veth interface: "+err.Error())
@@ -1655,6 +1655,9 @@ func fetchPluginManifest(ctx context.Context, id string) (*PluginManifest, error
 	var manifest PluginManifest
 	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/manifest.json", &manifest); err != nil {
 		return nil, err
+	}
+	if err := manifest.validate(); err != nil {
+		return nil, fmt.Errorf("manifest of %s: %w", id, err)
 	}
 	return &manifest, nil
 }
