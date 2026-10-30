@@ -2,8 +2,11 @@
 package utils
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 
 	"golang.org/x/crypto/curve25519"
@@ -101,14 +104,28 @@ func GenerateRandomString(minLen, maxLen int) (string, error) {
 const userIDPrefix = "6e6e7001-7631-6d6b"
 
 // GenerateUserID returns a UUID-shaped identifier whose first three groups are
-// the constant NasNet marker and whose last two groups are random.
-func GenerateUserID() (string, error) {
-	b := make([]byte, 8)
-	if _, err := rand.Read(b); err != nil {
-		return "", fmt.Errorf("failed to generate user ID: %w", err)
+// the constant NasNet marker. The last group is the first 6 bytes of
+// SHA-256(systemID), so one router always gets the same ID, or random bytes when
+// systemID is empty. The fourth group is the first 2 bytes of
+// HMAC-SHA256(secret, last group as hex), which lets api.joinnasnet.com check
+// that the ID came from the panel.
+func GenerateUserID(systemID, secret string) (string, error) {
+	var router []byte
+	if systemID != "" {
+		sum := sha256.Sum256([]byte(systemID))
+		router = sum[:6]
+	} else {
+		router = make([]byte, 6)
+		if _, err := rand.Read(router); err != nil {
+			return "", fmt.Errorf("failed to generate user ID: %w", err)
+		}
 	}
 
-	return fmt.Sprintf("%s-%x-%x", userIDPrefix, b[0:2], b[2:8]), nil
+	routerHex := hex.EncodeToString(router)
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(routerHex))
+
+	return fmt.Sprintf("%s-%x-%s", userIDPrefix, mac.Sum(nil)[:2], routerHex), nil
 }
 
 // GenerateUUIDv4 returns a random RFC 4122 version 4 UUID string.

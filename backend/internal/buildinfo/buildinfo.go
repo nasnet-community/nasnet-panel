@@ -11,3 +11,12 @@ package buildinfo
 // through the Dockerfile or a workflow has it replaced (see APP_VERSION), so a
 // deployed instance reporting this string means the ldflags wiring is broken.
 var Version = "v0.0.0-dev"
+
+// RouterKeySecret signs the user ID that router scripts send to
+// api.joinnasnet.com (see utils.GenerateUserID). CI sets it at link time from a
+// repository secret:
+//
+//	go build -ldflags "-X nasnet-panel/internal/buildinfo.RouterKeySecret=..."
+//
+// Local builds leave it empty, so their IDs are refused by the API.
+var RouterKeySecret = ""

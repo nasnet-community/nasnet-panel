@@ -23,11 +23,15 @@ COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
 COPY --from=frontend /workspace/frontend/dist ./internal/web/dist
-RUN set -eux; \
+# The router key secret comes from a BuildKit secret (absent in local builds).
+# No `set -x` here, so it isn't echoed into the build log.
+RUN --mount=type=secret,id=router_key_secret,required=false \
+    set -eu; \
+    ROUTER_KEY_SECRET=$(cat /run/secrets/router_key_secret 2>/dev/null || true); \
     if [ "$TARGETARCH" = "arm" ] && [ -n "$TARGETVARIANT" ]; then export GOARM=${TARGETVARIANT#v}; fi; \
     CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
       go build -trimpath \
-      -ldflags="-w -s -extldflags '-static' -X nasnet-panel/internal/buildinfo.Version=${APP_VERSION}" \
+      -ldflags="-w -s -extldflags '-static' -X nasnet-panel/internal/buildinfo.Version=${APP_VERSION} -X nasnet-panel/internal/buildinfo.RouterKeySecret=${ROUTER_KEY_SECRET}" \
       -tags=netgo,production \
       -o /out/app ./cmd/api; \
     upx --best --lzma /out/app
