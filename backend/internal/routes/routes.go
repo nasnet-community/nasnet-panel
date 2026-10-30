@@ -100,6 +100,10 @@ func RegisterRoutes(e *echo.Echo) {
 	firewallGroup.GET("/filter", handler.HandleListFirewallFilterRules)
 	firewallGroup.GET("/domestic", handler.HandleGetDomesticBlock)
 	firewallGroup.PUT("/domestic", handler.HandleSetDomesticBlock)
+	firewallGroup.GET("/addresslist/domestic", handler.HandleListDomesticAddresses)
+	firewallGroup.PUT("/addresslist/domestic/:id", handler.HandleUpdateDomesticAddress)
+	firewallGroup.DELETE("/addresslist/domestic/:id", handler.HandleDeleteDomesticAddress)
+	firewallGroup.POST("/addresslist/domestic", handler.HandleAddDomesticAddress)
 
 	scanGroup := e.Group("/api/scan")
 	scanGroup.POST("", handler.HandleStartScan)

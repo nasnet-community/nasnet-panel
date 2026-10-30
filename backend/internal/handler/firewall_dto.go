@@ -40,6 +40,35 @@ type DomesticBlockResponse struct {
 	AddedRules int                         `json:"addedRules,omitempty"`
 }
 
+// AddDomesticAddressRequest is the request body for POST /api/firewall/addresslist/domestic.
+type AddDomesticAddressRequest struct {
+	Address string `json:"address" example:"203.0.113.0/24"`
+}
+
+// UpdateDomesticAddressRequest is the request body for PUT /api/firewall/addresslist/domestic/{id}.
+// Timeout is optional and is left unchanged when empty.
+type UpdateDomesticAddressRequest struct {
+	Address string `json:"address"           example:"203.0.113.0/24"`
+	Timeout string `json:"timeout,omitempty" example:"1d"`
+}
+
+// DomesticAddressResponse describes an entry added to the domestic address list.
+type DomesticAddressResponse struct {
+	ID      string `json:"id"`
+	List    string `json:"list"`
+	Address string `json:"address"`
+	Comment string `json:"comment"`
+}
+
+// DomesticAddressItemResponse is one user added entry of the domestic address list. Timeout is left
+// out for an entry that never expires.
+type DomesticAddressItemResponse struct {
+	ID           string `json:"id"`
+	Address      string `json:"address"`
+	Timeout      string `json:"timeout,omitempty"`
+	CreationTime string `json:"creationTime"`
+}
+
 type NATRuleResponse struct {
 	ID          string `json:"id"`
 	Chain       string `json:"chain"`
