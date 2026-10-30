@@ -1,0 +1,30 @@
+id: 'P3.2-wizard-rerun'
+stage: resilience
+title: Plugins keep running and stay reachable after re-running the wizard
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+  - do: wizard
+    wizard:
+      foreign: starlink
+      domestic: domestic
+expect:
+  container:
+    - name: lab-echo
+      running: true
+  ports:
+    - {
+        from: domestic-side,
+        port: 18090,
+        open: true,
+        known_bug: Wizard cleanup removes plugin firewall rules,
+      }

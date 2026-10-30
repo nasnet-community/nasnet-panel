@@ -1,0 +1,13 @@
+id: 'D2.7-dynamic-servers'
+stage: wizard
+title: Upstream DNS servers learned over DHCP are never used
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  values:
+    - path: /ip/dhcp-client
+      fields: { use-peer-dns: 'no' }

@@ -1,0 +1,20 @@
+id: '2.2-detector-proof'
+stage: wizard
+title: A broken template line is reported with the section it stopped in
+profiles: [chr-x86]
+requires: { roles: [starlink, domestic, split] }
+panel_patch:
+  file: internal/template/wizard.tmpl
+  find: ':global WizardProgress "60"'
+  replace: |-
+    :global WizardProgress "60"
+    /this-is-not-a-command now
+wizard:
+  foreign: starlink
+  domestic: domestic
+  expect_incomplete: true
+  timeout: 6m
+expect:
+  applied:
+    sections: [routing-tables, firewall-filter, mangle, netwatch, marker]
+    expect_missing: [firewall-filter, mangle, netwatch, marker]

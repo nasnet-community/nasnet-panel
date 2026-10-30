@@ -1,0 +1,17 @@
+id: '1.6a-missing-package'
+stage: install
+title: Missing container package fails clearly and leaves the router clean
+profiles: [all]
+start: bootstrapped
+requires:
+  lab: [image-tar, cli-install]
+steps:
+  - do: install
+    with: { installer: cli, expect_fail: 'true', error: container package }
+expect:
+  container:
+    - name: nasnet-panel
+      present: false
+  values:
+    - path: /interface/veth
+      count: 0

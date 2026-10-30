@@ -1,0 +1,16 @@
+id: 'E05-interface-lists'
+stage: wizard
+title: Each uplink is in the WAN list and its own per-link list
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  values:
+    - path: /interface/list/member
+      where: { list: Foreign-WAN }
+    - path: /interface/list/member
+      where: { list: Domestic-WAN }
+      known_bug: The domestic uplink is not in its Domestic-WAN list

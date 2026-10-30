@@ -1,0 +1,20 @@
+id: 'E07-mangle-overrides'
+stage: wizard
+title: User override lists win over the domestic IP list
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: router
+    with: { cmd: /ip/firewall/address-list/add, words: '=list=SplitFRNAddList|=address=5.160.0.80' }
+expect:
+  traffic:
+    - {
+        from: split,
+        to: domestic-host,
+        exits: starlink,
+        known_bug: User override lists are checked after the domestic IP list,
+      }

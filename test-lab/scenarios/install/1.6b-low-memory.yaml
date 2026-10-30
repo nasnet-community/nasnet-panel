@@ -1,0 +1,14 @@
+id: '1.6b-low-memory'
+stage: install
+title: Too little free memory fails clearly
+profiles: [all]
+requires:
+  capabilities: [low-memory]
+  lab: [image-tar, cli-install]
+steps:
+  - do: install
+    with: { installer: cli, expect_fail: 'true', error: free memory }
+expect:
+  container:
+    - name: nasnet-panel
+      present: false

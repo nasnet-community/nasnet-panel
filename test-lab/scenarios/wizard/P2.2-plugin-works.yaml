@@ -1,0 +1,23 @@
+id: 'P2.2-plugin-works'
+stage: wizard
+title: Installed plugin answers on its published port
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+expect:
+  ports:
+    - {
+        from: domestic-side,
+        port: 18090,
+        open: true,
+        known_bug: Plugin ports never answer on the domestic link because the uplink is not in Domestic-WAN,
+      }

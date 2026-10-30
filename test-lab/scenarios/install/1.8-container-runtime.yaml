@@ -1,0 +1,26 @@
+id: '1.8-container-runtime'
+stage: install
+title: Panel container survives a stop and start with the same settings
+profiles: [all]
+start: installed
+requires:
+  lab: [image-tar]
+steps:
+  - do: container_restart
+    with: { name: nasnet-panel }
+expect:
+  container:
+    - name: nasnet-panel
+      running: true
+      fields:
+        {
+          start-on-boot: 'yes',
+          logging: 'yes',
+          root-dir: '~nasnet-panel',
+          interface: veth-nasnet-panel,
+        }
+  values:
+    - path: /interface/veth
+      where: { name: veth-nasnet-panel }
+      fields: { address: '~192.168.50.2' }
+  panel: { healthy: true }
