@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 
 	"nasnet-panel/pkg/routeros"
@@ -478,4 +480,187 @@ func removePluginState(client *routeros.Client, pluginID string) error {
 
 type pluginRoutingFile struct {
 	Routing []PluginRoute `json:"routing"`
+}
+
+// What follows is for the wizard: it reads what install kept, writes the
+// plugins' routing into its script and runs their post-wizard scripts.
+
+// rsc is the rule as the wizard script has it. The wizard writes the rules for
+// the domestic list with quoted values and the ones for a single address
+// without, and the plugin rules follow each.
+func (r pluginMangleRule) rsc(comment string) string {
+	dst, mark := r.DstList, r.Mark
+	if dst == domesticAddressListName {
+		dst, mark = strconv.Quote(dst), strconv.Quote(mark)
+	}
+	return fmt.Sprintf(`add action=mark-routing chain=prerouting comment=%q dst-address-list=%s new-routing-mark=%s passthrough=no src-address=%s`,
+		comment, dst, mark, r.Src)
+}
+
+// pluginDropRSC is a drop as syncPluginDrops makes it.
+func pluginDropRSC(src, comment string) string {
+	return fmt.Sprintf(`add action=drop chain=forward comment=%q dst-address-list=!%s src-address=%s`, comment, localAddressList, src)
+}
+
+// pluginListRSC puts an address in VPN-LAN, where the wizard's own rule marks it for to-VPN.
+func pluginListRSC(address, comment string) string {
+	return fmt.Sprintf(`add address=%s list=%q comment=%q`, address, vpnAddressList, comment)
+}
+
+// readPluginRouting returns the routing install kept for pluginID, and whether
+// there was any. It is read back as strictly as a manifest, since it goes into a script.
+func readPluginRouting(client *routeros.Client, pluginID string) ([]PluginRoute, bool, error) {
+	name := pluginStateDir(client, pluginID) + "/" + pluginStateRouting
+	exists, err := client.FileExists(name)
+	if err != nil || !exists {
+		return nil, false, err
+	}
+	contents, err := client.GetFileContents(name, 0)
+	if err != nil {
+		return nil, false, err
+	}
+
+	var file pluginRoutingFile
+	if err := json.Unmarshal([]byte(contents), &file); err != nil {
+		return nil, false, fmt.Errorf("the saved routing in %s can't be read: %w", name, err)
+	}
+	if err := validatePluginRoutes(file.Routing); err != nil {
+		return nil, false, fmt.Errorf("the saved routing in %s is not valid: %w", name, err)
+	}
+	return file.Routing, true, nil
+}
+
+// installedPluginNames lists the containers on the router, a plugin being
+// installed as a container named after its id. A router without the container
+// package, or with containers switched off, has none.
+func installedPluginNames(client *routeros.Client) ([]string, error) {
+	installed, err := client.IsPackageInstalled("container")
+	if err != nil || !installed {
+		return nil, err
+	}
+	enabled, err := client.IsDeviceModeFeatureEnabled("container")
+	if err != nil || !enabled {
+		return nil, err
+	}
+	containers, err := client.ListContainers()
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(containers))
+	for i := range containers {
+		if pluginIDPattern.MatchString(containers[i].Name) {
+			names = append(names, containers[i].Name)
+		}
+	}
+	sort.Strings(names)
+	return names, nil
+}
+
+// installedPluginRouting is the routing of each installed plugin that has
+// some. One whose saved routing can't be read fails the lot, because the
+// wizard would then leave that plugin's addresses with no rule at all.
+func installedPluginRouting(client *routeros.Client) ([]pluginRouting, error) {
+	names, err := installedPluginNames(client)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list the installed plugins: %w", err)
+	}
+
+	var plugins []pluginRouting
+	for _, name := range names {
+		routes, found, err := readPluginRouting(client, name)
+		if err != nil {
+			return nil, fmt.Errorf("plugin %s: %w; uninstall and install it again", name, err)
+		}
+		if found {
+			plugins = append(plugins, pluginRouting{ID: name, Routes: routes})
+		}
+	}
+	return plugins, nil
+}
+
+// pluginRouting is one installed plugin's routes.
+type pluginRouting struct {
+	ID     string
+	Routes []PluginRoute
+}
+
+// pluginRoutingScript is the plugin part of the wizard script, one piece for
+// each place wizard.tmpl puts it.
+type pluginRoutingScript struct {
+	AddressLists string
+	Filter       string
+	Mangle       string
+}
+
+// renderPluginRouting writes the wizard script's lines for the plugins. The
+// wizard creates to-Foreign and to-VPN every time, and to-Domestic only when it
+// is given a Domestic link, which is all it takes to tell what tables will exist.
+func renderPluginRouting(plugins []pluginRouting, domesticEnabled bool) (pluginRoutingScript, error) {
+	sorted := append([]pluginRouting(nil), plugins...)
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].ID < sorted[j].ID })
+
+	var lists, filter, mangle []string
+	for _, plugin := range sorted {
+		comment, err := pluginRoutingComment(plugin.ID)
+		if err != nil {
+			return pluginRoutingScript{}, err
+		}
+		if err := validatePluginRoutes(plugin.Routes); err != nil {
+			return pluginRoutingScript{}, fmt.Errorf("plugin %s: %w", plugin.ID, err)
+		}
+
+		plan := planPluginRouting(plugin.Routes, func(table string) bool {
+			return table != routingTableDomestic || domesticEnabled
+		})
+		for _, address := range plan.Lists {
+			lists = append(lists, pluginListRSC(address, comment))
+		}
+		for _, src := range plan.Drops {
+			filter = append(filter, pluginDropRSC(src, comment))
+		}
+		for _, rule := range plan.Mangle {
+			mangle = append(mangle, rule.rsc(comment))
+		}
+	}
+	return pluginRoutingScript{
+		AddressLists: strings.Join(lists, "\n"),
+		Filter:       strings.Join(filter, "\n"),
+		Mangle:       strings.Join(mangle, "\n"),
+	}, nil
+}
+
+// runPluginPostWizard runs the post-wizard script of each installed plugin that
+// has one. The wizard has just removed every script and scheduler on the
+// router, so this is what brings back the ones a plugin keeps there. The
+// scripts run in the background on the router, one after another here, and a
+// failing one is logged and does not stop the rest.
+func runPluginPostWizard(client *routeros.Client) {
+	names, err := installedPluginNames(client)
+	if err != nil {
+		log.Printf("[plugin-post-wizard] failed to list the installed plugins: %v", err)
+		return
+	}
+
+	for _, name := range names {
+		file := pluginStateDir(client, name) + "/" + pluginStatePostWizard
+		exists, err := client.FileExists(file)
+		if err != nil || !exists {
+			if err != nil {
+				log.Printf("[plugin-post-wizard %s] failed to look for its script: %v", name, err)
+			}
+			continue
+		}
+		script, err := client.GetFileContents(file, 0)
+		if err != nil {
+			log.Printf("[plugin-post-wizard %s] failed to read its script: %v", name, err)
+			continue
+		}
+		if strings.TrimSpace(script) == "" {
+			continue
+		}
+		if err := client.ExecuteScriptString(script); err != nil {
+			log.Printf("[plugin-post-wizard %s] its script failed: %v", name, err)
+		}
+	}
 }

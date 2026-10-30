@@ -343,6 +343,16 @@ func HandleFinalizeWizard(c echo.Context) error {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
 
+	// The wizard wipes every firewall rule and address list, the routing of the
+	// installed plugins with them, so it writes that again from what install kept.
+	plugins, err := installedPluginRouting(client)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to read the installed plugins' routing", err)
+	}
+	if templateData["PluginRouting"], err = renderPluginRouting(plugins, domesticEnabled); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to write the installed plugins' routing", err)
+	}
+
 	rendered, err := utils.RenderTemplate("base_config.tmpl", escapeWizardTemplateData(templateData))
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
@@ -692,6 +702,15 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 	}
 	templateData["DomesticInterface"] = reconfigInterface(domestic, stored.WiFis)
 
+	// the base configuration wipes the installed plugins' routing too, so it is written again
+	plugins, err := installedPluginRouting(client)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the installed plugins' routing: %w", err)
+	}
+	if templateData["PluginRouting"], err = renderPluginRouting(plugins, domesticEnabled); err != nil {
+		return nil, fmt.Errorf("failed to write the installed plugins' routing: %w", err)
+	}
+
 	plan.templateData = templateData
 	return plan, nil
 }
@@ -837,6 +856,7 @@ func waitForBaseConfig(parent context.Context, job *reconfigJob, client *routero
 func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB, plan *reconfigPlan) []reconfigExtra {
 	stored := plan.stored
 	return []reconfigExtra{
+		{"Running the plugins' post-wizard scripts", func() []error { runPluginPostWizard(client); return nil }},
 		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
 		{"Restoring the wizard VPN clients", func() []error { return restoreWizardClients(client, stored) }},

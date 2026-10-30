@@ -1,0 +1,2 @@
+/ip firewall mangle
+add action=mark-routing chain=prerouting comment="plugin:telegram-mtproto" dst-address-list=!LOCAL-IP new-routing-mark=to-Foreign passthrough=no src-address=192.168.50.11

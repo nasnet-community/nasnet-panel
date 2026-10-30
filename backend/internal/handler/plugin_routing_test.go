@@ -127,7 +127,7 @@ func seedWizardRouter(f *fakeRouterOS, tables ...string) {
 }
 
 func comments(rows []map[string]string) []string {
-	var list []string
+	list := []string{}
 	for _, row := range rows {
 		list = append(list, row["comment"])
 	}

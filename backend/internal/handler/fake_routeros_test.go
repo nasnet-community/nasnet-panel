@@ -102,7 +102,7 @@ func (f *fakeRouterOS) changes(prefix string) []string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	var changes []string
+	changes := []string{}
 	for _, sentence := range f.commands {
 		if !strings.HasPrefix(sentence[0], prefix) {
 			continue
@@ -224,10 +224,10 @@ func (f *fakeRouterOS) run(sentence []string) [][]string {
 		}
 	case "set":
 		attrs := attributes(args)
-		if path == "/file" {
-			if i := slices.IndexFunc(f.tables[path], func(row map[string]string) bool { return row[".id"] == attrs[".id"] }); i >= 0 {
-				f.tables[path][i]["contents"] = attrs["contents"]
-				f.tables[path][i]["size"] = fmt.Sprint(len(attrs["contents"]))
+		if rows, ok := f.tables[path]; ok && path == "/file" {
+			if i := slices.IndexFunc(rows, func(row map[string]string) bool { return row[".id"] == attrs[".id"] }); i >= 0 {
+				rows[i]["contents"] = attrs["contents"]
+				rows[i]["size"] = fmt.Sprint(len(attrs["contents"]))
 			}
 		}
 	case "read":
