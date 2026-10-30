@@ -707,8 +707,10 @@ func HandleViewPlugin(c echo.Context) error {
 // @Summary Install a plugin
 // @Description Starts an async install of a plugin from the community registry:
 // @Description creates the veth interface its manifest specifies (if not already
-// @Description present), creates its mounts, and adds its container, then waits for
-// @Description the image to finish pulling. Poll GET /api/plugin/install/status/{pluginId} for
+// @Description present) with every address it lists, sets up the manifest's routing for
+// @Description those addresses, creates its mounts, and adds its container, then waits for
+// @Description the image to finish pulling. A router older than the manifest's minRouterOS
+// @Description is refused. Poll GET /api/plugin/install/status/{pluginId} for
 // @Description progress. At most one install per plugin id may run at a time;
 // @Description different plugins may install concurrently.
 // @Tags Plugin
@@ -825,6 +827,12 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		return
 	}
 
+	if err := checkMinRouterOS(manifest.MinRouterOS, resources.Version); err != nil {
+		task.set(pluginInstallPhaseError, err.Error())
+		log.Printf("[plugin-install %s] %v", pluginID, err)
+		return
+	}
+
 	iface := manifest.Container.Interface
 	if iface.Name == "" {
 		task.set(pluginInstallPhaseError, "plugin manifest is missing a container interface name")
@@ -857,6 +865,18 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		}
 	}
 
+	// The wizard runs it later with no registry to ask, so a copy is kept on the router.
+	postWizardScript := ""
+	if manifest.Scripts.PostWizard != "" {
+		script, err := fetchPluginScript(ctx, pluginID, manifest.Scripts.PostWizard)
+		if err != nil {
+			task.set(pluginInstallPhaseError, "failed to fetch post-wizard script: "+err.Error())
+			log.Printf("[plugin-install %s] failed to fetch post-wizard script: %v", pluginID, err)
+			return
+		}
+		postWizardScript = resolveSettingsPlaceholders(script, settingsValues)
+	}
+
 	task.set(pluginInstallPhaseCreatingInterface, "creating veth interface "+iface.Name)
 	if _, err := client.GetInterface(iface.Name); err != nil {
 		if _, err := client.AddVethInterface(routeros.VethConfig{
@@ -880,6 +900,23 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		if err := client.AddBridgeMember(pluginContainersBridge, iface.Name, pluginID); err != nil {
 			task.set(pluginInstallPhaseError, "failed to add veth interface to "+pluginContainersBridge+" bridge: "+err.Error())
 			log.Printf("[plugin-install %s] failed to add veth interface to bridge: %v", pluginID, err)
+			return
+		}
+	}
+
+	// Before anything can run from the veth, so its first packet already meets a
+	// rule (or a drop). The pre-install script comes after, and sees these rules.
+	// A manifest with neither routing nor a post-wizard script leaves the router alone.
+	if len(manifest.Routing) > 0 || postWizardScript != "" {
+		task.set(pluginInstallPhaseCreatingInterface, "setting up routing for "+iface.Name)
+		if err := applyPluginRouting(client, pluginID, manifest.Routing); err != nil {
+			task.set(pluginInstallPhaseError, "failed to set up routing: "+err.Error())
+			log.Printf("[plugin-install %s] failed to set up routing: %v", pluginID, err)
+			return
+		}
+		if err := savePluginState(client, pluginID, manifest.Routing, postWizardScript); err != nil {
+			task.set(pluginInstallPhaseError, "failed to keep the plugin's routing for the wizard: "+err.Error())
+			log.Printf("[plugin-install %s] failed to save routing state: %v", pluginID, err)
 			return
 		}
 	}
@@ -987,6 +1024,27 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	}
 
 	task.set(pluginInstallPhaseError, "timed out waiting for image pull to finish")
+}
+
+// checkMinRouterOS refuses a router older than the manifest's minRouterOS. A
+// version it can't read is refused too: letting it through would hand the plugin
+// to a router it may not work on.
+func checkMinRouterOS(minVersion, routerVersion string) error {
+	if minVersion == "" {
+		return nil
+	}
+	need, err := routeros.ParseVersion(minVersion)
+	if err != nil {
+		return fmt.Errorf("minRouterOS: %w", err)
+	}
+	have, err := routeros.ParseVersion(routerVersion)
+	if err != nil {
+		return fmt.Errorf("can't tell which RouterOS the router runs: %w", err)
+	}
+	if have.Compare(need) < 0 {
+		return fmt.Errorf("this plugin needs RouterOS %s or newer and the router runs %s: update RouterOS, then install it again", need, have)
+	}
+	return nil
 }
 
 // startPluginContainer starts a freshly pulled plugin container, waits for it
@@ -1305,7 +1363,9 @@ func HandleGetPluginUpdateStatus(c echo.Context) error {
 // HandleUninstallPlugin godoc
 // @Summary Uninstall a plugin
 // @Description Removes an installed plugin: runs the preUninstall script from its
-// @Description manifest (if it names one), stops and removes its container, then
+// @Description manifest (if it names one), stops and removes its container, removes
+// @Description every firewall rule and address list entry commented plugin:<pluginId>
+// @Description along with the routing the panel saved for it, then
 // @Description removes the mount lists and veth interface the manifest declares, and
 // @Description deletes the plugin's volume directory (nasnet-panel/container-volumes/<pluginId>).
 // @Description A manifest that sets keepDataOnUninstall keeps that directory unless
@@ -1417,6 +1477,16 @@ func uninstallPlugin(c echo.Context, client *routeros.Client, name string, keepD
 
 	if err := client.RemoveContainer(name); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to remove plugin container", err)
+	}
+
+	// With the container gone nothing sends from its addresses, so its rules can go.
+	if err := removePluginRouting(client, name); err != nil {
+		warnings = append(warnings, "failed to remove the plugin's routing: "+err.Error())
+		log.Printf("[plugin-uninstall %s] failed to remove routing: %v", name, err)
+	}
+	if err := removePluginState(client, name); err != nil {
+		warnings = append(warnings, "failed to remove the plugin's saved routing: "+err.Error())
+		log.Printf("[plugin-uninstall %s] failed to remove saved routing: %v", name, err)
 	}
 
 	removedLists := make([]string, 0, len(manifest.Container.Mounts))

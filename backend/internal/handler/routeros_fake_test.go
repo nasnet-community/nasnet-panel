@@ -22,6 +22,7 @@ type containerFake struct {
 	commands   [][]string
 	containers map[string]map[string]string
 	lastID     int
+	version    string // what /system/resource reports as the RouterOS version
 }
 
 // newContainerFake starts a fake router on a loopback port and returns it with
@@ -35,7 +36,7 @@ func newContainerFake(t *testing.T) (*containerFake, *routeros.Client) {
 	}
 	t.Cleanup(func() { _ = ln.Close() })
 
-	f := &containerFake{containers: map[string]map[string]string{}}
+	f := &containerFake{containers: map[string]map[string]string{}, version: "7.24.5 (stable)"}
 	go func() {
 		for {
 			conn, err := ln.Accept()
@@ -107,7 +108,7 @@ func (f *containerFake) answer(words []string) [][]string {
 
 	switch {
 	case cmd == "/system/resource/print":
-		return [][]string{{"!re", "=architecture-name=arm64"}, {"!done"}}
+		return [][]string{{"!re", "=architecture-name=arm64", "=version=" + f.version}, {"!done"}}
 
 	case cmd == "/container/add":
 		f.lastID++

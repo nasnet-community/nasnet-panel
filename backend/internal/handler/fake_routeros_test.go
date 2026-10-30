@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"maps"
 	"net"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -17,10 +19,11 @@ import (
 )
 
 // fakeRouterOS is an in-memory RouterOS API server for handler tests. It speaks
-// just enough of the protocol (login, print with ?=key=value filters, add and
-// remove) for a real routeros.Client to run against it, keeps rows per command
-// path, and records every command it receives. Any other command is accepted
-// and does nothing.
+// just enough of the protocol (login, print with ?=key=value filters, add with
+// place-before, remove, and the file set/read a small file needs) for a real
+// routeros.Client to run against it, keeps rows per command path in the order
+// they were added, and records every command it receives. Any other command is
+// accepted and does nothing.
 type fakeRouterOS struct {
 	listener net.Listener
 
@@ -79,6 +82,38 @@ func (f *fakeRouterOS) has(path, key, value string) bool {
 	defer f.mu.Unlock()
 
 	return slices.ContainsFunc(f.tables[path], func(row map[string]string) bool { return row[key] == value })
+}
+
+// rows returns a copy of the rows under path, in order.
+func (f *fakeRouterOS) rows(path string) []map[string]string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	rows := make([]map[string]string, len(f.tables[path]))
+	for i, row := range f.tables[path] {
+		rows[i] = maps.Clone(row)
+	}
+	return rows
+}
+
+// changes returns the commands received so far that add, set or remove
+// something under prefix (such as "/ip/firewall/"), in the order they came.
+func (f *fakeRouterOS) changes(prefix string) []string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	var changes []string
+	for _, sentence := range f.commands {
+		if !strings.HasPrefix(sentence[0], prefix) {
+			continue
+		}
+		for _, verb := range []string{"/add", "/set", "/remove"} {
+			if strings.HasSuffix(sentence[0], verb) {
+				changes = append(changes, strings.Join(sentence, " "))
+			}
+		}
+	}
+	return changes
 }
 
 // sent returns the commands received so far for cmd, such as "/file/remove".
@@ -156,14 +191,54 @@ func (f *fakeRouterOS) run(sentence []string) [][]string {
 	case "add":
 		f.nextID++
 		row := map[string]string{".id": fmt.Sprintf("*%X", f.nextID)}
+		before := ""
 		for key, value := range attributes(args) {
+			if key == "place-before" {
+				before = value
+				continue // an instruction, not a property of the row
+			}
 			row[key] = value
 		}
-		f.tables[path] = append(f.tables[path], row)
+
+		rows, at := f.tables[path], len(f.tables[path])
+		if before != "" {
+			at = slices.IndexFunc(rows, func(other map[string]string) bool { return other[".id"] == before })
+			if at < 0 {
+				return [][]string{{"!trap", "=message=no such item"}, {"!done"}}
+			}
+		}
+		f.tables[path] = slices.Insert(rows, at, row)
+
+		// What the real router does on its own: a container is up as soon as
+		// it exists, and a veth is an interface too.
+		switch path {
+		case "/container":
+			row["running"] = "true"
+		case "/interface/veth":
+			f.tables["/interface"] = append(f.tables["/interface"], map[string]string{".id": row[".id"], "name": row["name"], "type": "veth"})
+		}
 		return [][]string{{"!done", "=ret=" + row[".id"]}}
 	case "remove":
 		if !f.removeRow(path, attributes(args)[".id"]) {
 			return [][]string{{"!trap", "=message=no such item"}, {"!done"}}
+		}
+	case "set":
+		attrs := attributes(args)
+		if path == "/file" {
+			if i := slices.IndexFunc(f.tables[path], func(row map[string]string) bool { return row[".id"] == attrs[".id"] }); i >= 0 {
+				f.tables[path][i]["contents"] = attrs["contents"]
+				f.tables[path][i]["size"] = fmt.Sprint(len(attrs["contents"]))
+			}
+		}
+	case "read":
+		attrs := attributes(args)
+		for _, row := range f.tables[path] {
+			if row["name"] == attrs["file"] {
+				offset, _ := strconv.Atoi(attrs["offset"])
+				chunk, _ := strconv.Atoi(attrs["chunk-size"])
+				contents := row["contents"]
+				return [][]string{{"!re", "=data=" + contents[min(offset, len(contents)):min(offset+chunk, len(contents))]}, {"!done"}}
+			}
 		}
 	}
 	return done
