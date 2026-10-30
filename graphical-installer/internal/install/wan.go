@@ -78,6 +78,12 @@ func (e *Engine) probeWAN() (wanState, error) {
 }
 
 func (e *Engine) stepPrepareWAN() error {
+	if e.sys.CHR {
+		// A CHR's uplink carries its public address, often static; nothing is rewired.
+		e.log("CHR: the uplink and its address are left as they are")
+		e.note = "CHR, uplink left as it is"
+		return errSkipped
+	}
 	st, err := e.probeWAN()
 	if err != nil {
 		return err
