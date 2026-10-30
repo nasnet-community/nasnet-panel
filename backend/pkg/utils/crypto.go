@@ -114,12 +114,8 @@ func GenerateUserID() (string, error) {
 	return fmt.Sprintf("%s-%x-%x", userIDPrefix, b[0:2], b[2:8]), nil
 }
 
-// GenerateRouterUserID returns a user ID in the GenerateUserID format that
-// api.joinnasnet.com accepts. The last group is the first 6 bytes of
-// SHA-256(systemID), so one router always gets the same ID, or random bytes when
-// systemID is empty. The fourth group is the first 2 bytes of
-// HMAC-SHA256(secret, last group as hex), which lets the API check that the ID
-// came from the panel.
+// GenerateRouterUserID returns a user ID derived from systemID (random if empty)
+// and signed with secret, as api.joinnasnet.com expects.
 func GenerateRouterUserID(systemID, secret string) (string, error) {
 	var router []byte
 	if systemID != "" {

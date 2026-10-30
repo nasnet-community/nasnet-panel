@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-// The expected ID is what api.joinnasnet.com accepts for this system ID and secret.
 func TestGenerateRouterUserIDFromSystemID(t *testing.T) {
 	got, err := GenerateRouterUserID("ABCD-1234", "test-secret")
 	if err != nil {
