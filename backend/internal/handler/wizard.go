@@ -54,6 +54,28 @@ const wizardScriptFile = nasnetPanelDir + "/wizard.rsc"
 // wizard and diagnostic scripts keep the files they create.
 const nasnetPanelDir = routeros.NasnetPanelDir
 
+// wizardImportScript is the "wizard" script on the router: it imports the
+// uploaded file in a background job and deletes it afterwards. The file also
+// deletes itself first thing, which is what covers its :exit paths, since
+// those end this job early. This is for an import that fails before that,
+// and it logs why.
+const wizardImportScript = `:execute script={:onerror e in={/import file-name=%[1]q} do={:log error ("Wizard: import failed: " . $e)}; /file remove [find name=%[1]q]}`
+
+// wizardRouter is the part of the RouterOS client that starting the wizard
+// script uses.
+type wizardRouter interface {
+	DeleteFile(filename string) error
+	RemoveScript(name string) error
+	AddScript(config routeros.ScriptConfig) (string, error)
+	RunScript(scriptName string) error
+}
+
+// wizardUploader is the part of the SFTP client that puts the wizard script on
+// the router.
+type wizardUploader interface {
+	UploadFromString(content, remotePath string) error
+}
+
 // HandleGetVPNCredentials retrieves VPN credentials from NasNet API using system ID.
 // @Summary Get VPN Credentials
 // @Description Fetch L2TP VPN credentials from NasNet using the router's system ID
@@ -369,25 +391,8 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to SFTP", err)
 	}
 
-	err = sftpClient.UploadFromString(rendered, wizardScriptFile)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to upload wizard script", err)
-	}
-
-	_ = client.RemoveScript("wizard")
-
-	scriptConfig := routeros.ScriptConfig{
-		Name:   "wizard",
-		Source: fmt.Sprintf(":execute script={/import file-name=%q}", wizardScriptFile),
-	}
-	_, err = client.AddScript(scriptConfig)
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create wizard script", err)
-	}
-
-	err = client.RunScript("wizard")
-	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to execute wizard script", err)
+	if message, err := startWizardScript(client, sftpClient, rendered); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, message, err)
 	}
 
 	go saveWizardConfigWhenDone(client, &WizardSaveData{
@@ -407,6 +412,40 @@ func HandleFinalizeWizard(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "Wizard configuration applied successfully", map[string]string{
 		"managementWiFiSSID": managementWifi.SSID, "managementWiFiPassword": managementWifi.Password,
 	})
+}
+
+// startWizardScript uploads the rendered wizard script and starts it on the
+// router, returning the message to report when a step fails. The file holds the
+// router password, so one that never gets started is deleted again. Once it is
+// running the script removes itself, see wizardImportScript.
+func startWizardScript(router wizardRouter, uploader wizardUploader, rendered string) (string, error) {
+	started := false
+	defer func() {
+		if !started {
+			_ = router.DeleteFile(wizardScriptFile)
+		}
+	}()
+
+	if err := uploader.UploadFromString(rendered, wizardScriptFile); err != nil {
+		return "Failed to upload wizard script", err
+	}
+
+	_ = router.RemoveScript("wizard")
+
+	script := routeros.ScriptConfig{
+		Name:   "wizard",
+		Source: fmt.Sprintf(wizardImportScript, wizardScriptFile),
+	}
+	if _, err := router.AddScript(script); err != nil {
+		return "Failed to create wizard script", err
+	}
+
+	if err := router.RunScript("wizard"); err != nil {
+		return "Failed to execute wizard script", err
+	}
+
+	started = true
+	return "", nil
 }
 
 func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {

@@ -2,6 +2,9 @@
 :local wizardRetry 0
 :local wizardSucceeded false
 
+# This file holds the router password and is read in full before it runs, so it goes first.
+/file remove [find where name=($nasnetDir . "/wizard.rsc")]
+
 :global WizardFailed
 :global WizardMessage
 :set WizardFailed false
