@@ -124,6 +124,7 @@ type FirewallAddressListItem struct {
 	Address      string
 	Disabled     bool
 	Comment      string
+	Timeout      string
 	CreationTime string // raw RouterOS creation-time value; format varies by version
 }
 
@@ -653,6 +654,7 @@ func (c *Client) ListFirewallAddressListItems(filter FirewallAddressListFilter) 
 			Address:      result["address"],
 			Disabled:     result["disabled"] == "true",
 			Comment:      result["comment"],
+			Timeout:      result["timeout"],
 			CreationTime: result["creation-time"],
 		})
 	}
@@ -784,6 +786,20 @@ func (c *Client) RemoveFirewallAddressListItem(id string) error {
 	_, err := c.Remove("/ip/firewall/address-list", "=.id="+id)
 	if err != nil {
 		return fmt.Errorf("failed to remove firewall address list item: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateFirewallAddressListEntry sets the address of an address list entry by ID and, when timeout is
+// not empty, its timeout.
+func (c *Client) UpdateFirewallAddressListEntry(id, address, timeout string) error {
+	args := []string{"=.id=" + id, "=address=" + address}
+	if timeout != "" {
+		args = append(args, "=timeout="+timeout)
+	}
+	if _, err := c.Set("/ip/firewall/address-list", args...); err != nil {
+		return fmt.Errorf("failed to update firewall address list entry: %w", err)
 	}
 
 	return nil

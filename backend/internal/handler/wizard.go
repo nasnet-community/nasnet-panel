@@ -317,6 +317,8 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"RouterUsername":    creds.Username,
 		"RouterPassword":    creds.Password,
 		"RandomUserID":      randomUserID,
+
+		"DomesticUserEntryComment": domesticUserEntryComment,
 	}
 
 	if req.L2tpClient != nil {

@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS domestic_addresses (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    address    TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
