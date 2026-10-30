@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"nasnet-panel/pkg/routeros"
 
@@ -193,6 +194,50 @@ func toDomesticBlockResponse(rules []routeros.FirewallFilterRule, added int) Dom
 	}
 
 	return response
+}
+
+// HandleGetDomesticAddressListInfo godoc
+// @Summary Get a summary of the domestic address list
+// @Description Counts the entries of the DOMAddList firewall address list, split into the ones users added
+// @Description (comment "NasNet Panel: user added") and the rest, and reports the creation time of the newest
+// @Description entry that was not added by a user as the last update.
+// @Tags Firewall
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} Response{data=DomesticAddressListInfoResponse} "Domestic address list summary"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 500 {object} Response "Internal server error"
+// @Router /api/firewall/addresslist/domestic/info [get].
+func HandleGetDomesticAddressListInfo(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{ListName: domesticAddressList})
+	if err != nil {
+		if IsCredentialError(err) {
+			return ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to list the domestic address list", err)
+	}
+
+	info := DomesticAddressListInfoResponse{TotalEntries: len(items)}
+	var newest time.Time
+	for i := range items {
+		if items[i].Comment == domesticUserEntryComment {
+			info.ManualEntries++
+			continue
+		}
+		info.AutoEntries++
+		if created, ok := parseRouterOSTimestamp(items[i].CreationTime); ok && created.After(newest) {
+			newest = created
+			info.LastUpdate = items[i].CreationTime
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "Domestic address list summary retrieved", info)
 }
 
 // HandleListDomesticAddresses godoc

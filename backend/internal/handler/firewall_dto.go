@@ -69,6 +69,16 @@ type DomesticAddressItemResponse struct {
 	CreationTime string `json:"creationTime"`
 }
 
+// DomesticAddressListInfoResponse summarises the domestic address list. LastUpdate is the creation time
+// of the newest entry that was not added by a user, in the format RouterOS reports, and is left out when
+// there is no such entry.
+type DomesticAddressListInfoResponse struct {
+	TotalEntries  int    `json:"totalEntries"`
+	AutoEntries   int    `json:"autoEntries"`
+	ManualEntries int    `json:"manualEntries"`
+	LastUpdate    string `json:"lastUpdate,omitempty"`
+}
+
 type NATRuleResponse struct {
 	ID          string `json:"id"`
 	Chain       string `json:"chain"`
