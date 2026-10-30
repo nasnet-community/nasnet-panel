@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/db"
 
 	"nasnet-panel/pkg/routeros"
@@ -289,12 +288,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		identity = req.WiFiAP.SSID
 	}
 
-	// Routers without a readable system ID get a random user ID instead
-	systemID, err := client.GetSystemID()
-	if err != nil {
-		log.Printf("[Wizard] Reading system ID failed, using a random user ID: %v", err)
-	}
-	userID, err := utils.GenerateUserID(systemID, buildinfo.RouterKeySecret)
+	randomUserID, err := utils.GenerateUserID()
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}
@@ -322,7 +316,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"Identity":          identity,
 		"RouterUsername":    creds.Username,
 		"RouterPassword":    creds.Password,
-		"UserID":            userID,
+		"RandomUserID":      randomUserID,
 
 		"DomesticUserEntryComment": domesticUserEntryComment,
 	}

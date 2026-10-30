@@ -13,8 +13,8 @@ package buildinfo
 var Version = "v0.0.0-dev"
 
 // RouterKeySecret signs the user ID that router scripts send to
-// api.joinnasnet.com (see utils.GenerateUserID). CI sets it at link time from a
-// repository secret:
+// api.joinnasnet.com (see utils.GenerateRouterUserID). CI sets it at link time
+// from a repository secret:
 //
 //	go build -ldflags "-X nasnet-panel/internal/buildinfo.RouterKeySecret=..."
 //
