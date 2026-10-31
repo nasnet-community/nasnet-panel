@@ -1307,6 +1307,16 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 			recordErr = client.EditContainer(pluginID, map[string]string{"comment": manifest.Version})
 		}
 
+		// The new manifest's routing replaces the old before the plugin runs
+		// again: an update used to leave a plugin installed before its manifest
+		// had routing, or whose routing changed, with the rules of its install.
+		task.set(pluginUpdatePhaseRepulling, "updating routing for "+pluginID)
+		if err := reapplyPluginRouting(client, pluginID, manifest.Routing); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to update routing: "+err.Error())
+			log.Printf("[plugin-update %s] failed to update routing: %v", pluginID, err)
+			return
+		}
+
 		task.set(pluginUpdatePhaseStartingContainer, "starting container "+pluginID)
 		if err := client.StartContainer(pluginID); err != nil {
 			task.set(pluginUpdatePhaseError, "failed to start container: "+err.Error())

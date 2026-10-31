@@ -414,6 +414,15 @@ func pluginStateDir(client *routeros.Client, pluginID string) string {
 // savePluginState writes the routing and post-wizard script for pluginID, and
 // removes whichever of the two an earlier install left that this one doesn't have.
 func savePluginState(client *routeros.Client, pluginID string, routes []PluginRoute, postWizard string) error {
+	if err := savePluginRouting(client, pluginID, routes); err != nil {
+		return err
+	}
+	return syncStateFile(client, pluginStateDir(client, pluginID)+"/"+pluginStatePostWizard, postWizard)
+}
+
+// savePluginRouting writes the routing alone, and removes the file when there
+// is none, leaving the post-wizard script as it is.
+func savePluginRouting(client *routeros.Client, pluginID string, routes []PluginRoute) error {
 	if !pluginIDPattern.MatchString(pluginID) {
 		return fmt.Errorf("%q is not a plugin id", pluginID)
 	}
@@ -434,10 +443,25 @@ func savePluginState(client *routeros.Client, pluginID string, routes []PluginRo
 		}
 		routing = string(data) + "\n"
 	}
-	if err := syncStateFile(client, dir+"/"+pluginStateRouting, routing); err != nil {
+	return syncStateFile(client, dir+"/"+pluginStateRouting, routing)
+}
+
+// reapplyPluginRouting puts the routing of an updated plugin's new manifest on
+// the router and keeps it for the wizard, as install does. A plugin with no
+// routing, now or before, is left alone. The post-wizard script stays as
+// install wrote it, with the settings the user chose already in it.
+func reapplyPluginRouting(client *routeros.Client, pluginID string, routes []PluginRoute) error {
+	_, had, err := readPluginRouting(client, pluginID)
+	if err != nil {
+		had = true // unreadable: written again below
+	}
+	if len(routes) == 0 && !had {
+		return nil
+	}
+	if err := applyPluginRouting(client, pluginID, routes); err != nil {
 		return err
 	}
-	return syncStateFile(client, dir+"/"+pluginStatePostWizard, postWizard)
+	return savePluginRouting(client, pluginID, routes)
 }
 
 // syncStateFile makes the file hold contents, or not exist when contents is

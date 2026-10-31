@@ -19,6 +19,7 @@ import (
 type updateFake struct {
 	mu        sync.Mutex
 	container map[string]string
+	files     map[string]string // by name: what an update that saves routing wrote
 	commands  []string
 	restarts  int
 }
@@ -32,7 +33,7 @@ func newUpdateFake(t *testing.T) (*updateFake, *routeros.Client) {
 	}
 	t.Cleanup(func() { _ = ln.Close() })
 
-	f := &updateFake{container: map[string]string{
+	f := &updateFake{files: map[string]string{}, container: map[string]string{
 		".id": "*1", "name": "demo", "running": "true", "healthy": "true",
 		"image-id": "old-image", "config-json": "old-config", "comment": "0.1.1",
 	}}
@@ -108,6 +109,20 @@ func (f *updateFake) answer(words []string) [][]string {
 		f.container["image-id"], f.container["config-json"] = "new-image", "new-config"
 	case "/container/start":
 		f.container["running"], f.container["stopped"] = "true", "false"
+	case "/file/add":
+		if name := wordValue(words, "name"); name != "" {
+			f.files[name] = ""
+		}
+	case "/file/print":
+		name := wordValue(words, "name")
+		if _, ok := f.files[name]; !ok {
+			return [][]string{{"!done"}}
+		}
+		return [][]string{{"!re", "=.id=*f:" + name, "=name=" + name, "=size=0", "=type=file"}, {"!done"}}
+	case "/file/set":
+		if id := wordValue(words, ".id"); strings.HasPrefix(id, "*f:") {
+			f.files[strings.TrimPrefix(id, "*f:")] = wordValue(words, "contents")
+		}
 	case "/container/set":
 		if f.container["running"] == "true" {
 			f.restarts++
@@ -117,6 +132,9 @@ func (f *updateFake) answer(words []string) [][]string {
 				f.container[key] = value
 			}
 		}
+	}
+	if strings.HasSuffix(words[0], "/add") { // an add answers with the new row's id
+		return [][]string{{"!done", "=ret=*9"}}
 	}
 	return [][]string{{"!done"}}
 }
@@ -150,7 +168,8 @@ func TestUpdateRecordsTheVersionBeforeStartingTheContainer(t *testing.T) {
 
 	var changes []string
 	for _, command := range f.commands {
-		if command != "/container/print" {
+		// reads are not changes: the container's state, and the saved routing the update looks for
+		if command != "/container/print" && command != "/file/print" {
 			changes = append(changes, command)
 		}
 	}
@@ -158,4 +177,15 @@ func TestUpdateRecordsTheVersionBeforeStartingTheContainer(t *testing.T) {
 	if !slices.Equal(changes, want) {
 		t.Errorf("commands = %v, want %v", changes, want)
 	}
+}
+
+// wordValue is the value of a command's =key= or ?=key= word, or "".
+func wordValue(words []string, key string) string {
+	for _, word := range words[1:] {
+		word = strings.TrimPrefix(strings.TrimPrefix(word, "?"), "=")
+		if value, ok := strings.CutPrefix(word, key+"="); ok {
+			return value
+		}
+	}
+	return ""
 }
