@@ -124,6 +124,46 @@
       "title": "Disable Family DNS?",
       "description": "The Foreign and VPN forwarders go back to their standard servers, and filtering stops.",
       "confirm": "Disable"
+    },
+    "static": {
+      "title": "Static DNS entries",
+      "description": "Names the router answers with a fixed IPv4 address, for devices on your network. Entries are A records with a one-day TTL.",
+      "add": "Add entry",
+      "loading": "Loading…",
+      "empty": "No static DNS entries yet.",
+      "loadFailed": "Failed to load static DNS entries.",
+      "enabledFor": "Enable {{name}}",
+      "editFor": "Edit {{name}}",
+      "deleteFor": "Delete {{name}}",
+      "delete": "Delete",
+      "deleting": "Deleting…",
+      "columns": {
+        "name": "Name",
+        "address": "IPv4 address",
+        "enabled": "Enabled"
+      },
+      "form": {
+        "addTitle": "Add static DNS entry",
+        "editTitle": "Edit static DNS entry",
+        "save": "Save",
+        "saving": "Saving…",
+        "nameRequired": "Name is required.",
+        "nameInvalid": "Use up to 253 letters, digits, dots, hyphens, underscores or *.",
+        "addressRequired": "Address is required.",
+        "addressInvalid": "Enter a valid IPv4 address."
+      },
+      "toasts": {
+        "added": "Entry \"{{name}}\" added",
+        "updated": "Entry \"{{name}}\" updated",
+        "deleted": "Entry \"{{name}}\" deleted",
+        "addFailed": "Failed to add static DNS entry",
+        "updateFailed": "Failed to update static DNS entry",
+        "deleteFailed": "Failed to delete static DNS entry"
+      },
+      "confirmDelete": {
+        "title": "Delete static DNS entry",
+        "description": "Remove \"{{name}}\" from this router? This cannot be undone."
+      }
     }
   },
   "dnsChange": {

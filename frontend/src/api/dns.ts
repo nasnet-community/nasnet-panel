@@ -55,6 +55,26 @@ export interface DnsFamilyResponse {
   vpn: DnsChangeResult;
 }
 
+export interface StaticDnsEntry {
+  id: string;
+  name: string;
+  address: string;
+  type: string;
+  ttl: string;
+  disabled: boolean;
+}
+
+export interface CreateStaticDnsRequest {
+  name: string;
+  address: string;
+}
+
+export interface UpdateStaticDnsRequest {
+  name?: string;
+  address?: string;
+  disabled?: boolean;
+}
+
 function authHeaders({ host, username, password }: DnsCredentials): Record<string, string> {
   return {
     Authorization: `Basic ${btoa(`${username}:${password}`)}`,
@@ -153,5 +173,48 @@ export async function resetDns(creds: DnsCredentials, signal?: AbortSignal): Pro
     method: 'POST',
     headers: authHeaders(creds),
     signal,
+  });
+}
+
+export async function fetchStaticDnsEntries(
+  creds: DnsCredentials,
+  signal?: AbortSignal,
+): Promise<StaticDnsEntry[]> {
+  const data = await apiRequest<StaticDnsEntry[] | null>('/api/dns/static', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    signal,
+    cache: 'no-store',
+  });
+  return data ?? [];
+}
+
+export async function createStaticDnsEntry(
+  creds: DnsCredentials,
+  request: CreateStaticDnsRequest,
+): Promise<StaticDnsEntry> {
+  return apiRequest<StaticDnsEntry>('/api/dns/static', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(request),
+  });
+}
+
+export async function updateStaticDnsEntry(
+  creds: DnsCredentials,
+  nameOrId: string,
+  request: UpdateStaticDnsRequest,
+): Promise<StaticDnsEntry> {
+  return apiRequest<StaticDnsEntry>(`/api/dns/static/${encodeURIComponent(nameOrId)}`, {
+    method: 'PUT',
+    headers: authHeaders(creds),
+    body: JSON.stringify(request),
+  });
+}
+
+export async function deleteStaticDnsEntry(creds: DnsCredentials, nameOrId: string): Promise<void> {
+  await apiRequest<void>(`/api/dns/static/${encodeURIComponent(nameOrId)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
   });
 }

@@ -901,6 +901,13 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
+      await context.route('**/api/dns/static**', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope([]),
+        });
+      });
       await context.route('**/api/dns/suggest**', async (route) => {
         await route.fulfill({
           status: 200,

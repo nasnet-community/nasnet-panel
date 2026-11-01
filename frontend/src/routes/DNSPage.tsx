@@ -21,6 +21,7 @@ import {
 } from '@nasnet/ui';
 import styles from './DNSPage.module.scss';
 import { DNSChangeDialog, dnsTypeLabel } from './DNSChangeDialog';
+import { StaticDnsCard } from './dns/StaticDnsCard';
 import {
   ApiError,
   changeDns,
@@ -433,6 +434,8 @@ export function DNSPage() {
           </Card>
         </aside>
       </div>
+
+      <StaticDnsCard creds={creds} />
 
       {editing && creds ? (
         <DNSChangeDialog
