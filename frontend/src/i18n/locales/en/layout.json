@@ -11,6 +11,7 @@
     "wan": "WAN",
     "lan": "LAN",
     "dns": "DNS",
+    "firewall": "Firewall",
     "wireless": "WIFI",
     "vpn": "VPN Server",
     "plugins": "Plugins",

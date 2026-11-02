@@ -110,6 +110,15 @@ test.describe('Firewall page domestic addresses', () => {
     }, ROUTER_ID);
   });
 
+  test('the Firewall tab in the router menu opens the page', async ({ page }) => {
+    await mockFirewall(page);
+    await page.goto(`/router/${ROUTER_ID}`);
+
+    await page.getByRole('tab', { name: 'Firewall' }).click();
+    await expect(page).toHaveURL(new RegExp(`/router/${ROUTER_ID}/firewall$`));
+    await expect(page.getByTestId('domestic-addresses')).toBeVisible();
+  });
+
   test('shows the list summary and the user-added addresses', async ({ page }) => {
     await mockFirewall(page, { entries: [office] });
     await page.goto(`/router/${ROUTER_ID}/firewall`);
