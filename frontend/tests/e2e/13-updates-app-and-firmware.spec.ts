@@ -74,87 +74,249 @@ async function mockFirmware(context: BrowserContext, statuses: FirmwareStatus[])
   return { installs: () => installs };
 }
 
+interface MockRelease {
+  tag: string;
+  prerelease: boolean;
+  releaseDate: string;
+  releaseUrl: string;
+  minRouterosVersion: string;
+  minAppVersion: string;
+  autoReconfigable: boolean;
+  changelog: string[];
+}
+
+const release = (
+  tag: string,
+  changelog: string[] = [],
+  extra: Partial<MockRelease> = {},
+): MockRelease => ({
+  tag,
+  prerelease: false,
+  releaseDate: '2026-10-29T10:00:00Z',
+  releaseUrl: `https://github.com/nasnet-community/nasnet-panel/releases/tag/${tag}`,
+  minRouterosVersion: '7.14',
+  minAppVersion: '1.0.0',
+  autoReconfigable: false,
+  changelog,
+  ...extra,
+});
+
+// Serves the app update endpoints. Each GET of /api/app/update/status returns the next
+// entry of `statuses` (null answers with a network error, as while the panel restarts),
+// then keeps repeating the last one. /api/app/version reports `runningAfter` once an
+// update was started.
+async function mockApp(
+  context: BrowserContext,
+  options: {
+    running: string;
+    channel: string;
+    releases: Record<string, MockRelease[]>;
+    statuses?: Array<Record<string, unknown> | null>;
+    runningAfter?: string;
+  },
+) {
+  const envelope = <T>(data: T) => JSON.stringify({ status: 200, message: 'OK', data });
+  const json = (data: unknown) => ({
+    status: 200,
+    contentType: 'application/json',
+    body: envelope(data),
+  });
+  const channelQueries: string[] = [];
+  const updates: unknown[] = [];
+  const statuses = options.statuses ?? [{ phase: 'idle' }];
+  let polls = 0;
+
+  await context.route('**/api/app/version', (route) =>
+    route.fulfill(
+      json({
+        version: updates.length && options.runningAfter ? options.runningAfter : options.running,
+      }),
+    ),
+  );
+  await context.route('**/api/app/update/channel', (route) =>
+    route.fulfill(json({ channel: options.channel })),
+  );
+  await context.route('**/api/app/updates?**', (route) => {
+    const channel = new URL(route.request().url()).searchParams.get('channel') ?? '';
+    channelQueries.push(channel);
+    return route.fulfill(json(options.releases[channel] ?? []));
+  });
+  await context.route('**/api/app/update', async (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    const body = route.request().postDataJSON() as { version: string };
+    updates.push(body);
+    await route.fulfill(
+      json({ updateAvailable: true, fromVersion: options.running, toVersion: body.version }),
+    );
+  });
+  await context.route('**/api/app/update/status', async (route) => {
+    const status = statuses[Math.min(polls, statuses.length - 1)];
+    polls += 1;
+    if (status === null) {
+      await route.abort('connectionrefused');
+      return;
+    }
+    await route.fulfill(json(status));
+  });
+
+  return { channelQueries: () => channelQueries, updates: () => updates };
+}
+
 test.describe('Updates page', () => {
-  test('check + install app update flow', async ({ context, page, resetMocks, seedRouter }) => {
+  test('lists the releases of the saved channel and switches channel', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
     await resetMocks();
     await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
-
-    await context.addInitScript((routerId: string) => {
-      try {
-        const credKey = 'nasnet-panel.session-credentials.v1';
-        window.sessionStorage.setItem(
-          credKey,
-          JSON.stringify({ [routerId]: { username: 'admin', password: 'test' } }),
-        );
-        const storeKey = 'nasnet-panel.router-store.v1';
-        window.localStorage.setItem(
-          storeKey,
-          JSON.stringify({
-            routers: [{ id: routerId, name: 'Update Router', host: '192.168.88.1' }],
-            selectedRouterId: null,
-            lastConnectedRouterId: routerId,
-          }),
-        );
-      } catch {
-        /* ignore */
-      }
-    }, 'rtr_upd');
-
-    const envelope = <T>(data: T) => JSON.stringify({ status: 200, message: 'OK', data });
-
-    await context.route('**/api/app/check-for-updates', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope({
-          appVersion: 'v1.0.0',
-          latestVersion: 'v1.1.0',
-          releaseDate: '2026-07-01T00:00:00Z',
-          releaseUrl: 'https://github.com/nasnet-community/nasnet-panel/releases/tag/v1.1.0',
-          updateAvailable: true,
-        }),
-      });
-    });
-
-    await context.route('**/api/app/install-update', async (route) => {
-      if (route.request().method() !== 'POST') return route.fallback();
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope({
-          updateAvailable: true,
-          fromVersion: 'v1.0.0',
-          toVersion: 'v1.1.0',
-        }),
-      });
-    });
-
-    await context.route('**/api/app/update-status', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope({ phase: 'done', message: 'update complete', version: 'v1.1.0' }),
-      });
-    });
-
-    await context.route('**/api/app/version', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope({ version: 'v1.1.0' }),
-      });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    const app = await mockApp(context, {
+      running: 'v1.0.0',
+      channel: 'stable',
+      releases: {
+        stable: [release('v1.2.0', ['Add static DNS entries']), release('v1.1.0', ['Fix login'])],
+        rc: [release('v1.3.0-rc.1', ['Try the new updates page'], { prerelease: true })],
+      },
     });
 
     await page.goto('/updates');
 
-    await expect(page.getByRole('heading', { name: /app update/i })).toBeVisible();
     await expect(page.getByTestId('app-current-version')).toHaveText('v1.0.0');
-    await expect(page.getByTestId('app-latest-version')).toHaveText('v1.1.0');
+    const version = page.getByRole('combobox', { name: 'Version' });
+    await expect(version).toContainText('v1.2.0');
+    await expect(page.getByText('Add static DNS entries')).toBeVisible();
 
-    await page.getByRole('button', { name: /update app/i }).click();
-    await expect(page.getByRole('dialog')).toBeVisible();
+    await version.click();
+    await page.getByRole('option', { name: 'v1.1.0' }).click();
+    await expect(page.getByText('Fix login')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Update to v1.1.0' })).toBeEnabled();
+
+    await page.getByRole('combobox', { name: 'Release channel' }).click();
+    await page.getByRole('option', { name: 'Release candidate' }).click();
+    await expect(version).toContainText('v1.3.0-rc.1');
+    await expect(page.getByText('Pre-release')).toBeVisible();
+    expect(app.channelQueries()).toEqual(['stable', 'rc']);
+  });
+
+  test('installs the chosen version and reloads once it is running', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    const app = await mockApp(context, {
+      running: 'v1.0.0',
+      channel: 'stable',
+      releases: { stable: [release('v1.2.0'), release('v1.1.0')] },
+      statuses: [{ phase: 'pulling' }, null, { phase: 'idle' }],
+      runningAfter: 'v1.1.0',
+    });
+
+    await page.goto('/updates');
+    await page.getByRole('combobox', { name: 'Version' }).click();
+    await page.getByRole('option', { name: 'v1.1.0' }).click();
+    await page.getByRole('button', { name: 'Update to v1.1.0' }).click();
+    await expect(page.getByRole('dialog')).toContainText('v1.1.0');
     await page.getByRole('button', { name: /^confirm$/i }).click();
-    await expect(page.getByText(/update complete/i)).toBeVisible();
+
+    await expect(page.getByText('Downloading new version')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Notifications' })).toContainText(
+      'Update complete',
+    );
+    expect(app.updates()).toEqual([{ version: 'v1.1.0' }]);
+  });
+
+  test('follows the router reconfiguration after the update', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    await mockApp(context, {
+      running: 'v1.2.0',
+      channel: 'stable',
+      releases: { stable: [release('v1.3.0', [], { autoReconfigable: true })] },
+      statuses: [
+        { phase: 'restarting', reconfig: { state: 'pending', step: '', progress: 0 } },
+        { phase: 'idle', reconfig: { state: 'pending', step: '', progress: 0 } },
+        {
+          phase: 'idle',
+          reconfig: { state: 'running', step: 'Configuring WiFi access points', progress: 40 },
+        },
+        { phase: 'idle', reconfig: { state: 'completed', step: 'Done', progress: 100 } },
+      ],
+    });
+
+    await page.goto('/updates');
+    await page.getByRole('button', { name: 'Update to v1.3.0' }).click();
+    await expect(page.getByRole('dialog')).toContainText('reconfigures the router');
+    await page.getByRole('button', { name: /^confirm$/i }).click();
+
+    await expect(
+      page.getByText('Reconfiguring the router: Configuring WiFi access points'),
+    ).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Notifications' })).toContainText(
+      'Update complete',
+    );
+  });
+
+  test('blocks releases this router or panel cannot take yet', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    // The firmware mock reports RouterOS 7.14.
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    await mockApp(context, {
+      running: 'v1.0.0',
+      channel: 'stable',
+      releases: {
+        stable: [
+          release('v1.4.0', [], { minAppVersion: '1.2.0' }),
+          release('v1.1.0', [], { minRouterosVersion: '7.24' }),
+        ],
+      },
+    });
+
+    await page.goto('/updates');
+    await expect(page.getByRole('note')).toHaveText(
+      'Update to v1.2.0 first, then to this release.',
+    );
+    await expect(page.getByRole('button', { name: 'Update to v1.4.0' })).toBeDisabled();
+
+    await page.getByRole('combobox', { name: 'Version' }).click();
+    await page.getByRole('option', { name: 'v1.1.0' }).click();
+    await expect(page.getByRole('note')).toHaveText(
+      'Needs RouterOS 7.24 or newer. Update RouterOS first.',
+    );
+    await expect(page.getByRole('button', { name: 'Update to v1.1.0' })).toBeDisabled();
+  });
+
+  test('says when the running version is the latest in the channel', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    await mockApp(context, { running: 'v1.2.0', channel: 'stable', releases: { stable: [] } });
+
+    await page.goto('/updates');
+    await expect(page.getByText('Latest Stable release')).toBeVisible();
+    await expect(page.getByRole('button', { name: /update to/i })).toHaveCount(0);
   });
 
   test('firmware update shows its progress until the router is updated', async ({
