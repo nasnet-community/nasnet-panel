@@ -223,7 +223,10 @@
       "pulling": "Downloading new version",
       "restarting": "Restarting panel",
       "waiting": "Waiting for the panel to come back",
-      "done": "Done"
+      "done": "Done",
+      "downloadingFirmware": "Downloading RouterOS update",
+      "downloadingFirmwarePercent": "Downloading RouterOS update ({{percent}}%)",
+      "rebootingRouter": "Waiting for the router to reboot"
     },
     "app": {
       "title": "App update",
@@ -245,15 +248,16 @@
     },
     "firmware": {
       "title": "RouterOS firmware",
-      "started": "Firmware update started",
-      "startedDetail": "Router will reboot to apply the update.",
       "failed": "Firmware update failed",
       "installOn": "Install the latest RouterOS release on {{name}}.",
       "connect": "Connect to a router to check firmware.",
       "connectFirst": "Connect to a router first to check for firmware updates.",
       "updateButton": "Update firmware",
       "confirmTitle": "Install RouterOS firmware?",
-      "confirmDescription": "The router will reboot after the package is applied. Connectivity drops briefly."
+      "confirmDescription": "The router will reboot after the package is applied. Connectivity drops briefly.",
+      "updated": "RouterOS updated to {{version}}",
+      "timeout": "The router did not finish updating in time. Check it directly.",
+      "alreadyUpToDate": "RouterOS is already up to date"
     }
   }
 }
