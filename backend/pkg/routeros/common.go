@@ -1,6 +1,7 @@
 package routeros
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/go-routeros/routeros/v3/proto"
@@ -28,4 +29,13 @@ func joinPairValues(pairs []proto.Pair, key string) string {
 		}
 	}
 	return strings.Join(values, "; ")
+}
+
+func (c *Client) nameExists(path, name string) (bool, error) {
+	results, err := c.GetAll(path, "?=name="+name)
+	if err != nil {
+		return false, fmt.Errorf("failed to look up %s in %s: %w", name, path, err)
+	}
+
+	return len(results) > 0, nil
 }

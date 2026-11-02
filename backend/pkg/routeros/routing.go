@@ -119,3 +119,43 @@ func parseRoutingTableInfo(result map[string]string) RoutingTableInfo {
 		Comment:  getStringPtr(result, "comment"),
 	}
 }
+
+// RoutingRuleConfig is a /routing/rule entry.
+type RoutingRuleConfig struct {
+	Action      string
+	SrcAddress  string
+	RoutingMark string
+	Table       string
+	Disabled    bool
+	Comment     string
+}
+
+// AddRoutingRule creates a /routing/rule entry and returns its .id.
+func (c *Client) AddRoutingRule(config RoutingRuleConfig) (string, error) {
+	args := []string{"=action=" + config.Action, "=table=" + config.Table}
+
+	if config.SrcAddress != "" {
+		args = append(args, "=src-address="+config.SrcAddress)
+	}
+	if config.RoutingMark != "" {
+		args = append(args, "=routing-mark="+config.RoutingMark)
+	}
+	if config.Disabled {
+		args = append(args, "=disabled=yes")
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	id, err := c.Add("/routing/rule", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add routing rule: %w", err)
+	}
+
+	return id, nil
+}
+
+// RoutingTableExists reports whether a routing table with the given name exists.
+func (c *Client) RoutingTableExists(name string) (bool, error) {
+	return c.nameExists("/routing/table", name)
+}

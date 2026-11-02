@@ -55,9 +55,10 @@ const (
 	releaseChannelRC     = "rc"
 	releaseChannelDev    = "dev"
 
-	defaultMinRouterOSVersion = "7.24"
-	defaultMinAppVersion      = "1.2.0"
-	localDevVersion           = "v0.0.0-dev"
+	defaultMinRouterOSVersion   = "7.24"
+	defaultMinAppVersion        = "1.2.0"
+	localDevVersion             = "v0.0.0-dev"
+	autoReconfigableFromVersion = "1.3.0"
 )
 
 var (
@@ -265,7 +266,7 @@ func toReleaseUpdateResponse(release *githubReleaseEntry) ReleaseUpdateResponse 
 		ReleaseURL:         release.HTMLURL,
 		MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
 		MinAppVersion:      minAppVersion,
-		Installable:        releaseInstallable(release.TagName, minAppVersion),
+		AutoReconfigable:   releaseAutoReconfigable(release.TagName, minAppVersion),
 		Changelog:          releaseChanges(release.Body),
 	}
 }
@@ -503,17 +504,22 @@ func compareForInstall(target, current releaseVersion) int {
 	return cmp
 }
 
-func releaseInstallable(tag, minAppVersion string) bool {
+func releaseAutoReconfigable(tag, minAppVersion string) bool {
+	target, ok := parseReleaseVersion(tag)
+	if !ok {
+		return false
+	}
+	if first, _ := parseReleaseVersion(autoReconfigableFromVersion); compareBase(target, first) < 0 {
+		return false
+	}
 	if buildinfo.Version == localDevVersion {
-		_, ok := parseReleaseVersion(tag)
-		return ok
+		return true
 	}
 	current, ok := parseReleaseVersion(buildinfo.Version)
 	if !ok {
 		return false
 	}
-	target, ok := parseReleaseVersion(tag)
-	if !ok || compareForInstall(target, current) <= 0 {
+	if compareForInstall(target, current) <= 0 {
 		return false
 	}
 	minimum, ok := parseReleaseVersion(minAppVersion)
@@ -529,9 +535,9 @@ func releaseMinAppVersion(tag, body string) string {
 		if compareBase(version, oldest) <= 0 {
 			return "0.0.0"
 		}
-		for _, line := range []string{"1.2.0", "1.3.0"} {
+		for line, minimum := range map[string]string{"1.2.0": "1.0.0", "1.3.0": "1.2.0"} {
 			if known, _ := parseReleaseVersion(line); compareBase(version, known) == 0 {
-				return "1.0.0"
+				return minimum
 			}
 		}
 	}
@@ -688,7 +694,7 @@ func HandleAppInstallUpdate(c echo.Context) error {
 	appUpdate.set(updatePhasePreparing, release.TagName, "starting update")
 	started = true
 
-	go watchNewContainerAndPromote(client, release.TagName)
+	go watchNewContainerAndPromote(client, release.TagName, false)
 
 	return SuccessResponse(c, http.StatusOK, "Update started", InstallUpdateResponse{
 		UpdateAvailable: true,
@@ -704,7 +710,9 @@ func HandleAppInstallUpdate(c echo.Context) error {
 // @Description router runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal
 // @Description to the running one answers 200 with updateAvailable false, a lower one answers 400. Otherwise
 // @Description pulls the release into a fresh nasnet-panel-update container and promotes it in the
-// @Description background; poll /api/app/update/status for progress.
+// @Description background; poll /api/app/update/status for progress. When the release's autoReconfigable is true,
+// @Description the router is reconfigured from its stored configuration after the new version is running, and
+// @Description the progress is reported by the same status endpoint.
 // @Tags App
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -794,7 +802,8 @@ func HandleAppUpdate(c echo.Context) error {
 	appUpdate.set(updatePhasePreparing, release.TagName, "starting update")
 	started = true
 
-	go watchNewContainerAndPromote(client, release.TagName)
+	reconfigAfter := releaseAutoReconfigable(release.TagName, releaseMinAppVersion(release.TagName, release.Body))
+	go watchNewContainerAndPromote(client, release.TagName, reconfigAfter)
 
 	return SuccessResponse(c, http.StatusOK, "Update started", InstallUpdateResponse{
 		UpdateAvailable: true,
@@ -805,7 +814,10 @@ func HandleAppUpdate(c echo.Context) error {
 
 // HandleAppUpdateProgress godoc
 // @Summary Get the progress of POST /api/app/update
-// @Description Returns the current phase of an in-progress or completed self-update, the same state /api/app/update-status reports
+// @Description Returns the current phase of an in-progress or completed self-update, the same state /api/app/update-status reports.
+// @Description When the update was started for a release whose autoReconfigable is true, the response also carries the
+// @Description state, current step and progress of the reconfiguration that runs once the new version is up. The new
+// @Description version starts it the first time this endpoint is called after it came up; until then the state is pending.
 // @Tags App
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -813,7 +825,18 @@ func HandleAppUpdate(c echo.Context) error {
 // @Success 200 {object} Response{data=UpdateStatusResponse}
 // @Router /api/app/update/status [get].
 func HandleAppUpdateProgress(c echo.Context) error {
-	return SuccessResponse(c, http.StatusOK, "Update status retrieved", appUpdate.snapshot())
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	creds, err := GetRouterOSCredentials(c)
+	if err != nil {
+		return err
+	}
+
+	status := appUpdate.snapshot()
+	status.Reconfig = reconfigStatusAfterUpdate(c.Request().Context(), client, creds)
+	return SuccessResponse(c, http.StatusOK, "Update status retrieved", status)
 }
 
 func findRelease(releases []githubReleaseEntry, tag string) *githubReleaseEntry {
@@ -847,7 +870,7 @@ func removeStaleRootDir(client *routeros.Client, dir string) error {
 // state, and once the pull finishes promotes it into the running nasnet-panel
 // container's place. Runs detached from the HTTP request that triggered it,
 // so it uses its own timeout rather than a request context.
-func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
+func watchNewContainerAndPromote(client *routeros.Client, releaseTag string, reconfigAfter bool) {
 	// A leftover nasnet-panel-update from a previous failed run would otherwise collide
 	// with AddContainer below. Safe to delete here since the in-progress guard
 	// in HandleAppInstallUpdate already ruled out a live update.
@@ -946,14 +969,24 @@ func watchNewContainerAndPromote(client *routeros.Client, releaseTag string) {
 		}
 
 		appUpdate.set(updatePhaseRestarting, releaseTag, "promoting "+appUpdateContainerName+" to "+appContainerName)
+		reconfigScheduled := reconfigAfter && markReconfigPending(client, releaseTag)
 		if err := client.PromoteContainer(appContainerName, appUpdateContainerName, restartScheduleDelaySeconds); err != nil {
+			if reconfigScheduled {
+				clearReconfigPending(client)
+			}
 			appUpdate.set(updatePhaseError, releaseTag, "pull finished but promotion failed: "+err.Error())
 			log.Printf("[app-update] failed to promote container %s: %v", appUpdateContainerName, err)
 			return
 		}
 
-		appUpdate.set(updatePhaseDone, releaseTag,
-			fmt.Sprintf("update complete; version %s will be applied in a few seconds", releaseTag))
+		message := fmt.Sprintf("update complete; version %s will be applied in a few seconds", releaseTag)
+		switch {
+		case reconfigScheduled:
+			message += ", then the router will be reconfigured"
+		case reconfigAfter:
+			message += ", but the reconfiguration could not be scheduled"
+		}
+		appUpdate.set(updatePhaseDone, releaseTag, message)
 		return
 	}
 

@@ -17,24 +17,27 @@ const (
 // VPNServer is the configuration of a single-instance VPN server such as SSTP, L2TP or
 // IKEv2. A field that does not apply to the server type stays at its zero value.
 // CertificateTimestamp is the Unix timestamp in the names of the server's certificates.
+// CertificatePassword protects the server certificate's exported private key and is only kept
+// in the database, an empty value on save keeps the stored one.
 type VPNServer struct {
-	Type                    string
-	Enabled                 bool
-	Port                    int
-	DefaultProfile          string
-	Authentication          string
-	CertificateTimestamp    int64
-	VerifyClientCertificate bool
-	Ciphers                 string
-	UseIPsec                bool
-	IPsecSecret             string
+	Type                    string `db:"type"`
+	Enabled                 bool   `db:"enabled"`
+	Port                    int    `db:"port"`
+	DefaultProfile          string `db:"default_profile"`
+	Authentication          string `db:"authentication"`
+	CertificateTimestamp    int64  `db:"certificate_timestamp"`
+	VerifyClientCertificate bool   `db:"verify_client_certificate"`
+	Ciphers                 string `db:"ciphers"`
+	UseIPsec                bool   `db:"use_ipsec"`
+	IPsecSecret             string `db:"ipsec_secret"`
+	CertificatePassword     string `db:"certificate_password"`
 }
 
 // UpsertVPNServer stores the server configuration, replacing the stored one of the same type.
 func UpsertVPNServer(ctx context.Context, conn *sqlx.DB, server *VPNServer) error {
 	if _, err := conn.ExecContext(ctx,
-		`INSERT INTO vpn_servers (type, enabled, port, default_profile, authentication, certificate_timestamp, verify_client_certificate, ciphers, use_ipsec, ipsec_secret)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`INSERT INTO vpn_servers (type, enabled, port, default_profile, authentication, certificate_timestamp, verify_client_certificate, ciphers, use_ipsec, ipsec_secret, certificate_password)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(type) DO UPDATE SET
 			enabled = excluded.enabled,
 			port = excluded.port,
@@ -45,9 +48,10 @@ func UpsertVPNServer(ctx context.Context, conn *sqlx.DB, server *VPNServer) erro
 			ciphers = excluded.ciphers,
 			use_ipsec = excluded.use_ipsec,
 			ipsec_secret = excluded.ipsec_secret,
+			certificate_password = COALESCE(NULLIF(excluded.certificate_password, ''), vpn_servers.certificate_password),
 			updated_at = CURRENT_TIMESTAMP`,
 		server.Type, boolInt(server.Enabled), server.Port, server.DefaultProfile, server.Authentication, server.CertificateTimestamp,
-		boolInt(server.VerifyClientCertificate), server.Ciphers, boolInt(server.UseIPsec), server.IPsecSecret); err != nil {
+		boolInt(server.VerifyClientCertificate), server.Ciphers, boolInt(server.UseIPsec), server.IPsecSecret, server.CertificatePassword); err != nil {
 		return fmt.Errorf("failed to save %s server: %w", server.Type, err)
 	}
 	return nil

@@ -424,3 +424,8 @@ func parseBridgeInfo(result map[string]string) BridgeInfo {
 		Comment:              getStringPtr(result, "comment"),
 	}
 }
+
+// BridgeExists reports whether a bridge with the given name exists.
+func (c *Client) BridgeExists(name string) (bool, error) {
+	return c.nameExists("/interface/bridge", name)
+}

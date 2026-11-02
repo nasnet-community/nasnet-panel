@@ -9,14 +9,15 @@ import (
 
 // OvpnServer is one OpenVPN server entry on the router. Protocol is "tcp" or
 // "udp". CertificateTimestamp is the Unix timestamp in the names of the
-// server's certificates, 0 if unknown.
+// server's certificates, 0 if unknown. ClientCertificatePassword also protects
+// the server certificate's exported private key.
 type OvpnServer struct {
-	Name                      string
-	CertificateTimestamp      int64
-	Protocol                  string
-	Port                      int
-	ClientCertificatePassword string
-	Enabled                   bool
+	Name                      string `db:"name"`
+	CertificateTimestamp      int64  `db:"certificate_timestamp"`
+	Protocol                  string `db:"protocol"`
+	Port                      int    `db:"port"`
+	ClientCertificatePassword string `db:"client_certificate_password"`
+	Enabled                   bool   `db:"enabled"`
 }
 
 func upsertOvpnServerImpl(ctx context.Context, ext sqlx.ExtContext, server *OvpnServer) error {
