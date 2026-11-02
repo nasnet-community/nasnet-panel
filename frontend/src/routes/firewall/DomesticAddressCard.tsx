@@ -201,30 +201,28 @@ export function DomesticAddressCard({ creds }: Props) {
       key: 'actions',
       header: '',
       sortable: false,
-      width: '110px',
+      width: '200px',
       render: (row) => (
-        <span style={{ display: 'inline-flex', gap: 8 }}>
+        <Inline>
           <Button
             size="sm"
             variant="secondary"
             disabled={!creds}
-            title={t('firewall.domestic.editFor', { address: row.address })}
             aria-label={t('firewall.domestic.editFor', { address: row.address })}
             onClick={() => setEditing(row)}
           >
-            <Pencil size={14} aria-hidden />
+            <Pencil size={14} aria-hidden /> {t('firewall.domestic.edit')}
           </Button>
           <Button
             size="sm"
             variant="danger"
             disabled={!creds}
-            title={t('firewall.domestic.deleteFor', { address: row.address })}
             aria-label={t('firewall.domestic.deleteFor', { address: row.address })}
             onClick={() => setPendingDelete(row)}
           >
-            <Trash2 size={14} aria-hidden />
+            <Trash2 size={14} aria-hidden /> {t('firewall.domestic.delete')}
           </Button>
-        </span>
+        </Inline>
       ),
     },
   ];

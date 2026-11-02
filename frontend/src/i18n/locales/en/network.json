@@ -243,7 +243,8 @@
       "confirmDelete": {
         "title": "Delete domestic address",
         "description": "Remove {{address}} from the domestic address list? This cannot be undone."
-      }
+      },
+      "edit": "Edit"
     }
   },
   "bridge": {
