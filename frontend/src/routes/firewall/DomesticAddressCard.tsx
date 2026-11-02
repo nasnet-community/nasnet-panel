@@ -266,7 +266,7 @@ export function DomesticAddressCard({ creds }: Props) {
           <CardDescription>{t('firewall.domestic.description')}</CardDescription>
         </div>
         <div className={styles.headerActions}>
-          <Button size="sm" variant="primary" onClick={() => setAdding(true)} disabled={!creds}>
+          <Button size="sm" variant="success" onClick={() => setAdding(true)} disabled={!creds}>
             <Plus size={14} aria-hidden /> {t('firewall.domestic.add')}
           </Button>
         </div>
