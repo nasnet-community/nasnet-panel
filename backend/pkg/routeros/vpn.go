@@ -79,6 +79,11 @@ type AddL2TPClientConfig struct {
 	Comment     string
 	UseIPsec    bool
 	Disabled    bool
+
+	RandomSourcePort bool
+	AllowFastPath    bool
+	Allow            string
+	ProtoVersion     string
 }
 
 // AddSSTPClientConfig represents the parameters for adding a new SSTP client.
@@ -1557,6 +1562,18 @@ func (c *Client) AddL2TPClient(config AddL2TPClientConfig) error {
 	}
 	if config.Comment != "" {
 		args = append(args, "=comment="+config.Comment)
+	}
+	if config.RandomSourcePort {
+		args = append(args, "=random-source-port=yes")
+	}
+	if config.AllowFastPath {
+		args = append(args, "=allow-fast-path=yes")
+	}
+	if config.Allow != "" {
+		args = append(args, "=allow="+config.Allow)
+	}
+	if config.ProtoVersion != "" {
+		args = append(args, "=l2tp-proto-version="+config.ProtoVersion)
 	}
 
 	_, err := c.Add("/interface/l2tp-client", args...)

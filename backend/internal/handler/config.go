@@ -15,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/internal/auth"
+	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/routeros"
@@ -585,6 +586,7 @@ func wizardWAN(wanType string, iface *InterfaceConfig) db.WAN {
 }
 
 const (
+	settingKeyPendingReconfig   = "pending_reconfig"
 	reconfigBaseStart           = 2
 	reconfigBaseEnd             = 80
 	reconfigExtrasEnd           = 98
@@ -598,8 +600,9 @@ const (
 )
 
 var (
-	reconfigJobs  sync.Map
-	reconfigGuard sync.Mutex
+	reconfigJobs     sync.Map
+	reconfigGuard    sync.Mutex
+	reconfigResumeMu sync.Mutex
 )
 
 // HandleStartReconfig godoc
@@ -624,41 +627,64 @@ func HandleStartReconfig(c echo.Context) error {
 		return err
 	}
 
-	ctx := c.Request().Context()
+	response, err := startReconfig(c.Request().Context(), client, creds)
+	if err != nil {
+		var reconfigErr *reconfigError
+		if errors.As(err, &reconfigErr) {
+			return ErrorResponse(c, reconfigErr.Status, reconfigErr.Message, reconfigErr.Err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to start the reconfiguration", err)
+	}
+
+	return SuccessResponse(c, http.StatusAccepted, "Reconfiguration started", response)
+}
+
+func startReconfig(ctx context.Context, client *routeros.Client, creds *auth.Credentials) (*ReconfigStartResponse, error) {
 	conn, err := databaseForClient(ctx, client)
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to open the router database", err)
+		return nil, &reconfigError{Status: http.StatusInternalServerError, Message: "Failed to open the router database", Err: err}
 	}
 	stored, err := db.LoadStoredConfig(ctx, conn)
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to read the stored configuration", err)
+		return nil, &reconfigError{Status: http.StatusInternalServerError, Message: "Failed to read the stored configuration", Err: err}
 	}
 
 	plan, err := buildReconfigPlan(client, creds, stored)
 	switch {
 	case errors.Is(err, errReconfigNoConfig):
-		return ErrorResponse(c, http.StatusBadRequest, err.Error(), nil)
+		return nil, &reconfigError{Status: http.StatusBadRequest, Message: err.Error()}
 	case err != nil:
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to prepare the reconfiguration", err)
+		return nil, &reconfigError{Status: http.StatusInternalServerError, Message: "Failed to prepare the reconfiguration", Err: err}
 	}
 
 	rendered, err := utils.RenderTemplate("base_config.tmpl", escapeWizardTemplateData(plan.templateData))
 	if err != nil {
-		return ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
+		return nil, &reconfigError{Status: http.StatusInternalServerError, Message: "Failed to render template", Err: err}
 	}
 
 	job, ok := beginReconfig(creds.RouterOSHost)
 	if !ok {
-		return ErrorResponse(c, http.StatusConflict, "A reconfiguration is already in progress on this router", nil)
+		return nil, &reconfigError{Status: http.StatusConflict, Message: "A reconfiguration is already in progress on this router"}
 	}
-	go runReconfig(job, client, creds, rendered, plan, conn)
+	go runReconfig(context.WithoutCancel(ctx), job, client, creds, rendered, plan, conn)
 
-	response := ReconfigStartResponse{}
+	response := &ReconfigStartResponse{}
 	if plan.managementWifi.SSID != "" {
 		response.ManagementWiFiSSID = plan.managementWifi.SSID
 		response.ManagementWiFiPassword = plan.managementWifi.Password
 	}
-	return SuccessResponse(c, http.StatusAccepted, "Reconfiguration started", response)
+	return response, nil
+}
+
+func (e *reconfigError) Error() string {
+	if e.Err != nil {
+		return e.Message + ": " + e.Err.Error()
+	}
+	return e.Message
+}
+
+func (e *reconfigError) Unwrap() error {
+	return e.Err
 }
 
 // HandleGetReconfigStatus godoc
@@ -792,7 +818,6 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 	plan := &reconfigPlan{
 		stored:         stored,
 		livePorts:      reconfigLiveListenPorts(client),
-		ovpnUsernames:  make(map[string]bool),
 		managementWifi: managementWifi,
 	}
 
@@ -817,44 +842,6 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 		templateData["DomesticInterface"] = reconfigInterface(domestic, stored.WiFis)
 	} else {
 		templateData["DomesticInterface"] = InterfaceConfig{}
-	}
-
-	for i := range stored.L2TPClients {
-		if stored.L2TPClients[i].Name == wizardL2TPName {
-			l2tp := &stored.L2TPClients[i]
-			templateData["L2tpClient"] = &L2tpClientConfig{
-				ConnectTo: l2tp.ConnectTo, User: l2tp.User, Password: l2tp.Password, IPsecSecret: l2tp.IPsecSecret,
-			}
-		}
-	}
-
-	for i := range stored.WireGuards {
-		if stored.WireGuards[i].Name == wizardWireGuardName {
-			templateData["WireGuardClient"] = reconfigWireGuardTemplateData(&stored.WireGuards[i])
-		}
-	}
-
-	if domesticEnabled && len(stored.OvpnServers) > 0 {
-		server := &stored.OvpnServers[0]
-		missing, err := ensureOvpnCertificates(client, server)
-		switch {
-		case err != nil:
-			return nil, err
-		case missing != "":
-			plan.warnings = append(plan.warnings, fmt.Sprintf(
-				"The OpenVPN servers were not restored: certificate %s does not exist and there are no files to import it from", missing))
-		default:
-			ovpn := &OvpnServerConfig{ClientCertificatePassword: server.ClientCertificatePassword}
-			for i := range stored.VPNUsers {
-				if stored.VPNUsers[i].Profile == wizardVPNProfile {
-					ovpn.Users = append(ovpn.Users, OvpnUser{Username: stored.VPNUsers[i].Username, Password: stored.VPNUsers[i].Password})
-					plan.ovpnUsernames[stored.VPNUsers[i].Username] = true
-				}
-			}
-			templateData["OvpnServer"] = ovpn
-			templateData["OvpnCertificatesReady"] = true
-			templateData["CurrentTimestamp"] = server.CertificateTimestamp
-		}
 	}
 
 	plan.templateData = templateData
@@ -935,26 +922,7 @@ func reconfigManagementWifi(client *routeros.Client, wifis []db.WiFi) (WiFiAP, e
 	return WiFiAP{SSID: utils.GenerateName(3, "", utils.PascalCase), Password: password}, nil
 }
 
-func reconfigWireGuardTemplateData(wg *db.WireGuardInterface) *WireGuardClientTemplateData {
-	data := &WireGuardClientTemplateData{InterfacePrivateKey: wg.PrivateKey, InterfaceAddress: wg.Address}
-	for i := range wg.Peers {
-		peer := &wg.Peers[i]
-		item := WireGuardPeerTemplateData{
-			PublicKey:       peer.PublicKey,
-			EndpointAddress: peer.EndpointAddress,
-			EndpointPort:    strconv.Itoa(peer.EndpointPort),
-			PreSharedKey:    peer.PresharedKey,
-			AllowedAddress:  peer.AllowedAddress,
-		}
-		if peer.PersistentKeepalive > 0 {
-			item.PersistentKeepalive = strconv.Itoa(peer.PersistentKeepalive)
-		}
-		data.Peers = append(data.Peers, item)
-	}
-	return data
-}
-
-func runReconfig(job *reconfigJob, client *routeros.Client, creds *auth.Credentials, rendered string, plan *reconfigPlan, conn *sqlx.DB) {
+func runReconfig(ctx context.Context, job *reconfigJob, client *routeros.Client, creds *auth.Credentials, rendered string, plan *reconfigPlan, conn *sqlx.DB) {
 	for _, warning := range plan.warnings {
 		job.warn(warning)
 	}
@@ -964,12 +932,12 @@ func runReconfig(job *reconfigJob, client *routeros.Client, creds *auth.Credenti
 		job.fail(message + ": " + err.Error())
 		return
 	}
-	if err := waitForBaseConfig(job, client); err != nil {
+	if err := waitForBaseConfig(ctx, job, client); err != nil {
 		job.fail(err.Error())
 		return
 	}
 
-	extras := reconfigExtras(client, conn, plan)
+	extras := reconfigExtras(ctx, client, conn, plan)
 	for i := range extras {
 		job.update(extras[i].step, reconfigBaseEnd+(reconfigExtrasEnd-reconfigBaseEnd)*i/len(extras))
 		for _, err := range extras[i].run() {
@@ -982,8 +950,8 @@ func runReconfig(job *reconfigJob, client *routeros.Client, creds *auth.Credenti
 	job.complete()
 }
 
-func waitForBaseConfig(job *reconfigJob, client *routeros.Client) error {
-	ctx, cancel := context.WithTimeout(context.Background(), wizardSaveTimeout)
+func waitForBaseConfig(parent context.Context, job *reconfigJob, client *routeros.Client) error {
+	ctx, cancel := context.WithTimeout(parent, wizardSaveTimeout)
 	defer cancel()
 
 	ticker := time.NewTicker(reconfigPollInterval)
@@ -1015,18 +983,22 @@ func waitForBaseConfig(job *reconfigJob, client *routeros.Client) error {
 	}
 }
 
-func reconfigExtras(client *routeros.Client, conn *sqlx.DB, plan *reconfigPlan) []reconfigExtra {
+func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB, plan *reconfigPlan) []reconfigExtra {
 	stored := plan.stored
 	return []reconfigExtra{
 		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
+		{"Restoring the wizard VPN clients", func() []error { return restoreWizardClients(client, stored) }},
+		{"Restoring the domestic block setting", func() []error { return restoreDomesticBlock(client, stored.Settings[settingKeyDomesticBlockEnabled]) }},
 		{"Restoring DNS servers", func() []error { return restoreDNSServers(client, stored.DNSServers) }},
-		{"Restoring static DNS entries", func() []error { return restoreStaticDNS(client, conn, stored.DNSStaticEntries) }},
+		{"Restoring the ad-block setting", func() []error { return restoreAdBlock(client, stored.Settings[settingKeyAdBlockEnabled]) }},
+		{"Restoring static DNS entries", func() []error { return restoreStaticDNS(ctx, client, conn, stored.DNSStaticEntries) }},
 		{"Restoring SSTP clients", func() []error { return restoreSSTPClients(client, stored.SSTPClients) }},
 		{"Restoring L2TP clients", func() []error { return restoreL2TPClients(client, stored.L2TPClients) }},
 		{"Restoring the SSTP server", func() []error { return restoreSSTPServer(client, stored.VPNServers) }},
 		{"Restoring the L2TP server", func() []error { return restoreL2TPServer(client, stored.VPNServers) }},
-		{"Restoring VPN users", func() []error { return restoreVPNUsers(client, stored.VPNUsers, plan.ovpnUsernames) }},
+		{"Restoring the OpenVPN servers", func() []error { return restoreOvpnServers(client, stored) }},
+		{"Restoring VPN users", func() []error { return restoreVPNUsers(client, stored.VPNUsers) }},
 		{"Restoring WireGuard interfaces", func() []error { return restoreWireGuardInterfaces(client, stored.WireGuards, plan.livePorts) }},
 		{"Restoring the foreign gateway", func() []error { return restoreForeignGateway(client, stored.Settings[settingKeyForeignGateway]) }},
 	}
@@ -1055,8 +1027,8 @@ func restoreDomesticAddresses(client *routeros.Client, addresses []string) []err
 	return errs
 }
 
-func restoreStaticDNS(client *routeros.Client, conn *sqlx.DB, entries []db.DNSStaticEntry) []error {
-	ctx, cancel := context.WithTimeout(context.Background(), reconfigSaveTimeout)
+func restoreStaticDNS(parent context.Context, client *routeros.Client, conn *sqlx.DB, entries []db.DNSStaticEntry) []error {
+	ctx, cancel := context.WithTimeout(parent, reconfigSaveTimeout)
 	defer cancel()
 
 	var errs []error
@@ -1166,7 +1138,7 @@ func addToTunnelInterfaceLists(client *routeros.Client, name string) []error {
 	return errs
 }
 
-func restoreVPNUsers(client *routeros.Client, users []db.VPNUser, restored map[string]bool) []error {
+func restoreVPNUsers(client *routeros.Client, users []db.VPNUser) []error {
 	profiles, err := client.ListPPPProfiles()
 	if err != nil {
 		return []error{fmt.Errorf("failed to list PPP profiles: %w", err)}
@@ -1179,7 +1151,7 @@ func restoreVPNUsers(client *routeros.Client, users []db.VPNUser, restored map[s
 	var errs []error
 	for i := range users {
 		user := &users[i]
-		if restored[user.Username] {
+		if user.Profile == wizardVPNProfile {
 			continue
 		}
 		profile := user.Profile
@@ -1299,7 +1271,7 @@ func restoreForeignGateway(client *routeros.Client, gateway string) []error {
 		return []error{fmt.Errorf("failed to list the %s routes: %w", reconfigGatewayRouteComment, err)}
 	}
 	if len(routes) == 0 {
-		return []error{fmt.Errorf("the foreign gateway %s was not set: there are no %s routes", gateway, reconfigGatewayRouteComment)}
+		return setUpGatewayRouting(client, gateway)
 	}
 
 	var errs []error
@@ -1653,4 +1625,517 @@ func restoreL2TPServerFrom(client *routeros.Client, server *db.VPNServer) []erro
 		}
 	}
 	return errs
+}
+
+func restoreWizardClients(client *routeros.Client, stored *db.StoredConfig) []error {
+	var errs []error
+	for i := range stored.L2TPClients {
+		if stored.L2TPClients[i].Name == wizardL2TPName {
+			errs = append(errs, restoreWizardL2TPClient(client, &stored.L2TPClients[i])...)
+		}
+	}
+	for i := range stored.WireGuards {
+		if stored.WireGuards[i].Name == wizardWireGuardName {
+			errs = append(errs, restoreWizardWireGuardClient(client, &stored.WireGuards[i])...)
+		}
+	}
+	return errs
+}
+
+func restoreAdBlock(client *routeros.Client, setting string) []error {
+	enabled, err := strconv.ParseBool(setting)
+	if err != nil {
+		return nil
+	}
+
+	adLists, err := client.ListDNSAdLists()
+	if err != nil {
+		return []error{fmt.Errorf("failed to list DNS adlist entries: %w", err)}
+	}
+	var existing *routeros.DNSAdList
+	for i := range adLists {
+		if adLists[i].URL == dnsAdBlockURL {
+			existing = &adLists[i]
+			break
+		}
+	}
+
+	disabled := !enabled
+	switch {
+	case existing != nil:
+		if existing.Disabled == disabled {
+			return nil
+		}
+		if err := client.UpdateDNSAdList(existing.ID, routeros.DNSAdListUpdateConfig{Disabled: &disabled}); err != nil {
+			return []error{fmt.Errorf("failed to update the ad-block adlist: %w", err)}
+		}
+	case enabled:
+		sslVerify := false
+		if _, err := client.AddDNSAdList(routeros.AddDNSAdListConfig{URL: dnsAdBlockURL, SSLVerify: &sslVerify}); err != nil {
+			return []error{fmt.Errorf("failed to create the ad-block adlist: %w", err)}
+		}
+	}
+	return nil
+}
+
+func restoreDomesticBlock(client *routeros.Client, setting string) []error {
+	block, err := strconv.ParseBool(setting)
+	if err != nil {
+		return nil
+	}
+
+	rules, _, err := ensureDomesticBlockRules(client)
+	if err != nil {
+		return []error{fmt.Errorf("failed to read the domestic block rules: %w", err)}
+	}
+	if domesticBlockRulesMatch(rules, block) {
+		return nil
+	}
+
+	ids := make([]string, 0, len(rules))
+	for i := range rules {
+		ids = append(ids, rules[i].ID)
+	}
+	if err := client.SetFirewallFilterRulesDisabled(ids, !block); err != nil {
+		return []error{fmt.Errorf("failed to update the domestic block rules: %w", err)}
+	}
+	return nil
+}
+
+const (
+	vpnClientRoutingTable      = "to-VPN-Client"
+	vpnClientCheckRouteComment = "CheckIP-Route-to-VPN-Client"
+	vpnClientCheckHost         = "1.0.0.1"
+	vpnClientNetwatchComment   = "Failover Netwatch - VPN-Client"
+	vpnRoutingTable            = "to-VPN"
+
+	l2tpClientBridge         = "LANBridgeVPN-L2TP-Client"
+	l2tpClientComment        = "VPN-L2TP-Client"
+	l2tpClientListWAN        = "VPN-L2TP-Client-WAN"
+	l2tpClientListLAN        = "VPN-L2TP-Client-LAN"
+	l2tpClientPool           = "DHCP-pool-VPN-L2TP-Client"
+	l2tpClientDHCPServer     = "DHCP-VPN-L2TP-Client"
+	l2tpClientSubnet         = "192.168.41.0/24"
+	l2tpClientGatewayIP      = "192.168.41.1"
+	l2tpClientAddress        = "192.168.41.1/24"
+	l2tpClientPoolRange      = "192.168.41.2-192.168.41.254"
+	l2tpClientDefaultProfile = "default-encryption"
+
+	wgClientBridge         = "LANBridgeVPN-wg-client"
+	wgClientBridgeComment  = "VPN-wg-client"
+	wgClientAddressComment = "VPN-client-wg-client"
+	wgClientBridgeAddress  = "192.168.42.1/24"
+	wgClientBridgeNetwork  = "192.168.42.0"
+	wgClientComment        = "VPN-client"
+)
+
+func restoreWizardL2TPClient(client *routeros.Client, l2tp *db.L2TPClient) []error {
+	var errs []error
+	try := func(what string, err error) {
+		if err != nil {
+			errs = append(errs, fmt.Errorf("L2TP client %s: %w", what, err))
+		}
+	}
+	listComment := "VPN-" + l2tp.Name
+
+	try("bridge", ensureBridge(client, l2tpClientBridge, l2tpClientComment))
+	try("interface", client.AddL2TPClient(routeros.AddL2TPClientConfig{
+		Name: l2tp.Name, ConnectTo: l2tp.ConnectTo, User: l2tp.User, Password: l2tp.Password,
+		ProfileName: l2tpClientDefaultProfile, IPsecSecret: l2tp.IPsecSecret, Comment: l2tp.Comment,
+		UseIPsec: l2tp.IPsecSecret != "", Disabled: !l2tp.Enabled,
+		RandomSourcePort: true, AllowFastPath: true, Allow: "mschap2,mschap1", ProtoVersion: "l2tpv2",
+	}))
+
+	try("WAN interface list", ensureInterfaceList(client, l2tpClientListWAN, l2tpClientComment))
+	try("LAN interface list", ensureInterfaceList(client, l2tpClientListLAN, l2tpClientComment))
+
+	_, err := client.AddIPPool(routeros.IPPoolConfig{Name: l2tpClientPool, Ranges: l2tpClientPoolRange, Comment: l2tpClientComment})
+	try("address pool", err)
+	_, err = client.AddDHCPServer(routeros.DHCPServerConfig{
+		Name: l2tpClientDHCPServer, Interface: l2tpClientBridge, PoolName: l2tpClientPool,
+		Authoritative: true, ConflictDetection: true, Comment: l2tpClientComment,
+	})
+	try("DHCP server", err)
+	_, err = client.AddDHCPServerNetwork(routeros.DHCPServerNetworkConfig{
+		Address: l2tpClientSubnet, Gateway: l2tpClientGatewayIP, DNSServers: l2tpClientGatewayIP, Comment: l2tpClientComment,
+	})
+	try("DHCP network", err)
+
+	try("routing table", ensureRoutingTable(client, vpnClientRoutingTable, l2tpClientComment))
+	_, err = client.AddRoutingRule(routeros.RoutingRuleConfig{
+		Action: "lookup-only-in-table", Comment: "Routing the VPN-L2TP-Client SRC Address",
+		SrcAddress: l2tpClientSubnet, Table: vpnClientRoutingTable,
+	})
+	try("source routing rule", err)
+	_, err = client.AddRoutingRule(routeros.RoutingRuleConfig{
+		Action: "lookup-only-in-table", Comment: "Routing the VPN-L2TP-Client Routing Mark",
+		RoutingMark: vpnClientRoutingTable, Table: vpnClientRoutingTable,
+	})
+	try("routing mark rule", err)
+
+	try("WAN interface list member", ensureInterfaceListMember(client, "WAN", l2tp.Name, listComment))
+	try("VPN-WAN interface list member", ensureInterfaceListMember(client, "VPN-WAN", l2tp.Name, listComment))
+	try("bridge LAN interface list member", ensureInterfaceListMember(client, "LAN", l2tpClientBridge, l2tpClientComment))
+	try("bridge client LAN interface list member", ensureInterfaceListMember(client, l2tpClientListLAN, l2tpClientBridge, l2tpClientComment))
+
+	_, err = client.AddIPAddress(routeros.IPAddressConfig{
+		Interface: l2tpClientBridge, Address: l2tpClientAddress, Network: "192.168.41.0", Comment: l2tpClientComment,
+	})
+	try("bridge address", err)
+	_, err = client.AddFirewallAddressListItem(l2tpClientListLAN, l2tpClientSubnet, false, l2tpClientComment)
+	try("address list entry", err)
+
+	_, err = client.AddMangleRule(routeros.MangleRuleConfig{
+		Chain: "prerouting", Action: "mark-routing", Comment: "VPN-L2TP-Client Routing",
+		NewRoutingMark: vpnClientRoutingTable, SrcAddressList: l2tpClientListLAN,
+	})
+	try("mangle rule", err)
+
+	for _, protocol := range []string{"udp", "tcp"} {
+		_, err = client.AddNATRule(routeros.NATRuleConfig{
+			Chain: "dstnat", Action: "dst-nat", Protocol: protocol, DstPort: "53", Disabled: true,
+			SrcAddressList: l2tpClientListLAN, ToAddresses: vpnClientCheckHost, Comment: "DNS " + l2tpClientComment,
+		})
+		try("DNS "+protocol+" NAT rule", err)
+	}
+
+	_, err = client.AddNatPMPInterface(l2tpClientBridge, "internal")
+	try("NAT-PMP interface", err)
+
+	errs = append(errs, addVPNClientRoutes(client, l2tp.Name)...)
+	errs = append(errs, addVPNClientNetwatch(client)...)
+	return errs
+}
+
+func restoreWizardWireGuardClient(client *routeros.Client, wg *db.WireGuardInterface) []error {
+	var errs []error
+	try := func(what string, err error) {
+		if err != nil {
+			errs = append(errs, fmt.Errorf("WireGuard client %s: %w", what, err))
+		}
+	}
+	listComment := "VPN-" + wg.Name
+
+	try("bridge", ensureBridge(client, wgClientBridge, wgClientBridgeComment))
+
+	vrf := reconfigTunnelVRF
+	_, err := client.CreateWireGuardInterface(routeros.WireGuardClientConfig{
+		Name: wg.Name, PrivateKey: &wg.PrivateKey, Comment: &wg.Comment, VRF: &vrf,
+	})
+	try("interface", err)
+	for i := range wg.Peers {
+		try("peer", restoreWireGuardPeer(client, wg.Name, &wg.Peers[i]))
+	}
+
+	try("routing table", ensureRoutingTable(client, vpnClientRoutingTable, wgClientComment))
+
+	try("WAN interface list member", ensureInterfaceListMember(client, "WAN", wg.Name, listComment))
+	try("VPN-WAN interface list member", ensureInterfaceListMember(client, "VPN-WAN", wg.Name, listComment))
+
+	_, err = client.AddIPAddress(routeros.IPAddressConfig{Interface: wg.Name, Address: wg.Address, Comment: wgClientAddressComment})
+	try("interface address", err)
+	_, err = client.AddIPAddress(routeros.IPAddressConfig{
+		Interface: wgClientBridge, Address: wgClientBridgeAddress, Network: wgClientBridgeNetwork, Comment: wgClientBridgeComment,
+	})
+	try("bridge address", err)
+
+	errs = append(errs, addVPNClientRoutes(client, wg.Name)...)
+	errs = append(errs, addVPNClientNetwatch(client)...)
+	return errs
+}
+
+func setUpGatewayRouting(client *routeros.Client, gateway string) []error {
+	var errs []error
+	try := func(what string, err error) {
+		if err != nil {
+			errs = append(errs, fmt.Errorf("foreign gateway %s %s: %w", gateway, what, err))
+		}
+	}
+	listComment := "VPN-" + gateway
+
+	try("routing table", ensureRoutingTable(client, vpnClientRoutingTable, wgClientComment))
+	try("WAN interface list member", ensureInterfaceListMember(client, "WAN", gateway, listComment))
+	try("VPN-WAN interface list member", ensureInterfaceListMember(client, "VPN-WAN", gateway, listComment))
+	errs = append(errs, addVPNClientRoutes(client, gateway)...)
+
+	exists, err := client.NetwatchExistsByComment(vpnClientNetwatchComment)
+	if err != nil {
+		return append(errs, err)
+	}
+	if !exists {
+		errs = append(errs, addVPNClientNetwatch(client)...)
+	}
+	return errs
+}
+
+func addVPNClientRoutes(client *routeros.Client, gateway string) []error {
+	const (
+		routeComment = reconfigGatewayRouteComment
+		ping         = "ping"
+	)
+	routes := []routeros.RouteConfig{
+		{DstAddress: "0.0.0.0/0", Gateway: gateway, RoutingTable: vpnClientRoutingTable, Scope: 30, TargetScope: 10, Comment: routeComment},
+		{DstAddress: vpnClientCheckHost, Gateway: gateway, RoutingTable: vpnClientRoutingTable, CheckGateway: ping, Distance: 1, TargetScope: 11, Comment: routeComment},
+		{DstAddress: "0.0.0.0/0", Gateway: gateway, RoutingTable: vpnRoutingTable, Distance: 1, Comment: routeComment},
+		{DstAddress: vpnClientCheckHost, Gateway: gateway, RoutingTable: vpnRoutingTable, CheckGateway: ping, Distance: 1, TargetScope: 11, Comment: routeComment},
+		{DstAddress: vpnClientCheckHost, Gateway: gateway, RoutingTable: "main", Scope: 10, Comment: routeComment},
+		{DstAddress: "0.0.0.0/0", Gateway: vpnClientCheckHost, RoutingTable: "main", CheckGateway: ping, Distance: 1, TargetScope: 11, Comment: vpnClientCheckRouteComment},
+		{DstAddress: "0.0.0.0/0", Blackhole: true, RoutingTable: vpnClientRoutingTable, Distance: 99, Comment: "Blackhole"},
+		{DstAddress: "192.168.100.0/24", Gateway: "100.64.0.1", RoutingTable: vpnClientRoutingTable, Distance: 1, Comment: "Route-to-Foreign-Foreign Link 1"},
+	}
+
+	var errs []error
+	for i := range routes {
+		if _, err := client.AddRoute(routes[i]); err != nil {
+			errs = append(errs, fmt.Errorf("VPN client route: %w", err))
+		}
+	}
+	return errs
+}
+
+func addVPNClientNetwatch(client *routeros.Client) []error {
+	interval, timeout, zeroMs, zeroS := "5s", "2s", "0ms", "0s"
+	up := `/ip route enable [find comment="` + vpnClientCheckRouteComment + `"]; `
+	down := `/ip route disable [find comment="` + vpnClientCheckRouteComment + `"]; `
+	ignoreDown, ignoreUp := false, true
+	comment := vpnClientNetwatchComment
+
+	_, err := client.AddNetwatch(routeros.AddNetwatchParams{
+		Host: vpnClientCheckHost, Type: routeros.NetwatchTypeICMP, Interval: &interval, Timeout: &timeout,
+		IgnoreInitialDown: &ignoreDown, IgnoreInitialUp: &ignoreUp, StartDelay: &zeroMs, StartupDelay: &zeroS,
+		UpScript: &up, DownScript: &down, Comment: &comment,
+	})
+	if err != nil {
+		return []error{fmt.Errorf("VPN client netwatch: %w", err)}
+	}
+	return nil
+}
+
+func ensureBridge(client *routeros.Client, name, comment string) error {
+	exists, err := client.BridgeExists(name)
+	if err != nil || exists {
+		return err
+	}
+	_, err = client.AddBridgeInterface(routeros.BridgeConfig{Name: name, Comment: comment})
+	return err
+}
+
+func ensureInterfaceList(client *routeros.Client, name, comment string) error {
+	exists, err := client.InterfaceListExists(name)
+	if err != nil || exists {
+		return err
+	}
+	_, err = client.AddInterfaceList(routeros.InterfaceListConfig{Name: name, Comment: comment})
+	return err
+}
+
+func ensureRoutingTable(client *routeros.Client, name, comment string) error {
+	exists, err := client.RoutingTableExists(name)
+	if err != nil || exists {
+		return err
+	}
+	_, err = client.AddRoutingTable(routeros.RoutingTableConfig{Name: name, FIB: true, Comment: comment})
+	return err
+}
+
+func ensureInterfaceListMember(client *routeros.Client, list, iface, comment string) error {
+	exists, err := client.InterfaceListMemberExists(list, iface)
+	if err != nil || exists {
+		return err
+	}
+	_, err = client.AddInterfaceListMemberWithComment(list, iface, comment)
+	return err
+}
+
+const (
+	ovpnServerAuth            = "sha1,md5,sha256,sha384,sha512"
+	ovpnServerCipher          = "blowfish128,aes128-cbc,aes192-cbc,aes256-cbc,aes128-gcm,aes192-gcm,aes256-gcm"
+	ovpnServerRedirectGateway = "def1"
+	ovpnServerKeepalive       = 60
+	vpnReplyRoutingRule       = "Route VPN Server Replies via Domestic WAN"
+)
+
+func restoreOvpnServers(client *routeros.Client, stored *db.StoredConfig) []error {
+	if len(stored.OvpnServers) == 0 {
+		return nil
+	}
+	if !hasDomesticWAN(stored.WANs) {
+		return []error{errors.New("the OpenVPN servers were not restored because no domestic WAN is configured")}
+	}
+
+	replyRuleID, replyRuleErr := client.GetMangleRuleIDByComment(vpnReplyRoutingRule)
+
+	var errs []error
+	for i := range stored.OvpnServers {
+		server := &stored.OvpnServers[i]
+
+		missing, err := ensureOvpnCertificates(client, server)
+		switch {
+		case err != nil:
+			errs = append(errs, err)
+			continue
+		case missing != "":
+			errs = append(errs, fmt.Errorf(
+				"OpenVPN server %s was not restored: certificate %s does not exist and there are no files to import it from",
+				server.Name, missing))
+			continue
+		}
+
+		errs = append(errs, restoreOvpnServer(client, server, replyRuleID, replyRuleErr)...)
+	}
+	return append(errs, restoreOvpnUsers(client, stored.VPNUsers)...)
+}
+
+func restoreOvpnUsers(client *routeros.Client, users []db.VPNUser) []error {
+	var errs []error
+	for i := range users {
+		user := &users[i]
+		if user.Profile != wizardVPNProfile {
+			continue
+		}
+		_, err := client.CreatePppSecret(routeros.CreatePppSecretParams{
+			Name: user.Username, Password: user.Password, Service: reconfigVPNUserSecret, Profile: wizardVPNProfile,
+		})
+		if err != nil {
+			errs = append(errs, fmt.Errorf("OpenVPN user %s: %w", user.Username, err))
+		}
+	}
+	return errs
+}
+
+func restoreOvpnServer(client *routeros.Client, server *db.OvpnServer, replyRuleID string, replyRuleErr error) []error {
+	suffix := strconv.FormatInt(server.CertificateTimestamp, 10)
+	_, err := client.AddOvpnServer(routeros.AddOvpnServerConfig{
+		Name:              server.Name,
+		Port:              server.Port,
+		Mode:              "ip",
+		Protocol:          server.Protocol,
+		Certificate:       "ovpn-server-" + suffix,
+		Disabled:          !server.Enabled,
+		Auth:              ovpnServerAuth,
+		Cipher:            ovpnServerCipher,
+		RequireClientCert: true,
+		KeepAliveTimeout:  ovpnServerKeepalive,
+		RedirectGateway:   ovpnServerRedirectGateway,
+		DefaultProfile:    "default",
+		Comment:           ovpnServerCommentPrefix + server.ClientCertificatePassword,
+	})
+	if err != nil {
+		return []error{fmt.Errorf("OpenVPN server %s: %w", server.Name, err)}
+	}
+
+	var errs []error
+	dstPort := strconv.Itoa(server.Port)
+	_, err = client.AddFirewallRule(routeros.FirewallRuleConfig{
+		Chain: "input", Action: "accept", Protocol: server.Protocol, DstPort: dstPort,
+		InInterfaceList: vpnServerAllowedInterfaceList, Comment: server.Name,
+	})
+	if err != nil {
+		errs = append(errs, fmt.Errorf("OpenVPN server %s firewall rule: %w", server.Name, err))
+	}
+
+	if replyRuleErr != nil {
+		return append(errs, fmt.Errorf("OpenVPN server %s reply routing mangle rule: %w", server.Name, replyRuleErr))
+	}
+	_, err = client.AddMangleRule(routeros.MangleRuleConfig{
+		Chain: "input", Action: "mark-connection", Comment: "Mark Inbound " + server.Name, ConnectionState: "new",
+		InIfaceList: vpnServerAllowedInterfaceList, Protocol: server.Protocol, DstPort: dstPort,
+		NewConnectionMark: "conn-vpn-server", PassThrough: true, PlaceBefore: replyRuleID,
+	})
+	if err != nil {
+		errs = append(errs, fmt.Errorf("OpenVPN server %s mangle rule: %w", server.Name, err))
+	}
+	return errs
+}
+
+func hasDomesticWAN(wans []db.WAN) bool {
+	for i := range wans {
+		if wans[i].Type == "domestic" {
+			return true
+		}
+	}
+	return false
+}
+
+func markReconfigPending(client *routeros.Client, tag string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), reconfigSaveTimeout)
+	defer cancel()
+
+	conn, err := databaseForClient(ctx, client)
+	if err == nil {
+		err = db.UpsertSetting(ctx, conn, settingKeyPendingReconfig, tag)
+	}
+	if err != nil {
+		log.Printf("[app-update] failed to schedule the reconfiguration after %s: %v", tag, err)
+		return false
+	}
+	return true
+}
+
+func clearReconfigPending(client *routeros.Client) {
+	ctx, cancel := context.WithTimeout(context.Background(), reconfigSaveTimeout)
+	defer cancel()
+
+	conn, err := databaseForClient(ctx, client)
+	if err == nil {
+		err = db.DeleteSetting(ctx, conn, settingKeyPendingReconfig)
+	}
+	if err != nil && !errors.Is(err, db.ErrSettingNotFound) {
+		log.Printf("[app-update] failed to clear the scheduled reconfiguration: %v", err)
+	}
+}
+
+func loadReconfigJob(host string) (*reconfigJob, bool) {
+	value, ok := reconfigJobs.Load(host)
+	if !ok {
+		return nil, false
+	}
+	job, ok := value.(*reconfigJob)
+	return job, ok
+}
+
+func runningVersionIs(tag string) bool {
+	target, ok := parseReleaseVersion(tag)
+	if !ok {
+		return false
+	}
+	current, ok := parseReleaseVersion(buildinfo.Version)
+	return ok && compareReleaseVersions(target, current) == 0
+}
+
+func reconfigStatusAfterUpdate(ctx context.Context, client *routeros.Client, creds *auth.Credentials) *ReconfigStatusResponse {
+	reconfigResumeMu.Lock()
+	defer reconfigResumeMu.Unlock()
+
+	if job, ok := loadReconfigJob(creds.RouterOSHost); ok {
+		status := job.snapshot()
+		return &status
+	}
+
+	conn, err := databaseForClient(ctx, client)
+	if err != nil {
+		return nil
+	}
+	setting, err := db.GetSetting(ctx, conn, settingKeyPendingReconfig)
+	if err != nil {
+		return nil
+	}
+	if !runningVersionIs(setting.Value) {
+		return &ReconfigStatusResponse{State: reconfigStatePending, Step: "Waiting for the update to be applied"}
+	}
+
+	if err := db.DeleteSetting(ctx, conn, settingKeyPendingReconfig); err != nil {
+		log.Printf("[app-update] failed to clear the scheduled reconfiguration: %v", err)
+	}
+	if _, err := startReconfig(ctx, client, creds); err != nil {
+		if job, ok := beginReconfig(creds.RouterOSHost); ok {
+			job.update("Starting the reconfiguration", 0)
+			job.fail(err.Error())
+		}
+	}
+	if job, ok := loadReconfigJob(creds.RouterOSHost); ok {
+		status := job.snapshot()
+		return &status
+	}
+	return nil
 }

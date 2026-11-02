@@ -463,7 +463,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Looks the version up among the GitHub releases and reads its minimum RouterOS version\nfrom the metadata embedded in the release body, 7.24 when the release has none. When the\nrouter runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal\nto the running one answers 200 with updateAvailable false, a lower one answers 400. Otherwise\npulls the release into a fresh nasnet-panel-update container and promotes it in the\nbackground; poll /api/app/update/status for progress.",
+                "description": "Looks the version up among the GitHub releases and reads its minimum RouterOS version\nfrom the metadata embedded in the release body, 7.24 when the release has none. When the\nrouter runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal\nto the running one answers 200 with updateAvailable false, a lower one answers 400. Otherwise\npulls the release into a fresh nasnet-panel-update container and promotes it in the\nbackground; poll /api/app/update/status for progress. When the release's autoReconfigable is true,\nthe router is reconfigured from its stored configuration after the new version is running, and\nthe progress is reported by the same status endpoint.",
                 "consumes": [
                     "application/json"
                 ],
@@ -655,7 +655,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Returns the current phase of an in-progress or completed self-update, the same state /api/app/update-status reports",
+                "description": "Returns the current phase of an in-progress or completed self-update, the same state /api/app/update-status reports.\nWhen the update was started for a release whose autoReconfigable is true, the response also carries the\nstate, current step and progress of the reconfiguration that runs once the new version is up. The new\nversion starts it the first time this endpoint is called after it came up; until then the state is pending.",
                 "produces": [
                     "application/json"
                 ],
@@ -12073,6 +12073,9 @@ const docTemplate = `{
         "handler.ReleaseUpdateResponse": {
             "type": "object",
             "properties": {
+                "autoReconfigable": {
+                    "type": "boolean"
+                },
                 "changelog": {
                     "type": "array",
                     "items": {
@@ -12084,9 +12087,6 @@ const docTemplate = `{
                 },
                 "minRouterosVersion": {
                     "type": "string"
-                },
-                "needsReconfigure": {
-                    "type": "boolean"
                 },
                 "prerelease": {
                     "type": "boolean"
@@ -12653,6 +12653,9 @@ const docTemplate = `{
                 "phase": {
                     "description": "idle, preparing, pulling, restarting, done, error",
                     "type": "string"
+                },
+                "reconfig": {
+                    "$ref": "#/definitions/handler.ReconfigStatusResponse"
                 },
                 "startedAt": {
                     "type": "string"

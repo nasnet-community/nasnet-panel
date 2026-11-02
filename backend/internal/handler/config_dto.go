@@ -13,6 +13,7 @@ import (
 
 const (
 	reconfigStateIdle      = "idle"
+	reconfigStatePending   = "pending"
 	reconfigStateRunning   = "running"
 	reconfigStateCompleted = "completed"
 	reconfigStateFailed    = "failed"
@@ -38,6 +39,12 @@ type ReconfigStatusResponse struct {
 	Warnings []string `json:"warnings,omitempty"`
 }
 
+type reconfigError struct {
+	Status  int
+	Message string
+	Err     error
+}
+
 type reconfigJob struct {
 	mu       sync.Mutex
 	state    string
@@ -50,7 +57,6 @@ type reconfigJob struct {
 type reconfigPlan struct {
 	templateData   map[string]any
 	stored         *db.StoredConfig
-	ovpnUsernames  map[string]bool
 	managementWifi WiFiAP
 	warnings       []string
 	livePorts      map[string]int
