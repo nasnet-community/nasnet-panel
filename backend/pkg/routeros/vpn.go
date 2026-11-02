@@ -1902,8 +1902,13 @@ func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 		"=name=" + config.PeerName,
 		"=interface=" + config.InterfaceName,
 		"=public-key=" + *config.PublicKey,
-		"=endpoint-address=" + config.EndpointAddress,
-		"=endpoint-port=" + strconv.Itoa(config.EndpointPort),
+	}
+
+	if config.EndpointAddress != "" {
+		args = append(args,
+			"=endpoint-address="+config.EndpointAddress,
+			"=endpoint-port="+strconv.Itoa(config.EndpointPort),
+		)
 	}
 
 	if len(config.AllowedAddresses) > 0 {

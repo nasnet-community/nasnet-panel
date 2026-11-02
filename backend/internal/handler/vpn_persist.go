@@ -125,6 +125,7 @@ func wireGuardInterfaceRecord(client *routeros.Client, nameOrID string) (*db.Wir
 		Type:       wgType,
 		PrivateKey: wg.PrivateKey,
 		Address:    address,
+		ListenPort: wg.ListenPort,
 		Enabled:    !wg.Disabled,
 	}
 	for i := range peers {

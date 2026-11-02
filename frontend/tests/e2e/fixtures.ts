@@ -134,7 +134,7 @@ export interface TestFixtures {
 export const test = base.extend<TestFixtures>({
   resetMocks: async ({ context }, use) => {
     // routers default to a completed wizard; gating specs override this route
-    await context.route('**/api/wizard/status', async (route) => {
+    await context.route('**/api/config/wizard/status', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -707,7 +707,7 @@ export const test = base.extend<TestFixtures>({
         managementWifi === undefined
           ? { ssid: 'NNC-Rescue-42', password: 'rescue-pass-4242' }
           : managementWifi;
-      await context.route('**/api/wizard/finalize', async (route) => {
+      await context.route('**/api/config/wizard/finalize', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -720,7 +720,7 @@ export const test = base.extend<TestFixtures>({
 
       const steps = wizardProgress ?? [100];
       let polls = 0;
-      await context.route('**/api/wizard/status', async (route) => {
+      await context.route('**/api/config/wizard/status', async (route) => {
         const progress = steps[Math.min(polls, steps.length - 1)] ?? 100;
         polls += 1;
         await route.fulfill({

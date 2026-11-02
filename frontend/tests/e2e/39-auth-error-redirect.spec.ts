@@ -25,7 +25,7 @@ test.describe('Auth and connectivity error handling', () => {
     await mockOverviewBackend({ id: 'rtr_down' });
 
     let reachable = false;
-    await context.route('**/api/wizard/status', async (route) => {
+    await context.route('**/api/config/wizard/status', async (route) => {
       if (!reachable) {
         await route.abort('connectionrefused');
         return;
@@ -56,7 +56,7 @@ test.describe('Auth and connectivity error handling', () => {
     await resetMocks();
     await seedRouter({ id: 'rtr_stale', name: 'Stale Router', host: '10.0.0.91' });
     await mockOverviewBackend({ id: 'rtr_stale' });
-    await context.route('**/api/wizard/status', async (route) => {
+    await context.route('**/api/config/wizard/status', async (route) => {
       await route.fulfill({ status: 401, contentType: 'application/json', body: unauthorized });
     });
 

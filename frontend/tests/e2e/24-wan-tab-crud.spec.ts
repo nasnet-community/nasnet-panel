@@ -469,7 +469,7 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, blankState());
 
     let claimCalls = 0;
-    await context.route('**/api/wizard/vpn', async (route) => {
+    await context.route('**/api/config/vpn', async (route) => {
       if (route.request().method() !== 'POST') return route.fallback();
       claimCalls += 1;
       await route.fulfill({

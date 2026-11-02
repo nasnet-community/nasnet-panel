@@ -14,16 +14,16 @@ import (
 // bridge the interface is a port of, if any. AuthTypes is the comma separated
 // list of authentication types.
 type WiFi struct {
-	Name        string
-	DefaultName string
-	SSID        string
-	Password    string
-	Enabled     bool
-	Mode        string
-	IsVirtual   bool
-	Master      string
-	Bridge      string
-	AuthTypes   string
+	Name        string `db:"name"`
+	DefaultName string `db:"default_name"`
+	SSID        string `db:"ssid"`
+	Password    string `db:"password"`
+	Enabled     bool   `db:"enabled"`
+	Mode        string `db:"mode"`
+	IsVirtual   bool   `db:"is_virtual"`
+	Master      string `db:"master"`
+	Bridge      string `db:"bridge"`
+	AuthTypes   string `db:"auth_types"`
 }
 
 // UpsertWiFi stores the WiFi, replacing the stored one with the same name.

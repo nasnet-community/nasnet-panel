@@ -11,13 +11,13 @@ import (
 // RouterOS .id and identifies it, so a rename or an address change updates the
 // same row.
 type DNSStaticEntry struct {
-	RouterID string
-	Name     string
-	Address  string
-	Type     string
-	TTL      string
-	Comment  string
-	Enabled  bool
+	RouterID string `db:"router_id"`
+	Name     string `db:"name"`
+	Address  string `db:"address"`
+	Type     string `db:"type"`
+	TTL      string `db:"ttl"`
+	Comment  string `db:"comment"`
+	Enabled  bool   `db:"enabled"`
 }
 
 // UpsertDNSStaticEntry stores the entry, replacing the stored one with the same router ID.

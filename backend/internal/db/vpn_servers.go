@@ -18,16 +18,16 @@ const (
 // IKEv2. A field that does not apply to the server type stays at its zero value.
 // CertificateTimestamp is the Unix timestamp in the names of the server's certificates.
 type VPNServer struct {
-	Type                    string
-	Enabled                 bool
-	Port                    int
-	DefaultProfile          string
-	Authentication          string
-	CertificateTimestamp    int64
-	VerifyClientCertificate bool
-	Ciphers                 string
-	UseIPsec                bool
-	IPsecSecret             string
+	Type                    string `db:"type"`
+	Enabled                 bool   `db:"enabled"`
+	Port                    int    `db:"port"`
+	DefaultProfile          string `db:"default_profile"`
+	Authentication          string `db:"authentication"`
+	CertificateTimestamp    int64  `db:"certificate_timestamp"`
+	VerifyClientCertificate bool   `db:"verify_client_certificate"`
+	Ciphers                 string `db:"ciphers"`
+	UseIPsec                bool   `db:"use_ipsec"`
+	IPsecSecret             string `db:"ipsec_secret"`
 }
 
 // UpsertVPNServer stores the server configuration, replacing the stored one of the same type.

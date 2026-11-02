@@ -265,7 +265,7 @@ func toReleaseUpdateResponse(release *githubReleaseEntry) ReleaseUpdateResponse 
 		ReleaseURL:         release.HTMLURL,
 		MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
 		MinAppVersion:      minAppVersion,
-		Installable:        releaseInstallable(release.TagName, minAppVersion),
+		NeedsReconfigure:   !releaseSeamlessUpdate(release.TagName, minAppVersion),
 		Changelog:          releaseChanges(release.Body),
 	}
 }
@@ -503,7 +503,7 @@ func compareForInstall(target, current releaseVersion) int {
 	return cmp
 }
 
-func releaseInstallable(tag, minAppVersion string) bool {
+func releaseSeamlessUpdate(tag, minAppVersion string) bool {
 	if buildinfo.Version == localDevVersion {
 		_, ok := parseReleaseVersion(tag)
 		return ok

@@ -9,13 +9,13 @@ import (
 
 // L2TPClient is an L2TP client. Name identifies it on the router.
 type L2TPClient struct {
-	Name        string
-	Comment     string
-	ConnectTo   string
-	User        string
-	Password    string
-	IPsecSecret string
-	Enabled     bool
+	Name        string `db:"name"`
+	Comment     string `db:"comment"`
+	ConnectTo   string `db:"connect_to"`
+	User        string `db:"user"`
+	Password    string `db:"password"`
+	IPsecSecret string `db:"ipsec_secret"`
+	Enabled     bool   `db:"enabled"`
 }
 
 func upsertL2TPClientImpl(ctx context.Context, ext sqlx.ExtContext, client *L2TPClient) error {
