@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BookMarked, Pencil, Plus, Trash2 } from 'lucide-react';
+import { BookMarked, Pencil, Plus, SearchX, Trash2 } from 'lucide-react';
 import {
   Button,
   Card,
@@ -10,6 +10,7 @@ import {
   ConfirmDialog,
   DataTable,
   Inline,
+  Skeleton,
   Switch,
   useToast,
   type DataTableColumn,
@@ -169,30 +170,28 @@ export function StaticDnsCard({ creds }: Props) {
       key: 'actions',
       header: '',
       sortable: false,
-      width: '110px',
+      width: '200px',
       render: (row) => (
-        <span style={{ display: 'inline-flex', gap: 8 }}>
+        <Inline>
           <Button
             size="sm"
             variant="secondary"
             disabled={!creds}
-            title={t('dns.static.editFor', { name: row.name })}
             aria-label={t('dns.static.editFor', { name: row.name })}
             onClick={() => setEditing(row)}
           >
-            <Pencil size={14} aria-hidden />
+            <Pencil size={14} aria-hidden /> {t('dns.edit')}
           </Button>
           <Button
             size="sm"
             variant="danger"
             disabled={!creds}
-            title={t('dns.static.deleteFor', { name: row.name })}
             aria-label={t('dns.static.deleteFor', { name: row.name })}
             onClick={() => setPendingDelete(row)}
           >
-            <Trash2 size={14} aria-hidden />
+            <Trash2 size={14} aria-hidden /> {t('dns.static.delete')}
           </Button>
-        </span>
+        </Inline>
       ),
     },
   ];
@@ -209,14 +208,22 @@ export function StaticDnsCard({ creds }: Props) {
           <CardDescription>{t('dns.static.description')}</CardDescription>
         </div>
         <div className={styles.headerActions}>
-          <Button size="sm" variant="primary" onClick={() => setAdding(true)} disabled={!creds}>
+          <Button size="sm" variant="secondary" onClick={() => setAdding(true)} disabled={!creds}>
             <Plus size={14} aria-hidden /> {t('dns.static.add')}
           </Button>
         </div>
       </CardHeader>
 
-      {error ? (
+      {loading && entries.length === 0 ? (
+        <div className={styles.skeletonGrid} data-testid="static-dns-skeleton">
+          <Skeleton width={140} height={14} />
+          <Skeleton height={36} />
+          <Skeleton width={140} height={14} />
+          <Skeleton height={36} />
+        </div>
+      ) : error ? (
         <div className={styles.errorNote}>
+          <SearchX size={28} aria-hidden className={styles.errorIcon} />
           <p>{error}</p>
         </div>
       ) : (
@@ -224,7 +231,7 @@ export function StaticDnsCard({ creds }: Props) {
           columns={columns}
           rows={entries}
           rowKey={(row) => row.id}
-          emptyMessage={loading ? t('dns.static.loading') : t('dns.static.empty')}
+          emptyMessage={t('dns.static.empty')}
         />
       )}
 
