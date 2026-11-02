@@ -24,13 +24,20 @@ export function DomesticBlockCard({ creds, info }: Props) {
   const [block, setBlock] = useState<DomesticBlockResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!creds) return;
     fetchDomesticBlock(creds)
-      .then(setBlock)
-      .catch(() => setBlock(null));
-  }, [creds]);
+      .then((state) => {
+        setBlock(state);
+        setError(null);
+      })
+      .catch((err: unknown) => {
+        setBlock(null);
+        setError(err instanceof Error ? err.message : t('firewall.domestic.blockLoadFailed'));
+      });
+  }, [creds, t]);
 
   const apply = async (next: boolean) => {
     if (!creds) return;
@@ -105,6 +112,7 @@ export function DomesticBlockCard({ creds, info }: Props) {
       <p className={styles.settingHint}>
         {partial ? t('firewall.domestic.blockPartial') : t('firewall.domestic.blockHint')}
       </p>
+      {error ? <div className={styles.errorBanner}>{error}</div> : null}
 
       {summary.length ? (
         <>

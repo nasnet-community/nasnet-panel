@@ -9,9 +9,9 @@ import { isCIDR, isIPv4 } from '../../utils/validators';
 const TIMEOUTS = ['1h', '6h', '1d', '7d', '30d'] as const;
 const KEEP_TIMEOUT = 'keep';
 
-// The backend rejects /0, which would match every address.
+// The backend rejects a /0 range (also written /00), which would match every address.
 const isDomesticAddress = (value: string): boolean =>
-  isIPv4(value) || (isCIDR(value) && !value.endsWith('/0'));
+  isIPv4(value) || (isCIDR(value) && Number(value.split('/')[1]) !== 0);
 
 interface Props {
   entry: DomesticAddress | null;

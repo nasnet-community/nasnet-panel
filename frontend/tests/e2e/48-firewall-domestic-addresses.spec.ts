@@ -169,7 +169,7 @@ test.describe('Firewall page domestic addresses', () => {
     await expect(dialog.getByRole('combobox', { name: 'Timeout' })).toHaveCount(0);
 
     const address = dialog.getByLabel('Address or range');
-    for (const bad of ['0.0.0.0/0', '2001:db8::/32', '10.0.0.300']) {
+    for (const bad of ['0.0.0.0/0', '0.0.0.0/00', '2001:db8::/32', '10.0.0.300']) {
       await address.fill(bad);
       await dialog.getByRole('button', { name: 'Save' }).click();
       await expect(dialog).toContainText('Enter an IPv4 address or range');
@@ -316,5 +316,24 @@ test.describe('Firewall page domestic addresses', () => {
     releaseOther();
     await expect(side).toContainText('Total entries');
     await expect(card).toContainText('No addresses added yet.');
+  });
+
+  test('explains when the block status cannot be loaded', async ({ page }) => {
+    await mockFirewall(page);
+    await page.route('**/api/firewall/domestic', async (route) => {
+      if (route.request().method() !== 'GET') return route.fallback();
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: failure(500, 'Failed to read domestic block rules', 'router timed out'),
+      });
+    });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    const side = page.getByTestId('domestic-block-card');
+    await expect(side).toContainText('router timed out');
+    await expect(
+      side.getByRole('switch', { name: 'Block traffic to domestic addresses' }),
+    ).toBeDisabled();
   });
 });

@@ -188,6 +188,7 @@
       "block": "Block traffic to domestic addresses",
       "blockHint": "Drops traffic from your network and from the router itself to any address in the list.",
       "blockPartial": "Only some of the block rules are enabled on the router. Turn the switch on or off to set them all.",
+      "blockLoadFailed": "Failed to load the domestic block status.",
       "info": {
         "total": "Total entries",
         "auto": "Updated automatically",
