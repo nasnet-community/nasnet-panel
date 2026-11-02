@@ -24,6 +24,7 @@ export {
   fetchInterfaces,
   fetchEthernetInterfaces,
   testEthernetCable,
+  resetInterfaceTrafficCounter,
   type CableTestResponse,
   updateWanInterface,
   type WanInterfaceType,
