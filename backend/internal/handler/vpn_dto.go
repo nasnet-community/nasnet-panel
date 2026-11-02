@@ -9,6 +9,12 @@ import (
 	"nasnet-panel/pkg/routeros"
 )
 
+type l2tpRuleSpec struct {
+	protocol string
+	dstPort  string
+	suffix   string
+}
+
 // VPNClientResponse represents a VPN client in the API response.
 type VPNClientResponse struct {
 	ID           string `json:"id"`
