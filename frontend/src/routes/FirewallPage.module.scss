@@ -310,3 +310,58 @@
   padding: 10px var(--space-sm);
   border-bottom: 1px dashed var(--color-border);
 }
+
+.domesticBlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.domesticBlockTitle {
+  font-size: var(--font-md);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.domesticBlockHint {
+  margin: 4px 0 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.domesticSummary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+  margin: 0;
+  padding: var(--space-md) 0;
+}
+
+.domesticSummaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  dt {
+    font-size: var(--font-xs);
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--font-md);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 768px) {
+  .domesticSummary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

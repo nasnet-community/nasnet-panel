@@ -31,6 +31,7 @@ import { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from 
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { useFormat } from '../utils/useFormat';
+import { DomesticAddressCard } from './firewall/DomesticAddressCard';
 
 // Chain names are RouterOS values and stay untranslated.
 const CHAINS = ['input', 'forward', 'output'] as const;
@@ -500,6 +501,8 @@ export function FirewallPage() {
           loading={loading}
         />
       </div>
+
+      <DomesticAddressCard creds={creds} />
 
       <Card data-testid="firewall-rules">
         <CardHeader className={styles.cardHeader}>

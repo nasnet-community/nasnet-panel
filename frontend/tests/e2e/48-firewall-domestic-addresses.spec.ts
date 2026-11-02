@@ -1,0 +1,261 @@
+import type { Page, Route } from '@playwright/test';
+import { test, expect } from './fixtures';
+
+const ROUTER_ID = 'rtr_fw_domestic';
+
+const envelope = <T>(data: T, status = 200) => JSON.stringify({ status, message: 'OK', data });
+const failure = (status: number, message: string, error = '') =>
+  JSON.stringify({ status, message, error });
+
+interface Entry {
+  id: string;
+  address: string;
+  timeout?: string;
+  creationTime: string;
+}
+
+interface Call {
+  method: string;
+  path: string;
+  body: unknown;
+}
+
+// Serves the firewall endpoints the page reads from an in-memory state and
+// records every write so a test can assert what the page sent.
+async function mockFirewall(page: Page, initial: { entries?: Entry[]; block?: boolean } = {}) {
+  const entries = [...(initial.entries ?? [])];
+  let block = initial.block ?? false;
+  const calls: Call[] = [];
+  let nextId = 100;
+
+  const blockState = () => ({
+    block,
+    rules: [
+      { id: '*F1', chain: 'forward', disabled: !block },
+      { id: '*F2', chain: 'output', disabled: !block },
+    ],
+  });
+
+  await page.route('**/api/firewall/**', async (route: Route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    const method = request.method();
+    const json = (data: unknown, status = 200) =>
+      route.fulfill({ status, contentType: 'application/json', body: envelope(data, status) });
+
+    if (method === 'GET') {
+      if (path === '/api/firewall/rules') return json([]);
+      if (path === '/api/firewall/domestic') return json(blockState());
+      if (path === '/api/firewall/addresslist/domestic') return json(entries);
+      if (path === '/api/firewall/addresslist/domestic/info') {
+        return json({
+          totalEntries: 1200 + entries.length,
+          autoEntries: 1200,
+          manualEntries: entries.length,
+          lastUpdate: '2026-10-30 04:00:00',
+        });
+      }
+      return route.fallback();
+    }
+
+    const body = request.postData() ? request.postDataJSON() : null;
+    calls.push({ method, path, body });
+
+    if (path === '/api/firewall/domestic') {
+      block = (body as { block: boolean }).block;
+      return json(blockState());
+    }
+    if (method === 'POST') {
+      const { address } = body as { address: string };
+      entries.push({ id: `*${nextId++}`, address, creationTime: '2026-11-02 10:00:00' });
+      return json({ address }, 201);
+    }
+    const id = decodeURIComponent(path.split('/').pop() ?? '');
+    const index = entries.findIndex((e) => e.id === id);
+    if (method === 'PUT') {
+      entries[index] = { ...entries[index], ...(body as Partial<Entry>) };
+      return json(entries[index]);
+    }
+    entries.splice(index, 1);
+    return json(undefined);
+  });
+
+  return calls;
+}
+
+const office: Entry = {
+  id: '*1A',
+  address: '203.0.113.0/24',
+  creationTime: '2026-10-28 09:15:00',
+};
+
+test.describe('Firewall page domestic addresses', () => {
+  test.beforeEach(async ({ context, resetMocks, seedRouter, mockOverviewBackend }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'FW Router', host: '10.0.0.20', model: 'hAP ax3' });
+    await mockOverviewBackend({ id: ROUTER_ID, model: 'hAP ax3' });
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+  });
+
+  test('shows the list summary and the user-added addresses', async ({ page }) => {
+    await mockFirewall(page, { entries: [office] });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    const card = page.getByTestId('domestic-addresses');
+    await expect(card).toContainText('1,201');
+    await expect(card).toContainText('2026-10-30 04:00:00');
+    const row = card.getByRole('row', { name: /203\.0\.113\.0\/24/ });
+    await expect(row).toContainText('Never');
+    await expect(
+      card.getByRole('switch', { name: 'Block traffic to domestic addresses' }),
+    ).not.toBeChecked();
+  });
+
+  test('turning the block on asks first, turning it off does not', async ({ page }) => {
+    const calls = await mockFirewall(page);
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    const toggle = page.getByRole('switch', { name: 'Block traffic to domestic addresses' });
+    await toggle.click();
+    const confirm = page.getByRole('dialog');
+    await expect(
+      confirm.getByRole('heading', { name: 'Block traffic to domestic addresses?' }),
+    ).toBeVisible();
+    expect(calls).toHaveLength(0);
+    await confirm.getByRole('button', { name: 'Block' }).click();
+    await expect(toggle).toBeChecked();
+
+    await toggle.click();
+    await expect(toggle).not.toBeChecked();
+    expect(calls).toEqual([
+      { method: 'PUT', path: '/api/firewall/domestic', body: { block: true } },
+      { method: 'PUT', path: '/api/firewall/domestic', body: { block: false } },
+    ]);
+  });
+
+  test('adds an address after validating it', async ({ page }) => {
+    const calls = await mockFirewall(page);
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    const card = page.getByTestId('domestic-addresses');
+    await card.getByRole('button', { name: 'Add address' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('heading', { name: 'Add domestic address' })).toBeVisible();
+    await expect(dialog.getByLabel('Timeout')).toHaveCount(0);
+
+    const address = dialog.getByLabel('Address or range');
+    for (const bad of ['0.0.0.0/0', '2001:db8::/32', '10.0.0.300']) {
+      await address.fill(bad);
+      await dialog.getByRole('button', { name: 'Save' }).click();
+      await expect(dialog).toContainText('Enter an IPv4 address or range');
+    }
+    expect(calls).toHaveLength(0);
+
+    await address.fill(' 198.51.100.7 ');
+    await dialog.getByRole('button', { name: 'Save' }).click();
+    await expect(dialog).toBeHidden();
+    expect(calls).toEqual([
+      {
+        method: 'POST',
+        path: '/api/firewall/addresslist/domestic',
+        body: { address: '198.51.100.7' },
+      },
+    ]);
+    await expect(card.getByRole('row', { name: /198\.51\.100\.7/ })).toBeVisible();
+  });
+
+  test('shows why an address is rejected and keeps the dialog open', async ({ page }) => {
+    await mockFirewall(page, { entries: [office] });
+    await page.route('**/api/firewall/addresslist/domestic', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: failure(
+          409,
+          'Address is already in the domestic address list',
+          '203.0.113.9 is covered by 203.0.113.0/24',
+        ),
+      });
+    });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await page.getByRole('button', { name: 'Add address' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Address or range').fill('203.0.113.9');
+    await dialog.getByRole('button', { name: 'Save' }).click();
+
+    const notifications = page.getByRole('region', { name: 'Notifications' });
+    await expect(notifications).toContainText('Failed to add address');
+    await expect(notifications).toContainText('203.0.113.9 is covered by 203.0.113.0/24');
+    await expect(dialog).toBeVisible();
+  });
+
+  test('edits an address and its timeout', async ({ page }) => {
+    const calls = await mockFirewall(page, { entries: [office] });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await page.getByRole('button', { name: 'Edit 203.0.113.0/24' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByLabel('Address or range')).toHaveValue('203.0.113.0/24');
+
+    await dialog.getByLabel('Timeout').fill('soon');
+    await dialog.getByRole('button', { name: 'Save' }).click();
+    await expect(dialog).toContainText('Use a RouterOS time');
+    expect(calls).toHaveLength(0);
+
+    await dialog.getByLabel('Address or range').fill('203.0.113.0/25');
+    await dialog.getByLabel('Timeout').fill('7d');
+    await dialog.getByRole('button', { name: 'Save' }).click();
+    await expect(dialog).toBeHidden();
+    expect(calls).toEqual([
+      {
+        method: 'PUT',
+        path: '/api/firewall/addresslist/domestic/*1A',
+        body: { address: '203.0.113.0/25', timeout: '7d' },
+      },
+    ]);
+    const row = page.getByRole('row', { name: /203\.0\.113\.0\/25/ });
+    await expect(row).toContainText('7d');
+  });
+
+  test('editing without a timeout leaves it out of the request', async ({ page }) => {
+    const calls = await mockFirewall(page, { entries: [office] });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await page.getByRole('button', { name: 'Edit 203.0.113.0/24' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Address or range').fill('203.0.114.0/24');
+    await dialog.getByRole('button', { name: 'Save' }).click();
+    await expect(dialog).toBeHidden();
+    expect(calls[0].body).toEqual({ address: '203.0.114.0/24' });
+  });
+
+  test('deletes an address after confirm', async ({ page }) => {
+    const calls = await mockFirewall(page, { entries: [office] });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await page.getByRole('button', { name: 'Delete 203.0.113.0/24' }).click();
+    const confirm = page.getByRole('dialog');
+    await expect(confirm.getByRole('heading', { name: 'Delete domestic address' })).toBeVisible();
+    await confirm.getByRole('button', { name: 'Delete' }).click();
+
+    await expect(page.getByRole('row', { name: /203\.0\.113\.0\/24/ })).toBeHidden();
+    expect(calls).toEqual([
+      { method: 'DELETE', path: '/api/firewall/addresslist/domestic/*1A', body: null },
+    ]);
+  });
+});
