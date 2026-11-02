@@ -370,7 +370,7 @@ export function DNSPage() {
             )}
           </Card>
 
-          <StaticDnsCard creds={creds} />
+          <StaticDnsCard key={id} creds={creds} />
         </div>
 
         <aside className={styles.sidebar}>

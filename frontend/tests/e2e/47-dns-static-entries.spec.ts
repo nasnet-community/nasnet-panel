@@ -207,4 +207,45 @@ test.describe('DNS page static entries', () => {
     await expect(notifications).toContainText('Failed to add static DNS entry');
     await expect(dialog).toBeVisible();
   });
+
+  test('switching routers clears the previous router entries', async ({
+    page,
+    seedRouter,
+    mockDnsBackend,
+  }) => {
+    const OTHER_ID = 'rtr_dns_static_other';
+    await seedRouter({ id: OTHER_ID, name: 'Other Router', host: '10.20.30.2', model: 'hAP ax3' });
+    await mockDnsBackend({ id: OTHER_ID });
+
+    let releaseOther: () => void = () => {};
+    const otherPending = new Promise<void>((resolve) => {
+      releaseOther = resolve;
+    });
+    await page.route('**/api/dns/static', async (route) => {
+      const host = route.request().headers()['x-routeros-host'];
+      if (host === '10.20.30.2') {
+        await otherPending;
+        await route.fulfill({
+          contentType: 'application/json',
+          body: envelope([{ ...nas, id: '*9', name: 'other.lan', address: '10.0.0.9' }]),
+        });
+        return;
+      }
+      await route.fulfill({ contentType: 'application/json', body: envelope([nas]) });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/dns`);
+    const card = page.getByTestId('static-dns-card');
+    await expect(card.getByText('nas.lan')).toBeVisible();
+
+    // Client-side navigation, so the DNS page stays mounted like it does in the app.
+    await page.evaluate((id) => {
+      window.history.pushState({}, '', `/router/${id}/dns`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, OTHER_ID);
+
+    await expect(card.getByText('nas.lan')).toHaveCount(0);
+    releaseOther();
+    await expect(card.getByText('other.lan')).toBeVisible();
+  });
 });
