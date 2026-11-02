@@ -1282,6 +1282,70 @@ test.describe('WAN VPN clients section', () => {
     await expect(page.getByRole('row', { name: /office-sstp-client/ })).toBeHidden();
   });
 
+  test('resets client traffic via DELETE after confirm', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    let resetCalls = 0;
+    await context.route('**/api/vpn/clients', async (route) => {
+      const traffic = resetCalls ? 0 : 5 * 1024 * 1024;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([{ ...sstpClient, disabled: false, rxByte: traffic, txByte: traffic }]),
+      });
+    });
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+    await context.route('**/api/interface/traffic-counter/office-sstp-client', async (route) => {
+      if (route.request().method() === 'DELETE') {
+        resetCalls += 1;
+        await route.fulfill({ status: 204, body: '' });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    const row = page.getByRole('row', { name: /office-sstp-client/ });
+    await expect(row.getByText('5.00 MB').first()).toBeVisible();
+    await row.getByRole('button', { name: /reset traffic of office-sstp-client/i }).click();
+
+    const confirm = page.getByRole('dialog');
+    await expect(confirm.getByRole('heading', { name: 'Reset traffic counter' })).toBeVisible();
+    await confirm.getByRole('button', { name: 'Reset' }).click();
+
+    await expect.poll(() => resetCalls).toBe(1);
+    await expect(confirm).toBeHidden();
+    await expect(row.getByText('5.00 MB')).toHaveCount(0);
+  });
+
   test('renders empty-state icon when no clients are configured', async ({
     page,
     context,

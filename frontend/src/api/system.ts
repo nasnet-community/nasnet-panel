@@ -186,6 +186,16 @@ export async function testEthernetCable(
   );
 }
 
+export async function resetInterfaceTrafficCounter(
+  creds: SystemCredentials,
+  nameOrId: string,
+): Promise<void> {
+  await apiRequest<void>(`/api/interface/traffic-counter/${encodeURIComponent(nameOrId)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+  });
+}
+
 export type WanInterfaceType = 'foreign' | 'domestic';
 
 export interface UpdateWanInterfaceRequest {

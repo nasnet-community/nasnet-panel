@@ -10,6 +10,7 @@ import {
   deleteSSTPClient,
   deleteWireguardInterface,
   importWireguardConfig,
+  resetInterfaceTrafficCounter,
   updateL2TPClient,
   updateSSTPClient,
   type AddL2TPClientRequest,
@@ -66,8 +67,10 @@ export function ClientsSection({
   const [editing, setEditing] = useState<VPNClient | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNClient | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [pendingReset, setPendingReset] = useState<VPNClient | null>(null);
+  const [resetSubmitting, setResetSubmitting] = useState(false);
 
-  const dialogOpen = adding || editing !== null || pendingDelete !== null;
+  const dialogOpen = adding || editing !== null || pendingDelete !== null || pendingReset !== null;
   useEffect(() => {
     onDialogOpenChange?.(dialogOpen);
   }, [dialogOpen, onDialogOpenChange]);
@@ -266,6 +269,37 @@ export function ClientsSection({
     onChanged();
   };
 
+  const onConfirmReset = async () => {
+    if (!creds || !pendingReset) return;
+    const target = pendingReset;
+    setResetSubmitting(true);
+    try {
+      await resetInterfaceTrafficCounter(creds, target.name);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : t('clients.toast.trafficResetFailedDescription');
+      toast.notify({
+        title: t('clients.toast.trafficResetFailed'),
+        description: message,
+        tone: 'danger',
+      });
+      setResetSubmitting(false);
+      return;
+    }
+    setResetSubmitting(false);
+    setPendingReset(null);
+    toast.notify({
+      title: t('clients.toast.trafficReset', { name: target.name }),
+      tone: 'success',
+    });
+    onClientUpdated({ ...target, rxByte: 0, txByte: 0 });
+    onChanged();
+  };
+
   return (
     <Stack>
       <Card>
@@ -286,6 +320,7 @@ export function ClientsSection({
             onToggled={onChanged}
             onEdit={(c) => setEditing(c)}
             onDelete={(c) => setPendingDelete(c)}
+            onResetTraffic={(c) => setPendingReset(c)}
           />
           <PaginationControls
             page={paged.page}
@@ -352,6 +387,20 @@ export function ClientsSection({
         destructive
         onConfirm={onConfirmDelete}
         onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+      />
+      <ConfirmDialog
+        open={!!pendingReset}
+        title={t('clients.resetTraffic.title')}
+        description={
+          pendingReset
+            ? t('clients.resetTraffic.description', { name: pendingReset.name })
+            : undefined
+        }
+        confirmLabel={
+          resetSubmitting ? t('clients.resetTraffic.resetting') : t('clients.resetTraffic.confirm')
+        }
+        onConfirm={onConfirmReset}
+        onCancel={() => (resetSubmitting ? undefined : setPendingReset(null))}
       />
     </Stack>
   );
