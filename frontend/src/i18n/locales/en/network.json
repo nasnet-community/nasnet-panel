@@ -151,22 +151,7 @@
   },
   "firewall": {
     "allChains": "All chains",
-    "nodes": {
-      "ingress": "Ingress",
-      "input": "Input",
-      "router": "Router",
-      "output": "Output",
-      "egress": "Egress",
-      "forward": "Forward"
-    },
-    "diagramAria": "Firewall packet flow diagram",
-    "nodeAria_one": "{{label}}, {{n}} rule",
-    "nodeAria_other": "{{label}}, {{n}} rules",
-    "ruleCount_one": "{{n}} rule",
-    "ruleCount_other": "{{n}} rules",
-    "noRules": "No rules",
     "any": "any",
-    "noComment": "(no comment)",
     "loadFailed": "Failed to load firewall rules.",
     "columns": {
       "chain": "Chain",

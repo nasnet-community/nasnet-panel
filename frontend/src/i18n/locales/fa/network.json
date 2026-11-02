@@ -151,22 +151,7 @@
   },
   "firewall": {
     "allChains": "همه زنجیره‌ها",
-    "nodes": {
-      "ingress": "ورود",
-      "input": "ورودی",
-      "router": "روتر",
-      "output": "خروجی",
-      "egress": "خروج",
-      "forward": "عبوری"
-    },
-    "diagramAria": "نمودار جریان بسته‌ها در فایروال",
-    "nodeAria_one": "{{label}}، {{n}} قانون",
-    "nodeAria_other": "{{label}}، {{n}} قانون",
-    "ruleCount_one": "{{n}} قانون",
-    "ruleCount_other": "{{n}} قانون",
-    "noRules": "بدون قانون",
     "any": "هر",
-    "noComment": "(بدون توضیح)",
     "loadFailed": "بارگذاری قوانین فایروال ناموفق بود.",
     "columns": {
       "chain": "زنجیره",
