@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, ConfirmDialog, Divider, Switch, useToast } from '@nasnet/ui';
 import styles from '../FirewallPage.module.scss';
@@ -23,6 +23,8 @@ export function DomesticBlockCard({ creds, info }: Props) {
   const toast = useToast();
   const [block, setBlock] = useState<DomesticBlockResponse | null>(null);
   const [busy, setBusy] = useState(false);
+  // Blocks a second confirm click that lands before `busy` re-renders.
+  const busyRef = useRef(false);
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +42,8 @@ export function DomesticBlockCard({ creds, info }: Props) {
   }, [creds, t]);
 
   const apply = async (next: boolean) => {
-    if (!creds) return;
+    if (!creds || busyRef.current) return;
+    busyRef.current = true;
     setConfirming(false);
     setBusy(true);
     try {
@@ -63,6 +66,7 @@ export function DomesticBlockCard({ creds, info }: Props) {
         tone: 'danger',
       });
     } finally {
+      busyRef.current = false;
       setBusy(false);
     }
   };

@@ -336,4 +336,24 @@ test.describe('Firewall page domestic addresses', () => {
       side.getByRole('switch', { name: 'Block traffic to domestic addresses' }),
     ).toBeDisabled();
   });
+
+  test('a double click on delete sends one request', async ({ page }) => {
+    const calls = await mockFirewall(page, { entries: [office] });
+    let deletes = 0;
+    await page.route('**/api/firewall/addresslist/domestic/*', async (route) => {
+      if (route.request().method() !== 'DELETE') return route.fallback();
+      deletes += 1;
+      // Slow enough that the second click lands while the first delete is pending.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await route.fallback();
+    });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await page.getByRole('button', { name: 'Delete 203.0.113.0/24' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).dblclick();
+
+    await expect(page.getByRole('row', { name: /203\.0\.113\.0\/24/ })).toBeHidden();
+    expect(deletes).toBe(1);
+    expect(calls).toHaveLength(1);
+  });
 });

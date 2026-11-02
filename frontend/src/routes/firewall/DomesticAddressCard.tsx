@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
@@ -44,6 +44,8 @@ export function DomesticAddressCard({ creds, onInfo }: Props) {
   const [editing, setEditing] = useState<DomesticAddress | null>(null);
   const [pendingDelete, setPendingDelete] = useState<DomesticAddress | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // Blocks a second confirm click that lands before `deleting` re-renders.
+  const deletingRef = useRef(false);
 
   const reloadList = useCallback(async () => {
     if (!creds) return;
@@ -107,16 +109,19 @@ export function DomesticAddressCard({ creds, onInfo }: Props) {
   };
 
   const confirmDelete = async () => {
-    if (!creds || !pendingDelete) return;
+    if (!creds || !pendingDelete || deletingRef.current) return;
     const target = pendingDelete;
+    deletingRef.current = true;
     setDeleting(true);
     try {
       await deleteDomesticAddress(creds, target.id);
     } catch (err) {
       notifyError(t('firewall.domestic.toasts.deleteFailed'), err);
+      deletingRef.current = false;
       setDeleting(false);
       return;
     }
+    deletingRef.current = false;
     setDeleting(false);
     setPendingDelete(null);
     toast.notify({
