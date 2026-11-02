@@ -998,6 +998,7 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 		{"Restoring the SSTP server", func() []error { return restoreSSTPServer(client, stored.VPNServers) }},
 		{"Restoring the L2TP server", func() []error { return restoreL2TPServer(client, stored.VPNServers) }},
 		{"Restoring the OpenVPN servers", func() []error { return restoreOvpnServers(client, stored) }},
+		{"Restoring the OpenVPN users", func() []error { return restoreOvpnUsers(client, stored.VPNUsers) }},
 		{"Restoring VPN users", func() []error { return restoreVPNUsers(client, stored.VPNUsers) }},
 		{"Restoring WireGuard interfaces", func() []error { return restoreWireGuardInterfaces(client, stored.WireGuards, plan.livePorts) }},
 		{"Restoring the foreign gateway", func() []error { return restoreForeignGateway(client, stored.Settings[settingKeyForeignGateway]) }},
@@ -1028,9 +1029,6 @@ func restoreDomesticAddresses(client *routeros.Client, addresses []string) []err
 }
 
 func restoreStaticDNS(parent context.Context, client *routeros.Client, conn *sqlx.DB, entries []db.DNSStaticEntry) []error {
-	ctx, cancel := context.WithTimeout(parent, reconfigSaveTimeout)
-	defer cancel()
-
 	var errs []error
 	for i := range entries {
 		entry := &entries[i]
@@ -1046,15 +1044,19 @@ func restoreStaticDNS(parent context.Context, client *routeros.Client, conn *sql
 			}
 		}
 
-		if err := db.DeleteDNSStaticEntry(ctx, conn, entry.RouterID); err != nil {
-			errs = append(errs, err)
-		}
+		oldID := entry.RouterID
 		entry.RouterID = id
-		if err := db.UpsertDNSStaticEntry(ctx, conn, entry); err != nil {
+		if err := replaceStoredStaticDNS(parent, conn, oldID, entry); err != nil {
 			errs = append(errs, err)
 		}
 	}
 	return errs
+}
+
+func replaceStoredStaticDNS(parent context.Context, conn *sqlx.DB, oldID string, entry *db.DNSStaticEntry) error {
+	ctx, cancel := context.WithTimeout(parent, reconfigSaveTimeout)
+	defer cancel()
+	return db.ReplaceDNSStaticEntry(ctx, conn, oldID, entry)
 }
 
 func restoreSSTPClients(client *routeros.Client, clients []db.SSTPClient) []error {
@@ -1334,7 +1336,7 @@ func ensureOvpnCertificates(client *routeros.Client, server *db.OvpnServer) (str
 	suffix := strconv.FormatInt(server.CertificateTimestamp, 10)
 	certificates := []struct{ name, passphrase string }{
 		{"ovpn-ca-" + suffix, ""},
-		{"ovpn-server-" + suffix, ""},
+		{"ovpn-server-" + suffix, server.ClientCertificatePassword},
 		{"ovpn-client-" + suffix, server.ClientCertificatePassword},
 	}
 	for _, certificate := range certificates {
@@ -1983,7 +1985,7 @@ func restoreOvpnServers(client *routeros.Client, stored *db.StoredConfig) []erro
 
 		errs = append(errs, restoreOvpnServer(client, server, replyRuleID, replyRuleErr)...)
 	}
-	return append(errs, restoreOvpnUsers(client, stored.VPNUsers)...)
+	return errs
 }
 
 func restoreOvpnUsers(client *routeros.Client, users []db.VPNUser) []error {

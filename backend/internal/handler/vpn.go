@@ -3172,7 +3172,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	if err := client.ExportCertificate(serverName, ""); err != nil {
+	if err := client.ExportCertificate(serverName, req.ClientCertificatePassword); err != nil {
 		setError("Failed to export Server certificate: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
