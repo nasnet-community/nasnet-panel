@@ -127,7 +127,7 @@
     },
     "static": {
       "title": "Static DNS entries",
-      "description": "Names the router answers with a fixed IPv4 address, for devices on your network. Entries are A records with a one-day TTL.",
+      "description": "Names the router answers with a fixed IPv4 address, for devices on your network.",
       "add": "Add entry",
       "empty": "No static DNS entries yet.",
       "loadFailed": "Failed to load static DNS entries.",
