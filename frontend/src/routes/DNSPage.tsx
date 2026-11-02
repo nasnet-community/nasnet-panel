@@ -21,6 +21,7 @@ import {
 } from '@nasnet/ui';
 import styles from './DNSPage.module.scss';
 import { DNSChangeDialog, dnsTypeLabel } from './DNSChangeDialog';
+import { StaticDnsCard } from './dns/StaticDnsCard';
 import {
   ApiError,
   changeDns,
@@ -313,60 +314,64 @@ export function DNSPage() {
   return (
     <Stack>
       <div className={styles.layout}>
-        <Card>
-          <CardHeader className={styles.cardHeader}>
-            <div>
-              <CardTitle>
-                <Inline>
-                  <Globe size={16} aria-hidden /> DNS
-                </Inline>
-              </CardTitle>
-              <CardDescription>{t('dns.description')}</CardDescription>
-            </div>
-            <div className={styles.headerActions}>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={reload}
-                disabled={loading || resetting || flushing}
-              >
-                <RefreshCw size={14} aria-hidden /> {t('dns.refresh')}
-              </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => setConfirmingReset(true)}
-                disabled={loading || resetting || flushing || applyingFamily || !creds}
-              >
-                <RotateCcw size={14} aria-hidden />{' '}
-                {resetting ? t('dns.resetting') : t('dns.reset')}
-              </Button>
-            </div>
-          </CardHeader>
+        <div className={styles.mainColumn}>
+          <Card>
+            <CardHeader className={styles.cardHeader}>
+              <div>
+                <CardTitle>
+                  <Inline>
+                    <Globe size={16} aria-hidden /> DNS
+                  </Inline>
+                </CardTitle>
+                <CardDescription>{t('dns.description')}</CardDescription>
+              </div>
+              <div className={styles.headerActions}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={reload}
+                  disabled={loading || resetting || flushing}
+                >
+                  <RefreshCw size={14} aria-hidden /> {t('dns.refresh')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => setConfirmingReset(true)}
+                  disabled={loading || resetting || flushing || applyingFamily || !creds}
+                >
+                  <RotateCcw size={14} aria-hidden />{' '}
+                  {resetting ? t('dns.resetting') : t('dns.reset')}
+                </Button>
+              </div>
+            </CardHeader>
 
-          {loading && forwarders.length === 0 ? (
-            <div className={styles.skeletonGrid} data-testid="dns-skeleton">
-              <Skeleton width={140} height={14} />
-              <Skeleton height={36} />
-              <Skeleton width={140} height={14} />
-              <Skeleton height={36} />
-              <Skeleton width={140} height={14} />
-              <Skeleton height={36} />
-            </div>
-          ) : error ? (
-            <div className={styles.errorNote}>
-              <SearchX size={28} aria-hidden className={styles.errorIcon} />
-              <p>{error}</p>
-            </div>
-          ) : (
-            <DataTable
-              columns={columns}
-              rows={forwarders}
-              rowKey={(row) => row.name}
-              emptyMessage={t('dns.empty')}
-            />
-          )}
-        </Card>
+            {loading && forwarders.length === 0 ? (
+              <div className={styles.skeletonGrid} data-testid="dns-skeleton">
+                <Skeleton width={140} height={14} />
+                <Skeleton height={36} />
+                <Skeleton width={140} height={14} />
+                <Skeleton height={36} />
+                <Skeleton width={140} height={14} />
+                <Skeleton height={36} />
+              </div>
+            ) : error ? (
+              <div className={styles.errorNote}>
+                <SearchX size={28} aria-hidden className={styles.errorIcon} />
+                <p>{error}</p>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                rows={forwarders}
+                rowKey={(row) => row.name}
+                emptyMessage={t('dns.empty')}
+              />
+            )}
+          </Card>
+
+          <StaticDnsCard key={id} creds={creds} />
+        </div>
 
         <aside className={styles.sidebar}>
           <Card data-testid="family-dns-card">
