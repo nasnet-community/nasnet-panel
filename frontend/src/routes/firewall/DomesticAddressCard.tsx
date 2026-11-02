@@ -47,17 +47,30 @@ export function DomesticAddressCard({ creds, onInfo }: Props) {
   // Blocks a second confirm click that lands before `deleting` re-renders.
   const deletingRef = useRef(false);
 
+  // Bumped when the credentials change or the card unmounts, so a load that is still
+  // in flight for the previous router cannot overwrite the current list or summary.
+  const generationRef = useRef(0);
+  useEffect(
+    () => () => {
+      generationRef.current += 1;
+    },
+    [creds],
+  );
+
   const reloadList = useCallback(async () => {
     if (!creds) return;
+    const generation = generationRef.current;
     try {
       const [list, summary] = await Promise.all([
         fetchDomesticAddresses(creds),
         fetchDomesticAddressListInfo(creds),
       ]);
+      if (generation !== generationRef.current) return;
       setEntries(list);
       onInfo(summary);
       setError(null);
     } catch (err) {
+      if (generation !== generationRef.current) return;
       setError(err instanceof Error ? err.message : t('firewall.domestic.loadFailed'));
     }
   }, [creds, onInfo, t]);

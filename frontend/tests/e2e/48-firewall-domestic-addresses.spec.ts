@@ -356,4 +356,56 @@ test.describe('Firewall page domestic addresses', () => {
     expect(deletes).toBe(1);
     expect(calls).toHaveLength(1);
   });
+
+  test('a late response from the previous router does not replace the summary', async ({
+    page,
+    context,
+    seedRouter,
+  }) => {
+    const OTHER_ID = 'rtr_fw_domestic_late';
+    await seedRouter({ id: OTHER_ID, name: 'Late FW', host: '10.0.0.22', model: 'hAP ax3' });
+    await context.addInitScript((routerId) => {
+      const key = 'nasnet-panel.session-credentials.v1';
+      const map = JSON.parse(window.sessionStorage.getItem(key) ?? '{}') as Record<string, unknown>;
+      map[routerId] = { username: 'admin', password: 'test' };
+      window.sessionStorage.setItem(key, JSON.stringify(map));
+    }, OTHER_ID);
+    await mockFirewall(page, { entries: [office] });
+
+    // Hold the first router's list until after the switch, so it answers last.
+    let releaseFirst: () => void = () => {};
+    const firstPending = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
+      const host = route.request().headers()['x-routeros-host'];
+      if (host === '10.0.0.22') {
+        const path = new URL(route.request().url()).pathname;
+        const data = path.endsWith('/info')
+          ? { totalEntries: 7, autoEntries: 7, manualEntries: 0 }
+          : [];
+        await route.fulfill({ contentType: 'application/json', body: envelope(data) });
+        return;
+      }
+      await firstPending;
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+    const side = page.getByTestId('domestic-block-card');
+    await expect(side.getByRole('switch')).toBeVisible();
+
+    await page.evaluate((id) => {
+      window.history.pushState({}, '', `/router/${id}/firewall`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, OTHER_ID);
+    await expect(side).toContainText('Total entries');
+    await expect(side.getByText('7', { exact: true }).first()).toBeVisible();
+
+    releaseFirst();
+    // Give the first router's response time to arrive and be ignored.
+    await page.waitForTimeout(500);
+    await expect(side).not.toContainText('1,201');
+    await expect(page.getByTestId('domestic-addresses')).not.toContainText('203.0.113.0/24');
+  });
 });
