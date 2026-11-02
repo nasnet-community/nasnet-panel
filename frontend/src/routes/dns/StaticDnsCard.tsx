@@ -208,7 +208,7 @@ export function StaticDnsCard({ creds }: Props) {
           <CardDescription>{t('dns.static.description')}</CardDescription>
         </div>
         <div className={styles.headerActions}>
-          <Button size="sm" variant="secondary" onClick={() => setAdding(true)} disabled={!creds}>
+          <Button size="sm" variant="success" onClick={() => setAdding(true)} disabled={!creds}>
             <Plus size={14} aria-hidden /> {t('dns.static.add')}
           </Button>
         </div>
