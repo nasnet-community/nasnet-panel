@@ -148,5 +148,7 @@
 }
 
 .domesticSummaryDate dd {
-  font-size: var(--font-sm);
+  font-size: var(--font-xs);
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
