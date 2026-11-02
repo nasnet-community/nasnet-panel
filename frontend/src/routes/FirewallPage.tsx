@@ -65,6 +65,12 @@ export function FirewallPage() {
   const [error, setError] = useState<string | null>(null);
   const [chain, setChain] = useState<string>('');
   const [domesticInfo, setDomesticInfo] = useState<DomesticAddressListInfo | null>(null);
+  // Drop the previous router's summary as soon as the router changes.
+  const [domesticRouter, setDomesticRouter] = useState(id);
+  if (domesticRouter !== id) {
+    setDomesticRouter(id);
+    setDomesticInfo(null);
+  }
   const inFlightRef = useRef(false);
 
   const creds = useMemo<FirewallCredentials | null>(() => {
@@ -240,9 +246,9 @@ export function FirewallPage() {
   return (
     <Stack>
       <div className={styles.domesticLayout}>
-        <DomesticAddressCard creds={creds} onInfo={setDomesticInfo} />
+        <DomesticAddressCard key={id} creds={creds} onInfo={setDomesticInfo} />
         <aside>
-          <DomesticBlockCard creds={creds} info={domesticInfo} />
+          <DomesticBlockCard key={id} creds={creds} info={domesticInfo} />
         </aside>
       </div>
 

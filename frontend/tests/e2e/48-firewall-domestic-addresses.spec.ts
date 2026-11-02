@@ -269,4 +269,52 @@ test.describe('Firewall page domestic addresses', () => {
       { method: 'DELETE', path: '/api/firewall/addresslist/domestic/*1A', body: null },
     ]);
   });
+
+  test('switching routers clears the previous router addresses and summary', async ({
+    page,
+    context,
+    seedRouter,
+  }) => {
+    const OTHER_ID = 'rtr_fw_domestic_other';
+    await seedRouter({ id: OTHER_ID, name: 'Other FW', host: '10.0.0.21', model: 'hAP ax3' });
+    await context.addInitScript((routerId) => {
+      const key = 'nasnet-panel.session-credentials.v1';
+      const map = JSON.parse(window.sessionStorage.getItem(key) ?? '{}') as Record<string, unknown>;
+      map[routerId] = { username: 'admin', password: 'test' };
+      window.sessionStorage.setItem(key, JSON.stringify(map));
+    }, OTHER_ID);
+    await mockFirewall(page, { entries: [office] });
+
+    let releaseOther: () => void = () => {};
+    const otherPending = new Promise<void>((resolve) => {
+      releaseOther = resolve;
+    });
+    await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
+      if (route.request().headers()['x-routeros-host'] !== '10.0.0.21') return route.fallback();
+      await otherPending;
+      const path = new URL(route.request().url()).pathname;
+      const data = path.endsWith('/info')
+        ? { totalEntries: 7, autoEntries: 7, manualEntries: 0 }
+        : [];
+      await route.fulfill({ contentType: 'application/json', body: envelope(data) });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+    const card = page.getByTestId('domestic-addresses');
+    const side = page.getByTestId('domestic-block-card');
+    await expect(card.getByText('203.0.113.0/24')).toBeVisible();
+    await expect(side).toContainText('1,201');
+
+    // Client-side navigation, so the page stays mounted like it does in the app.
+    await page.evaluate((id) => {
+      window.history.pushState({}, '', `/router/${id}/firewall`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, OTHER_ID);
+
+    await expect(card.getByText('203.0.113.0/24')).toHaveCount(0);
+    await expect(side).not.toContainText('1,201');
+    releaseOther();
+    await expect(side).toContainText('Total entries');
+    await expect(card).toContainText('No addresses added yet.');
+  });
 });
