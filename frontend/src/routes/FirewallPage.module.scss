@@ -116,12 +116,15 @@
   color: var(--color-text-muted);
 }
 
+.settingDivider {
+  margin: var(--space-md) 0;
+}
+
 .domesticSummary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-md);
   margin: 0;
-  padding: var(--space-md) 0;
 }
 
 .domesticSummaryItem {
@@ -141,11 +144,5 @@
     font-weight: var(--weight-medium);
     color: var(--color-text);
     overflow-wrap: anywhere;
-  }
-}
-
-@media (max-width: 768px) {
-  .domesticSummary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

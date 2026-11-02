@@ -1,21 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, ConfirmDialog, Switch, useToast } from '@nasnet/ui';
+import { Card, ConfirmDialog, Divider, Switch, useToast } from '@nasnet/ui';
 import styles from '../FirewallPage.module.scss';
 import {
   ApiError,
   fetchDomesticBlock,
   setDomesticBlock,
+  type DomesticAddressListInfo,
   type DomesticBlockResponse,
   type FirewallCredentials,
 } from '../../api';
+import { useFormat } from '../../utils/useFormat';
 
 interface Props {
   creds: FirewallCredentials | null;
+  info: DomesticAddressListInfo | null;
 }
 
-export function DomesticBlockCard({ creds }: Props) {
+export function DomesticBlockCard({ creds, info }: Props) {
   const { t } = useTranslation('network');
+  const format = useFormat();
   const toast = useToast();
   const [block, setBlock] = useState<DomesticBlockResponse | null>(null);
   const [busy, setBusy] = useState(false);
@@ -59,6 +63,31 @@ export function DomesticBlockCard({ creds }: Props) {
   // Only one of the two rules enabled, for example after a manual change on the router.
   const partial = !!block && !block.block && block.rules.some((r) => !r.disabled);
 
+  const summary = info
+    ? [
+        {
+          key: 'total',
+          label: t('firewall.domestic.info.total'),
+          value: format.number(info.totalEntries),
+        },
+        {
+          key: 'auto',
+          label: t('firewall.domestic.info.auto'),
+          value: format.number(info.autoEntries),
+        },
+        {
+          key: 'manual',
+          label: t('firewall.domestic.info.manual'),
+          value: format.number(info.manualEntries),
+        },
+        {
+          key: 'lastUpdate',
+          label: t('firewall.domestic.info.lastUpdate'),
+          value: info.lastUpdate || '—',
+        },
+      ]
+    : [];
+
   return (
     <Card data-testid="domestic-block-card">
       <div className={styles.settingRow}>
@@ -76,6 +105,20 @@ export function DomesticBlockCard({ creds }: Props) {
       <p className={styles.settingHint}>
         {partial ? t('firewall.domestic.blockPartial') : t('firewall.domestic.blockHint')}
       </p>
+
+      {summary.length ? (
+        <>
+          <Divider className={styles.settingDivider} />
+          <dl className={styles.domesticSummary}>
+            {summary.map((item) => (
+              <div key={item.key} className={styles.domesticSummaryItem}>
+                <dt>{item.label}</dt>
+                <dd dir={item.key === 'lastUpdate' ? 'ltr' : undefined}>{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </>
+      ) : null}
 
       <ConfirmDialog
         open={confirming}

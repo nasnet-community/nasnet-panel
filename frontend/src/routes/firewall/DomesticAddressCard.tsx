@@ -25,18 +25,17 @@ import {
   type FirewallCredentials,
   type UpdateDomesticAddressRequest,
 } from '../../api';
-import { useFormat } from '../../utils/useFormat';
 import { DomesticAddressDialog } from './DomesticAddressDialog';
 
 interface Props {
   creds: FirewallCredentials | null;
+  /** Receives the list summary each time the list is (re)loaded. */
+  onInfo: (info: DomesticAddressListInfo) => void;
 }
 
-export function DomesticAddressCard({ creds }: Props) {
+export function DomesticAddressCard({ creds, onInfo }: Props) {
   const { t } = useTranslation('network');
   const toast = useToast();
-  const format = useFormat();
-  const [info, setInfo] = useState<DomesticAddressListInfo | null>(null);
   const [entries, setEntries] = useState<DomesticAddress[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,12 +52,12 @@ export function DomesticAddressCard({ creds }: Props) {
         fetchDomesticAddressListInfo(creds),
       ]);
       setEntries(list);
-      setInfo(summary);
+      onInfo(summary);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('firewall.domestic.loadFailed'));
     }
-  }, [creds, t]);
+  }, [creds, onInfo, t]);
 
   useEffect(() => {
     if (!creds) {
@@ -187,31 +186,6 @@ export function DomesticAddressCard({ creds }: Props) {
     },
   ];
 
-  const summary: Array<{ key: string; label: string; value: string }> = info
-    ? [
-        {
-          key: 'total',
-          label: t('firewall.domestic.info.total'),
-          value: format.number(info.totalEntries),
-        },
-        {
-          key: 'auto',
-          label: t('firewall.domestic.info.auto'),
-          value: format.number(info.autoEntries),
-        },
-        {
-          key: 'manual',
-          label: t('firewall.domestic.info.manual'),
-          value: format.number(info.manualEntries),
-        },
-        {
-          key: 'lastUpdate',
-          label: t('firewall.domestic.info.lastUpdate'),
-          value: info.lastUpdate || '—',
-        },
-      ]
-    : [];
-
   return (
     <Card data-testid="domestic-addresses">
       <CardHeader className={styles.cardHeader}>
@@ -229,17 +203,6 @@ export function DomesticAddressCard({ creds }: Props) {
           </Button>
         </div>
       </CardHeader>
-
-      {summary.length ? (
-        <dl className={styles.domesticSummary}>
-          {summary.map((item) => (
-            <div key={item.key} className={styles.domesticSummaryItem}>
-              <dt>{item.label}</dt>
-              <dd dir={item.key === 'lastUpdate' ? 'ltr' : undefined}>{item.value}</dd>
-            </div>
-          ))}
-        </dl>
-      ) : null}
 
       {error ? <div className={styles.errorBanner}>{error}</div> : null}
 

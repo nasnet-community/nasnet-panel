@@ -17,7 +17,12 @@ import {
   Stack,
 } from '@nasnet/ui';
 import styles from './FirewallPage.module.scss';
-import { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from '../api';
+import {
+  fetchFirewallRules,
+  type DomesticAddressListInfo,
+  type FirewallCredentials,
+  type FirewallRule,
+} from '../api';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { useFormat } from '../utils/useFormat';
@@ -59,6 +64,7 @@ export function FirewallPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [chain, setChain] = useState<string>('');
+  const [domesticInfo, setDomesticInfo] = useState<DomesticAddressListInfo | null>(null);
   const inFlightRef = useRef(false);
 
   const creds = useMemo<FirewallCredentials | null>(() => {
@@ -234,9 +240,9 @@ export function FirewallPage() {
   return (
     <Stack>
       <div className={styles.domesticLayout}>
-        <DomesticAddressCard creds={creds} />
+        <DomesticAddressCard creds={creds} onInfo={setDomesticInfo} />
         <aside>
-          <DomesticBlockCard creds={creds} />
+          <DomesticBlockCard creds={creds} info={domesticInfo} />
         </aside>
       </div>
 

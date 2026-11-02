@@ -123,9 +123,10 @@ test.describe('Firewall page domestic addresses', () => {
     await mockFirewall(page, { entries: [office] });
     await page.goto(`/router/${ROUTER_ID}/firewall`);
 
+    const side = page.getByTestId('domestic-block-card');
+    await expect(side).toContainText('1,201');
+    await expect(side).toContainText('2026-10-30 04:00:00');
     const card = page.getByTestId('domestic-addresses');
-    await expect(card).toContainText('1,201');
-    await expect(card).toContainText('2026-10-30 04:00:00');
     const row = card.getByRole('row', { name: /203\.0\.113\.0\/24/ });
     await expect(row).toContainText('Never');
     await expect(
@@ -186,6 +187,7 @@ test.describe('Firewall page domestic addresses', () => {
       },
     ]);
     await expect(card.getByRole('row', { name: /198\.51\.100\.7/ })).toBeVisible();
+    await expect(page.getByTestId('domestic-block-card')).toContainText('1,201');
   });
 
   test('shows why an address is rejected and keeps the dialog open', async ({ page }) => {
