@@ -111,7 +111,14 @@ export function DomesticBlockCard({ creds, info }: Props) {
           <Divider className={styles.settingDivider} />
           <dl className={styles.domesticSummary}>
             {summary.map((item) => (
-              <div key={item.key} className={styles.domesticSummaryItem}>
+              <div
+                key={item.key}
+                className={
+                  item.key === 'lastUpdate'
+                    ? `${styles.domesticSummaryItem} ${styles.domesticSummaryDate}`
+                    : styles.domesticSummaryItem
+                }
+              >
                 <dt>{item.label}</dt>
                 <dd dir={item.key === 'lastUpdate' ? 'ltr' : undefined}>{item.value}</dd>
               </div>
