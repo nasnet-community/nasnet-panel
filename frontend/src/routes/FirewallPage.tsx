@@ -22,6 +22,7 @@ import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { useFormat } from '../utils/useFormat';
 import { DomesticAddressCard } from './firewall/DomesticAddressCard';
+import { DomesticBlockCard } from './firewall/DomesticBlockCard';
 
 // Chain names are RouterOS values and stay untranslated.
 const CHAINS = ['input', 'forward', 'output'] as const;
@@ -232,7 +233,12 @@ export function FirewallPage() {
 
   return (
     <Stack>
-      <DomesticAddressCard creds={creds} />
+      <div className={styles.domesticLayout}>
+        <DomesticAddressCard creds={creds} />
+        <aside>
+          <DomesticBlockCard creds={creds} />
+        </aside>
+      </div>
 
       <Card data-testid="firewall-rules">
         <CardHeader className={styles.cardHeader}>

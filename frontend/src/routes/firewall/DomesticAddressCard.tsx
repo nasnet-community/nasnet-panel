@@ -10,23 +10,18 @@ import {
   ConfirmDialog,
   DataTable,
   Inline,
-  Switch,
   useToast,
   type DataTableColumn,
 } from '@nasnet/ui';
 import styles from '../FirewallPage.module.scss';
 import {
-  ApiError,
   addDomesticAddress,
   deleteDomesticAddress,
   fetchDomesticAddresses,
   fetchDomesticAddressListInfo,
-  fetchDomesticBlock,
-  setDomesticBlock,
   updateDomesticAddress,
   type DomesticAddress,
   type DomesticAddressListInfo,
-  type DomesticBlockResponse,
   type FirewallCredentials,
   type UpdateDomesticAddressRequest,
 } from '../../api';
@@ -41,9 +36,6 @@ export function DomesticAddressCard({ creds }: Props) {
   const { t } = useTranslation('network');
   const toast = useToast();
   const format = useFormat();
-  const [block, setBlock] = useState<DomesticBlockResponse | null>(null);
-  const [blockBusy, setBlockBusy] = useState(false);
-  const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [info, setInfo] = useState<DomesticAddressListInfo | null>(null);
   const [entries, setEntries] = useState<DomesticAddress[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,12 +66,7 @@ export function DomesticAddressCard({ creds }: Props) {
       return;
     }
     setLoading(true);
-    void Promise.all([
-      fetchDomesticBlock(creds)
-        .then(setBlock)
-        .catch(() => setBlock(null)),
-      reloadList(),
-    ]).finally(() => setLoading(false));
+    void reloadList().finally(() => setLoading(false));
   }, [creds, reloadList]);
 
   const notifyError = (title: string, err: unknown) => {
@@ -88,30 +75,6 @@ export function DomesticAddressCard({ creds }: Props) {
       description: err instanceof Error ? err.message : t('common.unknownError'),
       tone: 'danger',
     });
-  };
-
-  const applyBlock = async (next: boolean) => {
-    if (!creds) return;
-    setConfirmingBlock(false);
-    setBlockBusy(true);
-    try {
-      setBlock(await setDomesticBlock(creds, next));
-      toast.notify({
-        title: next
-          ? t('firewall.domestic.toasts.blockOn')
-          : t('firewall.domestic.toasts.blockOff'),
-        tone: 'success',
-      });
-    } catch (err) {
-      // 409 means the rules were already in the requested state.
-      if (err instanceof ApiError && err.status === 409) {
-        setBlock(await fetchDomesticBlock(creds).catch(() => block));
-        return;
-      }
-      notifyError(t('firewall.domestic.toasts.blockFailed'), err);
-    } finally {
-      setBlockBusy(false);
-    }
   };
 
   const onSubmit = async (request: UpdateDomesticAddressRequest) => {
@@ -162,9 +125,6 @@ export function DomesticAddressCard({ creds }: Props) {
     });
     await reloadList();
   };
-
-  // Only one of the two rules enabled, for example after a manual change on the router.
-  const partial = !!block && !block.block && block.rules.some((r) => !r.disabled);
 
   const columns: DataTableColumn<DomesticAddress>[] = [
     {
@@ -270,24 +230,6 @@ export function DomesticAddressCard({ creds }: Props) {
         </div>
       </CardHeader>
 
-      <div className={styles.domesticBlock}>
-        <div>
-          <span className={styles.domesticBlockTitle}>{t('firewall.domestic.block')}</span>
-          <p className={styles.domesticBlockHint}>
-            {partial ? t('firewall.domestic.blockPartial') : t('firewall.domestic.blockHint')}
-          </p>
-        </div>
-        <Switch
-          aria-label={t('firewall.domestic.block')}
-          checked={!!block?.block}
-          disabled={!creds || !block || blockBusy}
-          onChange={(e) => {
-            if (e.currentTarget.checked) setConfirmingBlock(true);
-            else void applyBlock(false);
-          }}
-        />
-      </div>
-
       {summary.length ? (
         <dl className={styles.domesticSummary}>
           {summary.map((item) => (
@@ -318,16 +260,6 @@ export function DomesticAddressCard({ creds }: Props) {
           onSubmit={onSubmit}
         />
       ) : null}
-
-      <ConfirmDialog
-        open={confirmingBlock}
-        title={t('firewall.domestic.confirmBlock.title')}
-        description={t('firewall.domestic.confirmBlock.description')}
-        confirmLabel={t('firewall.domestic.confirmBlock.confirm')}
-        destructive
-        onConfirm={() => applyBlock(true)}
-        onCancel={() => setConfirmingBlock(false)}
-      />
 
       <ConfirmDialog
         open={!!pendingDelete}

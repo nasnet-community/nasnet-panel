@@ -84,23 +84,34 @@
   border-bottom: 1px dashed var(--color-border);
 }
 
-.domesticBlock {
+.domesticLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .domesticLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.settingRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
-  padding: var(--space-md) 0;
-  border-bottom: 1px solid var(--color-border);
 }
 
-.domesticBlockTitle {
+.settingTitle {
   font-size: var(--font-md);
   font-weight: var(--weight-medium);
   color: var(--color-text);
 }
 
-.domesticBlockHint {
-  margin: 4px 0 0;
+.settingHint {
+  margin: var(--space-sm) 0 0;
   font-size: var(--font-sm);
   color: var(--color-text-muted);
 }

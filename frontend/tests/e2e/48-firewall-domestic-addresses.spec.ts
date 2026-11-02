@@ -129,7 +129,9 @@ test.describe('Firewall page domestic addresses', () => {
     const row = card.getByRole('row', { name: /203\.0\.113\.0\/24/ });
     await expect(row).toContainText('Never');
     await expect(
-      card.getByRole('switch', { name: 'Block traffic to domestic addresses' }),
+      page
+        .getByTestId('domestic-block-card')
+        .getByRole('switch', { name: 'Block traffic to domestic addresses' }),
     ).not.toBeChecked();
   });
 
