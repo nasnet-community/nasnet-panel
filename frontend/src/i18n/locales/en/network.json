@@ -206,8 +206,15 @@
         "saving": "Saving…",
         "addressRequired": "Address is required.",
         "addressInvalid": "Enter an IPv4 address or range, such as 203.0.113.0/24. /0 is not allowed.",
-        "timeoutInvalid": "Use a RouterOS time such as 1d, 2h30m or 00:10:00.",
-        "timeoutHint": "Leave empty to keep the current timeout."
+        "keepTimeoutCurrent": "Keep current ({{timeout}})",
+        "keepTimeoutNever": "Keep current (never expires)",
+        "timeouts": {
+          "1h": "1 hour",
+          "6h": "6 hours",
+          "1d": "1 day",
+          "7d": "7 days",
+          "30d": "30 days"
+        }
       },
       "toasts": {
         "added": "{{address}} added",

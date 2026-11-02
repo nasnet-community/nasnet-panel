@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
+  Badge,
   Button,
   Card,
   CardDescription,
@@ -143,7 +144,7 @@ export function DomesticAddressCard({ creds, onInfo }: Props) {
         row.timeout ? (
           <span className={styles.mono}>{row.timeout}</span>
         ) : (
-          <span className={styles.muted}>{t('firewall.domestic.never')}</span>
+          <Badge>{t('firewall.domestic.never')}</Badge>
         ),
       sortValue: (row) => row.timeout,
     },

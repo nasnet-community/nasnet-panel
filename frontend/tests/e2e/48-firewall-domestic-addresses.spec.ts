@@ -166,7 +166,7 @@ test.describe('Firewall page domestic addresses', () => {
     await card.getByRole('button', { name: 'Add address' }).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('heading', { name: 'Add domestic address' })).toBeVisible();
-    await expect(dialog.getByLabel('Timeout')).toHaveCount(0);
+    await expect(dialog.getByRole('combobox', { name: 'Timeout' })).toHaveCount(0);
 
     const address = dialog.getByLabel('Address or range');
     for (const bad of ['0.0.0.0/0', '2001:db8::/32', '10.0.0.300']) {
@@ -225,13 +225,11 @@ test.describe('Firewall page domestic addresses', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByLabel('Address or range')).toHaveValue('203.0.113.0/24');
 
-    await dialog.getByLabel('Timeout').fill('soon');
-    await dialog.getByRole('button', { name: 'Save' }).click();
-    await expect(dialog).toContainText('Use a RouterOS time');
-    expect(calls).toHaveLength(0);
-
+    const timeout = dialog.getByRole('combobox', { name: 'Timeout' });
+    await expect(timeout).toContainText('Keep current (never expires)');
     await dialog.getByLabel('Address or range').fill('203.0.113.0/25');
-    await dialog.getByLabel('Timeout').fill('7d');
+    await timeout.click();
+    await page.getByRole('option', { name: '7 days' }).click();
     await dialog.getByRole('button', { name: 'Save' }).click();
     await expect(dialog).toBeHidden();
     expect(calls).toEqual([

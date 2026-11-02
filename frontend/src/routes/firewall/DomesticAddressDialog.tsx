@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Dialog, FormError, Input, Label, Stack } from '@nasnet/ui';
+import { Button, Dialog, FormError, Input, Label, Select, Stack } from '@nasnet/ui';
 import type { DomesticAddress, UpdateDomesticAddressRequest } from '../../api';
 import { isCIDR, isIPv4 } from '../../utils/validators';
 
-// Same as routerOSTimePattern in the backend: 1d, 2h30m, 1w2d or 00:10:00.
-const TIMEOUT_RE = /^(?:\d+w)?(?:\d+d)?(?:\d+h)?(?:\d+m)?(?:\d+s)?$|^\d+:\d{2}(?::\d{2})?$/;
+// RouterOS times offered for the timeout. KEEP_TIMEOUT sends no timeout, which keeps the
+// current one, since the backend cannot remove a timeout.
+const TIMEOUTS = ['1h', '6h', '1d', '7d', '30d'] as const;
+const KEEP_TIMEOUT = 'keep';
 
 // The backend rejects /0, which would match every address.
 const isDomesticAddress = (value: string): boolean =>
@@ -20,32 +22,35 @@ interface Props {
 export function DomesticAddressDialog({ entry, onCancel, onSubmit }: Props) {
   const { t } = useTranslation('network');
   const [address, setAddress] = useState(entry?.address ?? '');
-  const [timeoutValue, setTimeoutValue] = useState('');
-  const [touched, setTouched] = useState({ address: false, timeout: false });
+  const [timeoutValue, setTimeoutValue] = useState<string>(KEEP_TIMEOUT);
+  const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const trimmedAddress = address.trim();
-  const trimmedTimeout = timeoutValue.trim();
-  const errors = {
-    address: !trimmedAddress
-      ? t('firewall.domestic.form.addressRequired')
-      : !isDomesticAddress(trimmedAddress)
-        ? t('firewall.domestic.form.addressInvalid')
-        : null,
-    timeout:
-      trimmedTimeout && !TIMEOUT_RE.test(trimmedTimeout)
-        ? t('firewall.domestic.form.timeoutInvalid')
-        : null,
-  };
+  const addressError = !trimmedAddress
+    ? t('firewall.domestic.form.addressRequired')
+    : !isDomesticAddress(trimmedAddress)
+      ? t('firewall.domestic.form.addressInvalid')
+      : null;
+
+  const timeoutOptions = [
+    {
+      value: KEEP_TIMEOUT,
+      label: entry?.timeout
+        ? t('firewall.domestic.form.keepTimeoutCurrent', { timeout: entry.timeout })
+        : t('firewall.domestic.form.keepTimeoutNever'),
+    },
+    ...TIMEOUTS.map((value) => ({ value, label: t(`firewall.domestic.form.timeouts.${value}`) })),
+  ];
 
   const submit = async () => {
-    setTouched({ address: true, timeout: true });
-    if (errors.address || errors.timeout) return;
+    setTouched(true);
+    if (addressError) return;
     setBusy(true);
     try {
       await onSubmit({
         address: trimmedAddress,
-        ...(entry && trimmedTimeout ? { timeout: trimmedTimeout } : {}),
+        ...(entry && timeoutValue !== KEEP_TIMEOUT ? { timeout: timeoutValue } : {}),
       });
     } catch {
       // The caller shows the error toast and keeps the dialog open.
@@ -83,35 +88,26 @@ export function DomesticAddressDialog({ entry, onCancel, onSubmit }: Props) {
             <Input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              onBlur={() => setTouched((v) => ({ ...v, address: true }))}
+              onBlur={() => setTouched(true)}
               placeholder="203.0.113.0/24"
               autoComplete="off"
               dir="ltr"
               disabled={busy}
               aria-label={t('firewall.domestic.columns.address')}
-              aria-invalid={touched.address && !!errors.address}
+              aria-invalid={touched && !!addressError}
             />
-            {touched.address && errors.address ? <FormError>{errors.address}</FormError> : null}
+            {touched && addressError ? <FormError>{addressError}</FormError> : null}
           </Label>
           {entry ? (
             <Label>
               <span>{t('firewall.domestic.columns.timeout')}</span>
-              <Input
-                value={timeoutValue}
-                onChange={(e) => setTimeoutValue(e.target.value)}
-                onBlur={() => setTouched((v) => ({ ...v, timeout: true }))}
-                placeholder={entry.timeout || '1d'}
-                autoComplete="off"
-                dir="ltr"
-                disabled={busy}
+              <Select
                 aria-label={t('firewall.domestic.columns.timeout')}
-                aria-invalid={touched.timeout && !!errors.timeout}
+                value={timeoutValue}
+                onChange={setTimeoutValue}
+                options={timeoutOptions}
+                disabled={busy}
               />
-              {touched.timeout && errors.timeout ? (
-                <FormError>{errors.timeout}</FormError>
-              ) : (
-                <span>{t('firewall.domestic.form.timeoutHint')}</span>
-              )}
             </Label>
           ) : null}
           <button type="submit" hidden aria-hidden tabIndex={-1} />
