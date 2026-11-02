@@ -842,17 +842,16 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 
 		"DomesticUserEntryComment": domesticUserEntryComment,
 	}
-	if domesticEnabled {
-		templateData["DomesticInterface"] = reconfigInterface(domestic, stored.WiFis)
-	} else {
-		templateData["DomesticInterface"] = InterfaceConfig{}
-	}
+	templateData["DomesticInterface"] = reconfigInterface(domestic, stored.WiFis)
 
 	plan.templateData = templateData
 	return plan, nil
 }
 
 func reconfigInterface(wan *db.WAN, wifis []db.WiFi) InterfaceConfig {
+	if wan == nil {
+		return InterfaceConfig{}
+	}
 	cfg := InterfaceConfig{Interface: wan.Interface, Type: wan.InterfaceType, Type2: wan.InterfaceType}
 	if wan.InterfaceType == string(routeros.InterfaceTypeEther) {
 		cfg.Type2 = "ethernet"
