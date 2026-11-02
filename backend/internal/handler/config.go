@@ -687,6 +687,10 @@ func (e *reconfigError) Unwrap() error {
 	return e.Err
 }
 
+func (e *reconfigError) Is(target error) bool {
+	return target == errReconfigNoConfig && e.Status == http.StatusBadRequest
+}
+
 // HandleGetReconfigStatus godoc
 // @Summary Get the reconfiguration status
 // @Description Returns the state, current step and overall progress percentage of the last reconfiguration started on the router since the server started
@@ -1377,8 +1381,12 @@ func restoreSSTPServerFrom(client *routeros.Client, server *db.VPNServer) []erro
 	suffix := strconv.FormatInt(server.CertificateTimestamp, 10)
 	caName := "sstp-ca-" + suffix
 	serverName := "sstp-server-" + suffix
-	for _, name := range []string{caName, serverName} {
-		ready, err := ensureCertificate(client, name, "")
+	for _, certificate := range []struct{ name, passphrase string }{
+		{caName, ""},
+		{serverName, server.CertificatePassword},
+	} {
+		name := certificate.name
+		ready, err := ensureCertificate(client, name, certificate.passphrase)
 		if err != nil {
 			return []error{err}
 		}
@@ -2130,6 +2138,9 @@ func reconfigStatusAfterUpdate(ctx context.Context, client *routeros.Client, cre
 		log.Printf("[app-update] failed to clear the scheduled reconfiguration: %v", err)
 	}
 	if _, err := startReconfig(ctx, client, creds); err != nil {
+		if errors.Is(err, errReconfigNoConfig) {
+			return &ReconfigStatusResponse{State: reconfigStateIdle}
+		}
 		if job, ok := beginReconfig(creds.RouterOSHost); ok {
 			job.update("Starting the reconfiguration", 0)
 			job.fail(err.Error())

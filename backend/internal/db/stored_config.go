@@ -45,7 +45,7 @@ func LoadStoredConfig(ctx context.Context, conn *sqlx.DB) (*StoredConfig, error)
 		{"OpenVPN servers", &cfg.OvpnServers,
 			`SELECT name, certificate_timestamp, protocol, port, client_certificate_password, enabled FROM ovpn_servers ORDER BY id`},
 		{"VPN servers", &cfg.VPNServers,
-			`SELECT type, enabled, port, default_profile, authentication, certificate_timestamp, verify_client_certificate, ciphers, use_ipsec, ipsec_secret FROM vpn_servers ORDER BY id`},
+			`SELECT type, enabled, port, default_profile, authentication, certificate_timestamp, verify_client_certificate, ciphers, use_ipsec, ipsec_secret, certificate_password FROM vpn_servers ORDER BY id`},
 		{"VPN users", &cfg.VPNUsers, `SELECT username, password, profile FROM vpn_users ORDER BY id`},
 		{"DNS servers", &cfg.DNSServers,
 			`SELECT name, type, dns_servers, doh_servers, verify_doh_cert, comment FROM dns_servers ORDER BY id`},

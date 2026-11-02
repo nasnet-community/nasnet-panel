@@ -3611,7 +3611,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		return
 	}
 
-	var caName, serverName string
+	var caName, serverName, serverCertificatePassword string
 	if existingCert != "" {
 		serverName = existingCert
 		updateTask(60, "Reusing existing SSTP server certificate")
@@ -3619,6 +3619,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		timestamp := fmt.Sprintf("%d", time.Now().Unix())
 		caName = "sstp-ca-" + timestamp
 		serverName = "sstp-server-" + timestamp
+		serverCertificatePassword = utils.RandString(24)
 
 		updateTask(10, "Creating CA certificate")
 		caCertParams := routeros.AddCertificateParams{
@@ -3680,7 +3681,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 			setError("Failed to export CA certificate: "+err.Error(), []string{caName, serverName})
 			return
 		}
-		if err := client.ExportCertificate(serverName, ""); err != nil {
+		if err := client.ExportCertificate(serverName, serverCertificatePassword); err != nil {
 			setError("Failed to export Server certificate: "+err.Error(), []string{caName, serverName})
 			return
 		}
@@ -3752,7 +3753,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 
 	updateTask(100, "Completed")
 
-	persistCreatedSstpServer(client, &sstpConfig)
+	persistCreatedSstpServer(client, &sstpConfig, serverCertificatePassword)
 
 	task.mu.Lock()
 	task.Status = "completed"

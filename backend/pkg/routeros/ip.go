@@ -424,3 +424,56 @@ func (c *Client) RemoveIPPool(name string) error {
 	}
 	return nil
 }
+
+// RouteConfig is an /ip/route entry. Blackhole routes carry no gateway.
+type RouteConfig struct {
+	DstAddress   string
+	Gateway      string
+	RoutingTable string
+	CheckGateway string
+	Distance     int
+	Scope        int
+	TargetScope  int
+	Blackhole    bool
+	Disabled     bool
+	Comment      string
+}
+
+// AddRoute creates an /ip/route entry in the routing table named by config.RoutingTable and returns its .id.
+func (c *Client) AddRoute(config RouteConfig) (string, error) {
+	args := []string{"=dst-address=" + config.DstAddress}
+
+	if config.Blackhole {
+		args = append(args, "=blackhole=yes")
+	} else {
+		args = append(args, "=gateway="+config.Gateway)
+	}
+	if config.RoutingTable != "" {
+		args = append(args, "=routing-table="+config.RoutingTable)
+	}
+	if config.CheckGateway != "" {
+		args = append(args, "=check-gateway="+config.CheckGateway)
+	}
+	if config.Distance > 0 {
+		args = append(args, "=distance="+strconv.Itoa(config.Distance))
+	}
+	if config.Scope > 0 {
+		args = append(args, "=scope="+strconv.Itoa(config.Scope))
+	}
+	if config.TargetScope > 0 {
+		args = append(args, "=target-scope="+strconv.Itoa(config.TargetScope))
+	}
+	if config.Disabled {
+		args = append(args, "=disabled=yes")
+	}
+	if config.Comment != "" {
+		args = append(args, "=comment="+config.Comment)
+	}
+
+	id, err := c.Add("/ip/route", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add route to %s: %w", config.DstAddress, err)
+	}
+
+	return id, nil
+}

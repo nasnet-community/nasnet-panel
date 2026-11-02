@@ -298,7 +298,7 @@ func sstpCertificateTimestamp(serverCertName string) int64 {
 	return value
 }
 
-func persistCreatedSstpServer(client *routeros.Client, config *routeros.SstpServerConfig) {
+func persistCreatedSstpServer(client *routeros.Client, config *routeros.SstpServerConfig, certificatePassword string) {
 	persistInRouterDB(context.Background(), log.Printf, client, "save the SSTP server", func(ctx context.Context, conn *sqlx.DB) error {
 		return db.UpsertVPNServer(ctx, conn, &db.VPNServer{
 			Type:                    db.VPNServerTypeSSTP,
@@ -309,6 +309,7 @@ func persistCreatedSstpServer(client *routeros.Client, config *routeros.SstpServ
 			CertificateTimestamp:    sstpCertificateTimestamp(config.Certificate),
 			VerifyClientCertificate: config.VerifyClientCertificate,
 			Ciphers:                 config.Ciphers,
+			CertificatePassword:     certificatePassword,
 		})
 	})
 }
