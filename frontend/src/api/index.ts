@@ -118,7 +118,23 @@ export {
   type DhcpClient,
   type DhcpLeaseAction,
 } from './dhcp';
-export { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from './firewall';
+export {
+  fetchFirewallRules,
+  fetchDomesticBlock,
+  setDomesticBlock,
+  fetchDomesticAddresses,
+  fetchDomesticAddressListInfo,
+  addDomesticAddress,
+  updateDomesticAddress,
+  deleteDomesticAddress,
+  type FirewallCredentials,
+  type FirewallRule,
+  type DomesticBlockResponse,
+  type DomesticBlockRule,
+  type DomesticAddress,
+  type DomesticAddressListInfo,
+  type UpdateDomesticAddressRequest,
+} from './firewall';
 export {
   fetchUpdateInfo,
   checkForUpdates,
