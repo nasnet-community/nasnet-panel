@@ -1,4 +1,5 @@
 :local nasnetDir "nasnet-panel"
+:local certDir ($nasnetDir . "/certificates")
 :local baseConfigRetry 0
 :local baseConfigSucceeded false
 
@@ -12,6 +13,9 @@
 :onerror dirErr in={
     :if ([:len [/file find name=$nasnetDir]] = 0) do={
         /file add name=$nasnetDir type=directory
+    }
+    :if ([:len [/file find name=$certDir]] = 0) do={
+        /file add name=$certDir type=directory
     }
 } do={
     :set BaseConfigFailed true

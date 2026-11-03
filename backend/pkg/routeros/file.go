@@ -29,6 +29,10 @@ const NasnetPanelDir = "nasnet-panel"
 // saves the router backups it creates before running.
 const NasnetBackupsDir = NasnetPanelDir + "/backups"
 
+// NasnetCertificatesDir is the directory inside NasnetPanelDir where exported
+// certificates, private keys and their password files are kept.
+const NasnetCertificatesDir = NasnetPanelDir + "/certificates"
+
 var fileTimeLayouts = []string{"2006-01-02 15:04:05", "Jan/02/2006 15:04:05", "Jan/02/2006"}
 
 // NasnetPanelPath returns the path of a file inside NasnetPanelDir.
@@ -36,9 +40,22 @@ func NasnetPanelPath(filename string) string {
 	return NasnetPanelDir + "/" + filename
 }
 
+// NasnetCertificatePath returns the path of a file inside NasnetCertificatesDir.
+func NasnetCertificatePath(filename string) string {
+	return NasnetCertificatesDir + "/" + filename
+}
+
 // EnsureNasnetPanelDir creates NasnetPanelDir if it does not exist yet.
 func (c *Client) EnsureNasnetPanelDir() error {
 	return c.EnsureDir(NasnetPanelDir)
+}
+
+// EnsureNasnetCertificatesDir creates NasnetCertificatesDir, and NasnetPanelDir before it, if they do not exist yet.
+func (c *Client) EnsureNasnetCertificatesDir() error {
+	if err := c.EnsureNasnetPanelDir(); err != nil {
+		return err
+	}
+	return c.EnsureDir(NasnetCertificatesDir)
 }
 
 // EnsureDir creates the directory dir if it does not exist yet. Parent
@@ -57,17 +74,15 @@ func (c *Client) EnsureDir(dir string) error {
 	return nil
 }
 
-// resolveNasnetFile returns the path of filename inside NasnetPanelDir, or the
-// bare name when only a copy at the storage root exists (files created before
-// NasnetPanelDir was introduced).
-func (c *Client) resolveNasnetFile(filename string) string {
-	if exists, err := c.FileExists(NasnetPanelPath(filename)); err == nil && exists {
-		return NasnetPanelPath(filename)
+// resolveCertificateFile returns the path of filename inside NasnetCertificatesDir, or the path of a
+// copy left in NasnetPanelDir or at the storage root by earlier versions when only that one exists.
+func (c *Client) resolveCertificateFile(filename string) string {
+	for _, path := range []string{NasnetCertificatePath(filename), NasnetPanelPath(filename), filename} {
+		if exists, err := c.FileExists(path); err == nil && exists {
+			return path
+		}
 	}
-	if exists, err := c.FileExists(filename); err == nil && exists {
-		return filename
-	}
-	return NasnetPanelPath(filename)
+	return NasnetCertificatePath(filename)
 }
 
 // GetFile retrieves file metadata by name from RouterOS /file path.
@@ -391,7 +406,8 @@ func (c *Client) CopyFile(sourceFilename, destinationFilename string) error {
 	return c.AddFile(destinationFilename, contents)
 }
 
-// RenameFile renames a file by copying to new name and deleting the old one.
+// RenameFile renames or moves a file with /file/reset name=, without reading or copying its
+// contents. When the new name is in another directory, that directory must already exist.
 func (c *Client) RenameFile(oldFilename, newFilename string) error {
 	if oldFilename == "" {
 		return fmt.Errorf("old filename is required")
@@ -400,14 +416,8 @@ func (c *Client) RenameFile(oldFilename, newFilename string) error {
 		return fmt.Errorf("new filename is required")
 	}
 
-	err := c.CopyFile(oldFilename, newFilename)
-	if err != nil {
-		return fmt.Errorf("failed to copy file to new name: %w", err)
-	}
-
-	err = c.DeleteFile(oldFilename)
-	if err != nil {
-		return fmt.Errorf("failed to delete old file: %w", err)
+	if _, err := c.Execute("/file/reset", "=numbers="+oldFilename, "=name="+newFilename); err != nil {
+		return fmt.Errorf("failed to rename file %s to %s: %w", oldFilename, newFilename, err)
 	}
 
 	return nil
