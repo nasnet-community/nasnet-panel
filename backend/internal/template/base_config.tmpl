@@ -2,6 +2,7 @@
 :local certDir ($nasnetDir . "/certificates")
 :local baseConfigRetry 0
 :local baseConfigSucceeded false
+:local domesticIPUpdateStarted false
 
 :global BaseConfigFailed
 :global BaseConfigMessage
@@ -756,7 +757,10 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :set BaseConfigMessage "Removing the baseConfig script"
 /system script remove [find name=base_config]
 
-:execute script={/system script run DomesticIPUpdate-OneTime}
+:if (!$domesticIPUpdateStarted) do={
+    :execute script={/system script run DomesticIPUpdate-OneTime}
+    :set domesticIPUpdateStarted true
+}
 
 :global BaseConfigProgress "99"
 :set BaseConfigMessage "Writing baseConfig success marker"
