@@ -1,12 +1,71 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
+	"sync"
 
+	"nasnet-panel/internal/db"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 	"nasnet-panel/pkg/wgcfg"
 )
+
+const (
+	reconfigStateIdle      = "idle"
+	reconfigStatePending   = "pending"
+	reconfigStateRunning   = "running"
+	reconfigStateCompleted = "completed"
+	reconfigStateFailed    = "failed"
+)
+
+var errReconfigNoConfig = errors.New("no stored configuration to apply, run the wizard first")
+
+// ReconfigStartResponse is the response for POST /api/config/reconfig. The management WiFi
+// credentials are present only when a new management WiFi network was generated.
+type ReconfigStartResponse struct {
+	ManagementWiFiSSID     string `json:"managementWiFiSSID,omitempty"`
+	ManagementWiFiPassword string `json:"managementWiFiPassword,omitempty"`
+}
+
+// ReconfigStatusResponse is the response for GET /api/config/reconfig/status. Progress is the
+// percentage of the whole reconfiguration, Step names what is being done right now, and Warnings
+// lists the stored items that could not be applied again without failing the reconfiguration.
+type ReconfigStatusResponse struct {
+	State    string   `json:"state" example:"running"`
+	Step     string   `json:"step" example:"Configuring WiFi access points"`
+	Progress int      `json:"progress" example:"35"`
+	Error    string   `json:"error,omitempty"`
+	Warnings []string `json:"warnings,omitempty"`
+}
+
+type reconfigError struct {
+	Status  int
+	Message string
+	Err     error
+}
+
+type reconfigJob struct {
+	mu       sync.Mutex
+	state    string
+	step     string
+	progress int
+	err      string
+	warnings []string
+}
+
+type reconfigPlan struct {
+	templateData   map[string]any
+	stored         *db.StoredConfig
+	managementWifi WiFiAP
+	warnings       []string
+	livePorts      map[string]int
+}
+
+type reconfigExtra struct {
+	step string
+	run  func() []error
+}
 
 // WireGuardPeerTemplateData is one peer entry for the wizard's WireGuard
 // client template block.
@@ -40,7 +99,7 @@ type WireGuardClientTemplateData struct {
 }
 
 // buildWireGuardClientTemplateData parses a wg-quick config into the shape
-// wizard.tmpl expects.
+// base_config.tmpl expects.
 func buildWireGuardClientTemplateData(rawConfig string) (*WireGuardClientTemplateData, error) {
 	cfg, err := wgcfg.FromWgQuick(rawConfig, "import")
 	if err != nil {
@@ -192,7 +251,7 @@ func escapeInterfaceConfig(cfg InterfaceConfig) InterfaceConfig {
 	return cfg
 }
 
-// escapeWizardTemplateData returns a copy of the wizard.tmpl data in which every
+// escapeWizardTemplateData returns a copy of the base_config.tmpl data in which every
 // user-supplied string is escaped for a double-quoted RouterOS string, which is
 // how the template writes them.
 func escapeWizardTemplateData(data map[string]any) map[string]any {
