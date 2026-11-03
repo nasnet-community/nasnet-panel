@@ -135,8 +135,8 @@ func (a *App) events(ctx context.Context) install.Events {
 		SysInfo: func(info install.SystemInfo) {
 			runtime.EventsEmit(a.ctx, "install:sysinfo", info)
 		},
-		DeviceModePrompt: func() bool {
-			runtime.EventsEmit(a.ctx, "install:device-mode", map[string]any{"timeout": 120})
+		DeviceModePrompt: func(info install.DeviceModePromptInfo) bool {
+			runtime.EventsEmit(a.ctx, "install:device-mode", info)
 			select {
 			case v := <-a.deviceCh:
 				return v

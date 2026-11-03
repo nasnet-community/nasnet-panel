@@ -12,9 +12,20 @@
     :local containerSubnet "192.168.50.0/24"
     :local containerDNS "1.0.0.1"
     :local tag "nasnet-panel-baseline"
+    :local containerRouterComment "nasnet-panel-baseline-container-router"
     :local failed false
 
-    :log info "nasnet-panel: baseline v4 starting"
+    :log info "nasnet-panel: baseline v5 starting"
+
+    # A CHR (Cloud Hosted Router) without a LAN bridge is a VM with a public uplink and no
+    # LAN: no default configuration, nothing to serve. On such a router the baseline keeps the
+    # uplink and the firewall as they are and only prepares DNS, NTP and the container's path
+    # to the router. A CHR that does carry a LAN bridge is treated like any other router.
+    :local isCHRBoard false
+    :onerror ignore in={
+        :if ([/system/resource/get board-name] = "CHR") do={ :set isCHRBoard true }
+    } do={}
+    :local isCHR false
 
     :local layoutPresent false
     :local lanBridge ""
@@ -43,16 +54,23 @@
                     }
                 }
             }
-            :if ($lanBridge = "") do={
+            :if (($lanBridge = "") && $isCHRBoard && ([:len $candidates] = 0)) do={
+                :set isCHR true
+                :log info "nasnet-panel: CHR without a LAN bridge; LAN discovery, firewall cleanup and WAN rewiring are skipped"
+            }
+            :if (($lanBridge = "") && !$isCHR) do={
                 :error ("no unambiguous LAN bridge found (candidates: " . [:tostr $candidates] . ")")
             }
-            :log info ("nasnet-panel: LAN bridge is " . $lanBridge)
+            :if ($lanBridge != "") do={
+                :log info ("nasnet-panel: LAN bridge is " . $lanBridge)
+            }
         }
     } do={
         :set failed true
         :log error ("nasnet-panel: LAN bridge discovery failed: " . $err)
     }
 
+    :if (!$isCHR) do={
     :onerror err in={
         :local removed 0
         :foreach r in=[/ip/firewall/filter find where (action=drop || action=reject || action=tarpit)] do={
@@ -102,6 +120,7 @@
         :set failed true
         :log error ("nasnet-panel: firewall cleanup failed: " . $err)
     }
+    }
 
     :onerror err in={
         :foreach ln in=[:toarray "WAN,LAN"] do={
@@ -114,7 +133,37 @@
         :log error ("nasnet-panel: interface list preparation failed: " . $err)
     }
 
-    :if (!$layoutPresent) do={
+    :if ($isCHR) do={
+        :onerror err in={
+            :if (([:len [/interface find name=$wanPort]] > 0) && ([:len [/interface/list/member find list=WAN interface=$wanPort]] = 0)) do={
+                /interface/list/member add list=WAN interface=$wanPort comment=$tag
+                :log info ("nasnet-panel: " . $wanPort . " added to the WAN list; its address and routes are untouched")
+            }
+        } do={
+            :set failed true
+            :log error ("nasnet-panel: WAN list membership failed: " . $err)
+        }
+
+        :onerror err in={
+            :if ([:len [/ip/firewall/filter find comment=$containerRouterComment]] = 0) do={
+                :local rule [/ip/firewall/filter add chain=input action=accept protocol=tcp src-address=$containerSubnet dst-port=22,8728,8729 comment=$containerRouterComment]
+                :local n 0
+                :local stop false
+                :foreach i in=[/ip/firewall/filter find] do={
+                    :if (!$stop) do={
+                        :if ([/ip/firewall/filter get $i dynamic]) do={ :set n ($n + 1) } else={ :set stop true }
+                    }
+                }
+                /ip/firewall/filter move $rule destination=$n
+                :log info ("nasnet-panel: input accept for the container (" . $containerSubnet . " to SSH and the API) added; existing firewall rules kept")
+            }
+        } do={
+            :set failed true
+            :log error ("nasnet-panel: container input rule failed: " . $err)
+        }
+    }
+
+    :if (!$layoutPresent && !$isCHR) do={
         :onerror err in={
             :local wanUplink ""
             :foreach m in=[/interface/list/member find where list=WAN disabled=no] do={
@@ -176,6 +225,8 @@
         }
     }
 
+    # Discovery and the MAC server are left alone on a CHR: its only interface faces the internet.
+    :if (!$isCHR) do={
     :onerror err in={
         /ip/neighbor/discovery-settings set discover-interface-list=all
         /tool/mac-server set allowed-interface-list=all
@@ -183,6 +234,7 @@
     } do={
         :set failed true
         :log error ("nasnet-panel: management access settings failed: " . $err)
+    }
     }
 
     :onerror err in={
@@ -192,7 +244,11 @@
         :if (([:len $staticDNS] = 0) && ([:len $dynamicDNS] = 0) && ([:len $dohServer] = 0)) do={
             /ip/dns set servers=1.1.1.1,1.0.0.1
         }
-        /ip/dns set allow-remote-requests=yes
+        # Remote DNS requests stay off on a CHR; it would answer the whole internet. The
+        # container resolves through the dstnat rules below instead.
+        :if (!$isCHR) do={
+            /ip/dns set allow-remote-requests=yes
+        }
     } do={
         :set failed true
         :log error ("nasnet-panel: router DNS preparation failed: " . $err)
@@ -334,6 +390,11 @@
         :log error "nasnet-panel: BASELINE FINISHED WITH ERRORS; inspect the preceding nasnet-panel log lines"
         :error "nasnet-panel baseline finished with errors"
     }
-    :log info ("nasnet-panel: BASELINE READY; LAN gateway is " . $lanIP . "; reconnect at " . $lanIP . " or by MAC address")
-    :put ("NasNet baseline ready. Reconnect at " . $lanIP . "; clients on the old subnet renew DHCP automatically.")
+    :if ($isCHR) do={
+        :log info "nasnet-panel: BASELINE READY (CHR); the panel stays on the router's own address"
+        :put "NasNet baseline ready (CHR). The panel stays on the router's own address."
+    } else={
+        :log info ("nasnet-panel: BASELINE READY; LAN gateway is " . $lanIP . "; reconnect at " . $lanIP . " or by MAC address")
+        :put ("NasNet baseline ready. Reconnect at " . $lanIP . "; clients on the old subnet renew DHCP automatically.")
+    }
 }
