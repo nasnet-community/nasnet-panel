@@ -406,7 +406,7 @@ func (c *Client) CopyFile(sourceFilename, destinationFilename string) error {
 	return c.AddFile(destinationFilename, contents)
 }
 
-// RenameFile renames or moves a file with /file/reset name=, without reading or copying its
+// RenameFile renames or moves a file with /file/set name=, without reading or copying its
 // contents. When the new name is in another directory, that directory must already exist.
 func (c *Client) RenameFile(oldFilename, newFilename string) error {
 	if oldFilename == "" {
@@ -416,7 +416,12 @@ func (c *Client) RenameFile(oldFilename, newFilename string) error {
 		return fmt.Errorf("new filename is required")
 	}
 
-	if _, err := c.Execute("/file/reset", "=numbers="+oldFilename, "=name="+newFilename); err != nil {
+	fileInfo, err := c.GetFile(oldFilename)
+	if err != nil {
+		return fmt.Errorf("failed to find file %s: %w", oldFilename, err)
+	}
+
+	if _, err := c.Execute("/file/set", "=.id="+fileInfo.ID, "=name="+newFilename); err != nil {
 		return fmt.Errorf("failed to rename file %s to %s: %w", oldFilename, newFilename, err)
 	}
 
