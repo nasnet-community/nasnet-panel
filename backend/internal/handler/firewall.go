@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"nasnet-panel/internal/dbsync"
+
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
@@ -20,7 +22,6 @@ var (
 )
 
 const (
-	domesticBlockRuleComment = "Block traffic to DOMAddList"
 	domesticAddressList      = "DOMAddList"
 	domesticWANInterfaceList = "!Domestic-WAN"
 	domesticUserEntryComment = "NasNet Panel: user added"
@@ -140,7 +141,7 @@ func HandleSetDomesticBlock(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to read domestic block rules", err)
 	}
 
-	if domesticBlockRulesMatch(rules, *req.Block) {
+	if dbsync.DomesticBlockRulesMatch(rules, *req.Block) {
 		state := "disabled"
 		if *req.Block {
 			state = "enabled"
@@ -164,24 +165,15 @@ func HandleSetDomesticBlock(c echo.Context) error {
 }
 
 func ensureDomesticBlockRules(client *routeros.Client) ([]routeros.FirewallFilterRule, int, error) {
-	return client.EnsureFirewallFilterRulesByComment(domesticBlockRuleComment, []routeros.FirewallRuleConfig{
+	return client.EnsureFirewallFilterRulesByComment(dbsync.DomesticBlockRuleComment, []routeros.FirewallRuleConfig{
 		{Chain: "forward", Action: "drop", DstAddressList: domesticAddressList, OutInterfaceList: domesticWANInterfaceList},
 		{Chain: "output", Action: "drop", DstAddressList: domesticAddressList, OutInterfaceList: domesticWANInterfaceList},
 	}, true)
 }
 
-func domesticBlockRulesMatch(rules []routeros.FirewallFilterRule, block bool) bool {
-	for i := range rules {
-		if rules[i].Disabled == block {
-			return false
-		}
-	}
-	return true
-}
-
 func toDomesticBlockResponse(rules []routeros.FirewallFilterRule, added int) DomesticBlockResponse {
 	response := DomesticBlockResponse{
-		Block:      domesticBlockRulesMatch(rules, true),
+		Block:      dbsync.DomesticBlockRulesMatch(rules, true),
 		Rules:      make([]DomesticBlockRuleResponse, 0, len(rules)),
 		AddedRules: added,
 	}

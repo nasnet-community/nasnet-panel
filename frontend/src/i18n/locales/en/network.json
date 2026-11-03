@@ -190,22 +190,7 @@
   },
   "firewall": {
     "allChains": "All chains",
-    "nodes": {
-      "ingress": "Ingress",
-      "input": "Input",
-      "router": "Router",
-      "output": "Output",
-      "egress": "Egress",
-      "forward": "Forward"
-    },
-    "diagramAria": "Firewall packet flow diagram",
-    "nodeAria_one": "{{label}}, {{n}} rule",
-    "nodeAria_other": "{{label}}, {{n}} rules",
-    "ruleCount_one": "{{n}} rule",
-    "ruleCount_other": "{{n}} rules",
-    "noRules": "No rules",
     "any": "any",
-    "noComment": "(no comment)",
     "loadFailed": "Failed to load firewall rules.",
     "columns": {
       "chain": "Chain",
@@ -226,7 +211,73 @@
     "chain": "Chain",
     "chainFilterAria": "Chain filter",
     "empty": "No firewall rules configured.",
-    "emptyInChain": "No firewall rules configured in the {{chain}} chain."
+    "emptyInChain": "No firewall rules configured in the {{chain}} chain.",
+    "domestic": {
+      "title": "Domestic addresses",
+      "description": "The DOMAddList address list holds the domestic IP ranges. The router keeps it up to date, and you can add your own addresses, which updates leave in place.",
+      "add": "Add address",
+      "loading": "Loading…",
+      "empty": "No addresses added yet.",
+      "loadFailed": "Failed to load the domestic address list.",
+      "never": "Never",
+      "editFor": "Edit {{address}}",
+      "deleteFor": "Delete {{address}}",
+      "delete": "Delete",
+      "deleting": "Deleting…",
+      "block": "Block traffic to domestic addresses",
+      "blockHint": "Drops traffic from your network and from the router itself to any address in the list.",
+      "blockPartial": "Only some of the block rules are enabled on the router. Turn the switch on or off to set them all.",
+      "blockLoadFailed": "Failed to load the domestic block status.",
+      "info": {
+        "total": "Total entries",
+        "auto": "Updated automatically",
+        "manual": "Added by you",
+        "lastUpdate": "Last update"
+      },
+      "columns": {
+        "address": "Address or range",
+        "timeout": "Timeout",
+        "created": "Added"
+      },
+      "form": {
+        "addTitle": "Add domestic address",
+        "editTitle": "Edit domestic address",
+        "save": "Save",
+        "saving": "Saving…",
+        "addressRequired": "Address is required.",
+        "addressInvalid": "Enter an IPv4 address or range, such as 203.0.113.0/24. /0 is not allowed.",
+        "keepTimeoutCurrent": "Keep current ({{timeout}})",
+        "keepTimeoutNever": "Keep current (never expires)",
+        "timeouts": {
+          "1h": "1 hour",
+          "6h": "6 hours",
+          "1d": "1 day",
+          "7d": "7 days",
+          "30d": "30 days"
+        }
+      },
+      "toasts": {
+        "added": "{{address}} added",
+        "updated": "{{address}} updated",
+        "deleted": "{{address}} deleted",
+        "addFailed": "Failed to add address",
+        "updateFailed": "Failed to update address",
+        "deleteFailed": "Failed to delete address",
+        "blockOn": "Traffic to domestic addresses is blocked",
+        "blockOff": "Traffic to domestic addresses is allowed",
+        "blockFailed": "Failed to change the domestic block"
+      },
+      "confirmBlock": {
+        "title": "Block traffic to domestic addresses?",
+        "description": "Devices on your network and the router itself will not be able to reach any address in the domestic list until you turn this off.",
+        "confirm": "Block"
+      },
+      "confirmDelete": {
+        "title": "Delete domestic address",
+        "description": "Remove {{address}} from the domestic address list? This cannot be undone."
+      },
+      "edit": "Edit"
+    }
   },
   "bridge": {
     "kinds": {

@@ -1,6 +1,8 @@
 :local nasnetDir "nasnet-panel"
+:local certDir ($nasnetDir . "/certificates")
 :local baseConfigRetry 0
 :local baseConfigSucceeded false
+:local domesticIPUpdateStarted false
 
 :global BaseConfigFailed
 :global BaseConfigMessage
@@ -12,6 +14,9 @@
 :onerror dirErr in={
     :if ([:len [/file find name=$nasnetDir]] = 0) do={
         /file add name=$nasnetDir type=directory
+    }
+    :if ([:len [/file find name=$certDir]] = 0) do={
+        /file add name=$certDir type=directory
     }
 } do={
     :set BaseConfigFailed true
@@ -206,8 +211,8 @@ add name="WAN"
 add name="LAN"
 add name="Split-WAN" comment="Split"
 add name="Split-LAN" comment="Split"
-{{ if .DomesticEnabled}}
 add name="Domestic-WAN" comment="Domestic"
+{{ if .DomesticEnabled}}
 add name="Domestic-LAN" comment="Domestic"
 add name="Domestic-Domestic Link-WAN" comment="Domestic-Domestic Link"
 add name="Domestic-Domestic Link-LAN" comment="Domestic-Domestic Link"
@@ -752,6 +757,11 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :set BaseConfigMessage "Removing the baseConfig script"
 /system script remove [find name=base_config]
 
+:if (!$domesticIPUpdateStarted) do={
+    :execute script={/system script run DomesticIPUpdate-OneTime}
+    :set domesticIPUpdateStarted true
+}
+
 :global BaseConfigProgress "99"
 :set BaseConfigMessage "Writing baseConfig success marker"
 /file add name=($nasnetDir . "/nasnet-panel-base-config-success.txt") contents=(([/system clock get date] . "T" . [/system clock get time] . "Z"))
@@ -776,5 +786,3 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
     :log error "BaseConfig: All $baseConfigRetry attempts failed, giving up"
     :exit
 }
-
-/system script run DomesticIPUpdate-OneTime

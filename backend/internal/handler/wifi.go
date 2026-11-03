@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"nasnet-panel/internal/dbsync"
+
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/pkg/routeros"
@@ -711,8 +713,8 @@ func HandleCreateVirtualWiFiInterface(c echo.Context) error {
 	if err := validateSecurityTypes(req.SecurityTypes); err != nil {
 		return ErrorResponse(c, http.StatusBadRequest, err.Error(), nil)
 	}
-	if !strings.HasPrefix(req.Bridge, lanBridgeNamePrefix) {
-		return ErrorResponse(c, http.StatusBadRequest, "bridge must start with \""+lanBridgeNamePrefix+"\"", nil)
+	if !strings.HasPrefix(req.Bridge, dbsync.LANBridgeNamePrefix) {
+		return ErrorResponse(c, http.StatusBadRequest, "bridge must start with \""+dbsync.LANBridgeNamePrefix+"\"", nil)
 	}
 
 	client, err := GetRouterOSClient(c)

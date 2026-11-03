@@ -1,12 +1,15 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"nasnet-panel/internal/dbsync"
 
 	"nasnet-panel/pkg/utils"
 
@@ -225,8 +228,8 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 	if req.Interface == "" || req.Bridge == "" {
 		return ErrorResponse(c, http.StatusBadRequest, "interface and bridge are both required", nil)
 	}
-	if !strings.HasPrefix(req.Bridge, lanBridgeNamePrefix) {
-		return ErrorResponse(c, http.StatusBadRequest, "bridge must start with \""+lanBridgeNamePrefix+"\"", nil)
+	if !strings.HasPrefix(req.Bridge, dbsync.LANBridgeNamePrefix) {
+		return ErrorResponse(c, http.StatusBadRequest, "bridge must start with \""+dbsync.LANBridgeNamePrefix+"\"", nil)
 	}
 
 	client, err := GetRouterOSClient(c)
@@ -275,10 +278,6 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 	})
 }
 
-// lanBridgeNamePrefix is the prefix GET /api/interface/bridges filters
-// bridge names by.
-const lanBridgeNamePrefix = "LANBridge"
-
 // HandleListBridges lists every bridge whose name starts with "LANBridge".
 // @Summary List LAN bridges
 // @Description Get every /interface/bridge entry whose name starts with "LANBridge"
@@ -306,7 +305,7 @@ func HandleListBridges(c echo.Context) error {
 
 	response := make([]BridgeResponse, 0, len(bridges))
 	for i := range bridges {
-		if !strings.HasPrefix(bridges[i].Name, lanBridgeNamePrefix) {
+		if !strings.HasPrefix(bridges[i].Name, dbsync.LANBridgeNamePrefix) {
 			continue
 		}
 		response = append(response, toBridgeResponse(&bridges[i]))
@@ -343,7 +342,7 @@ func HandleListBridgePorts(c echo.Context) error {
 
 	response := make([]BridgePortResponse, 0, len(ports))
 	for i := range ports {
-		if !strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
+		if !strings.HasPrefix(ports[i].Bridge, dbsync.LANBridgeNamePrefix) {
 			continue
 		}
 		response = append(response, toBridgePortResponse(&ports[i]))
@@ -431,7 +430,7 @@ func oldWANWiFiNames(client *routeros.Client, wanType string) map[string]string 
 
 	for i := range wifis {
 		comment := wifis[i].Comment
-		if t, ok := wanTypeFromComment(&comment); !ok || t != wanType || wifis[i].DefaultName == "" {
+		if t, ok := dbsync.WANTypeFromComment(&comment); !ok || t != wanType || wifis[i].DefaultName == "" {
 			continue
 		}
 		if band := getWifiBandFromRadios(radios, wifis[i].Name); band != "" {
@@ -535,4 +534,26 @@ func bridgePortMoveScript(iface, bridge, comment string) string {
 		utils.EscapeQuotes(iface),
 		utils.EscapeQuotes(iface),
 	)
+}
+
+const (
+	wanChangeDoneVariable = "ChangeWANDone"
+	scriptDoneTimeout     = time.Minute
+	scriptDonePollEvery   = 500 * time.Millisecond
+)
+
+func waitForScriptDone(ctx context.Context, client *routeros.Client, variable, token string) bool {
+	ticker := time.NewTicker(scriptDonePollEvery)
+	defer ticker.Stop()
+
+	for {
+		if value, err := client.GetEnvironmentVariable(variable); err == nil && value == token {
+			return true
+		}
+		select {
+		case <-ctx.Done():
+			return false
+		case <-ticker.C:
+		}
+	}
 }
