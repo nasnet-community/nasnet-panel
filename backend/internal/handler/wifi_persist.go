@@ -5,33 +5,12 @@ import (
 	"strings"
 
 	"nasnet-panel/internal/db"
+	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
-
-func storableWiFi(w *routeros.WifiInfo) bool {
-	return w.Name != managementWifiName && w.SSID != "" && validWifiMode(w.Mode)
-}
-
-func wifiRecord(w *routeros.WifiInfo, masterDefaultName, bridge string) *db.WiFi {
-	record := &db.WiFi{
-		Name:        w.Name,
-		DefaultName: w.DefaultName,
-		SSID:        w.SSID,
-		Password:    w.Passphrase,
-		Enabled:     !w.Disabled,
-		Mode:        w.Mode,
-		IsVirtual:   w.IsVirtual,
-		Bridge:      bridge,
-		AuthTypes:   w.SecurityType,
-	}
-	if w.IsVirtual {
-		record.Master = masterDefaultName
-	}
-	return record
-}
 
 func persistVirtualWiFi(c echo.Context, client *routeros.Client, wifi *routeros.WifiInfo, masterDefaultName, bridge string) {
 	port, err := client.GetBridgePort(bridge, wifi.Name)
@@ -41,10 +20,10 @@ func persistVirtualWiFi(c echo.Context, client *routeros.Client, wifi *routeros.
 	}
 
 	withRouterDB(c, client, "save virtual WiFi "+wifi.Name, func(ctx context.Context, conn *sqlx.DB) error {
-		if err := db.UpsertWiFi(ctx, conn, wifiRecord(wifi, masterDefaultName, bridge)); err != nil {
+		if err := db.UpsertWiFi(ctx, conn, dbsync.WiFiRecord(wifi, masterDefaultName, bridge)); err != nil {
 			return err
 		}
-		return db.UpsertBridgePort(ctx, conn, bridgePortRecord(port, nil))
+		return db.UpsertBridgePort(ctx, conn, dbsync.BridgePortRecord(port, nil))
 	})
 }
 
@@ -54,7 +33,7 @@ func persistWiFi(c echo.Context, client *routeros.Client, nameOrID string) {
 		c.Logger().Errorf("Failed to read WiFi interface %s for the database: %v", nameOrID, err)
 		return
 	}
-	if !storableWiFi(wifi) {
+	if !dbsync.StorableWiFi(wifi) {
 		return
 	}
 
@@ -75,25 +54,19 @@ func persistWiFi(c echo.Context, client *routeros.Client, nameOrID string) {
 	}
 	bridge := ""
 	for i := range ports {
-		if ports[i].Interface == wifi.Name && strings.HasPrefix(ports[i].Bridge, lanBridgeNamePrefix) {
+		if ports[i].Interface == wifi.Name && strings.HasPrefix(ports[i].Bridge, dbsync.LANBridgeNamePrefix) {
 			bridge = ports[i].Bridge
 			break
 		}
 	}
 
 	withRouterDB(c, client, "save WiFi "+wifi.Name, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.UpsertWiFi(ctx, conn, wifiRecord(wifi, masterDefaultName, bridge))
+		return db.UpsertWiFi(ctx, conn, dbsync.WiFiRecord(wifi, masterDefaultName, bridge))
 	})
 }
 
 func removeWiFiFromDB(c echo.Context, client *routeros.Client, name string) {
 	withRouterDB(c, client, "delete WiFi "+name, func(ctx context.Context, conn *sqlx.DB) error {
 		return db.DeleteWiFi(ctx, conn, name)
-	})
-}
-
-func removeBridgePortFromDB(c echo.Context, client *routeros.Client, iface string) {
-	withRouterDB(c, client, "delete bridge port "+iface, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.DeleteBridgePort(ctx, conn, iface)
 	})
 }

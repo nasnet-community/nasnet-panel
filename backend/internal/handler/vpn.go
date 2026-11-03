@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/internal/db"
+	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 	"nasnet-panel/pkg/wgcfg"
@@ -3182,7 +3183,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	clientCertPasswordFile := routeros.NasnetPanelPath(clientName + "-password.txt")
+	clientCertPasswordFile := routeros.NasnetCertificatePath(clientName + "-password.txt")
 	if err := client.AddFile(clientCertPasswordFile, req.ClientCertificatePassword); err != nil {
 		setError("Failed to save client certificate password: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
@@ -3917,17 +3918,6 @@ func HandleUpdateOvpnServerEnabled(c echo.Context) error {
 	})
 }
 
-func extractOvpnServerTimestamp(name string) string {
-	rest, ok := strings.CutPrefix(name, "ovpn-server-")
-	if !ok {
-		return ""
-	}
-	if _, err := strconv.Atoi(rest); err != nil {
-		return ""
-	}
-	return rest
-}
-
 // HandleDeleteOvpnServer deletes an OpenVPN server and all related items.
 // @Summary Delete OpenVPN Server
 // @Description Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)
@@ -3966,7 +3956,7 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 		baseName = strings.TrimSuffix(baseName, "-udp")
 	}
 
-	timestamp := extractOvpnServerTimestamp(baseName)
+	timestamp := dbsync.ExtractOvpnServerTimestamp(baseName)
 	deleteErrors := []string{}
 
 	deleteCertFiles := c.QueryParam("deleteCertificateFiles") == "true"
