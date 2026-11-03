@@ -35,8 +35,10 @@ import {
   fetchUpdateInfo,
   installAppUpdate,
   installUpdate,
+  fetchSystemUpdateStatus,
   type AppCheckForUpdatesResponse,
   type UpdateCheckResponse,
+  type SystemUpdateStatusResponse,
   type UpdateInfoResponse,
 } from '../api';
 import { useRouterStore } from '../state/RouterStoreContext';
@@ -55,6 +57,36 @@ const APP_UPDATE_STEPS: Record<string, { value: number; step: ProgressStep }> = 
   pulling: { value: 55, step: 'pulling' },
   restarting: { value: 85, step: 'restarting' },
 };
+
+// The backend gives up after 15 minutes; wait a little longer before giving up here.
+const FIRMWARE_UPDATE_TIMEOUT_MS = 16 * 60 * 1000;
+const FIRMWARE_POLL_MS = 2000;
+
+// `step` is a key under updates.progress in the catalog, translated at render.
+type FirmwareStep = 'starting' | 'downloadingFirmware' | 'rebootingRouter' | 'done';
+
+interface FirmwareProgress {
+  value: number;
+  step: FirmwareStep;
+  /** Download percentage, when RouterOS reports one in its status text. */
+  percent?: number;
+}
+
+function firmwareProgress(status: SystemUpdateStatusResponse): FirmwareProgress | null {
+  if (status.phase === 'downloading') {
+    const match = /(\d{1,3})\s*%/.exec(status.message ?? '');
+    const percent = match ? Math.min(100, Number(match[1])) : undefined;
+    // The download fills 10–70% of the bar; the reboot takes the rest.
+    return {
+      value: percent === undefined ? 25 : 10 + Math.round(percent * 0.6),
+      step: 'downloadingFirmware',
+      percent,
+    };
+  }
+  if (status.phase === 'rebooting') return { value: 80, step: 'rebootingRouter' };
+  if (status.phase === 'done') return { value: 100, step: 'done' };
+  return null;
+}
 
 function isValidDate(value: string): boolean {
   return !Number.isNaN(new Date(value).getTime());
@@ -452,8 +484,18 @@ function FirmwareUpdateCard() {
   const [confirming, setConfirming] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [complete, setComplete] = useState(false);
+  const [progress, setProgress] = useState<FirmwareProgress | null>(null);
+  const watchingRef = useRef(false);
   const toast = useToast();
   const { t } = useTranslation('tools');
+  const format = useFormat();
+
+  useEffect(
+    () => () => {
+      watchingRef.current = false;
+    },
+    [],
+  );
 
   const reload = useCallback(async () => {
     if (!creds || !host) {
@@ -513,36 +555,101 @@ function FirmwareUpdateCard() {
     };
   }, [host, creds, t]);
 
+  const stopWatching = () => {
+    watchingRef.current = false;
+    setInstalling(false);
+  };
+
+  const watchUpdate = (startedAt: number) => {
+    if (!watchingRef.current || !creds || !host) return;
+    if (Date.now() - startedAt > FIRMWARE_UPDATE_TIMEOUT_MS) {
+      stopWatching();
+      setProgress(null);
+      toast.notify({
+        title: t('updates.firmware.failed'),
+        description: t('updates.firmware.timeout'),
+        tone: 'danger',
+      });
+      return;
+    }
+    void fetchSystemUpdateStatus({ host, ...creds })
+      .catch(() => null)
+      .then((status) => {
+        if (!watchingRef.current) return;
+        if (status?.phase === 'error') {
+          stopWatching();
+          setProgress(null);
+          toast.notify({
+            title: t('updates.firmware.failed'),
+            description: status.message,
+            tone: 'danger',
+          });
+          return;
+        }
+        if (status?.phase === 'done') {
+          stopWatching();
+          setProgress({ value: 100, step: 'done' });
+          setComplete(true);
+          toast.notify({
+            title: t('updates.firmware.updated', { version: status.toVersion ?? '' }),
+            tone: 'success',
+          });
+          void reload();
+          return;
+        }
+        const next = status ? firmwareProgress(status) : null;
+        if (next) setProgress(next);
+        window.setTimeout(() => watchUpdate(startedAt), FIRMWARE_POLL_MS);
+      });
+  };
+
+  // Pick up an update that is already running, for example after a page reload.
+  useEffect(() => {
+    if (!creds || !host) return;
+    let cancelled = false;
+    void fetchSystemUpdateStatus({ host, ...creds })
+      .then((status) => {
+        if (cancelled || watchingRef.current) return;
+        if (status.phase !== 'downloading' && status.phase !== 'rebooting') return;
+        const startedAt = status.startedAt ? Date.parse(status.startedAt) : Date.now();
+        setInstalling(true);
+        setProgress(firmwareProgress(status));
+        watchingRef.current = true;
+        watchUpdate(Number.isNaN(startedAt) ? Date.now() : startedAt);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // watchUpdate reads the latest creds and host through this effect's own deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [host, creds]);
+
   const install = async () => {
     setConfirming(false);
     if (!creds || !host) return;
     setInstalling(true);
     setComplete(false);
+    setProgress({ value: 5, step: 'starting' });
     try {
       const result = await installUpdate({ host, ...creds });
-      setComplete(true);
-      if (result.success) {
-        toast.notify({
-          title: t('updates.firmware.started'),
-          description: result.message || t('updates.firmware.startedDetail'),
-          tone: 'success',
-        });
-      } else {
-        toast.notify({
-          title: t('updates.firmware.failed'),
-          description: result.message,
-          tone: 'danger',
-        });
+      if (!result.updateAvailable) {
+        setInstalling(false);
+        setProgress(null);
+        toast.notify({ title: t('updates.firmware.alreadyUpToDate'), tone: 'success' });
+        await reload();
+        return;
       }
-      await reload();
+      watchingRef.current = true;
+      watchUpdate(Date.now());
     } catch (err) {
+      setInstalling(false);
+      setProgress(null);
       toast.notify({
         title: t('updates.firmware.failed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
-    } finally {
-      setInstalling(false);
     }
   };
 
@@ -653,7 +760,21 @@ function FirmwareUpdateCard() {
               </>
             ) : null}
 
-            {check?.updateAvailable || downloaded ? (
+            {progress ? (
+              <Progress
+                value={progress.value}
+                label={
+                  progress.percent !== undefined
+                    ? t('updates.progress.downloadingFirmwarePercent', {
+                        percent: format.number(progress.percent),
+                      })
+                    : t(`updates.progress.${progress.step}`)
+                }
+                tone={progress.value > 60 ? 'success' : 'info'}
+              />
+            ) : null}
+
+            {check?.updateAvailable || downloaded || installing ? (
               <div className={styles.actions}>
                 <Button
                   variant="success"

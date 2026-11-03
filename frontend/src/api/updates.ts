@@ -20,10 +20,19 @@ export interface UpdateCheckResponse {
 }
 
 export interface UpdateInstallResponse {
-  success: boolean;
-  message: string;
-  installedVersion: string;
-  latestVersion: string;
+  updateAvailable: boolean;
+  fromVersion: string;
+  toVersion?: string;
+}
+
+export type SystemUpdatePhase = 'idle' | 'downloading' | 'rebooting' | 'done' | 'error';
+
+export interface SystemUpdateStatusResponse {
+  phase: SystemUpdatePhase;
+  message?: string;
+  fromVersion?: string;
+  toVersion?: string;
+  startedAt?: string;
 }
 
 export interface AppVersionResponse {
@@ -88,6 +97,18 @@ export async function installUpdate(creds: SystemCredentials): Promise<UpdateIns
   return apiRequest<UpdateInstallResponse>('/api/system/install-update', {
     method: 'POST',
     headers: authHeaders(creds),
+  });
+}
+
+export async function fetchSystemUpdateStatus(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<SystemUpdateStatusResponse> {
+  return apiRequest<SystemUpdateStatusResponse>('/api/system/update-status', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
   });
 }
 
