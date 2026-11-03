@@ -770,6 +770,7 @@ function FirmwareUpdateCard() {
                       })
                     : t(`updates.progress.${progress.step}`)
                 }
+                tone={progress.value > 60 ? 'success' : 'info'}
               />
             ) : null}
 
