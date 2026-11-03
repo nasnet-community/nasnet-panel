@@ -499,7 +499,7 @@ export async function fetchNasnetVpnCredentials(
   creds: VPNCredentials,
   signal?: AbortSignal,
 ): Promise<NasnetVpnCredentialsResponse> {
-  return apiRequest<NasnetVpnCredentialsResponse>('/api/wizard/vpn', {
+  return apiRequest<NasnetVpnCredentialsResponse>('/api/config/vpn', {
     method: 'POST',
     headers: authHeaders(creds),
     body: '{}',
@@ -559,7 +559,7 @@ export async function finalizeWizard(
   body: FinalizeWizardRequest,
   signal?: AbortSignal,
 ): Promise<FinalizeWizardResponse> {
-  return apiRequest<FinalizeWizardResponse>('/api/wizard/finalize', {
+  return apiRequest<FinalizeWizardResponse>('/api/config/wizard/finalize', {
     method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
@@ -578,7 +578,7 @@ export async function fetchWizardStatus(
   creds: VPNCredentials,
   signal?: AbortSignal,
 ): Promise<WizardStatus> {
-  return apiRequest<WizardStatus>('/api/wizard/status', {
+  return apiRequest<WizardStatus>('/api/config/wizard/status', {
     headers: authHeaders(creds),
     signal,
   });

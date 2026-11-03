@@ -713,3 +713,62 @@ func (c *Client) RemoveCertificateFiles(name string) error {
 
 	return errors.Join(errs...)
 }
+
+// CertificateExists reports whether a certificate with the given name is in the router's certificate store.
+func (c *Client) CertificateExists(name string) (bool, error) {
+	results, err := c.GetAll("/certificate", "?=name="+name)
+	if err != nil {
+		return false, fmt.Errorf("failed to query certificate %s: %w", name, err)
+	}
+
+	return len(results) > 0, nil
+}
+
+// ImportCertificateFiles imports the certificate called name from the files ExportCertificate left in
+// NasnetPanelDir (name.crt and, when present, name.key), renames the imported certificate to name and
+// marks it trusted. The passphrase is the one the private key was exported with, empty when it has none.
+// It returns false without changing anything when name.crt does not exist.
+func (c *Client) ImportCertificateFiles(name, passphrase string) (bool, error) {
+	certFile := name + ".crt"
+	keyFile := name + ".key"
+
+	exists, err := c.FileExists(NasnetPanelPath(certFile))
+	if err != nil {
+		return false, fmt.Errorf("failed to check file %s: %w", certFile, err)
+	}
+	if !exists {
+		return false, nil
+	}
+
+	if _, err := c.Execute("/certificate/import", "=file-name="+NasnetPanelPath(certFile), "=passphrase="); err != nil {
+		return false, fmt.Errorf("failed to import certificate file %s: %w", certFile, err)
+	}
+
+	hasKey, err := c.FileExists(NasnetPanelPath(keyFile))
+	if err != nil {
+		return false, fmt.Errorf("failed to check file %s: %w", keyFile, err)
+	}
+	if hasKey {
+		if _, err := c.Execute("/certificate/import", "=file-name="+NasnetPanelPath(keyFile), "=passphrase="+passphrase); err != nil {
+			return false, fmt.Errorf("failed to import private key file %s: %w", keyFile, err)
+		}
+	}
+
+	results, err := c.GetAll("/certificate")
+	if err != nil {
+		return false, fmt.Errorf("failed to list certificates: %w", err)
+	}
+	for _, result := range results {
+		if strings.HasPrefix(result["name"], certFile) {
+			if err := c.RenameCertificate(result["name"], name); err != nil {
+				return false, err
+			}
+			if err := c.SetCertificateTrusted(name, true); err != nil {
+				return false, err
+			}
+			return true, nil
+		}
+	}
+
+	return false, fmt.Errorf("certificate %s was not found after importing %s", name, certFile)
+}

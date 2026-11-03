@@ -24,7 +24,7 @@ type ReleaseUpdateResponse struct {
 	ReleaseURL         string   `json:"releaseUrl"`
 	MinRouterosVersion string   `json:"minRouterosVersion"`
 	MinAppVersion      string   `json:"minAppVersion"`
-	Installable        bool     `json:"installable"`
+	AutoReconfigable   bool     `json:"autoReconfigable"`
 	Changelog          []string `json:"changelog"`
 }
 
@@ -69,6 +69,8 @@ type UpdateStatusResponse struct {
 	Message   string `json:"message,omitempty"`
 	Version   string `json:"version,omitempty"`
 	StartedAt string `json:"startedAt,omitempty"`
+
+	Reconfig *ReconfigStatusResponse `json:"reconfig,omitempty"`
 }
 
 // ToSettingResponse converts a stored Setting to API SettingResponse.

@@ -27,7 +27,19 @@ const vpnStatusCheckIP = "1.0.0.1"
 
 // vpnLANAddressList is the firewall address list the VPN routing rules match
 // on as src-address-list, set up by the wizard template.
-const vpnLANAddressList = "VPN-LAN"
+const (
+	vpnLANAddressList = "VPN-LAN"
+	l2tpServerComment = "l2tp-server"
+)
+
+// L2TP-over-IPsec needs accept/mark rules for the L2TP data port itself (udp/1701) plus the IPsec
+// negotiation traffic that carries it: IKE (udp/500), NAT-T (udp/4500), and ESP (protocol ipsec-esp, no port).
+var l2tpServerRuleSpecs = []l2tpRuleSpec{
+	{protocol: "udp", dstPort: "1701", suffix: ""},
+	{protocol: "udp", dstPort: "500", suffix: "-ike"},
+	{protocol: "udp", dstPort: "4500", suffix: "-nat-t"},
+	{protocol: "ipsec-esp", dstPort: "", suffix: "-esp"},
+}
 
 // OvpnServerTask tracks the status and progress of an OpenVPN server creation task.
 type OvpnServerTask struct {
@@ -1229,22 +1241,6 @@ func HandleCreateL2tpServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to enable L2TP server", err)
 	}
 
-	const l2tpServerComment = "l2tp-server"
-
-	// L2TP-over-IPsec needs accept/mark rules for the L2TP data port itself
-	// (udp/1701) plus the IPsec negotiation traffic that carries it: IKE
-	// (udp/500), NAT-T (udp/4500), and ESP (protocol ipsec-esp, no port).
-	l2tpRuleSpecs := []struct {
-		protocol string
-		dstPort  string
-		suffix   string
-	}{
-		{protocol: "udp", dstPort: "1701", suffix: ""},
-		{protocol: "udp", dstPort: "500", suffix: "-ike"},
-		{protocol: "udp", dstPort: "4500", suffix: "-nat-t"},
-		{protocol: "ipsec-esp", dstPort: "", suffix: "-esp"},
-	}
-
 	var createdFwRuleIDs []string
 	var createdMangleRuleIDs []string
 
@@ -1264,7 +1260,7 @@ func HandleCreateL2tpServer(c echo.Context) error {
 		}
 	}
 
-	for _, spec := range l2tpRuleSpecs {
+	for _, spec := range l2tpServerRuleSpecs {
 		fwRuleConfig := routeros.FirewallRuleConfig{
 			Chain:           "input",
 			Action:          "accept",
@@ -1287,7 +1283,7 @@ func HandleCreateL2tpServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to find reply routing mangle rule", err)
 	}
 
-	for _, spec := range l2tpRuleSpecs {
+	for _, spec := range l2tpServerRuleSpecs {
 		mangleRuleConfig := routeros.MangleRuleConfig{
 			Chain:             "input",
 			Action:            "mark-connection",
@@ -3176,7 +3172,7 @@ func processOvpnServerTask(client *routeros.Client, task *OvpnServerTask, req Cr
 		return
 	}
 
-	if err := client.ExportCertificate(serverName, ""); err != nil {
+	if err := client.ExportCertificate(serverName, req.ClientCertificatePassword); err != nil {
 		setError("Failed to export Server certificate: "+err.Error(), "", "", "", []string{caName, serverName, clientName})
 		return
 	}
@@ -3615,7 +3611,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		return
 	}
 
-	var caName, serverName string
+	var caName, serverName, serverCertificatePassword string
 	if existingCert != "" {
 		serverName = existingCert
 		updateTask(60, "Reusing existing SSTP server certificate")
@@ -3623,6 +3619,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 		timestamp := fmt.Sprintf("%d", time.Now().Unix())
 		caName = "sstp-ca-" + timestamp
 		serverName = "sstp-server-" + timestamp
+		serverCertificatePassword = utils.RandString(24)
 
 		updateTask(10, "Creating CA certificate")
 		caCertParams := routeros.AddCertificateParams{
@@ -3684,7 +3681,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 			setError("Failed to export CA certificate: "+err.Error(), []string{caName, serverName})
 			return
 		}
-		if err := client.ExportCertificate(serverName, ""); err != nil {
+		if err := client.ExportCertificate(serverName, serverCertificatePassword); err != nil {
 			setError("Failed to export Server certificate: "+err.Error(), []string{caName, serverName})
 			return
 		}
@@ -3756,7 +3753,7 @@ func processSstpServerTask(client *routeros.Client, task *SstpServerTask) {
 
 	updateTask(100, "Completed")
 
-	persistCreatedSstpServer(client, &sstpConfig)
+	persistCreatedSstpServer(client, &sstpConfig, serverCertificatePassword)
 
 	task.mu.Lock()
 	task.Status = "completed"

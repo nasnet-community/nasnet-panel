@@ -262,20 +262,7 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 		comment = *bridge.Comment
 	}
 
-	script := fmt.Sprintf(
-		"/interface bridge port set [find interface=\"%s\"] bridge=\"%s\" comment=\"%s\"\n"+
-			"/interface set [find name=\"%s\"] comment=\"%s\"\n"+
-			"/interface disable [find name=\"%s\"]\n"+
-			":delay 100ms\n"+
-			"/interface enable [find name=\"%s\"]",
-		utils.EscapeQuotes(req.Interface),
-		utils.EscapeQuotes(req.Bridge),
-		utils.EscapeQuotes(comment),
-		utils.EscapeQuotes(req.Interface),
-		utils.EscapeQuotes(comment),
-		utils.EscapeQuotes(req.Interface),
-		utils.EscapeQuotes(req.Interface),
-	)
+	script := bridgePortMoveScript(req.Interface, req.Bridge, comment)
 	if err := client.ExecuteScriptString(script); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update interface bridge", err)
 	}
@@ -531,4 +518,21 @@ func HandleResetInterfaceTrafficCounter(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+func bridgePortMoveScript(iface, bridge, comment string) string {
+	return fmt.Sprintf(
+		"/interface bridge port set [find interface=\"%s\"] bridge=\"%s\" comment=\"%s\"\n"+
+			"/interface set [find name=\"%s\"] comment=\"%s\"\n"+
+			"/interface disable [find name=\"%s\"]\n"+
+			":delay 100ms\n"+
+			"/interface enable [find name=\"%s\"]",
+		utils.EscapeQuotes(iface),
+		utils.EscapeQuotes(bridge),
+		utils.EscapeQuotes(comment),
+		utils.EscapeQuotes(iface),
+		utils.EscapeQuotes(comment),
+		utils.EscapeQuotes(iface),
+		utils.EscapeQuotes(iface),
+	)
 }

@@ -10,9 +10,9 @@ import (
 // WAN is a WAN link chosen in the wizard. Type is "domestic" or "foreign" and
 // InterfaceType is "ether" or "wifi".
 type WAN struct {
-	Type          string
-	InterfaceType string
-	Interface     string
+	Type          string `db:"type"`
+	InterfaceType string `db:"interface_type"`
+	Interface     string `db:"interface"`
 }
 
 // UpsertWAN stores the WAN, replacing the stored one of the same type.

@@ -10,13 +10,14 @@ import (
 // WireGuardInterface is a WireGuard interface with its peers. Type is
 // WireGuardTypeClient or WireGuardTypeServer.
 type WireGuardInterface struct {
-	Name       string
-	Comment    string
-	Type       string
-	PrivateKey string
-	Address    string
-	Enabled    bool
-	Peers      []WireGuardPeer
+	Name       string          `db:"name"`
+	Comment    string          `db:"comment"`
+	Type       string          `db:"type"`
+	PrivateKey string          `db:"private_key"`
+	Address    string          `db:"address"`
+	ListenPort int             `db:"listen_port"`
+	Enabled    bool            `db:"enabled"`
+	Peers      []WireGuardPeer `db:"-"`
 }
 
 // WireGuardTypeClient and WireGuardTypeServer are the values WireGuardInterface.Type can take.
@@ -28,17 +29,18 @@ const (
 func saveWireGuardInterface(ctx context.Context, tx *sqlx.Tx, wg *WireGuardInterface) error {
 	var interfaceID int64
 	err := sqlx.GetContext(ctx, tx, &interfaceID,
-		`INSERT INTO wireguard_interfaces (name, comment, type, private_key, address, enabled)
-		VALUES (?, ?, ?, ?, ?, ?)
+		`INSERT INTO wireguard_interfaces (name, comment, type, private_key, address, listen_port, enabled)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(name) DO UPDATE SET
 			comment = excluded.comment,
 			type = excluded.type,
 			private_key = excluded.private_key,
 			address = excluded.address,
+			listen_port = excluded.listen_port,
 			enabled = excluded.enabled,
 			updated_at = CURRENT_TIMESTAMP
 		RETURNING id`,
-		wg.Name, wg.Comment, wg.Type, wg.PrivateKey, wg.Address, boolInt(wg.Enabled))
+		wg.Name, wg.Comment, wg.Type, wg.PrivateKey, wg.Address, wg.ListenPort, boolInt(wg.Enabled))
 	if err != nil {
 		return fmt.Errorf("failed to save WireGuard interface %s: %w", wg.Name, err)
 	}

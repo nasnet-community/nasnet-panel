@@ -200,11 +200,13 @@ func RegisterRoutes(e *echo.Echo) {
 	netGroup.Use(middleware.RouterOSAuth)
 	netGroup.GET("/status", handler.HandleGetNetStatus)
 
-	wizardGroup := e.Group("/api/wizard")
-	wizardGroup.Use(middleware.RouterOSAuth)
-	wizardGroup.POST("/vpn", handler.HandleGetVPNCredentials)
-	wizardGroup.GET("/status", handler.HandleGetWizardStatus)
-	wizardGroup.POST("/finalize", handler.HandleFinalizeWizard)
+	configGroup := e.Group("/api/config")
+	configGroup.Use(middleware.RouterOSAuth)
+	configGroup.POST("/vpn", handler.HandleGetVPNCredentials)
+	configGroup.GET("/wizard/status", handler.HandleGetWizardStatus)
+	configGroup.POST("/wizard/finalize", handler.HandleFinalizeWizard)
+	configGroup.POST("/reconfig", handler.HandleStartReconfig)
+	configGroup.GET("/reconfig/status", handler.HandleGetReconfigStatus)
 
 	routeGroup := e.Group("/api/route")
 	routeGroup.Use(middleware.RouterOSAuth)
