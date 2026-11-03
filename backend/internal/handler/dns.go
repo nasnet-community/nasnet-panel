@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"nasnet-panel/internal/dbsync"
+
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/labstack/echo/v4"
@@ -34,7 +36,6 @@ const (
 	domesticAddressListMinHealthySize = 1000
 
 	// The adlist URL POST /api/dns/adblock enables/disables.
-	dnsAdBlockURL = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 )
 
 var staticDNSNamePattern = regexp.MustCompile(`^[A-Za-z0-9*_.-]+$`)
@@ -137,7 +138,7 @@ func HandleSetAdBlock(c echo.Context) error {
 
 	var existing *routeros.DNSAdList
 	for i := range adLists {
-		if adLists[i].URL == dnsAdBlockURL {
+		if adLists[i].URL == dbsync.DNSAdBlockURL {
 			existing = &adLists[i]
 			break
 		}
@@ -161,7 +162,7 @@ func HandleSetAdBlock(c echo.Context) error {
 		} else {
 			sslVerify := false
 			if _, err := client.AddDNSAdList(routeros.AddDNSAdListConfig{
-				URL:       dnsAdBlockURL,
+				URL:       dbsync.DNSAdBlockURL,
 				SSLVerify: &sslVerify,
 				Disabled:  false,
 			}); err != nil {

@@ -1325,6 +1325,8 @@ test.describe('WAN VPN clients section', () => {
     await context.route('**/api/interface/traffic-counter/office-sstp-client', async (route) => {
       if (route.request().method() === 'DELETE') {
         resetCalls += 1;
+        // Slow enough that a second click lands while the first reset is pending.
+        await new Promise((resolve) => setTimeout(resolve, 500));
         await route.fulfill({ status: 204, body: '' });
         return;
       }
@@ -1339,11 +1341,11 @@ test.describe('WAN VPN clients section', () => {
 
     const confirm = page.getByRole('dialog');
     await expect(confirm.getByRole('heading', { name: 'Reset traffic counter' })).toBeVisible();
-    await confirm.getByRole('button', { name: 'Reset' }).click();
+    await confirm.getByRole('button', { name: 'Reset' }).dblclick();
 
-    await expect.poll(() => resetCalls).toBe(1);
     await expect(confirm).toBeHidden();
-    await expect(row.getByText('5.00 MB')).toHaveCount(0);
+    expect(resetCalls).toBe(1);
+    await expect(row).toContainText(/0 B\s*\/\s*0 B/);
   });
 
   test('renders empty-state icon when no clients are configured', async ({
