@@ -2410,9 +2410,9 @@ func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCert
 	args := []string{
 		"=server=" + serverName,
 		"=server-address=" + serverAddress,
-		"=ca-certificate=" + c.resolveNasnetFile(caCertName+".crt"),
-		"=client-certificate=" + c.resolveNasnetFile(clientCertName+".crt"),
-		"=client-cert-key=" + c.resolveNasnetFile(clientCertName+".key"),
+		"=ca-certificate=" + c.resolveCertificateFile(caCertName+".crt"),
+		"=client-certificate=" + c.resolveCertificateFile(clientCertName+".crt"),
+		"=client-cert-key=" + c.resolveCertificateFile(clientCertName+".key"),
 	}
 
 	reply, err := c.Execute("/interface/ovpn-server/server/export-client-configuration", args...)

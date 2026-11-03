@@ -17,6 +17,7 @@ import (
 	"nasnet-panel/internal/auth"
 	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/db"
+	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/sftp"
@@ -416,159 +417,6 @@ func startBaseConfigScript(client *routeros.Client, creds *auth.Credentials, ren
 	return "", nil
 }
 
-func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {
-	ctx, cancel := context.WithTimeout(context.Background(), wizardSaveTimeout)
-	defer cancel()
-
-	ticker := time.NewTicker(wizardSavePollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			log.Printf("The wizard did not finish in time, its configuration was not saved to the database")
-			return
-		case <-ticker.C:
-		}
-
-		if failed, err := client.GetEnvironmentVariable("BaseConfigFailed"); err == nil && failed == "true" {
-			log.Printf("The wizard failed, its configuration was not saved to the database")
-			return
-		}
-		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
-			saveWizardConfig(ctx, client, data)
-			return
-		}
-	}
-}
-
-func saveWizardConfig(ctx context.Context, client *routeros.Client, data *WizardSaveData) {
-	req := data.Request
-	cfg := db.Config{
-		WANs: []db.WAN{wizardWAN("foreign", data.Foreign)},
-	}
-	if data.DomesticEnabled {
-		cfg.WANs = append(cfg.WANs, wizardWAN("domestic", data.Domestic))
-	}
-
-	if data.WireGuard != nil {
-		wg := &db.WireGuardInterface{
-			Name:       wizardWireGuardName,
-			Comment:    wizardWireGuardComment,
-			Type:       db.WireGuardTypeClient,
-			PrivateKey: data.WireGuard.InterfacePrivateKey,
-			Address:    data.WireGuard.InterfaceAddress,
-			Enabled:    true,
-		}
-		for i := range data.WireGuard.Peers {
-			peer := &data.WireGuard.Peers[i]
-			port, _ := strconv.Atoi(peer.EndpointPort)
-			keepalive, _ := strconv.Atoi(peer.PersistentKeepalive)
-			wg.Peers = append(wg.Peers, db.WireGuardPeer{
-				Name:                wizardWireGuardPeerName,
-				Comment:             wizardWireGuardPeerComment,
-				Enabled:             true,
-				PublicKey:           peer.PublicKey,
-				PresharedKey:        peer.PreSharedKey,
-				EndpointAddress:     peer.EndpointAddress,
-				EndpointPort:        port,
-				AllowedAddress:      peer.AllowedAddress,
-				PersistentKeepalive: keepalive,
-			})
-		}
-		cfg.WireGuard = wg
-		cfg.Settings = map[string]string{settingKeyForeignGateway: wizardWireGuardName}
-	}
-
-	if req.L2tpClient != nil {
-		cfg.L2TP = &db.L2TPClient{
-			Name:        wizardL2TPName,
-			Comment:     wizardL2TPComment,
-			ConnectTo:   req.L2tpClient.ConnectTo,
-			User:        req.L2tpClient.User,
-			Password:    req.L2tpClient.Password,
-			IPsecSecret: req.L2tpClient.IPsecSecret,
-			Enabled:     true,
-		}
-		if cfg.Settings == nil {
-			cfg.Settings = map[string]string{settingKeyForeignGateway: wizardL2TPName}
-		}
-	}
-
-	cfg.WiFis = wizardWiFis(data)
-	cfg.BridgePorts = wizardBridgePorts(data)
-	cfg.DNSServers = wizardDNSServers(data.DomesticEnabled)
-
-	if req.OvpnServer != nil && data.DomesticEnabled {
-		baseName := fmt.Sprintf("ovpn-server-%d", data.CertificateTimestamp)
-		for _, protocol := range []string{"tcp", "udp"} {
-			cfg.OvpnServers = append(cfg.OvpnServers, db.OvpnServer{
-				Name:                      baseName + "-" + protocol,
-				CertificateTimestamp:      data.CertificateTimestamp,
-				Protocol:                  protocol,
-				Port:                      wizardOvpnPort,
-				ClientCertificatePassword: req.OvpnServer.ClientCertificatePassword,
-				Enabled:                   true,
-			})
-		}
-		for _, user := range req.OvpnServer.Users {
-			cfg.VPNUsers = append(cfg.VPNUsers, db.VPNUser{Username: user.Username, Password: user.Password, Profile: wizardVPNProfile})
-		}
-	}
-
-	conn, err := databaseForClient(ctx, client)
-	if err == nil {
-		err = db.SaveConfig(ctx, conn, &cfg)
-	}
-	if err != nil {
-		log.Printf("Failed to save the wizard configuration: %v", err)
-	}
-}
-
-func wizardBridgePorts(data *WizardSaveData) []db.BridgePort {
-	ports := make([]db.BridgePort, 0, len(data.BridgePorts))
-
-	for i := range data.BridgePorts {
-		port := &data.BridgePorts[i]
-		name := port.Name
-		for j := range data.WifiAPs {
-			if data.WifiAPs[j].DefaultName == port.DefaultName {
-				name = data.WifiAPs[j].NameToSet
-			}
-		}
-		ports = append(ports, db.BridgePort{Bridge: wizardLANBridge, Interface: name, DefaultName: port.DefaultName, Comment: wizardBridgePortComment, Enabled: true})
-	}
-
-	return ports
-}
-
-func wizardWiFis(data *WizardSaveData) []db.WiFi {
-	wifis := make([]db.WiFi, 0, len(data.WifiAPs)+2)
-
-	for i := range data.WifiAPs {
-		ap := &data.WifiAPs[i]
-		wifis = append(wifis, db.WiFi{
-			Name:        ap.NameToSet,
-			DefaultName: ap.DefaultName,
-			SSID:        ap.SSID,
-			Password:    ap.Password,
-			Enabled:     true,
-			Mode:        wizardWifiModeAP,
-			Bridge:      wizardLANBridge,
-			AuthTypes:   wizardWifiAuthTypes,
-		})
-	}
-
-	if data.Foreign.Type == string(routeros.InterfaceTypeWiFi) {
-		wifis = append(wifis, wizardWANWiFi(data.Foreign, "Foreign", ""))
-	}
-	if data.DomesticEnabled && data.Domestic.Type == string(routeros.InterfaceTypeWiFi) {
-		wifis = append(wifis, wizardWANWiFi(data.Domestic, "Domestic", wizardWifiAuthTypes))
-	}
-
-	return wifis
-}
-
 func wizardWANWiFi(iface *InterfaceConfig, link, authTypes string) db.WiFi {
 	return db.WiFi{
 		Name:        iface.Interface + "-" + link + "-WAN",
@@ -869,7 +717,7 @@ func reconfigWifiAPs(wifis []db.WiFi) []WiFiAP {
 	var aps []WiFiAP
 	for i := range wifis {
 		w := &wifis[i]
-		if w.Mode != wizardWifiModeAP || w.IsVirtual || w.DefaultName == "" || !strings.HasPrefix(w.Bridge, lanBridgeNamePrefix) {
+		if w.Mode != wizardWifiModeAP || w.IsVirtual || w.DefaultName == "" || !strings.HasPrefix(w.Bridge, dbsync.LANBridgeNamePrefix) {
 			continue
 		}
 		aps = append(aps, WiFiAP{Name: w.Name, DefaultName: w.DefaultName, NameToSet: w.Name, SSID: w.SSID, Password: w.Password})
@@ -889,7 +737,7 @@ func reconfigBridgePorts(ports []db.BridgePort, aps []WiFiAP) []BridgePort {
 	var result []BridgePort
 	for i := range ports {
 		port := &ports[i]
-		if !strings.HasPrefix(port.Bridge, lanBridgeNamePrefix) || port.DefaultName == "" {
+		if !strings.HasPrefix(port.Bridge, dbsync.LANBridgeNamePrefix) || port.DefaultName == "" {
 			continue
 		}
 		portType := "ethernet"
@@ -905,7 +753,7 @@ func reconfigBridgePorts(ports []db.BridgePort, aps []WiFiAP) []BridgePort {
 
 func reconfigManagementWifi(client *routeros.Client, wifis []db.WiFi) (WiFiAP, error) {
 	for i := range wifis {
-		if wifis[i].Name == managementWifiName && wifis[i].SSID != "" && wifis[i].Password != "" {
+		if wifis[i].Name == dbsync.ManagementWifiName && wifis[i].SSID != "" && wifis[i].Password != "" {
 			return WiFiAP{SSID: wifis[i].SSID, Password: wifis[i].Password}, nil
 		}
 	}
@@ -992,9 +840,11 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
 		{"Restoring the wizard VPN clients", func() []error { return restoreWizardClients(client, stored) }},
-		{"Restoring the domestic block setting", func() []error { return restoreDomesticBlock(client, stored.Settings[settingKeyDomesticBlockEnabled]) }},
+		{"Restoring the domestic block setting", func() []error {
+			return restoreDomesticBlock(client, stored.Settings[dbsync.SettingKeyDomesticBlockEnabled])
+		}},
 		{"Restoring DNS servers", func() []error { return restoreDNSServers(client, stored.DNSServers) }},
-		{"Restoring the ad-block setting", func() []error { return restoreAdBlock(client, stored.Settings[settingKeyAdBlockEnabled]) }},
+		{"Restoring the ad-block setting", func() []error { return restoreAdBlock(client, stored.Settings[dbsync.SettingKeyAdBlockEnabled]) }},
 		{"Restoring static DNS entries", func() []error { return restoreStaticDNS(ctx, client, conn, stored.DNSStaticEntries) }},
 		{"Restoring SSTP clients", func() []error { return restoreSSTPClients(client, stored.SSTPClients) }},
 		{"Restoring L2TP clients", func() []error { return restoreL2TPClients(client, stored.L2TPClients) }},
@@ -1004,7 +854,7 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 		{"Restoring the OpenVPN users", func() []error { return restoreOvpnUsers(client, stored.VPNUsers) }},
 		{"Restoring VPN users", func() []error { return restoreVPNUsers(client, stored.VPNUsers) }},
 		{"Restoring WireGuard interfaces", func() []error { return restoreWireGuardInterfaces(client, stored.WireGuards, plan.livePorts) }},
-		{"Restoring the foreign gateway", func() []error { return restoreForeignGateway(client, stored.Settings[settingKeyForeignGateway]) }},
+		{"Restoring the foreign gateway", func() []error { return restoreForeignGateway(client, stored.Settings[dbsync.SettingKeyForeignGateway]) }},
 	}
 }
 
@@ -1054,12 +904,6 @@ func restoreStaticDNS(parent context.Context, client *routeros.Client, conn *sql
 		}
 	}
 	return errs
-}
-
-func replaceStoredStaticDNS(parent context.Context, conn *sqlx.DB, oldID string, entry *db.DNSStaticEntry) error {
-	ctx, cancel := context.WithTimeout(parent, reconfigSaveTimeout)
-	defer cancel()
-	return db.ReplaceDNSStaticEntry(ctx, conn, oldID, entry)
 }
 
 func restoreSSTPClients(client *routeros.Client, clients []db.SSTPClient) []error {
@@ -1473,7 +1317,7 @@ func restoreBridgeAssignments(client *routeros.Client, wifis []db.WiFi, ports []
 	var errs []error
 	for i := range wifis {
 		w := &wifis[i]
-		if !w.IsVirtual || present[w.Name] || !strings.HasPrefix(w.Bridge, lanBridgeNamePrefix) {
+		if !w.IsVirtual || present[w.Name] || !strings.HasPrefix(w.Bridge, dbsync.LANBridgeNamePrefix) {
 			continue
 		}
 		if err := restoreVirtualWiFi(client, w, masters[w.Master], bridgeComment); err != nil {
@@ -1483,7 +1327,7 @@ func restoreBridgeAssignments(client *routeros.Client, wifis []db.WiFi, ports []
 
 	for i := range ports {
 		port := &ports[i]
-		if port.Bridge == wizardLANBridge || !strings.HasPrefix(port.Bridge, lanBridgeNamePrefix) || port.DefaultName == "" {
+		if port.Bridge == wizardLANBridge || !strings.HasPrefix(port.Bridge, dbsync.LANBridgeNamePrefix) || port.DefaultName == "" {
 			continue
 		}
 		comment, err := bridgeComment(port.Bridge)
@@ -1663,7 +1507,7 @@ func restoreAdBlock(client *routeros.Client, setting string) []error {
 	}
 	var existing *routeros.DNSAdList
 	for i := range adLists {
-		if adLists[i].URL == dnsAdBlockURL {
+		if adLists[i].URL == dbsync.DNSAdBlockURL {
 			existing = &adLists[i]
 			break
 		}
@@ -1680,7 +1524,7 @@ func restoreAdBlock(client *routeros.Client, setting string) []error {
 		}
 	case enabled:
 		sslVerify := false
-		if _, err := client.AddDNSAdList(routeros.AddDNSAdListConfig{URL: dnsAdBlockURL, SSLVerify: &sslVerify}); err != nil {
+		if _, err := client.AddDNSAdList(routeros.AddDNSAdListConfig{URL: dbsync.DNSAdBlockURL, SSLVerify: &sslVerify}); err != nil {
 			return []error{fmt.Errorf("failed to create the ad-block adlist: %w", err)}
 		}
 	}
@@ -1697,7 +1541,7 @@ func restoreDomesticBlock(client *routeros.Client, setting string) []error {
 	if err != nil {
 		return []error{fmt.Errorf("failed to read the domestic block rules: %w", err)}
 	}
-	if domesticBlockRulesMatch(rules, block) {
+	if dbsync.DomesticBlockRulesMatch(rules, block) {
 		return nil
 	}
 
@@ -2027,7 +1871,7 @@ func restoreOvpnServer(client *routeros.Client, server *db.OvpnServer, replyRule
 		KeepAliveTimeout:  ovpnServerKeepalive,
 		RedirectGateway:   ovpnServerRedirectGateway,
 		DefaultProfile:    "default",
-		Comment:           ovpnServerCommentPrefix + server.ClientCertificatePassword,
+		Comment:           dbsync.OvpnServerCommentPrefix + server.ClientCertificatePassword,
 	})
 	if err != nil {
 		return []error{fmt.Errorf("OpenVPN server %s: %w", server.Name, err)}
