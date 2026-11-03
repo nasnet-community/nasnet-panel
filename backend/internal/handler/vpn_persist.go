@@ -3,49 +3,14 @@ package handler
 import (
 	"context"
 	"log"
-	"strconv"
-	"strings"
 
 	"nasnet-panel/internal/db"
+	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/pkg/routeros"
-	"nasnet-panel/pkg/utils"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
-
-const (
-	vpnClientVRFSuffix      = "@VRF-TunnelEnds"
-	wireGuardClientSuffix   = "-wg-client"
-	wireGuardServerSuffix   = "-server"
-	ovpnServerCommentPrefix = "Client Certificate Password: "
-)
-
-func persistInRouterDB(ctx context.Context, logf func(format string, args ...interface{}), client *routeros.Client, action string, fn func(ctx context.Context, conn *sqlx.DB) error) {
-	conn, err := databaseForClient(ctx, client)
-	if err == nil {
-		err = fn(ctx, conn)
-	}
-	if err != nil {
-		logf("Failed to %s in the database: %v", action, err)
-	}
-}
-
-func withRouterDB(c echo.Context, client *routeros.Client, action string, fn func(ctx context.Context, conn *sqlx.DB) error) {
-	persistInRouterDB(c.Request().Context(), c.Logger().Errorf, client, action, fn)
-}
-
-func l2tpClientRecord(info *routeros.L2TPClientInfo) *db.L2TPClient {
-	return &db.L2TPClient{
-		Name:        info.Name,
-		Comment:     info.Comment,
-		ConnectTo:   strings.TrimSuffix(info.ConnectTo, vpnClientVRFSuffix),
-		User:        info.User,
-		Password:    info.Password,
-		IPsecSecret: info.IPsecSecret,
-		Enabled:     !info.Disabled,
-	}
-}
 
 func persistL2TPClient(c echo.Context, client *routeros.Client, nameOrID string) {
 	info, err := client.GetL2TPClientInfo(nameOrID)
@@ -55,7 +20,7 @@ func persistL2TPClient(c echo.Context, client *routeros.Client, nameOrID string)
 	}
 
 	withRouterDB(c, client, "save L2TP client "+info.Name, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.UpsertL2TPClient(ctx, conn, l2tpClientRecord(info))
+		return db.UpsertL2TPClient(ctx, conn, dbsync.L2TPClientRecord(info))
 	})
 }
 
@@ -63,18 +28,6 @@ func removeL2TPClientFromDB(c echo.Context, client *routeros.Client, name string
 	withRouterDB(c, client, "delete L2TP client "+name, func(ctx context.Context, conn *sqlx.DB) error {
 		return db.DeleteL2TPClient(ctx, conn, name)
 	})
-}
-
-func sstpClientRecord(info *routeros.SSTPClientInfo) *db.SSTPClient {
-	return &db.SSTPClient{
-		Name:      info.Name,
-		Comment:   info.Comment,
-		ConnectTo: strings.TrimSuffix(info.ConnectTo, vpnClientVRFSuffix),
-		Port:      info.Port,
-		User:      info.User,
-		Password:  info.Password,
-		Enabled:   !info.Disabled,
-	}
 }
 
 func persistSSTPClient(c echo.Context, client *routeros.Client, nameOrID string) {
@@ -85,7 +38,7 @@ func persistSSTPClient(c echo.Context, client *routeros.Client, nameOrID string)
 	}
 
 	withRouterDB(c, client, "save SSTP client "+info.Name, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.UpsertSSTPClient(ctx, conn, sstpClientRecord(info))
+		return db.UpsertSSTPClient(ctx, conn, dbsync.SSTPClientRecord(info))
 	})
 }
 
@@ -95,60 +48,8 @@ func removeSSTPClientFromDB(c echo.Context, client *routeros.Client, name string
 	})
 }
 
-func wireGuardInterfaceRecord(client *routeros.Client, nameOrID string) (*db.WireGuardInterface, error) {
-	wg, err := client.GetWireGuard(nameOrID)
-	if err != nil {
-		return nil, err
-	}
-	wgType := wireGuardInterfaceType(wg.Name)
-	if wgType == "" {
-		return nil, nil
-	}
-
-	peers, err := client.GetWireGuardPeers(wg.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	addresses, err := client.GetIPAddressesByInterface(wg.Name)
-	if err != nil {
-		return nil, err
-	}
-	address := ""
-	if len(addresses) > 0 {
-		address = addresses[0].Address
-	}
-
-	record := &db.WireGuardInterface{
-		Name:       wg.Name,
-		Comment:    wg.Comment,
-		Type:       wgType,
-		PrivateKey: wg.PrivateKey,
-		Address:    address,
-		ListenPort: wg.ListenPort,
-		Enabled:    !wg.Disabled,
-	}
-	for i := range peers {
-		peer := &peers[i]
-		record.Peers = append(record.Peers, db.WireGuardPeer{
-			Name:                peer.Name,
-			Comment:             peer.Comment,
-			Enabled:             !peer.Disabled,
-			PublicKey:           peer.PublicKey,
-			PrivateKey:          peer.PrivateKey,
-			PresharedKey:        peer.PreSharedKey,
-			EndpointAddress:     peer.EndpointAddress,
-			EndpointPort:        peer.EndpointPort,
-			AllowedAddress:      peer.AllowedAddresses,
-			PersistentKeepalive: int(utils.RouterOSDurationSeconds(peer.PersistentKeepalive)),
-		})
-	}
-
-	return record, nil
-}
-
 func persistWireGuardInterface(c echo.Context, client *routeros.Client, nameOrID string) {
-	record, err := wireGuardInterfaceRecord(client, nameOrID)
+	record, err := dbsync.WireGuardInterfaceRecord(client, nameOrID)
 	if err != nil {
 		c.Logger().Errorf("Failed to read WireGuard interface %s for the database: %v", nameOrID, err)
 		return
@@ -162,16 +63,6 @@ func persistWireGuardInterface(c echo.Context, client *routeros.Client, nameOrID
 	})
 }
 
-func wireGuardInterfaceType(name string) string {
-	switch {
-	case strings.HasSuffix(name, wireGuardClientSuffix):
-		return db.WireGuardTypeClient
-	case strings.HasSuffix(name, wireGuardServerSuffix):
-		return db.WireGuardTypeServer
-	}
-	return ""
-}
-
 func renameWireGuardPeerKeyInDB(c echo.Context, client *routeros.Client, interfaceName, oldKey, newKey string) {
 	withRouterDB(c, client, "rename WireGuard peer key on "+interfaceName, func(ctx context.Context, conn *sqlx.DB) error {
 		return db.RenameWireGuardPeerKey(ctx, conn, interfaceName, oldKey, newKey)
@@ -179,7 +70,7 @@ func renameWireGuardPeerKeyInDB(c echo.Context, client *routeros.Client, interfa
 }
 
 func removeWireGuardInterfaceFromDB(c echo.Context, client *routeros.Client, name string) {
-	if wireGuardInterfaceType(name) == "" {
+	if dbsync.WireGuardInterfaceType(name) == "" {
 		return
 	}
 
@@ -199,24 +90,6 @@ func persistVPNClient(c echo.Context, client *routeros.Client, vpnClient *router
 	}
 }
 
-func ovpnServerRecord(info *routeros.OvpnServerInfo) *db.OvpnServer {
-	baseName := strings.TrimSuffix(strings.TrimSuffix(info.Name, "-tcp"), "-udp")
-	timestamp, _ := strconv.ParseInt(extractOvpnServerTimestamp(baseName), 10, 64)
-	password, _ := strings.CutPrefix(info.Comment, ovpnServerCommentPrefix)
-	if password == info.Comment {
-		password = ""
-	}
-
-	return &db.OvpnServer{
-		Name:                      info.Name,
-		CertificateTimestamp:      timestamp,
-		Protocol:                  info.ProtocolVersion,
-		Port:                      info.Port,
-		ClientCertificatePassword: password,
-		Enabled:                   !info.Disabled,
-	}
-}
-
 func persistOvpnServer(c echo.Context, client *routeros.Client, name string) {
 	info, err := client.GetOvpnServer(name)
 	if err != nil {
@@ -225,7 +98,7 @@ func persistOvpnServer(c echo.Context, client *routeros.Client, name string) {
 	}
 
 	withRouterDB(c, client, "save OpenVPN server "+info.Name, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.UpsertOvpnServer(ctx, conn, ovpnServerRecord(info))
+		return db.UpsertOvpnServer(ctx, conn, dbsync.OvpnServerRecord(info))
 	})
 }
 
@@ -247,30 +120,6 @@ func removeVPNUserFromDB(c echo.Context, client *routeros.Client, username strin
 	})
 }
 
-func l2tpServerRecord(info *routeros.L2tpServerInfo) *db.VPNServer {
-	return &db.VPNServer{
-		Type:           db.VPNServerTypeL2TP,
-		Enabled:        info.Enabled,
-		DefaultProfile: info.DefaultProfile,
-		Authentication: info.Authentication,
-		UseIPsec:       info.UseIPsec == "yes" || info.UseIPsec == "required",
-		IPsecSecret:    info.IPsecSecret,
-	}
-}
-
-func sstpServerRecord(info *routeros.SstpServerInfo) *db.VPNServer {
-	return &db.VPNServer{
-		Type:                    db.VPNServerTypeSSTP,
-		Enabled:                 info.Enabled,
-		Port:                    info.Port,
-		DefaultProfile:          info.DefaultProfile,
-		Authentication:          info.Authentication,
-		CertificateTimestamp:    sstpCertificateTimestamp(info.Certificate),
-		VerifyClientCertificate: info.VerifyClientCertificate,
-		Ciphers:                 info.Ciphers,
-	}
-}
-
 func persistL2TPServer(c echo.Context, client *routeros.Client) {
 	info, err := client.GetL2tpServer()
 	if err != nil {
@@ -279,7 +128,7 @@ func persistL2TPServer(c echo.Context, client *routeros.Client) {
 	}
 
 	withRouterDB(c, client, "save the L2TP server", func(ctx context.Context, conn *sqlx.DB) error {
-		return db.UpsertVPNServer(ctx, conn, l2tpServerRecord(info))
+		return db.UpsertVPNServer(ctx, conn, dbsync.L2TPServerRecord(info))
 	})
 }
 
@@ -287,15 +136,6 @@ func removeVPNServerFromDB(c echo.Context, client *routeros.Client, serverType s
 	withRouterDB(c, client, "delete the "+serverType+" server", func(ctx context.Context, conn *sqlx.DB) error {
 		return db.DeleteVPNServer(ctx, conn, serverType)
 	})
-}
-
-func sstpCertificateTimestamp(serverCertName string) int64 {
-	timestamp, ok := strings.CutPrefix(serverCertName, "sstp-server-")
-	if !ok {
-		return 0
-	}
-	value, _ := strconv.ParseInt(timestamp, 10, 64)
-	return value
 }
 
 func persistCreatedSstpServer(client *routeros.Client, config *routeros.SstpServerConfig, certificatePassword string) {
@@ -306,7 +146,7 @@ func persistCreatedSstpServer(client *routeros.Client, config *routeros.SstpServ
 			Port:                    config.Port,
 			DefaultProfile:          config.DefaultProfile,
 			Authentication:          config.Authentication,
-			CertificateTimestamp:    sstpCertificateTimestamp(config.Certificate),
+			CertificateTimestamp:    dbsync.SSTPCertificateTimestamp(config.Certificate),
 			VerifyClientCertificate: config.VerifyClientCertificate,
 			Ciphers:                 config.Ciphers,
 			CertificatePassword:     certificatePassword,
