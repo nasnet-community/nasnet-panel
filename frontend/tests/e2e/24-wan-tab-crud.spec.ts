@@ -423,6 +423,89 @@ test.describe('WAN tab', () => {
     await expect(page.getByRole('option', { name: 'ether2' })).toBeVisible();
   });
 
+  test('Change can re-select the interface the section already uses', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
+    await setSessionCreds(context, ROUTER_ID);
+    const state = blankState();
+    state.interfaces[0].comment = 'WAN - Foreign Link';
+    state.interfaces[1].comment = 'WAN - Domestic Link';
+    await setupWanRoutes(context, state);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await changeButton(page, 1).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Domestic WAN').click();
+
+    await expect(page.getByRole('option', { name: 'ether2' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'ether1' })).toHaveCount(0);
+    await page.getByRole('option', { name: 'ether2' }).click();
+    await dialog.getByRole('button', { name: /^save$/i }).click();
+
+    await expect.poll(() => state.wanPuts.length).toBe(1);
+    expect(state.wanPuts[0]).toMatchObject({ body: { interface: 'ether2', type: 'domestic' } });
+  });
+
+  test('moving a wireless Domestic uplink warns that the Foreign uplink is replaced', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
+    await setSessionCreds(context, ROUTER_ID);
+    const state = blankState();
+    state.interfaces[0].comment = 'WAN - Foreign Link';
+    state.interfaces.push({
+      id: '*3',
+      name: 'wifi1',
+      type: 'wifi',
+      running: true,
+      disabled: false,
+      defaultName: 'wifi1',
+      comment: 'WAN - Domestic Link',
+    });
+    await setupWanRoutes(context, state);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    const moveRow = page.getByRole('button', { name: /move wifi1 to foreign/i });
+
+    // Cancelling the warning sends nothing.
+    await moveRow.click();
+    const confirm = page.getByRole('dialog').filter({ hasText: 'Move to Foreign' });
+    await expect(confirm).toContainText('current Foreign uplink (ether1) will be removed');
+    await confirm.getByRole('button', { name: 'Cancel' }).click();
+    await expect(confirm).toBeHidden();
+    expect(state.wanPuts).toHaveLength(0);
+
+    await moveRow.click();
+    await confirm.getByRole('button', { name: 'Continue' }).click();
+
+    const moveDialog = page.getByRole('dialog', { name: 'Move wifi1 to Foreign' });
+    await expect(moveDialog).toBeVisible();
+    await moveDialog.getByRole('button', { name: 'Choose wireless network' }).click();
+    const scanDialog = page.getByRole('dialog', { name: 'Choose a wireless network' });
+    await scanDialog.getByLabel('Wireless network').click();
+    await page.getByRole('option', { name: /CafeNet/ }).click();
+    await scanDialog.getByLabel('Wireless password').fill('secret-pass');
+    await scanDialog.getByRole('button', { name: 'Verify and connect' }).click();
+    await expect(scanDialog).toBeHidden();
+
+    await expect(moveDialog.getByRole('button', { name: /^save$/i })).toHaveCount(0);
+    await moveDialog.getByRole('button', { name: /^move$/i }).click();
+
+    await expect.poll(() => state.wanPuts.length).toBe(1);
+    expect(state.wanPuts[0]).toMatchObject({
+      body: { interface: 'wifi1', type: 'foreign', ssid: 'CafeNet', password: 'secret-pass' },
+    });
+  });
+
   test('add an L2TP VPN client via the masking section', async ({
     page,
     context,

@@ -17,6 +17,9 @@
 /interface list member remove [find interface=$mcvln]
 /interface/macvlan/remove [find name=$mcName]
 }
+# Re-selecting the same interface (e.g. to join a new SSID) must not hand it back to the LAN:
+# the setup below reconfigures it in place.
+:if ($oldDefaultName != "{{ .Interface }}") do={
 /interface set $oldIface name="$oldDefaultName" comment="Split"
 :local oldNewName $oldDefaultName
 {{ range $defaultName, $name := .OldWiFiNames }}:if ($oldDefaultName = "{{ $defaultName }}") do={ :set oldNewName "{{ $name }}" }
@@ -28,6 +31,7 @@
 }
 :if ([:len [/interface bridge port find where interface="$oldNewName"] ] = 0) do={
 /interface bridge port add bridge=LANBridgeSplit interface="$oldNewName" comment="Split"
+}
 }
 }
 
