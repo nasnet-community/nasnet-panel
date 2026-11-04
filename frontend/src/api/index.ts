@@ -144,6 +144,10 @@ export {
   checkAppForUpdates,
   installAppUpdate,
   fetchAppUpdateStatus,
+  fetchAppReleases,
+  fetchAppUpdateChannel,
+  startAppUpdate,
+  fetchAppUpdateProgress,
   type UpdateInfoResponse,
   type UpdateCheckResponse,
   type UpdateInstallResponse,
@@ -154,6 +158,10 @@ export {
   type AppInstallUpdateResponse,
   type AppUpdatePhase,
   type AppUpdateStatusResponse,
+  type AppReconfigState,
+  type AppReconfigStatus,
+  type AppUpdateChannel,
+  type AppRelease,
 } from './updates';
 export {
   fetchPlugins,
