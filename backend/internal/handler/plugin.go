@@ -773,6 +773,14 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		return
 	}
 
+	// Checked before anything is created on the router, so a bad manifest leaves nothing behind.
+	containerOpts, err := parseContainerOptions(manifest.Container)
+	if err != nil {
+		task.set(pluginInstallPhaseError, "plugin manifest has an invalid container setting: "+err.Error())
+		log.Printf("[plugin-install %s] invalid container settings: %v", pluginID, err)
+		return
+	}
+
 	// Settings defaults resolve "{{settings.<key>}}" placeholders (e.g. in env
 	// values); a manifest with no settings schema simply has none to resolve.
 	settingsValues := map[string]string{}
@@ -873,6 +881,13 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		Logging:     true,
 		StartOnBoot: true,
 		Comment:     manifest.Version,
+
+		MemoryHigh:          containerOpts.MemoryHigh,
+		MemoryMax:           containerOpts.MemoryMax,
+		CPUList:             containerOpts.CPUList,
+		User:                containerOpts.User,
+		Devices:             containerOpts.Devices,
+		AutoRestartInterval: containerOpts.AutoRestartInterval,
 	})
 	if err != nil {
 		task.set(pluginInstallPhaseError, "failed to create plugin container: "+err.Error())
