@@ -226,14 +226,14 @@
       "done": "Done",
       "downloadingFirmware": "Downloading RouterOS update",
       "downloadingFirmwarePercent": "Downloading RouterOS update ({{percent}}%)",
-      "rebootingRouter": "Waiting for the router to reboot"
+      "rebootingRouter": "Waiting for the router to reboot",
+      "reconfiguring": "Reconfiguring the router",
+      "reconfiguringStep": "Reconfiguring the router: {{step}}"
     },
     "app": {
       "title": "App update",
       "failed": "App update failed",
       "timeout": "Timed out waiting for the update to finish",
-      "applied": "Update applied",
-      "appliedDetail": "Refresh the page to load the new version.",
       "complete": "Update complete",
       "reloading": "Reloading…",
       "alreadyUpToDate": "Already up to date",
@@ -242,9 +242,26 @@
       "runningLatest": "You are running the latest version.",
       "connectFirst": "Connect to a router first to check for app updates.",
       "releaseNotes": "Release notes",
-      "updateButton": "Update app",
       "confirmTitle": "Install app update?",
-      "confirmDescription": "The panel restarts to apply the new version. The page reloads automatically once it is back."
+      "channel": "Release channel",
+      "channels": {
+        "stable": "Stable",
+        "rc": "Release candidate",
+        "dev": "Development"
+      },
+      "version": "Version",
+      "prerelease": "Pre-release",
+      "changelog": "What's changed",
+      "noChangelog": "No changes listed for this release.",
+      "latestInChannel": "Latest {{channel}} release",
+      "needsApp": "Update to {{version}} first, then to this release.",
+      "needsRouterOS": "Needs RouterOS {{version}} or newer. Update RouterOS first.",
+      "updateTo": "Update to {{version}}",
+      "confirmDescriptionVersion": "The panel restarts on {{version}}. The page reloads automatically once it is back.",
+      "confirmDescriptionReconfig": "The panel restarts on {{version}}, then reconfigures the router from its saved settings. The page reloads automatically when it is done.",
+      "reconfigFailed": "The panel updated, but reconfiguring the router failed",
+      "loadFailed": "Failed to load the releases",
+      "retry": "Retry"
     },
     "firmware": {
       "title": "RouterOS firmware",
