@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../primitives/Button';
@@ -95,7 +95,8 @@ export interface ConfirmDialogProps {
   destructive?: boolean;
   confirmVariant?: React.ComponentProps<typeof Button>['variant'];
   children?: React.ReactNode;
-  onConfirm: () => void;
+  /** When this returns a promise, both buttons stay disabled until it settles. */
+  onConfirm: () => void | Promise<unknown>;
   onCancel: () => void;
 }
 
@@ -112,21 +113,39 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onCancel,
 }) => {
   const { t } = useTranslation('ui');
+  // The ref blocks a second click that lands before the pending state re-renders.
+  const pendingRef = useRef(false);
+  const [pending, setPending] = useState(false);
+
+  const confirm = () => {
+    if (pendingRef.current) return;
+    const result = onConfirm();
+    if (!(result instanceof Promise)) return;
+    pendingRef.current = true;
+    setPending(true);
+    const settle = () => {
+      pendingRef.current = false;
+      setPending(false);
+    };
+    result.then(settle, settle);
+  };
+
   return (
     <Dialog
       open={open}
-      onClose={onCancel}
+      onClose={() => (pendingRef.current ? undefined : onCancel())}
       title={title}
       description={description}
       size="sm"
       footer={
         <>
-          <Button variant="ghost" onClick={onCancel}>
+          <Button variant="ghost" onClick={onCancel} disabled={pending}>
             {cancelLabel ?? t('dialog.cancel')}
           </Button>
           <Button
             variant={confirmVariant ?? (destructive ? 'danger' : 'primary')}
-            onClick={onConfirm}
+            onClick={confirm}
+            loading={pending}
           >
             {confirmLabel ?? t('dialog.confirm')}
           </Button>

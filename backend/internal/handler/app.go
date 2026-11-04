@@ -22,7 +22,6 @@ import (
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 )
 
@@ -71,7 +70,6 @@ var (
 	changePrefixPattern    = regexp.MustCompile(`^[A-Za-z]+(?:\([^)]*\))?!?:\s*`)
 	changeSuffixPattern    = regexp.MustCompile(`\s+by\s+@\S+\s+in\s+(?:https?://\S+|#\d+)\s*$`)
 	errGitHubNotFound      = errors.New("GitHub API returned 404")
-	appDatabases           *db.Registry
 	releaseVersionPattern  = regexp.MustCompile(`^v?(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+)|-dev\.(\d{8})\.(\d+))?$`)
 	routerOSVersionPattern = regexp.MustCompile(`^(\d+)\.(\d+)(?:\.(\d+))?(?:(beta|rc)(\d+))?`)
 )
@@ -118,11 +116,6 @@ type releaseMeta struct {
 	RouterOS struct {
 		MinVersion string `json:"minVersion"`
 	} `json:"routeros"`
-}
-
-// SetDatabases gives the handlers the registry of per-router SQLite databases that backs the app settings endpoints.
-func SetDatabases(registry *db.Registry) {
-	appDatabases = registry
 }
 
 // HandleAppVersion godoc
@@ -1127,54 +1120,6 @@ func fetchGitHubPage(ctx context.Context, url string, out any) (next string, err
 		return m[1], nil
 	}
 	return "", nil
-}
-
-func routerSettingsDB(c echo.Context) (conn *sqlx.DB, ok bool, handled error) {
-	client, err := GetRouterOSClient(c)
-	if err != nil {
-		return nil, false, err
-	}
-
-	systemID, err := client.GetSystemID()
-	if err != nil {
-		if IsCredentialError(err) {
-			return nil, false, ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
-		}
-		return nil, false, ErrorResponse(c, http.StatusBadGateway, "Failed to read the router system ID", err)
-	}
-
-	registry := appDatabases
-	if registry == nil {
-		return nil, false, ErrorResponse(c, http.StatusInternalServerError, "The router database is not available", nil)
-	}
-
-	conn, err = registry.ForRouter(c.Request().Context(), systemID)
-	if err != nil {
-		return nil, false, ErrorResponse(c, http.StatusInternalServerError, "Failed to open the router database", err)
-	}
-	ensureInitialSync(c.Request().Context(), client, systemID, conn)
-
-	return conn, true, nil
-}
-
-func databaseForClient(ctx context.Context, client *routeros.Client) (*sqlx.DB, error) {
-	systemID, err := client.GetSystemID()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read the router system ID: %w", err)
-	}
-
-	registry := appDatabases
-	if registry == nil {
-		return nil, errors.New("the router database is not available")
-	}
-
-	conn, err := registry.ForRouter(ctx, systemID)
-	if err != nil {
-		return nil, err
-	}
-	ensureInitialSync(ctx, client, systemID, conn)
-
-	return conn, nil
 }
 
 func validateSettingKey(key string) error {

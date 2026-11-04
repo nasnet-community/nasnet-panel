@@ -106,7 +106,7 @@ func NewRouterOSClient(c echo.Context, creds *auth.Credentials) (*routeros.Clien
 		return nil, ErrClientCreationFailed
 	}
 
-	startDatabaseInit(creds.RouterOSHost, client)
+	prepareRouter(creds.RouterOSHost, client)
 
 	return client, nil
 }
@@ -128,7 +128,7 @@ func TryGetRouterOSClient(c echo.Context) (*routeros.Client, error) {
 		return nil, err
 	}
 
-	startDatabaseInit(creds.RouterOSHost, client)
+	prepareRouter(creds.RouterOSHost, client)
 
 	return client, nil
 }
