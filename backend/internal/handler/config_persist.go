@@ -35,6 +35,7 @@ func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {
 			return
 		}
 		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
+			runPluginPostWizard(client)
 			saveWizardConfig(ctx, client, data)
 			return
 		}
