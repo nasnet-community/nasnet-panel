@@ -50,6 +50,7 @@ import { useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { RouterTabBar } from '../layout/RouterTabBar';
 import { useFormat } from '../utils/useFormat';
+import { NewsletterCard } from './NewsletterCard';
 import styles from './UpdatesPage.module.scss';
 
 // The panel pulls the new image, restarts, and may then reconfigure the router.
@@ -166,6 +167,7 @@ export function UpdatesPage() {
         <div className={styles.cardGrid}>
           <AppUpdateCard />
           <FirmwareUpdateCard />
+          <NewsletterCard />
         </div>
       </PageShell>
     </>

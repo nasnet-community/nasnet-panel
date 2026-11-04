@@ -275,6 +275,19 @@
       "updated": "RouterOS updated to {{version}}",
       "timeout": "The router did not finish updating in time. Check it directly.",
       "alreadyUpToDate": "RouterOS is already up to date"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Get Nasnet news and new releases by email.",
+      "emailLabel": "Email address",
+      "submit": "Subscribe",
+      "sending": "Subscribing…",
+      "success": "Thanks, you are on the list.",
+      "invalid": "Enter a valid email address.",
+      "rateLimited": "Too many attempts. Try again in a minute.",
+      "error": "Something went wrong. Please try again.",
+      "note": "We use your address only for Nasnet news.",
+      "privacyLink": "Privacy policy"
     }
   }
 }
