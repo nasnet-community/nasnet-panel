@@ -229,4 +229,82 @@ test.describe('Updates page', () => {
     await expect(page.getByRole('button', { name: /installing/i })).toBeDisabled();
     expect(firmware.installs()).toBe(0);
   });
+
+  test('newsletter card subscribes with the UI language', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    await context.addInitScript(() => {
+      try {
+        window.localStorage.setItem('nasnet-panel.language', 'fa');
+      } catch {
+        /* ignore */
+      }
+    });
+
+    const bodies: unknown[] = [];
+    await context.route('https://joinnasnet.com/api/newsletter/panel-subscribe', async (route) => {
+      bodies.push(route.request().postDataJSON());
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ ok: true }),
+      });
+    });
+
+    await page.goto('/updates');
+
+    const email = page.getByLabel('نشانی ایمیل');
+    await email.fill('not-an-email');
+    await page.getByRole('button', { name: 'عضویت' }).click();
+    await expect(page.getByRole('alert')).toHaveText('یک نشانی ایمیل معتبر وارد کنید.');
+    expect(bodies).toHaveLength(0);
+
+    await email.fill(' User@Example.com ');
+    await page.getByRole('button', { name: 'عضویت' }).click();
+    await expect(page.getByText('سپاس، نشانی شما به فهرست اضافه شد.')).toBeVisible();
+    expect(bodies).toEqual([{ email: 'User@Example.com', locale: 'fa', website: '' }]);
+    await expect(page.getByRole('link', { name: 'سیاست حریم خصوصی' })).toHaveAttribute(
+      'href',
+      'https://joinnasnet.com/fa/privacy/',
+    );
+  });
+
+  test('newsletter card reports a rate limit and lets the user retry', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+
+    let calls = 0;
+    await context.route('https://joinnasnet.com/api/newsletter/panel-subscribe', async (route) => {
+      calls += 1;
+      await route.fulfill({
+        status: calls === 1 ? 429 : 500,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ ok: false, error: calls === 1 ? 'rate_limited' : 'server' }),
+      });
+    });
+
+    await page.goto('/updates');
+
+    await page.getByLabel('Email address').fill('user@example.com');
+    const subscribe = page.getByRole('button', { name: 'Subscribe' });
+    await subscribe.click();
+    await expect(page.getByRole('alert')).toHaveText('Too many attempts. Try again in a minute.');
+    await subscribe.click();
+    await expect(page.getByRole('alert')).toHaveText('Something went wrong. Please try again.');
+    await expect(subscribe).toBeEnabled();
+  });
 });
