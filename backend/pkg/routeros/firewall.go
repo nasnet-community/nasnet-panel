@@ -9,21 +9,22 @@ import (
 
 // FirewallFilterRule represents a firewall filter rule configuration.
 type FirewallFilterRule struct {
-	ID       string
-	Action   string
-	Chain    string
-	Protocol string
-	SrcAddr  string
-	DstAddr  string
-	SrcPort  string
-	DstPort  string
-	InIface  string
-	OutIface string
-	Disabled bool
-	Log      bool
-	Comment  string
-	Bytes    string
-	Packets  string
+	ID             string
+	Action         string
+	Chain          string
+	Protocol       string
+	SrcAddr        string
+	DstAddr        string
+	DstAddressList string
+	SrcPort        string
+	DstPort        string
+	InIface        string
+	OutIface       string
+	Disabled       bool
+	Log            bool
+	Comment        string
+	Bytes          string
+	Packets        string
 }
 
 type NATRule struct {
@@ -45,20 +46,22 @@ type NATRule struct {
 }
 
 type MangleRule struct {
-	ID          string
-	Action      string
-	Chain       string
-	Protocol    string
-	SrcAddr     string
-	DstAddr     string
-	SrcPort     string
-	DstPort     string
-	PassThrough bool
-	InIface     string
-	OutIface    string
-	Disabled    bool
-	Log         bool
-	Comment     string
+	ID             string
+	Action         string
+	Chain          string
+	Protocol       string
+	SrcAddr        string
+	DstAddr        string
+	DstAddressList string
+	SrcPort        string
+	DstPort        string
+	NewRoutingMark string
+	PassThrough    bool
+	InIface        string
+	OutIface       string
+	Disabled       bool
+	Log            bool
+	Comment        string
 }
 
 type FirewallRuleConfig struct {
@@ -77,6 +80,7 @@ type FirewallRuleConfig struct {
 	Disabled         bool
 	Log              bool
 	LogPrefix        string
+	PlaceBefore      string // .id of the rule to go in front of; empty appends
 	Comment          string
 }
 
@@ -104,6 +108,7 @@ type MangleRuleConfig struct {
 	Protocol          string
 	SrcAddr           string
 	DstAddr           string
+	DstAddressList    string
 	SrcPort           string
 	DstPort           string
 	PassThrough       bool
@@ -212,11 +217,38 @@ func (c *Client) ListFirewallFilterRulesByComment(comment string) ([]FirewallFil
 	rules := make([]FirewallFilterRule, 0, len(results))
 	for _, result := range results {
 		rules = append(rules, FirewallFilterRule{
-			ID:       result[".id"],
-			Action:   result["action"],
-			Chain:    result["chain"],
-			Disabled: result["disabled"] == "true",
-			Comment:  result["comment"],
+			ID:             result[".id"],
+			Action:         result["action"],
+			Chain:          result["chain"],
+			SrcAddr:        result["src-address"],
+			DstAddressList: result["dst-address-list"],
+			Disabled:       result["disabled"] == "true",
+			Comment:        result["comment"],
+		})
+	}
+
+	return rules, nil
+}
+
+// ListFirewallFilterRulesInChain returns the filter rules of one chain in the
+// order the router tries them.
+func (c *Client) ListFirewallFilterRulesInChain(chain string) ([]FirewallFilterRule, error) {
+	if chain == "" {
+		return nil, fmt.Errorf("chain is required")
+	}
+
+	results, err := c.GetAll("/ip/firewall/filter", "?=chain="+chain)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list firewall rules of chain %s: %w", chain, err)
+	}
+
+	rules := make([]FirewallFilterRule, 0, len(results))
+	for _, result := range results {
+		rules = append(rules, FirewallFilterRule{
+			ID:      result[".id"],
+			Action:  result["action"],
+			Chain:   result["chain"],
+			Comment: result["comment"],
 		})
 	}
 
@@ -317,6 +349,9 @@ func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 	}
 	if config.LogPrefix != "" {
 		args = append(args, "=log-prefix="+config.LogPrefix)
+	}
+	if config.PlaceBefore != "" {
+		args = append(args, "=place-before="+config.PlaceBefore)
 	}
 	if config.Comment != "" {
 		args = append(args, "=comment="+config.Comment)
@@ -520,24 +555,72 @@ func (c *Client) ListMangleRules() ([]MangleRule, error) {
 
 	rules := make([]MangleRule, 0)
 	for _, result := range results {
-		rules = append(rules, MangleRule{
-			ID:       result[".id"],
-			Action:   result["action"],
-			Chain:    result["chain"],
-			Protocol: result["protocol"],
-			SrcAddr:  result["src-address"],
-			DstAddr:  result["dst-address"],
-			SrcPort:  result["src-port"],
-			DstPort:  result["dst-port"],
-			InIface:  result["in-interface"],
-			OutIface: result["out-interface"],
-			Disabled: result["disabled"] == "true",
-			Log:      result["log"] == "true",
-			Comment:  result["comment"],
-		})
+		rules = append(rules, parseMangleRule(result))
 	}
 
 	return rules, nil
+}
+
+// ListMangleRulesInChain returns the mangle rules of one chain in the order the
+// router tries them.
+func (c *Client) ListMangleRulesInChain(chain string) ([]MangleRule, error) {
+	if chain == "" {
+		return nil, fmt.Errorf("chain is required")
+	}
+
+	results, err := c.GetAll("/ip/firewall/mangle", "?=chain="+chain)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list mangle rules of chain %s: %w", chain, err)
+	}
+
+	rules := make([]MangleRule, 0, len(results))
+	for _, result := range results {
+		rules = append(rules, parseMangleRule(result))
+	}
+
+	return rules, nil
+}
+
+// ListMangleRulesByComment returns the mangle rules carrying exactly comment.
+// An empty comment is refused: asked for "no comment" the router would hand
+// back every rule that has none.
+func (c *Client) ListMangleRulesByComment(comment string) ([]MangleRule, error) {
+	if comment == "" {
+		return nil, fmt.Errorf("comment is required")
+	}
+
+	results, err := c.GetAll("/ip/firewall/mangle", "?=comment="+comment)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find mangle rules with comment %q: %w", comment, err)
+	}
+
+	rules := make([]MangleRule, 0, len(results))
+	for _, result := range results {
+		rules = append(rules, parseMangleRule(result))
+	}
+
+	return rules, nil
+}
+
+func parseMangleRule(result map[string]string) MangleRule {
+	return MangleRule{
+		ID:             result[".id"],
+		Action:         result["action"],
+		Chain:          result["chain"],
+		Protocol:       result["protocol"],
+		SrcAddr:        result["src-address"],
+		DstAddr:        result["dst-address"],
+		DstAddressList: result["dst-address-list"],
+		SrcPort:        result["src-port"],
+		DstPort:        result["dst-port"],
+		NewRoutingMark: result["new-routing-mark"],
+		PassThrough:    parseRouterOSBool(result["passthrough"]),
+		InIface:        result["in-interface"],
+		OutIface:       result["out-interface"],
+		Disabled:       result["disabled"] == "true",
+		Log:            result["log"] == "true",
+		Comment:        result["comment"],
+	}
 }
 
 func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
@@ -554,6 +637,9 @@ func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 	}
 	if config.DstAddr != "" {
 		args = append(args, "=dst-address="+config.DstAddr)
+	}
+	if config.DstAddressList != "" {
+		args = append(args, "=dst-address-list="+config.DstAddressList)
 	}
 	if config.SrcPort != "" {
 		args = append(args, "=src-port="+config.SrcPort)

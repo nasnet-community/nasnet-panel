@@ -488,8 +488,11 @@ add list="MikroTik-Cloud-Services" address="cloud2.mikrotik.com" comment="Dynami
 add list="MikroTik-Cloud-Services" address="cloud.mikrotik.com" comment="Legacy endpoint for completeness"
 add list="Safe" address="192.168.10.0/24" comment="Safe"
 add list="Safe" address="192.168.30.0/24" comment="Safe"
+{{ with .PluginRouting }}{{ .AddressLists }}{{ end }}
 
 /ip firewall filter
+{{/* A plugin whose link doesn't exist is dropped first, so no accept below can let it out. */}}
+{{ with .PluginRouting }}{{ .Filter }}{{ end }}
 add chain=forward dst-address=192.168.100.1 src-address-list=!Safe action=drop comment="Block non-Safe access to 192.168.100.1"
 add chain=forward dst-address-list="DOMAddList" out-interface-list="!Domestic-WAN" action=drop disabled=yes comment="Block traffic to DOMAddList"
 add chain=output dst-address-list="DOMAddList" out-interface-list="!Domestic-WAN" action=drop disabled=yes comment="Block traffic to DOMAddList"
@@ -532,6 +535,8 @@ new-routing-mark="to-VPN" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Split-FRN" dst-address-list="SplitFRNAddList" \
 new-routing-mark="to-Foreign" passthrough=no src-address-list="Split-LAN"
 add action=mark-routing chain=prerouting comment="Nasnet-Panel outbound via foreign" dst-address-list=!LOCAL-IP new-routing-mark=to-Foreign passthrough=no src-address=192.168.50.2
+{{/* Installed plugins' routing. It stays ahead of the rules that mark whole address lists, which the first match would let take a plugin's address. */}}
+{{ with .PluginRouting }}{{ .Mangle }}{{ end }}
 add action=mark-routing chain=prerouting comment="VPN Routing" new-routing-mark="to-VPN" passthrough=no src-address-list="VPN-LAN"
 add action=mark-routing chain=prerouting comment="Foreign-Foreign Link Routing" new-routing-mark="to-Foreign-Foreign Link" passthrough=no src-address-list="Foreign-Foreign Link-LAN"
 add action=mark-routing chain=prerouting comment="Foreign Routing" new-routing-mark="to-Foreign" passthrough=no src-address-list="Foreign-LAN"
