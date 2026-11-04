@@ -3,6 +3,7 @@ package firewall
 
 import (
 	"regexp"
+	"time"
 )
 
 var (
@@ -16,3 +17,27 @@ const (
 	DomesticWANInterfaceList = "!Domestic-WAN"
 	DomesticUserEntryComment = "NasNet Panel: user added"
 )
+
+const domesticAddressListUpdateScriptName = "DomesticIPUpdate"
+
+const (
+	domesticUpdateProgressVar = "DomesticIPUpdateProgress"
+	domesticUpdateStepVar     = "DomesticIPUpdateStep"
+	domesticUpdateMessageVar  = "DomesticIPUpdateMessage"
+	domesticUpdateFailedVar   = "DomesticIPUpdateFailed"
+	domesticUpdateStartVar    = "DomesticIPUpdateStartTime"
+	domesticUpdateEndVar      = "DomesticIPUpdateEndTime"
+	domesticUpdateRunningVar  = "domesticIPUpdateRunning"
+)
+
+const (
+	domesticUpdateStatusIdle        = "idle"
+	domesticUpdateStatusRunning     = "running"
+	domesticUpdateStatusCompleted   = "completed"
+	domesticUpdateStatusFailed      = "failed"
+	domesticUpdateStatusInterrupted = "interrupted"
+)
+
+const domesticUpdateStartGrace = 15 * time.Second
+
+var domesticUpdateStarts = &domesticUpdateReservations{startedAt: make(map[string]time.Time)}

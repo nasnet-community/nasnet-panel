@@ -437,3 +437,94 @@ func HandleAddDomesticAddress(c echo.Context) error {
 		Comment: DomesticUserEntryComment,
 	})
 }
+
+// HandleUpdateDomesticAddressList godoc
+// @Summary Update the domestic address list
+// @Description Starts the DomesticIPUpdate script on the router with /execute, so the request returns as soon
+// @Description as the job is queued and does not wait for the script to finish.
+// @Description If an update is already running or was just started for the same router, nothing is started and 409 is returned.
+// @Tags Firewall
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 202 {object} common.Response "Script started"
+// @Failure 401 {object} common.Response "Unauthorized"
+// @Failure 404 {object} common.Response "Script not found"
+// @Failure 409 {object} common.Response "An update is already running"
+// @Failure 500 {object} common.Response "Internal server error"
+// @Failure 502 {object} common.Response "RouterOS lookup failed"
+// @Router /api/firewall/addresslist/domestic/update [post].
+func HandleUpdateDomesticAddressList(c echo.Context) error {
+	creds, err := common.GetRouterOSCredentials(c)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if !domesticUpdateStarts.tryReserve(creds.RouterOSHost) {
+		return common.ErrorResponse(c, http.StatusConflict, "A domestic address list update is already starting", nil)
+	}
+
+	vars, err := client.GetEnvironmentVariables()
+	if err != nil {
+		domesticUpdateStarts.release(creds.RouterOSHost)
+		if common.IsCredentialError(err) {
+			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to read the domestic address list update status", err)
+	}
+	if vars[domesticUpdateRunningVar] == "true" {
+		domesticUpdateStarts.release(creds.RouterOSHost)
+		return common.ErrorResponse(c, http.StatusConflict, "A domestic address list update is already running", nil)
+	}
+
+	if err := client.RunScriptInBackground(domesticAddressListUpdateScriptName); err != nil {
+		domesticUpdateStarts.release(creds.RouterOSHost)
+		switch {
+		case errors.Is(err, routeros.ErrScriptNotFound):
+			return common.ErrorResponse(c, http.StatusNotFound, "Script "+domesticAddressListUpdateScriptName+" not found", err)
+		case common.IsCredentialError(err):
+			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		default:
+			return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to start the domestic address list update", err)
+		}
+	}
+
+	return common.SimpleSuccessResponse(c, http.StatusAccepted, "Domestic address list update started")
+}
+
+// HandleGetDomesticAddressListUpdateStatus godoc
+// @Summary Get the domestic address list update status
+// @Description Reports the progress percentage, current step and message of the DomesticIPUpdate script, read from
+// @Description the script's environment variables on the router. They keep the last run's values until the router reboots.
+// @Tags Firewall
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Success 200 {object} common.Response{data=DomesticAddressListUpdateStatusResponse} "Update status"
+// @Failure 401 {object} common.Response "Unauthorized"
+// @Failure 502 {object} common.Response "RouterOS lookup failed"
+// @Router /api/firewall/addresslist/domestic/update/status [get].
+func HandleGetDomesticAddressListUpdateStatus(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	vars, err := client.GetEnvironmentVariables()
+	if err != nil {
+		if common.IsCredentialError(err) {
+			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to read the domestic address list update status", err)
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "Domestic address list update status retrieved",
+		ToDomesticAddressListUpdateStatusResponse(vars))
+}

@@ -3,7 +3,9 @@ package firewall
 import (
 	"errors"
 	"net"
+	"strconv"
 	"strings"
+	"time"
 
 	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/pkg/routeros"
@@ -185,4 +187,58 @@ func ToMangleRulesResponse(rules []routeros.MangleRule) []MangleRuleResponse {
 		}
 	}
 	return responses
+}
+
+// ToDomesticAddressListUpdateStatusResponse builds the update status from the router's script environment variables.
+func ToDomesticAddressListUpdateStatusResponse(vars map[string]string) DomesticAddressListUpdateStatusResponse {
+	progress, _ := strconv.Atoi(vars[domesticUpdateProgressVar])
+	if progress < 0 {
+		progress = 0
+	}
+	if progress > 100 {
+		progress = 100
+	}
+
+	resp := DomesticAddressListUpdateStatusResponse{
+		Running:  vars[domesticUpdateRunningVar] == "true",
+		Failed:   vars[domesticUpdateFailedVar] == "true",
+		Progress: progress,
+		Step:     vars[domesticUpdateStepVar],
+		Message:  vars[domesticUpdateMessageVar],
+
+		StartTime: routeros.FormatRouterOSTime(vars[domesticUpdateStartVar]),
+		EndTime:   routeros.FormatRouterOSTime(vars[domesticUpdateEndVar]),
+	}
+
+	switch {
+	case resp.Running:
+		resp.Status = domesticUpdateStatusRunning
+	case resp.Failed:
+		resp.Status = domesticUpdateStatusFailed
+	case progress == 100:
+		resp.Status = domesticUpdateStatusCompleted
+	case progress > 0:
+		resp.Status = domesticUpdateStatusInterrupted
+	default:
+		resp.Status = domesticUpdateStatusIdle
+	}
+
+	return resp
+}
+
+func (r *domesticUpdateReservations) tryReserve(host string) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if startedAt, ok := r.startedAt[host]; ok && time.Since(startedAt) < domesticUpdateStartGrace {
+		return false
+	}
+	r.startedAt[host] = time.Now()
+	return true
+}
+
+func (r *domesticUpdateReservations) release(host string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	delete(r.startedAt, host)
 }

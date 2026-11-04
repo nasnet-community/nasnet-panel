@@ -1,5 +1,15 @@
 package firewall
 
+import (
+	"sync"
+	"time"
+)
+
+type domesticUpdateReservations struct {
+	mu        sync.Mutex
+	startedAt map[string]time.Time
+}
+
 type FirewallRuleResponse struct {
 	ID       string `json:"id"`
 	Chain    string `json:"chain"`
@@ -110,4 +120,18 @@ type MangleRuleResponse struct {
 	Disabled    bool   `json:"disabled"`
 	Log         bool   `json:"log"`
 	Comment     string `json:"comment,omitempty"`
+}
+
+// DomesticAddressListUpdateStatusResponse reports the progress of the DomesticIPUpdate script on the router.
+// Status is idle, running, completed, failed or interrupted; Progress is a percentage from 0 to 100.
+type DomesticAddressListUpdateStatusResponse struct {
+	Status   string `json:"status" example:"running"`
+	Running  bool   `json:"running"`
+	Failed   bool   `json:"failed"`
+	Progress int    `json:"progress" example:"45"`
+	Step     string `json:"step,omitempty" example:"fetching"`
+	Message  string `json:"message,omitempty" example:"Fetching page 2 (attempt 1/4)"`
+
+	StartTime string `json:"startTime,omitempty" example:"2026-11-05 12:00:00"`
+	EndTime   string `json:"endTime,omitempty" example:"2026-11-05 12:01:30"`
 }
