@@ -12,6 +12,7 @@ import {
   DataTable,
   Inline,
   Skeleton,
+  Tooltip,
   useToast,
   type DataTableColumn,
 } from '@nasnet/ui';
@@ -187,39 +188,45 @@ export function BackupsCard({ creds }: Props) {
       key: 'actions',
       header: '',
       sortable: false,
-      width: '340px',
+      width: '170px',
       render: (row) => (
         <Inline>
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={!creds || downloading === row.filename}
-            aria-label={t('backups.downloadFor', { file: row.filename })}
-            onClick={() => {
-              void download(row);
-            }}
-          >
-            <Download size={14} aria-hidden />{' '}
-            {downloading === row.filename ? t('backups.downloading') : t('backups.download')}
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={!creds || busy}
-            aria-label={t('backups.restoreFor', { file: row.filename })}
-            onClick={() => setPendingRestore(row)}
-          >
-            <ArchiveRestore size={14} aria-hidden /> {t('backups.restore')}
-          </Button>
-          <Button
-            size="sm"
-            variant="danger"
-            disabled={!creds || busy}
-            aria-label={t('backups.deleteFor', { file: row.filename })}
-            onClick={() => setPendingDelete(row)}
-          >
-            <Trash2 size={14} aria-hidden /> {t('backups.delete')}
-          </Button>
+          <Tooltip label={t('backups.download')}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!creds || downloading === row.filename}
+              loading={downloading === row.filename}
+              aria-label={t('backups.downloadFor', { file: row.filename })}
+              onClick={() => {
+                void download(row);
+              }}
+            >
+              <Download size={14} aria-hidden />
+            </Button>
+          </Tooltip>
+          <Tooltip label={t('backups.restore')}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!creds || busy}
+              aria-label={t('backups.restoreFor', { file: row.filename })}
+              onClick={() => setPendingRestore(row)}
+            >
+              <ArchiveRestore size={14} aria-hidden />
+            </Button>
+          </Tooltip>
+          <Tooltip label={t('backups.delete')}>
+            <Button
+              size="sm"
+              variant="danger"
+              disabled={!creds || busy}
+              aria-label={t('backups.deleteFor', { file: row.filename })}
+              onClick={() => setPendingDelete(row)}
+            >
+              <Trash2 size={14} aria-hidden />
+            </Button>
+          </Tooltip>
         </Inline>
       ),
     },

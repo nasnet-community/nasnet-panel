@@ -24,6 +24,7 @@
     "showSubmenu": "Show {{label}} menu",
     "updates": "Updates & notifications",
     "changePassword": "Change password",
+    "backups": "Backup & Restore",
     "logout": "Logout"
   },
   "theme": {

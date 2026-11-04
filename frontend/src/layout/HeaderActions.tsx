@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Bell, ChevronDown, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react';
+import { Bell, ChevronDown, DatabaseBackup, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useAppTheme } from '../state/ThemeContext';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -203,6 +203,17 @@ export function HeaderActions({
               <Bell size={16} aria-hidden />
               <span>{t('menu.updates')}</span>
             </button>
+            {routerId ? (
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.menuItem}
+                onClick={goAndClose(`/router/${routerId}/backups`)}
+              >
+                <DatabaseBackup size={16} aria-hidden />
+                <span>{t('menu.backups')}</span>
+              </button>
+            ) : null}
             <button
               type="button"
               role="menuitem"

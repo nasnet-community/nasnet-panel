@@ -139,21 +139,21 @@ test.describe('Diagnostics page backups', () => {
 
   test('shows an empty state when there are no backups', async ({ page }) => {
     await mockBackups(page, []);
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     await expect(page.getByTestId('backups-card')).toContainText('No backups yet.');
   });
 
   test('shows the backend error when the list fails', async ({ page }) => {
     await mockBackups(page, [], { listFails: true });
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     await expect(page.getByTestId('backups-card')).toContainText('Failed to list backups');
   });
 
   test('creates a backup and lists it', async ({ page }) => {
     const calls = await mockBackups(page, [older]);
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     const card = page.getByTestId('backups-card');
     await expect(card.getByRole('row', { name: /2026-10-29_01-02-03/ })).toContainText('498.5 KiB');
@@ -169,7 +169,7 @@ test.describe('Diagnostics page backups', () => {
 
   test('shows a toast when the backend rejects a new backup', async ({ page }) => {
     await mockBackups(page, [], { createConflict: true });
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     await page.getByRole('button', { name: 'Create backup' }).click();
 
@@ -179,7 +179,7 @@ test.describe('Diagnostics page backups', () => {
 
   test('downloads a backup', async ({ page }) => {
     await mockBackups(page, [older]);
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: `Download ${older.filename}` }).click();
@@ -189,7 +189,7 @@ test.describe('Diagnostics page backups', () => {
 
   test('deletes a backup after confirm', async ({ page }) => {
     const calls = await mockBackups(page, [older]);
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     await page.getByRole('button', { name: `Delete ${older.filename}` }).click();
     const confirm = page.getByRole('dialog');
@@ -204,7 +204,7 @@ test.describe('Diagnostics page backups', () => {
 
   test('cancelling the restore dialog sends nothing', async ({ page }) => {
     const calls = await mockBackups(page, [older]);
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     await page.getByRole('button', { name: `Restore ${older.filename}` }).click();
     const confirm = page.getByRole('dialog');
@@ -217,7 +217,7 @@ test.describe('Diagnostics page backups', () => {
 
   test('restores a backup after confirm and leaves the router page', async ({ page }) => {
     const calls = await mockBackups(page, [older]);
-    await page.goto(`/router/${ROUTER_ID}/diagnostics`);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
 
     await page.getByRole('button', { name: `Restore ${older.filename}` }).click();
     const confirm = page.getByRole('dialog');
