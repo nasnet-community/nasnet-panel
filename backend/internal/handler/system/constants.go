@@ -41,7 +41,7 @@ var nonEditableIPServices = map[string]bool{
 var (
 	schedulerClockPattern        = regexp.MustCompile(`^(\d{1,2}):(\d{2}):(\d{2})$`)
 	schedulerIntervalClock       = regexp.MustCompile(`^(?:(\d+)d)?\s*(\d{1,2}):(\d{2}):(\d{2})$`)
-	schedulerIntervalLetterUnits = regexp.MustCompile(`^(?:\d+w)?(?:\d+d)?(?:\d+h)?(?:\d+m)?(?:\d+s)?$`)
+	schedulerIntervalLetterUnits = regexp.MustCompile(`^(?:\d+[wdhms])+$`)
 )
 
 const schedulerStartupKeyword = "startup"
