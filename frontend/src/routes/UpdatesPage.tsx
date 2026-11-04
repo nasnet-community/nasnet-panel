@@ -9,6 +9,7 @@ import {
   Download,
   ExternalLink,
   Loader2,
+  RefreshCw,
   Router as RouterIcon,
   Sparkles,
   Tag,
@@ -18,6 +19,7 @@ import {
   Button,
   Card,
   ConfirmDialog,
+  EmptyState,
   PageHeader,
   PageShell,
   PageSubtitle,
@@ -197,6 +199,7 @@ function AppUpdateCard() {
   const [complete, setComplete] = useState(false);
   const watchingRef = useRef(false);
   const releasesRequestRef = useRef(0);
+  const runningVersionRef = useRef<string | null>(null);
   const toast = useToast();
   const { t } = useTranslation('tools');
   const format = useFormat();
@@ -215,14 +218,19 @@ function AppUpdateCard() {
       const request = ++releasesRequestRef.current;
       setLoading(true);
       setError(null);
+      // Drop the previous channel's list so none of its releases can be installed meanwhile.
+      setReleases(null);
+      setSelectedTag('');
       try {
-        const list = await fetchAppReleases({ host, ...creds }, next);
+        // The list keeps the running release, which would only answer "already up to date".
+        const list = (await fetchAppReleases({ host, ...creds }, next)).filter(
+          (r) => r.tag !== runningVersionRef.current,
+        );
         if (request !== releasesRequestRef.current) return;
         setReleases(list);
         setSelectedTag(list[0]?.tag ?? '');
       } catch (err) {
         if (request !== releasesRequestRef.current) return;
-        setReleases(null);
         setError(err instanceof Error ? err.message : t('updates.checkFailed'));
       } finally {
         if (request === releasesRequestRef.current) setLoading(false);
@@ -246,6 +254,7 @@ function AppUpdateCard() {
         fetchUpdateInfo({ host, ...creds }).catch(() => null),
       ]);
       if (cancelled) return;
+      runningVersionRef.current = version;
       setAppVersion(version);
       setRouterosVersion(info?.version ?? null);
       setChannel(saved);
@@ -471,14 +480,30 @@ function AppUpdateCard() {
               </div>
             </div>
 
-            {loading && !releases ? (
+            {loading ? (
               <>
                 <MetaRowSkeleton />
                 <VersionTrackSkeleton />
               </>
             ) : null}
 
-            {error ? <p className={styles.emptyNote}>{error}</p> : null}
+            {error ? (
+              <EmptyState
+                title={t('updates.app.loadFailed')}
+                description={error}
+                actions={
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      if (channel) void loadReleases(channel);
+                    }}
+                    disabled={!channel}
+                  >
+                    <RefreshCw size={14} aria-hidden /> {t('updates.app.retry')}
+                  </Button>
+                }
+              />
+            ) : null}
 
             {releases && !releases.length ? (
               <div className={styles.upToDate}>

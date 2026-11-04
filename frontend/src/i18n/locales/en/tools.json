@@ -259,7 +259,9 @@
       "updateTo": "Update to {{version}}",
       "confirmDescriptionVersion": "The panel restarts on {{version}}. The page reloads automatically once it is back.",
       "confirmDescriptionReconfig": "The panel restarts on {{version}}, then reconfigures the router from its saved settings. The page reloads automatically when it is done.",
-      "reconfigFailed": "The panel updated, but reconfiguring the router failed"
+      "reconfigFailed": "The panel updated, but reconfiguring the router failed",
+      "loadFailed": "Failed to load the releases",
+      "retry": "Retry"
     },
     "firmware": {
       "title": "RouterOS firmware",

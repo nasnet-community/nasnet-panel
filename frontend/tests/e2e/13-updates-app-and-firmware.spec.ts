@@ -104,7 +104,7 @@ const release = (
 // Serves the app update endpoints. Each GET of /api/app/update/status returns the next
 // entry of `statuses` (null answers with a network error, as while the panel restarts),
 // then keeps repeating the last one. /api/app/version reports `runningAfter` once an
-// update was started.
+// update was started. The first `failedListings` release listings answer with a 502.
 async function mockApp(
   context: BrowserContext,
   options: {
@@ -113,6 +113,7 @@ async function mockApp(
     releases: Record<string, MockRelease[]>;
     statuses?: Array<Record<string, unknown> | null>;
     runningAfter?: string;
+    failedListings?: number;
   },
 ) {
   const envelope = <T>(data: T) => JSON.stringify({ status: 200, message: 'OK', data });
@@ -139,6 +140,17 @@ async function mockApp(
   await context.route('**/api/app/updates?**', (route) => {
     const channel = new URL(route.request().url()).searchParams.get('channel') ?? '';
     channelQueries.push(channel);
+    if (channelQueries.length <= (options.failedListings ?? 0)) {
+      return route.fulfill({
+        status: 502,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 502,
+          message: 'Failed to fetch releases from GitHub',
+          error: 'Failed to fetch releases from GitHub',
+        }),
+      });
+    }
     return route.fulfill(json(options.releases[channel] ?? []));
   });
   await context.route('**/api/app/update', async (route) => {
@@ -312,11 +324,43 @@ test.describe('Updates page', () => {
     await resetMocks();
     await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
     await mockFirmware(context, [{ phase: 'idle' }]);
-    await mockApp(context, { running: 'v1.2.0', channel: 'stable', releases: { stable: [] } });
+    // The listing keeps the running release; it is not offered as an update.
+    await mockApp(context, {
+      running: 'v1.2.0',
+      channel: 'stable',
+      releases: { stable: [release('v1.2.0')] },
+    });
 
     await page.goto('/updates');
     await expect(page.getByText('Latest Stable release')).toBeVisible();
+    await expect(page.getByTestId('app-current-version')).toHaveText('v1.2.0');
     await expect(page.getByRole('button', { name: /update to/i })).toHaveCount(0);
+  });
+
+  test('shows a release listing error and retries it', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    const app = await mockApp(context, {
+      running: 'v1.0.0',
+      channel: 'rc',
+      releases: { rc: [release('v1.3.0-rc.1', [], { prerelease: true })] },
+      failedListings: 1,
+    });
+
+    await page.goto('/updates');
+    await expect(page.getByText('Failed to load the releases')).toBeVisible();
+    await expect(page.getByRole('button', { name: /update to/i })).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Retry' }).click();
+    await expect(page.getByRole('button', { name: 'Update to v1.3.0-rc.1' })).toBeEnabled();
+    await expect(page.getByText('Failed to load the releases')).toHaveCount(0);
+    expect(app.channelQueries()).toEqual(['rc', 'rc']);
   });
 
   test('firmware update shows its progress until the router is updated', async ({
