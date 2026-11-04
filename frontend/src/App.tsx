@@ -24,6 +24,7 @@ import { DHCPPage } from './routes/DHCPPage';
 import { DNSPage } from './routes/DNSPage';
 import { FirewallPage } from './routes/FirewallPage';
 import { DiagnosticsPage } from './routes/DiagnosticsPage';
+import { BackupsPage } from './routes/BackupsPage';
 import { HelpPage } from './routes/HelpPage';
 
 function AddRouterEntry() {
@@ -74,6 +75,7 @@ export function App() {
                         <Route path="firewall" element={<FirewallPage />} />
                         <Route path="plugins" element={<PluginsPage />} />
                         <Route path="diagnostics" element={<DiagnosticsPage />} />
+                        <Route path="backups" element={<BackupsPage />} />
                         <Route path="help" element={<HelpPage />} />
                       </Route>
                       <Route
