@@ -37,7 +37,7 @@ export async function fetchFirewallRules(
   signal?: AbortSignal,
 ): Promise<FirewallRule[]> {
   const query = chain ? `?${new URLSearchParams({ chain }).toString()}` : '';
-  const rules = await apiRequest<FirewallRule[] | null>(`/api/firewall/rules${query}`, {
+  const rules = await apiRequest<FirewallRule[] | null>(`/api/firewall/filter${query}`, {
     method: 'GET',
     headers: authHeaders(creds),
     cache: 'no-store',
