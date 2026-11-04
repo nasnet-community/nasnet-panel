@@ -58,6 +58,8 @@ jobs:
           tags: ${{ env.IMAGE }}:dev-${{ matrix.suffix }}
           build-args: |
             APP_VERSION=${{ env.APP_VERSION }}
+          secrets: |
+            router_key_secret=${{ secrets.ROUTER_KEY_SECRET }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
 

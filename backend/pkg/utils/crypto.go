@@ -2,8 +2,11 @@
 package utils
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 
 	"golang.org/x/crypto/curve25519"
@@ -109,6 +112,27 @@ func GenerateUserID() (string, error) {
 	}
 
 	return fmt.Sprintf("%s-%x-%x", userIDPrefix, b[0:2], b[2:8]), nil
+}
+
+// GenerateRouterUserID returns a user ID derived from systemID (random if empty)
+// and signed with secret, as api.joinnasnet.com expects.
+func GenerateRouterUserID(systemID, secret string) (string, error) {
+	var router []byte
+	if systemID != "" {
+		sum := sha256.Sum256([]byte(systemID))
+		router = sum[:6]
+	} else {
+		router = make([]byte, 6)
+		if _, err := rand.Read(router); err != nil {
+			return "", fmt.Errorf("failed to generate user ID: %w", err)
+		}
+	}
+
+	routerHex := hex.EncodeToString(router)
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(routerHex))
+
+	return fmt.Sprintf("%s-%x-%s", userIDPrefix, mac.Sum(nil)[:2], routerHex), nil
 }
 
 // GenerateUUIDv4 returns a random RFC 4122 version 4 UUID string.
