@@ -45,6 +45,7 @@ import { useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { RouterTabBar } from '../layout/RouterTabBar';
 import { useFormat } from '../utils/useFormat';
+import { NewsletterCard } from './NewsletterCard';
 import styles from './UpdatesPage.module.scss';
 
 const APP_UPDATE_TIMEOUT_MS = 8 * 60 * 1000;
@@ -144,6 +145,7 @@ export function UpdatesPage() {
           <AppUpdateCard />
           <FirmwareUpdateCard />
         </div>
+        <NewsletterCard />
       </PageShell>
     </>
   );

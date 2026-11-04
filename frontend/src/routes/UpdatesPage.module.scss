@@ -267,3 +267,51 @@
   padding: var(--space-md);
   text-align: center;
 }
+
+.newsletterForm {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.newsletterField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+  min-width: min(260px, 100%);
+  max-width: 420px;
+}
+
+// Off-screen rather than display:none, so naive bots still fill it in.
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.newsletterError {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-danger);
+}
+
+.newsletterNote {
+  margin: 0;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+}
