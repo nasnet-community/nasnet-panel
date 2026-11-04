@@ -612,6 +612,7 @@ function AppUpdateCard() {
                       ? t(`updates.progress.${progressStep}`)
                       : ''
                 }
+                tone="success"
               />
             ) : null}
 
