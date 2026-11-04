@@ -26,6 +26,7 @@ import {
   useToast,
 } from '@nasnet/ui';
 import styles from './DiagnosticsPage.module.scss';
+import { BackupsCard } from './BackupsCard';
 import { CableTestCard } from './CableTestCard';
 import { userGuideUrl } from './help/links';
 import { useLanguage } from '../state/LanguageContext';
@@ -426,6 +427,7 @@ export function DiagnosticsPage() {
           </Button>
         </Card>
       </SectionGrid>
+      <BackupsCard key={id} creds={creds} />
       <div className={styles.cableTestCard}>
         <CableTestCard creds={creds} />
       </div>

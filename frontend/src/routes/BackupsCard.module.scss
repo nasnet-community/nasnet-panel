@@ -1,0 +1,48 @@
+.cardHeader {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.cardHeader > :first-child {
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.fileName {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-sm);
+  word-break: break-all;
+}
+
+.errorNote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl);
+  color: var(--color-text-muted);
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.errorIcon {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: var(--space-sm) var(--space-md);
+}
