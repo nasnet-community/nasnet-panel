@@ -144,8 +144,8 @@ export function UpdatesPage() {
         <div className={styles.cardGrid}>
           <AppUpdateCard />
           <FirmwareUpdateCard />
+          <NewsletterCard />
         </div>
-        <NewsletterCard />
       </PageShell>
     </>
   );
