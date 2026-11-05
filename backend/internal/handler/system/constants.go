@@ -2,6 +2,7 @@
 package system
 
 import (
+	"regexp"
 	"sync"
 	"time"
 )
@@ -36,3 +37,11 @@ var (
 var nonEditableIPServices = map[string]bool{
 	"api": true,
 }
+
+var (
+	schedulerClockPattern        = regexp.MustCompile(`^(\d{1,2}):(\d{2}):(\d{2})$`)
+	schedulerIntervalClock       = regexp.MustCompile(`^(?:(\d+)d)?\s*(\d{1,2}):(\d{2}):(\d{2})$`)
+	schedulerIntervalLetterUnits = regexp.MustCompile(`^(?:\d+[wdhms])+$`)
+)
+
+const schedulerStartupKeyword = "startup"

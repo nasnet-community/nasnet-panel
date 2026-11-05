@@ -166,3 +166,20 @@ type SystemUpdateStatusResponse struct {
 	ToVersion   string `json:"toVersion,omitempty"`
 	StartedAt   string `json:"startedAt,omitempty"`
 }
+
+// SchedulerResponse is the response for GET /api/system/scheduler/{name}.
+type SchedulerResponse struct {
+	Name      string `json:"name" example:"daily-backup"`
+	Enabled   bool   `json:"enabled" example:"true"`
+	StartDate string `json:"startDate" example:"2026-11-04"`
+	StartTime string `json:"startTime" example:"03:00:00"`
+	Interval  string `json:"interval" example:"9d 02:00:00"`
+	RunCount  int    `json:"runCount" example:"12"`
+	NextRun   string `json:"nextRun" example:"2026-11-13 05:00:00"`
+}
+
+// UpdateSchedulerRequest holds the fields that can be changed on a /system/scheduler entry; at least one is required.
+type UpdateSchedulerRequest struct {
+	StartTime *string `json:"startTime" example:"03:00:00"`
+	Interval  *string `json:"interval" example:"1d 00:00:00"`
+}

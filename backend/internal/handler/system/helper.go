@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 
@@ -356,4 +357,66 @@ func ToUpdateInstallResponse(ui *routeros.UpdateInstallResult) *UpdateInstallRes
 		InstalledVersion: ui.InstalledVersion,
 		LatestVersion:    ui.LatestVersion,
 	}
+}
+
+// ToSchedulerResponse converts RouterOS data to its API response form.
+func ToSchedulerResponse(scheduler *routeros.SchedulerInfo) SchedulerResponse {
+	return SchedulerResponse{
+		Name:      scheduler.Name,
+		Enabled:   !scheduler.Disabled,
+		StartDate: routeros.FormatRouterOSTime(scheduler.StartDate),
+		StartTime: scheduler.StartTime,
+		Interval:  utils.FormatRouterOSDuration(scheduler.Interval),
+		RunCount:  scheduler.RunCount,
+		NextRun:   routeros.FormatRouterOSTime(scheduler.NextRun),
+	}
+}
+
+func normalizeSchedulerStartTime(value string) (string, error) {
+	value = strings.ToLower(strings.TrimSpace(value))
+	if value == schedulerStartupKeyword {
+		return value, nil
+	}
+
+	match := schedulerClockPattern.FindStringSubmatch(value)
+	if match == nil {
+		return "", fmt.Errorf("invalid startTime %q: expected HH:MM:SS or %q", value, schedulerStartupKeyword)
+	}
+
+	hours, _ := strconv.Atoi(match[1])
+	minutes, _ := strconv.Atoi(match[2])
+	seconds, _ := strconv.Atoi(match[3])
+	if hours > 23 || minutes > 59 || seconds > 59 {
+		return "", fmt.Errorf("invalid startTime %q: hours must be 0-23, minutes and seconds 0-59", value)
+	}
+
+	return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds), nil
+}
+
+func normalizeSchedulerInterval(value string) (string, error) {
+	value = strings.ToLower(strings.TrimSpace(value))
+	if value == "" {
+		return "", fmt.Errorf("invalid interval: value is empty")
+	}
+
+	if match := schedulerIntervalClock.FindStringSubmatch(value); match != nil {
+		hours, _ := strconv.Atoi(match[2])
+		minutes, _ := strconv.Atoi(match[3])
+		seconds, _ := strconv.Atoi(match[4])
+		if hours > 23 || minutes > 59 || seconds > 59 {
+			return "", fmt.Errorf("invalid interval %q: hours must be 0-23, minutes and seconds 0-59", value)
+		}
+
+		clock := fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
+		if match[1] == "" {
+			return clock, nil
+		}
+		return match[1] + "d" + clock, nil
+	}
+
+	if schedulerIntervalLetterUnits.MatchString(value) {
+		return value, nil
+	}
+
+	return "", fmt.Errorf("invalid interval %q: expected e.g. 1w2d, 1d12h30m, 10m, 1d 00:00:00 or HH:MM:SS", value)
 }

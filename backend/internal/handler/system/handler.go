@@ -823,3 +823,127 @@ func HandleUpdateIPService(c echo.Context) error {
 
 	return common.SuccessResponse(c, http.StatusOK, "IP service updated successfully", ToIPServiceResponse(updated))
 }
+
+// HandleGetScheduler godoc
+// @Summary Get a scheduler entry
+// @Description Retrieve a /system/scheduler entry by name: enabled state, start date and time, interval in
+// @Description human-readable form (weeks are summed up into days), run count and next run.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "Scheduler name"
+// @Success 200 {object} common.Response{data=SchedulerResponse} "Scheduler details"
+// @Failure 400 {object} common.Response "Bad request"
+// @Failure 401 {object} common.Response "Unauthorized"
+// @Failure 404 {object} common.Response "Scheduler not found"
+// @Failure 502 {object} common.Response "RouterOS lookup failed"
+// @Router /api/system/scheduler/{name} [get].
+func HandleGetScheduler(c echo.Context) error {
+	name := c.Param("name")
+	if name == "" {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Scheduler name is required", nil)
+	}
+
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	scheduler, err := client.GetScheduler(name)
+	if err != nil {
+		switch {
+		case errors.Is(err, routeros.ErrSchedulerNotFound):
+			return common.ErrorResponse(c, http.StatusNotFound, "Scheduler not found", err)
+		case common.IsCredentialError(err):
+			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		default:
+			return common.ErrorResponse(c, http.StatusBadGateway, "Failed to look up scheduler", err)
+		}
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "Scheduler retrieved", ToSchedulerResponse(scheduler))
+}
+
+// HandleUpdateScheduler godoc
+// @Summary Update a scheduler entry
+// @Description Change the start time and/or interval of a /system/scheduler entry.
+// @Description Both fields are optional, but at least one is required.
+// @Description startTime is HH:MM:SS or "startup".
+// @Description interval accepts RouterOS time such as 1w2d, 1d12h30m or 10m, or a clock form such as "1d 00:00:00" or HH:MM:SS.
+// @Tags System
+// @Accept json
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "Scheduler name"
+// @Param body body UpdateSchedulerRequest true "Scheduler settings to update"
+// @Success 200 {object} common.Response{data=SchedulerResponse} "Updated scheduler"
+// @Failure 400 {object} common.Response "Bad request"
+// @Failure 401 {object} common.Response "Unauthorized"
+// @Failure 404 {object} common.Response "Scheduler not found"
+// @Failure 500 {object} common.Response "Internal server error"
+// @Failure 502 {object} common.Response "RouterOS lookup failed"
+// @Router /api/system/scheduler/{name} [put].
+func HandleUpdateScheduler(c echo.Context) error {
+	name := c.Param("name")
+	if name == "" {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Scheduler name is required", nil)
+	}
+
+	var req UpdateSchedulerRequest
+	if err := c.Bind(&req); err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid request", err)
+	}
+
+	if req.StartTime == nil && req.Interval == nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "At least one of startTime or interval is required", nil)
+	}
+
+	if req.StartTime != nil {
+		startTime, err := normalizeSchedulerStartTime(*req.StartTime)
+		if err != nil {
+			return common.ErrorResponse(c, http.StatusBadRequest, "Invalid startTime", err)
+		}
+		req.StartTime = &startTime
+	}
+	if req.Interval != nil {
+		interval, err := normalizeSchedulerInterval(*req.Interval)
+		if err != nil {
+			return common.ErrorResponse(c, http.StatusBadRequest, "Invalid interval", err)
+		}
+		req.Interval = &interval
+	}
+
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	scheduler, err := client.GetScheduler(name)
+	if err != nil {
+		switch {
+		case errors.Is(err, routeros.ErrSchedulerNotFound):
+			return common.ErrorResponse(c, http.StatusNotFound, "Scheduler not found", err)
+		case common.IsCredentialError(err):
+			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		default:
+			return common.ErrorResponse(c, http.StatusBadGateway, "Failed to look up scheduler", err)
+		}
+	}
+
+	if err := client.UpdateScheduler(scheduler.ID, routeros.UpdateSchedulerParams{
+		StartTime: req.StartTime,
+		Interval:  req.Interval,
+	}); err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to update scheduler", err)
+	}
+
+	updated, err := client.GetScheduler(scheduler.ID)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated scheduler", err)
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "Scheduler updated successfully", ToSchedulerResponse(updated))
+}
