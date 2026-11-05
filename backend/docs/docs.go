@@ -47,13 +47,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.CheckForUpdatesResponse"
+                                            "$ref": "#/definitions/app.CheckForUpdatesResponse"
                                         }
                                     }
                                 }
@@ -63,7 +63,7 @@ const docTemplate = `{
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -99,13 +99,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.InstallUpdateResponse"
+                                            "$ref": "#/definitions/common.InstallUpdateResponse"
                                         }
                                     }
                                 }
@@ -115,7 +115,7 @@ const docTemplate = `{
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -151,7 +151,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -159,7 +159,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.SettingResponse"
+                                                "$ref": "#/definitions/app.SettingResponse"
                                             }
                                         }
                                     }
@@ -170,7 +170,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -206,7 +206,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateSettingRequest"
+                            "$ref": "#/definitions/app.CreateSettingRequest"
                         }
                     }
                 ],
@@ -216,13 +216,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SettingResponse"
+                                            "$ref": "#/definitions/app.SettingResponse"
                                         }
                                     }
                                 }
@@ -232,19 +232,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -287,13 +287,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SettingResponse"
+                                            "$ref": "#/definitions/app.SettingResponse"
                                         }
                                     }
                                 }
@@ -303,19 +303,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -358,7 +358,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateSettingRequest"
+                            "$ref": "#/definitions/app.UpdateSettingRequest"
                         }
                     }
                 ],
@@ -368,13 +368,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SettingResponse"
+                                            "$ref": "#/definitions/app.SettingResponse"
                                         }
                                     }
                                 }
@@ -384,19 +384,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -438,19 +438,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -488,7 +488,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.StartUpdateRequest"
+                            "$ref": "#/definitions/app.StartUpdateRequest"
                         }
                     }
                 ],
@@ -498,13 +498,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.InstallUpdateResponse"
+                                            "$ref": "#/definitions/common.InstallUpdateResponse"
                                         }
                                     }
                                 }
@@ -514,37 +514,37 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "412": {
                         "description": "Precondition Failed",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "507": {
                         "description": "Insufficient Storage",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -580,13 +580,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateStatusResponse"
+                                            "$ref": "#/definitions/app.UpdateStatusResponse"
                                         }
                                     }
                                 }
@@ -626,13 +626,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateChannelResponse"
+                                            "$ref": "#/definitions/app.UpdateChannelResponse"
                                         }
                                     }
                                 }
@@ -642,7 +642,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -678,13 +678,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateStatusResponse"
+                                            "$ref": "#/definitions/app.UpdateStatusResponse"
                                         }
                                     }
                                 }
@@ -732,13 +732,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ReleaseUpdateResponse"
+                                            "$ref": "#/definitions/app.ReleaseUpdateResponse"
                                         }
                                     }
                                 }
@@ -748,19 +748,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -815,7 +815,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -823,7 +823,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.ReleaseUpdateResponse"
+                                                "$ref": "#/definitions/app.ReleaseUpdateResponse"
                                             }
                                         }
                                     }
@@ -834,13 +834,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -876,13 +876,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.AppVersionResponse"
+                                            "$ref": "#/definitions/app.AppVersionResponse"
                                         }
                                     }
                                 }
@@ -922,13 +922,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ReconfigStartResponse"
+                                            "$ref": "#/definitions/config.ReconfigStartResponse"
                                         }
                                     }
                                 }
@@ -938,19 +938,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -986,13 +986,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ReconfigStatusResponse"
+                                            "$ref": "#/definitions/config.ReconfigStatusResponse"
                                         }
                                     }
                                 }
@@ -1002,7 +1002,7 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1041,13 +1041,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNCredentialsResponse"
+                                            "$ref": "#/definitions/config.VPNCredentialsResponse"
                                         }
                                     }
                                 }
@@ -1057,7 +1057,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1095,7 +1095,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.FinalizeWizardRequest"
+                            "$ref": "#/definitions/config.FinalizeWizardRequest"
                         }
                     }
                 ],
@@ -1103,19 +1103,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1154,13 +1154,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WizardStatus"
+                                            "$ref": "#/definitions/config.WizardStatus"
                                         }
                                     }
                                 }
@@ -1170,7 +1170,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1216,13 +1216,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ConfigureDHCPClientResponse"
+                                            "$ref": "#/definitions/dhcp.ConfigureDHCPClientResponse"
                                         }
                                     }
                                 }
@@ -1589,13 +1589,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1629,25 +1629,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1684,13 +1684,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1727,19 +1727,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1777,7 +1777,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AdBlockRequest"
+                            "$ref": "#/definitions/dns.AdBlockRequest"
                         }
                     }
                 ],
@@ -1785,25 +1785,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1837,19 +1837,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1887,7 +1887,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ChangeDNSRequest"
+                            "$ref": "#/definitions/dns.ChangeDNSRequest"
                         }
                     }
                 ],
@@ -1897,13 +1897,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DNSChangeResponse"
+                                            "$ref": "#/definitions/dns.ChangeResponse"
                                         }
                                     }
                                 }
@@ -1913,25 +1913,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -1967,13 +1967,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DNSFamilyResponse"
+                                            "$ref": "#/definitions/dns.FamilyResponse"
                                         }
                                     }
                                 }
@@ -1983,19 +1983,19 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2090,7 +2090,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateDNSRequest"
+                            "$ref": "#/definitions/dns.UpdateDNSRequest"
                         }
                     }
                 ],
@@ -2159,7 +2159,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2167,7 +2167,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.DNSForwarderListItem"
+                                                "$ref": "#/definitions/dns.ForwarderListItem"
                                             }
                                         }
                                     }
@@ -2178,13 +2178,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2223,13 +2223,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DNSResetResponse"
+                                            "$ref": "#/definitions/dns.ResetResponse"
                                         }
                                     }
                                 }
@@ -2239,13 +2239,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2284,7 +2284,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2292,7 +2292,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.StaticDNSResponse"
+                                                "$ref": "#/definitions/dns.StaticDNSResponse"
                                             }
                                         }
                                     }
@@ -2303,13 +2303,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2345,7 +2345,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateStaticDNSRequest"
+                            "$ref": "#/definitions/dns.CreateStaticDNSRequest"
                         }
                     }
                 ],
@@ -2355,13 +2355,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.StaticDNSResponse"
+                                            "$ref": "#/definitions/dns.StaticDNSResponse"
                                         }
                                     }
                                 }
@@ -2371,19 +2371,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2429,13 +2429,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.StaticDNSResponse"
+                                            "$ref": "#/definitions/dns.StaticDNSResponse"
                                         }
                                     }
                                 }
@@ -2445,19 +2445,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Entry not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "RouterOS lookup failed",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2500,7 +2500,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateStaticDNSRequest"
+                            "$ref": "#/definitions/dns.UpdateStaticDNSRequest"
                         }
                     }
                 ],
@@ -2510,13 +2510,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.StaticDNSResponse"
+                                            "$ref": "#/definitions/dns.StaticDNSResponse"
                                         }
                                     }
                                 }
@@ -2526,31 +2526,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Entry not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "RouterOS lookup failed",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2595,25 +2595,25 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Entry not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "RouterOS lookup failed",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2658,13 +2658,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DNSSuggestResponse"
+                                            "$ref": "#/definitions/dns.SuggestResponse"
                                         }
                                     }
                                 }
@@ -2674,7 +2674,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2727,13 +2727,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DNSCheckResponse"
+                                            "$ref": "#/definitions/dns.CheckResponse"
                                         }
                                     }
                                 }
@@ -2743,31 +2743,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2803,7 +2803,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -2811,7 +2811,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.DomesticAddressItemResponse"
+                                                "$ref": "#/definitions/firewall.DomesticAddressItemResponse"
                                             }
                                         }
                                     }
@@ -2822,13 +2822,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2864,7 +2864,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AddDomesticAddressRequest"
+                            "$ref": "#/definitions/firewall.AddDomesticAddressRequest"
                         }
                     }
                 ],
@@ -2874,13 +2874,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DomesticAddressResponse"
+                                            "$ref": "#/definitions/firewall.DomesticAddressResponse"
                                         }
                                     }
                                 }
@@ -2890,25 +2890,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid address",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Address already covered by an entry in the list",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -2944,13 +2944,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DomesticAddressListInfoResponse"
+                                            "$ref": "#/definitions/firewall.DomesticAddressListInfoResponse"
                                         }
                                     }
                                 }
@@ -2960,13 +2960,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3012,7 +3012,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateDomesticAddressRequest"
+                            "$ref": "#/definitions/firewall.UpdateDomesticAddressRequest"
                         }
                     }
                 ],
@@ -3022,13 +3022,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DomesticAddressItemResponse"
+                                            "$ref": "#/definitions/firewall.DomesticAddressItemResponse"
                                         }
                                     }
                                 }
@@ -3038,31 +3038,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid id, address or timeout",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "User added entry not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Address already covered by another entry in the list",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3102,31 +3102,31 @@ const docTemplate = `{
                     "200": {
                         "description": "Entry deleted",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Invalid id",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "User added entry not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3165,13 +3165,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DomesticBlockResponse"
+                                            "$ref": "#/definitions/firewall.DomesticBlockResponse"
                                         }
                                     }
                                 }
@@ -3181,13 +3181,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3223,7 +3223,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.SetDomesticBlockRequest"
+                            "$ref": "#/definitions/firewall.SetDomesticBlockRequest"
                         }
                     }
                 ],
@@ -3233,13 +3233,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.DomesticBlockResponse"
+                                            "$ref": "#/definitions/firewall.DomesticBlockResponse"
                                         }
                                     }
                                 }
@@ -3249,25 +3249,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Already in the requested state",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3370,7 +3370,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateInterfaceBridgeRequest"
+                            "$ref": "#/definitions/iface.UpdateInterfaceBridgeRequest"
                         }
                     }
                 ],
@@ -3378,31 +3378,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3438,7 +3438,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3446,7 +3446,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.BridgePortResponse"
+                                                "$ref": "#/definitions/iface.BridgePortResponse"
                                             }
                                         }
                                     }
@@ -3457,13 +3457,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3499,7 +3499,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3507,7 +3507,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.BridgeResponse"
+                                                "$ref": "#/definitions/iface.BridgeResponse"
                                             }
                                         }
                                     }
@@ -3518,13 +3518,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3567,13 +3567,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.CableTestResponse"
+                                            "$ref": "#/definitions/iface.CableTestResponse"
                                         }
                                     }
                                 }
@@ -3583,19 +3583,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3638,13 +3638,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.EthernetResponse"
+                                            "$ref": "#/definitions/iface.EthernetResponse"
                                         }
                                     }
                                 }
@@ -3654,19 +3654,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3702,7 +3702,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3710,7 +3710,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.EthernetResponse"
+                                                "$ref": "#/definitions/iface.EthernetResponse"
                                             }
                                         }
                                     }
@@ -3721,13 +3721,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3770,7 +3770,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3787,13 +3787,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3835,7 +3835,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3843,7 +3843,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.InterfaceResponse"
+                                                "$ref": "#/definitions/iface.InterfaceResponse"
                                             }
                                         }
                                     }
@@ -3854,19 +3854,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3910,25 +3910,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -3966,7 +3966,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWANInterfaceRequest"
+                            "$ref": "#/definitions/iface.UpdateWANInterfaceRequest"
                         }
                     }
                 ],
@@ -3976,7 +3976,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -3993,19 +3993,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4067,7 +4067,7 @@ const docTemplate = `{
                     "200": {
                         "description": "System logs retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/handler.GetLogsResponse"
+                            "$ref": "#/definitions/logs.GetLogsResponse"
                         }
                     },
                     "400": {
@@ -4185,7 +4185,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.SetPluginEnvVarRequest"
+                            "$ref": "#/definitions/plugin.SetPluginEnvVarRequest"
                         }
                     }
                 ],
@@ -4195,13 +4195,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.EnvVar"
+                                            "$ref": "#/definitions/plugin.EnvVar"
                                         }
                                     }
                                 }
@@ -4211,25 +4211,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4272,7 +4272,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -4280,7 +4280,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.EnvVar"
+                                                "$ref": "#/definitions/plugin.EnvVar"
                                             }
                                         }
                                     }
@@ -4291,13 +4291,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4335,7 +4335,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.InstallPluginRequest"
+                            "$ref": "#/definitions/plugin.InstallPluginRequest"
                         }
                     }
                 ],
@@ -4345,13 +4345,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.InstallPluginResponse"
+                                            "$ref": "#/definitions/plugin.InstallPluginResponse"
                                         }
                                     }
                                 }
@@ -4361,37 +4361,37 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4434,13 +4434,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.PluginInstallStatusResponse"
+                                            "$ref": "#/definitions/plugin.InstallStatusResponse"
                                         }
                                     }
                                 }
@@ -4450,7 +4450,7 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4486,7 +4486,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -4494,7 +4494,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.InstalledPluginInfo"
+                                                "$ref": "#/definitions/plugin.InstalledPluginInfo"
                                             }
                                         }
                                     }
@@ -4505,13 +4505,13 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4554,13 +4554,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UninstallPluginResponse"
+                                            "$ref": "#/definitions/plugin.UninstallPluginResponse"
                                         }
                                     }
                                 }
@@ -4570,31 +4570,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4630,13 +4630,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.PluginListResponse"
+                                            "$ref": "#/definitions/plugin.ListResponse"
                                         }
                                     }
                                 }
@@ -4646,13 +4646,13 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4695,13 +4695,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.PluginUpdateStatusResponse"
+                                            "$ref": "#/definitions/plugin.UpdateStatusResponse"
                                         }
                                     }
                                 }
@@ -4711,7 +4711,7 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4754,13 +4754,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdatePluginResponse"
+                                            "$ref": "#/definitions/plugin.UpdatePluginResponse"
                                         }
                                     }
                                 }
@@ -4770,37 +4770,37 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "Bad Gateway",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4875,13 +4875,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4917,7 +4917,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateForeignGatewayRequest"
+                            "$ref": "#/definitions/route.UpdateForeignGatewayRequest"
                         }
                     }
                 ],
@@ -4927,13 +4927,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ForeignGatewayResponse"
+                                            "$ref": "#/definitions/route.ForeignGatewayResponse"
                                         }
                                     }
                                 }
@@ -4943,13 +4943,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -4975,7 +4975,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ScanRequest"
+                            "$ref": "#/definitions/scan.ScanRequest"
                         }
                     }
                 ],
@@ -5149,7 +5149,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.IPVerifyRequest"
+                            "$ref": "#/definitions/scan.IPVerifyRequest"
                         }
                     }
                 ],
@@ -5204,13 +5204,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.BackupFileResponse"
+                                            "$ref": "#/definitions/system.BackupFileResponse"
                                         }
                                     }
                                 }
@@ -5220,19 +5220,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "A backup is already in progress",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -5279,25 +5279,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid file name",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Backup not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -5341,37 +5341,37 @@ const docTemplate = `{
                     "200": {
                         "description": "Backup deleted",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Invalid file name",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Backup not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "A backup or restore is in progress",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -5410,7 +5410,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -5418,7 +5418,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.BackupFileResponse"
+                                                "$ref": "#/definitions/system.BackupFileResponse"
                                             }
                                         }
                                     }
@@ -5429,13 +5429,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -5471,13 +5471,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateCheckResponse"
+                                            "$ref": "#/definitions/system.UpdateCheckResponse"
                                         }
                                     }
                                 }
@@ -5487,7 +5487,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -5582,7 +5582,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.SetSystemIdentityRequest"
+                            "$ref": "#/definitions/system.SetSystemIdentityRequest"
                         }
                     }
                 ],
@@ -5707,13 +5707,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.InstallUpdateResponse"
+                                            "$ref": "#/definitions/common.InstallUpdateResponse"
                                         }
                                     }
                                 }
@@ -5723,13 +5723,13 @@ const docTemplate = `{
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -5767,7 +5767,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ChangeUserPasswordRequest"
+                            "$ref": "#/definitions/system.ChangeUserPasswordRequest"
                         }
                     }
                 ],
@@ -5953,7 +5953,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.RestoreBackupRequest"
+                            "$ref": "#/definitions/system.RestoreBackupRequest"
                         }
                     }
                 ],
@@ -5961,37 +5961,37 @@ const docTemplate = `{
                     "202": {
                         "description": "Restore initiated",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Invalid file name",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Backup not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "A backup or restore is already in progress",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6036,7 +6036,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateIPServiceRequest"
+                            "$ref": "#/definitions/system.UpdateIPServiceRequest"
                         }
                     }
                 ],
@@ -6046,13 +6046,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.IPServiceResponse"
+                                            "$ref": "#/definitions/system.IPServiceResponse"
                                         }
                                     }
                                 }
@@ -6062,37 +6062,37 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "403": {
                         "description": "Service is not editable",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Service not found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
                         "description": "RouterOS lookup failed",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6131,7 +6131,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -6139,7 +6139,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.IPServiceResponse"
+                                                "$ref": "#/definitions/system.IPServiceResponse"
                                             }
                                         }
                                     }
@@ -6150,13 +6150,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6251,13 +6251,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SystemUpdateStatusResponse"
+                                            "$ref": "#/definitions/system.SystemUpdateStatusResponse"
                                         }
                                     }
                                 }
@@ -6300,13 +6300,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UpdateInfoResponse"
+                                            "$ref": "#/definitions/system.UpdateInfoResponse"
                                         }
                                     }
                                 }
@@ -6316,19 +6316,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6364,13 +6364,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ActiveVPNConnectionsResponse"
+                                            "$ref": "#/definitions/vpn.ActiveVPNConnectionsResponse"
                                         }
                                     }
                                 }
@@ -6380,7 +6380,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6421,19 +6421,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6469,7 +6469,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -6477,7 +6477,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.VPNClientResponse"
+                                                "$ref": "#/definitions/vpn.VPNClientResponse"
                                             }
                                         }
                                     }
@@ -6488,7 +6488,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6531,13 +6531,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/vpn.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -6547,13 +6547,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6596,7 +6596,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateVPNClientRequest"
+                            "$ref": "#/definitions/vpn.UpdateVPNClientRequest"
                         }
                     }
                 ],
@@ -6606,13 +6606,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/vpn.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -6622,19 +6622,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6672,7 +6672,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AddL2TPClientRequest"
+                            "$ref": "#/definitions/vpn.AddL2TPClientRequest"
                         }
                     }
                 ],
@@ -6682,13 +6682,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/vpn.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -6698,13 +6698,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6749,7 +6749,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateL2TPClientRequest"
+                            "$ref": "#/definitions/vpn.UpdateL2TPClientRequest"
                         }
                     }
                 ],
@@ -6759,13 +6759,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/vpn.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -6775,19 +6775,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6829,13 +6829,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6878,13 +6878,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.L2TPClientResponse"
+                                            "$ref": "#/definitions/vpn.L2TPClientResponse"
                                         }
                                     }
                                 }
@@ -6894,13 +6894,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6936,13 +6936,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.L2tpServerDetailsResponse"
+                                            "$ref": "#/definitions/vpn.L2tpServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -6952,7 +6952,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -6988,7 +6988,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateL2tpServerRequest"
+                            "$ref": "#/definitions/vpn.CreateL2tpServerRequest"
                         }
                     }
                 ],
@@ -6996,25 +6996,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7046,13 +7046,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7090,7 +7090,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateOvpnServerRequest"
+                            "$ref": "#/definitions/vpn.CreateOvpnServerRequest"
                         }
                     }
                 ],
@@ -7098,25 +7098,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7170,19 +7170,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7226,19 +7226,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7281,13 +7281,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.OvpnServerDetailsResponse"
+                                            "$ref": "#/definitions/vpn.OvpnServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -7297,13 +7297,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7346,7 +7346,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateOvpnServerEnabledRequest"
+                            "$ref": "#/definitions/vpn.UpdateOvpnServerEnabledRequest"
                         }
                     }
                 ],
@@ -7354,31 +7354,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7426,25 +7426,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7480,13 +7480,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.PptpServerDetailsResponse"
+                                            "$ref": "#/definitions/vpn.PptpServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -7496,7 +7496,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7532,7 +7532,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -7540,7 +7540,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.VPNProfileResponse"
+                                                "$ref": "#/definitions/vpn.VPNProfileResponse"
                                             }
                                         }
                                     }
@@ -7551,13 +7551,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7599,13 +7599,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNServersStatusResponse"
+                                            "$ref": "#/definitions/vpn.VPNServersStatusResponse"
                                         }
                                     }
                                 }
@@ -7615,7 +7615,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7653,7 +7653,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.AddSSTPClientRequest"
+                            "$ref": "#/definitions/vpn.AddSSTPClientRequest"
                         }
                     }
                 ],
@@ -7663,13 +7663,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/vpn.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -7679,19 +7679,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7736,7 +7736,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateSSTPClientRequest"
+                            "$ref": "#/definitions/vpn.UpdateSSTPClientRequest"
                         }
                     }
                 ],
@@ -7746,13 +7746,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                            "$ref": "#/definitions/vpn.VPNClientResponse"
                                         }
                                     }
                                 }
@@ -7762,19 +7762,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7816,19 +7816,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7871,13 +7871,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SSTPClientResponse"
+                                            "$ref": "#/definitions/vpn.SSTPClientResponse"
                                         }
                                     }
                                 }
@@ -7887,13 +7887,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7929,13 +7929,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.SstpServerDetailsResponse"
+                                            "$ref": "#/definitions/vpn.SstpServerDetailsResponse"
                                         }
                                     }
                                 }
@@ -7945,7 +7945,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -7977,19 +7977,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8027,19 +8027,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8083,19 +8083,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8131,7 +8131,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -8139,7 +8139,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.VPNUserResponse"
+                                                "$ref": "#/definitions/vpn.VPNUserResponse"
                                             }
                                         }
                                     }
@@ -8150,13 +8150,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8192,7 +8192,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateVPNUserRequest"
+                            "$ref": "#/definitions/vpn.CreateVPNUserRequest"
                         }
                     }
                 ],
@@ -8202,13 +8202,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNUserResponse"
+                                            "$ref": "#/definitions/vpn.VPNUserResponse"
                                         }
                                     }
                                 }
@@ -8218,19 +8218,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8275,7 +8275,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateVPNUserByIDRequest"
+                            "$ref": "#/definitions/vpn.UpdateVPNUserByIDRequest"
                         }
                     }
                 ],
@@ -8285,13 +8285,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.VPNUserResponse"
+                                            "$ref": "#/definitions/vpn.VPNUserResponse"
                                         }
                                     }
                                 }
@@ -8301,25 +8301,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8358,31 +8358,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8417,7 +8417,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateWireGuardInterfaceRequest"
+                            "$ref": "#/definitions/vpn.CreateWireGuardInterfaceRequest"
                         }
                     }
                 ],
@@ -8427,13 +8427,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardClientCreateResponse"
+                                            "$ref": "#/definitions/vpn.WireGuardClientCreateResponse"
                                         }
                                     }
                                 }
@@ -8443,19 +8443,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8498,13 +8498,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardDetailedResponse"
+                                            "$ref": "#/definitions/vpn.WireGuardDetailedResponse"
                                         }
                                     }
                                 }
@@ -8514,13 +8514,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8555,7 +8555,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ImportWireGuardConfigRequest"
+                            "$ref": "#/definitions/vpn.ImportWireGuardConfigRequest"
                         }
                     }
                 ],
@@ -8565,13 +8565,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.ImportWireGuardConfigResponse"
+                                            "$ref": "#/definitions/vpn.ImportWireGuardConfigResponse"
                                         }
                                     }
                                 }
@@ -8581,13 +8581,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8630,13 +8630,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardInterfaceResponse"
+                                            "$ref": "#/definitions/vpn.WireGuardInterfaceResponse"
                                         }
                                     }
                                 }
@@ -8646,13 +8646,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8692,7 +8692,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWireGuardInterfaceRequest"
+                            "$ref": "#/definitions/vpn.UpdateWireGuardInterfaceRequest"
                         }
                     }
                 ],
@@ -8702,13 +8702,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardInterfaceResponse"
+                                            "$ref": "#/definitions/vpn.WireGuardInterfaceResponse"
                                         }
                                     }
                                 }
@@ -8718,19 +8718,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8769,25 +8769,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8822,7 +8822,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateWireGuardServerPeerRequest"
+                            "$ref": "#/definitions/vpn.CreateWireGuardServerPeerRequest"
                         }
                     }
                 ],
@@ -8832,13 +8832,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardServerPeerCreateResponse"
+                                            "$ref": "#/definitions/vpn.WireGuardServerPeerCreateResponse"
                                         }
                                     }
                                 }
@@ -8848,25 +8848,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8914,25 +8914,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -8974,7 +8974,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWireGuardPeerRequest"
+                            "$ref": "#/definitions/vpn.UpdateWireGuardPeerRequest"
                         }
                     }
                 ],
@@ -8984,13 +8984,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardPeerResponse"
+                                            "$ref": "#/definitions/vpn.WireGuardPeerResponse"
                                         }
                                     }
                                 }
@@ -9000,19 +9000,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -9051,25 +9051,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -9112,7 +9112,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -9120,7 +9120,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.WireGuardPeerResponse"
+                                                "$ref": "#/definitions/vpn.WireGuardPeerResponse"
                                             }
                                         }
                                     }
@@ -9131,13 +9131,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -9172,7 +9172,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateWireGuardServerRequest"
+                            "$ref": "#/definitions/vpn.CreateWireGuardServerRequest"
                         }
                     }
                 ],
@@ -9182,13 +9182,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WireGuardServerCreateResponse"
+                                            "$ref": "#/definitions/vpn.WireGuardServerCreateResponse"
                                         }
                                     }
                                 }
@@ -9198,13 +9198,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -9387,7 +9387,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.WiFiConnectRequest"
+                            "$ref": "#/definitions/wifi.WiFiConnectRequest"
                         }
                     }
                 ],
@@ -9592,7 +9592,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWiFiInterfaceRequest"
+                            "$ref": "#/definitions/wifi.UpdateWiFiInterfaceRequest"
                         }
                     }
                 ],
@@ -9738,7 +9738,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.ChangeWiFiPassphraseRequest"
+                            "$ref": "#/definitions/wifi.ChangeWiFiPassphraseRequest"
                         }
                     }
                 ],
@@ -9820,7 +9820,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -9828,7 +9828,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.WiFiAccessPointResponse"
+                                                "$ref": "#/definitions/wifi.WiFiAccessPointResponse"
                                             }
                                         }
                                     }
@@ -9906,7 +9906,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateWiFiSettingsRequest"
+                            "$ref": "#/definitions/wifi.UpdateWiFiSettingsRequest"
                         }
                     }
                 ],
@@ -9996,7 +9996,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
@@ -10004,7 +10004,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.WiFiStatusResponse"
+                                                "$ref": "#/definitions/wifi.WiFiStatusResponse"
                                             }
                                         }
                                     }
@@ -10075,7 +10075,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateVirtualWiFiInterfaceRequest"
+                            "$ref": "#/definitions/wifi.CreateVirtualWiFiInterfaceRequest"
                         }
                     }
                 ],
@@ -10085,13 +10085,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/handler.Response"
+                                    "$ref": "#/definitions/common.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.WiFiInterfaceResponse"
+                                            "$ref": "#/definitions/wifi.WiFiInterfaceResponse"
                                         }
                                     }
                                 }
@@ -10101,25 +10101,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -10160,25 +10160,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/common.Response"
                         }
                     }
                 }
@@ -10201,7 +10201,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.HealthCheckResponse"
+                            "$ref": "#/definitions/health.CheckResponse"
                         }
                     }
                 }
@@ -10209,153 +10209,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.ActiveVPNConnectionsResponse": {
-            "type": "object",
-            "properties": {
-                "pppSessions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.PPPActiveSessionResponse"
-                    }
-                },
-                "wireguardPeers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.ActiveWireGuardPeerResponse"
-                    }
-                }
-            }
-        },
-        "handler.ActiveWireGuardPeerResponse": {
-            "type": "object",
-            "properties": {
-                "allowedAddresses": {
-                    "type": "string"
-                },
-                "clientAddress": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "dynamic": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "interfaceName": {
-                    "type": "string"
-                },
-                "lastHandshake": {
-                    "type": "string",
-                    "example": "1d 12:12:12"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "publicKey": {
-                    "type": "string"
-                },
-                "rx": {
-                    "type": "string"
-                },
-                "rxBytes": {
-                    "type": "integer"
-                },
-                "tx": {
-                    "type": "string"
-                },
-                "txBytes": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.AdBlockRequest": {
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean",
-                    "example": true
-                }
-            }
-        },
-        "handler.AddDomesticAddressRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "203.0.113.0/24"
-                }
-            }
-        },
-        "handler.AddL2TPClientRequest": {
-            "type": "object",
-            "properties": {
-                "comment": {
-                    "type": "string",
-                    "example": "Office L2TP client"
-                },
-                "connectTo": {
-                    "type": "string",
-                    "example": "192.168.1.1"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "ipsecSecret": {
-                    "type": "string",
-                    "example": "secretpassphrase123"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "my-l2tp/client"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "password123"
-                },
-                "user": {
-                    "type": "string",
-                    "example": "username"
-                }
-            }
-        },
-        "handler.AddSSTPClientRequest": {
-            "type": "object",
-            "properties": {
-                "comment": {
-                    "type": "string",
-                    "example": "Office SSTP client"
-                },
-                "connectTo": {
-                    "type": "string",
-                    "example": "vpn.example.com"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "name": {
-                    "type": "string",
-                    "example": "my-sstp-client"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "password123"
-                },
-                "port": {
-                    "type": "integer",
-                    "example": 443
-                },
-                "user": {
-                    "type": "string",
-                    "example": "username"
-                }
-            }
-        },
-        "handler.AppVersionResponse": {
+        "app.AppVersionResponse": {
             "type": "object",
             "properties": {
                 "version": {
@@ -10363,111 +10217,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.BackupFileResponse": {
-            "type": "object",
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "filename": {
-                    "type": "string"
-                },
-                "size": {
-                    "type": "string"
-                },
-                "sizeBytes": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.BridgePortResponse": {
-            "type": "object",
-            "properties": {
-                "bridge": {
-                    "type": "string"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "edge": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "interface": {
-                    "type": "string"
-                },
-                "pathCost": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.BridgeResponse": {
-            "type": "object",
-            "properties": {
-                "comment": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CableTestResponse": {
-            "type": "object",
-            "properties": {
-                "cablePairs": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ChangeDNSRequest": {
-            "type": "object",
-            "properties": {
-                "newIp": {
-                    "type": "string"
-                },
-                "oldIp": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ChangeUserPasswordRequest": {
-            "type": "object",
-            "properties": {
-                "newPassword": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ChangeWiFiPassphraseRequest": {
-            "type": "object",
-            "properties": {
-                "passphrase": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CheckForUpdatesResponse": {
+        "app.CheckForUpdatesResponse": {
             "type": "object",
             "properties": {
                 "appVersion": {
@@ -10487,7 +10237,340 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ConfigureDHCPClientResponse": {
+        "app.CreateSettingRequest": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "example": "theme"
+                },
+                "value": {
+                    "type": "string",
+                    "example": "dark"
+                }
+            }
+        },
+        "app.ReleaseUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "autoReconfigable": {
+                    "type": "boolean"
+                },
+                "changelog": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "minAppVersion": {
+                    "type": "string"
+                },
+                "minRouterosVersion": {
+                    "type": "string"
+                },
+                "prerelease": {
+                    "type": "boolean"
+                },
+                "releaseDate": {
+                    "type": "string"
+                },
+                "releaseUrl": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.SettingResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.StartUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string",
+                    "example": "v1.3.0"
+                }
+            }
+        },
+        "app.UpdateChannelResponse": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.UpdateSettingRequest": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "example": "light"
+                }
+            }
+        },
+        "app.UpdateStatusResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "phase": {
+                    "description": "idle, preparing, pulling, restarting, done, error",
+                    "type": "string"
+                },
+                "reconfig": {
+                    "$ref": "#/definitions/config.ReconfigStatusResponse"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.InstallUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "fromVersion": {
+                    "type": "string"
+                },
+                "toVersion": {
+                    "type": "string"
+                },
+                "updateAvailable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "common.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "config.FinalizeWizardRequest": {
+            "type": "object",
+            "properties": {
+                "domestic": {
+                    "$ref": "#/definitions/config.InterfaceConfigRequest"
+                },
+                "foreign": {
+                    "$ref": "#/definitions/config.InterfaceConfigRequest"
+                },
+                "l2tpClient": {
+                    "$ref": "#/definitions/config.L2tpClientConfig"
+                },
+                "ovpnServer": {
+                    "$ref": "#/definitions/config.OvpnServerConfig"
+                },
+                "wifiAp": {
+                    "$ref": "#/definitions/config.WiFiAPConfig"
+                },
+                "wireguardClient": {
+                    "$ref": "#/definitions/config.WireGuardClientConfig"
+                }
+            }
+        },
+        "config.InterfaceConfigRequest": {
+            "type": "object",
+            "properties": {
+                "interface": {
+                    "type": "string",
+                    "example": "ether1"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "wifiPassword123"
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "MyWiFiNetwork"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "ether"
+                }
+            }
+        },
+        "config.L2tpClientConfig": {
+            "type": "object",
+            "properties": {
+                "connectTo": {
+                    "type": "string",
+                    "example": "192.168.1.1"
+                },
+                "ipsecSecret": {
+                    "type": "string",
+                    "example": "secretpassphrase123"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                },
+                "user": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
+        "config.OvpnServerConfig": {
+            "type": "object",
+            "properties": {
+                "clientCertificatePassword": {
+                    "type": "string",
+                    "example": "cert-password123"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/config.OvpnUser"
+                    }
+                }
+            }
+        },
+        "config.OvpnUser": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "userpassword123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "vpnuser"
+                }
+            }
+        },
+        "config.ReconfigStartResponse": {
+            "type": "object",
+            "properties": {
+                "managementWiFiPassword": {
+                    "type": "string"
+                },
+                "managementWiFiSSID": {
+                    "type": "string"
+                }
+            }
+        },
+        "config.ReconfigStatusResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "progress": {
+                    "type": "integer",
+                    "example": 35
+                },
+                "state": {
+                    "type": "string",
+                    "example": "running"
+                },
+                "step": {
+                    "type": "string",
+                    "example": "Configuring WiFi access points"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "config.VPNCredentialsResponse": {
+            "type": "object",
+            "properties": {
+                "expiryDate": {
+                    "type": "string",
+                    "example": "11/21/2026"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "UmAaItfM"
+                },
+                "server": {
+                    "type": "string",
+                    "example": "dij5t.vpn.s4i.co"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "NNC_zN9RI61d"
+                }
+            }
+        },
+        "config.WiFiAPConfig": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "apPassword123"
+                },
+                "split": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "MyAccessPoint"
+                }
+            }
+        },
+        "config.WireGuardClientConfig": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "string",
+                    "example": "[Interface]\nListenPort = 51820\n..."
+                }
+            }
+        },
+        "config.WizardStatus": {
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "failed": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Configuring WiFi access points"
+                },
+                "progress": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "dhcp.ConfigureDHCPClientResponse": {
             "type": "object",
             "properties": {
                 "addDefaultRoute": {
@@ -10510,295 +10593,27 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateL2tpServerRequest": {
+        "dns.AdBlockRequest": {
             "type": "object",
             "properties": {
-                "ipsecSecret": {
-                    "type": "string",
-                    "example": "secretpassphrase123"
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
-        "handler.CreateOvpnServerRequest": {
-            "type": "object",
-            "required": [
-                "clientCertificatePassword",
-                "users"
-            ],
-            "properties": {
-                "clientCertificatePassword": {
-                    "type": "string",
-                    "example": "cert-password123"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.VpnUser"
-                    }
-                }
-            }
-        },
-        "handler.CreateSettingRequest": {
+        "dns.ChangeDNSRequest": {
             "type": "object",
             "properties": {
-                "key": {
-                    "type": "string",
-                    "example": "theme"
-                },
-                "value": {
-                    "type": "string",
-                    "example": "dark"
-                }
-            }
-        },
-        "handler.CreateStaticDNSRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "192.168.88.1"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "router.lan"
-                }
-            }
-        },
-        "handler.CreateVPNUserRequest": {
-            "type": "object",
-            "properties": {
-                "comment": {
+                "newIp": {
                     "type": "string"
                 },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "limitBytesIn": {
-                    "type": "integer"
-                },
-                "limitBytesOut": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "profile": {
+                "oldIp": {
                     "type": "string"
                 }
             }
         },
-        "handler.CreateVirtualWiFiInterfaceRequest": {
-            "type": "object",
-            "properties": {
-                "bridge": {
-                    "type": "string",
-                    "example": "LANBridgeSplit"
-                },
-                "masterInterface": {
-                    "type": "string",
-                    "example": "wifi1"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "my-secure-password"
-                },
-                "securityTypes": {
-                    "description": "comma-separated: wpa-psk,wpa2-psk,wpa3-psk; required when password is set",
-                    "type": "string",
-                    "example": "wpa2-psk,wpa3-psk"
-                },
-                "ssid": {
-                    "type": "string",
-                    "example": "my-network"
-                }
-            }
-        },
-        "handler.CreateWireGuardInterfaceRequest": {
-            "type": "object",
-            "required": [
-                "allowedAddress",
-                "endpointIP",
-                "endpointPort",
-                "interfaceLocalAddress"
-            ],
-            "properties": {
-                "allowedAddress": {
-                    "type": "string",
-                    "example": "192.168.1.0/24,10.0.0.0/8,2001:db8::/32"
-                },
-                "comment": {
-                    "type": "string",
-                    "example": "Office VPN client"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "endpointIP": {
-                    "type": "string",
-                    "example": "203.0.113.50"
-                },
-                "endpointPort": {
-                    "type": "integer",
-                    "example": 51820
-                },
-                "interfaceLocalAddress": {
-                    "type": "string",
-                    "example": "10.0.0.1/24"
-                },
-                "interfacePrivateKey": {
-                    "type": "string",
-                    "example": "KIEp..."
-                },
-                "listenPort": {
-                    "type": "integer",
-                    "example": 13231
-                },
-                "mtu": {
-                    "type": "integer",
-                    "example": 1420
-                },
-                "name": {
-                    "type": "string",
-                    "example": "office"
-                },
-                "peerPrivateKey": {
-                    "type": "string",
-                    "example": "KIEp5mJ2Llk..."
-                },
-                "peerPublicKey": {
-                    "type": "string",
-                    "example": "HIgo9xNzJMu7..."
-                },
-                "persistentKeepalive": {
-                    "type": "integer",
-                    "example": 25
-                },
-                "presharedKey": {
-                    "type": "string",
-                    "example": "HIgo9xNzJMu..."
-                }
-            }
-        },
-        "handler.CreateWireGuardServerPeerRequest": {
-            "type": "object",
-            "required": [
-                "endpointAddress",
-                "endpointPort",
-                "interfaceName"
-            ],
-            "properties": {
-                "allowedAddresses": {
-                    "type": "string",
-                    "example": "192.168.1.0/24"
-                },
-                "clientAddress": {
-                    "type": "string",
-                    "example": "10.0.0.2"
-                },
-                "clientDNS": {
-                    "type": "string",
-                    "example": "8.8.8.8,8.8.4.4"
-                },
-                "clientEndpoint": {
-                    "type": "string",
-                    "example": "10.0.0.1"
-                },
-                "clientKeepalive": {
-                    "type": "integer",
-                    "example": 30
-                },
-                "clientListenPort": {
-                    "type": "integer",
-                    "example": 51820
-                },
-                "comment": {
-                    "type": "string",
-                    "example": "Office VPN Peer"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "endpointAddress": {
-                    "type": "string",
-                    "example": "203.0.113.50"
-                },
-                "endpointPort": {
-                    "type": "integer",
-                    "example": 51820
-                },
-                "interfaceName": {
-                    "type": "string",
-                    "example": "wg-server"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "office-peer-1"
-                },
-                "persistentKeepalive": {
-                    "type": "integer",
-                    "example": 25
-                },
-                "preSharedKey": {
-                    "type": "string",
-                    "example": "qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="
-                },
-                "privateKey": {
-                    "type": "string",
-                    "example": "KIEp5mJ2Llk..."
-                },
-                "publicKey": {
-                    "type": "string",
-                    "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
-                },
-                "responder": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "savePrivateKey": {
-                    "type": "boolean",
-                    "example": false
-                }
-            }
-        },
-        "handler.CreateWireGuardServerRequest": {
-            "type": "object",
-            "properties": {
-                "comment": {
-                    "type": "string",
-                    "example": "Office VPN server"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "listenPort": {
-                    "type": "integer",
-                    "example": 51820
-                },
-                "localAddress": {
-                    "type": "string",
-                    "example": "10.8.0.1/24"
-                },
-                "mtu": {
-                    "type": "integer",
-                    "example": 1420
-                },
-                "name": {
-                    "type": "string",
-                    "example": "office"
-                },
-                "privateKey": {
-                    "type": "string",
-                    "example": "KIEp..."
-                }
-            }
-        },
-        "handler.DNSChangeResponse": {
+        "dns.ChangeResponse": {
             "type": "object",
             "properties": {
                 "newIp": {
@@ -10851,7 +10666,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DNSCheckResponse": {
+        "dns.CheckResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -10872,18 +10687,31 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DNSFamilyResponse": {
+        "dns.CreateStaticDNSRequest": {
             "type": "object",
             "properties": {
-                "foreign": {
-                    "$ref": "#/definitions/handler.DNSChangeResponse"
+                "address": {
+                    "type": "string",
+                    "example": "192.168.88.1"
                 },
-                "vpn": {
-                    "$ref": "#/definitions/handler.DNSChangeResponse"
+                "name": {
+                    "type": "string",
+                    "example": "router.lan"
                 }
             }
         },
-        "handler.DNSForwarderListItem": {
+        "dns.FamilyResponse": {
+            "type": "object",
+            "properties": {
+                "foreign": {
+                    "$ref": "#/definitions/dns.ChangeResponse"
+                },
+                "vpn": {
+                    "$ref": "#/definitions/dns.ChangeResponse"
+                }
+            }
+        },
+        "dns.ForwarderListItem": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -10900,7 +10728,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DNSForwarderResult": {
+        "dns.ForwarderResult": {
             "type": "object",
             "properties": {
                 "dnsServers": {
@@ -10917,7 +10745,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DNSResetResponse": {
+        "dns.ResetResponse": {
             "type": "object",
             "properties": {
                 "createdAddressListItems": {
@@ -10929,7 +10757,7 @@ const docTemplate = `{
                 "forwarders": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.DNSForwarderResult"
+                        "$ref": "#/definitions/dns.ForwarderResult"
                     }
                 },
                 "servers": {
@@ -10964,24 +10792,47 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DNSSuggestResponse": {
+        "dns.StaticDNSResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ttl": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "dns.SuggestResponse": {
             "type": "object",
             "properties": {
                 "domestic": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.DNSSuggestion"
+                        "$ref": "#/definitions/dns.Suggestion"
                     }
                 },
                 "foreign": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.DNSSuggestion"
+                        "$ref": "#/definitions/dns.Suggestion"
                     }
                 }
             }
         },
-        "handler.DNSSuggestion": {
+        "dns.Suggestion": {
             "type": "object",
             "properties": {
                 "description": {
@@ -10992,7 +10843,44 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DomesticAddressItemResponse": {
+        "dns.UpdateDNSRequest": {
+            "type": "object",
+            "properties": {
+                "dohServer": {
+                    "type": "string"
+                },
+                "servers": {
+                    "type": "string"
+                }
+            }
+        },
+        "dns.UpdateStaticDNSRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "192.168.88.2"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "type": "string",
+                    "example": "router.lan"
+                }
+            }
+        },
+        "firewall.AddDomesticAddressRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "203.0.113.0/24"
+                }
+            }
+        },
+        "firewall.DomesticAddressItemResponse": {
             "type": "object",
             "properties": {
                 "address": {
@@ -11009,7 +10897,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DomesticAddressListInfoResponse": {
+        "firewall.DomesticAddressListInfoResponse": {
             "type": "object",
             "properties": {
                 "autoEntries": {
@@ -11026,7 +10914,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DomesticAddressResponse": {
+        "firewall.DomesticAddressResponse": {
             "type": "object",
             "properties": {
                 "address": {
@@ -11043,7 +10931,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.DomesticBlockResponse": {
+        "firewall.DomesticBlockResponse": {
             "type": "object",
             "properties": {
                 "addedRules": {
@@ -11055,12 +10943,12 @@ const docTemplate = `{
                 "rules": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.DomesticBlockRuleResponse"
+                        "$ref": "#/definitions/firewall.DomesticBlockRuleResponse"
                     }
                 }
             }
         },
-        "handler.DomesticBlockRuleResponse": {
+        "firewall.DomesticBlockRuleResponse": {
             "type": "object",
             "properties": {
                 "chain": {
@@ -11074,21 +10962,100 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.EnvVar": {
+        "firewall.SetDomesticBlockRequest": {
             "type": "object",
             "properties": {
-                "changeable": {
-                    "type": "boolean"
+                "block": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "firewall.UpdateDomesticAddressRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "203.0.113.0/24"
                 },
-                "key": {
+                "timeout": {
+                    "type": "string",
+                    "example": "1d"
+                }
+            }
+        },
+        "health.CheckResponse": {
+            "type": "object",
+            "properties": {
+                "server": {
                     "type": "string"
                 },
-                "value": {
+                "status": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
         },
-        "handler.EthernetResponse": {
+        "iface.BridgePortResponse": {
+            "type": "object",
+            "properties": {
+                "bridge": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "edge": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "pathCost": {
+                    "type": "integer"
+                }
+            }
+        },
+        "iface.BridgeResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "iface.CableTestResponse": {
+            "type": "object",
+            "properties": {
+                "cablePairs": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "iface.EthernetResponse": {
             "type": "object",
             "properties": {
                 "advertise": {
@@ -11207,258 +11174,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.FinalizeWizardRequest": {
-            "type": "object",
-            "properties": {
-                "domestic": {
-                    "$ref": "#/definitions/handler.InterfaceConfigRequest"
-                },
-                "foreign": {
-                    "$ref": "#/definitions/handler.InterfaceConfigRequest"
-                },
-                "l2tpClient": {
-                    "$ref": "#/definitions/handler.L2tpClientConfig"
-                },
-                "ovpnServer": {
-                    "$ref": "#/definitions/handler.OvpnServerConfig"
-                },
-                "wifiAp": {
-                    "$ref": "#/definitions/handler.WiFiAPConfig"
-                },
-                "wireguardClient": {
-                    "$ref": "#/definitions/handler.WireGuardClientConfig"
-                }
-            }
-        },
-        "handler.ForeignGatewayResponse": {
-            "type": "object",
-            "properties": {
-                "gateway": {
-                    "type": "string"
-                },
-                "routesUpdated": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.GetLogsResponse": {
-            "type": "object",
-            "properties": {
-                "availableLevels": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "availableTopics": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "count": {
-                    "type": "integer"
-                },
-                "entries": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.LogEntryResponse"
-                    }
-                }
-            }
-        },
-        "handler.HealthCheckResponse": {
-            "type": "object",
-            "properties": {
-                "server": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.IPServiceResponse": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "certificate": {
-                    "type": "string"
-                },
-                "connection": {
-                    "type": "boolean"
-                },
-                "container": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "dynamic": {
-                    "type": "boolean"
-                },
-                "editable": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "invalid": {
-                    "type": "boolean"
-                },
-                "local": {
-                    "type": "string"
-                },
-                "maxSessions": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "netns": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "integer"
-                },
-                "proto": {
-                    "type": "string"
-                },
-                "remote": {
-                    "type": "string"
-                },
-                "tlsVersion": {
-                    "type": "string"
-                },
-                "vrf": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.IPVerifyRequest": {
-            "type": "object",
-            "properties": {
-                "ip": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ImportWireGuardConfigRequest": {
-            "type": "object",
-            "required": [
-                "config"
-            ],
-            "properties": {
-                "config": {
-                    "type": "string",
-                    "example": "[Interface]\nListenPort = 51820\n..."
-                },
-                "interfaceName": {
-                    "type": "string",
-                    "example": "wg-client"
-                }
-            }
-        },
-        "handler.ImportWireGuardConfigResponse": {
-            "type": "object",
-            "properties": {
-                "importedPeerCount": {
-                    "type": "integer"
-                },
-                "interfaceIP": {
-                    "type": "string"
-                },
-                "interfaceName": {
-                    "type": "string"
-                },
-                "peerNames": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "reusedExistingInterface": {
-                    "type": "boolean"
-                },
-                "skippedDuplicatePeers": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "handler.InstallPluginRequest": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.InstallPluginResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "pluginId": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.InstallUpdateResponse": {
-            "type": "object",
-            "properties": {
-                "fromVersion": {
-                    "type": "string"
-                },
-                "toVersion": {
-                    "type": "string"
-                },
-                "updateAvailable": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.InstalledPluginInfo": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.InterfaceConfigRequest": {
-            "type": "object",
-            "properties": {
-                "interface": {
-                    "type": "string",
-                    "example": "ether1"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "wifiPassword123"
-                },
-                "ssid": {
-                    "type": "string",
-                    "example": "MyWiFiNetwork"
-                },
-                "type": {
-                    "type": "string",
-                    "example": "ether"
-                }
-            }
-        },
-        "handler.InterfaceResponse": {
+        "iface.InterfaceResponse": {
             "type": "object",
             "properties": {
                 "actualMtu": {
@@ -11574,7 +11290,943 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.L2TPClientResponse": {
+        "iface.UpdateInterfaceBridgeRequest": {
+            "type": "object",
+            "required": [
+                "bridge",
+                "interface"
+            ],
+            "properties": {
+                "bridge": {
+                    "type": "string",
+                    "example": "LANBridge1"
+                },
+                "interface": {
+                    "type": "string",
+                    "example": "ether1"
+                }
+            }
+        },
+        "iface.UpdateWANInterfaceRequest": {
+            "type": "object",
+            "properties": {
+                "interface": {
+                    "type": "string",
+                    "example": "ether2"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "secret"
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "MyNetwork"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "foreign"
+                }
+            }
+        },
+        "logs.GetLogsResponse": {
+            "type": "object",
+            "properties": {
+                "availableLevels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "availableTopics": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/logs.LogEntryResponse"
+                    }
+                }
+            }
+        },
+        "logs.LogEntryResponse": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.EnvVar": {
+            "type": "object",
+            "properties": {
+                "changeable": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.Info": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "canInstall": {
+                    "type": "boolean"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "failed": {
+                    "type": "boolean"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "installed": {
+                    "type": "boolean"
+                },
+                "installedVersion": {
+                    "type": "string"
+                },
+                "installing": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "tagline": {
+                    "type": "string"
+                },
+                "updateAvailable": {
+                    "type": "boolean"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "plugin.InstallPluginRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.InstallPluginResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "pluginId": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.InstallStatusResponse": {
+            "type": "object",
+            "properties": {
+                "containerId": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "phase": {
+                    "description": "preparing, creating_interface, creating_mounts, running_pre_install_script, creating_container, pulling, starting_container, running_post_install_script, done, error",
+                    "type": "string"
+                },
+                "pluginId": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.InstalledPluginInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.ListResponse": {
+            "type": "object",
+            "properties": {
+                "containerSupport": {
+                    "type": "boolean"
+                },
+                "plugins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/plugin.Info"
+                    }
+                }
+            }
+        },
+        "plugin.SetPluginEnvVarRequest": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.UninstallPluginResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "mountLists": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "volumeDir": {
+                    "type": "string"
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "plugin.UpdatePluginResponse": {
+            "type": "object",
+            "properties": {
+                "pluginId": {
+                    "type": "string"
+                }
+            }
+        },
+        "plugin.UpdateStatusResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "phase": {
+                    "description": "checking_version, stopping_container, repulling, starting_container, updating_comment, done, unconfirmed, error",
+                    "type": "string"
+                },
+                "pluginId": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "route.ForeignGatewayResponse": {
+            "type": "object",
+            "properties": {
+                "gateway": {
+                    "type": "string"
+                },
+                "routesUpdated": {
+                    "type": "integer"
+                }
+            }
+        },
+        "route.UpdateForeignGatewayRequest": {
+            "type": "object",
+            "properties": {
+                "gateway": {
+                    "type": "string"
+                }
+            }
+        },
+        "scan.IPVerifyRequest": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "string"
+                }
+            }
+        },
+        "scan.ScanRequest": {
+            "type": "object",
+            "properties": {
+                "subnet": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.BackupFileResponse": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "sizeBytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "system.ChangeUserPasswordRequest": {
+            "type": "object",
+            "properties": {
+                "newPassword": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.IPServiceResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "certificate": {
+                    "type": "string"
+                },
+                "connection": {
+                    "type": "boolean"
+                },
+                "container": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "dynamic": {
+                    "type": "boolean"
+                },
+                "editable": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invalid": {
+                    "type": "boolean"
+                },
+                "local": {
+                    "type": "string"
+                },
+                "maxSessions": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "netns": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "proto": {
+                    "type": "string"
+                },
+                "remote": {
+                    "type": "string"
+                },
+                "tlsVersion": {
+                    "type": "string"
+                },
+                "vrf": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.RestoreBackupRequest": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.SetSystemIdentityRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.SystemUpdateStatusResponse": {
+            "type": "object",
+            "properties": {
+                "fromVersion": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "phase": {
+                    "description": "idle, downloading, rebooting, done, error",
+                    "type": "string",
+                    "example": "rebooting"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "toVersion": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.UpdateCheckResponse": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "installedVersion": {
+                    "type": "string"
+                },
+                "latestVersion": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updateAvailable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "system.UpdateIPServiceRequest": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "192.168.88.0/24,10.0.0.0/8"
+                },
+                "certificate": {
+                    "type": "string",
+                    "example": "none"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "maxSessions": {
+                    "type": "integer",
+                    "example": 20
+                },
+                "port": {
+                    "type": "integer",
+                    "example": 2222
+                },
+                "tlsVersion": {
+                    "type": "string",
+                    "example": "only-1.2"
+                },
+                "vrf": {
+                    "type": "string",
+                    "example": "main"
+                }
+            }
+        },
+        "system.UpdateInfoResponse": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "installedVersion": {
+                    "type": "string"
+                },
+                "latestVersion": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "vpn.ActiveVPNConnectionsResponse": {
+            "type": "object",
+            "properties": {
+                "pppSessions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/vpn.PPPActiveSessionResponse"
+                    }
+                },
+                "wireguardPeers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/vpn.ActiveWireGuardPeerResponse"
+                    }
+                }
+            }
+        },
+        "vpn.ActiveWireGuardPeerResponse": {
+            "type": "object",
+            "properties": {
+                "allowedAddresses": {
+                    "type": "string"
+                },
+                "clientAddress": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "dynamic": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interfaceName": {
+                    "type": "string"
+                },
+                "lastHandshake": {
+                    "type": "string",
+                    "example": "1d 12:12:12"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "publicKey": {
+                    "type": "string"
+                },
+                "rx": {
+                    "type": "string"
+                },
+                "rxBytes": {
+                    "type": "integer"
+                },
+                "tx": {
+                    "type": "string"
+                },
+                "txBytes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "vpn.AddL2TPClientRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office L2TP client"
+                },
+                "connectTo": {
+                    "type": "string",
+                    "example": "192.168.1.1"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "ipsecSecret": {
+                    "type": "string",
+                    "example": "secretpassphrase123"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "my-l2tp/client"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                },
+                "user": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
+        "vpn.AddSSTPClientRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office SSTP client"
+                },
+                "connectTo": {
+                    "type": "string",
+                    "example": "vpn.example.com"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "type": "string",
+                    "example": "my-sstp-client"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                },
+                "port": {
+                    "type": "integer",
+                    "example": 443
+                },
+                "user": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
+        "vpn.CreateL2tpServerRequest": {
+            "type": "object",
+            "properties": {
+                "ipsecSecret": {
+                    "type": "string",
+                    "example": "secretpassphrase123"
+                }
+            }
+        },
+        "vpn.CreateOvpnServerRequest": {
+            "type": "object",
+            "required": [
+                "clientCertificatePassword",
+                "users"
+            ],
+            "properties": {
+                "clientCertificatePassword": {
+                    "type": "string",
+                    "example": "cert-password123"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/vpn.VpnUser"
+                    }
+                }
+            }
+        },
+        "vpn.CreateVPNUserRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "limitBytesIn": {
+                    "type": "integer"
+                },
+                "limitBytesOut": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profile": {
+                    "type": "string"
+                }
+            }
+        },
+        "vpn.CreateWireGuardInterfaceRequest": {
+            "type": "object",
+            "required": [
+                "allowedAddress",
+                "endpointIP",
+                "endpointPort",
+                "interfaceLocalAddress"
+            ],
+            "properties": {
+                "allowedAddress": {
+                    "type": "string",
+                    "example": "192.168.1.0/24,10.0.0.0/8,2001:db8::/32"
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN client"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "endpointIP": {
+                    "type": "string",
+                    "example": "203.0.113.50"
+                },
+                "endpointPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "interfaceLocalAddress": {
+                    "type": "string",
+                    "example": "10.0.0.1/24"
+                },
+                "interfacePrivateKey": {
+                    "type": "string",
+                    "example": "KIEp..."
+                },
+                "listenPort": {
+                    "type": "integer",
+                    "example": 13231
+                },
+                "mtu": {
+                    "type": "integer",
+                    "example": 1420
+                },
+                "name": {
+                    "type": "string",
+                    "example": "office"
+                },
+                "peerPrivateKey": {
+                    "type": "string",
+                    "example": "KIEp5mJ2Llk..."
+                },
+                "peerPublicKey": {
+                    "type": "string",
+                    "example": "HIgo9xNzJMu7..."
+                },
+                "persistentKeepalive": {
+                    "type": "integer",
+                    "example": 25
+                },
+                "presharedKey": {
+                    "type": "string",
+                    "example": "HIgo9xNzJMu..."
+                }
+            }
+        },
+        "vpn.CreateWireGuardServerPeerRequest": {
+            "type": "object",
+            "required": [
+                "endpointAddress",
+                "endpointPort",
+                "interfaceName"
+            ],
+            "properties": {
+                "allowedAddresses": {
+                    "type": "string",
+                    "example": "192.168.1.0/24"
+                },
+                "clientAddress": {
+                    "type": "string",
+                    "example": "10.0.0.2"
+                },
+                "clientDNS": {
+                    "type": "string",
+                    "example": "8.8.8.8,8.8.4.4"
+                },
+                "clientEndpoint": {
+                    "type": "string",
+                    "example": "10.0.0.1"
+                },
+                "clientKeepalive": {
+                    "type": "integer",
+                    "example": 30
+                },
+                "clientListenPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN Peer"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "endpointAddress": {
+                    "type": "string",
+                    "example": "203.0.113.50"
+                },
+                "endpointPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "interfaceName": {
+                    "type": "string",
+                    "example": "wg-server"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "office-peer-1"
+                },
+                "persistentKeepalive": {
+                    "type": "integer",
+                    "example": 25
+                },
+                "preSharedKey": {
+                    "type": "string",
+                    "example": "qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="
+                },
+                "privateKey": {
+                    "type": "string",
+                    "example": "KIEp5mJ2Llk..."
+                },
+                "publicKey": {
+                    "type": "string",
+                    "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
+                },
+                "responder": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "savePrivateKey": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "vpn.CreateWireGuardServerRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN server"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "listenPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "localAddress": {
+                    "type": "string",
+                    "example": "10.8.0.1/24"
+                },
+                "mtu": {
+                    "type": "integer",
+                    "example": 1420
+                },
+                "name": {
+                    "type": "string",
+                    "example": "office"
+                },
+                "privateKey": {
+                    "type": "string",
+                    "example": "KIEp..."
+                }
+            }
+        },
+        "vpn.ImportWireGuardConfigRequest": {
+            "type": "object",
+            "required": [
+                "config"
+            ],
+            "properties": {
+                "config": {
+                    "type": "string",
+                    "example": "[Interface]\nListenPort = 51820\n..."
+                },
+                "interfaceName": {
+                    "type": "string",
+                    "example": "wg-client"
+                }
+            }
+        },
+        "vpn.ImportWireGuardConfigResponse": {
+            "type": "object",
+            "properties": {
+                "importedPeerCount": {
+                    "type": "integer"
+                },
+                "interfaceIP": {
+                    "type": "string"
+                },
+                "interfaceName": {
+                    "type": "string"
+                },
+                "peerNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "reusedExistingInterface": {
+                    "type": "boolean"
+                },
+                "skippedDuplicatePeers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "vpn.L2TPClientResponse": {
             "type": "object",
             "properties": {
                 "addDefaultRoute": {
@@ -11676,7 +12328,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.L2TPUserSecret": {
+        "vpn.L2TPUserSecret": {
             "type": "object",
             "properties": {
                 "password": {
@@ -11687,28 +12339,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.L2tpClientConfig": {
-            "type": "object",
-            "properties": {
-                "connectTo": {
-                    "type": "string",
-                    "example": "192.168.1.1"
-                },
-                "ipsecSecret": {
-                    "type": "string",
-                    "example": "secretpassphrase123"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "password123"
-                },
-                "user": {
-                    "type": "string",
-                    "example": "username"
-                }
-            }
-        },
-        "handler.L2tpServerDetailsResponse": {
+        "vpn.L2tpServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -11744,7 +12375,7 @@ const docTemplate = `{
                 "secrets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                        "$ref": "#/definitions/vpn.L2TPUserSecret"
                     }
                 },
                 "useCompression": {
@@ -11755,51 +12386,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.LogEntryResponse": {
-            "type": "object",
-            "properties": {
-                "account": {
-                    "type": "string"
-                },
-                "count": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "level": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "prefix": {
-                    "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "topic": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.OvpnServerConfig": {
-            "type": "object",
-            "properties": {
-                "clientCertificatePassword": {
-                    "type": "string",
-                    "example": "cert-password123"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.OvpnUser"
-                    }
-                }
-            }
-        },
-        "handler.OvpnServerDetailsResponse": {
+        "vpn.OvpnServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -11840,20 +12427,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.OvpnUser": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "userpassword123"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "vpnuser"
-                }
-            }
-        },
-        "handler.PPPActiveSessionResponse": {
+        "vpn.PPPActiveSessionResponse": {
             "type": "object",
             "properties": {
                 "address": {
@@ -11883,122 +12457,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.PluginInfo": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "type": "string"
-                },
-                "canInstall": {
-                    "type": "boolean"
-                },
-                "category": {
-                    "type": "string"
-                },
-                "failed": {
-                    "type": "boolean"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "installed": {
-                    "type": "boolean"
-                },
-                "installedVersion": {
-                    "type": "string"
-                },
-                "installing": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "note": {
-                    "type": "string"
-                },
-                "running": {
-                    "type": "boolean"
-                },
-                "tagline": {
-                    "type": "string"
-                },
-                "updateAvailable": {
-                    "type": "boolean"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.PluginInstallStatusResponse": {
-            "type": "object",
-            "properties": {
-                "containerId": {
-                    "type": "string"
-                },
-                "interface": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "phase": {
-                    "description": "preparing, creating_interface, creating_mounts, running_pre_install_script, creating_container, pulling, starting_container, running_post_install_script, done, error",
-                    "type": "string"
-                },
-                "pluginId": {
-                    "type": "string"
-                },
-                "startedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.PluginListResponse": {
-            "type": "object",
-            "properties": {
-                "containerSupport": {
-                    "type": "boolean"
-                },
-                "plugins": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/handler.PluginInfo"
-                    }
-                }
-            }
-        },
-        "handler.PluginUpdateStatusResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "phase": {
-                    "description": "checking_version, stopping_container, repulling, starting_container, updating_comment, done, unconfirmed, error",
-                    "type": "string"
-                },
-                "pluginId": {
-                    "type": "string"
-                },
-                "startedAt": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.PptpServerDetailsResponse": {
+        "vpn.PptpServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -12022,7 +12481,7 @@ const docTemplate = `{
                 "secrets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                        "$ref": "#/definitions/vpn.L2TPUserSecret"
                     }
                 },
                 "useCompression": {
@@ -12033,99 +12492,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ReconfigStartResponse": {
-            "type": "object",
-            "properties": {
-                "managementWiFiPassword": {
-                    "type": "string"
-                },
-                "managementWiFiSSID": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ReconfigStatusResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                },
-                "progress": {
-                    "type": "integer",
-                    "example": 35
-                },
-                "state": {
-                    "type": "string",
-                    "example": "running"
-                },
-                "step": {
-                    "type": "string",
-                    "example": "Configuring WiFi access points"
-                },
-                "warnings": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "handler.ReleaseUpdateResponse": {
-            "type": "object",
-            "properties": {
-                "autoReconfigable": {
-                    "type": "boolean"
-                },
-                "changelog": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "minAppVersion": {
-                    "type": "string"
-                },
-                "minRouterosVersion": {
-                    "type": "string"
-                },
-                "prerelease": {
-                    "type": "boolean"
-                },
-                "releaseDate": {
-                    "type": "string"
-                },
-                "releaseUrl": {
-                    "type": "string"
-                },
-                "tag": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.Response": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handler.RestoreBackupRequest": {
-            "type": "object",
-            "properties": {
-                "filename": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SSTPClientResponse": {
+        "vpn.SSTPClientResponse": {
             "type": "object",
             "properties": {
                 "authentication": {
@@ -12199,15 +12566,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.ScanRequest": {
-            "type": "object",
-            "properties": {
-                "subnet": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.ServerStatusItem": {
+        "vpn.ServerStatusItem": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -12227,49 +12586,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SetDomesticBlockRequest": {
-            "type": "object",
-            "properties": {
-                "block": {
-                    "type": "boolean",
-                    "example": true
-                }
-            }
-        },
-        "handler.SetPluginEnvVarRequest": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SetSystemIdentityRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SettingResponse": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SingleServerStatus": {
+        "vpn.SingleServerStatus": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -12283,7 +12600,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SstpServerDetailsResponse": {
+        "vpn.SstpServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
@@ -12319,7 +12636,7 @@ const docTemplate = `{
                 "secrets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                        "$ref": "#/definitions/vpn.L2TPUserSecret"
                     }
                 },
                 "tlsVersion": {
@@ -12336,214 +12653,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.StartUpdateRequest": {
-            "type": "object",
-            "properties": {
-                "version": {
-                    "type": "string",
-                    "example": "v1.3.0"
-                }
-            }
-        },
-        "handler.StaticDNSResponse": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "ttl": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.SystemUpdateStatusResponse": {
-            "type": "object",
-            "properties": {
-                "fromVersion": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "phase": {
-                    "description": "idle, downloading, rebooting, done, error",
-                    "type": "string",
-                    "example": "rebooting"
-                },
-                "startedAt": {
-                    "type": "string"
-                },
-                "toVersion": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UninstallPluginResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "interface": {
-                    "type": "string"
-                },
-                "mountLists": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "volumeDir": {
-                    "type": "string"
-                },
-                "warnings": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "handler.UpdateChannelResponse": {
-            "type": "object",
-            "properties": {
-                "channel": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateCheckResponse": {
-            "type": "object",
-            "properties": {
-                "channel": {
-                    "type": "string"
-                },
-                "installedVersion": {
-                    "type": "string"
-                },
-                "latestVersion": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updateAvailable": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.UpdateDNSRequest": {
-            "type": "object",
-            "properties": {
-                "dohServer": {
-                    "type": "string"
-                },
-                "servers": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateDomesticAddressRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "203.0.113.0/24"
-                },
-                "timeout": {
-                    "type": "string",
-                    "example": "1d"
-                }
-            }
-        },
-        "handler.UpdateForeignGatewayRequest": {
-            "type": "object",
-            "properties": {
-                "gateway": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateIPServiceRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "192.168.88.0/24,10.0.0.0/8"
-                },
-                "certificate": {
-                    "type": "string",
-                    "example": "none"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "maxSessions": {
-                    "type": "integer",
-                    "example": 20
-                },
-                "port": {
-                    "type": "integer",
-                    "example": 2222
-                },
-                "tlsVersion": {
-                    "type": "string",
-                    "example": "only-1.2"
-                },
-                "vrf": {
-                    "type": "string",
-                    "example": "main"
-                }
-            }
-        },
-        "handler.UpdateInfoResponse": {
-            "type": "object",
-            "properties": {
-                "channel": {
-                    "type": "string"
-                },
-                "installedVersion": {
-                    "type": "string"
-                },
-                "latestVersion": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateInterfaceBridgeRequest": {
-            "type": "object",
-            "required": [
-                "bridge",
-                "interface"
-            ],
-            "properties": {
-                "bridge": {
-                    "type": "string",
-                    "example": "LANBridge1"
-                },
-                "interface": {
-                    "type": "string",
-                    "example": "ether1"
-                }
-            }
-        },
-        "handler.UpdateL2TPClientRequest": {
+        "vpn.UpdateL2TPClientRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -12572,7 +12682,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateOvpnServerEnabledRequest": {
+        "vpn.UpdateOvpnServerEnabledRequest": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -12581,15 +12691,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdatePluginResponse": {
-            "type": "object",
-            "properties": {
-                "pluginId": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateSSTPClientRequest": {
+        "vpn.UpdateSSTPClientRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -12618,54 +12720,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateSettingRequest": {
-            "type": "object",
-            "properties": {
-                "value": {
-                    "type": "string",
-                    "example": "light"
-                }
-            }
-        },
-        "handler.UpdateStaticDNSRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "example": "192.168.88.2"
-                },
-                "disabled": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "name": {
-                    "type": "string",
-                    "example": "router.lan"
-                }
-            }
-        },
-        "handler.UpdateStatusResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "phase": {
-                    "description": "idle, preparing, pulling, restarting, done, error",
-                    "type": "string"
-                },
-                "reconfig": {
-                    "$ref": "#/definitions/handler.ReconfigStatusResponse"
-                },
-                "startedAt": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateVPNClientRequest": {
+        "vpn.UpdateVPNClientRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -12678,7 +12733,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateVPNUserByIDRequest": {
+        "vpn.UpdateVPNUserByIDRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -12704,55 +12759,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateWANInterfaceRequest": {
-            "type": "object",
-            "properties": {
-                "interface": {
-                    "type": "string",
-                    "example": "ether2"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "secret"
-                },
-                "ssid": {
-                    "type": "string",
-                    "example": "MyNetwork"
-                },
-                "type": {
-                    "type": "string",
-                    "example": "foreign"
-                }
-            }
-        },
-        "handler.UpdateWiFiInterfaceRequest": {
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.UpdateWiFiSettingsRequest": {
-            "type": "object",
-            "properties": {
-                "mode": {
-                    "description": "ap | station",
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "securityTypes": {
-                    "description": "comma-separated: wpa-psk,wpa2-psk,wpa3-psk",
-                    "type": "string"
-                },
-                "ssid": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateWireGuardInterfaceRequest": {
+        "vpn.UpdateWireGuardInterfaceRequest": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -12777,7 +12784,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UpdateWireGuardPeerRequest": {
+        "vpn.UpdateWireGuardPeerRequest": {
             "type": "object",
             "properties": {
                 "allowedAddresses": {
@@ -12850,7 +12857,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.VPNClientResponse": {
+        "vpn.VPNClientResponse": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -12913,28 +12920,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.VPNCredentialsResponse": {
-            "type": "object",
-            "properties": {
-                "expiryDate": {
-                    "type": "string",
-                    "example": "11/21/2026"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "UmAaItfM"
-                },
-                "server": {
-                    "type": "string",
-                    "example": "dij5t.vpn.s4i.co"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "NNC_zN9RI61d"
-                }
-            }
-        },
-        "handler.VPNProfileResponse": {
+        "vpn.VPNProfileResponse": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -12975,30 +12961,30 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.VPNServersStatusResponse": {
+        "vpn.VPNServersStatusResponse": {
             "type": "object",
             "properties": {
                 "l2tp": {
-                    "$ref": "#/definitions/handler.SingleServerStatus"
+                    "$ref": "#/definitions/vpn.SingleServerStatus"
                 },
                 "ovpnServers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.ServerStatusItem"
+                        "$ref": "#/definitions/vpn.ServerStatusItem"
                     }
                 },
                 "sstp": {
-                    "$ref": "#/definitions/handler.SingleServerStatus"
+                    "$ref": "#/definitions/vpn.SingleServerStatus"
                 },
                 "wireguards": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.ServerStatusItem"
+                        "$ref": "#/definitions/vpn.ServerStatusItem"
                     }
                 }
             }
         },
-        "handler.VPNUserResponse": {
+        "vpn.VPNUserResponse": {
             "type": "object",
             "properties": {
                 "callerId": {
@@ -13036,7 +13022,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.VpnUser": {
+        "vpn.VpnUser": {
             "type": "object",
             "required": [
                 "password",
@@ -13053,148 +13039,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WiFiAPConfig": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "type": "string",
-                    "example": "apPassword123"
-                },
-                "split": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "ssid": {
-                    "type": "string",
-                    "example": "MyAccessPoint"
-                }
-            }
-        },
-        "handler.WiFiAccessPointResponse": {
-            "type": "object",
-            "properties": {
-                "channel": {
-                    "type": "string"
-                },
-                "macAddress": {
-                    "type": "string"
-                },
-                "security": {
-                    "type": "string"
-                },
-                "signal": {
-                    "type": "string"
-                },
-                "ssid": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.WiFiConnectRequest": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "description": "empty for open network",
-                    "type": "string"
-                },
-                "securityType": {
-                    "description": "e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)",
-                    "type": "string"
-                },
-                "ssid": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.WiFiInterfaceResponse": {
-            "type": "object",
-            "properties": {
-                "band": {
-                    "type": "string"
-                },
-                "channelWidth": {
-                    "type": "string"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "defaultName": {
-                    "type": "string"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "frequency": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "inactive": {
-                    "type": "boolean"
-                },
-                "interface": {
-                    "type": "string"
-                },
-                "isVirtual": {
-                    "type": "boolean"
-                },
-                "macAddress": {
-                    "type": "string"
-                },
-                "mode": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "passphrase": {
-                    "type": "string"
-                },
-                "running": {
-                    "type": "boolean"
-                },
-                "securityType": {
-                    "type": "string"
-                },
-                "ssid": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.WiFiStatusResponse": {
-            "type": "object",
-            "properties": {
-                "apAddress": {
-                    "type": "string"
-                },
-                "authorizedPeers": {
-                    "type": "string"
-                },
-                "channel": {
-                    "type": "string"
-                },
-                "registeredPeers": {
-                    "type": "string"
-                },
-                "state": {
-                    "type": "string"
-                },
-                "txPower": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.WireGuardClientConfig": {
-            "type": "object",
-            "properties": {
-                "config": {
-                    "type": "string",
-                    "example": "[Interface]\nListenPort = 51820\n..."
-                }
-            }
-        },
-        "handler.WireGuardClientCreateResponse": {
+        "vpn.WireGuardClientCreateResponse": {
             "type": "object",
             "properties": {
                 "allowedAddress": {
@@ -13243,7 +13088,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardDetailedResponse": {
+        "vpn.WireGuardDetailedResponse": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -13270,7 +13115,7 @@ const docTemplate = `{
                 "peers": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handler.WireGuardPeerResponse"
+                        "$ref": "#/definitions/vpn.WireGuardPeerResponse"
                     }
                 },
                 "privateKey": {
@@ -13284,7 +13129,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardInterfaceResponse": {
+        "vpn.WireGuardInterfaceResponse": {
             "type": "object",
             "properties": {
                 "enabled": {
@@ -13310,7 +13155,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardPeerResponse": {
+        "vpn.WireGuardPeerResponse": {
             "type": "object",
             "properties": {
                 "allowedAddresses": {
@@ -13378,7 +13223,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardServerCreateResponse": {
+        "vpn.WireGuardServerCreateResponse": {
             "type": "object",
             "properties": {
                 "comment": {
@@ -13410,7 +13255,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WireGuardServerPeerCreateResponse": {
+        "vpn.WireGuardServerPeerCreateResponse": {
             "type": "object",
             "properties": {
                 "allowedAddresses": {
@@ -13463,24 +13308,179 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.WizardStatus": {
+        "wifi.ChangeWiFiPassphraseRequest": {
             "type": "object",
             "properties": {
-                "completed": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "failed": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "message": {
+                "passphrase": {
+                    "type": "string"
+                }
+            }
+        },
+        "wifi.CreateVirtualWiFiInterfaceRequest": {
+            "type": "object",
+            "properties": {
+                "bridge": {
                     "type": "string",
-                    "example": "Configuring WiFi access points"
+                    "example": "LANBridgeSplit"
                 },
-                "progress": {
-                    "type": "integer",
-                    "example": 0
+                "masterInterface": {
+                    "type": "string",
+                    "example": "wifi1"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "my-secure-password"
+                },
+                "securityTypes": {
+                    "description": "comma-separated: wpa-psk,wpa2-psk,wpa3-psk; required when password is set",
+                    "type": "string",
+                    "example": "wpa2-psk,wpa3-psk"
+                },
+                "ssid": {
+                    "type": "string",
+                    "example": "my-network"
+                }
+            }
+        },
+        "wifi.UpdateWiFiInterfaceRequest": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "wifi.UpdateWiFiSettingsRequest": {
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "description": "ap | station",
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "securityTypes": {
+                    "description": "comma-separated: wpa-psk,wpa2-psk,wpa3-psk",
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
+                }
+            }
+        },
+        "wifi.WiFiAccessPointResponse": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "security": {
+                    "type": "string"
+                },
+                "signal": {
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
+                }
+            }
+        },
+        "wifi.WiFiConnectRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "description": "empty for open network",
+                    "type": "string"
+                },
+                "securityType": {
+                    "description": "e.g., wpa-psk, wpa2-psk, wpa3-psk (empty for open network)",
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
+                }
+            }
+        },
+        "wifi.WiFiInterfaceResponse": {
+            "type": "object",
+            "properties": {
+                "band": {
+                    "type": "string"
+                },
+                "channelWidth": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "defaultName": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "frequency": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inactive": {
+                    "type": "boolean"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "isVirtual": {
+                    "type": "boolean"
+                },
+                "macAddress": {
+                    "type": "string"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "passphrase": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "securityType": {
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
+                }
+            }
+        },
+        "wifi.WiFiStatusResponse": {
+            "type": "object",
+            "properties": {
+                "apAddress": {
+                    "type": "string"
+                },
+                "authorizedPeers": {
+                    "type": "string"
+                },
+                "channel": {
+                    "type": "string"
+                },
+                "registeredPeers": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "txPower": {
+                    "type": "string"
                 }
             }
         }

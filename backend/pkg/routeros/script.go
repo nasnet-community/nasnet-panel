@@ -1,8 +1,12 @@
 package routeros
 
 import (
+	"errors"
 	"fmt"
 )
+
+// ErrScriptNotFound is returned when a named script does not exist on the router.
+var ErrScriptNotFound = errors.New("script not found")
 
 // ScriptInfo represents a RouterOS script.
 type ScriptInfo struct {
@@ -123,7 +127,7 @@ func (c *Client) GetScript(name string) (*ScriptInfo, error) {
 	}
 
 	if len(results) == 0 {
-		return nil, fmt.Errorf("script %s not found", name)
+		return nil, fmt.Errorf("%w: %s", ErrScriptNotFound, name)
 	}
 
 	return parseScriptInfo(results[0]), nil
@@ -213,6 +217,22 @@ func (c *Client) RemoveScript(name string) error {
 	_, err = c.Remove("/system/script", "=.id="+scriptID)
 	if err != nil {
 		return fmt.Errorf("failed to remove script %s: %w", name, err)
+	}
+
+	return nil
+}
+
+// RunScriptInBackground starts a stored script through /execute so the call
+// returns as soon as the job is queued, instead of waiting for the script to
+// finish like RunScript does. It returns ErrScriptNotFound when the script is
+// missing.
+func (c *Client) RunScriptInBackground(scriptName string) error {
+	if _, err := c.GetScript(scriptName); err != nil {
+		return err
+	}
+
+	if err := c.ExecuteScriptString("/system script run " + scriptName); err != nil {
+		return fmt.Errorf("failed to start script %s in the background: %w", scriptName, err)
 	}
 
 	return nil
