@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/internal/db"
-	"nasnet-panel/internal/handler"
+	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/middleware"
 	"nasnet-panel/internal/routes"
 	"nasnet-panel/internal/server"
@@ -32,7 +32,7 @@ func main() {
 		log.Fatalf("Failed to prepare database directory: %v", err)
 	}
 	defer func() { _ = databases.Close() }()
-	handler.SetDatabases(databases)
+	common.SetDatabases(databases)
 
 	e := echo.New()
 

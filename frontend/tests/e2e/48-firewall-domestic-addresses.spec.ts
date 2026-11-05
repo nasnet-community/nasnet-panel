@@ -22,8 +22,12 @@ interface Call {
 
 // Serves the firewall endpoints the page reads from an in-memory state and
 // records every write so a test can assert what the page sent.
-async function mockFirewall(page: Page, initial: { entries?: Entry[]; block?: boolean } = {}) {
+async function mockFirewall(
+  page: Page,
+  initial: { entries?: Entry[]; block?: boolean; rules?: unknown[] } = {},
+) {
   const entries = [...(initial.entries ?? [])];
+  const rules = initial.rules ?? [];
   let block = initial.block ?? false;
   const calls: Call[] = [];
   let nextId = 100;
@@ -44,7 +48,7 @@ async function mockFirewall(page: Page, initial: { entries?: Entry[]; block?: bo
       route.fulfill({ status, contentType: 'application/json', body: envelope(data, status) });
 
     if (method === 'GET') {
-      if (path === '/api/firewall/rules') return json([]);
+      if (path === '/api/firewall/filter') return json(rules);
       if (path === '/api/firewall/domestic') return json(blockState());
       if (path === '/api/firewall/addresslist/domestic') return json(entries);
       if (path === '/api/firewall/addresslist/domestic/info') {
@@ -117,6 +121,28 @@ test.describe('Firewall page domestic addresses', () => {
     await page.getByRole('tab', { name: 'Firewall' }).click();
     await expect(page).toHaveURL(new RegExp(`/router/${ROUTER_ID}/firewall$`));
     await expect(page.getByTestId('domestic-addresses')).toBeVisible();
+  });
+
+  test('lists the filter rules', async ({ page }) => {
+    await mockFirewall(page, {
+      rules: [
+        {
+          id: '*2',
+          chain: 'input',
+          action: 'drop',
+          protocol: 'tcp',
+          dstPort: '22',
+          disabled: false,
+          log: false,
+          comment: 'Block SSH from WAN',
+        },
+      ],
+    });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    const row = page.getByRole('row', { name: /Block SSH from WAN/ });
+    await expect(row).toContainText('input');
+    await expect(row).toContainText('drop');
   });
 
   test('shows the list summary and the user-added addresses', async ({ page }) => {

@@ -144,6 +144,10 @@ export {
   checkAppForUpdates,
   installAppUpdate,
   fetchAppUpdateStatus,
+  fetchAppReleases,
+  fetchAppUpdateChannel,
+  startAppUpdate,
+  fetchAppUpdateProgress,
   type UpdateInfoResponse,
   type UpdateCheckResponse,
   type UpdateInstallResponse,
@@ -154,6 +158,10 @@ export {
   type AppInstallUpdateResponse,
   type AppUpdatePhase,
   type AppUpdateStatusResponse,
+  type AppReconfigState,
+  type AppReconfigStatus,
+  type AppUpdateChannel,
+  type AppRelease,
 } from './updates';
 export {
   fetchPlugins,
@@ -184,6 +192,14 @@ export {
   DIAG_REPORT_FILENAME,
   type DiagStatusResponse,
 } from './diag';
+export {
+  fetchBackups,
+  createBackup,
+  restoreBackup,
+  deleteBackup,
+  downloadBackup,
+  type BackupFileResponse,
+} from './backups';
 export { fetchNetStatus, type NetStatusEntry, type NetHostType } from './net';
 export { fetchHealth, type HealthResponse } from './health';
 export {
