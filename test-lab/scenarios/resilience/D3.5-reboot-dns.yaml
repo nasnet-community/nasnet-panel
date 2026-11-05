@@ -1,0 +1,18 @@
+id: 'D3.5-reboot-dns'
+stage: resilience
+title: DNS config survives a reboot
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: reboot
+expect:
+  sections:
+    - path: /ip/dns/forwarders
+      key: name
+      present: [Domestic, Foreign, VPN, General]
+  dns:
+    - { from: split, name: lab.ir, resolver: domestic, exits: domestic, within: 60s }

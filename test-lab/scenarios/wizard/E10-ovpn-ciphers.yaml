@@ -1,0 +1,14 @@
+id: 'E10-ovpn-ciphers'
+stage: wizard
+title: OpenVPN server allows modern ciphers only
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  ovpn_server: true
+expect:
+  values:
+    - path: /interface/ovpn-server/server
+      fields: { cipher: '!~blowfish', auth: '!~md5' }
+      known_bug: The OpenVPN server allows blowfish, md5 and sha1

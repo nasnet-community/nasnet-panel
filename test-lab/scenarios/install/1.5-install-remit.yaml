@@ -1,0 +1,17 @@
+id: '1.5-install-remit'
+stage: install
+title: Nothing outside the install's remit changes
+profiles: [all]
+requires:
+  lab: [image-tar, cli-install]
+steps:
+  - do: config_snapshot
+    with:
+      name: before
+      paths: /ip/route,/routing/rule,/routing/table,/ip/firewall/mangle,/ip/firewall/address-list,/ip/dhcp-server,/ip/pool,/interface/list,/system/scheduler,/system/script,/ip/service
+  - do: install
+    with: { installer: cli }
+expect:
+  unchanged:
+    - since: before
+      ignore: [nasnet-panel, containers]

@@ -1,0 +1,26 @@
+id: 'P2.7-uninstall'
+stage: wizard
+title: Uninstall fully undoes the install
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: config_snapshot
+    with:
+      {
+        name: before,
+        paths: '/container,/interface/veth,/container/mounts,/ip/firewall/nat,/ip/firewall/filter,/interface/bridge/port',
+      }
+  - do: plugin_install
+    with: { id: lab-echo }
+  - do: plugin_uninstall
+    with: { id: lab-echo }
+expect:
+  unchanged:
+    - since: before

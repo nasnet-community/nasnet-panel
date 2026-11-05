@@ -1,0 +1,20 @@
+name: chr-arm64
+model: Cloud Hosted Router arm64
+arch: arm64
+memory_mb: 1024
+storage_mb: 1024
+cpus: 1
+capabilities: [ethernet, container]
+ports:
+  - name: ether1
+    kind: ethernet
+    role: starlink
+  - name: ether2
+    kind: ethernet
+    role: domestic
+  - name: ether3
+    kind: ethernet
+    role: split
+  - name: ether4
+    kind: ethernet
+    role: spare

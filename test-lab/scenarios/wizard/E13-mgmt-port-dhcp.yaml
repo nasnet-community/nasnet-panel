@@ -1,0 +1,17 @@
+id: 'E13-mgmt-port-dhcp'
+stage: wizard
+title: The management port hands out addresses over DHCP
+profiles: [chr-x86]
+requires: { roles: [starlink, domestic, split, spare] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  dhcp:
+    - {
+        from: p4,
+        lease: true,
+        gateway: 192.168.200.1,
+        known_bug: The management port has no DHCP server,
+      }

@@ -1,0 +1,17 @@
+id: 'E12-schedules'
+stage: wizard
+title: IP list refreshes weekly and the VPNE manager runs every minute
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  values:
+    - path: /system/scheduler
+      where: { name: DomesticIPUpdate }
+      fields: { interval: '~w' }
+    - path: /system/scheduler
+      where: { name: VPNE-Routing-Manager }
+      fields: { interval: 1m }

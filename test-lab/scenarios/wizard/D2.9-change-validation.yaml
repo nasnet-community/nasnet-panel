@@ -1,0 +1,53 @@
+id: 'D2.9-change-validation'
+stage: wizard
+title: Changing a type's DNS IP is validated against the domestic IP list
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api:
+      {
+        method: GET,
+        path: /api/dns/validate,
+        query: { oldIP: 217.218.127.127, newIP: 8.8.8.8 },
+        status: 200,
+        json: { suitable: 'false' },
+      }
+  - do: api
+    api:
+      {
+        method: GET,
+        path: /api/dns/validate,
+        query: { oldIP: 217.218.127.127, newIP: 5.160.0.53 },
+        status: 200,
+        json: { suitable: 'true' },
+      }
+  - do: api
+    api:
+      {
+        method: GET,
+        path: /api/dns/validate,
+        query: { oldIP: 1.1.1.1, newIP: 5.160.0.53 },
+        status: 200,
+        json: { suitable: 'false' },
+      }
+  - do: api
+    api:
+      {
+        method: GET,
+        path: /api/dns/validate,
+        query: { oldIP: 1.1.1.1, newIP: 1.0.0.1 },
+        status: 409,
+      }
+  - do: api
+    api:
+      {
+        method: GET,
+        path: /api/dns/validate,
+        query: { oldIP: 1.2.3.4, newIP: 9.9.9.9 },
+        status: 404,
+      }

@@ -1,0 +1,35 @@
+name: l009
+model: L009UiGS-RM
+arch: arm
+memory_mb: 512
+storage_mb: 128
+cpus: 1
+capabilities: [ethernet, container, sfp, usb, 2.5g]
+ports:
+  - name: ether1
+    kind: ethernet
+    role: starlink
+  - name: ether2
+    kind: ethernet
+    role: domestic
+  - name: ether3
+    kind: ethernet
+    role: split
+  - name: ether4
+    kind: ethernet
+    role: spare
+  - name: ether5
+    kind: ethernet
+    role: spare
+  - name: ether6
+    kind: ethernet
+    role: spare
+  - name: ether7
+    kind: ethernet
+    role: spare
+  - name: ether8
+    kind: poe-out
+    role: spare
+  - name: sfp1
+    kind: sfp-2.5g
+    role: spare

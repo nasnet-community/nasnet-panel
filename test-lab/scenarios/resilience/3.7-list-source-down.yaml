@@ -1,0 +1,21 @@
+id: '3.7-list-source-down'
+stage: resilience
+title: Unreachable IP list source keeps the last good list
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: filter
+    with: { target: list-source }
+  - do: router
+    with: { cmd: /system/script/run, words: '=number=DomesticIPUpdate' }
+  - do: sleep
+    with: { for: 90s }
+expect:
+  values:
+    - path: /ip/firewall/address-list
+      where: { list: DOMAddList }
+      count: 1501

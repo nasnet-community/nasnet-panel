@@ -1,0 +1,23 @@
+id: 'E08-firewall-default-drop'
+stage: wizard
+title: Everything from WAN that is not explicitly allowed is dropped
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  ports:
+    - {
+        from: starlink-side,
+        port: 2000,
+        open: false,
+        known_bug: There is no default drop for traffic from WAN,
+      }
+    - {
+        from: domestic-side,
+        port: 2000,
+        open: false,
+        known_bug: There is no default drop for traffic from WAN,
+      }

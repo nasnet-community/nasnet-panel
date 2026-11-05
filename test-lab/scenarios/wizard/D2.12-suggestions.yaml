@@ -1,0 +1,28 @@
+id: 'D2.12-suggestions'
+stage: wizard
+title: DNS suggestions come back per type with no duplicates
+profiles: [chr-x86]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api:
+      method: GET
+      path: /api/dns/suggest
+      status: 200
+      unique: [domestic.ip, foreign.ip]
+      known_bug: The suggestion list repeats 8.26.56.26 and 8.20.247.20 with different labels
+  - do: api
+    api:
+      {
+        method: GET,
+        path: /api/dns/suggest,
+        query: { type: domestic },
+        status: 200,
+        json: { foreign: '!present' },
+      }
+  - do: api
+    api: { method: GET, path: /api/dns/suggest, query: { type: bogus }, status: 400 }

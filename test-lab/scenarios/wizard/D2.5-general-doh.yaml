@@ -1,0 +1,22 @@
+id: 'D2.5-general-doh'
+stage: wizard
+title: General lookups use Cloudflare DoH over the VPN or Starlink, never the domestic link
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  dns:
+    - {
+        from: split,
+        name: lab.test,
+        resolver: doh-cloudflare,
+        exits: starlink,
+        known_bug: The wizard sets Google DoH and general lookups use the domestic link,
+      }
+  values:
+    - path: /ip/dns
+      fields: { use-doh-server: '~cloudflare' }
+      known_bug: The wizard sets Google DoH instead of Cloudflare

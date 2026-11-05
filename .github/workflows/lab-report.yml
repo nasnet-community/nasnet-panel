@@ -1,0 +1,41 @@
+name: Lab Report
+
+on:
+  workflow_run:
+    workflows: [Lab]
+    types: [completed]
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "${{ github.event.workflow_run.id }}" -R "${{ github.repository }}" -n lab-report -D lab-report
+      - name: Post or update the pull request comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          pr=$(tr -dc '0-9' < lab-report/pr-number)
+          if [ -z "$pr" ]; then
+            echo "::error::no pull request number in the report"
+            exit 1
+          fi
+          if ! head -1 lab-report/report.md | grep -qx '<!-- lab-report -->'; then
+            echo "::error::report is missing its marker"
+            exit 1
+          fi
+          id=$(gh api --paginate "repos/$REPO/issues/$pr/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- lab-report -->"))) | .id' | tail -1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@lab-report/report.md > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$pr/comments" -F body=@lab-report/report.md > /dev/null
+          fi

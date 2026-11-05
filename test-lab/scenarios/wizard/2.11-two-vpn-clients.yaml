@@ -1,0 +1,12 @@
+id: '2.11-two-vpn-clients'
+stage: wizard
+title: Wizard refuses two VPN clients at once
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [wireguard, l2tp] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wireguard_client: true
+  l2tp_client: true
+  expect_error: one VPN client
+  known_bug: The wizard accepts WireGuard and L2TP clients together

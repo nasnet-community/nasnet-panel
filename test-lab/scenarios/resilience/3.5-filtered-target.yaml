@@ -1,0 +1,20 @@
+id: '3.5-filtered-target'
+stage: resilience
+title: One filtered health-check target does not take a healthy link down
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: filter
+    with: { link: starlink, target: foreign-resolver }
+  - do: sleep
+    with: { for: 30s }
+expect:
+  values:
+    - path: /ip/route
+      where: { comment: CheckIP-Route-to-Foreign-Foreign Link }
+      fields: { disabled: 'no' }
+      known_bug: A single filtered probe target takes the link down

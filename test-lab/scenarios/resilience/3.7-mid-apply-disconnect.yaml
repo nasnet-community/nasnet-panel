@@ -1,0 +1,42 @@
+id: '3.7-mid-apply-disconnect'
+stage: resilience
+title: Losing the panel connection mid-apply still ends with a complete config
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+steps:
+  - do: wizard_start
+    wizard:
+      foreign: starlink
+      domestic: domestic
+  - do: disconnect_panel
+    with: { for: 20s }
+  - do: wizard_wait
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }
