@@ -20,6 +20,9 @@ export interface WanUplinkValues {
 interface Props {
   variant: Variant;
   title: string;
+  description?: string;
+  submitLabel?: string;
+  submittingLabel?: string;
   interfaces: InterfaceResponse[];
   excludeNames?: string[];
   interfacesLoading?: boolean;
@@ -50,6 +53,9 @@ const FIELD_MAP = {
 export function WanUplinkDialog({
   variant,
   title,
+  description,
+  submitLabel,
+  submittingLabel,
   interfaces,
   excludeNames,
   interfacesLoading,
@@ -102,6 +108,7 @@ export function WanUplinkDialog({
       open
       onClose={submitting ? () => undefined : onCancel}
       title={title}
+      description={description}
       size="sm"
       labelledBy="wan-uplink-title"
       footer={
@@ -110,7 +117,9 @@ export function WanUplinkDialog({
             {t('wan.dialog.cancel')}
           </Button>
           <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
-            {submitting ? t('wan.dialog.saving') : t('wan.dialog.save')}
+            {submitting
+              ? (submittingLabel ?? t('wan.dialog.saving'))
+              : (submitLabel ?? t('wan.dialog.save'))}
           </Button>
         </>
       }
