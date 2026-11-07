@@ -91,6 +91,10 @@ Foreign-Foreign Link 1\"]\
 \n    /ip route set [ find comment=\"Route-to-Foreign-Foreign Link 1\" gat\
 eway!=\$gw1 ] gateway=\$gw1\
 \n}\
+\n:local routeCount2 [/ip route print count-only where comment=\"Route-to-192.168.100.1\"]\
+\n:if (\$routeCount2 > 0) do={\
+\n    /ip route set [find comment=\"Route-to-192.168.100.1\" gateway!=\$gw] gateway=\$gw\
+\n}\
 \n}" use-peer-dns=no use-peer-ntp=no
 /ip route
 add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
