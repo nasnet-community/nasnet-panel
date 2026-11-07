@@ -75,6 +75,11 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 /interface list member
 add interface="MacVLAN-$newIfaceName-Foreign Link" list="WAN" comment="Foreign WAN"
 add interface="MacVLAN-$newIfaceName-Foreign Link" list="Foreign-WAN" comment="Foreign WAN"
+:if ([:len [/ip route find where comment="Route-to-192.168.100.1" and dynamic=no]] > 0) do={
+/ip route set [find comment="Route-to-192.168.100.1" and dynamic=no] gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link"
+} else={
+/ip route add dst-address="192.168.100.1/32" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="main" comment="Route-to-192.168.100.1"
+}
 /ip dhcp-client
 add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-$newIfaceName-Foreign Link" script=":if (\$bound=1) do={\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\
@@ -107,11 +112,6 @@ distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 add dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" \
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN"
-:if ([:len [/ip route find where comment="Route-to-192.168.100.1" and dynamic=no]] > 0) do={
-/ip route set [find comment="Route-to-192.168.100.1" and dynamic=no] gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link"
-} else={
-/ip route add dst-address="192.168.100.1/32" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="main" comment="Route-to-192.168.100.1"
-}
 
 {{ else if eq .Type "domestic" }}
 /ip route remove [find comment="Route-to-Domestic-Domestic Link" and dynamic=no]
