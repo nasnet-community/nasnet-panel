@@ -162,6 +162,7 @@ export {
   type AppReconfigStatus,
   type AppUpdateChannel,
   type AppRelease,
+  type AppReleaseOption,
 } from './updates';
 export {
   fetchPlugins,
