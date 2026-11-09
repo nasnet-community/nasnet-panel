@@ -84,9 +84,13 @@ export interface AppRelease {
   minRouterosVersion: string;
   minAppVersion: string;
   autoReconfigable: boolean;
-  /** The release is lower than the running version; installing it downgrades the panel without reconfiguring the router. */
-  downgrade: boolean;
   changelog: string[];
+}
+
+/** A listed release, marked when it is lower than the running version. */
+export interface AppReleaseOption extends AppRelease {
+  /** Installing it downgrades the panel; the router is not reconfigured afterwards. */
+  downgrade: boolean;
 }
 
 function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
@@ -188,16 +192,17 @@ export async function fetchAppReleases(
   creds: SystemCredentials,
   channel: AppUpdateChannel,
   signal?: AbortSignal,
-): Promise<AppRelease[]> {
-  // Older releases stay in the list so the panel can be downgraded.
-  const query = new URLSearchParams({ channel });
-  const releases = await apiRequest<AppRelease[] | null>(`/api/app/updates?${query.toString()}`, {
-    method: 'GET',
-    headers: authHeaders(creds),
-    cache: 'no-store',
-    signal,
-  });
-  return releases ?? [];
+): Promise<AppReleaseOption[]> {
+  const list = (hideLowerVer: boolean) =>
+    apiRequest<AppRelease[] | null>(
+      `/api/app/updates?${new URLSearchParams({ channel, hideLowerVer: String(hideLowerVer) }).toString()}`,
+      { method: 'GET', headers: authHeaders(creds), cache: 'no-store', signal },
+    ).then((releases) => releases ?? []);
+  // The backend decides which releases are lower than the running one: they are the ones
+  // missing from the list that hides them.
+  const [all, notLower] = await Promise.all([list(false), list(true)]);
+  const kept = new Set(notLower.map((r) => r.tag));
+  return all.map((r) => ({ ...r, downgrade: !kept.has(r.tag) }));
 }
 
 export async function fetchAppUpdateChannel(

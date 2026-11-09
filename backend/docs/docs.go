@@ -463,7 +463,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Looks the version up among the GitHub releases and reads its minimum RouterOS version\nfrom the metadata embedded in the release body, 7.24 when the release has none. When the\nrouter runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal\nto the running one answers 200 with updateAvailable false. Otherwise pulls the release into a\nfresh nasnet-panel-update container and promotes it in the background; poll /api/app/update/status\nfor progress. When the release's autoReconfigable is true, the router is reconfigured from its stored\nconfiguration after the new version is running, and the progress is reported by the same status\nendpoint. A lower version is installed as a downgrade: autoReconfigable is always false for it, so\nthe router keeps its current configuration."",
+                "description": "Looks the version up among the GitHub releases and reads its minimum RouterOS version\nfrom the metadata embedded in the release body, 7.24 when the release has none. When the\nrouter runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal\nto the running one answers 200 with updateAvailable false, a lower one answers 400. Otherwise\npulls the release into a fresh nasnet-panel-update container and promotes it in the\nbackground; poll /api/app/update/status for progress. When the release's autoReconfigable is true,\nthe router is reconfigured from its stored configuration after the new version is running, and\nthe progress is reported by the same status endpoint.",
                 "consumes": [
                     "application/json"
                 ],
@@ -10261,9 +10261,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "downgrade": {
-                    "type": "boolean"
                 },
                 "minAppVersion": {
                     "type": "string"

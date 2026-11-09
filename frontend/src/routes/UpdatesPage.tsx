@@ -42,7 +42,7 @@ import {
   installUpdate,
   fetchSystemUpdateStatus,
   startAppUpdate,
-  type AppRelease,
+  type AppReleaseOption,
   type AppUpdateChannel,
   type UpdateCheckResponse,
   type SystemUpdateStatusResponse,
@@ -191,7 +191,7 @@ function AppUpdateCard() {
   const [appVersion, setAppVersion] = useState<string | null>(null);
   const [routerosVersion, setRouterosVersion] = useState<string | null>(null);
   const [channel, setChannel] = useState<AppUpdateChannel | null>(null);
-  const [releases, setReleases] = useState<AppRelease[] | null>(null);
+  const [releases, setReleases] = useState<AppReleaseOption[] | null>(null);
   const [selectedTag, setSelectedTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

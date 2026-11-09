@@ -34,7 +34,6 @@ func toReleaseUpdateResponse(release *githubReleaseEntry) ReleaseUpdateResponse 
 		MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
 		MinAppVersion:      minAppVersion,
 		AutoReconfigable:   releaseAutoReconfigable(release.TagName, minAppVersion),
-		Downgrade:          releaseIsDowngrade(release.TagName),
 		Changelog:          releaseChanges(release.Body),
 	}
 }
@@ -158,17 +157,6 @@ func compareForInstall(target, current common.ReleaseVersion) int {
 		return 1
 	}
 	return cmp
-}
-
-// releaseIsDowngrade reports whether installing tag would move the panel to a lower version than the
-// running one. It is false when either version is not a release version.
-func releaseIsDowngrade(tag string) bool {
-	target, ok := common.ParseReleaseVersion(tag)
-	if !ok {
-		return false
-	}
-	current, ok := common.ParseReleaseVersion(buildinfo.Version)
-	return ok && compareForInstall(target, current) < 0
 }
 
 func releaseAutoReconfigable(tag, minAppVersion string) bool {

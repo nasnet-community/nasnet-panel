@@ -82,8 +82,9 @@ interface MockRelease {
   minRouterosVersion: string;
   minAppVersion: string;
   autoReconfigable: boolean;
-  downgrade: boolean;
   changelog: string[];
+  /** Test-only: the mock hides it when the panel asks to hide lower versions. */
+  downgrade?: boolean;
 }
 
 const release = (
@@ -98,7 +99,6 @@ const release = (
   minRouterosVersion: '7.14',
   minAppVersion: '1.0.0',
   autoReconfigable: false,
-  downgrade: false,
   changelog,
   ...extra,
 });
@@ -107,6 +107,7 @@ const release = (
 // entry of `statuses` (null answers with a network error, as while the panel restarts),
 // then keeps repeating the last one. /api/app/version reports `runningAfter` once an
 // update was started. The first `failedListings` release listings answer with a 502.
+// Releases marked `downgrade` are left out when the panel asks to hide lower versions.
 async function mockApp(
   context: BrowserContext,
   options: {
@@ -140,9 +141,11 @@ async function mockApp(
     route.fulfill(json({ channel: options.channel })),
   );
   await context.route('**/api/app/updates?**', (route) => {
-    const channel = new URL(route.request().url()).searchParams.get('channel') ?? '';
-    channelQueries.push(channel);
-    if (channelQueries.length <= (options.failedListings ?? 0)) {
+    const params = new URL(route.request().url()).searchParams;
+    const channel = params.get('channel') ?? '';
+    const hideLower = params.get('hideLowerVer') === 'true';
+    if (!hideLower) channelQueries.push(channel);
+    if (!hideLower && channelQueries.length <= (options.failedListings ?? 0)) {
       return route.fulfill({
         status: 502,
         contentType: 'application/json',
@@ -153,7 +156,10 @@ async function mockApp(
         }),
       });
     }
-    return route.fulfill(json(options.releases[channel] ?? []));
+    const releases = (options.releases[channel] ?? [])
+      .filter((r) => !(hideLower && r.downgrade))
+      .map(({ downgrade: _downgrade, ...r }) => r);
+    return route.fulfill(json(releases));
   });
   await context.route('**/api/app/update', async (route) => {
     if (route.request().method() !== 'POST') return route.fallback();
