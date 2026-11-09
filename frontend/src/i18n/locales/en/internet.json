@@ -70,7 +70,8 @@
       "moveFailedTitle": "Failed to move uplink",
       "change": "Change",
       "move": "Move",
-      "moving": "Moving…"
+      "moving": "Moving…",
+      "continue": "Continue"
     },
     "foreign": {
       "title": "Foreign / Starlink",
@@ -82,7 +83,9 @@
       "moveLabel": "Move {{name}} to Domestic",
       "moved": "Moved \"{{name}}\" to Domestic",
       "confirmTitle": "Move to Domestic",
-      "confirmDescription": "Re-tag \"{{name}}\" as the Domestic uplink? It will move to that section."
+      "confirmDescription": "\"{{name}}\" will become the Domestic uplink. The Foreign section stays empty until you set it up again.",
+      "confirmDescriptionReplace": "\"{{name}}\" will become the Domestic uplink. The current Domestic uplink ({{current}}) will be removed and its port returned to the LAN. The Foreign section stays empty until you set it up again.",
+      "moveWirelessDescription": "Choose the Wi-Fi network that \"{{name}}\" should join as the Domestic uplink."
     },
     "domestic": {
       "title": "Domestic",
@@ -94,7 +97,9 @@
       "moveLabel": "Move {{name}} to Foreign",
       "moved": "Moved \"{{name}}\" to Foreign",
       "confirmTitle": "Move to Foreign",
-      "confirmDescription": "Re-tag \"{{name}}\" as the Foreign uplink? It will move to that section."
+      "confirmDescription": "\"{{name}}\" will become the Foreign uplink. The Domestic section stays empty until you set it up again.",
+      "confirmDescriptionReplace": "\"{{name}}\" will become the Foreign uplink. The current Foreign uplink ({{current}}) will be removed and its port returned to the LAN. The Domestic section stays empty until you set it up again.",
+      "moveWirelessDescription": "Choose the Wi-Fi network that \"{{name}}\" should join as the Foreign uplink."
     },
     "dialog": {
       "cancel": "Cancel",

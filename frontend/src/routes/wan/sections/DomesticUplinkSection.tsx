@@ -19,7 +19,8 @@ interface Props {
   routerId: string;
   items: InterfaceResponse[];
   interfaces: InterfaceResponse[];
-  excludeNames?: string[];
+  /** Interfaces assigned to the other WAN section; a move replaces them. */
+  otherNames?: string[];
   interfacesLoading?: boolean;
   onChanged: () => Promise<void>;
 }
@@ -28,7 +29,7 @@ export function DomesticUplinkSection({
   routerId,
   items,
   interfaces,
-  excludeNames,
+  otherNames = [],
   interfacesLoading,
   onChanged,
 }: Props) {
@@ -38,6 +39,8 @@ export function DomesticUplinkSection({
   const router = useRouter(routerId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingMove, setPendingMove] = useState<InterfaceResponse | null>(null);
+  // Wireless moves need an SSID, asked for only after the move itself is confirmed.
+  const [moveConfirmed, setMoveConfirmed] = useState(false);
   const [moveSubmitting, setMoveSubmitting] = useState(false);
 
   const resolveCreds = (): SystemCredentials | null => {
@@ -86,8 +89,24 @@ export function DomesticUplinkSection({
     toast.notify({ title: t('wan.domestic.changed'), tone: 'success' });
   };
 
+  const startMove = (target: InterfaceResponse) => {
+    setMoveConfirmed(false);
+    setPendingMove(target);
+  };
+
+  const cancelMove = () => {
+    setPendingMove(null);
+    setMoveConfirmed(false);
+  };
+
+  const moveWireless = pendingMove ? classifyInterface(pendingMove) === 'wireless' : false;
+
   const onConfirmMove = async () => {
     if (!pendingMove) return;
+    if (moveWireless) {
+      setMoveConfirmed(true);
+      return;
+    }
     const target = pendingMove;
     const creds = resolveCreds();
     if (!creds) {
@@ -112,11 +131,9 @@ export function DomesticUplinkSection({
     }
     await onChanged();
     setMoveSubmitting(false);
-    setPendingMove(null);
+    cancelMove();
     toast.notify({ title: t('wan.domestic.moved', { name: target.name }), tone: 'info' });
   };
-
-  const moveWireless = pendingMove ? classifyInterface(pendingMove) === 'wireless' : false;
 
   const onMoveSubmit = async ({ interfaceName, ssid, password }: WanUplinkValues) => {
     const creds = resolveCreds();
@@ -130,7 +147,7 @@ export function DomesticUplinkSection({
     }
     await updateWanInterface(creds, { interface: interfaceName, type: 'foreign', ssid, password });
     await onChanged();
-    setPendingMove(null);
+    cancelMove();
     toast.notify({ title: t('wan.domestic.moved', { name: interfaceName }), tone: 'info' });
   };
 
@@ -156,7 +173,7 @@ export function DomesticUplinkSection({
           emptyIcon={<Cable size={20} aria-hidden />}
           emptyMessage={t('wan.domestic.empty')}
           moveLabel={(i) => t('wan.domestic.moveLabel', { name: i.name })}
-          onMove={(i) => setPendingMove(i)}
+          onMove={startMove}
         />
       </Card>
       {dialogOpen ? (
@@ -164,31 +181,48 @@ export function DomesticUplinkSection({
           variant="domestic"
           title={t('wan.domestic.dialogTitle')}
           interfaces={interfaces}
-          excludeNames={excludeNames}
+          excludeNames={otherNames}
           interfacesLoading={interfacesLoading}
           onCancel={closeDialog}
           onSubmit={onSubmit}
         />
       ) : null}
-      {pendingMove && moveWireless ? (
+      {pendingMove && moveWireless && moveConfirmed ? (
         <WanUplinkDialog
           variant="foreign"
           title={t('wan.domestic.moveLabel', { name: pendingMove.name })}
+          description={t('wan.domestic.moveWirelessDescription', { name: pendingMove.name })}
+          submitLabel={t('wan.section.move')}
+          submittingLabel={t('wan.section.moving')}
           interfaces={[pendingMove]}
           initialInterface={pendingMove}
-          onCancel={() => setPendingMove(null)}
+          onCancel={cancelMove}
           onSubmit={onMoveSubmit}
         />
       ) : null}
       <ConfirmDialog
-        open={!!pendingMove && !moveWireless}
+        open={!!pendingMove && !moveConfirmed}
         title={t('wan.domestic.confirmTitle')}
         description={
-          pendingMove ? t('wan.domestic.confirmDescription', { name: pendingMove.name }) : undefined
+          !pendingMove
+            ? undefined
+            : otherNames.length > 0
+              ? t('wan.domestic.confirmDescriptionReplace', {
+                  name: pendingMove.name,
+                  current: otherNames.join(', '),
+                })
+              : t('wan.domestic.confirmDescription', { name: pendingMove.name })
         }
-        confirmLabel={moveSubmitting ? t('wan.section.moving') : t('wan.section.move')}
+        destructive={otherNames.length > 0}
+        confirmLabel={
+          moveWireless
+            ? t('wan.section.continue')
+            : moveSubmitting
+              ? t('wan.section.moving')
+              : t('wan.section.move')
+        }
         onConfirm={onConfirmMove}
-        onCancel={() => (moveSubmitting ? undefined : setPendingMove(null))}
+        onCancel={() => (moveSubmitting ? undefined : cancelMove())}
       />
     </Stack>
   );
