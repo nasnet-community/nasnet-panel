@@ -275,17 +275,30 @@ function AppUpdateCard() {
   // Why the selected release can't be installed on this router, or null when it can.
   const blockedReason = (() => {
     if (!selected) return null;
-    const running = versionParts(appVersion);
-    const minApp = versionParts(selected.minAppVersion);
-    if (running && minApp && isOlder(running, minApp)) {
-      return t('updates.app.needsApp', { version: `v${minApp.join('.')}` });
-    }
     const routeros = versionParts(routerosVersion);
     const minRouteros = versionParts(selected.minRouterosVersion);
     if (routeros && minRouteros && isOlder(routeros, minRouteros)) {
       return t('updates.app.needsRouterOS', { version: selected.minRouterosVersion });
     }
     return null;
+  })();
+
+  // What the user should know before installing a release the router is not reconfigured
+  // for, or null when it is reconfigured.
+  const reconfigWarning = (() => {
+    if (!selected || selected.autoReconfigable) return null;
+    if (selected.downgrade) {
+      return t('updates.app.downgradeWarning', { version: selected.tag });
+    }
+    const running = versionParts(appVersion);
+    const minApp = versionParts(selected.minAppVersion);
+    if (running && minApp && isOlder(running, minApp)) {
+      return t('updates.app.skipWarning', {
+        version: selected.tag,
+        minVersion: `v${minApp.join('.')}`,
+      });
+    }
+    return t('updates.app.noReconfigWarning', { version: selected.tag });
   })();
 
   const finishWithError = (message: string) => {
@@ -620,10 +633,13 @@ function AppUpdateCard() {
                   )}
                 </div>
 
-                {selected.downgrade && !blockedReason ? (
-                  <p className={styles.downgradeNote} role="note">
-                    <TriangleAlert size={16} aria-hidden className={styles.downgradeNoteIcon} />
-                    <span>{t('updates.app.downgradeWarning', { version: selected.tag })}</span>
+                {reconfigWarning && !blockedReason ? (
+                  <p
+                    className={`${styles.warningNote} ${selected.downgrade ? styles.warningNoteDanger : ''}`}
+                    role="note"
+                  >
+                    <TriangleAlert size={16} aria-hidden className={styles.warningNoteIcon} />
+                    <span>{reconfigWarning}</span>
                   </p>
                 ) : null}
 
@@ -691,7 +707,7 @@ function AppUpdateCard() {
             ? t('updates.app.confirmDescriptionDowngrade', { version: selected.tag })
             : selected?.autoReconfigable
               ? t('updates.app.confirmDescriptionReconfig', { version: selected.tag })
-              : t('updates.app.confirmDescriptionVersion', { version: selected?.tag ?? '' })
+              : t('updates.app.confirmDescriptionNoReconfig', { version: selected?.tag ?? '' })
         }
         confirmLabel={t('updates.confirm')}
         confirmVariant={selected?.downgrade ? 'danger' : 'success'}

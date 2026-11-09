@@ -308,22 +308,28 @@
   font-size: var(--font-sm);
 }
 
-.downgradeNote {
+.warningNote {
+  --note-tone: var(--color-warning);
+
   display: flex;
   align-items: flex-start;
   gap: var(--space-sm);
   margin: 0;
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  background: color-mix(in srgb, var(--note-tone) 12%, transparent);
   color: var(--color-text);
   font-size: var(--font-sm);
 }
 
-.downgradeNoteIcon {
+.warningNoteDanger {
+  --note-tone: var(--color-danger);
+}
+
+.warningNoteIcon {
   flex-shrink: 0;
   margin-top: 2px;
-  color: var(--color-danger);
+  color: var(--note-tone);
 }
 
 .olderField {
