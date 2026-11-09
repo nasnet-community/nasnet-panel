@@ -308,6 +308,30 @@
   font-size: var(--font-sm);
 }
 
+.downgradeNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  color: var(--color-text);
+  font-size: var(--font-sm);
+}
+
+.downgradeNoteIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-danger);
+}
+
+.olderField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
 .newsletterForm {
   display: flex;
   align-items: flex-end;

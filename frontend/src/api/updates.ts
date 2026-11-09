@@ -84,6 +84,8 @@ export interface AppRelease {
   minRouterosVersion: string;
   minAppVersion: string;
   autoReconfigable: boolean;
+  /** The release is lower than the running version; installing it downgrades the panel without reconfiguring the router. */
+  downgrade: boolean;
   changelog: string[];
 }
 
@@ -187,7 +189,8 @@ export async function fetchAppReleases(
   channel: AppUpdateChannel,
   signal?: AbortSignal,
 ): Promise<AppRelease[]> {
-  const query = new URLSearchParams({ channel, hideLowerVer: 'true' });
+  // Older releases stay in the list so the panel can be downgraded.
+  const query = new URLSearchParams({ channel });
   const releases = await apiRequest<AppRelease[] | null>(`/api/app/updates?${query.toString()}`, {
     method: 'GET',
     headers: authHeaders(creds),

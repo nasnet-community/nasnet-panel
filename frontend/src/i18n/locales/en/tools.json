@@ -298,6 +298,13 @@
       "updateTo": "Update to {{version}}",
       "confirmDescriptionVersion": "The panel restarts on {{version}}. The page reloads automatically once it is back.",
       "confirmDescriptionReconfig": "The panel restarts on {{version}}, then reconfigures the router from its saved settings. The page reloads automatically when it is done.",
+      "olderOption": "{{version}} (older)",
+      "olderVersions": "Older versions",
+      "chooseOlder": "Choose a version to downgrade to",
+      "downgradeTo": "Downgrade to {{version}}",
+      "downgradeWarning": "{{version}} is older than the running version. The router is not reconfigured after a downgrade, so settings that rely on newer features may stop working.",
+      "confirmDowngradeTitle": "Downgrade the app?",
+      "confirmDescriptionDowngrade": "The panel restarts on {{version}}, an older version. The router keeps its current configuration and is not reconfigured, so settings that rely on newer features may stop working. The page reloads automatically once it is back.",
       "reconfigFailed": "The panel updated, but reconfiguring the router failed",
       "loadFailed": "Failed to load the releases",
       "retry": "Retry"

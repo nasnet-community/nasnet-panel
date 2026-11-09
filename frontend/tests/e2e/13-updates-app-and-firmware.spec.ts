@@ -82,6 +82,7 @@ interface MockRelease {
   minRouterosVersion: string;
   minAppVersion: string;
   autoReconfigable: boolean;
+  downgrade: boolean;
   changelog: string[];
 }
 
@@ -97,6 +98,7 @@ const release = (
   minRouterosVersion: '7.14',
   minAppVersion: '1.0.0',
   autoReconfigable: false,
+  downgrade: false,
   changelog,
   ...extra,
 });
@@ -335,6 +337,77 @@ test.describe('Updates page', () => {
     await expect(page.getByText('Latest Stable release')).toBeVisible();
     await expect(page.getByTestId('app-current-version')).toHaveText('v1.2.0');
     await expect(page.getByRole('button', { name: /update to/i })).toHaveCount(0);
+  });
+
+  test('downgrades to an older release after a warning', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    const app = await mockApp(context, {
+      running: 'v1.3.0',
+      channel: 'stable',
+      releases: {
+        stable: [
+          release('v1.3.0'),
+          release('v1.2.0', ['Fix login'], { downgrade: true }),
+          release('v1.1.0', [], { downgrade: true }),
+        ],
+      },
+      statuses: [{ phase: 'pulling' }, null, { phase: 'idle' }],
+      runningAfter: 'v1.2.0',
+    });
+
+    await page.goto('/updates');
+    // Nothing newer: the card says so and nothing is preselected.
+    await expect(page.getByText('Latest Stable release')).toBeVisible();
+    await expect(page.getByRole('button', { name: /update to|downgrade to/i })).toHaveCount(0);
+
+    await page.getByRole('combobox', { name: 'Older versions' }).click();
+    await page.getByRole('option', { name: 'v1.2.0 (older)' }).click();
+    await expect(page.getByText('Fix login')).toBeVisible();
+    await expect(page.getByRole('note')).toContainText('The router is not reconfigured');
+    await page.getByRole('button', { name: 'Downgrade to v1.2.0' }).click();
+    await expect(page.getByRole('dialog')).toContainText('Downgrade the app?');
+    await expect(page.getByRole('dialog')).toContainText('an older version');
+    await page.getByRole('button', { name: /^confirm$/i }).click();
+
+    await expect(page.getByRole('region', { name: 'Notifications' })).toContainText(
+      'Update complete',
+    );
+    expect(app.updates()).toEqual([{ version: 'v1.2.0' }]);
+  });
+
+  test('lists older releases after the newer ones', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    await mockFirmware(context, [{ phase: 'idle' }]);
+    await mockApp(context, {
+      running: 'v1.2.0',
+      channel: 'stable',
+      releases: {
+        stable: [release('v1.3.0'), release('v1.2.0'), release('v1.1.0', [], { downgrade: true })],
+      },
+    });
+
+    await page.goto('/updates');
+    const version = page.getByRole('combobox', { name: 'Version' });
+    await expect(version).toContainText('v1.3.0');
+    await expect(page.getByRole('note')).toHaveCount(0);
+
+    await version.click();
+    await page.getByRole('option', { name: 'v1.1.0 (older)' }).click();
+    await expect(page.getByRole('note')).toContainText('v1.1.0 is older than the running version');
+    await expect(page.getByRole('button', { name: 'Downgrade to v1.1.0' })).toBeEnabled();
   });
 
   test('shows a release listing error and retries it', async ({

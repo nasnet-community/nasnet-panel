@@ -8,11 +8,13 @@ import {
   CheckCircle2,
   Download,
   ExternalLink,
+  History,
   Loader2,
   RefreshCw,
   Router as RouterIcon,
   Sparkles,
   Tag,
+  TriangleAlert,
 } from 'lucide-react';
 import {
   Badge,
@@ -230,7 +232,8 @@ function AppUpdateCard() {
         );
         if (request !== releasesRequestRef.current) return;
         setReleases(list);
-        setSelectedTag(list[0]?.tag ?? '');
+        // Offer the newest release above the running one; an older one only when the user picks it.
+        setSelectedTag(list.find((r) => !r.downgrade)?.tag ?? '');
       } catch (err) {
         if (request !== releasesRequestRef.current) return;
         setError(err instanceof Error ? err.message : t('updates.checkFailed'));
@@ -415,7 +418,12 @@ function AppUpdateCard() {
     selected?.releaseDate && isValidDate(selected.releaseDate)
       ? format.date(selected.releaseDate, { year: 'numeric', month: 'short', day: 'numeric' })
       : null;
-  const updateAvailable = !!releases?.length;
+  const updateAvailable = !!releases?.some((r) => !r.downgrade);
+  const hasOlder = !!releases?.some((r) => r.downgrade);
+  const versionOptions = (releases ?? []).map((r) => ({
+    value: r.tag,
+    label: r.downgrade ? t('updates.app.olderOption', { version: r.tag }) : r.tag,
+  }));
 
   return (
     <Card>
@@ -507,7 +515,7 @@ function AppUpdateCard() {
               />
             ) : null}
 
-            {releases && !releases.length ? (
+            {releases && !updateAvailable ? (
               <div className={styles.upToDate}>
                 <CheckCircle2 size={22} aria-hidden className={styles.upToDateIcon} />
                 <div className={styles.upToDateBody}>
@@ -526,35 +534,53 @@ function AppUpdateCard() {
               </div>
             ) : null}
 
+            {releases && !updateAvailable && hasOlder ? (
+              <div className={styles.olderField}>
+                <span className={styles.versionStopLabel}>
+                  <History size={12} aria-hidden /> {t('updates.app.olderVersions')}
+                </span>
+                <Select
+                  aria-label={t('updates.app.olderVersions')}
+                  placeholder={t('updates.app.chooseOlder')}
+                  value={selectedTag}
+                  onChange={setSelectedTag}
+                  options={versionOptions}
+                  disabled={installing}
+                />
+              </div>
+            ) : null}
+
             {releases?.length && selected ? (
               <>
-                <div className={styles.versionTrack}>
-                  <div className={styles.versionStop}>
-                    <span className={styles.versionStopLabel}>
-                      <Tag size={12} aria-hidden /> {t('updates.current')}
-                    </span>
-                    <span className={styles.versionStopValue} data-testid="app-current-version">
-                      {appVersion ?? '—'}
-                    </span>
-                  </div>
-                  <ArrowRight
-                    size={20}
-                    aria-hidden
-                    className={`${styles.versionArrow} ${styles.versionArrowActive}`}
-                  />
-                  <div className={`${styles.versionStop} ${styles.versionStopHighlight}`}>
-                    <span className={styles.versionStopLabel}>
-                      <Sparkles size={12} aria-hidden /> {t('updates.app.version')}
-                    </span>
-                    <Select
-                      aria-label={t('updates.app.version')}
-                      value={selectedTag}
-                      onChange={setSelectedTag}
-                      options={releases.map((r) => ({ value: r.tag, label: r.tag }))}
-                      disabled={installing}
+                {updateAvailable ? (
+                  <div className={styles.versionTrack}>
+                    <div className={styles.versionStop}>
+                      <span className={styles.versionStopLabel}>
+                        <Tag size={12} aria-hidden /> {t('updates.current')}
+                      </span>
+                      <span className={styles.versionStopValue} data-testid="app-current-version">
+                        {appVersion ?? '—'}
+                      </span>
+                    </div>
+                    <ArrowRight
+                      size={20}
+                      aria-hidden
+                      className={`${styles.versionArrow} ${styles.versionArrowActive}`}
                     />
+                    <div className={`${styles.versionStop} ${styles.versionStopHighlight}`}>
+                      <span className={styles.versionStopLabel}>
+                        <Sparkles size={12} aria-hidden /> {t('updates.app.version')}
+                      </span>
+                      <Select
+                        aria-label={t('updates.app.version')}
+                        value={selectedTag}
+                        onChange={setSelectedTag}
+                        options={versionOptions}
+                        disabled={installing}
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : null}
 
                 <div className={styles.metaRow}>
                   {releaseDate ? (
@@ -594,6 +620,13 @@ function AppUpdateCard() {
                   )}
                 </div>
 
+                {selected.downgrade && !blockedReason ? (
+                  <p className={styles.downgradeNote} role="note">
+                    <TriangleAlert size={16} aria-hidden className={styles.downgradeNoteIcon} />
+                    <span>{t('updates.app.downgradeWarning', { version: selected.tag })}</span>
+                  </p>
+                ) : null}
+
                 {blockedReason ? (
                   <p className={styles.blockedNote} role="note">
                     {blockedReason}
@@ -619,7 +652,7 @@ function AppUpdateCard() {
             {selected ? (
               <div className={styles.actions}>
                 <Button
-                  variant="success"
+                  variant={selected.downgrade ? 'danger' : 'success'}
                   onClick={() => setConfirming(true)}
                   disabled={installing || complete || !!blockedReason}
                 >
@@ -634,7 +667,9 @@ function AppUpdateCard() {
                   ) : (
                     <>
                       <Download size={14} aria-hidden />{' '}
-                      {t('updates.app.updateTo', { version: selected.tag })}
+                      {selected.downgrade
+                        ? t('updates.app.downgradeTo', { version: selected.tag })
+                        : t('updates.app.updateTo', { version: selected.tag })}
                     </>
                   )}
                 </Button>
@@ -646,14 +681,20 @@ function AppUpdateCard() {
 
       <ConfirmDialog
         open={confirming}
-        title={t('updates.app.confirmTitle')}
+        title={
+          selected?.downgrade
+            ? t('updates.app.confirmDowngradeTitle')
+            : t('updates.app.confirmTitle')
+        }
         description={
-          selected?.autoReconfigable
-            ? t('updates.app.confirmDescriptionReconfig', { version: selected.tag })
-            : t('updates.app.confirmDescriptionVersion', { version: selected?.tag ?? '' })
+          selected?.downgrade
+            ? t('updates.app.confirmDescriptionDowngrade', { version: selected.tag })
+            : selected?.autoReconfigable
+              ? t('updates.app.confirmDescriptionReconfig', { version: selected.tag })
+              : t('updates.app.confirmDescriptionVersion', { version: selected?.tag ?? '' })
         }
         confirmLabel={t('updates.confirm')}
-        confirmVariant="success"
+        confirmVariant={selected?.downgrade ? 'danger' : 'success'}
         onConfirm={install}
         onCancel={() => setConfirming(false)}
       />

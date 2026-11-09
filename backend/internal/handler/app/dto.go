@@ -79,6 +79,7 @@ type ReleaseUpdateResponse struct {
 	MinRouterosVersion string   `json:"minRouterosVersion"`
 	MinAppVersion      string   `json:"minAppVersion"`
 	AutoReconfigable   bool     `json:"autoReconfigable"`
+	Downgrade          bool     `json:"downgrade"`
 	Changelog          []string `json:"changelog"`
 }
 
