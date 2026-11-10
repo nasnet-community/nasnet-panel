@@ -354,7 +354,7 @@ func HandleInstallUpdate(c echo.Context) error {
 		Address:  creds.RouterOSHost,
 		Username: creds.Username,
 		Password: creds.Password,
-	}, client, checkResult.LatestVersion)
+	}, checkResult.LatestVersion)
 
 	return common.SuccessResponse(c, http.StatusOK, "Update started", common.InstallUpdateResponse{
 		UpdateAvailable: true,

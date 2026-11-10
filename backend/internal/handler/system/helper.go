@@ -116,13 +116,22 @@ func beginDelete(host string) (conflict string) {
 // watchSystemUpdate starts the package installation and follows it until the router reports the
 // target version again. It runs detached from the request that started it, because RouterOS
 // reboots during the update and the connection of that request is lost.
-func watchSystemUpdate(config routeros.ConnectionConfig, client *routeros.Client, toVersion string) {
+func watchSystemUpdate(config routeros.ConnectionConfig, toVersion string) {
 	host := config.Address
 	startedAt := time.Now()
 
+	installer, err := routeros.NewClient(config)
+	if err != nil {
+		systemUpdates.set(host, systemUpdatePhaseError, err.Error())
+		log.Printf("[system-update] install failed on %s: %v", host, err)
+		return
+	}
+	// Closing the installer also ends an install call that is still waiting for RouterOS
+	defer func() { _ = installer.Close() }()
+
 	installResult := make(chan error, 1)
 	go func() {
-		installResult <- client.StartPackageUpdateInstall()
+		installResult <- installer.StartPackageUpdateInstall()
 	}()
 
 	var installErr error
