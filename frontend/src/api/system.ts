@@ -450,3 +450,48 @@ export async function fetchSystemOverview(
     ...dynamic,
   };
 }
+
+export interface SchedulerResponse {
+  name: string;
+  enabled: boolean;
+  startDate: string;
+  /** `HH:MM:SS`, or `startup`. */
+  startTime: string;
+  /** Clock form with weeks summed into days, e.g. `7d 00:00:00` or `01:00:00`. */
+  interval: string;
+  runCount: number;
+  nextRun: string;
+}
+
+export interface UpdateSchedulerRequest {
+  startTime?: string;
+  interval?: string;
+}
+
+export async function fetchScheduler(
+  creds: SystemCredentials,
+  name: string,
+  signal?: AbortSignal,
+): Promise<SchedulerResponse> {
+  return apiRequest<SchedulerResponse>(`/api/system/scheduler/${encodeURIComponent(name)}`, {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function updateScheduler(
+  creds: SystemCredentials,
+  name: string,
+  request: UpdateSchedulerRequest,
+): Promise<void> {
+  await apiRequest<unknown>(`/api/system/scheduler/${encodeURIComponent(name)}`, {
+    method: 'PUT',
+    headers: {
+      ...authHeaders(creds),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+}

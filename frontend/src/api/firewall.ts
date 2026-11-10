@@ -157,3 +157,37 @@ export async function deleteDomesticAddress(creds: FirewallCredentials, id: stri
     headers: authHeaders(creds),
   });
 }
+
+export type DomesticListUpdateState = 'idle' | 'running' | 'completed' | 'failed' | 'interrupted';
+
+export interface DomesticListUpdateStatus {
+  status: DomesticListUpdateState;
+  running: boolean;
+  failed: boolean;
+  /** 0 to 100. */
+  progress: number;
+  step?: string;
+  message?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
+/** Starts the router's DomesticIPUpdate script without waiting for it; 409 means one is already running. */
+export async function startDomesticListUpdate(creds: FirewallCredentials): Promise<void> {
+  await apiRequest<unknown>('/api/firewall/addresslist/domestic/update', {
+    method: 'POST',
+    headers: authHeaders(creds),
+  });
+}
+
+export async function fetchDomesticListUpdateStatus(
+  creds: FirewallCredentials,
+  signal?: AbortSignal,
+): Promise<DomesticListUpdateStatus> {
+  return apiRequest<DomesticListUpdateStatus>('/api/firewall/addresslist/domestic/update/status', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}

@@ -1,0 +1,28 @@
+// The scheduler on the router that runs the domestic address list update every interval.
+export const DOMESTIC_UPDATE_SCHEDULER = 'DomesticIPUpdate';
+
+/** Interval presets offered in the schedule dialog, in days. */
+export const INTERVAL_PRESETS = [1, 3, 7, 14, 30] as const;
+
+export const MAX_INTERVAL_DAYS = 365;
+
+const CLOCK_INTERVAL = /^(?:(\d+)d\s*)?(\d{1,2}):(\d{2}):(\d{2})$/;
+
+/**
+ * Returns the whole number of days in a scheduler interval as the API formats it
+ * (`7d 00:00:00`), or null when it has an hour, minute or second part.
+ */
+export function intervalDays(interval: string): number | null {
+  const match = CLOCK_INTERVAL.exec(interval.trim());
+  if (!match) return null;
+  const [, days, h, m, s] = match;
+  if (Number(h) || Number(m) || Number(s)) return null;
+  const total = Number(days ?? 0);
+  return total > 0 ? total : null;
+}
+
+/** `12:00:00` → `12:00` for a time input; anything else (e.g. `startup`) → ''. */
+export function toTimeInput(startTime: string): string {
+  const match = /^(\d{2}):(\d{2})(?::\d{2})?$/.exec(startTime.trim());
+  return match ? `${match[1]}:${match[2]}` : '';
+}

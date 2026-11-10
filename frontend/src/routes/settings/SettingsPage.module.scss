@@ -1,0 +1,202 @@
+.cardHeader {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.cardHeader > :first-child {
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .cardHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    flex-shrink: 1;
+    flex-wrap: wrap;
+  }
+}
+
+.errorBanner {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-surface, rgba(239, 68, 68, 0.08));
+  color: var(--color-danger, #ef4444);
+  font-size: var(--font-sm);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  gap: var(--space-md);
+  margin: 0;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  dt {
+    font-size: var(--font-xs);
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--font-md);
+    font-weight: var(--weight-medium);
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.progress {
+  max-width: 480px;
+}
+
+.lastResult {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.tabList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 12px);
+  background: var(--color-surface);
+}
+
+.tab {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-inline-start: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
+
+  &:hover {
+    color: var(--color-text);
+    background: var(--color-surface-alt);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.tabActive {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+  background: var(--color-surface-alt);
+  border-inline-start-color: var(--color-success);
+}
+
+.panel {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tabList {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .tab {
+    width: auto;
+    white-space: nowrap;
+    border-inline-start: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  .tabActive {
+    border-bottom-color: var(--color-success);
+  }
+}
+
+.scheduleForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.scheduleField {
+  flex: 0 1 200px;
+  min-width: 160px;
+}
+
+.scheduleActions {
+  display: flex;
+  gap: var(--space-sm);
+  align-self: flex-end;
+}
+
+@media (max-width: 768px) {
+  .scheduleField {
+    flex: 1 1 100%;
+  }
+
+  .scheduleActions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+}
