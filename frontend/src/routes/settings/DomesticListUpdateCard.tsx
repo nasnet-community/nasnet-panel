@@ -327,7 +327,7 @@ export function DomesticListUpdateCard({ creds }: Props) {
 
         {running ? (
           <div className={styles.progress} data-testid="domestic-update-progress">
-            <Progress value={status?.progress ?? 0} label={stepLabel} />
+            <Progress value={status?.progress ?? 0} label={stepLabel} tone="success" />
           </div>
         ) : null}
         {!running && resultState !== 'completed' && status?.message && resultState ? (

@@ -108,7 +108,6 @@
   width: 100%;
   padding: 10px 12px;
   border: none;
-  border-inline-start: 2px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-muted);
@@ -140,7 +139,6 @@
   color: var(--color-text);
   font-weight: var(--weight-semibold);
   background: var(--color-surface-alt);
-  border-inline-start-color: var(--color-success);
 }
 
 .panel {
@@ -160,12 +158,6 @@
   .tab {
     width: auto;
     white-space: nowrap;
-    border-inline-start: none;
-    border-bottom: 2px solid transparent;
-  }
-
-  .tabActive {
-    border-bottom-color: var(--color-success);
   }
 }
 
