@@ -27,6 +27,8 @@ interface MockOptions {
   /** Status responses served in order; the last one repeats. */
   statuses?: Status[];
   startConflict?: boolean;
+  /** Country the backend reports; undefined serves 404 like a backend without the setting. */
+  country?: string;
 }
 
 const idle: Status = { status: 'idle', running: false, failed: false, progress: 0 };
@@ -65,6 +67,24 @@ async function mockSettings(page: Page, options: MockOptions = {}) {
       return json(route, null);
     }
     return json(route, scheduler);
+  });
+
+  let country = options.country;
+  await page.route('**/api/firewall/addresslist/domestic/country', async (route) => {
+    const request = route.request();
+    if (country === undefined) {
+      return route.fulfill({
+        status: 404,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: 404, message: 'Not Found' }),
+      });
+    }
+    if (request.method() === 'PUT') {
+      const body = request.postDataJSON() as { country: string };
+      calls.push({ method: 'PUT', path: '/api/firewall/addresslist/domestic/country', body });
+      country = body.country;
+    }
+    return json(route, { country });
   });
 
   await page.route('**/api/firewall/addresslist/domestic/update/status', async (route) => {
@@ -253,5 +273,38 @@ test.describe('Settings page domestic IP list updates', () => {
     const card = page.getByTestId('domestic-list-update');
     await expect(card).toContainText('This router has no update schedule.');
     await expect(page.getByTestId('domestic-schedule-form')).toHaveCount(0);
+  });
+
+  test('hides the country on backends without the setting', async ({ page }) => {
+    await mockSettings(page);
+    await page.goto(`/router/${ROUTER_ID}/settings`);
+
+    const form = page.getByTestId('domestic-schedule-form');
+    await expect(form.getByRole('combobox', { name: 'Runs' })).toBeVisible();
+    await expect(form.getByRole('combobox', { name: 'Country' })).toHaveCount(0);
+  });
+
+  test('changing the country saves it and starts an update', async ({ page }) => {
+    const { calls } = await mockSettings(page, { country: 'IR' });
+    await page.goto(`/router/${ROUTER_ID}/settings`);
+
+    const form = page.getByTestId('domestic-schedule-form');
+    const select = form.getByRole('combobox', { name: 'Country' });
+    await expect(select).toContainText('Iran (IR)');
+    await select.click();
+    await page.getByRole('option', { name: 'Russia (RU)' }).click();
+    await form.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByText('Country set to Russia. Updating the list now.')).toBeVisible();
+    await expect(select).toContainText('Russia (RU)');
+    await expect(form.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(calls).toEqual([
+      {
+        method: 'PUT',
+        path: '/api/firewall/addresslist/domestic/country',
+        body: { country: 'RU' },
+      },
+      { method: 'POST', path: '/api/firewall/addresslist/domestic/update', body: null },
+    ]);
   });
 });

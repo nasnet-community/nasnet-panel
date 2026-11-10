@@ -346,6 +346,7 @@
     "domestic": {
       "title": "Domestic IP list updates",
       "description": "The router refreshes its list of domestic IP ranges on a schedule. Change how often it runs, or update the list now.",
+      "country": "Country",
       "interval": "Runs",
       "startTime": "Start time",
       "nextRun": "Next run",
@@ -387,7 +388,9 @@
         "completed": "Domestic IP list updated",
         "failed": "Domestic IP list update failed",
         "scheduleSaved": "Update schedule saved",
-        "scheduleFailed": "Could not save the update schedule"
+        "scheduleFailed": "Could not save the update schedule",
+        "countrySaved": "Country set to {{country}}. Updating the list now.",
+        "countryFailed": "Could not change the country"
       }
     }
   }

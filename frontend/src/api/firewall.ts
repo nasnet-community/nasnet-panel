@@ -191,3 +191,32 @@ export async function fetchDomesticListUpdateStatus(
     signal,
   });
 }
+
+export interface DomesticCountryResponse {
+  /** ISO 3166-1 alpha-2 code of the country whose IP ranges the update downloads, e.g. `IR`. */
+  country: string;
+}
+
+/** Reads which country the domestic address list update downloads; 404 on backends without this setting. */
+export async function fetchDomesticCountry(
+  creds: FirewallCredentials,
+  signal?: AbortSignal,
+): Promise<DomesticCountryResponse> {
+  return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function setDomesticCountry(
+  creds: FirewallCredentials,
+  country: string,
+): Promise<DomesticCountryResponse> {
+  return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
+    method: 'PUT',
+    headers: authHeaders(creds),
+    body: JSON.stringify({ country }),
+  });
+}

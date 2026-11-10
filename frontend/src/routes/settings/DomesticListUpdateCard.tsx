@@ -16,18 +16,20 @@ import {
 import styles from './SettingsPage.module.scss';
 import {
   ApiError,
+  fetchDomesticCountry,
   fetchDomesticListUpdateStatus,
   fetchScheduler,
   isAbortError,
+  setDomesticCountry,
   startDomesticListUpdate,
   updateScheduler,
   type DomesticListUpdateStatus,
   type SchedulerResponse,
   type SystemCredentials,
-  type UpdateSchedulerRequest,
 } from '../../api';
-import { DomesticScheduleForm } from './DomesticScheduleForm';
-import { DOMESTIC_UPDATE_SCHEDULER } from './schedule';
+import { useLanguage } from '../../state/LanguageContext';
+import { DomesticScheduleForm, type DomesticSettingsChange } from './DomesticScheduleForm';
+import { DOMESTIC_UPDATE_SCHEDULER, countryName } from './schedule';
 
 const POLL_MS = 2000;
 // How long to keep polling after a start for the script to report that it is running.
@@ -51,7 +53,10 @@ interface Props {
 
 export function DomesticListUpdateCard({ creds }: Props) {
   const { t } = useTranslation('tools');
+  const { intlLocale } = useLanguage();
   const toast = useToast();
+  // Null until loaded, and stays null on backends that cannot read the country.
+  const [country, setCountry] = useState<string | null>(null);
   const [scheduler, setScheduler] = useState<SchedulerResponse | null>(null);
   const [schedulerMissing, setSchedulerMissing] = useState(false);
   const [schedulerError, setSchedulerError] = useState<string | null>(null);
@@ -92,6 +97,17 @@ export function DomesticListUpdateCard({ creds }: Props) {
     void loadScheduler(controller.signal);
     return () => controller.abort();
   }, [loadScheduler]);
+
+  useEffect(() => {
+    if (!creds) return;
+    const controller = new AbortController();
+    fetchDomesticCountry(creds, controller.signal)
+      .then((res) => setCountry(res.country.toUpperCase()))
+      .catch(() => {
+        // Older backends have no country setting, so the field stays hidden.
+      });
+    return () => controller.abort();
+  }, [creds]);
 
   useEffect(() => {
     if (!creds) return;
@@ -192,20 +208,44 @@ export function DomesticListUpdateCard({ creds }: Props) {
     setPollKey((k) => k + 1);
   };
 
-  const saveSchedule = async (request: UpdateSchedulerRequest) => {
+  const saveSettings = async (change: DomesticSettingsChange) => {
     if (!creds) return;
-    try {
-      await updateScheduler(creds, DOMESTIC_UPDATE_SCHEDULER, request);
-    } catch (err) {
-      toast.notify({
-        title: t('settings.domestic.toasts.scheduleFailed'),
-        description: err instanceof Error ? err.message : undefined,
-        tone: 'danger',
-      });
-      throw err;
+    if (change.schedule) {
+      try {
+        await updateScheduler(creds, DOMESTIC_UPDATE_SCHEDULER, change.schedule);
+      } catch (err) {
+        toast.notify({
+          title: t('settings.domestic.toasts.scheduleFailed'),
+          description: err instanceof Error ? err.message : undefined,
+          tone: 'danger',
+        });
+        throw err;
+      }
+      toast.notify({ title: t('settings.domestic.toasts.scheduleSaved'), tone: 'success' });
+      await loadScheduler();
     }
-    toast.notify({ title: t('settings.domestic.toasts.scheduleSaved'), tone: 'success' });
-    await loadScheduler();
+    if (change.country) {
+      let saved: string;
+      try {
+        saved = (await setDomesticCountry(creds, change.country)).country.toUpperCase();
+      } catch (err) {
+        toast.notify({
+          title: t('settings.domestic.toasts.countryFailed'),
+          description: err instanceof Error ? err.message : undefined,
+          tone: 'danger',
+        });
+        throw err;
+      }
+      setCountry(saved);
+      toast.notify({
+        title: t('settings.domestic.toasts.countrySaved', {
+          country: countryName(saved, intlLocale),
+        }),
+        tone: 'success',
+      });
+      // The list still holds the previous country's ranges until the next run.
+      if (!statusRef.current?.running) await startUpdate();
+    }
   };
 
   const running = !!status?.running;
@@ -263,12 +303,13 @@ export function DomesticListUpdateCard({ creds }: Props) {
           <p className={styles.hint}>{t('settings.domestic.schedulerMissing')}</p>
         ) : null}
 
-        {scheduler ? (
+        {scheduler || country ? (
           <DomesticScheduleForm
-            key={`${scheduler.interval}|${scheduler.startTime}`}
+            key={`${scheduler?.interval}|${scheduler?.startTime}|${country}`}
             scheduler={scheduler}
+            country={country}
             disabled={!creds}
-            onSubmit={saveSchedule}
+            onSubmit={saveSettings}
           />
         ) : null}
 
