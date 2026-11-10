@@ -120,14 +120,17 @@ func watchSystemUpdate(config routeros.ConnectionConfig, toVersion string) {
 	host := config.Address
 	startedAt := time.Now()
 
+	installer, err := routeros.NewClient(config)
+	if err != nil {
+		systemUpdates.set(host, systemUpdatePhaseError, err.Error())
+		log.Printf("[system-update] install failed on %s: %v", host, err)
+		return
+	}
+	// Closing the installer also ends an install call that is still waiting for RouterOS
+	defer func() { _ = installer.Close() }()
+
 	installResult := make(chan error, 1)
 	go func() {
-		installer, err := routeros.NewClient(config)
-		if err != nil {
-			installResult <- err
-			return
-		}
-		defer func() { _ = installer.Close() }()
 		installResult <- installer.StartPackageUpdateInstall()
 	}()
 
