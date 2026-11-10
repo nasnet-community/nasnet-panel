@@ -124,14 +124,12 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 			return reply, nil
 		}
 
-		// Protocol error: the reply stream is out of sync, so every later
-		// command on this connection would read leftover bytes. Replace the
-		// connection, but don't resend the command: it may have already run.
+		// Protocol error: log, reconnect and return without retry
 		if isProtocolError(err) {
-			log.Printf("[RouterOS] %v Protocol error, reconnecting: %v", sentence, err)
+			log.Printf("[RouterOS] %v Protocol error: %v", sentence, err)
 			c.mu.Unlock()
 			if rerr := c.clearCacheAndReconnect(); rerr != nil {
-				log.Printf("[RouterOS] Reconnect after protocol error failed: %v", rerr)
+				log.Printf("[RouterOS] Reconnect failed: %v", rerr)
 			}
 			c.mu.Lock()
 			return nil, err
@@ -371,17 +369,27 @@ func isNetworkError(err error) bool {
 	return false
 }
 
-// isProtocolError reports whether err comes from parsing a malformed API
-// reply, which leaves the connection's read stream out of sync.
+// isProtocolError checks if the error is a malformed reply that leaves the connection out of sync.
 func isProtocolError(err error) bool {
 	if err == nil {
 		return false
 	}
-	var unknownReply *ros.UnknownReplyError
-	if errors.As(err, &unknownReply) {
-		return true
+
+	errMsg := err.Error()
+
+	protocolKeywords := []string{
+		"invalid RouterOS sentence word",
+		"unknown RouterOS reply word",
 	}
-	return strings.Contains(err.Error(), "invalid RouterOS sentence word")
+
+	errLower := strings.ToLower(errMsg)
+	for _, keyword := range protocolKeywords {
+		if strings.Contains(errLower, strings.ToLower(keyword)) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // IsOfflineError detects if the error indicates the router is offline/unreachable (502 Bad Gateway).

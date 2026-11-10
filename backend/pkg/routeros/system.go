@@ -675,9 +675,7 @@ func (c *Client) InstallUpdate() (*UpdateInstallResult, error) {
 		}, nil
 	}
 
-	// Proceed with installation. The router reboots once the download
-	// finishes, so a dropped connection means the install went ahead, and
-	// the command must not be resent.
+	// Proceed with installation
 	_, err = c.ExecuteOnce("/system/package/update/install")
 	if err != nil && !isNetworkError(err) {
 		return &UpdateInstallResult{
