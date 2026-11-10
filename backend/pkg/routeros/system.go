@@ -146,7 +146,7 @@ func (c *Client) GetSystemIdentity() (*Identity, error) {
 }
 
 func (c *Client) SetSystemIdentity(name string) error {
-	_, err := c.conn.Run("/system/identity/set", "=name="+name)
+	_, err := c.Execute("/system/identity/set", "=name="+name)
 	if err != nil {
 		return fmt.Errorf("failed to set system identity: %w", err)
 	}
@@ -675,9 +675,11 @@ func (c *Client) InstallUpdate() (*UpdateInstallResult, error) {
 		}, nil
 	}
 
-	// Proceed with installation
-	_, err = c.conn.Run("/system/package/update/install")
-	if err != nil {
+	// Proceed with installation. The router reboots once the download
+	// finishes, so a dropped connection means the install went ahead, and
+	// the command must not be resent.
+	_, err = c.ExecuteOnce("/system/package/update/install")
+	if err != nil && !isNetworkError(err) {
 		return &UpdateInstallResult{
 			Success:          false,
 			Message:          fmt.Sprintf("Failed to install update: %v", err),
