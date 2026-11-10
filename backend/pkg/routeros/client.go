@@ -601,7 +601,12 @@ func (c *Client) clearCacheAndReconnect() error {
 
 	// Update connection and cache (must hold c.mu)
 	c.mu.Lock()
-	c.conn = newConn
+	if c.conn != nil {
+		// Another caller already reconnected, keep its connection
+		_ = newConn.Close()
+	} else {
+		c.conn = newConn
+	}
 	c.mu.Unlock()
 
 	// Restore to cache
