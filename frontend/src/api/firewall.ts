@@ -197,7 +197,7 @@ export interface DomesticCountryResponse {
   country: string;
 }
 
-/** Reads which country the domestic address list update downloads; 404 on backends without this setting. */
+/** Reads which country the domestic address list update downloads; 404 on backends that cannot report it. */
 export async function fetchDomesticCountry(
   creds: FirewallCredentials,
   signal?: AbortSignal,
@@ -207,16 +207,5 @@ export async function fetchDomesticCountry(
     headers: authHeaders(creds),
     cache: 'no-store',
     signal,
-  });
-}
-
-export async function setDomesticCountry(
-  creds: FirewallCredentials,
-  country: string,
-): Promise<DomesticCountryResponse> {
-  return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
-    method: 'PUT',
-    headers: authHeaders(creds),
-    body: JSON.stringify({ country }),
   });
 }

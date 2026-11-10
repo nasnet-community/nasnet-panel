@@ -20,16 +20,15 @@ import {
   fetchDomesticListUpdateStatus,
   fetchScheduler,
   isAbortError,
-  setDomesticCountry,
   startDomesticListUpdate,
   updateScheduler,
   type DomesticListUpdateStatus,
   type SchedulerResponse,
   type SystemCredentials,
+  type UpdateSchedulerRequest,
 } from '../../api';
-import { useLanguage } from '../../state/LanguageContext';
-import { DomesticScheduleForm, type DomesticSettingsChange } from './DomesticScheduleForm';
-import { DOMESTIC_UPDATE_SCHEDULER, countryName } from './schedule';
+import { DomesticScheduleForm } from './DomesticScheduleForm';
+import { DOMESTIC_UPDATE_SCHEDULER } from './schedule';
 
 const POLL_MS = 2000;
 // How long to keep polling after a start for the script to report that it is running.
@@ -47,15 +46,23 @@ const STEPS = [
   'completed',
 ] as const;
 
+type ResultState = 'running' | 'completed' | 'failed' | 'interrupted';
+
+const RESULT_TONES: Record<ResultState, 'info' | 'success' | 'danger' | 'warning'> = {
+  running: 'info',
+  completed: 'success',
+  failed: 'danger',
+  interrupted: 'warning',
+};
+
 interface Props {
   creds: SystemCredentials | null;
 }
 
 export function DomesticListUpdateCard({ creds }: Props) {
   const { t } = useTranslation('tools');
-  const { intlLocale } = useLanguage();
   const toast = useToast();
-  // Null until loaded, and stays null on backends that cannot read the country.
+  // Null until loaded, and stays null on backends that cannot report the country.
   const [country, setCountry] = useState<string | null>(null);
   // The header slot that the form renders its Save and Cancel buttons into.
   const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
@@ -106,7 +113,7 @@ export function DomesticListUpdateCard({ creds }: Props) {
     fetchDomesticCountry(creds, controller.signal)
       .then((res) => setCountry(res.country.toUpperCase()))
       .catch(() => {
-        // Older backends have no country setting, so the field stays hidden.
+        // Older backends cannot report it; the form then shows the default country.
       });
     return () => controller.abort();
   }, [creds]);
@@ -210,44 +217,20 @@ export function DomesticListUpdateCard({ creds }: Props) {
     setPollKey((k) => k + 1);
   };
 
-  const saveSettings = async (change: DomesticSettingsChange) => {
+  const saveSchedule = async (request: UpdateSchedulerRequest) => {
     if (!creds) return;
-    if (change.schedule) {
-      try {
-        await updateScheduler(creds, DOMESTIC_UPDATE_SCHEDULER, change.schedule);
-      } catch (err) {
-        toast.notify({
-          title: t('settings.domestic.toasts.scheduleFailed'),
-          description: err instanceof Error ? err.message : undefined,
-          tone: 'danger',
-        });
-        throw err;
-      }
-      toast.notify({ title: t('settings.domestic.toasts.scheduleSaved'), tone: 'success' });
-      await loadScheduler();
-    }
-    if (change.country) {
-      let saved: string;
-      try {
-        saved = (await setDomesticCountry(creds, change.country)).country.toUpperCase();
-      } catch (err) {
-        toast.notify({
-          title: t('settings.domestic.toasts.countryFailed'),
-          description: err instanceof Error ? err.message : undefined,
-          tone: 'danger',
-        });
-        throw err;
-      }
-      setCountry(saved);
+    try {
+      await updateScheduler(creds, DOMESTIC_UPDATE_SCHEDULER, request);
+    } catch (err) {
       toast.notify({
-        title: t('settings.domestic.toasts.countrySaved', {
-          country: countryName(saved, intlLocale),
-        }),
-        tone: 'success',
+        title: t('settings.domestic.toasts.scheduleFailed'),
+        description: err instanceof Error ? err.message : undefined,
+        tone: 'danger',
       });
-      // The list still holds the previous country's ranges until the next run.
-      if (!statusRef.current?.running) await startUpdate();
+      throw err;
     }
+    toast.notify({ title: t('settings.domestic.toasts.scheduleSaved'), tone: 'success' });
+    await loadScheduler();
   };
 
   const running = !!status?.running;
@@ -255,6 +238,12 @@ export function DomesticListUpdateCard({ creds }: Props) {
     status?.step && (STEPS as readonly string[]).includes(status.step)
       ? t(`settings.domestic.steps.${status.step as (typeof STEPS)[number]}`)
       : t('settings.domestic.steps.starting');
+
+  const resultState: ResultState | null = running
+    ? 'running'
+    : status && (RESULT_TONES as Record<string, unknown>)[status.status]
+      ? (status.status as ResultState)
+      : null;
 
   const summary = [
     {
@@ -306,16 +295,14 @@ export function DomesticListUpdateCard({ creds }: Props) {
           <p className={styles.hint}>{t('settings.domestic.schedulerMissing')}</p>
         ) : null}
 
-        {scheduler || country ? (
-          <DomesticScheduleForm
-            key={`${scheduler?.interval}|${scheduler?.startTime}|${country}`}
-            scheduler={scheduler}
-            country={country}
-            disabled={!creds}
-            actionsContainer={headerSlot}
-            onSubmit={saveSettings}
-          />
-        ) : null}
+        <DomesticScheduleForm
+          key={`${scheduler?.interval}|${scheduler?.startTime}`}
+          scheduler={scheduler}
+          country={country}
+          disabled={!creds}
+          actionsContainer={headerSlot}
+          onSubmit={saveSchedule}
+        />
 
         <Divider />
 
@@ -326,34 +313,27 @@ export function DomesticListUpdateCard({ creds }: Props) {
               <dd>{item.ltr ? <span dir="ltr">{item.value}</span> : item.value}</dd>
             </div>
           ))}
+          {resultState ? (
+            <div className={styles.summaryItem}>
+              <dt>{t('settings.domestic.status')}</dt>
+              <dd>
+                <Badge tone={RESULT_TONES[resultState]}>
+                  {t(`settings.domestic.result.${resultState}`)}
+                </Badge>
+              </dd>
+            </div>
+          ) : null}
         </dl>
 
         {running ? (
           <div className={styles.progress} data-testid="domestic-update-progress">
             <Progress value={status?.progress ?? 0} label={stepLabel} />
           </div>
-        ) : status &&
-          (status.status === 'completed' ||
-            status.status === 'failed' ||
-            status.status === 'interrupted') ? (
-          <div className={styles.lastResult}>
-            <Badge
-              tone={
-                status.status === 'completed'
-                  ? 'success'
-                  : status.status === 'failed'
-                    ? 'danger'
-                    : 'warning'
-              }
-            >
-              {t(`settings.domestic.result.${status.status}`)}
-            </Badge>
-            {status.status !== 'completed' && status.message ? (
-              <span className={styles.hint} dir="ltr">
-                {status.message}
-              </span>
-            ) : null}
-          </div>
+        ) : null}
+        {!running && resultState !== 'completed' && status?.message && resultState ? (
+          <p className={styles.hint} dir="ltr">
+            {status.message}
+          </p>
         ) : null}
       </div>
     </Card>

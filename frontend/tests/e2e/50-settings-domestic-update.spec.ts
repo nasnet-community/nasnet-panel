@@ -235,7 +235,8 @@ test.describe('Settings page domestic IP list updates', () => {
       'Downloading address ranges',
     );
     await expect(card.getByRole('button', { name: 'Updating…' })).toBeDisabled();
-    await expect(card).toContainText('Last update completed');
+    await expect(card.getByText('Running', { exact: true })).toBeVisible();
+    await expect(card.getByText('Completed', { exact: true })).toBeVisible();
     await expect(card).toContainText('2026-11-10 10:01:30');
     await expect(page.getByText('Domestic IP list updated')).toBeVisible();
     expect(calls).toEqual([
@@ -260,7 +261,7 @@ test.describe('Settings page domestic IP list updates', () => {
     await page.goto(`/router/${ROUTER_ID}/settings`);
 
     const card = page.getByTestId('domestic-list-update');
-    await expect(card).toContainText('Last update failed');
+    await expect(card.getByText('Failed', { exact: true })).toBeVisible();
     await expect(card).toContainText('Fetch failed after 4 attempts');
   });
 
@@ -272,53 +273,35 @@ test.describe('Settings page domestic IP list updates', () => {
     await expect(page.getByText('An update is already running')).toBeVisible();
   });
 
-  test('hides the schedule form when the router has no scheduler', async ({ page }) => {
+  test('hides the schedule fields when the router has no scheduler', async ({ page }) => {
     await mockSettings(page, { schedulerMissing: true });
     await page.goto(`/router/${ROUTER_ID}/settings`);
 
     const card = page.getByTestId('domestic-list-update');
     await expect(card).toContainText('This router has no update schedule.');
-    await expect(page.getByTestId('domestic-schedule-form')).toHaveCount(0);
+    await expect(card.getByRole('combobox', { name: 'Runs' })).toHaveCount(0);
+    await expect(card.getByLabel('Start time')).toHaveCount(0);
   });
 
-  test('hides the country on backends without the setting', async ({ page }) => {
+  test('shows Iran, disabled, on backends that cannot report the country', async ({ page }) => {
     await mockSettings(page);
     await page.goto(`/router/${ROUTER_ID}/settings`);
 
-    const form = page.getByTestId('domestic-schedule-form');
-    await expect(form.getByRole('combobox', { name: 'Runs' })).toBeVisible();
-    await expect(form.getByRole('combobox', { name: 'Country' })).toHaveCount(0);
+    const select = page.getByRole('combobox', { name: 'Country' });
+    await expect(select).toContainText('Iran (IR)');
+    await expect(select).toBeDisabled();
+    await expect(select.locator('img[src="/flags/ir.svg"]')).toHaveCount(1);
+    await expect(page.getByTestId('domestic-schedule-form')).toContainText('Coming soon');
   });
 
-  test('changing the country saves it and starts an update', async ({ page }) => {
-    const { calls } = await mockSettings(page, { country: 'IR' });
+  test("shows the router's country, disabled", async ({ page }) => {
+    const { calls } = await mockSettings(page, { country: 'CU' });
     await page.goto(`/router/${ROUTER_ID}/settings`);
 
-    const form = page.getByTestId('domestic-schedule-form');
-    const select = form.getByRole('combobox', { name: 'Country' });
-    await expect(select).toContainText('Iran (IR)');
-    await select.click();
-    await expect(page.getByRole('option')).toHaveText([
-      'Iran (IR)',
-      'Russia (RU)',
-      'China (CN)',
-      'Cuba (CU)',
-    ]);
-    await page.getByRole('option', { name: 'Russia (RU)' }).click();
-    await page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }).click();
-
-    await expect(page.getByText('Country set to Russia. Updating the list now.')).toBeVisible();
-    await expect(select).toContainText('Russia (RU)');
-    await expect(
-      page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }),
-    ).toBeDisabled();
-    expect(calls).toEqual([
-      {
-        method: 'PUT',
-        path: '/api/firewall/addresslist/domestic/country',
-        body: { country: 'RU' },
-      },
-      { method: 'POST', path: '/api/firewall/addresslist/domestic/update', body: null },
-    ]);
+    const select = page.getByRole('combobox', { name: 'Country' });
+    await expect(select).toContainText('Cuba (CU)');
+    await expect(select.locator('img[src="/flags/cu.svg"]')).toHaveCount(1);
+    await expect(select).toBeDisabled();
+    expect(calls).toEqual([]);
   });
 });

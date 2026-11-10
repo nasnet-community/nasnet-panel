@@ -1,7 +1,6 @@
-import { useMemo, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useMemo, useRef, type KeyboardEvent } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MapPin } from 'lucide-react';
 import { DomesticListUpdateCard } from './settings/DomesticListUpdateCard';
 import styles from './settings/SettingsPage.module.scss';
 import { useSession } from '../state/SessionContext';
@@ -15,7 +14,6 @@ type SectionId = 'domestic';
 interface Section {
   id: SectionId;
   label: string;
-  icon: ReactNode;
 }
 
 export function SettingsPage() {
@@ -34,9 +32,7 @@ export function SettingsPage() {
     return { host, username: c.username, password: c.password };
   }, [id, router?.host, getCredentials]);
 
-  const sections: Section[] = [
-    { id: 'domestic', label: t('settings.tabs.domestic'), icon: <MapPin size={16} aria-hidden /> },
-  ];
+  const sections: Section[] = [{ id: 'domestic', label: t('settings.tabs.domestic') }];
   const active = sections.find((s) => s.id === params.get('tab')) ?? sections[0];
 
   const select = (section: Section) =>
@@ -85,8 +81,7 @@ export function SettingsPage() {
               onClick={() => select(section)}
               onKeyDown={(e) => onKeyDown(e, index)}
             >
-              {section.icon}
-              <span>{section.label}</span>
+              {section.label}
             </button>
           );
         })}

@@ -48,7 +48,7 @@
 
 .summary {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 220px));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 220px));
   gap: var(--space-md);
   margin: 0;
 }
@@ -81,13 +81,6 @@
 
 .progress {
   max-width: 480px;
-}
-
-.lastResult {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
 }
 
 .layout {
@@ -203,4 +196,19 @@
     flex: 1 1 100%;
     justify-content: flex-end;
   }
+}
+
+.flag {
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  // Flags are not mirrored in RTL; keep the hoist side, where Cuba's and China's stars are.
+  object-position: left center;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--color-border);
+}
+
+.fieldHint {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
 }

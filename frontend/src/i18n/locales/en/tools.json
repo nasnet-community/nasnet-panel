@@ -351,6 +351,7 @@
       "startTime": "Start time",
       "nextRun": "Next run",
       "lastRun": "Last update",
+      "status": "Status",
       "every_one": "Every day",
       "every_other": "Every {{count}} days",
       "updateNow": "Update now",
@@ -369,9 +370,10 @@
         "completed": "Completed"
       },
       "result": {
-        "completed": "Last update completed",
-        "failed": "Last update failed",
-        "interrupted": "Last update was interrupted"
+        "running": "Running",
+        "completed": "Completed",
+        "failed": "Failed",
+        "interrupted": "Interrupted"
       },
       "form": {
         "custom": "Custom",
@@ -379,7 +381,8 @@
         "daysInvalid": "Enter a whole number of days from 1 to {{max}}.",
         "timeInvalid": "Enter a start time.",
         "save": "Save",
-        "saving": "Saving…"
+        "saving": "Saving…",
+        "countrySoon": "Coming soon"
       },
       "toasts": {
         "started": "Domestic IP list update started",
@@ -388,9 +391,7 @@
         "completed": "Domestic IP list updated",
         "failed": "Domestic IP list update failed",
         "scheduleSaved": "Update schedule saved",
-        "scheduleFailed": "Could not save the update schedule",
-        "countrySaved": "Country set to {{country}}. Updating the list now.",
-        "countryFailed": "Could not change the country"
+        "scheduleFailed": "Could not save the update schedule"
       }
     }
   }

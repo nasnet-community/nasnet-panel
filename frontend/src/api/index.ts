@@ -134,7 +134,6 @@ export {
   startDomesticListUpdate,
   fetchDomesticListUpdateStatus,
   fetchDomesticCountry,
-  setDomesticCountry,
   type DomesticCountryResponse,
   type DomesticListUpdateState,
   type DomesticListUpdateStatus,

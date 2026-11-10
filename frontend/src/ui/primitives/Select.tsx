@@ -16,6 +16,8 @@ export interface SelectOption {
   label: string;
   description?: string;
   disabled?: boolean;
+  /** Decorative image shown before the label, e.g. a flag. */
+  icon?: React.ReactNode;
 }
 
 interface BaseSelectProps {
@@ -262,6 +264,11 @@ export const Select: React.FC<SelectProps> = (props) => {
         onKeyDown={onTriggerKeyDown}
       >
         <span className={cx(styles.value, selectedOptions.length === 0 && styles.placeholder)}>
+          {!multiple && selectedOptions[0]?.icon ? (
+            <span className={styles.optionIcon} aria-hidden>
+              {selectedOptions[0].icon}
+            </span>
+          ) : null}
           {triggerLabel}
         </span>
         <svg className={styles.chevron} width={14} height={14} viewBox="0 0 20 20" aria-hidden>
@@ -340,6 +347,11 @@ export const Select: React.FC<SelectProps> = (props) => {
                           selectAt(idx);
                         }}
                       >
+                        {opt.icon ? (
+                          <span className={styles.optionIcon} aria-hidden>
+                            {opt.icon}
+                          </span>
+                        ) : null}
                         <span className={styles.optionText}>
                           <span>{opt.label}</span>
                           {opt.description ? (
