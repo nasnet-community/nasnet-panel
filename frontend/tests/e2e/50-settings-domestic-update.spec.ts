@@ -290,7 +290,7 @@ test.describe('Settings page domestic IP list updates', () => {
     const select = page.getByRole('combobox', { name: 'Country' });
     await expect(select).toContainText('Iran (IR)');
     await expect(select).toBeEnabled();
-    await expect(select.locator('img[src="/flags/ir.svg"]')).toHaveCount(1);
+    await expect(select.locator('img[src="/flags/fa.svg"]')).toHaveCount(1);
   });
 
   test('changing the country saves it and starts an update', async ({ page }) => {

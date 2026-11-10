@@ -33,9 +33,13 @@ export const DOMESTIC_COUNTRIES = ['IR', 'RU', 'CN', 'CU'] as const;
 /** The country routers download today, whose source is fixed in the update script. */
 export const DEFAULT_COUNTRY = 'IR';
 
+// Iran's flag is the one the language switcher already uses for Farsi.
+const SHARED_FLAGS: Record<string, string> = { IR: 'fa' };
+
 /** Path of the country's flag under `public/flags`. */
 export function countryFlag(code: string): string {
-  return `/flags/${code.toLowerCase()}.svg`;
+  const upper = code.toUpperCase();
+  return `/flags/${SHARED_FLAGS[upper] ?? upper.toLowerCase()}.svg`;
 }
 
 /** The country's name in the given UI language, falling back to its code. */
