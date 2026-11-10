@@ -43,9 +43,11 @@ async function mockFirmware(context: BrowserContext, statuses: FirmwareStatus[])
       }),
     ),
   );
+  let installedVersion = '7.14';
   await context.route('**/api/system/updates', (route) =>
     route.fulfill(
       json({
+        installedVersion,
         version: '7.14',
         buildTime: 'Jan/10/2026 15:30:00',
         channel: 'stable',
@@ -71,7 +73,12 @@ async function mockFirmware(context: BrowserContext, statuses: FirmwareStatus[])
     await route.fulfill(json(status));
   });
 
-  return { installs: () => installs };
+  return {
+    installs: () => installs,
+    setInstalledVersion: (version: string) => {
+      installedVersion = version;
+    },
+  };
 }
 
 interface MockRelease {
@@ -518,6 +525,33 @@ test.describe('Updates page', () => {
     await expect(notifications).toContainText('RouterOS updated to 7.15');
     await expect(notifications).not.toContainText('failed');
     expect(firmware.installs()).toBe(1);
+  });
+
+  test('firmware update finishes when the panel restarts with the router', async ({
+    context,
+    page,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_upd', name: 'Update Router', host: '192.168.88.1' });
+    const firmware = await mockFirmware(context, [
+      { phase: 'idle' },
+      { phase: 'downloading', message: 'Downloading 40%', toVersion: '7.15' },
+      { phase: 'rebooting', message: 'waiting for the router to come back', toVersion: '7.15' },
+      { phase: 'idle' },
+    ]);
+
+    await page.goto('/updates');
+    await page.getByRole('button', { name: /update firmware/i }).click();
+    await page.getByRole('button', { name: /^confirm$/i }).click();
+
+    await expect(page.getByText('Waiting for the router to reboot')).toBeVisible();
+    const notifications = page.getByRole('region', { name: 'Notifications' });
+    await expect(notifications).not.toContainText('RouterOS updated');
+    firmware.setInstalledVersion('7.15');
+    await expect(notifications).toContainText('RouterOS updated to 7.15');
+    await expect(notifications).not.toContainText('failed');
   });
 
   test('firmware update reports an error from the router', async ({
