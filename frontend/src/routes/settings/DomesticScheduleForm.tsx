@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, FormError, Input, Label, Select } from '@nasnet/ui';
 import type { SchedulerResponse, UpdateSchedulerRequest } from '../../api';
@@ -27,8 +28,12 @@ interface Props {
   /** Null when the backend cannot read the country; the country field is then hidden. */
   country: string | null;
   disabled?: boolean;
+  /** Where Save and Cancel render, e.g. the card header; they stay inside the form when null. */
+  actionsContainer?: HTMLElement | null;
   onSubmit: (change: DomesticSettingsChange) => Promise<void>;
 }
+
+const FORM_ID = 'domestic-settings-form';
 
 function initialValues(scheduler: SchedulerResponse | null) {
   if (!scheduler) return { choice: '7', customDays: '', time: '12:00' };
@@ -42,7 +47,13 @@ function initialValues(scheduler: SchedulerResponse | null) {
 }
 
 /** Edits the country, interval and start time in place; the parent remounts it after a save. */
-export function DomesticScheduleForm({ scheduler, country, disabled, onSubmit }: Props) {
+export function DomesticScheduleForm({
+  scheduler,
+  country,
+  disabled,
+  actionsContainer,
+  onSubmit,
+}: Props) {
   const { t } = useTranslation('tools');
   const { intlLocale } = useLanguage();
   const initial = initialValues(scheduler);
@@ -108,8 +119,34 @@ export function DomesticScheduleForm({ scheduler, country, disabled, onSubmit }:
     }
   };
 
+  const actions = (
+    <div className={actionsContainer ? styles.headerActions : styles.scheduleActions}>
+      {dirty ? (
+        <Button
+          type="button"
+          size={actionsContainer ? 'sm' : undefined}
+          variant="ghost"
+          onClick={reset}
+          disabled={busy}
+        >
+          {t('common.cancel')}
+        </Button>
+      ) : null}
+      <Button
+        type="submit"
+        form={FORM_ID}
+        size={actionsContainer ? 'sm' : undefined}
+        variant="primary"
+        disabled={locked || !dirty}
+      >
+        {busy ? t('settings.domestic.form.saving') : t('settings.domestic.form.save')}
+      </Button>
+    </div>
+  );
+
   return (
     <form
+      id={FORM_ID}
       className={styles.scheduleForm}
       data-testid="domestic-schedule-form"
       onSubmit={(e) => {
@@ -173,16 +210,7 @@ export function DomesticScheduleForm({ scheduler, country, disabled, onSubmit }:
           </Label>
         </>
       ) : null}
-      <div className={styles.scheduleActions}>
-        {dirty ? (
-          <Button type="button" variant="ghost" onClick={reset} disabled={busy}>
-            {t('common.cancel')}
-          </Button>
-        ) : null}
-        <Button type="submit" variant="primary" disabled={locked || !dirty}>
-          {busy ? t('settings.domestic.form.saving') : t('settings.domestic.form.save')}
-        </Button>
-      </div>
+      {actionsContainer ? createPortal(actions, actionsContainer) : actions}
     </form>
   );
 }

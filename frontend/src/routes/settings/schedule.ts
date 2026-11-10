@@ -28,7 +28,7 @@ export function toTimeInput(startTime: string): string {
 }
 
 /** Countries whose IP ranges the update can download, as ISO 3166-1 alpha-2 codes. */
-export const DOMESTIC_COUNTRIES = ['IR', 'RU', 'CN', 'CO'] as const;
+export const DOMESTIC_COUNTRIES = ['IR', 'RU', 'CN', 'CU'] as const;
 
 /** The country's name in the given UI language, falling back to its code. */
 export function countryName(code: string, language: string): string {

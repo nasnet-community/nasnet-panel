@@ -143,7 +143,9 @@ test.describe('Settings page domestic IP list updates', () => {
     const form = page.getByTestId('domestic-schedule-form');
     await expect(form.getByRole('combobox', { name: 'Runs' })).toContainText('Every 7 days');
     await expect(form.getByLabel('Start time')).toHaveValue('12:00');
-    await expect(form.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await expect(
+      page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }),
+    ).toBeDisabled();
     await expect(page.getByTestId('domestic-list-update')).toContainText('2026-11-15 12:00:00');
   });
 
@@ -155,23 +157,27 @@ test.describe('Settings page domestic IP list updates', () => {
     await form.getByRole('combobox', { name: 'Runs' }).click();
     await page.getByRole('option', { name: 'Every day' }).click();
     await form.getByLabel('Start time').fill('03:30');
-    await form.getByRole('button', { name: 'Save' }).click();
+    await page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Update schedule saved')).toBeVisible();
     await expect(form.getByRole('combobox', { name: 'Runs' })).toContainText('Every day');
     await expect(form.getByLabel('Start time')).toHaveValue('03:30');
-    await expect(form.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await expect(
+      page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }),
+    ).toBeDisabled();
 
     await form.getByRole('combobox', { name: 'Runs' }).click();
     await page.getByRole('option', { name: 'Custom' }).click();
     const days = form.getByLabel('Every how many days');
     await days.fill('0');
-    await form.getByRole('button', { name: 'Save' }).click();
+    await page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }).click();
     await expect(form).toContainText('Enter a whole number of days from 1 to 365.');
     await days.fill('10');
-    await form.getByRole('button', { name: 'Save' }).click();
+    await page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }).click();
     await expect(form.getByLabel('Every how many days')).toHaveValue('10');
-    await expect(form.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await expect(
+      page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }),
+    ).toBeDisabled();
 
     expect(calls).toEqual([
       {
@@ -193,7 +199,7 @@ test.describe('Settings page domestic IP list updates', () => {
 
     const form = page.getByTestId('domestic-schedule-form');
     await form.getByLabel('Start time').fill('05:00');
-    await form.getByRole('button', { name: 'Cancel' }).click();
+    await page.getByTestId('domestic-list-update').getByRole('button', { name: 'Cancel' }).click();
     await expect(form.getByLabel('Start time')).toHaveValue('12:00');
     expect(calls).toEqual([]);
   });
@@ -292,12 +298,20 @@ test.describe('Settings page domestic IP list updates', () => {
     const select = form.getByRole('combobox', { name: 'Country' });
     await expect(select).toContainText('Iran (IR)');
     await select.click();
+    await expect(page.getByRole('option')).toHaveText([
+      'Iran (IR)',
+      'Russia (RU)',
+      'China (CN)',
+      'Cuba (CU)',
+    ]);
     await page.getByRole('option', { name: 'Russia (RU)' }).click();
-    await form.getByRole('button', { name: 'Save' }).click();
+    await page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Country set to Russia. Updating the list now.')).toBeVisible();
     await expect(select).toContainText('Russia (RU)');
-    await expect(form.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await expect(
+      page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }),
+    ).toBeDisabled();
     expect(calls).toEqual([
       {
         method: 'PUT',

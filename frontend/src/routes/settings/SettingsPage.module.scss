@@ -28,6 +28,10 @@
   }
 }
 
+.headerSlot {
+  display: contents;
+}
+
 .errorBanner {
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);

@@ -57,6 +57,8 @@ export function DomesticListUpdateCard({ creds }: Props) {
   const toast = useToast();
   // Null until loaded, and stays null on backends that cannot read the country.
   const [country, setCountry] = useState<string | null>(null);
+  // The header slot that the form renders its Save and Cancel buttons into.
+  const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
   const [scheduler, setScheduler] = useState<SchedulerResponse | null>(null);
   const [schedulerMissing, setSchedulerMissing] = useState(false);
   const [schedulerError, setSchedulerError] = useState<string | null>(null);
@@ -281,6 +283,7 @@ export function DomesticListUpdateCard({ creds }: Props) {
           <CardDescription>{t('settings.domestic.description')}</CardDescription>
         </div>
         <div className={styles.headerActions}>
+          <div ref={setHeaderSlot} className={styles.headerSlot} />
           <Button
             size="sm"
             variant="primary"
@@ -309,6 +312,7 @@ export function DomesticListUpdateCard({ creds }: Props) {
             scheduler={scheduler}
             country={country}
             disabled={!creds}
+            actionsContainer={headerSlot}
             onSubmit={saveSettings}
           />
         ) : null}
