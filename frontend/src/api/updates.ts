@@ -2,6 +2,7 @@ import { apiRequest } from './http';
 import type { SystemCredentials } from './system';
 
 export interface UpdateInfoResponse {
+  installedVersion?: string;
   version: string;
   buildTime: string;
   channel: string;

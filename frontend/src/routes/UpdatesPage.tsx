@@ -813,7 +813,7 @@ function FirmwareUpdateCard() {
     setInstalling(false);
   };
 
-  const watchUpdate = (startedAt: number) => {
+  const watchUpdate = (startedAt: number, toVersion?: string) => {
     if (!watchingRef.current || !creds || !host) return;
     if (Date.now() - startedAt > FIRMWARE_UPDATE_TIMEOUT_MS) {
       stopWatching();
@@ -825,9 +825,19 @@ function FirmwareUpdateCard() {
       });
       return;
     }
+    const finish = (version: string) => {
+      stopWatching();
+      setProgress({ value: 100, step: 'done' });
+      setComplete(true);
+      toast.notify({
+        title: t('updates.firmware.updated', { version }),
+        tone: 'success',
+      });
+      void reload();
+    };
     void fetchSystemUpdateStatus({ host, ...creds })
       .catch(() => null)
-      .then((status) => {
+      .then(async (status) => {
         if (!watchingRef.current) return;
         if (status?.phase === 'error') {
           stopWatching();
@@ -840,19 +850,23 @@ function FirmwareUpdateCard() {
           return;
         }
         if (status?.phase === 'done') {
-          stopWatching();
-          setProgress({ value: 100, step: 'done' });
-          setComplete(true);
-          toast.notify({
-            title: t('updates.firmware.updated', { version: status.toVersion ?? '' }),
-            tone: 'success',
-          });
-          void reload();
+          finish(status.toVersion ?? toVersion ?? '');
           return;
+        }
+        // The panel restarts with the router and forgets the update, so ask the router directly.
+        if (toVersion && status?.phase !== 'downloading') {
+          const installed = await fetchUpdateInfo({ host, ...creds })
+            .then((r) => r.installedVersion)
+            .catch(() => null);
+          if (!watchingRef.current) return;
+          if (installed === toVersion) {
+            finish(toVersion);
+            return;
+          }
         }
         const next = status ? firmwareProgress(status) : null;
         if (next) setProgress(next);
-        window.setTimeout(() => watchUpdate(startedAt), FIRMWARE_POLL_MS);
+        window.setTimeout(() => watchUpdate(startedAt, toVersion), FIRMWARE_POLL_MS);
       });
   };
 
@@ -868,7 +882,7 @@ function FirmwareUpdateCard() {
         setInstalling(true);
         setProgress(firmwareProgress(status));
         watchingRef.current = true;
-        watchUpdate(Number.isNaN(startedAt) ? Date.now() : startedAt);
+        watchUpdate(Number.isNaN(startedAt) ? Date.now() : startedAt, status.toVersion);
       })
       .catch(() => {});
     return () => {
@@ -894,7 +908,7 @@ function FirmwareUpdateCard() {
         return;
       }
       watchingRef.current = true;
-      watchUpdate(Date.now());
+      watchUpdate(Date.now(), result.toVersion);
     } catch (err) {
       setInstalling(false);
       setProgress(null);
