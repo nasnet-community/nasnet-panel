@@ -20,15 +20,16 @@ import {
   fetchDomesticListUpdateStatus,
   fetchScheduler,
   isAbortError,
+  setDomesticCountry,
   startDomesticListUpdate,
   updateScheduler,
   type DomesticListUpdateStatus,
   type SchedulerResponse,
   type SystemCredentials,
-  type UpdateSchedulerRequest,
 } from '../../api';
-import { DomesticScheduleForm } from './DomesticScheduleForm';
-import { DOMESTIC_UPDATE_SCHEDULER } from './schedule';
+import { useLanguage } from '../../state/LanguageContext';
+import { DomesticScheduleForm, type DomesticSettingsChange } from './DomesticScheduleForm';
+import { DOMESTIC_UPDATE_SCHEDULER, countryName } from './schedule';
 
 const POLL_MS = 2000;
 // How long to keep polling after a start for the script to report that it is running.
@@ -61,6 +62,7 @@ interface Props {
 
 export function DomesticListUpdateCard({ creds }: Props) {
   const { t } = useTranslation('tools');
+  const { intlLocale } = useLanguage();
   const toast = useToast();
   // Null until loaded, and stays null on backends that cannot report the country.
   const [country, setCountry] = useState<string | null>(null);
@@ -217,20 +219,44 @@ export function DomesticListUpdateCard({ creds }: Props) {
     setPollKey((k) => k + 1);
   };
 
-  const saveSchedule = async (request: UpdateSchedulerRequest) => {
+  const saveSettings = async (change: DomesticSettingsChange) => {
     if (!creds) return;
-    try {
-      await updateScheduler(creds, DOMESTIC_UPDATE_SCHEDULER, request);
-    } catch (err) {
-      toast.notify({
-        title: t('settings.domestic.toasts.scheduleFailed'),
-        description: err instanceof Error ? err.message : undefined,
-        tone: 'danger',
-      });
-      throw err;
+    if (change.schedule) {
+      try {
+        await updateScheduler(creds, DOMESTIC_UPDATE_SCHEDULER, change.schedule);
+      } catch (err) {
+        toast.notify({
+          title: t('settings.domestic.toasts.scheduleFailed'),
+          description: err instanceof Error ? err.message : undefined,
+          tone: 'danger',
+        });
+        throw err;
+      }
+      toast.notify({ title: t('settings.domestic.toasts.scheduleSaved'), tone: 'success' });
+      await loadScheduler();
     }
-    toast.notify({ title: t('settings.domestic.toasts.scheduleSaved'), tone: 'success' });
-    await loadScheduler();
+    if (change.country) {
+      let saved: string;
+      try {
+        saved = (await setDomesticCountry(creds, change.country)).country.toUpperCase();
+      } catch (err) {
+        toast.notify({
+          title: t('settings.domestic.toasts.countryFailed'),
+          description: err instanceof Error ? err.message : undefined,
+          tone: 'danger',
+        });
+        throw err;
+      }
+      setCountry(saved);
+      toast.notify({
+        title: t('settings.domestic.toasts.countrySaved', {
+          country: countryName(saved, intlLocale),
+        }),
+        tone: 'success',
+      });
+      // The list still holds the previous country's ranges until the next run.
+      if (!statusRef.current?.running) await startUpdate();
+    }
   };
 
   const running = !!status?.running;
@@ -296,12 +322,12 @@ export function DomesticListUpdateCard({ creds }: Props) {
         ) : null}
 
         <DomesticScheduleForm
-          key={`${scheduler?.interval}|${scheduler?.startTime}`}
+          key={`${scheduler?.interval}|${scheduler?.startTime}|${country}`}
           scheduler={scheduler}
           country={country}
           disabled={!creds}
           actionsContainer={headerSlot}
-          onSubmit={saveSchedule}
+          onSubmit={saveSettings}
         />
 
         <Divider />

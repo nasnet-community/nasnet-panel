@@ -18,6 +18,12 @@ import styles from './SettingsPage.module.scss';
 
 const CUSTOM = 'custom';
 
+/** Only the parts the user changed. */
+export interface DomesticSettingsChange {
+  schedule?: UpdateSchedulerRequest;
+  country?: string;
+}
+
 interface Props {
   /** Null when the router has no update scheduler; the schedule fields are then hidden. */
   scheduler: SchedulerResponse | null;
@@ -26,7 +32,7 @@ interface Props {
   disabled?: boolean;
   /** Where Save and Cancel render, e.g. the card header; they stay inside the form when null. */
   actionsContainer?: HTMLElement | null;
-  onSubmit: (request: UpdateSchedulerRequest) => Promise<void>;
+  onSubmit: (change: DomesticSettingsChange) => Promise<void>;
 }
 
 const FORM_ID = 'domestic-settings-form';
@@ -42,7 +48,7 @@ function initialValues(scheduler: SchedulerResponse | null) {
   };
 }
 
-/** Shows the country and edits the interval and start time in place; the parent remounts it after a save. */
+/** Edits the country, interval and start time in place; the parent remounts it after a save. */
 export function DomesticScheduleForm({
   scheduler,
   country,
@@ -58,6 +64,8 @@ export function DomesticScheduleForm({
   const [time, setTime] = useState(initial.time);
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
+  const savedCountry = country ?? DEFAULT_COUNTRY;
+  const [countryValue, setCountryValue] = useState(savedCountry);
 
   const days = choice === CUSTOM ? Number(customDays) : Number(choice);
   const daysError =
@@ -67,13 +75,15 @@ export function DomesticScheduleForm({
         ? t('settings.domestic.form.daysInvalid', { max: MAX_INTERVAL_DAYS })
         : null;
   const timeError = /^\d{2}:\d{2}$/.test(time) ? null : t('settings.domestic.form.timeInvalid');
-  const dirty =
+  const scheduleDirty =
     !!scheduler &&
     (choice !== initial.choice || customDays !== initial.customDays || time !== initial.time);
+  const countryDirty = countryValue !== savedCountry;
+  const dirty = scheduleDirty || countryDirty;
 
   // Keep a code the router already uses even when it is not in the list.
   const countryCodes: string[] = [...DOMESTIC_COUNTRIES];
-  if (country && !countryCodes.includes(country)) countryCodes.push(country);
+  if (!countryCodes.includes(savedCountry)) countryCodes.push(savedCountry);
   const countryOptions = countryCodes.map((code) => ({
     value: code,
     label: `${countryName(code, intlLocale)} (${code})`,
@@ -90,6 +100,7 @@ export function DomesticScheduleForm({
   ];
 
   const reset = () => {
+    setCountryValue(savedCountry);
     setChoice(initial.choice);
     setCustomDays(initial.customDays);
     setTime(initial.time);
@@ -98,10 +109,13 @@ export function DomesticScheduleForm({
 
   const submit = async () => {
     setTouched(true);
-    if (daysError || timeError) return;
+    if (scheduleDirty && (daysError || timeError)) return;
     setBusy(true);
     try {
-      await onSubmit({ interval: `${days}d`, startTime: `${time}:00` });
+      await onSubmit({
+        ...(scheduleDirty ? { schedule: { interval: `${days}d`, startTime: `${time}:00` } } : {}),
+        ...(countryDirty ? { country: countryValue } : {}),
+      });
     } catch {
       // The caller shows the error toast and keeps the edits.
     } finally {
@@ -148,12 +162,11 @@ export function DomesticScheduleForm({
         <span>{t('settings.domestic.country')}</span>
         <Select
           aria-label={t('settings.domestic.country')}
-          value={country ?? DEFAULT_COUNTRY}
-          onChange={() => undefined}
+          value={countryValue}
+          onChange={setCountryValue}
           options={countryOptions}
-          disabled
+          disabled={locked}
         />
-        <span className={styles.fieldHint}>{t('settings.domestic.form.countrySoon')}</span>
       </Label>
       {scheduler ? (
         <>

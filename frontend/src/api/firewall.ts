@@ -209,3 +209,14 @@ export async function fetchDomesticCountry(
     signal,
   });
 }
+
+export async function setDomesticCountry(
+  creds: FirewallCredentials,
+  country: string,
+): Promise<DomesticCountryResponse> {
+  return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
+    method: 'PUT',
+    headers: authHeaders(creds),
+    body: JSON.stringify({ country }),
+  });
+}

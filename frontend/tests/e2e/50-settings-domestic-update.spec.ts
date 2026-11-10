@@ -283,25 +283,59 @@ test.describe('Settings page domestic IP list updates', () => {
     await expect(card.getByLabel('Start time')).toHaveCount(0);
   });
 
-  test('shows Iran, disabled, on backends that cannot report the country', async ({ page }) => {
+  test('shows Iran with its flag on backends that cannot report the country', async ({ page }) => {
     await mockSettings(page);
     await page.goto(`/router/${ROUTER_ID}/settings`);
 
     const select = page.getByRole('combobox', { name: 'Country' });
     await expect(select).toContainText('Iran (IR)');
-    await expect(select).toBeDisabled();
+    await expect(select).toBeEnabled();
     await expect(select.locator('img[src="/flags/ir.svg"]')).toHaveCount(1);
-    await expect(page.getByTestId('domestic-schedule-form')).toContainText('Coming soon');
   });
 
-  test("shows the router's country, disabled", async ({ page }) => {
-    const { calls } = await mockSettings(page, { country: 'CU' });
+  test('changing the country saves it and starts an update', async ({ page }) => {
+    const { calls } = await mockSettings(page, { country: 'IR' });
     await page.goto(`/router/${ROUTER_ID}/settings`);
 
-    const select = page.getByRole('combobox', { name: 'Country' });
+    const card = page.getByTestId('domestic-list-update');
+    const select = card.getByRole('combobox', { name: 'Country' });
+    await expect(select).toContainText('Iran (IR)');
+    await select.click();
+    await expect(page.getByRole('option')).toHaveText([
+      'Iran (IR)',
+      'Russia (RU)',
+      'China (CN)',
+      'Cuba (CU)',
+    ]);
+    await page.getByRole('option', { name: 'Cuba (CU)' }).click();
+    await card.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByText('Country set to Cuba. Updating the list now.')).toBeVisible();
     await expect(select).toContainText('Cuba (CU)');
     await expect(select.locator('img[src="/flags/cu.svg"]')).toHaveCount(1);
-    await expect(select).toBeDisabled();
-    expect(calls).toEqual([]);
+    await expect(card.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(calls).toEqual([
+      {
+        method: 'PUT',
+        path: '/api/firewall/addresslist/domestic/country',
+        body: { country: 'CU' },
+      },
+      { method: 'POST', path: '/api/firewall/addresslist/domestic/update', body: null },
+    ]);
+  });
+
+  test('keeps the choice when the backend cannot change the country', async ({ page }) => {
+    await mockSettings(page);
+    await page.goto(`/router/${ROUTER_ID}/settings`);
+
+    const card = page.getByTestId('domestic-list-update');
+    const select = card.getByRole('combobox', { name: 'Country' });
+    await select.click();
+    await page.getByRole('option', { name: 'Russia (RU)' }).click();
+    await card.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByText('Could not change the country')).toBeVisible();
+    await expect(select).toContainText('Russia (RU)');
+    await expect(card.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 });

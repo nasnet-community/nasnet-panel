@@ -381,8 +381,7 @@
         "daysInvalid": "Enter a whole number of days from 1 to {{max}}.",
         "timeInvalid": "Enter a start time.",
         "save": "Save",
-        "saving": "Saving…",
-        "countrySoon": "Coming soon"
+        "saving": "Saving…"
       },
       "toasts": {
         "started": "Domestic IP list update started",
@@ -391,7 +390,9 @@
         "completed": "Domestic IP list updated",
         "failed": "Domestic IP list update failed",
         "scheduleSaved": "Update schedule saved",
-        "scheduleFailed": "Could not save the update schedule"
+        "scheduleFailed": "Could not save the update schedule",
+        "countrySaved": "Country set to {{country}}. Updating the list now.",
+        "countryFailed": "Could not change the country"
       }
     }
   }
