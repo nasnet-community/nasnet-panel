@@ -124,6 +124,17 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 			return reply, nil
 		}
 
+		// Protocol error: log, reconnect and return without retry
+		if isProtocolError(err) {
+			log.Printf("[RouterOS] %v Protocol error: %v", sentence, err)
+			c.mu.Unlock()
+			if rerr := c.clearCacheAndReconnect(); rerr != nil {
+				log.Printf("[RouterOS] Reconnect failed: %v", rerr)
+			}
+			c.mu.Lock()
+			return nil, err
+		}
+
 		// Command/response error: log and return immediately without retry
 		if !isNetworkError(err) {
 			log.Printf("[RouterOS] %v Command error: %v", sentence, err)
@@ -353,6 +364,29 @@ func isNetworkError(err error) bool {
 	// Check for io.EOF
 	if errors.Is(err, io.EOF) {
 		return true
+	}
+
+	return false
+}
+
+// isProtocolError checks if the error is a malformed reply that leaves the connection out of sync.
+func isProtocolError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errMsg := err.Error()
+
+	protocolKeywords := []string{
+		"invalid RouterOS sentence word",
+		"unknown RouterOS reply word",
+	}
+
+	errLower := strings.ToLower(errMsg)
+	for _, keyword := range protocolKeywords {
+		if strings.Contains(errLower, strings.ToLower(keyword)) {
+			return true
+		}
 	}
 
 	return false

@@ -146,7 +146,7 @@ func (c *Client) GetSystemIdentity() (*Identity, error) {
 }
 
 func (c *Client) SetSystemIdentity(name string) error {
-	_, err := c.conn.Run("/system/identity/set", "=name="+name)
+	_, err := c.Execute("/system/identity/set", "=name="+name)
 	if err != nil {
 		return fmt.Errorf("failed to set system identity: %w", err)
 	}
@@ -676,8 +676,8 @@ func (c *Client) InstallUpdate() (*UpdateInstallResult, error) {
 	}
 
 	// Proceed with installation
-	_, err = c.conn.Run("/system/package/update/install")
-	if err != nil {
+	_, err = c.ExecuteOnce("/system/package/update/install")
+	if err != nil && !isNetworkError(err) {
 		return &UpdateInstallResult{
 			Success:          false,
 			Message:          fmt.Sprintf("Failed to install update: %v", err),
