@@ -233,7 +233,6 @@ export function DomesticListUpdateCard({ creds }: Props) {
         throw err;
       }
       toast.notify({ title: t('settings.domestic.toasts.scheduleSaved'), tone: 'success' });
-      await loadScheduler();
     }
     if (change.country) {
       let saved: string;
@@ -257,6 +256,8 @@ export function DomesticListUpdateCard({ creds }: Props) {
       // The list still holds the previous country's ranges until the next run.
       if (!statusRef.current?.running) await startUpdate();
     }
+    // Reload last: it remounts the form, so a country that failed to save above would be lost.
+    if (change.schedule) await loadScheduler();
   };
 
   const running = !!status?.running;
@@ -316,6 +317,7 @@ export function DomesticListUpdateCard({ creds }: Props) {
       </CardHeader>
 
       <div className={styles.body}>
+        {!creds ? <div className={styles.errorBanner}>{t('common.missingCredentials')}</div> : null}
         {schedulerError ? <div className={styles.errorBanner}>{schedulerError}</div> : null}
         {schedulerMissing ? (
           <p className={styles.hint}>{t('settings.domestic.schedulerMissing')}</p>

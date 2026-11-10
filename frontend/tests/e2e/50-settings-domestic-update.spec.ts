@@ -338,4 +338,28 @@ test.describe('Settings page domestic IP list updates', () => {
     await expect(select).toContainText('Russia (RU)');
     await expect(card.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
+
+  test('keeps both edits when the schedule saves but the country does not', async ({ page }) => {
+    const { calls } = await mockSettings(page);
+    await page.goto(`/router/${ROUTER_ID}/settings`);
+
+    const card = page.getByTestId('domestic-list-update');
+    const country = card.getByRole('combobox', { name: 'Country' });
+    await country.click();
+    await page.getByRole('option', { name: 'Russia (RU)' }).click();
+    await card.getByLabel('Start time').fill('05:15');
+    await card.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByText('Could not change the country')).toBeVisible();
+    await expect(country).toContainText('Russia (RU)');
+    await expect(card.getByLabel('Start time')).toHaveValue('05:15');
+    await expect(card.getByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(calls).toEqual([
+      {
+        method: 'PUT',
+        path: '/api/system/scheduler/DomesticIPUpdate',
+        body: { interval: '7d', startTime: '05:15:00' },
+      },
+    ]);
+  });
 });
