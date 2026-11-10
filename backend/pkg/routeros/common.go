@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-routeros/routeros/v3/proto"
+	ros "nasnet-panel/pkg/rosapi"
 )
 
 // nameOrIDFilterArg builds a GetFirst filter for either a RouterOS internal
@@ -21,7 +21,7 @@ func nameOrIDFilterArg(nameOrID string) string {
 // as .about (e.g. a progress message followed by the actual error); a plain
 // map collapses those down to just the last one, so callers that need all of
 // them must read the sentence's raw ordered pair list instead.
-func joinPairValues(pairs []proto.Pair, key string) string {
+func joinPairValues(pairs []ros.Pair, key string) string {
 	var values []string
 	for _, p := range pairs {
 		if p.Key == key && p.Value != "" {

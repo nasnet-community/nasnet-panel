@@ -3,7 +3,7 @@ package routeros
 import (
 	"fmt"
 
-	"github.com/go-routeros/routeros/v3/proto"
+	ros "nasnet-panel/pkg/rosapi"
 )
 
 // ContainerConfig represents the configuration used to add a new container.
@@ -114,7 +114,7 @@ type ContainerInfo struct {
 	Comment string
 }
 
-func parseContainerInfo(result map[string]string, pairs []proto.Pair) ContainerInfo {
+func parseContainerInfo(result map[string]string, pairs []ros.Pair) ContainerInfo {
 	return ContainerInfo{
 		ID:                              result[".id"],
 		Name:                            result["name"],
