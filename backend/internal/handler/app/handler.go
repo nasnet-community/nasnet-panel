@@ -255,8 +255,8 @@ func HandleAppInstallUpdate(c echo.Context) error {
 // @Description Looks the version up among the GitHub releases and reads its minimum RouterOS version
 // @Description from the metadata embedded in the release body, 7.24 when the release has none. When the
 // @Description router runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal
-// @Description to the running one answers 200 with updateAvailable false, a lower one answers 400. Otherwise
-// @Description pulls the release into a fresh nasnet-panel-update container and promotes it in the
+// @Description to the running one answers 200 with updateAvailable false; a lower one is installed as a
+// @Description downgrade like any other version. Otherwise pulls the release into a fresh nasnet-panel-update container and promotes it in the
 // @Description background; poll /api/app/update/status for progress. When the release's autoReconfigable is true,
 // @Description the router is reconfigured from its stored configuration after the new version is running, and
 // @Description the progress is reported by the same status endpoint.
@@ -302,16 +302,12 @@ func HandleAppUpdate(c echo.Context) error {
 	}()
 
 	if current, ok := common.ParseReleaseVersion(buildinfo.Version); ok {
-		switch compareForInstall(target, current) {
-		case 0:
+		if compareForInstall(target, current) == 0 {
 			return common.SuccessResponse(c, http.StatusOK, "Already up to date", common.InstallUpdateResponse{
 				UpdateAvailable: false,
 				FromVersion:     buildinfo.Version,
 				ToVersion:       req.Version,
 			})
-		case -1:
-			return common.ErrorResponse(c, http.StatusBadRequest, "Target version is lower than the running version; only newer versions can be installed",
-				fmt.Errorf("running %s, requested %s", buildinfo.Version, req.Version))
 		}
 	}
 
