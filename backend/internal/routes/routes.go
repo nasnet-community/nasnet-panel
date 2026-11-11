@@ -29,8 +29,6 @@ func RegisterRoutes(e *echo.Echo) {
 
 	appGroup := e.Group("/api/app")
 	appGroup.Use(middleware.RouterOSAuth)
-	appGroup.GET("/check-for-updates", app.HandleAppCheckForUpdates)
-	appGroup.POST("/install-update", app.HandleAppInstallUpdate)
 	appGroup.GET("/settings", app.HandleListSettings)
 	appGroup.POST("/settings", app.HandleCreateSetting)
 	appGroup.GET("/settings/:key", app.HandleGetSetting)
@@ -40,7 +38,6 @@ func RegisterRoutes(e *echo.Echo) {
 	appGroup.GET("/update/channel", app.HandleAppUpdateChannel)
 	appGroup.GET("/update/status", app.HandleAppUpdateProgress)
 	appGroup.GET("/update/:tag", app.HandleAppUpdateRelease)
-	appGroup.GET("/update-status", app.HandleAppUpdateStatus)
 	appGroup.GET("/updates", app.HandleAppUpdates)
 	appGroup.GET("/version", app.HandleAppVersion)
 

@@ -24,7 +24,6 @@ var (
 )
 
 const (
-	githubLatestReleaseURL      = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases/latest"
 	githubReleasesURL           = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases?per_page=100"
 	githubReleaseByTagURL       = "https://api.github.com/repos/nasnet-community/nasnet-panel/releases/tags/"
 	githubAPIPrefix             = "https://api.github.com/"
