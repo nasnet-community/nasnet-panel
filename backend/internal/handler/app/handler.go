@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/db"
@@ -451,4 +452,43 @@ func HandleDeleteSetting(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+// HandleAppNewsletter godoc
+// @Summary Subscribe to the Nasnet newsletter
+// @Description Forwards the subscription to the joinnasnet.com newsletter service with the same fields and returns its reply.
+// @Description The website field is a honeypot and must be left empty.
+// @Tags App
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body NewsletterRequest true "Newsletter subscription"
+// @Accept json
+// @Produce json
+// @Success 200 {object} common.Response{data=NewsletterResponse}
+// @Failure 400 {object} common.Response
+// @Failure 502 {object} common.Response
+// @Router /api/app/newsletter [post].
+func HandleAppNewsletter(c echo.Context) error {
+	var req NewsletterRequest
+	if err := c.Bind(&req); err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+	if strings.TrimSpace(req.Email) == "" {
+		return common.ErrorResponse(c, http.StatusBadRequest, "email is required", nil)
+	}
+
+	status, reply, err := subscribeNewsletter(c.Request().Context(), req)
+	switch {
+	case err != nil && status == 0:
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to reach the newsletter service", err)
+	case status == http.StatusBadRequest:
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid email or locale", errors.New(reply.Error))
+	case err != nil:
+		return common.ErrorResponse(c, http.StatusBadGateway, "Newsletter service returned an unreadable response", err)
+	case status != http.StatusOK || !reply.Ok:
+		return common.ErrorResponse(c, http.StatusBadGateway, "Newsletter service failed",
+			fmt.Errorf("HTTP %d: %s", status, reply.Error))
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "Subscribed to the newsletter", reply)
 }
