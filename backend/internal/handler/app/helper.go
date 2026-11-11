@@ -1,10 +1,12 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -50,6 +52,36 @@ func releaseIsLowerThanRunning(tag string) bool {
 		return false
 	}
 	return common.CompareReleaseVersions(version, current) < 0
+}
+
+func subscribeNewsletter(ctx context.Context, req NewsletterRequest) (int, NewsletterResponse, error) {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return 0, NewsletterResponse{}, err
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, newsletterRequestTimeout)
+	defer cancel()
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, newsletterSubscribeURL, bytes.NewReader(body))
+	if err != nil {
+		return 0, NewsletterResponse{}, err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
+	httpReq.Header.Set("User-Agent", "nasnet-panel/"+buildinfo.Version)
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return 0, NewsletterResponse{}, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	var out NewsletterResponse
+	if err := json.NewDecoder(io.LimitReader(resp.Body, newsletterMaxResponseBytes)).Decode(&out); err != nil {
+		return resp.StatusCode, NewsletterResponse{}, fmt.Errorf("unreadable newsletter service response (HTTP %d): %w", resp.StatusCode, err)
+	}
+	return resp.StatusCode, out, nil
 }
 
 func parseRouterOSVersion(v string) (routerOSVersion, bool) {

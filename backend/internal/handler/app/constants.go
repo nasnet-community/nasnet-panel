@@ -41,6 +41,12 @@ const (
 )
 
 const (
+	newsletterSubscribeURL     = "https://www.joinnasnet.com/api/newsletter/panel-subscribe"
+	newsletterRequestTimeout   = 15 * time.Second
+	newsletterMaxResponseBytes = 64 * 1024
+)
+
+const (
 	maxSettingKeyLength         = 128
 	maxSettingValueLength       = 64 * 1024
 	defaultMinRouterOSVersion   = "7.24"

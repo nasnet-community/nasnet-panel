@@ -30,6 +30,7 @@ func RegisterRoutes(e *echo.Echo) {
 	appGroup := e.Group("/api/app")
 	appGroup.Use(middleware.RouterOSAuth)
 	appGroup.GET("/settings", app.HandleListSettings)
+	appGroup.POST("/newsletter", app.HandleAppNewsletter)
 	appGroup.POST("/settings", app.HandleCreateSetting)
 	appGroup.GET("/settings/:key", app.HandleGetSetting)
 	appGroup.PUT("/settings/:key", app.HandleUpdateSetting)

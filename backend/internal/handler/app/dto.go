@@ -7,6 +7,19 @@ import (
 	"nasnet-panel/internal/handler/config"
 )
 
+// NewsletterRequest is the request body for POST /api/app/newsletter.
+type NewsletterRequest struct {
+	Email   string `json:"email" example:"user@example.com"`
+	Locale  string `json:"locale" example:"en"`
+	Website string `json:"website" example:""`
+}
+
+// NewsletterResponse is the reply of the newsletter service, returned as the data of POST /api/app/newsletter.
+type NewsletterResponse struct {
+	Ok    bool   `json:"ok"`
+	Error string `json:"error,omitempty"`
+}
+
 type githubReleaseEntry struct {
 	TagName     string `json:"tag_name"`
 	HTMLURL     string `json:"html_url"`
