@@ -29,6 +29,10 @@ interface MockOptions {
   startConflict?: boolean;
   /** Country the backend reports; undefined serves 404 like a backend without the setting. */
   country?: string;
+  /** Start time the scheduler reports, e.g. `startup`. */
+  startTime?: string;
+  /** Every status request fails with a 500. */
+  statusFails?: boolean;
 }
 
 const idle: Status = { status: 'idle', running: false, failed: false, progress: 0 };
@@ -40,7 +44,7 @@ async function mockSettings(page: Page, options: MockOptions = {}) {
     name: 'DomesticIPUpdate',
     enabled: true,
     startDate: '2026-11-01',
-    startTime: '12:00:00',
+    startTime: options.startTime ?? '12:00:00',
     interval: '7d 00:00:00',
     runCount: 1,
     nextRun: '2026-11-15 12:00:00',
@@ -60,10 +64,10 @@ async function mockSettings(page: Page, options: MockOptions = {}) {
       });
     }
     if (request.method() === 'PUT') {
-      const body = request.postDataJSON() as { startTime: string; interval: string };
+      const body = request.postDataJSON() as { startTime?: string; interval?: string };
       calls.push({ method: 'PUT', path: new URL(request.url()).pathname, body });
-      scheduler.startTime = body.startTime;
-      scheduler.interval = `${parseInt(body.interval, 10)}d 00:00:00`;
+      if (body.startTime) scheduler.startTime = body.startTime;
+      if (body.interval) scheduler.interval = `${parseInt(body.interval, 10)}d 00:00:00`;
       return json(route, null);
     }
     return json(route, scheduler);
@@ -88,6 +92,13 @@ async function mockSettings(page: Page, options: MockOptions = {}) {
   });
 
   await page.route('**/api/firewall/addresslist/domestic/update/status', async (route) => {
+    if (options.statusFails) {
+      return route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: 500, message: 'Router unreachable' }),
+      });
+    }
     const next = statuses.length > 1 ? statuses.shift()! : statuses[0];
     return json(route, next);
   });
@@ -188,8 +199,26 @@ test.describe('Settings page domestic IP list updates', () => {
       {
         method: 'PUT',
         path: '/api/system/scheduler/DomesticIPUpdate',
-        body: { interval: '10d', startTime: '03:30:00' },
+        body: { interval: '10d' },
       },
+    ]);
+  });
+
+  test('keeps a start time the form cannot show when only the interval changes', async ({
+    page,
+  }) => {
+    const { calls } = await mockSettings(page, { startTime: 'startup' });
+    await page.goto(`/router/${ROUTER_ID}/settings`);
+
+    const form = page.getByTestId('domestic-schedule-form');
+    await expect(form.getByLabel('Start time')).toHaveValue('');
+    await form.getByRole('combobox', { name: 'Runs' }).click();
+    await page.getByRole('option', { name: 'Every 3 days' }).click();
+    await page.getByTestId('domestic-list-update').getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByText('Update schedule saved')).toBeVisible();
+    expect(calls).toEqual([
+      { method: 'PUT', path: '/api/system/scheduler/DomesticIPUpdate', body: { interval: '3d' } },
     ]);
   });
 
@@ -206,10 +235,15 @@ test.describe('Settings page domestic IP list updates', () => {
 
   test('starts an update and follows its progress to the end', async ({ page }) => {
     const { calls, setStatuses } = await mockSettings(page);
+    const initialStatus = page.waitForResponse(
+      '**/api/firewall/addresslist/domestic/update/status',
+    );
     await page.goto(`/router/${ROUTER_ID}/settings`);
 
     const card = page.getByTestId('domestic-list-update');
     await expect(card).toContainText('2026-11-15 12:00:00');
+    // The page's first status read must not take a response meant for the run below.
+    await initialStatus;
     setStatuses([
       {
         status: 'running',
@@ -263,6 +297,17 @@ test.describe('Settings page domestic IP list updates', () => {
     const card = page.getByTestId('domestic-list-update');
     await expect(card.getByText('Failed', { exact: true })).toBeVisible();
     await expect(card).toContainText('Fetch failed after 4 attempts');
+  });
+
+  test('shows an error when the update status stays unavailable', async ({ page }) => {
+    await mockSettings(page, { statusFails: true });
+    await page.goto(`/router/${ROUTER_ID}/settings`);
+
+    // The first read is retried a few times, two seconds apart, before the error shows.
+    await expect(page.getByTestId('domestic-list-update')).toContainText(
+      'Could not load the status of the last update.',
+      { timeout: 15_000 },
+    );
   });
 
   test('reports an update that is already running', async ({ page }) => {
@@ -358,7 +403,7 @@ test.describe('Settings page domestic IP list updates', () => {
       {
         method: 'PUT',
         path: '/api/system/scheduler/DomesticIPUpdate',
-        body: { interval: '7d', startTime: '05:15:00' },
+        body: { startTime: '05:15:00' },
       },
     ]);
   });

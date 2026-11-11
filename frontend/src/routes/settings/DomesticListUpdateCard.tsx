@@ -34,6 +34,8 @@ import { DOMESTIC_UPDATE_SCHEDULER, countryName } from './schedule';
 const POLL_MS = 2000;
 // How long to keep polling after a start for the script to report that it is running.
 const START_WAIT_MS = 15000;
+// How many times to retry the first status read before showing an error.
+const INITIAL_STATUS_RETRIES = 3;
 
 const STEPS = [
   'starting',
@@ -72,6 +74,7 @@ export function DomesticListUpdateCard({ creds }: Props) {
   const [schedulerMissing, setSchedulerMissing] = useState(false);
   const [schedulerError, setSchedulerError] = useState<string | null>(null);
   const [status, setStatus] = useState<DomesticListUpdateStatus | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   // Bumped to (re)start the status polling loop, e.g. after starting an update.
   const [pollKey, setPollKey] = useState(0);
@@ -124,6 +127,7 @@ export function DomesticListUpdateCard({ creds }: Props) {
     if (!creds) return;
     const controller = new AbortController();
     let timer: number | undefined;
+    let failures = 0;
 
     const finished = (next: DomesticListUpdateStatus) => {
       toast.notify(
@@ -144,14 +148,21 @@ export function DomesticListUpdateCard({ creds }: Props) {
         next = await fetchDomesticListUpdateStatus(creds, controller.signal);
       } catch (err) {
         if (isAbortError(err)) return;
-        // Keep polling through a dropped request while a run is in progress.
-        if (statusRef.current?.running || awaitingRef.current) {
+        failures += 1;
+        // Keep polling through a dropped request while a run is in progress, and retry
+        // the first read a few times before giving up on it.
+        const retryInitial = !statusRef.current && failures <= INITIAL_STATUS_RETRIES;
+        if (statusRef.current?.running || awaitingRef.current || retryInitial) {
           timer = window.setTimeout(() => {
             void tick();
           }, POLL_MS);
+        } else if (!statusRef.current) {
+          setStatusError(err instanceof Error ? err.message : '');
         }
         return;
       }
+      failures = 0;
+      setStatusError(null);
       const previous = statusRef.current;
       statusRef.current = next;
       setStatus(next);
@@ -319,6 +330,11 @@ export function DomesticListUpdateCard({ creds }: Props) {
       <div className={styles.body}>
         {!creds ? <div className={styles.errorBanner}>{t('common.missingCredentials')}</div> : null}
         {schedulerError ? <div className={styles.errorBanner}>{schedulerError}</div> : null}
+        {statusError !== null ? (
+          <div className={styles.errorBanner}>
+            {t('settings.domestic.statusLoadFailed')} {statusError}
+          </div>
+        ) : null}
         {schedulerMissing ? (
           <p className={styles.hint}>{t('settings.domestic.schedulerMissing')}</p>
         ) : null}

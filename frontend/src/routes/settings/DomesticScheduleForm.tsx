@@ -44,7 +44,8 @@ function initialValues(scheduler: SchedulerResponse | null) {
   return {
     choice: preset ? String(days) : CUSTOM,
     customDays: days !== null && !preset ? String(days) : '',
-    time: toTimeInput(scheduler.startTime) || '12:00',
+    // Empty for a start time the input cannot show (e.g. `startup`), which then stays as it is.
+    time: toTimeInput(scheduler.startTime),
   };
 }
 
@@ -68,16 +69,17 @@ export function DomesticScheduleForm({
   const [countryValue, setCountryValue] = useState(savedCountry);
 
   const days = choice === CUSTOM ? Number(customDays) : Number(choice);
+  const intervalDirty = choice !== initial.choice || customDays !== initial.customDays;
+  const timeDirty = time !== initial.time;
   const daysError =
-    choice !== CUSTOM
+    !intervalDirty || choice !== CUSTOM
       ? null
       : !/^\d+$/.test(customDays.trim()) || days < 1 || days > MAX_INTERVAL_DAYS
         ? t('settings.domestic.form.daysInvalid', { max: MAX_INTERVAL_DAYS })
         : null;
-  const timeError = /^\d{2}:\d{2}$/.test(time) ? null : t('settings.domestic.form.timeInvalid');
-  const scheduleDirty =
-    !!scheduler &&
-    (choice !== initial.choice || customDays !== initial.customDays || time !== initial.time);
+  const timeError =
+    !timeDirty || /^\d{2}:\d{2}$/.test(time) ? null : t('settings.domestic.form.timeInvalid');
+  const scheduleDirty = !!scheduler && (intervalDirty || timeDirty);
   const countryDirty = countryValue !== savedCountry;
   const dirty = scheduleDirty || countryDirty;
 
@@ -113,7 +115,14 @@ export function DomesticScheduleForm({
     setBusy(true);
     try {
       await onSubmit({
-        ...(scheduleDirty ? { schedule: { interval: `${days}d`, startTime: `${time}:00` } } : {}),
+        ...(scheduleDirty
+          ? {
+              schedule: {
+                ...(intervalDirty ? { interval: `${days}d` } : {}),
+                ...(timeDirty ? { startTime: `${time}:00` } : {}),
+              },
+            }
+          : {}),
         ...(countryDirty ? { country: countryValue } : {}),
       });
     } catch {

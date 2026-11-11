@@ -358,6 +358,7 @@
       "updating": "Updating…",
       "loadFailed": "Could not load the update schedule.",
       "schedulerMissing": "This router has no update schedule. Run the setup wizard to add it.",
+      "statusLoadFailed": "Could not load the status of the last update.",
       "steps": {
         "starting": "Starting",
         "verifying-source": "Checking the source",
