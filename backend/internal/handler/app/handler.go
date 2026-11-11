@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/db"
@@ -107,18 +106,15 @@ func HandleAppUpdateRelease(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(c.Request().Context(), releaseFetchTimeout)
 	defer cancel()
 
-	var release githubReleaseEntry
-	if err := fetchGitHubJSON(ctx, githubReleaseByTagURL+url.PathEscape(tag), &release); err != nil {
+	release, err := fetchReleaseByTag(ctx, tag)
+	if err != nil {
 		if errors.Is(err, errGitHubNotFound) {
 			return common.ErrorResponse(c, http.StatusNotFound, "Release not found", fmt.Errorf("no release tagged %s", tag))
 		}
 		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to fetch the release from GitHub", err)
 	}
-	if release.Draft {
-		return common.ErrorResponse(c, http.StatusNotFound, "Release not found", fmt.Errorf("no release tagged %s", tag))
-	}
 
-	return common.SuccessResponse(c, http.StatusOK, "Release retrieved", toReleaseUpdateResponse(&release))
+	return common.SuccessResponse(c, http.StatusOK, "Release retrieved", toReleaseUpdateResponse(release))
 }
 
 // HandleAppUpdateChannel godoc
@@ -210,15 +206,15 @@ func HandleAppUpdate(c echo.Context) error {
 		}
 	}
 
-	releases, err := fetchGitHubReleases(c.Request().Context(), func(releases []githubReleaseEntry) bool {
-		return findRelease(releases, req.Version) != nil
-	})
+	fetchCtx, cancel := context.WithTimeout(c.Request().Context(), releaseFetchTimeout)
+	defer cancel()
+
+	release, err := fetchReleaseByTag(fetchCtx, req.Version)
 	if err != nil {
-		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to fetch releases from GitHub", err)
-	}
-	release := findRelease(releases, req.Version)
-	if release == nil {
-		return common.ErrorResponse(c, http.StatusNotFound, "Release not found", fmt.Errorf("no release tagged %s", req.Version))
+		if errors.Is(err, errGitHubNotFound) {
+			return common.ErrorResponse(c, http.StatusNotFound, "Release not found", fmt.Errorf("no release tagged %s", req.Version))
+		}
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to fetch the release from GitHub", err)
 	}
 
 	resources, err := client.GetResourceInfo()

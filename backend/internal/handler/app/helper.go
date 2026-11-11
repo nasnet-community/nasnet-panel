@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -262,13 +263,17 @@ func (s *appUpdateState) snapshot() UpdateStatusResponse {
 	return resp
 }
 
-func findRelease(releases []githubReleaseEntry, tag string) *githubReleaseEntry {
-	for i := range releases {
-		if !releases[i].Draft && releases[i].TagName == tag {
-			return &releases[i]
-		}
+// fetchReleaseByTag reads one release straight from GitHub by tag, so it is found however far down the
+// release list it sits. A missing or draft release is reported as errGitHubNotFound.
+func fetchReleaseByTag(ctx context.Context, tag string) (*githubReleaseEntry, error) {
+	var release githubReleaseEntry
+	if err := fetchGitHubJSON(ctx, githubReleaseByTagURL+url.PathEscape(tag), &release); err != nil {
+		return nil, err
 	}
-	return nil
+	if release.Draft {
+		return nil, errGitHubNotFound
+	}
+	return &release, nil
 }
 
 func updateStorageError(freeBytes int64) error {
