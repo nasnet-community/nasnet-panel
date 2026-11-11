@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	ros "github.com/go-routeros/routeros/v3"
+	ros "nasnet-panel/pkg/rosapi"
 
 	"nasnet-panel/internal/config"
 )
@@ -34,6 +34,15 @@ type ConnectionConfig struct {
 	Timeout  int
 }
 
+func (cfg ConnectionConfig) dial() (*ros.Client, error) {
+	return dialRouterOS(
+		fmt.Sprintf("%s:%d", cfg.Address, cfg.Port),
+		cfg.Username,
+		cfg.Password,
+		time.Second*time.Duration(cfg.Timeout),
+	)
+}
+
 // CachedConnection represents a cached RouterOS client connection with last usage tracking.
 type CachedConnection struct {
 	Client   *Client
@@ -45,15 +54,15 @@ type CachedConnection struct {
 type ClientConnectionCache struct {
 	mu        sync.RWMutex
 	clients   map[string]*CachedConnection
-	config    map[string]ConnectionConfig
 	cleanupTk *time.Ticker
 }
 
 var clientCache = ClientConnectionCache{
 	clients: make(map[string]*CachedConnection),
-	config:  make(map[string]ConnectionConfig),
 }
 var cleanupOnce sync.Once
+
+var errConnectionClosed = errors.New("connection is closed")
 
 // cacheGeneration is bumped every time ClearConnectionCache runs. A client
 // creation in flight in GetOrCreateClient captures the generation before
@@ -74,9 +83,7 @@ func NewClient(config ConnectionConfig) (*Client, error) {
 	}
 	config.Timeout = 3
 
-	address := fmt.Sprintf("%s:%d", config.Address, config.Port)
-
-	conn, err := dialRouterOS(address, config.Username, config.Password, time.Second*time.Duration(config.Timeout))
+	conn, err := config.dial()
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to RouterOS: %w", err)
 	}
@@ -84,11 +91,29 @@ func NewClient(config ConnectionConfig) (*Client, error) {
 	return &Client{conn: conn, config: config}, nil
 }
 
+// Close closes the connection. Callers must hold c.mu unless the client is not shared.
 func (c *Client) Close() error {
 	if c.conn != nil {
 		return c.conn.Close()
 	}
 	return nil
+}
+
+// closeConn closes and clears the connection under the client's own lock, so it never
+// happens while a command is reading from it.
+func (c *Client) closeConn() {
+	c.mu.Lock()
+	_ = c.Close()
+	c.conn = nil
+	c.mu.Unlock()
+}
+
+// reconnectLocked drops the connection and dials a new one. The caller holds c.mu; it is
+// released during the dial so other callers are not blocked behind the network round trip.
+func (c *Client) reconnectLocked() error {
+	c.mu.Unlock()
+	defer c.mu.Lock()
+	return c.clearCacheAndReconnect()
 }
 
 // Run executes a sentence with 10 retries on connection errors.
@@ -101,18 +126,15 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 	var lastErr error
 
 	for attempt := 0; attempt < maxRetries; attempt++ {
-		if c.conn == nil {
-			// Temporarily release lock during reconnection
+		if attempt > 0 {
 			c.mu.Unlock()
-			err := c.clearCacheAndReconnect()
+			time.Sleep(retryDelay)
 			c.mu.Lock()
-			if err != nil {
+		}
+
+		if c.conn == nil {
+			if err := c.reconnectLocked(); err != nil {
 				lastErr = err
-				if attempt < maxRetries-1 {
-					c.mu.Unlock()
-					time.Sleep(retryDelay)
-					c.mu.Lock()
-				}
 				continue
 			}
 		}
@@ -127,11 +149,9 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 		// Protocol error: log, reconnect and return without retry
 		if isProtocolError(err) {
 			log.Printf("[RouterOS] %v Protocol error: %v", sentence, err)
-			c.mu.Unlock()
-			if rerr := c.clearCacheAndReconnect(); rerr != nil {
+			if rerr := c.reconnectLocked(); rerr != nil {
 				log.Printf("[RouterOS] Reconnect failed: %v", rerr)
 			}
-			c.mu.Lock()
 			return nil, err
 		}
 
@@ -141,42 +161,34 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 			return nil, err
 		}
 
-		// Network error: log and retry
+		// Network error: log, reconnect and retry
 		if !config.IsProduction() {
 			log.Printf("[RouterOS] Connection error (attempt %d/%d): %v", attempt+1, maxRetries, err)
 		}
 		lastErr = err
-		// Clear cache and reconnect for next retry
-		c.mu.Unlock()
-		rerr := c.clearCacheAndReconnect()
-		c.mu.Lock()
-		if rerr != nil {
+		if rerr := c.reconnectLocked(); rerr != nil {
 			lastErr = rerr
-		}
-
-		if attempt < maxRetries-1 {
-			c.mu.Unlock()
-			time.Sleep(retryDelay)
-			c.mu.Lock()
 		}
 	}
 
 	return nil, fmt.Errorf("failed after %d attempts: %w", maxRetries, lastErr)
 }
 
-func (c *Client) Execute(command string, args ...string) (*ros.Reply, error) {
+// runSentence locks the client and executes one sentence with reconnect and retry.
+func (c *Client) runSentence(command string, args []string) (*ros.Reply, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if c.conn == nil {
-		return nil, fmt.Errorf("connection is closed")
+		return nil, errConnectionClosed
 	}
 
-	sentence := make([]string, 0, len(args)+1)
-	sentence = append(sentence, command)
-	sentence = append(sentence, args...)
+	return c.Run(append([]string{command}, args...))
+}
 
-	return c.Run(sentence)
+// Execute runs a command with reconnect and retry on connection errors.
+func (c *Client) Execute(command string, args ...string) (*ros.Reply, error) {
+	return c.runSentence(command, args)
 }
 
 // ExecuteOnce runs a command exactly once, without the reconnect-and-retry
@@ -187,41 +199,19 @@ func (c *Client) ExecuteOnce(command string, args ...string) (*ros.Reply, error)
 	defer c.mu.Unlock()
 
 	if c.conn == nil {
-		return nil, fmt.Errorf("connection is closed")
+		return nil, errConnectionClosed
 	}
 
-	sentence := make([]string, 0, len(args)+1)
-	sentence = append(sentence, command)
-	sentence = append(sentence, args...)
-
-	return c.conn.Run(sentence...)
+	return c.conn.Run(append([]string{command}, args...)...)
 }
 
 func (c *Client) Query(path string, args ...string) (*ros.Reply, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.conn == nil {
-		return nil, fmt.Errorf("connection is closed")
-	}
-
-	sentence := []string{path + "/print"}
-	sentence = append(sentence, args...)
-	return c.Run(sentence)
+	return c.runSentence(path+"/print", args)
 }
 
 // Add adds an item at the given path with the provided arguments and returns the added item's ID.
 func (c *Client) Add(path string, args ...string) (string, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.conn == nil {
-		return "", fmt.Errorf("connection is closed")
-	}
-
-	sentence := []string{path + "/add"}
-	sentence = append(sentence, args...)
-	reply, err := c.Run(sentence)
+	reply, err := c.runSentence(path+"/add", args)
 	if err != nil {
 		return "", err
 	}
@@ -232,43 +222,16 @@ func (c *Client) Add(path string, args ...string) (string, error) {
 }
 
 func (c *Client) Set(path string, args ...string) (*ros.Reply, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.conn == nil {
-		return nil, fmt.Errorf("connection is closed")
-	}
-
-	sentence := []string{path + "/set"}
-	sentence = append(sentence, args...)
-	return c.Run(sentence)
+	return c.runSentence(path+"/set", args)
 }
 
 func (c *Client) Remove(path string, args ...string) (*ros.Reply, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.conn == nil {
-		return nil, fmt.Errorf("connection is closed")
-	}
-
-	sentence := []string{path + "/remove"}
-	sentence = append(sentence, args...)
-	return c.Run(sentence)
+	return c.runSentence(path+"/remove", args)
 }
 
 // Unset removes specific properties from an item at the given path and arguments (e.g. =value-name=property).
 func (c *Client) Unset(path string, args ...string) (*ros.Reply, error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.conn == nil {
-		return nil, fmt.Errorf("connection is closed")
-	}
-
-	sentence := []string{path + "/unset"}
-	sentence = append(sentence, args...)
-	return c.Run(sentence)
+	return c.runSentence(path+"/unset", args)
 }
 
 func (c *Client) Enable(path string, id string) (*ros.Reply, error) {
@@ -331,118 +294,61 @@ func extractRetID(reply *ros.Reply) string {
 
 // IsConnected checks if the connection reference exists (doesn't perform actual query).
 func (c *Client) IsConnected() bool {
+	if !c.mu.TryLock() {
+		return true
+	}
+	defer c.mu.Unlock()
 	return c.conn != nil
+}
+
+var (
+	networkErrorKeywords = []string{
+		"eof", "broken pipe", "connection reset", "connection refused", "connection closed",
+		"i/o timeout", "use of closed network connection",
+	}
+	protocolErrorKeywords = []string{
+		"invalid routeros sentence word", "unknown routeros reply word",
+	}
+	offlineErrorKeywords = []string{
+		"connection refused", "connection reset", "no route to host", "network unreachable",
+		"host unreachable", "host is down", "connection actively refused",
+	}
+	timeoutErrorKeywords = []string{"timeout", "deadline exceeded"}
+)
+
+func errorContains(err error, keywords []string) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	for _, keyword := range keywords {
+		if strings.Contains(msg, keyword) {
+			return true
+		}
+	}
+	return false
 }
 
 // isNetworkError checks if the error is a connection/network error like EOF, broken pipe, timeout.
 func isNetworkError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	errMsg := err.Error()
-
-	networkKeywords := []string{
-		"EOF",
-		"broken pipe",
-		"connection reset",
-		"connection refused",
-		"connection closed",
-		"i/o timeout",
-		"write: broken pipe",
-		"read: connection reset",
-		"use of closed network connection",
-	}
-
-	errLower := strings.ToLower(errMsg)
-	for _, keyword := range networkKeywords {
-		if strings.Contains(errLower, strings.ToLower(keyword)) {
-			return true
-		}
-	}
-
-	// Check for io.EOF
-	if errors.Is(err, io.EOF) {
-		return true
-	}
-
-	return false
+	return errors.Is(err, io.EOF) || errorContains(err, networkErrorKeywords)
 }
 
 // isProtocolError checks if the error is a malformed reply that leaves the connection out of sync.
 func isProtocolError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	errMsg := err.Error()
-
-	protocolKeywords := []string{
-		"invalid RouterOS sentence word",
-		"unknown RouterOS reply word",
-	}
-
-	errLower := strings.ToLower(errMsg)
-	for _, keyword := range protocolKeywords {
-		if strings.Contains(errLower, strings.ToLower(keyword)) {
-			return true
-		}
-	}
-
-	return false
+	return errorContains(err, protocolErrorKeywords)
 }
 
 // IsOfflineError detects if the error indicates the router is offline/unreachable (502 Bad Gateway).
 // Errors like connection refused, connection reset, no route to host indicate the router is not responding.
 func IsOfflineError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	errMsg := strings.ToLower(err.Error())
-
-	offlineKeywords := []string{
-		"connection refused",
-		"connection reset",
-		"no route to host",
-		"network unreachable",
-		"host unreachable",
-		"host is down",
-		"connection actively refused",
-	}
-
-	for _, keyword := range offlineKeywords {
-		if strings.Contains(errMsg, keyword) {
-			return true
-		}
-	}
-
-	return false
+	return errorContains(err, offlineErrorKeywords)
 }
 
 // IsTimeoutError detects if the error indicates a timeout (504 Gateway Timeout).
 // Errors like i/o timeout, deadline exceeded indicate the router is too slow to respond.
 func IsTimeoutError(err error) bool {
-	if err == nil {
-		return false
-	}
-
-	errMsg := strings.ToLower(err.Error())
-
-	timeoutKeywords := []string{
-		"i/o timeout",
-		"deadline exceeded",
-		"context deadline exceeded",
-		"timeout",
-	}
-
-	for _, keyword := range timeoutKeywords {
-		if strings.Contains(errMsg, keyword) {
-			return true
-		}
-	}
-
-	return false
+	return errorContains(err, timeoutErrorKeywords)
 }
 
 func startClientCacheCleanup() {
@@ -462,10 +368,10 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 	key := fmt.Sprintf("%s:%s@%s:%d", config.Username, config.Password, config.Address, config.Port)
 
 	for {
-		clientCache.mu.Lock()
+		clientCache.mu.RLock()
 		cachedConn, exists := clientCache.clients[key]
 		generation := cacheGeneration.Load()
-		clientCache.mu.Unlock()
+		clientCache.mu.RUnlock()
 
 		if exists && cachedConn.Client.IsConnected() {
 			cachedConn.mu.Lock()
@@ -474,7 +380,6 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 			return cachedConn.Client, nil
 		}
 
-		// Connection doesn't exist or is dead, create new one
 		client, err := NewClient(config)
 		if err != nil {
 			return nil, err
@@ -484,67 +389,55 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 
 		clientCache.mu.Lock()
 		if cacheGeneration.Load() != generation {
-			// A clear ran while this connection was being established;
-			// discard it and retry against the now-current cache state.
 			clientCache.mu.Unlock()
 			_ = client.Close()
 			continue
 		}
 		clientCache.clients[key] = &CachedConnection{Client: client, LastUsed: time.Now()}
-		clientCache.config[key] = config
 		clientCache.mu.Unlock()
 
 		return client, nil
 	}
 }
 
-// cleanupIdleConnections closes connections that haven't been used in 20
-// minutes. Clients are removed from the cache first, while holding c.mu;
-// each removed client's own connection is then closed and cleared after
-// releasing c.mu, while holding that client's own mu, so the transition is
-// serialized against any request concurrently using that same client (which
-// always holds its mu while touching its conn).
+// closeClients closes each client's connection under that client's own mutex, so a close never
+// races with a command that is reading from the same connection.
+func closeClients(clients []*Client) {
+	for _, client := range clients {
+		client.closeConn()
+	}
+}
+
+// cleanupIdleConnections closes connections that haven't been used in 20 minutes. Clients are
+// removed from the cache first; their connections are closed afterwards without holding the
+// cache lock.
 func (c *ClientConnectionCache) cleanupIdleConnections() {
 	for range c.cleanupTk.C {
-		c.mu.Lock()
-
 		now := time.Now()
-		var toClose []*Client
+		var idle []*Client
 
+		c.mu.Lock()
 		for key, cachedConn := range c.clients {
 			cachedConn.mu.Lock()
 			lastUsed := cachedConn.LastUsed
 			cachedConn.mu.Unlock()
 
 			if now.Sub(lastUsed) > clientCacheIdleTimeout {
-				toClose = append(toClose, cachedConn.Client)
+				idle = append(idle, cachedConn.Client)
 				delete(c.clients, key)
 			}
 		}
-
 		c.mu.Unlock()
 
-		for _, client := range toClose {
-			client.mu.Lock()
-			_ = client.Close()
-			client.conn = nil
-			client.mu.Unlock()
-		}
+		closeClients(idle)
 	}
 }
 
-// ClearConnectionCache closes every cached RouterOS connection and empties
-// both the client cache and the credential cache entirely, regardless of
-// idle timeout. Useful when credentials rotate or every open connection
-// needs to be forced closed (e.g. on logout). Clients are removed from the
-// cache first, while holding clientCache.mu; each one's connection is then
-// closed and cleared after releasing clientCache.mu, while holding that
-// client's own mu, so the transition is serialized against any request
-// concurrently using that same client (which always holds its mu while
-// touching its conn). Also bumps cacheGeneration, while still holding
-// clientCache.mu, so a GetOrCreateClient call whose dial is in flight right
-// now discards its result instead of re-populating the cache behind this
-// clear; see GetOrCreateClient.
+// ClearConnectionCache closes every cached RouterOS connection and empties the cache, regardless
+// of idle timeout. Useful when credentials rotate or every open connection needs to be forced
+// closed (e.g. on logout). It also bumps cacheGeneration while holding the cache lock, so a
+// GetOrCreateClient call whose dial is in flight discards its result instead of re-populating the
+// cache behind this clear; see GetOrCreateClient.
 func ClearConnectionCache() {
 	clientCache.mu.Lock()
 	cacheGeneration.Add(1)
@@ -553,70 +446,48 @@ func ClearConnectionCache() {
 		clients = append(clients, cachedConn.Client)
 		delete(clientCache.clients, key)
 	}
-	for key := range clientCache.config {
-		delete(clientCache.config, key)
-	}
 	clientCache.mu.Unlock()
 
-	for _, client := range clients {
-		client.mu.Lock()
-		_ = client.Close()
-		client.conn = nil
-		client.mu.Unlock()
-	}
+	closeClients(clients)
 }
 
-// clearCacheAndReconnect empties the cache entry and creates a fresh connection.
+// clearCacheAndReconnect drops the cache entry, closes the current connection and dials a new
+// one. It must be called without holding c.mu.
 func (c *Client) clearCacheAndReconnect() error {
-	// Remove from cache (without holding c.mu to avoid nested locking)
 	if c.cacheKey != "" {
 		clientCache.mu.Lock()
-		if cachedConn, exists := clientCache.clients[c.cacheKey]; exists {
-			_ = cachedConn.Client.Close()
-			delete(clientCache.clients, c.cacheKey)
-		}
+		cachedConn, exists := clientCache.clients[c.cacheKey]
+		delete(clientCache.clients, c.cacheKey)
 		clientCache.mu.Unlock()
+
+		if exists && cachedConn.Client != c {
+			cachedConn.Client.closeConn()
+		}
 	}
 
-	// Close and clear connection (must hold c.mu)
-	c.mu.Lock()
-	_ = c.Close()
-	c.conn = nil
-	c.mu.Unlock()
+	c.closeConn()
 
-	// Create fresh connection (no lock needed - network operation)
 	if c.config.Address == "" {
 		return fmt.Errorf("no connection config available")
 	}
 
-	newConn, err := ros.DialTimeout(
-		fmt.Sprintf("%s:%d", c.config.Address, c.config.Port),
-		c.config.Username,
-		c.config.Password,
-		time.Second*time.Duration(c.config.Timeout),
-	)
+	newConn, err := c.config.dial()
 	if err != nil {
 		return fmt.Errorf("failed to reconnect: %w", err)
 	}
 
-	// Update connection and cache (must hold c.mu)
 	c.mu.Lock()
 	if c.conn != nil {
-		// Another caller already reconnected, keep its connection
+		c.mu.Unlock()
 		_ = newConn.Close()
 	} else {
 		c.conn = newConn
+		c.mu.Unlock()
 	}
-	c.mu.Unlock()
 
-	// Restore to cache
 	if c.cacheKey != "" {
 		clientCache.mu.Lock()
-		clientCache.clients[c.cacheKey] = &CachedConnection{
-			Client:   c,
-			LastUsed: time.Now(),
-		}
-		clientCache.config[c.cacheKey] = c.config
+		clientCache.clients[c.cacheKey] = &CachedConnection{Client: c, LastUsed: time.Now()}
 		clientCache.mu.Unlock()
 	}
 

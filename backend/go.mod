@@ -3,7 +3,6 @@ module nasnet-panel
 go 1.26.2
 
 require (
-	github.com/go-routeros/routeros/v3 v3.0.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo/v4 v4.16.1
 	github.com/pkg/sftp v1.13.11
