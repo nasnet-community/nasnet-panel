@@ -1,7 +1,8 @@
 {
   "common": {
     "missingCredentials": "Missing router credentials for this session.",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "cancel": "Cancel"
   },
   "logs": {
     "loadFailed": "Failed to load logs.",
@@ -335,6 +336,65 @@
       "error": "Something went wrong. Please try again.",
       "note": "We use your address only for Nasnet news.",
       "privacyLink": "Privacy policy"
+    }
+  },
+  "settings": {
+    "tabs": {
+      "label": "Settings sections",
+      "domestic": "Domestic IP list"
+    },
+    "domestic": {
+      "title": "Domestic IP list updates",
+      "description": "The router refreshes its list of domestic IP ranges on a schedule. Change how often it runs, or update the list now.",
+      "country": "Country",
+      "interval": "Runs",
+      "startTime": "Start time",
+      "nextRun": "Next run",
+      "lastRun": "Last update",
+      "status": "Status",
+      "every_one": "Every day",
+      "every_other": "Every {{count}} days",
+      "updateNow": "Update now",
+      "updating": "Updating…",
+      "loadFailed": "Could not load the update schedule.",
+      "schedulerMissing": "This router has no update schedule. Run the setup wizard to add it.",
+      "statusLoadFailed": "Could not load the status of the last update.",
+      "steps": {
+        "starting": "Starting",
+        "verifying-source": "Checking the source",
+        "preparing": "Preparing",
+        "fetching": "Downloading address ranges",
+        "importing": "Importing address ranges",
+        "validating": "Checking the new list",
+        "swapping": "Replacing the old list",
+        "verifying": "Verifying",
+        "completed": "Completed"
+      },
+      "result": {
+        "running": "Running",
+        "completed": "Completed",
+        "failed": "Failed",
+        "interrupted": "Interrupted"
+      },
+      "form": {
+        "custom": "Custom",
+        "days": "Every how many days",
+        "daysInvalid": "Enter a whole number of days from 1 to {{max}}.",
+        "timeInvalid": "Enter a start time.",
+        "save": "Save",
+        "saving": "Saving…"
+      },
+      "toasts": {
+        "started": "Domestic IP list update started",
+        "alreadyRunning": "An update is already running",
+        "startFailed": "Could not start the update",
+        "completed": "Domestic IP list updated",
+        "failed": "Domestic IP list update failed",
+        "scheduleSaved": "Update schedule saved",
+        "scheduleFailed": "Could not save the update schedule",
+        "countrySaved": "Country set to {{country}}. Updating the list now.",
+        "countryFailed": "Could not change the country"
+      }
     }
   }
 }

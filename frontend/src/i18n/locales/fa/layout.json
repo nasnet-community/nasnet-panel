@@ -24,6 +24,7 @@
     "showSubmenu": "نمایش منوی {{label}}",
     "updates": "به‌روزرسانی‌ها و اعلان‌ها",
     "changePassword": "تغییر رمز عبور",
+    "settings": "تنظیمات",
     "backups": "پشتیبان‌گیری و بازیابی",
     "logout": "خروج"
   },

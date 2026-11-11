@@ -26,6 +26,7 @@ import { FirewallPage } from './routes/FirewallPage';
 import { DiagnosticsPage } from './routes/DiagnosticsPage';
 import { BackupsPage } from './routes/BackupsPage';
 import { HelpPage } from './routes/HelpPage';
+import { SettingsPage } from './routes/SettingsPage';
 
 function AddRouterEntry() {
   const [params] = useSearchParams();
@@ -76,6 +77,7 @@ export function App() {
                         <Route path="plugins" element={<PluginsPage />} />
                         <Route path="diagnostics" element={<DiagnosticsPage />} />
                         <Route path="backups" element={<BackupsPage />} />
+                        <Route path="settings" element={<SettingsPage />} />
                         <Route path="help" element={<HelpPage />} />
                       </Route>
                       <Route
