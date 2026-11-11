@@ -481,10 +481,10 @@ func HandleAppNewsletter(c echo.Context) error {
 	switch {
 	case err != nil && status == 0:
 		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to reach the newsletter service", err)
-	case status == http.StatusBadRequest:
-		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid email or locale", errors.New(reply.Error))
 	case err != nil:
 		return common.ErrorResponse(c, http.StatusBadGateway, "Newsletter service returned an unreadable response", err)
+	case status == http.StatusBadRequest:
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid email or locale", errors.New(reply.Error))
 	case status != http.StatusOK || !reply.Ok:
 		return common.ErrorResponse(c, http.StatusBadGateway, "Newsletter service failed",
 			fmt.Errorf("HTTP %d: %s", status, reply.Error))
