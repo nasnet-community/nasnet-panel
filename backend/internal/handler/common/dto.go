@@ -9,7 +9,7 @@ type ReleaseVersion struct {
 	build               int
 }
 
-// InstallUpdateResponse is the response for POST /api/app/install-update.
+// InstallUpdateResponse is the response for POST /api/app/update.
 type InstallUpdateResponse struct {
 	UpdateAvailable bool   `json:"updateAvailable"`
 	FromVersion     string `json:"fromVersion"`

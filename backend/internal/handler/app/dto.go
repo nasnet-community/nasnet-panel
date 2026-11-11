@@ -7,12 +7,6 @@ import (
 	"nasnet-panel/internal/handler/config"
 )
 
-type githubRelease struct {
-	TagName     string `json:"tag_name"`
-	HTMLURL     string `json:"html_url"`
-	PublishedAt string `json:"published_at"`
-}
-
 type githubReleaseEntry struct {
 	TagName     string `json:"tag_name"`
 	HTMLURL     string `json:"html_url"`
@@ -44,7 +38,7 @@ type releaseMeta struct {
 }
 
 // appUpdatePhase enumerates the stages of a self-update, tracked in-process so
-// /api/app/update-status has something to report while the background watch
+// /api/app/update/status has something to report while the background watch
 // goroutine runs independently of the request that started it.
 type appUpdatePhase string
 
@@ -61,15 +55,6 @@ type AppVersionResponse struct {
 	Version string `json:"version"`
 }
 
-// CheckForUpdatesResponse is the response for GET /api/app/check-for-updates.
-type CheckForUpdatesResponse struct {
-	AppVersion      string `json:"appVersion"`
-	LatestVersion   string `json:"latestVersion"`
-	ReleaseDate     string `json:"releaseDate"`
-	ReleaseURL      string `json:"releaseUrl"`
-	UpdateAvailable bool   `json:"updateAvailable"`
-}
-
 // ReleaseUpdateResponse is one release in the response for GET /api/app/updates.
 type ReleaseUpdateResponse struct {
 	Tag                string   `json:"tag"`
@@ -79,6 +64,7 @@ type ReleaseUpdateResponse struct {
 	MinRouterosVersion string   `json:"minRouterosVersion"`
 	MinAppVersion      string   `json:"minAppVersion"`
 	AutoReconfigable   bool     `json:"autoReconfigable"`
+	IsLowerVersion     bool     `json:"isLowerVersion"`
 	Changelog          []string `json:"changelog"`
 }
 
@@ -110,7 +96,7 @@ type SettingResponse struct {
 	UpdatedAt string `json:"updatedAt"`
 }
 
-// UpdateStatusResponse is the response for GET /api/app/update-status and GET /api/app/update/status.
+// UpdateStatusResponse is the response for GET /api/app/update/status.
 type UpdateStatusResponse struct {
 	Phase     string `json:"phase"` // idle, preparing, pulling, restarting, done, error
 	Message   string `json:"message,omitempty"`

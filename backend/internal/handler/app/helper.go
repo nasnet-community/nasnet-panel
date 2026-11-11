@@ -34,8 +34,21 @@ func toReleaseUpdateResponse(release *githubReleaseEntry) ReleaseUpdateResponse 
 		MinRouterosVersion: releaseMinRouterOSVersion(release.Body),
 		MinAppVersion:      minAppVersion,
 		AutoReconfigable:   releaseAutoReconfigable(release.TagName, minAppVersion),
+		IsLowerVersion:     releaseIsLowerThanRunning(release.TagName),
 		Changelog:          releaseChanges(release.Body),
 	}
+}
+
+func releaseIsLowerThanRunning(tag string) bool {
+	version, ok := common.ParseReleaseVersion(tag)
+	if !ok {
+		return false
+	}
+	current, ok := common.ParseReleaseVersion(buildinfo.Version)
+	if !ok {
+		return false
+	}
+	return common.CompareReleaseVersions(version, current) < 0
 }
 
 func parseRouterOSVersion(v string) (routerOSVersion, bool) {
@@ -151,14 +164,6 @@ func releaseMinRouterOSVersion(body string) string {
 	return meta.RouterOS.MinVersion
 }
 
-func compareForInstall(target, current common.ReleaseVersion) int {
-	cmp := common.CompareReleaseVersions(target, current)
-	if cmp < 0 && target.Channel == common.ReleaseChannelDev && current.Channel != common.ReleaseChannelDev && common.CompareBase(target, current) == 0 {
-		return 1
-	}
-	return cmp
-}
-
 func releaseAutoReconfigable(tag, minAppVersion string) bool {
 	target, ok := common.ParseReleaseVersion(tag)
 	if !ok {
@@ -174,7 +179,7 @@ func releaseAutoReconfigable(tag, minAppVersion string) bool {
 	if !ok {
 		return false
 	}
-	if compareForInstall(target, current) <= 0 {
+	if common.CompareReleaseVersions(target, current) <= 0 {
 		return false
 	}
 	minimum, ok := common.ParseReleaseVersion(minAppVersion)
@@ -291,7 +296,7 @@ func removeStaleRootDir(client *routeros.Client, dir string) error {
 func watchNewContainerAndPromote(client *routeros.Client, releaseTag string, reconfigAfter bool) {
 	// A leftover nasnet-panel-update from a previous failed run would otherwise collide
 	// with AddContainer below. Safe to delete here since the in-progress guard
-	// in HandleAppInstallUpdate already ruled out a live update.
+	// in HandleAppUpdate already ruled out a live update.
 	if _, err := client.GetContainer(appUpdateContainerName); err == nil {
 		appUpdate.set(updatePhasePreparing, releaseTag, "removing leftover "+appUpdateContainerName)
 		if err := client.RemoveContainer(appUpdateContainerName); err != nil {
@@ -445,14 +450,6 @@ func ensureDatabaseMount(client *routeros.Client, mountLists string) (string, er
 	}
 
 	return strings.Join(append(lists, appDatabaseMountList), ","), nil
-}
-
-func fetchLatestGitHubRelease(ctx context.Context) (*githubRelease, error) {
-	var release githubRelease
-	if err := fetchGitHubJSON(ctx, githubLatestReleaseURL, &release); err != nil {
-		return nil, err
-	}
-	return &release, nil
 }
 
 // fetchGitHubReleases reads the releases page by page, following GitHub's Link rel="next", and

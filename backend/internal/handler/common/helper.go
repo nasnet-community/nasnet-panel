@@ -37,15 +37,16 @@ func ParseReleaseVersion(v string) (ReleaseVersion, bool) {
 	return rv, true
 }
 
-// ChannelRank orders release channels for comparing versions.
+// ChannelRank orders release channels sharing the same X.Y.Z: rc below stable below dev, because a
+// dev build is cut from the code that follows the stable release of that X.Y.Z.
 func ChannelRank(channel string) int {
 	switch channel {
-	case ReleaseChannelDev:
-		return 0
 	case ReleaseChannelRC:
-		return 1
+		return 0
+	case ReleaseChannelDev:
+		return 2
 	}
-	return 2
+	return 1
 }
 
 // CompareInts returns -1, 0 or 1 for a < b, a == b or a > b.
@@ -73,7 +74,7 @@ func CompareBase(a, b ReleaseVersion) int {
 // CompareReleaseVersions orders two release versions. Within one channel it follows how that channel
 // is numbered: stable by X.Y.Z, rc by X.Y.Z then the rc number, dev by build date, then X.Y.Z, then the
 // build number of that day. Across channels it compares X.Y.Z first and, when equal, ranks
-// dev below rc below stable.
+// rc below stable below dev.
 func CompareReleaseVersions(a, b ReleaseVersion) int {
 	if a.Channel != b.Channel {
 		if c := CompareBase(a, b); c != 0 {
