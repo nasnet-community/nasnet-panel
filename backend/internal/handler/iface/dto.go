@@ -119,10 +119,15 @@ type UpdateWANInterfaceRequest struct {
 	Type      string `json:"type"      example:"foreign"`
 	SSID      string `json:"ssid"      example:"MyNetwork"`
 	Password  string `json:"password"  example:"secret"`
+	IP        string `json:"ip"        example:"192.168.1.50/24"`
+	Gateway   string `json:"gateway"   example:"192.168.1.1"`
 }
 
 type wanChangeTemplateData struct {
 	UpdateWANInterfaceRequest
 	DoneToken    string
 	OldWiFiNames map[string]string
+	StaticIP     string
+	StaticPrefix int
+	Gateway      string
 }

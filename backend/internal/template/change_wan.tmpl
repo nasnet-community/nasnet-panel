@@ -13,6 +13,7 @@
 :local mcName [/interface/macvlan/get $mcvln name]
 :log info "Removing DHCP client for macvlan: $mcName"
 /ip dhcp-client remove [find interface="$mcName"]
+/ip address remove [find interface="$mcName"]
 :log info "Removing macvlan: $mcName"
 /interface list member remove [find interface=$mcvln]
 /interface/macvlan/remove [find name=$mcName]
@@ -51,6 +52,7 @@
 :local mcName [/interface/macvlan/get $mcvln name]
 :log info "Removing DHCP client for macvlan: $mcName"
 /ip dhcp-client remove [find interface="$mcName"]
+/ip address remove [find interface="$mcName"]
 :log info "Removing macvlan: $mcName"
 /interface list member remove [find interface=$mcvln]
 /interface/macvlan/remove [find name=$mcName]
@@ -80,21 +82,25 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 add interface="MacVLAN-$newIfaceName-Foreign Link" list="WAN" comment="Foreign WAN"
 add interface="MacVLAN-$newIfaceName-Foreign Link" list="Foreign-WAN" comment="Foreign WAN"
 :if ([:len [/ip route find where comment="Route-to-192.168.100.1" and dynamic=no]] > 0) do={
-/ip route set [find comment="Route-to-192.168.100.1" and dynamic=no] gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link"
+/ip route set [find comment="Route-to-192.168.100.1" and dynamic=no] gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link"
 } else={
-/ip route add dst-address="192.168.100.1/32" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="main" comment="Route-to-192.168.100.1"
+/ip route add dst-address="192.168.100.1/32" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link" routing-table="main" comment="Route-to-192.168.100.1"
 }
 /ip route
-add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add dst-address="0.0.0.0/0" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add check-gateway=ping dst-address="1.1.1.1" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
-add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign" \
+add dst-address="0.0.0.0/0" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
+add check-gateway=ping dst-address="1.1.1.1" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link" routing-table="to-Foreign" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
-add dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-$newIfaceName-Foreign Link" \
+add dst-address="1.1.1.1" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link" \
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
-add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN"
+add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway={{ .Gateway }} routing-table="to-VPN"
+{{ if .StaticIP }}
+/ip address remove [find interface="MacVLAN-$newIfaceName-Foreign Link"]
+/ip address add address="{{ .StaticIP }}/{{ .StaticPrefix }}" interface="MacVLAN-$newIfaceName-Foreign Link" comment="Foreign Link to Foreign"
+{{ else }}
 /ip dhcp-client
 add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-$newIfaceName-Foreign Link" script=":if (\$bound=1) do={\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\
@@ -116,6 +122,7 @@ eway!=\$gw1 ] gateway=\$gw1\
 \n    /ip route set [find comment=\"Route-to-192.168.100.1\" gateway!=\$gw] gateway=\$gw\
 \n}\
 \n}" use-peer-dns=no use-peer-ntp=no
+{{ end }}
 
 {{ else if eq .Type "domestic" }}
 /ip route remove [find comment="Route-to-Domestic-Domestic Link" and dynamic=no]
@@ -136,15 +143,20 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 add interface="MacVLAN-$newIfaceName-Domestic Link" list="WAN" comment="Domestic WAN"
 add interface="MacVLAN-$newIfaceName-Domestic Link" list="Domestic-WAN" comment="Domestic WAN"
 /ip route
-add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+add dst-address="0.0.0.0/0" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic-Domestic Link" \
 comment="Route-to-Domestic-Domestic Link"
-add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+add check-gateway=ping dst-address="217.218.127.127" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic-Domestic Link" \
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
-add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic" comment="Route-to-Domestic-Domestic Link"
-add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic" \
+add dst-address="0.0.0.0/0" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic" comment="Route-to-Domestic-Domestic Link"
+add check-gateway=ping dst-address="217.218.127.127" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Domestic Link" routing-table="to-Domestic" \
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
-add dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-$newIfaceName-Domestic Link" \
+add dst-address="217.218.127.127" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Domestic Link" \
 routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
+{{ if .StaticIP }}
+/ip address remove [find interface="MacVLAN-$newIfaceName-Domestic Link"]
+/ip address add address="{{ .StaticIP }}/{{ .StaticPrefix }}" interface="MacVLAN-$newIfaceName-Domestic Link" comment="Domestic Link to Domestic"
+/routing rule set [find comment="Router traffic sourced from Domestic WAN address leaves via Domestic"] src-address="{{ .StaticIP }}/32"
+{{ else }}
 /ip dhcp-client
 add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-$newIfaceName-Domestic Link" script=":if (\$bound=1) do={\r\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\r\
@@ -152,6 +164,10 @@ add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-
 \n:if (\$routeCount > 0) do={\r\
 \n    /ip route set [ find comment=\"Route-to-Domestic-Domestic Link\" gateway!=\$gw ] gateway=\$gw\r\
 \n}\r\
+\n:local src (\$\"lease-address\" . \"/32\")\r\
+\n:local rc \"Router traffic sourced from Domestic WAN address leaves via Domestic\"\r\
+\n/routing rule set [find comment=\$rc] src-address=\$src\r\
 \n}" use-peer-dns=no use-peer-ntp=no
+{{ end }}
 {{ end }}
 :global ChangeWANDone "{{ .DoneToken }}"

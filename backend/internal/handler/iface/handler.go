@@ -320,7 +320,9 @@ func HandleListBridgePorts(c echo.Context) error {
 // wires the new interface: macvlan, interface-list membership, DHCP client, and routes.
 //
 // @Summary Update WAN Interface
-// @Description Reassign a physical interface as foreign or domestic WAN using the change_wan template
+// @Description Reassign a physical interface as foreign or domestic WAN using the change_wan template.
+// @Description Optional ip is empty or "dhcp" for a DHCP client, or an IPv4 address with an optional prefix to set statically on the macvlan.
+// @Description Optional gateway defaults to the first address of the network and is only valid with a static ip.
 // @Tags Interface
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -350,6 +352,24 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "type must be 'foreign' or 'domestic'", nil)
 	}
 
+	staticPrefix, gateway := wanDomesticPrefix, wanDomesticGateway
+	if req.Type == "foreign" {
+		staticPrefix, gateway = wanForeignPrefix, wanForeignGateway
+	}
+
+	staticIP, staticPrefix, err := ParseWANStaticIP(req.IP, staticPrefix)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid ip", err)
+	}
+	switch {
+	case staticIP != "":
+		if gateway, err = ResolveWANGateway(staticIP, staticPrefix, req.Gateway); err != nil {
+			return common.ErrorResponse(c, http.StatusBadRequest, "Invalid gateway", err)
+		}
+	case strings.TrimSpace(req.Gateway) != "":
+		return common.ErrorResponse(c, http.StatusBadRequest, "gateway requires a static ip", nil)
+	}
+
 	iface, err := client.GetInterface(req.Interface)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
@@ -363,6 +383,9 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		UpdateWANInterfaceRequest: req.escaped(),
 		DoneToken:                 doneToken,
 		OldWiFiNames:              oldWANWiFiNames(client, req.Type),
+		StaticIP:                  staticIP,
+		StaticPrefix:              staticPrefix,
+		Gateway:                   gateway,
 	})
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render change_wan template", err)
@@ -377,6 +400,8 @@ func HandleUpdateWANInterface(c echo.Context) error {
 	return common.SuccessResponse(c, http.StatusOK, "WAN interface configured successfully", map[string]interface{}{
 		"interface": req.Interface,
 		"type":      req.Type,
+		"ip":        wanIPResponse(staticIP, staticPrefix),
+		"gateway":   gateway,
 	})
 }
 

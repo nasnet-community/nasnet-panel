@@ -9,4 +9,10 @@ const (
 	wanChangeDoneVariable = "ChangeWANDone"
 	scriptDoneTimeout     = time.Minute
 	scriptDonePollEvery   = 500 * time.Millisecond
+	wanIPModeDHCP         = "dhcp"
+	wanForeignPrefix      = 10
+	wanDomesticPrefix     = 24
+	wanForeignGateway     = "100.64.0.1"
+	wanDomesticGateway    = "192.168.1.1"
+	wanMaxPrefix          = 30
 )

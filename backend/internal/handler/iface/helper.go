@@ -2,7 +2,9 @@ package iface
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/netip"
 	"strings"
 	"time"
 
@@ -265,4 +267,79 @@ func (r UpdateWANInterfaceRequest) escaped() UpdateWANInterfaceRequest {
 	r.SSID = utils.EscapeRouterOSString(r.SSID)
 	r.Password = utils.EscapeRouterOSString(r.Password)
 	return r
+}
+
+// ParseWANStaticIP parses the ip field of a WAN request. It returns an empty address when DHCP is
+// requested, otherwise the IPv4 address and its prefix length, using defaultPrefix when none is given.
+func ParseWANStaticIP(raw string, defaultPrefix int) (address string, prefix int, err error) {
+	value := strings.TrimSpace(raw)
+	if value == "" || strings.EqualFold(value, wanIPModeDHCP) {
+		return "", 0, nil
+	}
+
+	invalid := fmt.Errorf("ip must be empty, %q, an IPv4 address or an IPv4 address with prefix", wanIPModeDHCP)
+
+	var addr netip.Addr
+	prefix = defaultPrefix
+	if strings.Contains(value, "/") {
+		parsed, parseErr := netip.ParsePrefix(value)
+		if parseErr != nil {
+			return "", 0, invalid
+		}
+		addr, prefix = parsed.Addr(), parsed.Bits()
+	} else {
+		parsed, parseErr := netip.ParseAddr(value)
+		if parseErr != nil {
+			return "", 0, invalid
+		}
+		addr = parsed
+	}
+
+	if !addr.Is4() {
+		return "", 0, invalid
+	}
+	if prefix < 1 || prefix > wanMaxPrefix {
+		return "", 0, fmt.Errorf("ip prefix must be between 1 and %d", wanMaxPrefix)
+	}
+
+	return addr.String(), prefix, nil
+}
+
+// ResolveWANGateway returns the gateway of a static WAN address: raw when given, otherwise the
+// first address of the network.
+func ResolveWANGateway(address string, prefix int, raw string) (string, error) {
+	addr, err := netip.ParseAddr(address)
+	if err != nil {
+		return "", err
+	}
+	network := netip.PrefixFrom(addr, prefix).Masked()
+
+	value := strings.TrimSpace(raw)
+	if value == "" {
+		gateway := network.Addr().Next()
+		if gateway == addr {
+			return "", errors.New("gateway is required when ip is the first address of its network")
+		}
+		return gateway.String(), nil
+	}
+
+	gateway, err := netip.ParseAddr(value)
+	if err != nil || !gateway.Is4() {
+		return "", errors.New("gateway must be an IPv4 address")
+	}
+	if !network.Contains(gateway) {
+		return "", errors.New("gateway must be inside the network of ip")
+	}
+	if gateway == addr {
+		return "", errors.New("gateway must differ from ip")
+	}
+
+	return gateway.String(), nil
+}
+
+func wanIPResponse(staticIP string, prefix int) string {
+	if staticIP == "" {
+		return wanIPModeDHCP
+	}
+	return fmt.Sprintf("%s/%d", staticIP, prefix)
 }
