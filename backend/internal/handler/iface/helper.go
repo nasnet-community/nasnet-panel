@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/routeros"
@@ -342,4 +343,164 @@ func wanIPResponse(staticIP string, prefix int) string {
 		return wanIPModeDHCP
 	}
 	return fmt.Sprintf("%s/%d", staticIP, prefix)
+}
+
+func wanWiFiRecord(req *UpdateWANInterfaceRequest) *db.WiFi {
+	link := strings.ToUpper(req.Type[:1]) + req.Type[1:]
+	authTypes := ""
+	if req.Type == "domestic" {
+		authTypes = wanWiFiAuthTypes
+	}
+	return &db.WiFi{
+		Name:        req.Interface + "-" + link + "-WAN",
+		DefaultName: req.Interface,
+		SSID:        req.SSID,
+		Password:    req.Password,
+		Enabled:     true,
+		Mode:        wanWiFiMode,
+		AuthTypes:   authTypes,
+	}
+}
+
+func loadWANData(client *routeros.Client) (*wanData, error) {
+	data := &wanData{}
+	var err error
+
+	if data.wifis, err = client.ListWifiInterfaces(); err != nil && !strings.Contains(err.Error(), "no WiFi package") {
+		return nil, err
+	}
+	if data.macvlans, err = client.ListMacvlanInterfaces(); err != nil {
+		return nil, err
+	}
+	if data.dhcpClients, err = client.ListDHCPClients(); err != nil {
+		return nil, err
+	}
+	if data.addresses, err = client.ListIPAddresses(); err != nil {
+		return nil, err
+	}
+	if data.routes, err = client.ListIPRoutes(); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func listWANs(client *routeros.Client) ([]WANResponse, error) {
+	interfaces, err := client.ListInterfaces()
+	if err != nil {
+		return nil, err
+	}
+	data, err := loadWANData(client)
+	if err != nil {
+		return nil, err
+	}
+
+	wans := make([]WANResponse, 0, 2)
+	for i := range interfaces {
+		if wanType, ok := dbsync.WANTypeFromComment(interfaces[i].Comment); ok {
+			wans = append(wans, buildWAN(&interfaces[i], wanType, data))
+		}
+	}
+
+	return wans, nil
+}
+
+func getWAN(client *routeros.Client, name string) (*WANResponse, error) {
+	iface, err := client.GetInterface(name)
+	if err != nil {
+		return nil, errWANNotFound
+	}
+	if iface.Comment == nil || !strings.HasPrefix(*iface.Comment, wanCommentPrefix) {
+		return nil, errWANNotFound
+	}
+	wanType, _, _ := strings.Cut(strings.ToLower(strings.TrimSpace(strings.TrimPrefix(*iface.Comment, wanCommentPrefix))), " ")
+	if wanType == "" {
+		return nil, errWANNotFound
+	}
+
+	data, err := loadWANData(client)
+	if err != nil {
+		return nil, err
+	}
+
+	wan := buildWAN(iface, wanType, data)
+	return &wan, nil
+}
+
+func buildWAN(iface *routeros.InterfaceInfo, wanType string, data *wanData) WANResponse {
+	wan := newWANResponse(iface, wanType)
+	if iface.Type == string(routeros.InterfaceTypeWiFi) {
+		for i := range data.wifis {
+			if data.wifis[i].Name == iface.Name {
+				ssid, password := data.wifis[i].SSID, data.wifis[i].Passphrase
+				wan.SSID, wan.Password = &ssid, &password
+				break
+			}
+		}
+	}
+	fillWANAddress(&wan, data.macvlans, data.dhcpClients, data.addresses, data.routes)
+	return wan
+}
+
+func newWANResponse(iface *routeros.InterfaceInfo, wanType string) WANResponse {
+	wan := WANResponse{
+		WANType:       wanType,
+		Interface:     iface.Name,
+		InterfaceType: iface.Type,
+		Enabled:       iface.Disabled == nil || !*iface.Disabled,
+	}
+	if iface.Comment != nil {
+		wan.Comment = *iface.Comment
+	}
+	return wan
+}
+
+func fillWANAddress(wan *WANResponse, macvlans []routeros.MacvlanInfo, dhcpClients []routeros.DHCPClientInfo,
+	addresses []routeros.IPAddressInfo, routes []routeros.IPRouteInfo,
+) {
+	link := strings.ToUpper(wan.WANType[:1]) + wan.WANType[1:]
+
+	macvlan := ""
+	for i := range macvlans {
+		if macvlans[i].Interface != wan.Interface {
+			continue
+		}
+		if macvlan == "" || strings.HasSuffix(macvlans[i].Name, "-"+link+" Link") {
+			macvlan = macvlans[i].Name
+		}
+	}
+	if macvlan == "" {
+		return
+	}
+	wan.Macvlan = macvlan
+
+	for i := range dhcpClients {
+		if dhcpClients[i].Interface == macvlan {
+			wan.AddressType = wanIPModeDHCP
+			wan.IP = stripPrefix(dhcpClients[i].Address)
+			break
+		}
+	}
+	if wan.AddressType == "" {
+		for i := range addresses {
+			if addresses[i].Interface == macvlan && !addresses[i].Dynamic {
+				wan.AddressType = wanAddressTypeStatic
+				wan.IP = stripPrefix(addresses[i].Address)
+				break
+			}
+		}
+	}
+
+	routeComment := "Route-to-" + link + "-" + link + " Link"
+	for i := range routes {
+		if routes[i].Comment == routeComment && routes[i].DstAddress == "0.0.0.0/0" && !routes[i].Dynamic {
+			wan.Gateway, _, _ = strings.Cut(routes[i].Gateway, "%")
+			break
+		}
+	}
+}
+
+func stripPrefix(address string) string {
+	ip, _, _ := strings.Cut(address, "/")
+	return ip
 }

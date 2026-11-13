@@ -34,7 +34,7 @@ func persistBridgePort(c echo.Context, client *routeros.Client, iface, bridge st
 	})
 }
 
-func persistNetworkConfigWhenDone(client *routeros.Client, variable, token string) {
+func persistNetworkConfigWhenDone(client *routeros.Client, variable, token string, wifi *db.WiFi) {
 	ctx, cancel := context.WithTimeout(context.Background(), scriptDoneTimeout)
 	defer cancel()
 
@@ -49,6 +49,10 @@ func persistNetworkConfigWhenDone(client *routeros.Client, variable, token strin
 		return
 	}
 
+	if wifi != nil {
+		cfg.WiFis = withWANWiFi(cfg.WiFis, wifi)
+	}
+
 	common.PersistInRouterDB(ctx, log.Printf, client, "save the network configuration", func(ctx context.Context, conn *sqlx.DB) error {
 		return db.SaveNetworkConfig(ctx, conn, cfg)
 	})
@@ -59,4 +63,15 @@ func RemoveBridgePortFromDB(c echo.Context, client *routeros.Client, iface strin
 	common.WithRouterDB(c, client, "delete bridge port "+iface, func(ctx context.Context, conn *sqlx.DB) error {
 		return db.DeleteBridgePort(ctx, conn, iface)
 	})
+}
+
+func withWANWiFi(wifis []db.WiFi, wifi *db.WiFi) []db.WiFi {
+	for i := range wifis {
+		if wifis[i].DefaultName == wifi.DefaultName && wifis[i].Mode == wifi.Mode {
+			wifis[i].SSID = wifi.SSID
+			wifis[i].Password = wifi.Password
+			return wifis
+		}
+	}
+	return append(wifis, *wifi)
 }

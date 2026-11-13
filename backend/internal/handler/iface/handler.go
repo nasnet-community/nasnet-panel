@@ -2,11 +2,13 @@ package iface
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/internal/graph"
 	"nasnet-panel/internal/handler/common"
@@ -322,6 +324,7 @@ func HandleListBridgePorts(c echo.Context) error {
 // @Summary Update WAN Interface
 // @Description Reassign a physical interface as foreign or domestic WAN using the change_wan template.
 // @Description Optional ip is empty or "dhcp" for a DHCP client, or an IPv4 address with an optional prefix to set statically on the macvlan.
+// @Description A wifi interface requires ssid and a password of at least 8 characters. Other interfaces must not send them.
 // @Description Optional gateway defaults to the first address of the network and is only valid with a static ip.
 // @Tags Interface
 // @Security BasicAuth
@@ -378,6 +381,23 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		req.Interface = *iface.DefaultName
 	}
 
+	var wifi *db.WiFi
+	if iface.Type == string(routeros.InterfaceTypeWiFi) {
+		if strings.TrimSpace(req.SSID) == "" {
+			return common.ErrorResponse(c, http.StatusBadRequest, "ssid is required for a wifi interface", nil)
+		}
+		if req.Password == "" {
+			return common.ErrorResponse(c, http.StatusBadRequest, "password is required for a wifi interface", nil)
+		}
+		if len(req.Password) < wanWiFiMinPasswordLength {
+			return common.ErrorResponse(c, http.StatusBadRequest,
+				fmt.Sprintf("password must be at least %d characters", wanWiFiMinPasswordLength), nil)
+		}
+		wifi = wanWiFiRecord(&req)
+	} else if req.SSID != "" || req.Password != "" {
+		return common.ErrorResponse(c, http.StatusBadRequest, "ssid and password are only allowed for a wifi interface", nil)
+	}
+
 	doneToken := strconv.FormatInt(time.Now().UnixNano(), 10)
 	script, err := utils.RenderTemplate("change_wan.tmpl", wanChangeTemplateData{
 		UpdateWANInterfaceRequest: req.escaped(),
@@ -395,7 +415,7 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to execute WAN change script", err)
 	}
 
-	go persistNetworkConfigWhenDone(client, wanChangeDoneVariable, doneToken)
+	go persistNetworkConfigWhenDone(client, wanChangeDoneVariable, doneToken, wifi)
 
 	return common.SuccessResponse(c, http.StatusOK, "WAN interface configured successfully", map[string]interface{}{
 		"interface": req.Interface,
@@ -403,6 +423,63 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		"ip":        wanIPResponse(staticIP, staticPrefix),
 		"gateway":   gateway,
 	})
+}
+
+// HandleListWANs lists the interfaces configured as foreign or domestic WAN.
+//
+// @Summary List WAN interfaces
+// @Description Lists the interfaces commented as foreign or domestic WAN links with their address and gateway.
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} common.Response{data=[]WANResponse}
+// @Failure 401 {object} common.Response
+// @Failure 500 {object} common.Response
+// @Router /api/interface/wans [get].
+func HandleListWANs(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	wans, err := listWANs(client)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to list WAN interfaces", err)
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "WAN interfaces retrieved successfully", wans)
+}
+
+// HandleGetWAN returns a single WAN interface.
+//
+// @Summary Get WAN interface
+// @Description Returns one interface whose comment starts with "WAN -" with its address and gateway.
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "Interface name"
+// @Produce json
+// @Success 200 {object} common.Response{data=WANResponse}
+// @Failure 401 {object} common.Response
+// @Failure 404 {object} common.Response
+// @Failure 500 {object} common.Response
+// @Router /api/interface/wan/{name} [get].
+func HandleGetWAN(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	wan, err := getWAN(client, c.Param("name"))
+	if errors.Is(err, errWANNotFound) {
+		return common.ErrorResponse(c, http.StatusNotFound, "WAN interface not found", err)
+	}
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to get WAN interface", err)
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "WAN interface retrieved successfully", wan)
 }
 
 // HandleGetInterfaceGraph returns traffic statistics for a specific interface.

@@ -295,7 +295,7 @@ add fib name="to-Foreign-Foreign Link" comment="Foreign-Foreign Link"
 
 /routing rule
 {{ if .DomesticEnabled}}
-add action=lookup-only-in-table comment="Router traffic sourced from Domestic WAN address leaves via Domestic" disabled=no src-address=192.168.1.2/32 table=to-Domestic
+add action=lookup-only-in-table comment="Router traffic sourced from Domestic WAN address leaves via Domestic" disabled=no src-address={{ or .DomesticInterface.StaticIP "192.168.1.2" }}/32 table=to-Domestic
 add action=lookup-only-in-table comment="Routing the Domestic SRC Address" disabled=no src-address="192.168.20.0/24" table="to-Domestic"
 add action=lookup-only-in-table comment="Routing the Domestic Routing Mark" disabled=no routing-mark="to-Domestic" table="to-Domestic"
 add action=lookup-only-in-table comment="Routing the Domestic-Domestic Link SRC Address" disabled=no src-address="192.168.21.0/24" table="to-Domestic-Domestic Link"
@@ -385,6 +385,9 @@ add address="10.255.255.1/30" interface="TunnelEnds-main" comment="Hairpin main"
 /ip cloud
 set ddns-enabled=yes ddns-update-interval=1m
 
+{{ if .ForeignInterface.StaticIP }}
+/ip address add address="{{ .ForeignInterface.StaticIP }}/{{ .ForeignInterface.StaticPrefix }}" interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" comment="Foreign Link to Foreign"
+{{ else }}
 /ip dhcp-client
 add add-default-route=no comment="Foreign Link to Foreign" interface="MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" script=":if (\$bound=1) do={\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\
@@ -406,7 +409,12 @@ eway!=\$gw1 ] gateway=\$gw1\
 \n    /ip route set [find comment=\"Route-to-192.168.100.1\" gateway!=\$gw] gateway=\$gw\
 \n}\
 \n}" use-peer-dns=no use-peer-ntp=no
+{{ end }}
 {{ if .DomesticEnabled}}
+{{ if .DomesticInterface.StaticIP }}
+/ip address add address="{{ .DomesticInterface.StaticIP }}/{{ .DomesticInterface.StaticPrefix }}" interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" comment="Domestic Link to Domestic"
+{{ else }}
+/ip dhcp-client
 add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" script=":if (\$bound=1) do={\
 \n:local gw (\$\"gateway-address\" . \"%\" . \$interface)\
 \n:if ([/ip route print count-only where comment=\"Route-to-Domestic-Domestic Link\"] > 0) do={\
@@ -417,6 +425,7 @@ add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-
 \n\
 \n/routing rule set [find comment=\$rc] src-address=\$src\
 \n}" use-peer-dns=no use-peer-ntp=no
+{{ end }}
 {{ end }}
 
 /ip dns
@@ -577,31 +586,31 @@ add interface="LANBridgeVPN" type=internal
 add interface="LANBridgeForeign-Foreign Link" type=internal
 
 /ip route
-add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add dst-address="0.0.0.0/0" gateway="{{ or .ForeignInterface.Gateway "100.64.0.1" }}%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
+add check-gateway=ping dst-address="1.1.1.1" gateway="{{ or .ForeignInterface.Gateway "100.64.0.1" }}%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign-Foreign Link" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
-add dst-address="0.0.0.0/0" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
-add check-gateway=ping dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" \
+add dst-address="0.0.0.0/0" gateway="{{ or .ForeignInterface.Gateway "100.64.0.1" }}%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" comment="Route-to-Foreign-Foreign Link"
+add check-gateway=ping dst-address="1.1.1.1" gateway="{{ or .ForeignInterface.Gateway "100.64.0.1" }}%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" routing-table="to-Foreign" \
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 {{ if .DomesticEnabled}}
-add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+add dst-address="0.0.0.0/0" gateway="{{ or .DomesticInterface.Gateway "192.168.1.1" }}%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
 comment="Route-to-Domestic-Domestic Link"
-add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
+add check-gateway=ping dst-address="217.218.127.127" gateway="{{ or .DomesticInterface.Gateway "192.168.1.1" }}%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic-Domestic Link" \
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
-add dst-address="0.0.0.0/0" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic" comment="Route-to-Domestic-Domestic Link"
-add check-gateway=ping dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic" \
+add dst-address="0.0.0.0/0" gateway="{{ or .DomesticInterface.Gateway "192.168.1.1" }}%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic" comment="Route-to-Domestic-Domestic Link"
+add check-gateway=ping dst-address="217.218.127.127" gateway="{{ or .DomesticInterface.Gateway "192.168.1.1" }}%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" routing-table="to-Domestic" \
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
-add dst-address="217.218.127.127" gateway="192.168.1.1%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" \
+add dst-address="217.218.127.127" gateway="{{ or .DomesticInterface.Gateway "192.168.1.1" }}%MacVLAN-{{ .DomesticInterface.Interface }}-Domestic Link" \
 routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="217.218.127.127" routing-table="main" \
 distance="5" target-scope="11" comment="CheckIP-Route-to-Domestic-Domestic Link"
 {{ end }}
-add dst-address="1.1.1.1" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
+add dst-address="1.1.1.1" gateway="{{ or .ForeignInterface.Gateway "100.64.0.1" }}%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.1.1.1" routing-table="main" \
 distance="10" target-scope="11" comment="CheckIP-Route-to-Foreign-Foreign Link"
-add dst-address="192.168.100.1/32" gateway="100.64.0.1%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
+add dst-address="192.168.100.1/32" gateway="{{ or .ForeignInterface.Gateway "100.64.0.1" }}%MacVLAN-{{ .ForeignInterface.Interface }}-Foreign Link" \
 routing-table="main" comment="Route-to-192.168.100.1"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Split"
 {{ if .DomesticEnabled}}
@@ -611,7 +620,7 @@ add comment="Domestic DNS leak guard" blackhole dst-address=217.218.127.127/32 r
 {{ end }}
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN"
-add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN"
+add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway={{ or .ForeignInterface.Gateway "100.64.0.1" }} routing-table="to-VPN"
 add comment="Blackhole" blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign-Foreign Link"
 add comment="VPN DNS leak guard" blackhole dst-address=1.0.0.1/32 routing-table=main distance=254 scope=30
 add comment="Foreign DNS leak guard" blackhole dst-address=1.1.1.1/32 routing-table=main distance=254 scope=30
@@ -706,6 +715,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :global BaseConfigProgress "90"
 :set BaseConfigMessage "Renewing DHCP clients to pick up new routes"
 
+{{ if not .ForeignInterface.StaticIP }}
 /ip dhcp-client set [find comment="Foreign Link to Foreign"] disabled=yes
 :delay 100ms
 /ip dhcp-client set [find comment="Foreign Link to Foreign"] disabled=no
@@ -720,7 +730,9 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 } else={
     :log warning "Foreign Link interface $foreignDhcpInterface is not running, not waiting for the DHCP client to bind"
 }
+{{ end }}
 {{ if .DomesticEnabled}}
+{{ if not .DomesticInterface.StaticIP }}
 /ip dhcp-client set [find comment="Domestic Link to Domestic"] disabled=yes
 :delay 100ms
 /ip dhcp-client set [find comment="Domestic Link to Domestic"] disabled=no
@@ -735,6 +747,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 } else={
     :log warning "Domestic Link interface $domesticDhcpInterface is not running, not waiting for the DHCP client to bind"
 }
+{{ end }}
 {{ end }}
 :global BaseConfigProgress "95"
 :set BaseConfigMessage "Setting up VPN clients"

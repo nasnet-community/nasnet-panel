@@ -106,6 +106,10 @@ type InterfaceConfig struct {
 	Type2     string
 	SSID      string
 	Password  string
+
+	StaticIP     string
+	StaticPrefix int
+	Gateway      string
 }
 
 // InterfaceConfigRequest represents a network interface configuration. Type is

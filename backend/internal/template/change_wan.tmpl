@@ -8,7 +8,7 @@
 :local oldIfaceName [/interface/get $oldIface name]
 :local oldDefaultName [/interface/get $oldIface default-name]
 :local oldType [/interface/get $oldIface type]
-:log info "$oldIfaceName is saet as foreign link"
+:log info "$oldIfaceName is set as foreign link"
 :foreach mcvln in=[/interface macvlan find where interface="$oldIfaceName"] do={
 :local mcName [/interface/macvlan/get $mcvln name]
 :log info "Removing DHCP client for macvlan: $mcName"

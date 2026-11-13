@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/netip"
 	"strconv"
 	"strings"
 	"time"
@@ -217,6 +218,11 @@ func reconfigInterface(wan *db.WAN, wifis []db.WiFi) InterfaceConfig {
 			cfg.SSID = wifis[i].SSID
 			cfg.Password = wifis[i].Password
 		}
+	}
+	if prefix, err := netip.ParsePrefix(wan.IP); err == nil && prefix.Addr().Is4() {
+		cfg.StaticIP = prefix.Addr().String()
+		cfg.StaticPrefix = prefix.Bits()
+		cfg.Gateway = wan.Gateway
 	}
 	return cfg
 }

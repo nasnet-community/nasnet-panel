@@ -109,6 +109,8 @@ func RegisterRoutes(e *echo.Echo) {
 	interfaceGroup.GET("/interfaces", iface.HandleListInterfaces)
 	interfaceGroup.DELETE("/traffic-counter/:nameOrID", iface.HandleResetInterfaceTrafficCounter)
 	interfaceGroup.PUT("/wan", iface.HandleUpdateWANInterface)
+	interfaceGroup.GET("/wan/:name", iface.HandleGetWAN)
+	interfaceGroup.GET("/wans", iface.HandleListWANs)
 
 	logsGroup := e.Group("/api/logs")
 	logsGroup.Use(middleware.RouterOSAuth)
