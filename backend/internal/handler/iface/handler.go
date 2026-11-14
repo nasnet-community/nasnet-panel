@@ -373,6 +373,11 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "gateway requires a static ip", nil)
 	}
 
+	authTypeProvided := strings.TrimSpace(req.AuthType) != ""
+	if req.AuthType, err = NormalizeWANAuthTypes(req.AuthType); err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid authType", err)
+	}
+
 	iface, err := client.GetInterface(req.Interface)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
@@ -394,8 +399,8 @@ func HandleUpdateWANInterface(c echo.Context) error {
 				fmt.Sprintf("password must be at least %d characters", wanWiFiMinPasswordLength), nil)
 		}
 		wifi = wanWiFiRecord(&req)
-	} else if req.SSID != "" || req.Password != "" {
-		return common.ErrorResponse(c, http.StatusBadRequest, "ssid and password are only allowed for a wifi interface", nil)
+	} else if req.SSID != "" || req.Password != "" || authTypeProvided {
+		return common.ErrorResponse(c, http.StatusBadRequest, "ssid, password and authType are only allowed for a wifi interface", nil)
 	}
 
 	doneToken := strconv.FormatInt(time.Now().UnixNano(), 10)

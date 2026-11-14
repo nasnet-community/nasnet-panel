@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/netip"
+	"slices"
 	"strings"
 	"time"
 
@@ -345,12 +346,33 @@ func wanIPResponse(staticIP string, prefix int) string {
 	return fmt.Sprintf("%s/%d", staticIP, prefix)
 }
 
+// NormalizeWANAuthTypes validates a comma separated list of wifi authentication types and returns it
+// without spaces or duplicates. An empty value yields the default authentication types.
+func NormalizeWANAuthTypes(raw string) (string, error) {
+	if strings.TrimSpace(raw) == "" {
+		return wanWiFiAuthTypes, nil
+	}
+
+	seen := make(map[string]bool)
+	var result []string
+	for _, part := range strings.Split(raw, ",") {
+		value := strings.ToLower(strings.TrimSpace(part))
+		if !slices.Contains(wanWiFiAllowedAuthTypes, value) {
+			return "", fmt.Errorf("invalid authType %q, allowed values are %s",
+				strings.TrimSpace(part), strings.Join(wanWiFiAllowedAuthTypes, ", "))
+		}
+		if !seen[value] {
+			seen[value] = true
+			result = append(result, value)
+		}
+	}
+
+	return strings.Join(result, ","), nil
+}
+
 func wanWiFiRecord(req *UpdateWANInterfaceRequest) *db.WiFi {
 	link := strings.ToUpper(req.Type[:1]) + req.Type[1:]
-	authTypes := ""
-	if req.Type == "domestic" {
-		authTypes = wanWiFiAuthTypes
-	}
+	authTypes := req.AuthType
 	return &db.WiFi{
 		Name:        req.Interface + "-" + link + "-WAN",
 		DefaultName: req.Interface,
@@ -398,7 +420,7 @@ func listWANs(client *routeros.Client) ([]WANResponse, error) {
 	wans := make([]WANResponse, 0, 2)
 	for i := range interfaces {
 		if wanType, ok := dbsync.WANTypeFromComment(interfaces[i].Comment); ok {
-			wans = append(wans, buildWAN(&interfaces[i], wanType, data))
+			wans = append(wans, buildWAN(client, &interfaces[i], wanType, data))
 		}
 	}
 
@@ -423,23 +445,43 @@ func getWAN(client *routeros.Client, name string) (*WANResponse, error) {
 		return nil, err
 	}
 
-	wan := buildWAN(iface, wanType, data)
+	wan := buildWAN(client, iface, wanType, data)
 	return &wan, nil
 }
 
-func buildWAN(iface *routeros.InterfaceInfo, wanType string, data *wanData) WANResponse {
+func buildWAN(client *routeros.Client, iface *routeros.InterfaceInfo, wanType string, data *wanData) WANResponse {
 	wan := newWANResponse(iface, wanType)
 	if iface.Type == string(routeros.InterfaceTypeWiFi) {
 		for i := range data.wifis {
 			if data.wifis[i].Name == iface.Name {
 				ssid, password := data.wifis[i].SSID, data.wifis[i].Passphrase
 				wan.SSID, wan.Password = &ssid, &password
+				wan.AuthType = data.wifis[i].SecurityType
 				break
 			}
 		}
 	}
+	wan.Status = wanInterfaceStatus(client, iface)
 	fillWANAddress(&wan, data.macvlans, data.dhcpClients, data.addresses, data.routes)
 	return wan
+}
+
+func wanInterfaceStatus(client *routeros.Client, iface *routeros.InterfaceInfo) string {
+	switch iface.Type {
+	case string(routeros.InterfaceTypeWiFi):
+		state, err := client.GetWiFiMonitorState(iface.Name)
+		if err != nil {
+			return ""
+		}
+		return state
+	case string(routeros.InterfaceTypeEther):
+		monitor, err := client.GetEthernetMonitor(iface.Name)
+		if err != nil || monitor.Status == nil {
+			return ""
+		}
+		return *monitor.Status
+	}
+	return ""
 }
 
 func newWANResponse(iface *routeros.InterfaceInfo, wanType string) WANResponse {

@@ -70,6 +70,7 @@ func withWANWiFi(wifis []db.WiFi, wifi *db.WiFi) []db.WiFi {
 		if wifis[i].DefaultName == wifi.DefaultName && wifis[i].Mode == wifi.Mode {
 			wifis[i].SSID = wifi.SSID
 			wifis[i].Password = wifi.Password
+			wifis[i].AuthTypes = wifi.AuthTypes
 			return wifis
 		}
 	}

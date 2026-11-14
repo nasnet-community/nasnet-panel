@@ -121,6 +121,7 @@ type UpdateWANInterfaceRequest struct {
 	Type      string `json:"type"      example:"foreign"`
 	SSID      string `json:"ssid"      example:"MyNetwork"`
 	Password  string `json:"password"  example:"secret"`
+	AuthType  string `json:"authType"  example:"wpa2-psk,wpa3-psk"`
 	IP        string `json:"ip"        example:"192.168.1.50/24"`
 	Gateway   string `json:"gateway"   example:"192.168.1.1"`
 }
@@ -133,6 +134,8 @@ type WANResponse struct {
 	Macvlan       string  `json:"macvlan,omitempty"`
 	SSID          *string `json:"ssid,omitempty"`
 	Password      *string `json:"password,omitempty"`
+	AuthType      string  `json:"authType,omitempty"`
+	Status        string  `json:"status,omitempty" enums:"scanning,connecting,authorized,link-ok,no-link" example:"link-ok"`
 	AddressType   string  `json:"addressType,omitempty"`
 	IP            string  `json:"ip,omitempty"`
 	Gateway       string  `json:"gateway,omitempty"`

@@ -72,7 +72,7 @@
 :if ($newType = "wifi") do={
 /interface wifi
 set [ find default-name=$newIfaceName ] name="$newIfaceName-Foreign-WAN" comment="WAN - Foreign Link" configuration.mode=station-pseudobridge .ssid="{{ .SSID }}" \
-security.passphrase="{{ .Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+security.passphrase="{{ .Password }}" security.authentication-types={{ .AuthType }} configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 }
 :delay 1s
@@ -132,7 +132,7 @@ eway!=\$gw1 ] gateway=\$gw1\
 :if ($newType = "wifi") do={
 /interface wifi
 set [ find default-name=$newIfaceName ] name="$newIfaceName-Domestic-WAN" comment="WAN - Domestic Link" configuration.mode=station-pseudobridge .ssid="{{ .SSID }}" \
-security.passphrase="{{ .Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+security.passphrase="{{ .Password }}" security.authentication-types={{ .AuthType }} configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
 }
 :delay 1s

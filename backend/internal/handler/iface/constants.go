@@ -24,4 +24,6 @@ const (
 	wanWiFiAuthTypes         = "wpa2-psk,wpa3-psk"
 )
 
+var wanWiFiAllowedAuthTypes = []string{"wpa-psk", "wpa2-psk", "wpa3-psk"}
+
 var errWANNotFound = errors.New("interface is not a WAN link")
