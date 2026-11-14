@@ -482,6 +482,65 @@ func HandleGetWAN(c echo.Context) error {
 	return common.SuccessResponse(c, http.StatusOK, "WAN interface retrieved successfully", wan)
 }
 
+// HandleDeleteWAN removes the WAN assignment of an interface and returns it to the LAN.
+// It removes the macvlan with its DHCP client, address, interface-list membership and routes,
+// then restores the interface and its bridge port.
+//
+// @Summary Delete WAN Interface
+// @Description Remove the foreign or domestic WAN assignment of an interface using the remove_wan template
+// @Tags Interface
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "Interface name"
+// @Produce json
+// @Success 200 {object} common.Response{data=map[string]interface{}}
+// @Failure 401 {object} common.Response
+// @Failure 404 {object} common.Response
+// @Failure 500 {object} common.Response
+// @Router /api/interface/wan/{name} [delete].
+func HandleDeleteWAN(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	iface, err := client.GetInterface(c.Param("name"))
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
+	}
+	wanType, ok := dbsync.WANTypeFromComment(iface.Comment)
+	if !ok {
+		return common.ErrorResponse(c, http.StatusNotFound, "WAN interface not found", errWANNotFound)
+	}
+
+	name := iface.Name
+	if iface.DefaultName != nil {
+		name = *iface.DefaultName
+	}
+
+	doneToken := strconv.FormatInt(time.Now().UnixNano(), 10)
+	script, err := utils.RenderTemplate("remove_wan.tmpl", removeWANTemplateData{
+		Interface:    name,
+		Type:         wanType,
+		DoneToken:    doneToken,
+		OldWiFiNames: oldWANWiFiNames(client, wanType),
+	})
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render remove_wan template", err)
+	}
+
+	if err := client.ExecuteScriptString(script); err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to execute WAN removal script", err)
+	}
+
+	go persistNetworkConfigWhenDone(client, wanRemoveDoneVariable, doneToken, nil)
+
+	return common.SuccessResponse(c, http.StatusOK, "WAN interface removed successfully", map[string]interface{}{
+		"interface": name,
+		"type":      wanType,
+	})
+}
+
 // HandleGetInterfaceGraph returns traffic statistics for a specific interface.
 // @Summary Get interface traffic graph
 // @Description Returns historical traffic data (send/receive rates) for a specific interface

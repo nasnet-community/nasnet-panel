@@ -140,6 +140,13 @@ type WANResponse struct {
 	Comment       string  `json:"comment,omitempty"`
 }
 
+type removeWANTemplateData struct {
+	Interface    string
+	Type         string
+	DoneToken    string
+	OldWiFiNames map[string]string
+}
+
 type wanData struct {
 	wifis       []routeros.WifiInfo
 	macvlans    []routeros.MacvlanInfo

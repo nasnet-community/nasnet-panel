@@ -17,73 +17,24 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/app/check-for-updates": {
-            "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Compares the running version against the latest GitHub release",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "App"
-                ],
-                "summary": "Check for a newer nasnet-panel release",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "RouterOS host address",
-                        "name": "X-RouterOS-Host",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/app.CheckForUpdatesResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "502": {
-                        "description": "Bad Gateway",
-                        "schema": {
-                            "$ref": "#/definitions/common.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/app/install-update": {
+        "/api/app/newsletter": {
             "post": {
                 "security": [
                     {
                         "BasicAuth": []
                     }
                 ],
-                "description": "Checks the latest GitHub release and, if newer than the running\nversion, pulls it into a fresh nasnet-panel-update container alongside\nthe running one. Once the pull finishes, nasnet-panel-update is promoted\ninto nasnet-panel's place and started; poll /api/app/update-status for\nprogress.",
+                "description": "Forwards the subscription to the joinnasnet.com newsletter service with the same fields and returns its reply.\nThe website field is a honeypot and must be left empty.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "App"
                 ],
-                "summary": "Install the latest nasnet-panel release",
+                "summary": "Subscribe to the Nasnet newsletter",
                 "parameters": [
                     {
                         "type": "string",
@@ -91,6 +42,15 @@ const docTemplate = `{
                         "name": "X-RouterOS-Host",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "description": "Newsletter subscription",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app.NewsletterRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -105,11 +65,17 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/common.InstallUpdateResponse"
+                                            "$ref": "#/definitions/app.NewsletterResponse"
                                         }
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
                         }
                     },
                     "502": {
@@ -463,7 +429,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Looks the version up among the GitHub releases and reads its minimum RouterOS version\nfrom the metadata embedded in the release body, 7.24 when the release has none. When the\nrouter runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal\nto the running one answers 200 with updateAvailable false, a lower one answers 400. Otherwise\npulls the release into a fresh nasnet-panel-update container and promotes it in the\nbackground; poll /api/app/update/status for progress. When the release's autoReconfigable is true,\nthe router is reconfigured from its stored configuration after the new version is running, and\nthe progress is reported by the same status endpoint.",
+                "description": "Looks the version up among the GitHub releases and reads its minimum RouterOS version\nfrom the metadata embedded in the release body, 7.24 when the release has none. When the\nrouter runs an older RouterOS, answers 412 asking to update RouterOS first. A version equal\nto the running one answers 200 with updateAvailable false; a lower one is installed as a\ndowngrade like any other version. Otherwise pulls the release into a fresh nasnet-panel-update container and promotes it in the\nbackground; poll /api/app/update/status for progress. When the release's autoReconfigable is true,\nthe router is reconfigured from its stored configuration after the new version is running, and\nthe progress is reported by the same status endpoint.",
                 "consumes": [
                     "application/json"
                 ],
@@ -550,52 +516,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/app/update-status": {
-            "get": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Returns the current phase of an in-progress or completed self-update",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "App"
-                ],
-                "summary": "Get self-update status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "RouterOS host address",
-                        "name": "X-RouterOS-Host",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/common.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/app.UpdateStatusResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/api/app/update/channel": {
             "get": {
                 "security": [
@@ -655,7 +575,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Returns the current phase of an in-progress or completed self-update, the same state /api/app/update-status reports.\nWhen the update was started for a release whose autoReconfigable is true, the response also carries the\nstate, current step and progress of the reconfiguration that runs once the new version is up. The new\nversion starts it the first time this endpoint is called after it came up; until then the state is pending.",
+                "description": "Returns the current phase of an in-progress or completed self-update,.\nWhen the update was started for a release whose autoReconfigable is true, the response also carries the\nstate, current step and progress of the reconfiguration that runs once the new version is up. The new\nversion starts it the first time this endpoint is called after it came up; until then the state is pending.",
                 "produces": [
                     "application/json"
                 ],
@@ -773,7 +693,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Lists the GitHub releases whose tag belongs to the channel: stable (vX.Y.Z), rc (vX.Y.Z-rc.N) or dev (vX.Y.Z-dev.DATE.N). The minimum RouterOS version comes from the metadata embedded in the release body, 7.24 when the release has none",
+                "description": "Lists the GitHub releases whose tag belongs to the channel: stable (vX.Y.Z), rc (vX.Y.Z-rc.N) or dev (vX.Y.Z-dev.DATE.N).\nThe minimum RouterOS version comes from the metadata embedded in the release body, 7.24 when the release has none.\nThe isLowerVersion field is true when the release is lower than the running version, and always false when the running version is not a release version.",
                 "produces": [
                     "application/json"
                 ],
@@ -2972,6 +2892,134 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/firewall/addresslist/domestic/update": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Starts the DomesticIPUpdate script on the router with /execute, so the request returns as soon\nas the job is queued and does not wait for the script to finish.\nIf an update is already running or was just started for the same router, nothing is started and 409 is returned.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Firewall"
+                ],
+                "summary": "Update the domestic address list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Script started",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Script not found",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "An update is already running",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/firewall/addresslist/domestic/update/status": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Reports the progress percentage, current step and message of the DomesticIPUpdate script, read from\nthe script's environment variables on the router. They keep the last run's values until the router reboots.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Firewall"
+                ],
+                "summary": "Get the domestic address list update status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update status",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/firewall.DomesticAddressListUpdateStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/firewall/addresslist/domestic/{id}": {
             "put": {
                 "security": [
@@ -3941,7 +3989,7 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Reassign a physical interface as foreign or domestic WAN using the change_wan template",
+                "description": "Reassign a physical interface as foreign or domestic WAN using the change_wan template.\nOptional ip is empty or \"dhcp\" for a DHCP client, or an IPv4 address with an optional prefix to set statically on the macvlan.\nA wifi interface requires ssid and a password of at least 8 characters. Other interfaces must not send them.\nOptional gateway defaults to the first address of the network and is only valid with a static ip.",
                 "consumes": [
                     "application/json"
                 ],
@@ -3998,6 +4046,208 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/wan/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Returns one interface whose comment starts with \"WAN -\" with its address and gateway.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Get WAN interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/iface.WANResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Remove the foreign or domestic WAN assignment of an interface using the remove_wan template",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "Delete WAN Interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interface name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interface/wans": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Lists the interfaces commented as foreign or domestic WAN links with their address and gateway.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interface"
+                ],
+                "summary": "List WAN interfaces",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/iface.WANResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/common.Response"
                         }
@@ -5990,6 +6240,179 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/system/scheduler/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve a /system/scheduler entry by name: enabled state, start date and time, interval in\nhuman-readable form (weeks are summed up into days), run count and next run.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Get a scheduler entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Scheduler name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Scheduler details",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/system.SchedulerResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Scheduler not found",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Change the start time and/or interval of a /system/scheduler entry.\nBoth fields are optional, but at least one is required.\nstartTime is HH:MM:SS or \"startup\".\ninterval accepts RouterOS time such as 1w2d, 1d12h30m or 10m, or a clock form such as \"1d 00:00:00\" or HH:MM:SS.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "Update a scheduler entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Scheduler name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Scheduler settings to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.UpdateSchedulerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated scheduler",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/common.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/system.SchedulerResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Scheduler not found",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/common.Response"
+                        }
+                    },
+                    "502": {
+                        "description": "RouterOS lookup failed",
                         "schema": {
                             "$ref": "#/definitions/common.Response"
                         }
@@ -10217,26 +10640,6 @@ const docTemplate = `{
                 }
             }
         },
-        "app.CheckForUpdatesResponse": {
-            "type": "object",
-            "properties": {
-                "appVersion": {
-                    "type": "string"
-                },
-                "latestVersion": {
-                    "type": "string"
-                },
-                "releaseDate": {
-                    "type": "string"
-                },
-                "releaseUrl": {
-                    "type": "string"
-                },
-                "updateAvailable": {
-                    "type": "boolean"
-                }
-            }
-        },
         "app.CreateSettingRequest": {
             "type": "object",
             "properties": {
@@ -10247,6 +10650,34 @@ const docTemplate = `{
                 "value": {
                     "type": "string",
                     "example": "dark"
+                }
+            }
+        },
+        "app.NewsletterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "locale": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "website": {
+                    "type": "string",
+                    "example": ""
+                }
+            }
+        },
+        "app.NewsletterResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "ok": {
+                    "type": "boolean"
                 }
             }
         },
@@ -10261,6 +10692,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "isLowerVersion": {
+                    "type": "boolean"
                 },
                 "minAppVersion": {
                     "type": "string"
@@ -10914,6 +11348,41 @@ const docTemplate = `{
                 }
             }
         },
+        "firewall.DomesticAddressListUpdateStatusResponse": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "string",
+                    "example": "2026-11-05 12:01:30"
+                },
+                "failed": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Fetching page 2 (attempt 1/4)"
+                },
+                "progress": {
+                    "type": "integer",
+                    "example": 45
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "2026-11-05 12:00:00"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "running"
+                },
+                "step": {
+                    "type": "string",
+                    "example": "fetching"
+                }
+            }
+        },
         "firewall.DomesticAddressResponse": {
             "type": "object",
             "properties": {
@@ -11310,9 +11779,17 @@ const docTemplate = `{
         "iface.UpdateWANInterfaceRequest": {
             "type": "object",
             "properties": {
+                "gateway": {
+                    "type": "string",
+                    "example": "192.168.1.1"
+                },
                 "interface": {
                     "type": "string",
                     "example": "ether2"
+                },
+                "ip": {
+                    "type": "string",
+                    "example": "192.168.1.50/24"
                 },
                 "password": {
                     "type": "string",
@@ -11325,6 +11802,44 @@ const docTemplate = `{
                 "type": {
                     "type": "string",
                     "example": "foreign"
+                }
+            }
+        },
+        "iface.WANResponse": {
+            "type": "object",
+            "properties": {
+                "addressType": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "gateway": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "interfaceType": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "macvlan": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "ssid": {
+                    "type": "string"
+                },
+                "wanType": {
+                    "type": "string"
                 }
             }
         },
@@ -11717,6 +12232,39 @@ const docTemplate = `{
                 }
             }
         },
+        "system.SchedulerResponse": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "interval": {
+                    "type": "string",
+                    "example": "9d 02:00:00"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "daily-backup"
+                },
+                "nextRun": {
+                    "type": "string",
+                    "example": "2026-11-13 05:00:00"
+                },
+                "runCount": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "startDate": {
+                    "type": "string",
+                    "example": "2026-11-04"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "03:00:00"
+                }
+            }
+        },
         "system.SetSystemIdentityRequest": {
             "type": "object",
             "properties": {
@@ -11814,6 +12362,19 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "system.UpdateSchedulerRequest": {
+            "type": "object",
+            "properties": {
+                "interval": {
+                    "type": "string",
+                    "example": "1d 00:00:00"
+                },
+                "startTime": {
+                    "type": "string",
+                    "example": "03:00:00"
                 }
             }
         },

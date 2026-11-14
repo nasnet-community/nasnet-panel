@@ -8,6 +8,7 @@ import (
 
 const (
 	wanChangeDoneVariable    = "ChangeWANDone"
+	wanRemoveDoneVariable    = "RemoveWANDone"
 	scriptDoneTimeout        = time.Minute
 	scriptDonePollEvery      = 500 * time.Millisecond
 	wanIPModeDHCP            = "dhcp"

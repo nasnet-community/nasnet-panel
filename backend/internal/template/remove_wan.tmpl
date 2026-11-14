@@ -1,0 +1,41 @@
+:local oldIface [/interface/find where default-name="{{ .Interface }}"]
+:if ([:len $oldIface] = 0) do={
+:set oldIface [/interface/find where name="{{ .Interface }}" and default-name!=""]
+}
+:local oldIfaceName [/interface/get $oldIface name]
+:local oldDefaultName [/interface/get $oldIface default-name]
+:local oldType [/interface/get $oldIface type]
+
+:foreach mcvln in=[/interface macvlan find where interface="$oldIfaceName"] do={
+:local mcName [/interface/macvlan/get $mcvln name]
+:log info "Removing DHCP client for macvlan: $mcName"
+/ip dhcp-client remove [find interface="$mcName"]
+/ip address remove [find interface="$mcName"]
+:log info "Removing macvlan: $mcName"
+/interface list member remove [find interface=$mcvln]
+/interface/macvlan/remove [find name=$mcName]
+}
+
+/ip route remove [find gateway~"MacVLAN-$oldIfaceName" and dynamic=no]
+{{ if eq .Type "foreign" }}
+/ip route remove [find comment="Route-to-Foreign-Foreign Link" and dynamic=no]
+/ip route remove [find comment="Route-to-Foreign-Foreign Link 1" and dynamic=no]
+/ip route remove [find comment="CheckIP-Route-to-Foreign-Foreign Link" and dynamic=no]
+{{ else }}
+/ip route remove [find comment="Route-to-Domestic-Domestic Link" and dynamic=no]
+/ip route remove [find comment="CheckIP-Route-to-Domestic-Domestic Link" and dynamic=no]
+{{ end }}
+
+/interface set $oldIface name="$oldDefaultName" comment="Split"
+:local oldNewName $oldDefaultName
+{{ range $defaultName, $name := .OldWiFiNames }}:if ($oldDefaultName = "{{ $defaultName }}") do={ :set oldNewName "{{ $name }}" }
+{{ end }}:if ($oldNewName != $oldDefaultName) do={ /interface set $oldIface name=$oldNewName }
+:if ($oldType = "wifi") do={
+:local wlanMac  [/interface get [/interface find where default-name=$oldDefaultName] mac-address];
+:local ssid "MikroTik-$[:pick $wlanMac 9 11]$[:pick $wlanMac 12 14]$[:pick $wlanMac 15 17]"
+/interface wifi set $oldIface configuration.mode=ap configuration.ssid=$ssid
+}
+:if ([:len [/interface bridge port find where interface="$oldNewName"] ] = 0) do={
+/interface bridge port add bridge=LANBridgeSplit interface="$oldNewName" comment="Split"
+}
+:global RemoveWANDone "{{ .DoneToken }}"
