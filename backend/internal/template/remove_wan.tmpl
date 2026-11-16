@@ -34,6 +34,9 @@
 :local wlanMac  [/interface get [/interface find where default-name=$oldDefaultName] mac-address];
 :local ssid "MikroTik-$[:pick $wlanMac 9 11]$[:pick $wlanMac 12 14]$[:pick $wlanMac 15 17]"
 /interface wifi set $oldIface configuration.mode=ap configuration.ssid=$ssid
+:local oldAuth ""
+:do { :set oldAuth [/interface wifi get $oldIface security.authentication-types] } on-error={}
+:if ([:len $oldAuth] = 0) do={ /interface wifi set $oldIface disabled=yes }
 }
 :if ([:len [/interface bridge port find where interface="$oldNewName"] ] = 0) do={
 /interface bridge port add bridge=LANBridgeSplit interface="$oldNewName" comment="Split"

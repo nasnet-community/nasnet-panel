@@ -271,6 +271,30 @@ func (r UpdateWANInterfaceRequest) escaped() UpdateWANInterfaceRequest {
 	return r
 }
 
+// ResolveWANAddressing validates the ip and gateway of a WAN request for the given link type
+// ("foreign" or "domestic"). On failure it returns a short message together with the error.
+func ResolveWANAddressing(wanType, ip, gateway string) (WANAddressing, string, error) {
+	prefix, defaultGateway := wanDomesticPrefix, wanDomesticGateway
+	if wanType == "foreign" {
+		prefix, defaultGateway = wanForeignPrefix, wanForeignGateway
+	}
+
+	staticIP, prefix, err := ParseWANStaticIP(ip, prefix)
+	if err != nil {
+		return WANAddressing{}, "Invalid ip", err
+	}
+	switch {
+	case staticIP != "":
+		if defaultGateway, err = ResolveWANGateway(staticIP, prefix, gateway); err != nil {
+			return WANAddressing{}, "Invalid gateway", err
+		}
+	case strings.TrimSpace(gateway) != "":
+		return WANAddressing{}, "Invalid gateway", errors.New("gateway requires a static ip")
+	}
+
+	return WANAddressing{StaticIP: staticIP, Prefix: prefix, Gateway: defaultGateway}, "", nil
+}
+
 // ParseWANStaticIP parses the ip field of a WAN request. It returns an empty address when DHCP is
 // requested, otherwise the IPv4 address and its prefix length, using defaultPrefix when none is given.
 func ParseWANStaticIP(raw string, defaultPrefix int) (address string, prefix int, err error) {
@@ -527,7 +551,7 @@ func fillWANAddress(wan *WANResponse, macvlans []routeros.MacvlanInfo, dhcpClien
 		for i := range addresses {
 			if addresses[i].Interface == macvlan && !addresses[i].Dynamic {
 				wan.AddressType = wanAddressTypeStatic
-				wan.IP = stripPrefix(addresses[i].Address)
+				wan.IP = addresses[i].Address
 				break
 			}
 		}

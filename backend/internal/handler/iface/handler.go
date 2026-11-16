@@ -355,22 +355,9 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "type must be 'foreign' or 'domestic'", nil)
 	}
 
-	staticPrefix, gateway := wanDomesticPrefix, wanDomesticGateway
-	if req.Type == "foreign" {
-		staticPrefix, gateway = wanForeignPrefix, wanForeignGateway
-	}
-
-	staticIP, staticPrefix, err := ParseWANStaticIP(req.IP, staticPrefix)
+	addressing, message, err := ResolveWANAddressing(req.Type, req.IP, req.Gateway)
 	if err != nil {
-		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid ip", err)
-	}
-	switch {
-	case staticIP != "":
-		if gateway, err = ResolveWANGateway(staticIP, staticPrefix, req.Gateway); err != nil {
-			return common.ErrorResponse(c, http.StatusBadRequest, "Invalid gateway", err)
-		}
-	case strings.TrimSpace(req.Gateway) != "":
-		return common.ErrorResponse(c, http.StatusBadRequest, "gateway requires a static ip", nil)
+		return common.ErrorResponse(c, http.StatusBadRequest, message, err)
 	}
 
 	authTypeProvided := strings.TrimSpace(req.AuthType) != ""
@@ -392,9 +379,8 @@ func HandleUpdateWANInterface(c echo.Context) error {
 			return common.ErrorResponse(c, http.StatusBadRequest, "ssid is required for a wifi interface", nil)
 		}
 		if req.Password == "" {
-			return common.ErrorResponse(c, http.StatusBadRequest, "password is required for a wifi interface", nil)
-		}
-		if len(req.Password) < wanWiFiMinPasswordLength {
+			req.AuthType = ""
+		} else if len(req.Password) < wanWiFiMinPasswordLength {
 			return common.ErrorResponse(c, http.StatusBadRequest,
 				fmt.Sprintf("password must be at least %d characters", wanWiFiMinPasswordLength), nil)
 		}
@@ -408,9 +394,9 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		UpdateWANInterfaceRequest: req.escaped(),
 		DoneToken:                 doneToken,
 		OldWiFiNames:              oldWANWiFiNames(client, req.Type),
-		StaticIP:                  staticIP,
-		StaticPrefix:              staticPrefix,
-		Gateway:                   gateway,
+		StaticIP:                  addressing.StaticIP,
+		StaticPrefix:              addressing.Prefix,
+		Gateway:                   addressing.Gateway,
 	})
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render change_wan template", err)
@@ -425,8 +411,8 @@ func HandleUpdateWANInterface(c echo.Context) error {
 	return common.SuccessResponse(c, http.StatusOK, "WAN interface configured successfully", map[string]interface{}{
 		"interface": req.Interface,
 		"type":      req.Type,
-		"ip":        wanIPResponse(staticIP, staticPrefix),
-		"gateway":   gateway,
+		"ip":        wanIPResponse(addressing.StaticIP, addressing.Prefix),
+		"gateway":   addressing.Gateway,
 	})
 }
 

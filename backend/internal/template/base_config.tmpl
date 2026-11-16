@@ -125,9 +125,14 @@ add name="TunnelEnds-hairpin" comment="NasNet: internal segment carrying VRF-Tun
 {{ if eq .ForeignInterface.Type "wifi" }}
 :log info ("Connecting Foreign WAN to WiFi: {{ .ForeignInterface.SSID }}")
 /interface wifi
+unset [ find default-name={{ .ForeignInterface.Interface }} ] security.authentication-types
+unset [ find default-name={{ .ForeignInterface.Interface }} ] security.passphrase
 set [ find default-name={{ .ForeignInterface.Interface }} ] name="{{ .ForeignInterface.Interface }}-Foreign-WAN" comment="WAN - Foreign Link" configuration.mode=station-pseudobridge .ssid="{{ .ForeignInterface.SSID }}" \
-security.passphrase="{{ .ForeignInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
+{{ if .ForeignInterface.Password }}
+set [ find default-name={{ .ForeignInterface.Interface }} ] security.authentication-types="{{ or .ForeignInterface.AuthType "wpa2-psk,wpa3-psk" }}" security.passphrase="{{ .ForeignInterface.Password }}"
+{{ end }}
 :local foreignWifi [/interface/wifi get [ find default-name={{ .ForeignInterface.Interface }} ] name]
 :local maxWait   30
 :local waited 0
@@ -154,12 +159,25 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
 {{ if and .DomesticEnabled (eq .DomesticInterface.Type "wifi") }}
 :log info ("Connecting Domestic WAN to WiFi: {{ .DomesticInterface.SSID }}")
 /interface wifi
+unset [ find default-name={{ .DomesticInterface.Interface }} ] security.authentication-types
+unset [ find default-name={{ .DomesticInterface.Interface }} ] security.passphrase
 set [ find default-name={{ .DomesticInterface.Interface }} ] name="{{ .DomesticInterface.Interface }}-Domestic-WAN" comment="WAN - Domestic Link" configuration.mode=station-pseudobridge .ssid="{{ .DomesticInterface.SSID }}" \
-security.authentication-types=wpa2-psk,wpa3-psk security.passphrase="{{ .DomesticInterface.Password }}" configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
+{{ if .DomesticInterface.Password }}
+set [ find default-name={{ .DomesticInterface.Interface }} ] security.authentication-types="{{ or .DomesticInterface.AuthType "wpa2-psk,wpa3-psk" }}" security.passphrase="{{ .DomesticInterface.Password }}"
+{{ end }}
 :local domesticWifi [/interface/wifi get [ find default-name={{ .DomesticInterface.Interface }} ] name]
+{{ if not .DomesticInterface.Password }}
+:local domesticAuthTypes {""; ""}
+:local domesticMaxWaits {60; 0}
+{{ else if or (not .DomesticInterface.AuthType) (eq .DomesticInterface.AuthType "wpa2-psk,wpa3-psk") }}
 :local domesticAuthTypes {"wpa2-psk,wpa3-psk"; "wpa-psk,wpa2-psk"}
 :local domesticMaxWaits {30; 30}
+{{ else }}
+:local domesticAuthTypes {"{{ .DomesticInterface.AuthType }}"; "{{ .DomesticInterface.AuthType }}"}
+:local domesticMaxWaits {60; 0}
+{{ end }}
 :local waited 0
 :local connected false
 :for domesticAttempt from=0 to=1 do={
@@ -168,7 +186,7 @@ security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabl
         :local maxWait ($domesticMaxWaits->$domesticAttempt)
         :if ($domesticAttempt > 0) do={
             :log warning ("wifi station (" . $domesticWifi . ") did not connect with wpa2-psk,wpa3-psk, retrying with " . $authTypes)
-            /interface/wifi set $domesticWifi security.authentication-types=$authTypes
+            :if ($authTypes != "") do={ /interface/wifi set $domesticWifi security.authentication-types=$authTypes }
         }
         :set waited 0
         :while (($waited < $maxWait) && ($connected = false)) do={

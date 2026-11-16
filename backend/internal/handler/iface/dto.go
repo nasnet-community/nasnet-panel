@@ -158,6 +158,13 @@ type wanData struct {
 	routes      []routeros.IPRouteInfo
 }
 
+// WANAddressing is the resolved addressing of a WAN link: an empty StaticIP means DHCP.
+type WANAddressing struct {
+	StaticIP string
+	Prefix   int
+	Gateway  string
+}
+
 type wanChangeTemplateData struct {
 	UpdateWANInterfaceRequest
 	DoneToken    string

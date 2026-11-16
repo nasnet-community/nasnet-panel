@@ -64,16 +64,21 @@
 
 {{ if eq .Type "foreign" }}
 /ip route remove [find comment="Route-to-Foreign-Foreign Link" and dynamic=no]
-/ip route remove [find comment="Route-to-Foreign-Foreign Link 1" and dynamic=no]
+/ip route remove [find comment="Route-to-Foreign-Foreign Link 1" and routing-table="to-VPN" and dynamic=no]
 
 :if ($newType = "ether") do={
 /interface ethernet set [ find default-name=$newIfaceName ] comment="WAN - Foreign Link"
 }
 :if ($newType = "wifi") do={
 /interface wifi
+unset [ find default-name=$newIfaceName ] security.authentication-types
+unset [ find default-name=$newIfaceName ] security.passphrase
 set [ find default-name=$newIfaceName ] name="$newIfaceName-Foreign-WAN" comment="WAN - Foreign Link" configuration.mode=station-pseudobridge .ssid="{{ .SSID }}" \
-security.passphrase="{{ .Password }}" security.authentication-types={{ .AuthType }} configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
+{{ if .Password }}
+set [ find default-name=$newIfaceName ] security.authentication-types="{{ .AuthType }}" security.passphrase="{{ .Password }}"
+{{ end }}
 }
 :delay 1s
 :local newIfaceName [/interface/get $newIface name]
@@ -96,7 +101,11 @@ add check-gateway=ping dst-address="1.1.1.1" gateway="{{ .Gateway }}%MacVLAN-$ne
 distance=1 target-scope="11" comment="Route-to-Foreign-Foreign Link"
 add dst-address="1.1.1.1" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Foreign Link" \
 routing-table="main" scope="10" comment="Route-to-Foreign-Foreign Link"
-add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway={{ .Gateway }} routing-table="to-VPN"
+:if ([:len [/ip route find where comment="CheckIP-Route-to-Foreign-Foreign Link" and dynamic=no]] = 0) do={
+/ip route add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.1.1.1" routing-table="main" distance="10" target-scope="11" comment="CheckIP-Route-to-Foreign-Foreign Link"
+}
+/ip route add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway={{ .Gateway }} routing-table="to-VPN"
+/ip route set [find comment="Route-to-Foreign-Foreign Link 1" and dynamic=no] gateway={{ .Gateway }}
 {{ if .StaticIP }}
 /ip address remove [find interface="MacVLAN-$newIfaceName-Foreign Link"]
 /ip address add address="{{ .StaticIP }}/{{ .StaticPrefix }}" interface="MacVLAN-$newIfaceName-Foreign Link" comment="Foreign Link to Foreign"
@@ -131,9 +140,14 @@ eway!=\$gw1 ] gateway=\$gw1\
 }
 :if ($newType = "wifi") do={
 /interface wifi
+unset [ find default-name=$newIfaceName ] security.authentication-types
+unset [ find default-name=$newIfaceName ] security.passphrase
 set [ find default-name=$newIfaceName ] name="$newIfaceName-Domestic-WAN" comment="WAN - Domestic Link" configuration.mode=station-pseudobridge .ssid="{{ .SSID }}" \
-security.passphrase="{{ .Password }}" security.authentication-types={{ .AuthType }} configuration.station-roaming=yes configuration.multicast-enhance=enabled \
+configuration.station-roaming=yes configuration.multicast-enhance=enabled \
 security.ft=yes security.ft-over-ds=yes steering.rrm=yes steering.wnm=yes disabled=no
+{{ if .Password }}
+set [ find default-name=$newIfaceName ] security.authentication-types="{{ .AuthType }}" security.passphrase="{{ .Password }}"
+{{ end }}
 }
 :delay 1s
 :local newIfaceName [/interface/get $newIface name]
@@ -152,6 +166,9 @@ add check-gateway=ping dst-address="217.218.127.127" gateway="{{ .Gateway }}%Mac
 distance=1 target-scope="11" comment="Route-to-Domestic-Domestic Link"
 add dst-address="217.218.127.127" gateway="{{ .Gateway }}%MacVLAN-$newIfaceName-Domestic Link" \
 routing-table="main" scope="10" comment="Route-to-Domestic-Domestic Link"
+:if ([:len [/ip route find where comment="CheckIP-Route-to-Domestic-Domestic Link" and dynamic=no]] = 0) do={
+/ip route add check-gateway=ping dst-address="0.0.0.0/0" gateway="217.218.127.127" routing-table="main" distance="5" target-scope="11" comment="CheckIP-Route-to-Domestic-Domestic Link"
+}
 {{ if .StaticIP }}
 /ip address remove [find interface="MacVLAN-$newIfaceName-Domestic Link"]
 /ip address add address="{{ .StaticIP }}/{{ .StaticPrefix }}" interface="MacVLAN-$newIfaceName-Domestic Link" comment="Domestic Link to Domestic"
