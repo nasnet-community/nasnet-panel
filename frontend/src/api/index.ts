@@ -131,6 +131,7 @@ export {
   addDomesticAddress,
   updateDomesticAddress,
   deleteDomesticAddress,
+  domesticAddressConflict,
   startDomesticListUpdate,
   fetchDomesticListUpdateStatus,
   fetchDomesticCountry,
@@ -143,6 +144,7 @@ export {
   type DomesticBlockResponse,
   type DomesticBlockRule,
   type DomesticAddress,
+  type DomesticAddressConflict,
   type DomesticAddressListInfo,
   type UpdateDomesticAddressRequest,
 } from './firewall';

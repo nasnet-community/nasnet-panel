@@ -237,8 +237,9 @@ func HandleListDomesticAddresses(c echo.Context) error {
 // @Summary Edit an address the user added to the domestic address list
 // @Description Changes the address, and optionally the timeout, of a user added entry of DOMAddList. The
 // @Description address must be an IPv4 address or CIDR range that is not already covered by another entry of
-// @Description the list. The timeout is a RouterOS time such as 1d, 2h30m or 00:10:00 and is left unchanged
-// @Description when omitted. Returns 404 when the id is not a user added entry of the list.
+// @Description the list, and that is not, and does not contain, 0.0.0.0, a panel check IP or a Netwatch host
+// @Description (see the add endpoint). The timeout is a RouterOS time such as 1d, 2h30m or 00:10:00 and is left
+// @Description unchanged when omitted. Returns 404 when the id is not a user added entry of the list.
 // @Tags Firewall
 // @Accept json
 // @Produce json
@@ -247,7 +248,7 @@ func HandleListDomesticAddresses(c echo.Context) error {
 // @Param id path string true "RouterOS entry id" example(*1A)
 // @Param body body UpdateDomesticAddressRequest true "New address and optional timeout"
 // @Success 200 {object} common.Response{data=DomesticAddressItemResponse} "Entry updated"
-// @Failure 400 {object} common.Response "Invalid id, address or timeout"
+// @Failure 400 {object} common.Response{data=DomesticAddressConflictResponse} "Invalid id, address or timeout, or reserved address"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 404 {object} common.Response "User added entry not found"
 // @Failure 409 {object} common.Response "Address already covered by another entry in the list"
@@ -292,6 +293,10 @@ func HandleUpdateDomesticAddress(c echo.Context) error {
 	}
 
 	if address != current.Address {
+		if handled, err := checkDomesticReservedAddress(c, client, address); handled {
+			return err
+		}
+
 		covering, err := client.FindFirewallAddressListEntries(DomesticAddressList, address)
 		if err != nil {
 			if common.IsCredentialError(err) {
@@ -378,8 +383,10 @@ func HandleDeleteDomesticAddress(c echo.Context) error {
 // @Summary Add an address to the domestic address list
 // @Description Validates an IPv4 address or CIDR range and adds it to the DOMAddList firewall address list
 // @Description with the comment "NasNet Panel: user added", so entries added by a user can be told apart from
-// @Description the ones the list updater maintains. 0.0.0.0/0 is rejected. Returns 409 when an entry that
-// @Description already covers the address is in the list.
+// @Description the ones the list updater maintains. Returns 400 when the address is, or contains, 0.0.0.0, an
+// @Description address the panel routes and pings to check a link (217.218.127.127, 1.1.1.1, 1.0.0.1) or a host
+// @Description Netwatch monitors on the router; the data then names the conflicting address and the reason.
+// @Description Returns 409 when an entry that already covers the address is in the list.
 // @Tags Firewall
 // @Accept json
 // @Produce json
@@ -387,7 +394,7 @@ func HandleDeleteDomesticAddress(c echo.Context) error {
 // @Param X-RouterOS-Host header string true "RouterOS host address"
 // @Param body body AddDomesticAddressRequest true "Address to add"
 // @Success 201 {object} common.Response{data=DomesticAddressResponse} "Address added"
-// @Failure 400 {object} common.Response "Invalid address"
+// @Failure 400 {object} common.Response{data=DomesticAddressConflictResponse} "Invalid or reserved address"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 409 {object} common.Response "Address already covered by an entry in the list"
 // @Failure 500 {object} common.Response "Internal server error"
@@ -405,6 +412,10 @@ func HandleAddDomesticAddress(c echo.Context) error {
 
 	client, err := common.GetRouterOSClient(c)
 	if err != nil {
+		return err
+	}
+
+	if handled, err := checkDomesticReservedAddress(c, client, address); handled {
 		return err
 	}
 

@@ -267,6 +267,14 @@
         "blockOff": "Traffic to domestic addresses is allowed",
         "blockFailed": "Failed to change the domestic block"
       },
+      "reserved": {
+        "unspecified": "{{conflict}} stands for any address, so it cannot be in the domestic list.",
+        "unspecifiedRange": "{{address}} contains {{conflict}}, which stands for any address, so it cannot be in the domestic list.",
+        "panelRoute": "{{conflict}} is used in the panel's routes and connectivity checks, so it cannot be in the domestic list.",
+        "panelRouteRange": "{{address}} contains {{conflict}}, which the panel uses in its routes and connectivity checks, so it cannot be in the domestic list.",
+        "netwatch": "{{conflict}} is monitored by Netwatch on the router, so it cannot be in the domestic list.",
+        "netwatchRange": "{{address}} contains {{conflict}}, which Netwatch monitors on the router, so it cannot be in the domestic list."
+      },
       "confirmBlock": {
         "title": "Block traffic to domestic addresses?",
         "description": "Devices on your network and the router itself will not be able to reach any address in the domestic list until you turn this off.",
