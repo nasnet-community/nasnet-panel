@@ -243,6 +243,34 @@ test.describe('Firewall page domestic addresses', () => {
     await expect(dialog).toBeVisible();
   });
 
+  test('explains when an address covers a Netwatch host', async ({ page }) => {
+    await mockFirewall(page, { entries: [office] });
+    await page.route('**/api/firewall/addresslist/domestic', async (route) => {
+      if (route.request().method() !== 'POST') return route.fallback();
+      await route.fulfill({
+        status: 400,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 400,
+          message: 'Address cannot be in the domestic address list',
+          error: '8.8.0.0/16 contains 8.8.8.8, which Netwatch monitors on the router',
+          data: { address: '8.8.0.0/16', conflict: '8.8.8.8', reason: 'netwatch' },
+        }),
+      });
+    });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await page.getByRole('button', { name: 'Add address' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Address or range').fill('8.8.0.0/16');
+    await dialog.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page.getByRole('region', { name: 'Notifications' })).toContainText(
+      '8.8.0.0/16 contains 8.8.8.8, which Netwatch monitors on the router, so it cannot be in the domestic list.',
+    );
+    await expect(dialog).toBeVisible();
+  });
+
   test('edits an address and its timeout', async ({ page }) => {
     const calls = await mockFirewall(page, { entries: [office] });
     await page.goto(`/router/${ROUTER_ID}/firewall`);
