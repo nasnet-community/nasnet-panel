@@ -27,6 +27,22 @@ const backupFileTimeLayout = "2006-01-02_15-04-05"
 
 const restoreCooldown = 3 * time.Minute
 
+// maxUploadedBackupSize caps the .backup file accepted by the restore-from-file route.
+const maxUploadedBackupSize = 16 << 20
+
+// uploadedBackupFormOverhead is the room left in the request body for the multipart framing and the
+// password field on top of the file itself.
+const uploadedBackupFormOverhead = 64 << 10
+
+// uploadedBackupPrefix starts the name of a backup uploaded from the user's computer, so it can be told
+// apart from the ones the panel created on the router.
+const uploadedBackupPrefix = "uploaded_"
+
+const (
+	uploadedBackupWaitTimeout  = 5 * time.Second
+	uploadedBackupPollInterval = 250 * time.Millisecond
+)
+
 var (
 	backupsInProgress  sync.Map
 	restoresInProgress sync.Map

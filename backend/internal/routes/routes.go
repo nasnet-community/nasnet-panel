@@ -165,6 +165,7 @@ func RegisterRoutes(e *echo.Echo) {
 	systemGroup.POST("/reboot", system.HandleRebootSystem)
 	systemGroup.GET("/resources", system.HandleGetResourceInfo)
 	systemGroup.POST("/restore", system.HandleRestoreBackup)
+	systemGroup.POST("/restore/upload", system.HandleRestoreUploadedBackup)
 	systemGroup.GET("/scheduler/:name", system.HandleGetScheduler)
 	systemGroup.PUT("/scheduler/:name", system.HandleUpdateScheduler)
 	systemGroup.PUT("/service/:nameOrID", system.HandleUpdateIPService)

@@ -659,7 +659,7 @@ func HandleDeleteBackup(c echo.Context) error {
 // @Produce json
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param request body RestoreBackupRequest true "Backup file name"
+// @Param request body RestoreBackupRequest true "Backup file name and optional password"
 // @Success 202 {object} common.Response "Restore initiated"
 // @Failure 400 {object} common.Response "Invalid file name"
 // @Failure 401 {object} common.Response "Unauthorized"
@@ -723,11 +723,142 @@ func HandleRestoreBackup(c echo.Context) error {
 			fmt.Errorf("%s does not exist", path))
 	}
 
-	if err := client.RestoreBackup(path); err != nil {
+	if err := client.RestoreBackup(path, req.Password); err != nil {
 		if common.IsCredentialError(err) {
 			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
 		}
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to restore backup", err)
+	}
+
+	started = true
+	host := creds.RouterOSHost
+	time.AfterFunc(restoreCooldown, func() { restoresInProgress.Delete(host) })
+
+	return common.SimpleSuccessResponse(c, http.StatusAccepted, "Restore initiated; the router will reboot to apply the backup")
+}
+
+// HandleRestoreUploadedBackup godoc
+// @Summary Restore a system backup from an uploaded file
+// @Description Upload a .backup file from the user's computer to nasnet-panel/backups/uploaded_<yyyy-mm-dd_hh-mm-ss>.backup
+// @Description on the router over SFTP and restore it. The router reboots to apply it. The file must be at most
+// @Description 16 MB and the router's SSH service must be enabled. The uploaded file is deleted again when the
+// @Description router rejects it. Returns 400 for a missing, empty or non-.backup file and when the router cannot
+// @Description load the backup (for example a wrong password), 409 when a backup, restore or deletion is in
+// @Description progress, 413 for a file over 16 MB and 502 when the router's SSH service cannot be reached.
+// @Tags System
+// @Accept multipart/form-data
+// @Produce json
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param file formData file true "Backup file (.backup, at most 16 MB)"
+// @Param password formData string false "Password of an encrypted backup"
+// @Success 202 {object} common.Response "Restore initiated"
+// @Failure 400 {object} common.Response "Invalid file or the router could not load the backup"
+// @Failure 401 {object} common.Response "Unauthorized"
+// @Failure 409 {object} common.Response "A backup, restore or deletion is in progress"
+// @Failure 413 {object} common.Response "File too large"
+// @Failure 500 {object} common.Response "Internal server error"
+// @Failure 502 {object} common.Response "The router's SSH service cannot be reached"
+// @Router /api/system/restore/upload [post].
+func HandleRestoreUploadedBackup(c echo.Context) error {
+	req := c.Request()
+	req.Body = http.MaxBytesReader(c.Response(), req.Body, maxUploadedBackupSize+uploadedBackupFormOverhead)
+
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		var tooLarge *http.MaxBytesError
+		if errors.As(err, &tooLarge) {
+			return common.ErrorResponse(c, http.StatusRequestEntityTooLarge, "Backup file is too large",
+				errors.New("the backup file must be 16 MB or smaller"))
+		}
+		return common.ErrorResponse(c, http.StatusBadRequest, "A backup file is required", err)
+	}
+	if !hasBackupExtension(fileHeader.Filename) {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid backup file",
+			errors.New("only .backup files can be restored"))
+	}
+	if fileHeader.Size <= 0 {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid backup file", errors.New("the backup file is empty"))
+	}
+	if fileHeader.Size > maxUploadedBackupSize {
+		return common.ErrorResponse(c, http.StatusRequestEntityTooLarge, "Backup file is too large",
+			errors.New("the backup file must be 16 MB or smaller"))
+	}
+	password := c.FormValue("password")
+
+	creds, err := common.GetRouterOSCredentials(c)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	switch beginRestore(creds.RouterOSHost) {
+	case "backup":
+		return common.ErrorResponse(c, http.StatusConflict, "A backup is in progress",
+			errors.New("wait for the running backup to finish before restoring"))
+	case "delete":
+		return common.ErrorResponse(c, http.StatusConflict, "A backup deletion is in progress",
+			errors.New("wait for the running deletion to finish before restoring"))
+	case "restore":
+		return common.ErrorResponse(c, http.StatusConflict, "A restore is already in progress",
+			errors.New("another restore is still running on this router"))
+	}
+	started := false
+	defer func() {
+		if !started {
+			restoresInProgress.Delete(creds.RouterOSHost)
+		}
+	}()
+
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	if err := client.EnsureNasnetPanelDir(); err != nil {
+		if common.IsCredentialError(err) {
+			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+		}
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to prepare the backups directory", err)
+	}
+	if err := client.EnsureDir(routeros.NasnetBackupsDir); err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to prepare the backups directory", err)
+	}
+
+	src, err := fileHeader.Open()
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to read the uploaded file", err)
+	}
+	defer func() { _ = src.Close() }()
+
+	sftpClient := sftp.NewClient(sftp.Config{
+		Host:     creds.RouterOSHost,
+		Username: creds.Username,
+		Password: creds.Password,
+	})
+	if err := sftpClient.Connect(); err != nil {
+		return common.ErrorResponse(c, http.StatusBadGateway,
+			"Could not connect to the router over SSH. Enable the router's SSH service (IP > Services) and try again", err)
+	}
+
+	path := routeros.NasnetBackupsDir + "/" + uploadedBackupFilename(time.Now())
+	uploadErr := sftpClient.UploadFromReader(src, path)
+	_ = sftpClient.Close()
+	if uploadErr != nil {
+		_ = client.DeleteFile(path)
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to upload the backup file to the router", uploadErr)
+	}
+
+	if err := waitForRouterFile(client, path); err != nil {
+		_ = client.DeleteFile(path)
+		return common.ErrorResponse(c, http.StatusInternalServerError, "The uploaded backup file did not appear on the router", err)
+	}
+
+	// A wrong backup password can come back as "invalid password", so this error is not mapped to 401:
+	// the API session itself was already authenticated above.
+	if err := client.RestoreBackup(path, password); err != nil {
+		_ = client.DeleteFile(path)
+		return common.ErrorResponse(c, http.StatusBadRequest,
+			"The router could not load this backup. Check that it was made on this router and that the password is right", err)
 	}
 
 	started = true
