@@ -64,6 +64,7 @@ var (
 const (
 	vpnClientRoutingTable       = "to-VPN-Client"
 	vpnClientCheckRouteComment  = "CheckIP-Route-to-VPN-Client"
+	managementPortsBlockComment = "Block WAN access to management ports"
 	vpnClientCheckHost          = "1.0.0.1"
 	vpnClientNetwatchComment    = "Failover Netwatch - VPN-Client"
 	vpnClientForeignLinkGateway = "100.64.0.1"

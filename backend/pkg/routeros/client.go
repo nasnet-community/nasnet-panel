@@ -461,13 +461,10 @@ func ClearConnectionCache() {
 func (c *Client) clearCacheAndReconnect() error {
 	if c.cacheKey != "" {
 		clientCache.mu.Lock()
-		cachedConn, exists := clientCache.clients[c.cacheKey]
-		delete(clientCache.clients, c.cacheKey)
-		clientCache.mu.Unlock()
-
-		if exists && cachedConn.Client != c {
-			cachedConn.Client.closeConn()
+		if cachedConn, exists := clientCache.clients[c.cacheKey]; exists && cachedConn.Client == c {
+			delete(clientCache.clients, c.cacheKey)
 		}
+		clientCache.mu.Unlock()
 	}
 
 	c.closeConn()
@@ -496,7 +493,9 @@ func (c *Client) clearCacheAndReconnect() error {
 
 	if c.cacheKey != "" {
 		clientCache.mu.Lock()
-		clientCache.clients[c.cacheKey] = &CachedConnection{Client: c, LastUsed: time.Now()}
+		if _, exists := clientCache.clients[c.cacheKey]; !exists {
+			clientCache.clients[c.cacheKey] = &CachedConnection{Client: c, LastUsed: time.Now()}
+		}
 		clientCache.mu.Unlock()
 	}
 

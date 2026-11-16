@@ -28,6 +28,9 @@
 :if ($oldType = "wifi") do={
 :local wlanMac  [/interface get [/interface find where default-name=$oldDefaultName] mac-address];
 :local ssid "MikroTik-$[:pick $wlanMac 9 11]$[:pick $wlanMac 12 14]$[:pick $wlanMac 15 17]"
+:local oldAuth ""
+:do { :set oldAuth [/interface wifi get $oldIface security.authentication-types] } on-error={}
+:if ([:len $oldAuth] = 0) do={ /interface wifi set $oldIface disabled=yes }
 /interface wifi set $oldIface configuration.mode=ap configuration.ssid=$ssid
 }
 :if ([:len [/interface bridge port find where interface="$oldNewName"] ] = 0) do={
@@ -46,7 +49,7 @@
 :local newDefaultName [/interface/get $newIface default-name]
 :local newType [/interface/get $newIface type]
 
-/ip route remove [find gateway~"MacVLAN-$newIfaceName" and dynamic=no]
+/ip route remove [find gateway~"MacVLAN-$newIfaceName-(Foreign|Domestic) Link\$" and dynamic=no]
 
 :foreach mcvln in=[/interface macvlan find where interface="$newIfaceName"] do={
 :local mcName [/interface/macvlan/get $mcvln name]

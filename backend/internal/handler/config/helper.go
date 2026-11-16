@@ -363,9 +363,9 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 	stored := plan.stored
 	linkGateway := foreignLinkGateway(stored.WANs)
 	return []reconfigExtra{
-		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
 		{"Restoring the wizard VPN clients", func() []error { return restoreWizardClients(client, stored, linkGateway) }},
+		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring the domestic block setting", func() []error {
 			return restoreDomesticBlock(client, stored.Settings[dbsync.SettingKeyDomesticBlockEnabled])
 		}},
@@ -531,9 +531,13 @@ func restoreSSTPServerFrom(client *routeros.Client, server *db.VPNServer) []erro
 
 	var errs []error
 	dstPort := strconv.Itoa(port)
+	placeBefore := ""
+	if blocks, lookupErr := client.ListFirewallFilterRulesByComment(managementPortsBlockComment); lookupErr == nil && len(blocks) > 0 {
+		placeBefore = blocks[0].ID
+	}
 	_, err = client.AddFirewallRule(routeros.FirewallRuleConfig{
 		Chain: "input", Action: "accept", Protocol: "tcp", DstPort: dstPort,
-		InInterfaceList: vpn.VpnServerAllowedInterfaceList, Comment: serverName,
+		InInterfaceList: vpn.VpnServerAllowedInterfaceList, Comment: serverName, PlaceBefore: placeBefore,
 	})
 	if err != nil {
 		errs = append(errs, fmt.Errorf("failed to add the SSTP firewall rule: %w", err))
@@ -605,8 +609,12 @@ func restoreBridgeAssignments(client *routeros.Client, wifis []db.WiFi, ports []
 			errs = append(errs, err)
 			continue
 		}
-		if err := client.ExecuteScriptString(iface.BridgePortMoveScript(port.Interface, port.Bridge, comment)); err != nil {
-			errs = append(errs, fmt.Errorf("failed to move %s to bridge %s: %w", port.Interface, port.Bridge, err))
+		name := port.Interface
+		if current, ok := masters[port.DefaultName]; ok {
+			name = current
+		}
+		if err := client.ExecuteScriptString(iface.BridgePortMoveScript(name, port.Bridge, comment)); err != nil {
+			errs = append(errs, fmt.Errorf("failed to move %s to bridge %s: %w", name, port.Bridge, err))
 		}
 	}
 	return errs
