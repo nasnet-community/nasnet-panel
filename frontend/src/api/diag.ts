@@ -1,5 +1,5 @@
 import i18n from '../i18n';
-import { apiRequest, ApiError } from './http';
+import { apiRequest, authorizedFetch, ApiError } from './http';
 import { BACKEND_URL } from './config';
 import type { SystemCredentials } from './system';
 
@@ -12,17 +12,10 @@ export interface DiagStatusResponse {
 
 export const DIAG_REPORT_FILENAME = 'nasnet-diagnostic-report.txt';
 
-function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function generateDiag(creds: SystemCredentials): Promise<void> {
   await apiRequest('/api/diag/generate', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -32,7 +25,7 @@ export async function fetchDiagStatus(
 ): Promise<DiagStatusResponse> {
   return apiRequest<DiagStatusResponse>('/api/diag/status', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -41,17 +34,17 @@ export async function fetchDiagStatus(
 export async function deleteDiagFile(creds: SystemCredentials): Promise<void> {
   await apiRequest('/api/diag/file', {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
   });
 }
 
 export async function fetchDiagReport(creds: SystemCredentials): Promise<string> {
-  const response = await fetch(`${BACKEND_URL}/api/diag/download`, {
-    method: 'GET',
-    headers: authHeaders(creds),
-    cache: 'no-store',
-  });
+  const response = await authorizedFetch(
+    `${BACKEND_URL}/api/diag/download`,
+    { method: 'GET', cache: 'no-store' },
+    creds,
+  );
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as {
       error?: string;

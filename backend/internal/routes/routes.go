@@ -14,6 +14,7 @@ import (
 	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/internal/handler/route"
 	"nasnet-panel/internal/handler/scan"
+	"nasnet-panel/internal/handler/session"
 	"nasnet-panel/internal/handler/system"
 	"nasnet-panel/internal/handler/vpn"
 	"nasnet-panel/internal/handler/wifi"
@@ -26,6 +27,10 @@ import (
 func RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", health.HandleHealthCheck)
 	initSwagger(e)
+
+	authGroup := e.Group("/api/auth")
+	authGroup.POST("/login", session.HandleLogin)
+	authGroup.POST("/logout", session.HandleLogout, middleware.RouterOSAuth)
 
 	appGroup := e.Group("/api/app")
 	appGroup.Use(middleware.RouterOSAuth)

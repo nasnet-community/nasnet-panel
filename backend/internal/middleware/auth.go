@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	"nasnet-panel/internal/auth"
@@ -15,27 +16,17 @@ func RouterOSAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authHeader := c.Request().Header.Get("Authorization")
 
-		credentials, err := auth.ExtractBasicAuth(authHeader)
+		token, err := auth.ExtractBearerToken(authHeader)
 		if err != nil {
-			return c.JSON(400, map[string]interface{}{
-				"status":  400,
-				"message": "Authentication failed",
-				"error":   err.Error(),
-			})
+			return unauthorized(c, err)
 		}
 
-		hostHeader := c.Request().Header.Get(auth.RouterOSHostHeader)
-		routerOSHost, err := auth.ExtractRouterOSHost(hostHeader)
+		credentials, err := auth.CredentialsFromToken(token)
 		if err != nil {
-			return c.JSON(400, map[string]interface{}{
-				"status":  400,
-				"message": "RouterOS host validation failed",
-				"error":   err.Error(),
-			})
+			return unauthorized(c, err)
 		}
 
-		credentials.RouterOSHost = routerOSHost
-
+		routerOSHost := credentials.RouterOSHost
 		ctxpkg.SetCredentials(c, credentials)
 
 		// Start monitoring traffic for this router in the background
@@ -55,4 +46,12 @@ func RouterOSAuth(next echo.HandlerFunc) echo.HandlerFunc {
 
 		return next(c)
 	}
+}
+
+func unauthorized(c echo.Context, err error) error {
+	return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+		"status":  http.StatusUnauthorized,
+		"message": "Authentication failed",
+		"error":   err.Error(),
+	})
 }

@@ -133,6 +133,24 @@ export interface TestFixtures {
 
 export const test = base.extend<TestFixtures>({
   resetMocks: async ({ context }, use) => {
+    await context.route('**/api/auth/login', async (route) => {
+      const body = route.request().postDataJSON() as { host?: string; username?: string } | null;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 200,
+          message: 'Login successful',
+          data: {
+            token: 'test-jwt-token',
+            tokenType: 'Bearer',
+            expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+            host: body?.host ?? '',
+            username: body?.username ?? '',
+          },
+        }),
+      });
+    });
     // routers default to a completed wizard; gating specs override this route
     await context.route('**/api/config/wizard/status', async (route) => {
       await route.fulfill({
