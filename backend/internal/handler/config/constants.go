@@ -21,11 +21,12 @@ const (
 	wizardL2TPName    = "wizard-l2tp-client"
 	wizardL2TPComment = "L2TP-Client L2TP"
 
-	wizardLANBridge         = "LANBridgeSplit"
-	wizardBridgePortComment = "Split"
-	wizardWifiAuthTypes     = "wpa2-psk,wpa3-psk"
-	wizardWifiModeAP        = "ap"
-	wizardWifiModeWAN       = "station-pseudobridge"
+	wizardLANBridge             = "LANBridgeSplit"
+	wizardBridgePortComment     = "Split"
+	wizardWifiAuthTypes         = "wpa2-psk,wpa3-psk"
+	wizardWifiMinPasswordLength = 8
+	wizardWifiModeAP            = "ap"
+	wizardWifiModeWAN           = "station-pseudobridge"
 )
 
 const (
@@ -61,11 +62,13 @@ var (
 )
 
 const (
-	vpnClientRoutingTable      = "to-VPN-Client"
-	vpnClientCheckRouteComment = "CheckIP-Route-to-VPN-Client"
-	vpnClientCheckHost         = "1.0.0.1"
-	vpnClientNetwatchComment   = "Failover Netwatch - VPN-Client"
-	vpnRoutingTable            = "to-VPN"
+	vpnClientRoutingTable       = "to-VPN-Client"
+	vpnClientCheckRouteComment  = "CheckIP-Route-to-VPN-Client"
+	managementPortsBlockComment = "Block WAN access to management ports"
+	vpnClientCheckHost          = "1.0.0.1"
+	vpnClientNetwatchComment    = "Failover Netwatch - VPN-Client"
+	vpnClientForeignLinkGateway = "100.64.0.1"
+	vpnRoutingTable             = "to-VPN"
 
 	l2tpClientBridge         = "LANBridgeVPN-L2TP-Client"
 	l2tpClientComment        = "VPN-L2TP-Client"
