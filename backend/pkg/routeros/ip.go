@@ -12,6 +12,7 @@ type IPAddressInfo struct {
 	Network   string
 	Broadcast string
 	Disabled  bool
+	Dynamic   bool
 	Comment   string
 }
 
@@ -82,6 +83,7 @@ func (c *Client) ListIPAddresses() ([]IPAddressInfo, error) {
 			Network:   result["network"],
 			Broadcast: result["broadcast"],
 			Disabled:  result["disabled"] == "true",
+			Dynamic:   result["dynamic"] == "true",
 			Comment:   result["comment"],
 		})
 	}
@@ -104,6 +106,7 @@ func (c *Client) GetIPAddressesByInterface(ifName string) ([]IPAddressInfo, erro
 			Network:   result["network"],
 			Broadcast: result["broadcast"],
 			Disabled:  result["disabled"] == "true",
+			Dynamic:   result["dynamic"] == "true",
 			Comment:   result["comment"],
 		})
 	}
