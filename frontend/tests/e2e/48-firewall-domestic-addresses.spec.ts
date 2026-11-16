@@ -158,15 +158,33 @@ test.describe('Firewall page domestic addresses', () => {
     await expect(
       page
         .getByTestId('domestic-block-card')
-        .getByRole('switch', { name: 'Block traffic to domestic addresses' }),
+        .getByRole('switch', { name: 'Block domestic traffic' }),
     ).not.toBeChecked();
   });
+
+  for (const language of ['en', 'fa']) {
+    test(`the block title fits on one line (${language})`, async ({ page }) => {
+      await page.addInitScript((lang) => {
+        window.localStorage.setItem('nasnet-panel.language', lang);
+      }, language);
+      await mockFirewall(page);
+      await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+      const title = page.getByTestId('domestic-block-card').locator('span').first();
+      await expect(title).toBeVisible();
+      const lines = await title.evaluate((el) => {
+        const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+        return Math.round(el.getBoundingClientRect().height / lineHeight);
+      });
+      expect(lines).toBe(1);
+    });
+  }
 
   test('turning the block on asks first, turning it off does not', async ({ page }) => {
     const calls = await mockFirewall(page);
     await page.goto(`/router/${ROUTER_ID}/firewall`);
 
-    const toggle = page.getByRole('switch', { name: 'Block traffic to domestic addresses' });
+    const toggle = page.getByRole('switch', { name: 'Block domestic traffic' });
     await toggle.click();
     const confirm = page.getByRole('dialog');
     await expect(
@@ -358,9 +376,7 @@ test.describe('Firewall page domestic addresses', () => {
 
     const side = page.getByTestId('domestic-block-card');
     await expect(side).toContainText('router timed out');
-    await expect(
-      side.getByRole('switch', { name: 'Block traffic to domestic addresses' }),
-    ).toBeDisabled();
+    await expect(side.getByRole('switch', { name: 'Block domestic traffic' })).toBeDisabled();
   });
 
   test('a double click on delete sends one request', async ({ page }) => {
