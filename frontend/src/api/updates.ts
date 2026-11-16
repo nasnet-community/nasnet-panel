@@ -241,3 +241,21 @@ export async function fetchAppUpdateProgress(
     signal,
   });
 }
+
+export interface NewsletterRequest {
+  email: string;
+  locale: string;
+  // Honeypot; real users leave it empty.
+  website: string;
+}
+
+export async function subscribeNewsletter(
+  creds: SystemCredentials,
+  request: NewsletterRequest,
+): Promise<void> {
+  await apiRequest<unknown>('/api/app/newsletter', {
+    method: 'POST',
+    headers: authHeaders(creds),
+    body: JSON.stringify(request),
+  });
+}
