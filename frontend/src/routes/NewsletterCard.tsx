@@ -2,30 +2,34 @@ import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Loader2, Mail } from 'lucide-react';
 import { Button, Card, Input, Label, Stack } from '@nasnet/ui';
+import { ApiError, subscribeNewsletter } from '../api';
+import type { SystemCredentials } from '../api/system';
 import { useLanguage } from '../state/LanguageContext';
+import { useRouterStore } from '../state/RouterStoreContext';
+import { useSession } from '../state/SessionContext';
 import styles from './UpdatesPage.module.scss';
 
-// Same list as the joinnasnet.com footer form. The website keeps a separate
-// endpoint for the panel because the panel runs on the router's own address.
-const SUBSCRIBE_URL = 'https://joinnasnet.com/api/newsletter/panel-subscribe';
+// Same list as the joinnasnet.com footer form. The panel backend forwards the
+// request, because the browser cannot call joinnasnet.com from the router's address.
 const SITE_LANGUAGES: readonly string[] = ['en', 'fa'];
 
 type Status = 'idle' | 'sending' | 'success' | 'invalid' | 'rateLimited' | 'error';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-async function subscribe(email: string, locale: string, website: string): Promise<Status> {
+async function subscribe(
+  creds: SystemCredentials | null,
+  email: string,
+  locale: string,
+  website: string,
+): Promise<Status> {
+  if (!creds) return 'error';
   try {
-    const response = await fetch(SUBSCRIBE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, locale, website }),
-    });
-    if (response.ok) return 'success';
-    if (response.status === 429) return 'rateLimited';
-    if (response.status === 400) return 'invalid';
-    return 'error';
-  } catch {
+    await subscribeNewsletter(creds, { email, locale, website });
+    return 'success';
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 429) return 'rateLimited';
+    if (err instanceof ApiError && err.status === 400) return 'invalid';
     return 'error';
   }
 }
@@ -34,6 +38,12 @@ export function NewsletterCard() {
   const { t } = useTranslation('tools');
   const { language } = useLanguage();
   const locale = SITE_LANGUAGES.includes(language.code) ? language.code : 'en';
+  const { routers, lastConnectedRouterId, selectedRouterId } = useRouterStore();
+  const { activeRouterId, getCredentials } = useSession();
+  const targetId = activeRouterId ?? lastConnectedRouterId ?? selectedRouterId ?? null;
+  const host = targetId ? routers.find((r) => r.id === targetId)?.host : undefined;
+  const routerCreds = targetId ? getCredentials(targetId) : undefined;
+  const creds = host && routerCreds ? { host, ...routerCreds } : null;
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<Status>('idle');
@@ -46,7 +56,7 @@ export function NewsletterCard() {
       return;
     }
     setStatus('sending');
-    setStatus(await subscribe(trimmed, locale, website));
+    setStatus(await subscribe(creds, trimmed, locale, website));
   };
 
   const sending = status === 'sending';

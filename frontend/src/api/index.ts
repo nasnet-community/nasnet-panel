@@ -159,6 +159,8 @@ export {
   fetchAppUpdateChannel,
   startAppUpdate,
   fetchAppUpdateProgress,
+  subscribeNewsletter,
+  type NewsletterRequest,
   type UpdateInfoResponse,
   type UpdateCheckResponse,
   type UpdateInstallResponse,
