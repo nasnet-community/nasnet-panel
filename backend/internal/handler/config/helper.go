@@ -1641,7 +1641,7 @@ func addVPNClientNetwatch(client *routeros.Client) []error {
 	comment := vpnClientNetwatchComment
 
 	_, err := client.AddNetwatch(routeros.AddNetwatchParams{
-		Host: vpnClientCheckHost, Type: routeros.NetwatchTypeICMP, Interval: &interval, Timeout: &timeout,
+		Host: vpnClientCheckHost, Type: routeros.NetwatchTypeSimple, Interval: &interval, Timeout: &timeout,
 		IgnoreInitialDown: &ignoreDown, IgnoreInitialUp: &ignoreUp, StartDelay: &zeroMs, StartupDelay: &zeroS,
 		UpScript: &up, DownScript: &down, Comment: &comment,
 	})
