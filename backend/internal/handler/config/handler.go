@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/firewall"
+	"nasnet-panel/internal/handler/iface"
 	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
@@ -137,6 +139,28 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "Foreign interface is required", nil)
 	}
 
+	foreignAddressing, message, err := iface.ResolveWANAddressing("foreign", req.Foreign.IP, req.Foreign.Gateway)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Foreign interface: "+message, err)
+	}
+	var domesticAddressing iface.WANAddressing
+	if domesticEnabled {
+		if domesticAddressing, message, err = iface.ResolveWANAddressing("domestic", req.Domestic.IP, req.Domestic.Gateway); err != nil {
+			return common.ErrorResponse(c, http.StatusBadRequest, "Domestic interface: "+message, err)
+		}
+	}
+
+	foreignAuthType, err := iface.NormalizeWANAuthTypes(req.Foreign.AuthType)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Foreign interface: Invalid authType", err)
+	}
+	domesticAuthType := ""
+	if domesticEnabled {
+		if domesticAuthType, err = iface.NormalizeWANAuthTypes(req.Domestic.AuthType); err != nil {
+			return common.ErrorResponse(c, http.StatusBadRequest, "Domestic interface: Invalid authType", err)
+		}
+	}
+
 	wifiRadios, err := client.GetWiFiRadios()
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve WiFi radios", err)
@@ -203,6 +227,29 @@ func HandleFinalizeWizard(c echo.Context) error {
 			if isDomestic && req.Domestic.SSID == "" {
 				return common.ErrorResponse(c, http.StatusBadRequest, "SSID is required when domestic interface type is wifi", nil)
 			}
+			if isForeign {
+				if req.Foreign.Password == "" {
+					foreignAuthType = ""
+				} else if len(req.Foreign.Password) < wizardWifiMinPasswordLength {
+					return common.ErrorResponse(c, http.StatusBadRequest,
+						fmt.Sprintf("Foreign interface: password must be at least %d characters", wizardWifiMinPasswordLength), nil)
+				}
+			}
+			if isDomestic {
+				if req.Domestic.Password == "" {
+					domesticAuthType = ""
+				} else if len(req.Domestic.Password) < wizardWifiMinPasswordLength {
+					return common.ErrorResponse(c, http.StatusBadRequest,
+						fmt.Sprintf("Domestic interface: password must be at least %d characters", wizardWifiMinPasswordLength), nil)
+				}
+			}
+		} else {
+			if isForeign && strings.TrimSpace(req.Foreign.AuthType) != "" {
+				return common.ErrorResponse(c, http.StatusBadRequest, "authType is only allowed when foreign interface type is wifi", nil)
+			}
+			if isDomestic && strings.TrimSpace(req.Domestic.AuthType) != "" {
+				return common.ErrorResponse(c, http.StatusBadRequest, "authType is only allowed when domestic interface type is wifi", nil)
+			}
 		}
 
 		type2 := iface.Type
@@ -218,6 +265,11 @@ func HandleFinalizeWizard(c echo.Context) error {
 				Type2:     type2,
 				SSID:      req.Foreign.SSID,
 				Password:  req.Foreign.Password,
+				AuthType:  foreignAuthType,
+
+				StaticIP:     foreignAddressing.StaticIP,
+				StaticPrefix: foreignAddressing.Prefix,
+				Gateway:      foreignAddressing.Gateway,
 			}
 		} else {
 			domesticFound = true
@@ -227,6 +279,11 @@ func HandleFinalizeWizard(c echo.Context) error {
 				Type2:     type2,
 				SSID:      req.Domestic.SSID,
 				Password:  req.Domestic.Password,
+				AuthType:  domesticAuthType,
+
+				StaticIP:     domesticAddressing.StaticIP,
+				StaticPrefix: domesticAddressing.Prefix,
+				Gateway:      domesticAddressing.Gateway,
 			}
 		}
 	}

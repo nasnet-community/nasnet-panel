@@ -17,6 +17,7 @@ const (
 	SettingKeyDomesticBlockEnabled = "domestic_block_enabled"
 	SettingKeyForeignGateway       = "foreign_gateway"
 
+	wanMacvlanPrefix      = "MacVLAN-"
 	wireGuardClientSuffix = "-wg-client"
 	wireGuardServerSuffix = "-server"
 )

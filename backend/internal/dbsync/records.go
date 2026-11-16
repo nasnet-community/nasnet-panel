@@ -330,7 +330,56 @@ func RouterNetworkConfig(client *routeros.Client) (*db.NetworkConfig, error) {
 		cfg.WiFis = append(cfg.WiFis, *WiFiRecord(w, masters[w.Interface], bridges[w.Name]))
 	}
 
+	if err := fillWANStaticAddresses(client, cfg.WANs); err != nil {
+		return nil, err
+	}
+
 	return cfg, nil
+}
+
+func fillWANStaticAddresses(client *routeros.Client, wans []db.WAN) error {
+	if len(wans) == 0 {
+		return nil
+	}
+	addresses, err := client.ListIPAddresses()
+	if err != nil {
+		return err
+	}
+	routes, err := client.ListIPRoutes()
+	if err != nil {
+		return err
+	}
+
+	for i := range wans {
+		wans[i].IP, wans[i].Gateway = wanStaticAddress(wans[i].Type, addresses, routes)
+	}
+	return nil
+}
+
+func wanStaticAddress(wanType string, addresses []routeros.IPAddressInfo, routes []routeros.IPRouteInfo) (ip, gateway string) {
+	link := strings.ToUpper(wanType[:1]) + wanType[1:]
+	suffix := "-" + link + " Link"
+
+	for i := range addresses {
+		a := &addresses[i]
+		if strings.HasPrefix(a.Interface, wanMacvlanPrefix) && strings.HasSuffix(a.Interface, suffix) && !a.Dynamic {
+			ip = a.Address
+			break
+		}
+	}
+	if ip == "" {
+		return "", ""
+	}
+
+	routeComment := "Route-to-" + link + "-" + link + " Link"
+	for i := range routes {
+		r := &routes[i]
+		if r.Comment == routeComment && !r.Dynamic && r.DstAddress == "0.0.0.0/0" {
+			gateway, _, _ = strings.Cut(r.Gateway, "%")
+			break
+		}
+	}
+	return ip, gateway
 }
 
 // ValidWifiMode reports whether mode is a WiFi mode the database stores.

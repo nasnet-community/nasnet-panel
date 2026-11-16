@@ -20,10 +20,11 @@ const (
 )
 
 type Client struct {
-	conn     *ros.Client
-	mu       sync.Mutex
-	cacheKey string
-	config   ConnectionConfig
+	conn          *ros.Client
+	mu            sync.Mutex
+	cacheKey      string
+	config        ConnectionConfig
+	needReconnect bool
 }
 
 type ConnectionConfig struct {
@@ -137,6 +138,10 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 				lastErr = err
 				continue
 			}
+			if c.conn == nil {
+				lastErr = errConnectionClosed
+				continue
+			}
 		}
 		if !config.IsProduction() {
 			log.Printf("command: %v", sentence)
@@ -179,7 +184,7 @@ func (c *Client) runSentence(command string, args []string) (*ros.Reply, error) 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if c.conn == nil {
+	if c.conn == nil && !c.needReconnect {
 		return nil, errConnectionClosed
 	}
 
@@ -456,13 +461,10 @@ func ClearConnectionCache() {
 func (c *Client) clearCacheAndReconnect() error {
 	if c.cacheKey != "" {
 		clientCache.mu.Lock()
-		cachedConn, exists := clientCache.clients[c.cacheKey]
-		delete(clientCache.clients, c.cacheKey)
-		clientCache.mu.Unlock()
-
-		if exists && cachedConn.Client != c {
-			cachedConn.Client.closeConn()
+		if cachedConn, exists := clientCache.clients[c.cacheKey]; exists && cachedConn.Client == c {
+			delete(clientCache.clients, c.cacheKey)
 		}
+		clientCache.mu.Unlock()
 	}
 
 	c.closeConn()
@@ -473,10 +475,14 @@ func (c *Client) clearCacheAndReconnect() error {
 
 	newConn, err := c.config.dial()
 	if err != nil {
+		c.mu.Lock()
+		c.needReconnect = true
+		c.mu.Unlock()
 		return fmt.Errorf("failed to reconnect: %w", err)
 	}
 
 	c.mu.Lock()
+	c.needReconnect = false
 	if c.conn != nil {
 		c.mu.Unlock()
 		_ = newConn.Close()
@@ -487,7 +493,9 @@ func (c *Client) clearCacheAndReconnect() error {
 
 	if c.cacheKey != "" {
 		clientCache.mu.Lock()
-		clientCache.clients[c.cacheKey] = &CachedConnection{Client: c, LastUsed: time.Now()}
+		if _, exists := clientCache.clients[c.cacheKey]; !exists {
+			clientCache.clients[c.cacheKey] = &CachedConnection{Client: c, LastUsed: time.Now()}
+		}
 		clientCache.mu.Unlock()
 	}
 
