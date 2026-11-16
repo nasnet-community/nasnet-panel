@@ -202,7 +202,7 @@ export function BackupsCard({ creds }: Props) {
                 void download(row);
               }}
             >
-              <Download size={14} aria-hidden />
+              {downloading === row.filename ? null : <Download size={14} aria-hidden />}
             </Button>
           </Tooltip>
           <Tooltip label={t('backups.restore')}>

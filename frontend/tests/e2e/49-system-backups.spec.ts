@@ -21,6 +21,8 @@ interface Call {
 interface MockOptions {
   listFails?: boolean;
   createConflict?: boolean;
+  // Holds the download response until the returned release() is called.
+  holdDownload?: Promise<void>;
 }
 
 // Serves the backup endpoints from an in-memory list and records every write
@@ -80,6 +82,7 @@ async function mockBackups(page: Page, initial: Backup[], options: MockOptions =
   await page.route('**/api/system/backup/download/*', async (route) => {
     const name = decodeURIComponent(new URL(route.request().url()).pathname.split('/').pop() ?? '');
     if (!backups.some((b) => b.filename === name)) return notFound(route);
+    if (options.holdDownload) await options.holdDownload;
     await route.fulfill({
       status: 200,
       contentType: 'application/octet-stream',
@@ -185,6 +188,31 @@ test.describe('Diagnostics page backups', () => {
     await page.getByRole('button', { name: `Download ${older.filename}` }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe(older.filename);
+  });
+
+  test('keeps the download button size while the download runs', async ({ page }) => {
+    let release = () => {};
+    const holdDownload = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await mockBackups(page, [older], { holdDownload });
+    await page.goto(`/router/${ROUTER_ID}/backups`);
+
+    const button = page.getByRole('button', { name: `Download ${older.filename}` });
+    const before = await button.boundingBox();
+    const downloadPromise = page.waitForEvent('download');
+    await button.click();
+
+    await expect(button).toHaveAttribute('aria-busy', 'true');
+    const during = await button.boundingBox();
+    expect(during?.width).toBe(before?.width);
+    expect(during?.height).toBe(before?.height);
+    await expect(button.locator('svg')).toHaveCount(0);
+
+    release();
+    await downloadPromise;
+    await expect(button).not.toHaveAttribute('aria-busy');
+    await expect(button.locator('svg')).toHaveCount(1);
   });
 
   test('deletes a backup after confirm', async ({ page }) => {
