@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../../state/LanguageContext';
+import { DEFAULT_COUNTRY, countryFlag, countryName } from '../settings/schedule';
 import { MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   Badge,
@@ -18,7 +20,9 @@ import styles from '../FirewallPage.module.scss';
 import {
   addDomesticAddress,
   deleteDomesticAddress,
+  ApiError,
   fetchDomesticAddresses,
+  fetchDomesticCountry,
   fetchDomesticAddressListInfo,
   updateDomesticAddress,
   type DomesticAddress,
@@ -36,7 +40,9 @@ interface Props {
 
 export function DomesticAddressCard({ creds, onInfo }: Props) {
   const { t } = useTranslation('network');
+  const { language } = useLanguage();
   const toast = useToast();
+  const [country, setCountry] = useState<string | null>(null);
   const [entries, setEntries] = useState<DomesticAddress[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +62,19 @@ export function DomesticAddressCard({ creds, onInfo }: Props) {
     },
     [creds],
   );
+
+  useEffect(() => {
+    setCountry(null);
+    if (!creds) return;
+    const controller = new AbortController();
+    fetchDomesticCountry(creds, controller.signal)
+      .then((res) => setCountry(res.country.toUpperCase()))
+      .catch((err: unknown) => {
+        // Backends that cannot report the country still download the default one.
+        if (err instanceof ApiError && err.status === 404) setCountry(DEFAULT_COUNTRY);
+      });
+    return () => controller.abort();
+  }, [creds]);
 
   const reloadList = useCallback(async () => {
     if (!creds) return;
@@ -212,6 +231,15 @@ export function DomesticAddressCard({ creds, onInfo }: Props) {
           <CardTitle>
             <Inline>
               <MapPin size={16} aria-hidden /> {t('firewall.domestic.title')}
+              {country ? (
+                <img
+                  src={countryFlag(country)}
+                  alt={countryName(country, language.code)}
+                  title={countryName(country, language.code)}
+                  className={styles.flag}
+                  data-testid="domestic-country-flag"
+                />
+              ) : null}
             </Inline>
           </CardTitle>
           <CardDescription>{t('firewall.domestic.description')}</CardDescription>
