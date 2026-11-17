@@ -20,6 +20,7 @@ import (
 // @Success 200 {object} common.Response{data=LoginResponse} "Login successful"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 401 {object} map[string]interface{} "Invalid RouterOS credentials"
+// @Failure 429 {object} map[string]interface{} "Too many login attempts"
 // @Failure 502 {object} map[string]interface{} "RouterOS device offline or unreachable"
 // @Failure 504 {object} map[string]interface{} "RouterOS device not responding"
 // @Router /api/auth/login [post].
@@ -38,7 +39,11 @@ func HandleLogin(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "Host and username are required", nil)
 	}
 
-	if _, err := common.NewRouterOSClient(c, creds); err != nil {
+	if !loginLimiter.allow(c.RealIP(), creds.Username) {
+		return common.ErrorResponse(c, http.StatusTooManyRequests, "Too many login attempts, try again later", nil)
+	}
+
+	if err := common.VerifyRouterOSCredentials(c, creds); err != nil {
 		return err
 	}
 

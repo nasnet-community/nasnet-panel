@@ -57,7 +57,27 @@ function tokenKey({ host, username, password }: RouterAuth): string {
   return JSON.stringify([host, username, password]);
 }
 
-function obtainToken(auth: RouterAuth): Promise<string> {
+function invalidateToken(auth: RouterAuth, rejected: string): void {
+  const key = tokenKey(auth);
+  if (tokens.get(key)?.token === rejected) tokens.delete(key);
+}
+
+function abortable<T>(promise: Promise<T>, signal?: AbortSignal | null): Promise<T> {
+  if (!signal) return promise;
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(signal.reason ?? new DOMException('Aborted', 'AbortError'));
+    if (signal.aborted) {
+      onAbort();
+      return;
+    }
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(resolve, reject).finally(() => {
+      signal.removeEventListener('abort', onAbort);
+    });
+  });
+}
+
+function obtainToken(auth: RouterAuth, signal?: AbortSignal | null): Promise<string> {
   const key = tokenKey(auth);
   const cached = tokens.get(key);
   if (cached && cached.expiresAt - Date.now() > TOKEN_EXPIRY_MARGIN_MS) {
@@ -65,7 +85,7 @@ function obtainToken(auth: RouterAuth): Promise<string> {
   }
 
   const pending = pendingLogins.get(key);
-  if (pending) return pending;
+  if (pending) return abortable(pending, signal);
 
   const login = sendRequest<LoginData>('/api/auth/login', {
     method: 'POST',
@@ -79,7 +99,7 @@ function obtainToken(auth: RouterAuth): Promise<string> {
       pendingLogins.delete(key);
     });
   pendingLogins.set(key, login);
-  return login;
+  return abortable(login, signal);
 }
 
 function notifyUnauthorized(err: unknown, init: ApiRequestInit): void {
@@ -93,13 +113,13 @@ export async function apiRequest<T>(path: string, init: ApiRequestInit = {}): Pr
   try {
     if (!auth) return await sendRequest<T>(path, init);
 
-    const token = await obtainToken(auth);
+    const token = await obtainToken(auth, init.signal);
     try {
       return await sendRequest<T>(path, init, token);
     } catch (err) {
       if (!(err instanceof ApiError) || err.status !== 401) throw err;
-      tokens.delete(tokenKey(auth));
-      return await sendRequest<T>(path, init, await obtainToken(auth));
+      invalidateToken(auth, token);
+      return await sendRequest<T>(path, init, await obtainToken(auth, init.signal));
     }
   } catch (err) {
     notifyUnauthorized(err, init);
@@ -112,17 +132,18 @@ export async function authorizedFetch(
   init: RequestInit,
   auth: RouterAuth,
 ): Promise<Response> {
-  const send = async (): Promise<Response> => {
+  const send = async (): Promise<{ response: Response; token: string }> => {
+    const token = await obtainToken(auth, init.signal);
     const headers = new Headers(init.headers);
-    headers.set('Authorization', `Bearer ${await obtainToken(auth)}`);
-    return fetch(url, { ...init, headers });
+    headers.set('Authorization', `Bearer ${token}`);
+    return { response: await fetch(url, { ...init, headers }), token };
   };
 
-  const response = await send();
-  if (response.status !== 401) return response;
+  const first = await send();
+  if (first.response.status !== 401) return first.response;
 
-  tokens.delete(tokenKey(auth));
-  return send();
+  invalidateToken(auth, first.token);
+  return (await send()).response;
 }
 
 async function sendRequest<T>(path: string, init: ApiRequestInit, token?: string): Promise<T> {

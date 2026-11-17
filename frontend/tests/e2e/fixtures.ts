@@ -117,6 +117,14 @@ export interface EasyConfigBackendOptions {
   managementWifi?: { ssid: string; password: string } | null;
 }
 
+export function routerHostOf(request: {
+  headers: () => Record<string, string>;
+}): string | undefined {
+  const header = request.headers().authorization ?? '';
+  const prefix = 'Bearer test-jwt-token.';
+  return header.startsWith(prefix) ? header.slice(prefix.length) : undefined;
+}
+
 export interface TestFixtures {
   resetMocks: () => Promise<void>;
   seedRouter: (input: SeedInput) => Promise<void>;
@@ -142,7 +150,7 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           message: 'Login successful',
           data: {
-            token: 'test-jwt-token',
+            token: `test-jwt-token.${body?.host ?? ''}`,
             tokenType: 'Bearer',
             expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
             host: body?.host ?? '',

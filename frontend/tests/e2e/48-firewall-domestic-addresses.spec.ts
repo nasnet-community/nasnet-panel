@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test';
-import { test, expect } from './fixtures';
+import { test, expect, routerHostOf } from './fixtures';
 
 const ROUTER_ID = 'rtr_fw_domestic';
 
@@ -344,7 +344,7 @@ test.describe('Firewall page domestic addresses', () => {
       releaseOther = resolve;
     });
     await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
-      if (route.request().headers()['x-routeros-host'] !== '10.0.0.21') return route.fallback();
+      if (routerHostOf(route.request()) !== '10.0.0.21') return route.fallback();
       await otherPending;
       const path = new URL(route.request().url()).pathname;
       const data = path.endsWith('/info')
@@ -432,7 +432,7 @@ test.describe('Firewall page domestic addresses', () => {
       releaseFirst = resolve;
     });
     await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
-      const host = route.request().headers()['x-routeros-host'];
+      const host = routerHostOf(route.request());
       if (host === '10.0.0.22') {
         const path = new URL(route.request().url()).pathname;
         const data = path.endsWith('/info')
