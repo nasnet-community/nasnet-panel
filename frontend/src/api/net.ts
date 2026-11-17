@@ -10,20 +10,13 @@ export interface NetStatusEntry {
   type: NetHostType;
 }
 
-function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchNetStatus(
   creds: SystemCredentials,
   signal?: AbortSignal,
 ): Promise<NetStatusEntry[]> {
   return apiRequest<NetStatusEntry[]>('/api/net/status', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });

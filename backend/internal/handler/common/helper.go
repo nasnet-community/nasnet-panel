@@ -167,28 +167,41 @@ func NewRouterOSClient(c echo.Context, creds *auth.Credentials) (*routeros.Clien
 		Password: creds.Password,
 	})
 	if err != nil {
-		if IsCredentialError(err) {
-			_ = ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
-			return nil, ErrClientCreationFailed
-		}
-
-		// Distinguish between timeout (504) and offline (502)
-		if routeros.IsTimeoutError(err) {
-			_ = ErrorResponse(c, http.StatusGatewayTimeout, "RouterOS device not responding (timeout)", err)
-			return nil, ErrClientCreationFailed
-		}
-		if routeros.IsOfflineError(err) {
-			_ = ErrorResponse(c, http.StatusBadGateway, "RouterOS device offline or unreachable", err)
-			return nil, ErrClientCreationFailed
-		}
-
-		_ = ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to RouterOS device", err)
-		return nil, ErrClientCreationFailed
+		return nil, respondClientError(c, err)
 	}
 
 	PrepareRouter(creds.RouterOSHost, client)
 
 	return client, nil
+}
+
+// VerifyRouterOSCredentials authenticates against the router on a fresh connection, bypassing the client cache.
+func VerifyRouterOSCredentials(c echo.Context, creds *auth.Credentials) error {
+	client, err := routeros.NewClient(routeros.ConnectionConfig{
+		Address:  creds.RouterOSHost,
+		Username: creds.Username,
+		Password: creds.Password,
+	})
+	if err != nil {
+		return respondClientError(c, err)
+	}
+	_ = client.Close()
+
+	return nil
+}
+
+func respondClientError(c echo.Context, err error) error {
+	switch {
+	case IsCredentialError(err):
+		_ = ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
+	case routeros.IsTimeoutError(err):
+		_ = ErrorResponse(c, http.StatusGatewayTimeout, "RouterOS device not responding (timeout)", err)
+	case routeros.IsOfflineError(err):
+		_ = ErrorResponse(c, http.StatusBadGateway, "RouterOS device offline or unreachable", err)
+	default:
+		_ = ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to RouterOS device", err)
+	}
+	return ErrClientCreationFailed
 }
 
 // TryGetRouterOSClient returns the RouterOS client of the request without writing an HTTP response

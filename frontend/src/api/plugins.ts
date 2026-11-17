@@ -88,20 +88,13 @@ export interface UninstallPluginResponse {
   warnings?: string[];
 }
 
-function authHeaders({ host, username, password }: PluginCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchPlugins(
   creds: PluginCredentials,
   signal?: AbortSignal,
 ): Promise<GetPluginsResponse> {
   return apiRequest<GetPluginsResponse>('/api/plugin/plugins', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -113,7 +106,7 @@ export async function fetchInstalledPlugins(
 ): Promise<InstalledPluginResponse[]> {
   return apiRequest<InstalledPluginResponse[]>('/api/plugin/installed', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -129,7 +122,7 @@ export async function installPlugin(
 ): Promise<InstallPluginResponse> {
   return apiRequest<InstallPluginResponse>('/api/plugin/install', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ id }),
   });
 }
@@ -143,7 +136,7 @@ export async function fetchPluginInstallStatus(
     `/api/plugin/install/status/${encodeURIComponent(pluginId)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -156,7 +149,7 @@ export async function updatePlugin(
 ): Promise<UpdatePluginResponse> {
   return apiRequest<UpdatePluginResponse>(`/api/plugin/update/${encodeURIComponent(pluginId)}`, {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -169,7 +162,7 @@ export async function fetchPluginUpdateStatus(
     `/api/plugin/update/status/${encodeURIComponent(pluginId)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -182,6 +175,6 @@ export async function uninstallPlugin(
 ): Promise<UninstallPluginResponse> {
   return apiRequest<UninstallPluginResponse>(`/api/plugin/plugin/${encodeURIComponent(name)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }

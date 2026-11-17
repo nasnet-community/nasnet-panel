@@ -22,8 +22,7 @@ import (
 // @Summary Get VPN Credentials
 // @Description Fetch L2TP VPN credentials from NasNet using the router's system ID
 // @Tags Config
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.Response{data=VPNCredentialsResponse}
@@ -60,8 +59,7 @@ func HandleGetVPNCredentials(c echo.Context) error {
 // @Summary Get Wizard Status
 // @Description Retrieve the current wizard configuration status
 // @Tags Config
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.Response{data=WizardStatus}
@@ -109,8 +107,7 @@ func HandleGetWizardStatus(c echo.Context) error {
 // @Summary Finalize Wizard Configuration
 // @Description Render wizard template with provided configuration and apply to router
 // @Tags Config
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param body body FinalizeWizardRequest true "Wizard finalization configuration"
@@ -389,8 +386,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 // @Summary Start a reconfiguration
 // @Description Reads the stored configuration from the router's database, renders and runs base_config.tmpl with it, then adds the stored items base_config.tmpl does not create (domestic addresses, static DNS entries, SSTP clients, VPN users and extra WireGuard client interfaces) back to the router. The work runs in the background; follow it with GET /api/config/reconfig/status
 // @Tags Config
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 202 {object} common.Response{data=ReconfigStartResponse}
 // @Failure 400 {object} common.Response
@@ -423,8 +419,7 @@ func HandleStartReconfig(c echo.Context) error {
 // @Summary Get the reconfiguration status
 // @Description Returns the state, current step and overall progress percentage of the last reconfiguration started on the router since the server started
 // @Tags Config
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=ReconfigStatusResponse}
 // @Failure 401 {object} common.Response

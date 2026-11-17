@@ -13,8 +13,7 @@ import (
 // @Summary Get Foreign Gateway Route
 // @Description Retrieve the current foreign gateway route for VPN
 // @Tags Route
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.Response
@@ -51,8 +50,7 @@ func HandleGetForeignGateway(c echo.Context) error {
 // @Summary Update Foreign Gateway Route
 // @Description Update the foreign gateway route for VPN
 // @Tags Route
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param body body UpdateForeignGatewayRequest true "Foreign gateway route configuration"
