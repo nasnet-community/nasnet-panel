@@ -1,5 +1,5 @@
-// Package session holds the auth API group handlers: login and logout.
-package session
+// Package auth holds the auth API group handlers: login and logout.
+package auth
 
 import "time"
 
