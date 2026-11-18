@@ -2,6 +2,7 @@ package routes
 
 import (
 	"nasnet-panel/internal/handler/app"
+	"nasnet-panel/internal/handler/auth"
 	"nasnet-panel/internal/handler/config"
 	"nasnet-panel/internal/handler/dhcp"
 	"nasnet-panel/internal/handler/diag"
@@ -26,6 +27,10 @@ import (
 func RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", health.HandleHealthCheck)
 	initSwagger(e)
+
+	authGroup := e.Group("/api/auth")
+	authGroup.POST("/login", auth.HandleLogin)
+	authGroup.POST("/logout", auth.HandleLogout, middleware.RouterOSAuth)
 
 	appGroup := e.Group("/api/app")
 	appGroup.Use(middleware.RouterOSAuth)

@@ -22,8 +22,7 @@ import (
 // @Summary Get ethernet interface details
 // @Description Get detailed information for a specific ethernet interface including monitor data (link status, speed, etc.)
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=EthernetResponse}
@@ -61,8 +60,7 @@ func HandleGetEthernetInterface(c echo.Context) error {
 // @Description accordingly. The response's cablePairs field is only present when status is
 // @Description "no-link".
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=CableTestResponse}
@@ -97,8 +95,7 @@ func HandleTestEthernetCable(c echo.Context) error {
 // @Summary Get all ethernet interfaces
 // @Description Get detailed information for all ethernet interfaces including monitor data (link status, speed, etc.)
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]EthernetResponse}
 // @Failure 401 {object} common.Response
@@ -126,8 +123,7 @@ func HandleGetEthernetInterfaces(c echo.Context) error {
 // @Summary List interfaces
 // @Description Get all RouterOS interfaces, optionally filtered by interface type (?type=ether,bridge,sfp)
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param type query string false "Interface type filter"
 // @Produce json
 // @Success 200 {object} common.Response{data=[]InterfaceResponse}
@@ -175,8 +171,7 @@ func HandleListInterfaces(c echo.Context) error {
 // @Description start with "LANBridge". Rejects the request if the interface is already a port on
 // @Description the given bridge.
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body UpdateInterfaceBridgeRequest true "Interface and target bridge"
 // @Accept json
 // @Produce json
@@ -248,8 +243,7 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 // @Summary List LAN bridges
 // @Description Get every /interface/bridge entry whose name starts with "LANBridge"
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]BridgeResponse}
 // @Failure 401 {object} common.Response
@@ -285,8 +279,7 @@ func HandleListBridges(c echo.Context) error {
 // @Summary List bridge ports
 // @Description Get every /interface/bridge/port entry whose bridge name starts with "LANBridge"
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]BridgePortResponse}
 // @Failure 401 {object} common.Response
@@ -327,8 +320,7 @@ func HandleListBridgePorts(c echo.Context) error {
 // @Description A wifi interface requires ssid and a password of at least 8 characters. Other interfaces must not send them.
 // @Description Optional gateway defaults to the first address of the network and is only valid with a static ip.
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body UpdateWANInterfaceRequest true "WAN interface configuration"
 // @Accept json
 // @Produce json
@@ -421,8 +413,7 @@ func HandleUpdateWANInterface(c echo.Context) error {
 // @Summary List WAN interfaces
 // @Description Lists the interfaces commented as foreign or domestic WAN links with their address and gateway.
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]WANResponse}
 // @Failure 401 {object} common.Response
@@ -447,8 +438,7 @@ func HandleListWANs(c echo.Context) error {
 // @Summary Get WAN interface
 // @Description Returns one interface whose comment starts with "WAN -" with its address and gateway.
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Interface name"
 // @Produce json
 // @Success 200 {object} common.Response{data=WANResponse}
@@ -480,8 +470,7 @@ func HandleGetWAN(c echo.Context) error {
 // @Summary Delete WAN Interface
 // @Description Remove the foreign or domestic WAN assignment of an interface using the remove_wan template
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Interface name"
 // @Produce json
 // @Success 200 {object} common.Response{data=map[string]interface{}}
@@ -536,8 +525,7 @@ func HandleDeleteWAN(c echo.Context) error {
 // @Summary Get interface traffic graph
 // @Description Returns historical traffic data (send/receive rates) for a specific interface
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=map[string]interface{}}
@@ -575,8 +563,7 @@ func HandleGetInterfaceGraph(c echo.Context) error {
 // @Summary Reset interface traffic counter
 // @Description Resets the traffic counters (rx/tx bytes and packets) of the interface identified by name or ID
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 204

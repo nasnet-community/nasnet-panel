@@ -20,8 +20,7 @@ import (
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "WiFi interfaces list"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -51,8 +50,7 @@ func HandleListWiFiInterfaces(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Interface name"
 // @Success 200 {object} map[string]interface{} "WiFi interface details"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -88,8 +86,7 @@ func HandleGetWiFiInterface(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WiFi interface name or ID"
 // @Param duration query int false "Scan duration in seconds (default: 10)"
 // @Success 200 {object} common.Response{data=[]WiFiAccessPointResponse}
@@ -139,8 +136,7 @@ func HandleScanWiFiAccessPoints(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WiFi interface name or ID"
 // @Success 200 {object} common.Response{data=[]WiFiStatusResponse}
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -180,8 +176,7 @@ func HandleGetWiFiStatus(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param interface query string false "Filter by interface name"
 // @Success 200 {object} map[string]interface{} "Connected clients list"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -227,8 +222,7 @@ func HandleListWiFiConnectedClients(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param mac path string true "MAC address"
 // @Success 200 {object} map[string]interface{} "Client removed"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -264,8 +258,7 @@ func HandleRemoveWiFiConnectedClient(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Interface name"
 // @Success 200 {object} map[string]interface{} "WiFi passphrase"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -309,8 +302,7 @@ func HandleGetWiFiPassphrase(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Interface name"
 // @Param body body ChangeWiFiPassphraseRequest true "New passphrase"
 // @Success 200 {object} map[string]interface{} "Passphrase updated"
@@ -362,8 +354,7 @@ func HandleChangeWiFiPassphrase(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Interface name"
 // @Param body body UpdateWiFiInterfaceRequest true "Interface state"
 // @Success 200 {object} map[string]interface{} "Interface updated"
@@ -437,8 +428,7 @@ func HandleUpdateWiFiInterface(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Interface name"
 // @Param body body UpdateWiFiSettingsRequest true "WiFi settings"
 // @Success 200 {object} map[string]interface{} "WiFi settings updated"
@@ -540,8 +530,7 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WiFi interface name or ID"
 // @Param body body WiFiConnectRequest true "Connection details (SSID required; both securityType and password required together, or both empty for open network)"
 // @Success 200 {object} map[string]interface{} "Connected to access point"
@@ -627,8 +616,7 @@ func HandleConnectWiFi(c echo.Context) error {
 // @Tags WiFi
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body CreateVirtualWiFiInterfaceRequest true "Virtual WiFi interface configuration"
 // @Success 200 {object} common.Response{data=WiFiInterfaceResponse}
 // @Failure 400 {object} common.Response
@@ -762,8 +750,7 @@ func HandleCreateVirtualWiFiInterface(c echo.Context) error {
 // @Description Remove a virtual WiFi interface's bridge port (if any) then the interface itself
 // @Tags WiFi
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Virtual WiFi interface name or ID"
 // @Success 200 {object} common.Response
 // @Failure 400 {object} common.Response

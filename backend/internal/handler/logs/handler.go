@@ -17,8 +17,7 @@ import (
 // @Tags Logs
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param limit query integer false "Maximum number of log entries to return (default: 100, max: 1000)" default(100)
 // @Param text query string false "Search logs for this text (case-insensitive substring match)"
 // @Param topic query string false "Filter by topic(s) - comma-separated (see availableTopics)"

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"nasnet-panel/internal/auth"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/sftp"
@@ -22,8 +23,7 @@ import (
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "System information"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -53,8 +53,7 @@ func HandleGetSystemInfo(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "System identity"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -84,8 +83,7 @@ func HandleGetSystemIdentity(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body SetSystemIdentityRequest true "System identity"
 // @Success 200 {object} map[string]interface{} "Identity updated"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -124,8 +122,7 @@ func HandleSetSystemIdentity(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=UpdateInfoResponse} "Update information"
 // @Failure 400 {object} common.Response "Bad request"
 // @Failure 401 {object} common.Response "Unauthorized"
@@ -155,8 +152,7 @@ func HandleGetSystemUpdates(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "Reboot initiated"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -185,8 +181,7 @@ func HandleRebootSystem(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "Shutdown initiated"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -215,8 +210,7 @@ func HandleShutdownSystem(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "Resource information"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -246,8 +240,7 @@ func HandleGetResourceInfo(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body ChangeUserPasswordRequest true "User password change"
 // @Success 200 {object} map[string]interface{} "Password updated"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -264,7 +257,12 @@ func HandleChangeUserPassword(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "Username and new password are required", nil)
 	}
 
-	client, err := common.GetRouterOSClient(c)
+	creds, err := common.GetRouterOSCredentials(c)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusUnauthorized, "Authentication required", err)
+	}
+
+	client, err := common.NewRouterOSClient(c, creds)
 	if err != nil {
 		return err
 	}
@@ -278,6 +276,10 @@ func HandleChangeUserPassword(c echo.Context) error {
 	}
 	routeros.ClearConnectionCache()
 
+	if creds.SessionID != "" && req.Username == creds.Username {
+		auth.UpdateSessionPassword(creds.SessionID, req.NewPassword)
+	}
+
 	return common.SimpleSuccessResponse(c, http.StatusOK, "User password changed")
 }
 
@@ -285,8 +287,7 @@ func HandleChangeUserPassword(c echo.Context) error {
 // @Summary Check for package updates
 // @Description Check if a new package version is available
 // @Tags System
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=UpdateCheckResponse}
 // @Failure 500 {object} common.Response
@@ -311,8 +312,7 @@ func HandleCheckForUpdates(c echo.Context) error {
 // @Description returns immediately. The router reboots when the download finishes; poll
 // @Description /api/system/update-status for progress.
 // @Tags System
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=common.InstallUpdateResponse}
 // @Failure 409 {object} common.Response
@@ -367,8 +367,7 @@ func HandleInstallUpdate(c echo.Context) error {
 // @Summary Get RouterOS update status
 // @Description Returns the phase of the RouterOS package update started by POST /api/system/install-update
 // @Tags System
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=SystemUpdateStatusResponse}
 // @Router /api/system/update-status [get].
@@ -388,8 +387,7 @@ func HandleGetSystemUpdateStatus(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=[]IPServiceResponse} "IP services"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 500 {object} common.Response "Internal server error"
@@ -422,8 +420,7 @@ func HandleListIPServices(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=[]BackupFileResponse} "Backup files"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 500 {object} common.Response "Internal server error"
@@ -457,8 +454,7 @@ func HandleListBackups(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 201 {object} common.Response{data=BackupFileResponse} "Backup created"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 409 {object} common.Response "A backup is already in progress"
@@ -517,8 +513,7 @@ func HandleCreateBackup(c echo.Context) error {
 // @Description the client over HTTP. Returns 400 for an invalid file name and 404 when the file does not exist.
 // @Tags System
 // @Produce application/octet-stream
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param filename path string true "Backup file name, e.g. 2026-10-29_01-02-03.backup"
 // @Success 200 {file} file "Backup file"
 // @Failure 400 {object} common.Response "Invalid file name"
@@ -586,8 +581,7 @@ func HandleDownloadBackup(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param filename path string true "Backup file name, e.g. 2026-10-29_01-02-03.backup"
 // @Success 200 {object} common.Response "Backup deleted"
 // @Failure 400 {object} common.Response "Invalid file name"
@@ -657,8 +651,7 @@ func HandleDeleteBackup(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body RestoreBackupRequest true "Backup file name and optional password"
 // @Success 202 {object} common.Response "Restore initiated"
 // @Failure 400 {object} common.Response "Invalid file name"
@@ -748,8 +741,7 @@ func HandleRestoreBackup(c echo.Context) error {
 // @Tags System
 // @Accept multipart/form-data
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param file formData file true "Backup file (.backup, at most 16 MB)"
 // @Param password formData string false "Password of an encrypted backup"
 // @Success 202 {object} common.Response "Restore initiated"
@@ -877,8 +869,7 @@ func HandleRestoreUploadedBackup(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Service name or ID"
 // @Param body body UpdateIPServiceRequest true "Service settings to update"
 // @Success 200 {object} common.Response{data=IPServiceResponse} "Updated IP service"
@@ -962,8 +953,7 @@ func HandleUpdateIPService(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Scheduler name"
 // @Success 200 {object} common.Response{data=SchedulerResponse} "Scheduler details"
 // @Failure 400 {object} common.Response "Bad request"
@@ -1006,8 +996,7 @@ func HandleGetScheduler(c echo.Context) error {
 // @Tags System
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Scheduler name"
 // @Param body body UpdateSchedulerRequest true "Scheduler settings to update"
 // @Success 200 {object} common.Response{data=SchedulerResponse} "Updated scheduler"

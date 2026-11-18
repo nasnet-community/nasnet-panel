@@ -1,5 +1,5 @@
 import type { BrowserContext } from '@playwright/test';
-import { test, expect } from './fixtures';
+import { test, expect, routerHostOf } from './fixtures';
 
 type FirmwareStatus = { phase: string; message?: string; toVersion?: string; startedAt?: string };
 
@@ -618,7 +618,7 @@ test.describe('Updates page', () => {
     const hosts: Array<string | undefined> = [];
     await context.route('**/api/app/newsletter', async (route) => {
       bodies.push(route.request().postDataJSON());
-      hosts.push(route.request().headers()['x-routeros-host']);
+      hosts.push(routerHostOf(route.request()));
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

@@ -25,8 +25,7 @@ import (
 // @Description build version contains "dev", in which case every plugin is listed. Hidden plugins can still be installed
 // @Description directly and are unaffected by this filter.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=ListResponse}
 // @Failure 500 {object} common.Response
@@ -75,8 +74,7 @@ func HandleListPlugins(c echo.Context) error {
 // @Description returns just the id and name of every registry plugin currently installed (a
 // @Description plugin is installed as a container named after its id).
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Description Returns an empty list without touching the registry if container mode isn't
 // @Description enabled or the container package isn't installed on the device.
@@ -132,8 +130,7 @@ func HandleListInstalledPlugins(c echo.Context) error {
 // @Description directly on the container's own env property, since only those can be edited;
 // @Description a key present only via a resolved /container/envs list cannot be.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param pluginId path string true "Plugin id"
 // @Produce json
 // @Success 200 {object} common.Response{data=[]EnvVar}
@@ -169,8 +166,7 @@ func HandleListPluginEnvVars(c echo.Context) error {
 // @Description /container/envs list) can be changed; see GET /api/plugin/envs/{pluginId}'s
 // @Description changeable field.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param pluginId path string true "Plugin id"
 // @Param request body SetPluginEnvVarRequest true "Environment variable to set"
 // @Accept json
@@ -303,8 +299,7 @@ func HandleViewPlugin(c echo.Context) error {
 // @Description progress. At most one install per plugin id may run at a time;
 // @Description different plugins may install concurrently.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param request body InstallPluginRequest true "Plugin to install"
@@ -393,8 +388,7 @@ func HandleInstallPlugin(c echo.Context) error {
 // @Description Returns the current phase of an in-progress or completed plugin
 // @Description installation task.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param pluginId path string true "Plugin id passed to POST /api/plugin/install"
 // @Produce json
 // @Success 200 {object} common.Response{data=InstallStatusResponse}
@@ -424,8 +418,7 @@ func HandleGetPluginInstallStatus(c echo.Context) error {
 // @Description new version in the container's comment. Poll
 // @Description GET /api/plugin/update/status/{pluginId} for progress.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param pluginId path string true "Plugin id, which is also its container name"
 // @Produce json
 // @Success 200 {object} common.Response{data=UpdatePluginResponse}
@@ -496,8 +489,7 @@ func HandleUpdatePlugin(c echo.Context) error {
 // @Description Returns the current phase of an in-progress or completed plugin
 // @Description update task.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param pluginId path string true "Plugin id passed to POST /api/plugin/update/{pluginId}"
 // @Produce json
 // @Success 200 {object} common.Response{data=UpdateStatusResponse}
@@ -527,8 +519,7 @@ func HandleGetPluginUpdateStatus(c echo.Context) error {
 // @Description Cleanup steps that fail once the container is already gone are
 // @Description reported in the response as warnings rather than failing the request.
 // @Tags Plugin
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "Plugin id, which is also its container name"
 // @Produce json
 // @Success 200 {object} common.Response{data=UninstallPluginResponse}

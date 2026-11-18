@@ -49,20 +49,13 @@ export interface DHCPLeaseResponse {
   dynamic: boolean;
 }
 
-function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchSystemInfo(
   creds: SystemCredentials,
   signal?: AbortSignal,
 ): Promise<SystemInfoResponse> {
   return apiRequest<SystemInfoResponse>('/api/system/info', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -74,7 +67,7 @@ export async function fetchSystemResources(
 ): Promise<ResourceInfoResponse> {
   return apiRequest<ResourceInfoResponse>('/api/system/resources', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -86,7 +79,7 @@ export async function fetchDHCPLeases(
 ): Promise<DHCPLeaseResponse[]> {
   const leases = await apiRequest<DHCPLeaseResponse[] | null>('/api/dhcp/leases', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -135,7 +128,7 @@ export async function fetchInterfaces(
 ): Promise<InterfaceResponse[]> {
   const list = await apiRequest<InterfaceResponse[] | null>('/api/interface/interfaces', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -159,7 +152,7 @@ export async function fetchEthernetInterfaces(
 ): Promise<EthernetInterfaceResponse[]> {
   const list = await apiRequest<EthernetInterfaceResponse[] | null>('/api/interface/ethernets', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -180,7 +173,7 @@ export async function testEthernetCable(
     `/api/interface/ethernet/cable-test/${encodeURIComponent(nameOrId)}`,
     {
       method: 'POST',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
     },
   );
@@ -192,7 +185,7 @@ export async function resetInterfaceTrafficCounter(
 ): Promise<void> {
   await apiRequest<void>(`/api/interface/traffic-counter/${encodeURIComponent(nameOrId)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -211,10 +204,8 @@ export async function updateWanInterface(
 ): Promise<void> {
   await apiRequest<unknown>('/api/interface/wan', {
     method: 'PUT',
-    headers: {
-      ...authHeaders(creds),
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
+    auth: creds,
     body: JSON.stringify(request),
   });
 }
@@ -247,7 +238,7 @@ export async function fetchBridges(
 ): Promise<BridgeResponse[]> {
   const list = await apiRequest<BridgeResponse[] | null>('/api/interface/bridges', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -260,7 +251,7 @@ export async function fetchBridgePorts(
 ): Promise<BridgePortResponse[]> {
   const list = await apiRequest<BridgePortResponse[] | null>('/api/interface/bridge/ports', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -273,10 +264,8 @@ export async function updateInterfaceBridge(
 ): Promise<void> {
   await apiRequest<unknown>('/api/interface/bridge/port', {
     method: 'PUT',
-    headers: {
-      ...authHeaders(creds),
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
+    auth: creds,
     body: JSON.stringify(request),
   });
 }
@@ -291,7 +280,7 @@ export async function fetchForeignGateway(
 ): Promise<string | null> {
   const data = await apiRequest<ForeignGatewayResponse | null>('/api/route/foreign-gateway', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -305,10 +294,8 @@ export async function updateForeignGateway(
 ): Promise<void> {
   await apiRequest<unknown>('/api/route/foreign-gateway', {
     method: 'PUT',
-    headers: {
-      ...authHeaders(creds),
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
+    auth: creds,
     body: JSON.stringify({ gateway }),
     signal,
   });
@@ -320,7 +307,7 @@ export async function fetchVPNClients(
 ): Promise<VPNActiveClient[]> {
   const clients = await apiRequest<VPNActiveClient[] | null>('/api/vpn/clients', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -330,10 +317,8 @@ export async function fetchVPNClients(
 export async function setSystemIdentity(creds: SystemCredentials, name: string): Promise<void> {
   await apiRequest<void>('/api/system/identity', {
     method: 'PUT',
-    headers: {
-      ...authHeaders(creds),
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
+    auth: creds,
     body: JSON.stringify({ name }),
   });
 }
@@ -341,7 +326,7 @@ export async function setSystemIdentity(creds: SystemCredentials, name: string):
 export async function rebootSystem(creds: SystemCredentials): Promise<void> {
   await apiRequest<void>('/api/system/reboot', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -351,10 +336,8 @@ export async function changeUserPassword(
 ): Promise<void> {
   await apiRequest<void>('/api/system/password', {
     method: 'PUT',
-    headers: {
-      ...authHeaders(creds),
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
+    auth: creds,
     body: JSON.stringify({ username: creds.username, newPassword }),
   });
 }
@@ -362,7 +345,7 @@ export async function changeUserPassword(
 export async function shutdownSystem(creds: SystemCredentials): Promise<void> {
   await apiRequest<void>('/api/system/shutdown', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -375,7 +358,7 @@ export async function fetchInterfaceGraph(
     `/api/interface/graph/${encodeURIComponent(interfaceName)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -475,7 +458,7 @@ export async function fetchScheduler(
 ): Promise<SchedulerResponse> {
   return apiRequest<SchedulerResponse>(`/api/system/scheduler/${encodeURIComponent(name)}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -488,10 +471,8 @@ export async function updateScheduler(
 ): Promise<void> {
   await apiRequest<unknown>(`/api/system/scheduler/${encodeURIComponent(name)}`, {
     method: 'PUT',
-    headers: {
-      ...authHeaders(creds),
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
+    auth: creds,
     body: JSON.stringify(request),
   });
 }

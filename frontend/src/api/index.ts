@@ -329,6 +329,7 @@ export {
   type ActiveVPNConnectionsResponse,
 } from './vpn';
 export { ApiError, setUnauthorizedHandler } from './http';
+export type { RouterAuth } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
 export { loadChatwoot, toggleChatwoot } from './chatwoot';

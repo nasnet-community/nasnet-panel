@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test';
-import { test, expect } from './fixtures';
+import { test, expect, routerHostOf } from './fixtures';
 
 const ROUTER_ID = 'rtr_dns_static';
 
@@ -222,7 +222,7 @@ test.describe('DNS page static entries', () => {
       releaseOther = resolve;
     });
     await page.route('**/api/dns/static', async (route) => {
-      const host = route.request().headers()['x-routeros-host'];
+      const host = routerHostOf(route.request());
       if (host === '10.20.30.2') {
         await otherPending;
         await route.fulfill({
