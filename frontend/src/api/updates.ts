@@ -2,6 +2,7 @@ import { apiRequest } from './http';
 import type { SystemCredentials } from './system';
 
 export interface UpdateInfoResponse {
+  installedVersion?: string;
   version: string;
   buildTime: string;
   channel: string;
@@ -20,10 +21,19 @@ export interface UpdateCheckResponse {
 }
 
 export interface UpdateInstallResponse {
-  success: boolean;
-  message: string;
-  installedVersion: string;
-  latestVersion: string;
+  updateAvailable: boolean;
+  fromVersion: string;
+  toVersion?: string;
+}
+
+export type SystemUpdatePhase = 'idle' | 'downloading' | 'rebooting' | 'done' | 'error';
+
+export interface SystemUpdateStatusResponse {
+  phase: SystemUpdatePhase;
+  message?: string;
+  fromVersion?: string;
+  toVersion?: string;
+  startedAt?: string;
 }
 
 export interface AppVersionResponse {
@@ -46,18 +56,42 @@ export interface AppInstallUpdateResponse {
 
 export type AppUpdatePhase = 'idle' | 'preparing' | 'pulling' | 'restarting' | 'done' | 'error';
 
+export type AppReconfigState = 'idle' | 'pending' | 'running' | 'completed' | 'failed';
+
+export interface AppReconfigStatus {
+  state: AppReconfigState;
+  step: string;
+  progress: number;
+  error?: string;
+  warnings?: string[];
+}
+
 export interface AppUpdateStatusResponse {
   phase: AppUpdatePhase;
   message?: string;
   version?: string;
   startedAt?: string;
+  /** Present when the update reconfigures the router once the new version is running. */
+  reconfig?: AppReconfigStatus;
 }
 
-function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
+export type AppUpdateChannel = 'stable' | 'rc' | 'dev';
+
+export interface AppRelease {
+  tag: string;
+  prerelease: boolean;
+  releaseDate: string;
+  releaseUrl: string;
+  minRouterosVersion: string;
+  minAppVersion: string;
+  autoReconfigable: boolean;
+  changelog: string[];
+}
+
+/** A listed release, marked when it is lower than the running version. */
+export interface AppReleaseOption extends AppRelease {
+  /** Installing it downgrades the panel; the router is not reconfigured afterwards. */
+  downgrade: boolean;
 }
 
 export async function fetchUpdateInfo(
@@ -66,7 +100,7 @@ export async function fetchUpdateInfo(
 ): Promise<UpdateInfoResponse> {
   return apiRequest<UpdateInfoResponse>('/api/system/updates', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -78,7 +112,7 @@ export async function checkForUpdates(
 ): Promise<UpdateCheckResponse> {
   return apiRequest<UpdateCheckResponse>('/api/system/check-for-updates', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -87,7 +121,19 @@ export async function checkForUpdates(
 export async function installUpdate(creds: SystemCredentials): Promise<UpdateInstallResponse> {
   return apiRequest<UpdateInstallResponse>('/api/system/install-update', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
+  });
+}
+
+export async function fetchSystemUpdateStatus(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<SystemUpdateStatusResponse> {
+  return apiRequest<SystemUpdateStatusResponse>('/api/system/update-status', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
   });
 }
 
@@ -97,7 +143,7 @@ export async function fetchAppVersion(
 ): Promise<AppVersionResponse> {
   return apiRequest<AppVersionResponse>('/api/app/version', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -109,7 +155,7 @@ export async function checkAppForUpdates(
 ): Promise<AppCheckForUpdatesResponse> {
   return apiRequest<AppCheckForUpdatesResponse>('/api/app/check-for-updates', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -120,7 +166,7 @@ export async function installAppUpdate(
 ): Promise<AppInstallUpdateResponse> {
   return apiRequest<AppInstallUpdateResponse>('/api/app/install-update', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -130,8 +176,79 @@ export async function fetchAppUpdateStatus(
 ): Promise<AppUpdateStatusResponse> {
   return apiRequest<AppUpdateStatusResponse>('/api/app/update-status', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
+  });
+}
+
+export async function fetchAppReleases(
+  creds: SystemCredentials,
+  channel: AppUpdateChannel,
+  signal?: AbortSignal,
+): Promise<AppReleaseOption[]> {
+  const list = (hideLowerVer: boolean) =>
+    apiRequest<AppRelease[] | null>(
+      `/api/app/updates?${new URLSearchParams({ channel, hideLowerVer: String(hideLowerVer) }).toString()}`,
+      { method: 'GET', auth: creds, cache: 'no-store', signal },
+    ).then((releases) => releases ?? []);
+  // The backend decides which releases are lower than the running one: they are the ones
+  // missing from the list that hides them.
+  const [all, notLower] = await Promise.all([list(false), list(true)]);
+  const kept = new Set(notLower.map((r) => r.tag));
+  return all.map((r) => ({ ...r, downgrade: !kept.has(r.tag) }));
+}
+
+export async function fetchAppUpdateChannel(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<AppUpdateChannel> {
+  const data = await apiRequest<{ channel: AppUpdateChannel }>('/api/app/update/channel', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+  return data.channel;
+}
+
+export async function startAppUpdate(
+  creds: SystemCredentials,
+  version: string,
+): Promise<AppInstallUpdateResponse> {
+  return apiRequest<AppInstallUpdateResponse>('/api/app/update', {
+    method: 'POST',
+    auth: creds,
+    body: JSON.stringify({ version }),
+  });
+}
+
+export async function fetchAppUpdateProgress(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<AppUpdateStatusResponse> {
+  return apiRequest<AppUpdateStatusResponse>('/api/app/update/status', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export interface NewsletterRequest {
+  email: string;
+  locale: string;
+  // Honeypot; real users leave it empty.
+  website: string;
+}
+
+export async function subscribeNewsletter(
+  creds: SystemCredentials,
+  request: NewsletterRequest,
+): Promise<void> {
+  await apiRequest<unknown>('/api/app/newsletter', {
+    method: 'POST',
+    auth: creds,
+    body: JSON.stringify(request),
   });
 }

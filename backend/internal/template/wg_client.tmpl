@@ -1,4 +1,4 @@
-:set WizardMessage "Configuring WireGuard VPN client"
+:set BaseConfigMessage "Configuring WireGuard VPN client"
 /interface bridge
 add name="LANBridgeVPN-wg-client" comment="VPN-wg-client"
 
@@ -44,7 +44,7 @@ routing-table="main" scope="10" comment="Route-to-VPN-Client"
 add check-gateway=ping dst-address="0.0.0.0/0" gateway="1.0.0.1" routing-table="main" \
 distance="1" target-scope="11" comment="CheckIP-Route-to-VPN-Client"
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN-Client"
-add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway=100.64.0.1 routing-table="to-VPN-Client"
+add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway={{ or .ForeignInterface.Gateway "100.64.0.1" }} routing-table="to-VPN-Client"
 
 /tool netwatch
 add host="1.0.0.1" interval=5s timeout=2s \

@@ -122,6 +122,23 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 	return wifis, nil
 }
 
+// GetWiFiMonitorState returns the state field of a single /interface/wifi/monitor run.
+func (c *Client) GetWiFiMonitorState(interfaceName string) (string, error) {
+	if interfaceName == "" {
+		return "", fmt.Errorf("interface name is required")
+	}
+
+	reply, err := c.Execute("/interface/wifi/monitor", "=numbers="+interfaceName, "=once=yes")
+	if err != nil {
+		return "", fmt.Errorf("failed to monitor WiFi interface %s: %w", interfaceName, err)
+	}
+	if len(reply.Re) == 0 {
+		return "", fmt.Errorf("no monitor data returned for interface %s", interfaceName)
+	}
+
+	return reply.Re[0].Map["state"], nil
+}
+
 func (c *Client) getWiFiInterfaceImpl(nameOrID string) (*WifiInfo, error) {
 	result, err := c.GetFirst("/interface/wifi", nameOrIDFilterArg(nameOrID))
 	if err != nil {

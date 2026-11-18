@@ -117,6 +117,14 @@ export interface EasyConfigBackendOptions {
   managementWifi?: { ssid: string; password: string } | null;
 }
 
+export function routerHostOf(request: {
+  headers: () => Record<string, string>;
+}): string | undefined {
+  const header = request.headers().authorization ?? '';
+  const prefix = 'Bearer test-jwt-token.';
+  return header.startsWith(prefix) ? header.slice(prefix.length) : undefined;
+}
+
 export interface TestFixtures {
   resetMocks: () => Promise<void>;
   seedRouter: (input: SeedInput) => Promise<void>;
@@ -133,8 +141,26 @@ export interface TestFixtures {
 
 export const test = base.extend<TestFixtures>({
   resetMocks: async ({ context }, use) => {
+    await context.route('**/api/auth/login', async (route) => {
+      const body = route.request().postDataJSON() as { host?: string; username?: string } | null;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 200,
+          message: 'Login successful',
+          data: {
+            token: `test-jwt-token.${body?.host ?? ''}`,
+            tokenType: 'Bearer',
+            expiresAt: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+            host: body?.host ?? '',
+            username: body?.username ?? '',
+          },
+        }),
+      });
+    });
     // routers default to a completed wizard; gating specs override this route
-    await context.route('**/api/wizard/status', async (route) => {
+    await context.route('**/api/config/wizard/status', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -707,7 +733,7 @@ export const test = base.extend<TestFixtures>({
         managementWifi === undefined
           ? { ssid: 'NNC-Rescue-42', password: 'rescue-pass-4242' }
           : managementWifi;
-      await context.route('**/api/wizard/finalize', async (route) => {
+      await context.route('**/api/config/wizard/finalize', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -720,7 +746,7 @@ export const test = base.extend<TestFixtures>({
 
       const steps = wizardProgress ?? [100];
       let polls = 0;
-      await context.route('**/api/wizard/status', async (route) => {
+      await context.route('**/api/config/wizard/status', async (route) => {
         const progress = steps[Math.min(polls, steps.length - 1)] ?? 100;
         polls += 1;
         await route.fulfill({
@@ -901,6 +927,13 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
+      await context.route('**/api/dns/static**', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope([]),
+        });
+      });
       await context.route('**/api/dns/suggest**', async (route) => {
         await route.fulfill({
           status: 200,
@@ -1091,6 +1124,14 @@ export const test = base.extend<TestFixtures>({
             'Content-Disposition': 'attachment; filename="nasnet-diagnostic-report.txt"',
           },
           body: 'NasNet Panel Diagnostic Report',
+        });
+      });
+
+      await context.route('**/api/system/backups', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope([]),
         });
       });
 

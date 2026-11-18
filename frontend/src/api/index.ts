@@ -24,6 +24,7 @@ export {
   fetchInterfaces,
   fetchEthernetInterfaces,
   testEthernetCable,
+  resetInterfaceTrafficCounter,
   type CableTestResponse,
   updateWanInterface,
   type WanInterfaceType,
@@ -42,6 +43,10 @@ export {
   setSystemIdentity,
   shutdownSystem,
   changeUserPassword,
+  fetchScheduler,
+  updateScheduler,
+  type SchedulerResponse,
+  type UpdateSchedulerRequest,
   type SystemCredentials,
   type SystemInfoResponse,
   type ResourceInfoResponse,
@@ -90,6 +95,13 @@ export {
   setFamilyDns,
   resetDns,
   setDnsAdBlock,
+  fetchStaticDnsEntries,
+  createStaticDnsEntry,
+  updateStaticDnsEntry,
+  deleteStaticDnsEntry,
+  type StaticDnsEntry,
+  type CreateStaticDnsRequest,
+  type UpdateStaticDnsRequest,
   type DnsCredentials,
   type DnsForwarderType,
   type DnsForwarderListItem,
@@ -110,23 +122,62 @@ export {
   type DhcpClient,
   type DhcpLeaseAction,
 } from './dhcp';
-export { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from './firewall';
+export {
+  fetchFirewallRules,
+  fetchDomesticBlock,
+  setDomesticBlock,
+  fetchDomesticAddresses,
+  fetchDomesticAddressListInfo,
+  addDomesticAddress,
+  updateDomesticAddress,
+  deleteDomesticAddress,
+  domesticAddressConflict,
+  startDomesticListUpdate,
+  fetchDomesticListUpdateStatus,
+  fetchDomesticCountry,
+  setDomesticCountry,
+  type DomesticCountryResponse,
+  type DomesticListUpdateState,
+  type DomesticListUpdateStatus,
+  type FirewallCredentials,
+  type FirewallRule,
+  type DomesticBlockResponse,
+  type DomesticBlockRule,
+  type DomesticAddress,
+  type DomesticAddressConflict,
+  type DomesticAddressListInfo,
+  type UpdateDomesticAddressRequest,
+} from './firewall';
 export {
   fetchUpdateInfo,
   checkForUpdates,
   installUpdate,
+  fetchSystemUpdateStatus,
   fetchAppVersion,
   checkAppForUpdates,
   installAppUpdate,
   fetchAppUpdateStatus,
+  fetchAppReleases,
+  fetchAppUpdateChannel,
+  startAppUpdate,
+  fetchAppUpdateProgress,
+  subscribeNewsletter,
+  type NewsletterRequest,
   type UpdateInfoResponse,
   type UpdateCheckResponse,
   type UpdateInstallResponse,
+  type SystemUpdatePhase,
+  type SystemUpdateStatusResponse,
   type AppVersionResponse,
   type AppCheckForUpdatesResponse,
   type AppInstallUpdateResponse,
   type AppUpdatePhase,
   type AppUpdateStatusResponse,
+  type AppReconfigState,
+  type AppReconfigStatus,
+  type AppUpdateChannel,
+  type AppRelease,
+  type AppReleaseOption,
 } from './updates';
 export {
   fetchPlugins,
@@ -157,6 +208,16 @@ export {
   DIAG_REPORT_FILENAME,
   type DiagStatusResponse,
 } from './diag';
+export {
+  fetchBackups,
+  createBackup,
+  restoreBackup,
+  restoreBackupFromFile,
+  deleteBackup,
+  downloadBackup,
+  MAX_UPLOADED_BACKUP_BYTES,
+  type BackupFileResponse,
+} from './backups';
 export { fetchNetStatus, type NetStatusEntry, type NetHostType } from './net';
 export { fetchHealth, type HealthResponse } from './health';
 export {
@@ -270,6 +331,7 @@ export {
   type ActiveVPNConnectionsResponse,
 } from './vpn';
 export { ApiError, setUnauthorizedHandler } from './http';
+export type { RouterAuth } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
 export { loadChatwoot, toggleChatwoot } from './chatwoot';

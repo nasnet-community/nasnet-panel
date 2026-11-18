@@ -217,6 +217,32 @@ func (c *Client) AddDNSForwarder(name, dnsServers string, verifyDOHCert bool) (s
 	return id, nil
 }
 
+// SetDNSForwarder replaces the dns-servers, doh-servers, verify-doh-cert and comment of the DNS forwarder
+// identified by id (its RouterOS .id).
+func (c *Client) SetDNSForwarder(id string, forwarder *DNSForwarder) error {
+	if id == "" {
+		return fmt.Errorf("DNS forwarder ID is required")
+	}
+
+	verifyStr := "no"
+	if forwarder.VerifyDOHCert {
+		verifyStr = "yes"
+	}
+
+	_, err := c.Set("/ip/dns/forwarders",
+		"=.id="+id,
+		"=dns-servers="+strings.Join(forwarder.DNSServers, ","),
+		"=doh-servers="+strings.Join(forwarder.DOHServers, ","),
+		"=verify-doh-cert="+verifyStr,
+		"=comment="+forwarder.Comment,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to update DNS forwarder %s: %w", id, err)
+	}
+
+	return nil
+}
+
 // AddDNSAdList creates a new /ip/dns/adlist entry and returns its RouterOS
 // .id.
 func (c *Client) AddDNSAdList(config AddDNSAdListConfig) (string, error) {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Button, DataTable, Switch, leadingNumber, useToast } from '@nasnet/ui';
-import { ArrowDown, ArrowUp, Cable, Pencil, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Cable, Pencil, RotateCcw, Trash2 } from 'lucide-react';
 import {
   ApiError,
   fetchForeignGateway,
@@ -22,9 +22,18 @@ interface Props {
   onToggled: () => void;
   onEdit: (client: VPNClient) => void;
   onDelete: (client: VPNClient) => void;
+  onResetTraffic: (client: VPNClient) => void;
 }
 
-export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDelete }: Props) {
+export function ClientsTable({
+  rows,
+  totalRows,
+  creds,
+  onToggled,
+  onEdit,
+  onDelete,
+  onResetTraffic,
+}: Props) {
   const toast = useToast();
   const { t } = useTranslation('vpn');
   const format = useFormat();
@@ -228,33 +237,47 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
           header: t('shared.actions'),
           sortable: false,
           render: (c: VPNClient) => {
-            if (!EDITABLE_PROTOCOLS.has(c.protocol)) return null;
+            const editable = EDITABLE_PROTOCOLS.has(c.protocol);
             return (
               <span style={{ display: 'inline-flex', gap: 8 }}>
                 <Button
                   size="sm"
                   variant="secondary"
                   disabled={!creds}
-                  title={t('shared.editNamed', { name: c.name })}
-                  aria-label={t('shared.editNamed', { name: c.name })}
-                  onClick={() => onEdit(c)}
+                  title={t('clients.table.resetTrafficFor', { name: c.name })}
+                  aria-label={t('clients.table.resetTrafficFor', { name: c.name })}
+                  onClick={() => onResetTraffic(c)}
                 >
-                  <Pencil size={14} aria-hidden />
+                  <RotateCcw size={14} aria-hidden />
                 </Button>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  disabled={!creds}
-                  title={t('shared.deleteNamed', { name: c.name })}
-                  aria-label={t('shared.deleteNamed', { name: c.name })}
-                  onClick={() => onDelete(c)}
-                >
-                  <Trash2 size={14} aria-hidden />
-                </Button>
+                {editable ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={!creds}
+                    title={t('shared.editNamed', { name: c.name })}
+                    aria-label={t('shared.editNamed', { name: c.name })}
+                    onClick={() => onEdit(c)}
+                  >
+                    <Pencil size={14} aria-hidden />
+                  </Button>
+                ) : null}
+                {editable ? (
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={!creds}
+                    title={t('shared.deleteNamed', { name: c.name })}
+                    aria-label={t('shared.deleteNamed', { name: c.name })}
+                    onClick={() => onDelete(c)}
+                  >
+                    <Trash2 size={14} aria-hidden />
+                  </Button>
+                ) : null}
               </span>
             );
           },
-          width: '120px',
+          width: '160px',
         },
       ]}
       rows={rows}

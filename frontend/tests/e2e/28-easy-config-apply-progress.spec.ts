@@ -39,7 +39,7 @@ test.describe('Easy-Mode wizard — apply progress', () => {
     });
     await page.goto('/router/rtr_progress/config');
 
-    const finalizeRequest = page.waitForRequest('**/api/wizard/finalize');
+    const finalizeRequest = page.waitForRequest('**/api/config/wizard/finalize');
     await stepToApply(page);
 
     // the router derives the interface type from its default name, so the payload omits it
@@ -128,7 +128,7 @@ test.describe('Easy-Mode wizard — apply progress', () => {
 
     // the wizard rewrites the router's addressing, so the first status polls fail outright
     let polls = 0;
-    await context.route('**/api/wizard/status', async (route) => {
+    await context.route('**/api/config/wizard/status', async (route) => {
       polls += 1;
       if (polls <= 2) return route.abort('connectionrefused');
       await route.fulfill({

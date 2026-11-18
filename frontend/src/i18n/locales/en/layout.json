@@ -11,6 +11,7 @@
     "wan": "WAN",
     "lan": "LAN",
     "dns": "DNS",
+    "firewall": "Firewall",
     "wireless": "WIFI",
     "vpn": "VPN Server",
     "plugins": "Plugins",
@@ -23,6 +24,8 @@
     "showSubmenu": "Show {{label}} menu",
     "updates": "Updates & notifications",
     "changePassword": "Change password",
+    "settings": "Settings",
+    "backups": "Backup & Restore",
     "logout": "Logout"
   },
   "theme": {

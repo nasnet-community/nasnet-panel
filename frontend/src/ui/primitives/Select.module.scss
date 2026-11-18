@@ -162,3 +162,23 @@
   flex: 0 0 auto;
   color: var(--color-success);
 }
+
+.optionIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-inline-end: var(--space-sm);
+
+  img,
+  svg {
+    display: block;
+  }
+}
+
+.option .optionIcon {
+  margin-inline-end: 0;
+}
+
+.optionIcon + .optionText {
+  flex: 1 1 auto;
+}

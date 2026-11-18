@@ -30,7 +30,10 @@
       "deleteFailed": "Failed to delete client",
       "deleteFailedDescription": "Failed to delete client.",
       "deletedNamed": "Client \"{{name}}\" deleted",
-      "wgUpdated": "WireGuard client \"{{name}}\" updated"
+      "wgUpdated": "WireGuard client \"{{name}}\" updated",
+      "trafficReset": "Traffic of \"{{name}}\" reset",
+      "trafficResetFailed": "Failed to reset traffic",
+      "trafficResetFailedDescription": "Failed to reset the traffic counter."
     },
     "title": "Starlink Masking VPN Client",
     "description": "VPN clients that conceal the Starlink IP.",
@@ -46,7 +49,8 @@
       "setGatewayFor": "Set {{name}} as Starlink gateway",
       "setGateway": "Set gateway",
       "noMatch": "No clients match the current filters.",
-      "empty": "No VPN clients yet."
+      "empty": "No VPN clients yet.",
+      "resetTrafficFor": "Reset traffic of {{name}}"
     },
     "delete": {
       "wgTitle": "Delete WireGuard client",
@@ -61,6 +65,12 @@
       "newTitle": "New VPN client",
       "endpointHost": "Endpoint host",
       "endpointPort": "Endpoint port"
+    },
+    "resetTraffic": {
+      "title": "Reset traffic counter",
+      "description": "Reset the download and upload counters of \"{{name}}\" to zero? The previous totals are not kept.",
+      "confirm": "Reset",
+      "resetting": "Resetting…"
     }
   },
   "peers": {

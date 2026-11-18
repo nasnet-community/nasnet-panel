@@ -1,4 +1,4 @@
-import { apiRequest } from './http';
+import { ApiError, apiRequest } from './http';
 
 export interface FirewallCredentials {
   host: string;
@@ -24,24 +24,213 @@ export interface FirewallRule {
   packets?: string;
 }
 
-function authHeaders({ host, username, password }: FirewallCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchFirewallRules(
   creds: FirewallCredentials,
   chain?: string,
   signal?: AbortSignal,
 ): Promise<FirewallRule[]> {
   const query = chain ? `?${new URLSearchParams({ chain }).toString()}` : '';
-  const rules = await apiRequest<FirewallRule[] | null>(`/api/firewall/rules${query}`, {
+  const rules = await apiRequest<FirewallRule[] | null>(`/api/firewall/filter${query}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
   return rules ?? [];
+}
+
+export interface DomesticBlockRule {
+  id: string;
+  chain: string;
+  disabled: boolean;
+}
+
+export interface DomesticBlockResponse {
+  block: boolean;
+  rules: DomesticBlockRule[];
+  addedRules?: number;
+}
+
+export interface DomesticAddress {
+  id: string;
+  address: string;
+  timeout?: string;
+  creationTime: string;
+}
+
+export interface DomesticAddressListInfo {
+  totalEntries: number;
+  autoEntries: number;
+  manualEntries: number;
+  lastUpdate?: string;
+}
+
+export interface UpdateDomesticAddressRequest {
+  address: string;
+  timeout?: string;
+}
+
+/**
+ * Why the backend refused a domestic list address: it is, or contains, 0.0.0.0 (`unspecified`), an
+ * address the panel routes and pings to check a link (`panelRoute`), or a Netwatch host (`netwatch`).
+ */
+export interface DomesticAddressConflict {
+  address: string;
+  conflict: string;
+  reason: 'unspecified' | 'panelRoute' | 'netwatch';
+}
+
+/** Returns the conflict carried by a 400 from the add or edit endpoint, or null for any other error. */
+export function domesticAddressConflict(err: unknown): DomesticAddressConflict | null {
+  if (!(err instanceof ApiError) || err.status !== 400) return null;
+  const data = err.data as Partial<DomesticAddressConflict> | undefined;
+  if (!data?.address || !data.conflict) return null;
+  if (data.reason !== 'unspecified' && data.reason !== 'panelRoute' && data.reason !== 'netwatch') {
+    return null;
+  }
+  return { address: data.address, conflict: data.conflict, reason: data.reason };
+}
+
+export async function fetchDomesticBlock(
+  creds: FirewallCredentials,
+  signal?: AbortSignal,
+): Promise<DomesticBlockResponse> {
+  return apiRequest<DomesticBlockResponse>('/api/firewall/domestic', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function setDomesticBlock(
+  creds: FirewallCredentials,
+  block: boolean,
+): Promise<DomesticBlockResponse> {
+  return apiRequest<DomesticBlockResponse>('/api/firewall/domestic', {
+    method: 'PUT',
+    auth: creds,
+    body: JSON.stringify({ block }),
+  });
+}
+
+export async function fetchDomesticAddresses(
+  creds: FirewallCredentials,
+  signal?: AbortSignal,
+): Promise<DomesticAddress[]> {
+  const items = await apiRequest<DomesticAddress[] | null>('/api/firewall/addresslist/domestic', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+  return items ?? [];
+}
+
+export async function fetchDomesticAddressListInfo(
+  creds: FirewallCredentials,
+  signal?: AbortSignal,
+): Promise<DomesticAddressListInfo> {
+  return apiRequest<DomesticAddressListInfo>('/api/firewall/addresslist/domestic/info', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function addDomesticAddress(
+  creds: FirewallCredentials,
+  address: string,
+): Promise<void> {
+  await apiRequest<unknown>('/api/firewall/addresslist/domestic', {
+    method: 'POST',
+    auth: creds,
+    body: JSON.stringify({ address }),
+  });
+}
+
+export async function updateDomesticAddress(
+  creds: FirewallCredentials,
+  id: string,
+  request: UpdateDomesticAddressRequest,
+): Promise<DomesticAddress> {
+  return apiRequest<DomesticAddress>(
+    `/api/firewall/addresslist/domestic/${encodeURIComponent(id)}`,
+    {
+      method: 'PUT',
+      auth: creds,
+      body: JSON.stringify(request),
+    },
+  );
+}
+
+export async function deleteDomesticAddress(creds: FirewallCredentials, id: string): Promise<void> {
+  await apiRequest<void>(`/api/firewall/addresslist/domestic/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    auth: creds,
+  });
+}
+
+export type DomesticListUpdateState = 'idle' | 'running' | 'completed' | 'failed' | 'interrupted';
+
+export interface DomesticListUpdateStatus {
+  status: DomesticListUpdateState;
+  running: boolean;
+  failed: boolean;
+  /** 0 to 100. */
+  progress: number;
+  step?: string;
+  message?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
+/** Starts the router's DomesticIPUpdate script without waiting for it; 409 means one is already running. */
+export async function startDomesticListUpdate(creds: FirewallCredentials): Promise<void> {
+  await apiRequest<unknown>('/api/firewall/addresslist/domestic/update', {
+    method: 'POST',
+    auth: creds,
+  });
+}
+
+export async function fetchDomesticListUpdateStatus(
+  creds: FirewallCredentials,
+  signal?: AbortSignal,
+): Promise<DomesticListUpdateStatus> {
+  return apiRequest<DomesticListUpdateStatus>('/api/firewall/addresslist/domestic/update/status', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export interface DomesticCountryResponse {
+  /** ISO 3166-1 alpha-2 code of the country whose IP ranges the update downloads, e.g. `IR`. */
+  country: string;
+}
+
+/** Reads which country the domestic address list update downloads; 404 on backends that cannot report it. */
+export async function fetchDomesticCountry(
+  creds: FirewallCredentials,
+  signal?: AbortSignal,
+): Promise<DomesticCountryResponse> {
+  return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function setDomesticCountry(
+  creds: FirewallCredentials,
+  country: string,
+): Promise<DomesticCountryResponse> {
+  return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
+    method: 'PUT',
+    auth: creds,
+    body: JSON.stringify({ country }),
+  });
 }

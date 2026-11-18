@@ -95,6 +95,12 @@ linters:
       - path: internal/handler
         linters:
           - misspell
+      - path: internal/dbsync
+        linters:
+          - misspell
+      - path: internal/preinit
+        linters:
+          - misspell
       - path: internal/scanner
         linters:
           - misspell

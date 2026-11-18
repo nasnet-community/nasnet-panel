@@ -79,6 +79,11 @@ type AddL2TPClientConfig struct {
 	Comment     string
 	UseIPsec    bool
 	Disabled    bool
+
+	RandomSourcePort bool
+	AllowFastPath    bool
+	Allow            string
+	ProtoVersion     string
 }
 
 // AddSSTPClientConfig represents the parameters for adding a new SSTP client.
@@ -1558,6 +1563,18 @@ func (c *Client) AddL2TPClient(config AddL2TPClientConfig) error {
 	if config.Comment != "" {
 		args = append(args, "=comment="+config.Comment)
 	}
+	if config.RandomSourcePort {
+		args = append(args, "=random-source-port=yes")
+	}
+	if config.AllowFastPath {
+		args = append(args, "=allow-fast-path=yes")
+	}
+	if config.Allow != "" {
+		args = append(args, "=allow="+config.Allow)
+	}
+	if config.ProtoVersion != "" {
+		args = append(args, "=l2tp-proto-version="+config.ProtoVersion)
+	}
 
 	_, err := c.Add("/interface/l2tp-client", args...)
 	if err != nil {
@@ -1902,8 +1919,13 @@ func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 		"=name=" + config.PeerName,
 		"=interface=" + config.InterfaceName,
 		"=public-key=" + *config.PublicKey,
-		"=endpoint-address=" + config.EndpointAddress,
-		"=endpoint-port=" + strconv.Itoa(config.EndpointPort),
+	}
+
+	if config.EndpointAddress != "" {
+		args = append(args,
+			"=endpoint-address="+config.EndpointAddress,
+			"=endpoint-port="+strconv.Itoa(config.EndpointPort),
+		)
 	}
 
 	if len(config.AllowedAddresses) > 0 {
@@ -2388,9 +2410,9 @@ func (c *Client) ExportOvpnClientConfiguration(serverName, serverAddress, caCert
 	args := []string{
 		"=server=" + serverName,
 		"=server-address=" + serverAddress,
-		"=ca-certificate=" + c.resolveNasnetFile(caCertName+".crt"),
-		"=client-certificate=" + c.resolveNasnetFile(clientCertName+".crt"),
-		"=client-cert-key=" + c.resolveNasnetFile(clientCertName+".key"),
+		"=ca-certificate=" + c.resolveCertificateFile(caCertName+".crt"),
+		"=client-certificate=" + c.resolveCertificateFile(clientCertName+".crt"),
+		"=client-cert-key=" + c.resolveCertificateFile(clientCertName+".key"),
 	}
 
 	reply, err := c.Execute("/interface/ovpn-server/server/export-client-configuration", args...)

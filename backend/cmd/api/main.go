@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"nasnet-panel/internal/db"
-	"nasnet-panel/internal/handler"
+	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/middleware"
 	"nasnet-panel/internal/routes"
 	"nasnet-panel/internal/server"
@@ -25,14 +25,17 @@ import (
 // @host localhost:8080
 // @basePath /
 // @schemes http https
-// @securityDefinitions.basic BasicAuth
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description The token from POST /api/auth/login, with or without the "Bearer " prefix.
 func main() {
 	databases, err := db.NewRegistry(databaseDir())
 	if err != nil {
 		log.Fatalf("Failed to prepare database directory: %v", err)
 	}
 	defer func() { _ = databases.Close() }()
-	handler.SetDatabases(databases)
+	common.SetDatabases(databases)
 
 	e := echo.New()
 

@@ -16,12 +16,12 @@ const (
 // DNSServer is a set of DNS server values: either the router's global resolver
 // settings or one named forwarder. DNSServers and DOHServers are comma separated lists.
 type DNSServer struct {
-	Name          string
-	Type          string
-	DNSServers    string
-	DOHServers    string
-	VerifyDOHCert bool
-	Comment       string
+	Name          string `db:"name"`
+	Type          string `db:"type"`
+	DNSServers    string `db:"dns_servers"`
+	DOHServers    string `db:"doh_servers"`
+	VerifyDOHCert bool   `db:"verify_doh_cert"`
+	Comment       string `db:"comment"`
 }
 
 func upsertDNSServerImpl(ctx context.Context, ext sqlx.ExtContext, server *DNSServer) error {

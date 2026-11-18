@@ -9,16 +9,16 @@ import (
 
 // WireGuardPeer is one peer of the WireGuard client interface.
 type WireGuardPeer struct {
-	Name                string
-	Comment             string
-	PublicKey           string
-	PrivateKey          string
-	PresharedKey        string
-	EndpointAddress     string
-	EndpointPort        int
-	AllowedAddress      string
-	PersistentKeepalive int
-	Enabled             bool
+	Name                string `db:"name"`
+	Comment             string `db:"comment"`
+	PublicKey           string `db:"public_key"`
+	PrivateKey          string `db:"private_key"`
+	PresharedKey        string `db:"preshared_key"`
+	EndpointAddress     string `db:"endpoint_address"`
+	EndpointPort        int    `db:"endpoint_port"`
+	AllowedAddress      string `db:"allowed_address"`
+	PersistentKeepalive int    `db:"persistent_keepalive"`
+	Enabled             bool   `db:"enabled"`
 }
 
 func insertWireGuardPeer(ctx context.Context, tx *sqlx.Tx, interfaceID int64, peer *WireGuardPeer) error {

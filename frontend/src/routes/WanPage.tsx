@@ -116,7 +116,8 @@ export function WanPage() {
 
   const foreign = interfaces.filter((i) => matchesWanCategory(i.comment, 'foreign'));
   const domestic = interfaces.filter((i) => matchesWanCategory(i.comment, 'domestic'));
-  const assignedNames = [...foreign, ...domestic].map((i) => i.name);
+  const foreignNames = foreign.map((i) => i.name);
+  const domesticNames = domestic.map((i) => i.name);
 
   return (
     <div className={styles.sectionGrid}>
@@ -124,7 +125,7 @@ export function WanPage() {
         routerId={id}
         items={foreign}
         interfaces={interfaces}
-        excludeNames={assignedNames}
+        otherNames={domesticNames}
         interfacesLoading={interfacesLoading}
         onChanged={reloadAfterWanChange}
       />
@@ -132,7 +133,7 @@ export function WanPage() {
         routerId={id}
         items={domestic}
         interfaces={interfaces}
-        excludeNames={assignedNames}
+        otherNames={foreignNames}
         interfacesLoading={interfacesLoading}
         onChanged={reloadAfterWanChange}
       />

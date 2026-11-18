@@ -11,11 +11,11 @@ import (
 // one bridge only, so Interface identifies the row and a move to another bridge updates it.
 // DefaultName is the interface's factory name, empty when it has none.
 type BridgePort struct {
-	Bridge      string
-	Interface   string
-	DefaultName string
-	Comment     string
-	Enabled     bool
+	Bridge      string `db:"bridge"`
+	Interface   string `db:"interface"`
+	DefaultName string `db:"default_name"`
+	Comment     string `db:"comment"`
+	Enabled     bool   `db:"enabled"`
 }
 
 // UpsertBridgePort stores the port, replacing the stored one of the same interface.

@@ -78,23 +78,25 @@ type FirewallRuleConfig struct {
 	Log              bool
 	LogPrefix        string
 	Comment          string
+	PlaceBefore      string
 }
 
 type NATRuleConfig struct {
-	Chain       string
-	Action      string
-	Protocol    string
-	SrcAddr     string
-	DstAddr     string
-	SrcPort     string
-	DstPort     string
-	ToAddresses string
-	ToPorts     string
-	InIface     string
-	OutIface    string
-	Disabled    bool
-	Log         bool
-	Comment     string
+	Chain          string
+	Action         string
+	Protocol       string
+	SrcAddr        string
+	SrcAddressList string
+	DstAddr        string
+	SrcPort        string
+	DstPort        string
+	ToAddresses    string
+	ToPorts        string
+	InIface        string
+	OutIface       string
+	Disabled       bool
+	Log            bool
+	Comment        string
 }
 
 type MangleRuleConfig struct {
@@ -111,6 +113,8 @@ type MangleRuleConfig struct {
 	OutIface          string
 	ConnectionState   string
 	NewConnectionMark string
+	NewRoutingMark    string
+	SrcAddressList    string
 	PlaceBefore       string
 	Disabled          bool
 	Log               bool
@@ -319,6 +323,10 @@ func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 		args = append(args, "=comment="+config.Comment)
 	}
 
+	if config.PlaceBefore != "" {
+		args = append(args, "=place-before="+config.PlaceBefore)
+	}
+
 	id, err := c.Add("/ip/firewall/filter", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add firewall rule: %w", err)
@@ -448,6 +456,9 @@ func (c *Client) AddNATRule(config NATRuleConfig) (string, error) {
 	if config.SrcAddr != "" {
 		args = append(args, "=src-address="+config.SrcAddr)
 	}
+	if config.SrcAddressList != "" {
+		args = append(args, "=src-address-list="+config.SrcAddressList)
+	}
 	if config.DstAddr != "" {
 		args = append(args, "=dst-address="+config.DstAddr)
 	}
@@ -569,6 +580,12 @@ func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 	}
 	if config.NewConnectionMark != "" {
 		args = append(args, "=new-connection-mark="+config.NewConnectionMark)
+	}
+	if config.NewRoutingMark != "" {
+		args = append(args, "=new-routing-mark="+config.NewRoutingMark)
+	}
+	if config.SrcAddressList != "" {
+		args = append(args, "=src-address-list="+config.SrcAddressList)
 	}
 	if config.PassThrough {
 		args = append(args, "=passthrough=yes")

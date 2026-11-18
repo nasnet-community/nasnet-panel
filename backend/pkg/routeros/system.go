@@ -146,7 +146,7 @@ func (c *Client) GetSystemIdentity() (*Identity, error) {
 }
 
 func (c *Client) SetSystemIdentity(name string) error {
-	_, err := c.conn.Run("/system/identity/set", "=name="+name)
+	_, err := c.Execute("/system/identity/set", "=name="+name)
 	if err != nil {
 		return fmt.Errorf("failed to set system identity: %w", err)
 	}
@@ -354,17 +354,18 @@ func (c *Client) BackupSystem(name string) error {
 }
 
 // RestoreBackup loads the backup file name (a path under /file, including its
-// extension) with an empty password, matching BackupSystem, which saves
-// unencrypted backups. RouterOS rejects the command without the password
-// argument. RouterOS reboots as soon as the load starts, so a dropped
-// connection after the command was sent is treated as success. The command is
-// sent once and never retried, so a reconnect cannot trigger a second restore.
-func (c *Client) RestoreBackup(name string) error {
+// extension). The password decrypts an encrypted backup; pass "" for an
+// unencrypted one, such as those BackupSystem saves. RouterOS rejects the
+// command without the password argument, so it is always sent. RouterOS
+// reboots as soon as the load starts, so a dropped connection after the
+// command was sent is treated as success. The command is sent once and never
+// retried, so a reconnect cannot trigger a second restore.
+func (c *Client) RestoreBackup(name, password string) error {
 	if name == "" {
 		return fmt.Errorf("backup name is required")
 	}
 
-	if _, err := c.ExecuteOnce("/system/backup/load", "=name="+name, "=password="); err != nil && !isNetworkError(err) {
+	if _, err := c.ExecuteOnce("/system/backup/load", "=name="+name, "=password="+password); err != nil && !isNetworkError(err) {
 		return fmt.Errorf("failed to restore backup %s: %w", name, err)
 	}
 
@@ -641,15 +642,9 @@ func (c *Client) GetUpdateStatus() (*UpdateCheckInfo, error) {
 
 // StartPackageUpdateInstall asks RouterOS to download and install the latest packages. RouterOS
 // reboots when the download is done, so the connection is usually lost before this returns.
+// It holds the connection for the whole download, so call it on a client of its own.
 func (c *Client) StartPackageUpdateInstall() error {
-	c.mu.Lock()
-	conn := c.conn
-	c.mu.Unlock()
-
-	if conn == nil {
-		return fmt.Errorf("failed to install update: not connected to RouterOS")
-	}
-	if _, err := conn.Run("/system/package/update/install"); err != nil {
+	if _, err := c.ExecuteOnce("/system/package/update/install"); err != nil {
 		return fmt.Errorf("failed to install update: %w", err)
 	}
 	return nil
@@ -676,8 +671,8 @@ func (c *Client) InstallUpdate() (*UpdateInstallResult, error) {
 	}
 
 	// Proceed with installation
-	_, err = c.conn.Run("/system/package/update/install")
-	if err != nil {
+	_, err = c.ExecuteOnce("/system/package/update/install")
+	if err != nil && !isNetworkError(err) {
 		return &UpdateInstallResult{
 			Success:          false,
 			Message:          fmt.Sprintf("Failed to install update: %v", err),

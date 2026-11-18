@@ -552,3 +552,13 @@ func boolToYesNo(v bool) string {
 	}
 	return "no"
 }
+
+// NetwatchExistsByComment reports whether a /tool/netwatch entry with exactly the given comment exists.
+func (c *Client) NetwatchExistsByComment(comment string) (bool, error) {
+	results, err := c.GetAll("/tool/netwatch", "?=comment="+comment)
+	if err != nil {
+		return false, fmt.Errorf("failed to look up netwatch %q: %w", comment, err)
+	}
+
+	return len(results) > 0, nil
+}

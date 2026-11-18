@@ -192,12 +192,12 @@ These commands create a virtual ethernet interface for the container, a bridge, 
 
 /ip/firewall/nat/add chain=srcnat action=masquerade src-address=192.168.50.0/24 comment="nasnet-panel-installer-srcnat"
 
-/ip/firewall/nat/add chain=dstnat action=dst-nat protocol=tcp dst-port=8080 to-addresses=192.168.50.2 to-ports=80 comment="nasnet-panel-installer-dstnat"
+/ip/firewall/nat/add chain=dstnat action=dst-nat protocol=tcp dst-address=192.168.0.0/16 dst-port=8080 to-addresses=192.168.50.2 to-ports=80 comment="nasnet-panel-installer-dstnat"
 
 /ip/firewall/filter/add chain=forward action=accept protocol=tcp dst-address=192.168.50.2 dst-port=80 comment="nasnet-panel-installer-forward"
 ```
 
-The dstnat rule maps LAN port 8080 to the container. If you want the panel on a different port, change `dst-port=8080` accordingly. Move both new firewall rules to the top of their respective chains so they take effect ahead of any blocking rules:
+The dstnat rule maps LAN port 8080 to the container. It only matches traffic destined for `192.168.0.0/16` (the LAN side), so the port is not exposed on the router's WAN address. If you want the panel on a different port, change `dst-port=8080` accordingly. Move both new firewall rules to the top of their respective chains so they take effect ahead of any blocking rules:
 
 ```
 /ip/firewall/nat/move [find comment="nasnet-panel-installer-dstnat"] destination=0

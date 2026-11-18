@@ -26,6 +26,7 @@ test.describe('Router dashboard + Overview tab', () => {
       'Internet',
       'WAN',
       'LAN',
+      'Firewall',
       'WIFI',
       'VPN Server',
       'Diagnostics',

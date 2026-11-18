@@ -9,13 +9,13 @@ import (
 
 // SSTPClient is an SSTP client. Name identifies it on the router.
 type SSTPClient struct {
-	Name      string
-	Comment   string
-	ConnectTo string
-	Port      int
-	User      string
-	Password  string
-	Enabled   bool
+	Name      string `db:"name"`
+	Comment   string `db:"comment"`
+	ConnectTo string `db:"connect_to"`
+	Port      int    `db:"port"`
+	User      string `db:"user"`
+	Password  string `db:"password"`
+	Enabled   bool   `db:"enabled"`
 }
 
 func upsertSSTPClientImpl(ctx context.Context, ext sqlx.ExtContext, client *SSTPClient) error {

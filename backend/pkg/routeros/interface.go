@@ -1203,3 +1203,28 @@ func (c *Client) ResetInterfaceCounters(nameOrID string) error {
 
 	return nil
 }
+
+// AddNatPMPInterface adds iface to /ip/nat-pmp/interfaces with the given type (internal or external).
+func (c *Client) AddNatPMPInterface(iface, interfaceType string) (string, error) {
+	id, err := c.Add("/ip/nat-pmp/interfaces", "=interface="+iface, "=type="+interfaceType)
+	if err != nil {
+		return "", fmt.Errorf("failed to add NAT-PMP interface %s: %w", iface, err)
+	}
+
+	return id, nil
+}
+
+// AddInterfaceListMemberWithComment adds iface as a member of list and sets the member's comment.
+func (c *Client) AddInterfaceListMemberWithComment(list, iface, comment string) (string, error) {
+	id, err := c.Add("/interface/list/member", "=list="+list, "=interface="+iface, "=comment="+comment)
+	if err != nil {
+		return "", fmt.Errorf("failed to add %s to the %s interface list: %w", iface, list, err)
+	}
+
+	return id, nil
+}
+
+// InterfaceListExists reports whether an interface list with the given name exists.
+func (c *Client) InterfaceListExists(name string) (bool, error) {
+	return c.nameExists("/interface/list", name)
+}

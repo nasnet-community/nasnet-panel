@@ -10,9 +10,9 @@ import (
 // VPNUser is a VPN user that any VPN server can use. It is not tied to one
 // server. Profile is the name of the PPP profile the user is assigned.
 type VPNUser struct {
-	Username string
-	Password string
-	Profile  string
+	Username string `db:"username"`
+	Password string `db:"password"`
+	Profile  string `db:"profile"`
 }
 
 func upsertVPNUserImpl(ctx context.Context, ext sqlx.ExtContext, user *VPNUser) error {

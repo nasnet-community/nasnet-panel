@@ -8,53 +8,111 @@ import {
   CheckCircle2,
   Download,
   ExternalLink,
+  History,
   Loader2,
+  RefreshCw,
   Router as RouterIcon,
   Sparkles,
   Tag,
+  TriangleAlert,
 } from 'lucide-react';
 import {
   Badge,
   Button,
   Card,
   ConfirmDialog,
+  EmptyState,
   PageHeader,
   PageShell,
   PageSubtitle,
   PageTitle,
   Progress,
+  Select,
   Skeleton,
   Stack,
   useToast,
 } from '@nasnet/ui';
 import {
-  checkAppForUpdates,
   checkForUpdates,
-  fetchAppUpdateStatus,
+  fetchAppReleases,
+  fetchAppUpdateChannel,
+  fetchAppUpdateProgress,
   fetchAppVersion,
   fetchUpdateInfo,
-  installAppUpdate,
   installUpdate,
-  type AppCheckForUpdatesResponse,
+  fetchSystemUpdateStatus,
+  startAppUpdate,
+  type AppReleaseOption,
+  type AppUpdateChannel,
   type UpdateCheckResponse,
+  type SystemUpdateStatusResponse,
   type UpdateInfoResponse,
 } from '../api';
 import { useRouterStore } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { RouterTabBar } from '../layout/RouterTabBar';
 import { useFormat } from '../utils/useFormat';
+import { NewsletterCard } from './NewsletterCard';
 import styles from './UpdatesPage.module.scss';
 
-const APP_UPDATE_TIMEOUT_MS = 8 * 60 * 1000;
+// The panel pulls the new image, restarts, and may then reconfigure the router.
+const APP_UPDATE_TIMEOUT_MS = 15 * 60 * 1000;
+const APP_POLL_MS = 2000;
+
+const APP_CHANNELS: AppUpdateChannel[] = ['stable', 'rc', 'dev'];
 
 // `step` is a key under updates.progress in the catalog, translated at render.
-type ProgressStep = 'starting' | 'preparing' | 'pulling' | 'restarting' | 'waiting' | 'done';
+type ProgressStep =
+  'starting' | 'preparing' | 'pulling' | 'restarting' | 'waiting' | 'reconfiguring' | 'done';
 
 const APP_UPDATE_STEPS: Record<string, { value: number; step: ProgressStep }> = {
   preparing: { value: 15, step: 'preparing' },
-  pulling: { value: 55, step: 'pulling' },
-  restarting: { value: 85, step: 'restarting' },
+  pulling: { value: 45, step: 'pulling' },
+  restarting: { value: 65, step: 'restarting' },
 };
+
+/** The leading X.Y.Z of a version or tag (`v1.3.0-rc.1` gives 1.3.0), or null when it has none. */
+function versionParts(value: string | undefined | null): number[] | null {
+  const match = /^v?(\d+)\.(\d+)(?:\.(\d+))?/.exec(value?.trim() ?? '');
+  return match ? [Number(match[1]), Number(match[2]), Number(match[3] ?? 0)] : null;
+}
+
+function isOlder(version: number[], than: number[]): boolean {
+  for (let i = 0; i < 3; i++) {
+    if (version[i] !== than[i]) return version[i] < than[i];
+  }
+  return false;
+}
+
+// The backend gives up after 15 minutes; wait a little longer before giving up here.
+const FIRMWARE_UPDATE_TIMEOUT_MS = 16 * 60 * 1000;
+const FIRMWARE_POLL_MS = 2000;
+
+// `step` is a key under updates.progress in the catalog, translated at render.
+type FirmwareStep = 'starting' | 'downloadingFirmware' | 'rebootingRouter' | 'done';
+
+interface FirmwareProgress {
+  value: number;
+  step: FirmwareStep;
+  /** Download percentage, when RouterOS reports one in its status text. */
+  percent?: number;
+}
+
+function firmwareProgress(status: SystemUpdateStatusResponse): FirmwareProgress | null {
+  if (status.phase === 'downloading') {
+    const match = /(\d{1,3})\s*%/.exec(status.message ?? '');
+    const percent = match ? Math.min(100, Number(match[1])) : undefined;
+    // The download fills 10–70% of the bar; the reboot takes the rest.
+    return {
+      value: percent === undefined ? 25 : 10 + Math.round(percent * 0.6),
+      step: 'downloadingFirmware',
+      percent,
+    };
+  }
+  if (status.phase === 'rebooting') return { value: 80, step: 'rebootingRouter' };
+  if (status.phase === 'done') return { value: 100, step: 'done' };
+  return null;
+}
 
 function isValidDate(value: string): boolean {
   return !Number.isNaN(new Date(value).getTime());
@@ -111,6 +169,7 @@ export function UpdatesPage() {
         <div className={styles.cardGrid}>
           <AppUpdateCard />
           <FirmwareUpdateCard />
+          <NewsletterCard />
         </div>
       </PageShell>
     </>
@@ -129,15 +188,22 @@ function AppUpdateCard() {
   const host = targetRouter?.host;
   const ready = Boolean(targetId && creds && host);
 
-  const [check, setCheck] = useState<AppCheckForUpdatesResponse | null>(null);
+  const [appVersion, setAppVersion] = useState<string | null>(null);
+  const [routerosVersion, setRouterosVersion] = useState<string | null>(null);
+  const [channel, setChannel] = useState<AppUpdateChannel | null>(null);
+  const [releases, setReleases] = useState<AppReleaseOption[] | null>(null);
+  const [selectedTag, setSelectedTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [progressStep, setProgressStep] = useState<ProgressStep | null>(null);
+  const [reconfigStep, setReconfigStep] = useState('');
   const [complete, setComplete] = useState(false);
   const watchingRef = useRef(false);
+  const releasesRequestRef = useRef(0);
+  const runningVersionRef = useRef<string | null>(null);
   const toast = useToast();
   const { t } = useTranslation('tools');
   const format = useFormat();
@@ -149,26 +215,91 @@ function AppUpdateCard() {
     [],
   );
 
-  const reload = useCallback(async () => {
-    if (!creds || !host) {
-      setCheck(null);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      setCheck(await checkAppForUpdates({ host, ...creds }));
-    } catch (err) {
-      setCheck(null);
-      setError(err instanceof Error ? err.message : t('updates.checkFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }, [host, creds, t]);
+  const loadReleases = useCallback(
+    async (next: AppUpdateChannel) => {
+      if (!creds || !host) return;
+      // Only the latest request may fill the list, so a slow answer for an earlier channel is dropped.
+      const request = ++releasesRequestRef.current;
+      setLoading(true);
+      setError(null);
+      // Drop the previous channel's list so none of its releases can be installed meanwhile.
+      setReleases(null);
+      setSelectedTag('');
+      try {
+        // The list keeps the running release, which would only answer "already up to date".
+        const list = (await fetchAppReleases({ host, ...creds }, next)).filter(
+          (r) => r.tag !== runningVersionRef.current,
+        );
+        if (request !== releasesRequestRef.current) return;
+        setReleases(list);
+        // Offer the newest release above the running one; an older one only when the user picks it.
+        setSelectedTag(list.find((r) => !r.downgrade)?.tag ?? '');
+      } catch (err) {
+        if (request !== releasesRequestRef.current) return;
+        setError(err instanceof Error ? err.message : t('updates.checkFailed'));
+      } finally {
+        if (request === releasesRequestRef.current) setLoading(false);
+      }
+    },
+    [host, creds, t],
+  );
 
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    if (!creds || !host) {
+      setReleases(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const [version, saved, info] = await Promise.all([
+        fetchAppVersion({ host, ...creds })
+          .then((r) => r.version)
+          .catch(() => null),
+        fetchAppUpdateChannel({ host, ...creds }).catch((): AppUpdateChannel => 'stable'),
+        fetchUpdateInfo({ host, ...creds }).catch(() => null),
+      ]);
+      if (cancelled) return;
+      runningVersionRef.current = version;
+      setAppVersion(version);
+      setRouterosVersion(info?.version ?? null);
+      setChannel(saved);
+      await loadReleases(saved);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [host, creds, loadReleases]);
+
+  const selected = releases?.find((r) => r.tag === selectedTag) ?? null;
+
+  // Why the selected release can't be installed on this router, or null when it can.
+  const blockedReason = (() => {
+    if (!selected) return null;
+    const routeros = versionParts(routerosVersion);
+    const minRouteros = versionParts(selected.minRouterosVersion);
+    if (routeros && minRouteros && isOlder(routeros, minRouteros)) {
+      return t('updates.app.needsRouterOS', { version: selected.minRouterosVersion });
+    }
+    return null;
+  })();
+
+  // What the user should know before installing a release the router is not reconfigured
+  // for, or null when it is reconfigured.
+  const reconfigWarning = (() => {
+    if (!selected || selected.autoReconfigable) return null;
+    if (selected.downgrade) {
+      return t('updates.app.downgradeWarning', { version: selected.tag });
+    }
+    const running = versionParts(appVersion);
+    const minApp = versionParts(selected.minAppVersion);
+    if (running && minApp && isOlder(running, minApp)) {
+      return t('updates.app.skipWarning', {
+        version: selected.tag,
+        minVersion: `v${minApp.join('.')}`,
+      });
+    }
+    return t('updates.app.noReconfigWarning', { version: selected.tag });
+  })();
 
   const finishWithError = (message: string) => {
     watchingRef.current = false;
@@ -177,88 +308,114 @@ function AppUpdateCard() {
     toast.notify({ title: t('updates.app.failed'), description: message, tone: 'danger' });
   };
 
-  const waitForRestart = (startedAt: number, fromVersion: string) => {
-    if (!watchingRef.current || !creds || !host) return;
-    setProgress(95);
-    setProgressStep('waiting');
-    if (Date.now() - startedAt > APP_UPDATE_TIMEOUT_MS) {
-      watchingRef.current = false;
-      setInstalling(false);
-      toast.notify({
-        title: t('updates.app.applied'),
-        description: t('updates.app.appliedDetail'),
-        tone: 'success',
-      });
-      return;
-    }
-    void fetchAppVersion({ host, ...creds })
-      .then((r) => r.version)
-      .catch(() => null)
-      .then((version) => {
-        if (!watchingRef.current) return;
-        if (version && version !== fromVersion) {
-          watchingRef.current = false;
-          setProgress(100);
-          setProgressStep('done');
-          setComplete(true);
-          setInstalling(false);
-          toast.notify({
-            title: t('updates.app.complete'),
-            description: t('updates.app.reloading'),
-            tone: 'success',
-          });
-          window.setTimeout(() => window.location.reload(), 1200);
-          return;
-        }
-        window.setTimeout(() => waitForRestart(startedAt, fromVersion), 3000);
-      });
+  const finish = () => {
+    watchingRef.current = false;
+    setProgress(100);
+    setProgressStep('done');
+    setComplete(true);
+    setInstalling(false);
+    toast.notify({
+      title: t('updates.app.complete'),
+      description: t('updates.app.reloading'),
+      tone: 'success',
+    });
+    window.setTimeout(() => window.location.reload(), 1200);
   };
 
-  const watchUpdate = (startedAt: number, fromVersion: string) => {
+  const watchUpdate = (startedAt: number, toVersion: string, expectReconfig: boolean) => {
     if (!watchingRef.current || !creds || !host) return;
+    const again = () =>
+      window.setTimeout(() => watchUpdate(startedAt, toVersion, expectReconfig), APP_POLL_MS);
     if (Date.now() - startedAt > APP_UPDATE_TIMEOUT_MS) {
       finishWithError(t('updates.app.timeout'));
       return;
     }
-    void fetchAppUpdateStatus({ host, ...creds })
+    void fetchAppUpdateProgress({ host, ...creds })
       .catch(() => null)
-      .then((status) => {
+      .then(async (status) => {
         if (!watchingRef.current) return;
-        if (status?.phase === 'error') {
+        // No answer: the panel is restarting.
+        if (!status) {
+          setProgress(70);
+          setProgressStep('waiting');
+          again();
+          return;
+        }
+        if (status.phase === 'error') {
           finishWithError(status.message || t('updates.app.failed'));
           return;
         }
-        if (status && (status.phase === 'done' || status.phase === 'idle')) {
-          waitForRestart(startedAt, fromVersion);
+        const reconfig = status.reconfig;
+        if (reconfig?.state === 'running') {
+          setProgress(75 + Math.round((reconfig.progress / 100) * 24));
+          setProgressStep('reconfiguring');
+          setReconfigStep(reconfig.step);
+          again();
           return;
         }
-        const step = status ? APP_UPDATE_STEPS[status.phase] : undefined;
+        if (reconfig?.state === 'failed') {
+          watchingRef.current = false;
+          setInstalling(false);
+          setProgress(null);
+          setComplete(true);
+          toast.notify({
+            title: t('updates.app.reconfigFailed'),
+            description: reconfig.error,
+            tone: 'danger',
+          });
+          return;
+        }
+        if (reconfig?.state === 'completed') {
+          finish();
+          return;
+        }
+        const step = APP_UPDATE_STEPS[status.phase];
         if (step) {
           setProgress(step.value);
           setProgressStep(step.step);
+          again();
+          return;
         }
-        window.setTimeout(() => watchUpdate(startedAt, fromVersion), 2000);
+        // The update is applied. Wait for the new version, and for the reconfiguration it starts.
+        if (expectReconfig && reconfig?.state === 'pending') {
+          setProgress(70);
+          setProgressStep('waiting');
+          again();
+          return;
+        }
+        const running = await fetchAppVersion({ host, ...creds })
+          .then((r) => r.version)
+          .catch(() => null);
+        if (!watchingRef.current) return;
+        if (running === toVersion) {
+          finish();
+          return;
+        }
+        setProgress(70);
+        setProgressStep('waiting');
+        again();
       });
   };
 
   const install = async () => {
     setConfirming(false);
-    if (!creds || !host) return;
+    if (!creds || !host || !selected) return;
+    const target = selected;
     setInstalling(true);
     setComplete(false);
     setProgress(5);
     setProgressStep('starting');
     try {
-      const result = await installAppUpdate({ host, ...creds });
+      const result = await startAppUpdate({ host, ...creds }, target.tag);
       if (!result.updateAvailable) {
         setInstalling(false);
         setProgress(null);
         toast.notify({ title: t('updates.app.alreadyUpToDate'), tone: 'success' });
-        await reload();
+        if (channel) await loadReleases(channel);
         return;
       }
       watchingRef.current = true;
-      watchUpdate(Date.now(), result.fromVersion);
+      watchUpdate(Date.now(), result.toVersion ?? target.tag, target.autoReconfigable);
     } catch (err) {
       setInstalling(false);
       setProgress(null);
@@ -271,9 +428,15 @@ function AppUpdateCard() {
   };
 
   const releaseDate =
-    check?.releaseDate && isValidDate(check.releaseDate)
-      ? format.date(check.releaseDate, { year: 'numeric', month: 'short', day: 'numeric' })
+    selected?.releaseDate && isValidDate(selected.releaseDate)
+      ? format.date(selected.releaseDate, { year: 'numeric', month: 'short', day: 'numeric' })
       : null;
+  const updateAvailable = !!releases?.some((r) => !r.downgrade);
+  const hasOlder = !!releases?.some((r) => r.downgrade);
+  const versionOptions = (releases ?? []).map((r) => ({
+    value: r.tag,
+    label: r.downgrade ? t('updates.app.olderOption', { version: r.tag }) : r.tag,
+  }));
 
   return (
     <Card>
@@ -287,17 +450,17 @@ function AppUpdateCard() {
               <h3 style={{ margin: 0 }}>{t('updates.app.title')}</h3>
             </div>
             <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: 'var(--font-sm)' }}>
-              {!check
+              {!releases
                 ? t('updates.app.keepUpToDate')
-                : check.updateAvailable
+                : updateAvailable
                   ? t('updates.app.newerAvailable')
                   : t('updates.app.runningLatest')}
             </p>
           </div>
-          {check ? (
+          {releases ? (
             <span className={styles.badgeRow}>
-              <Badge tone={check.updateAvailable ? 'warning' : 'success'}>
-                {check.updateAvailable ? null : (
+              <Badge tone={updateAvailable ? 'warning' : 'success'}>
+                {updateAvailable ? null : (
                   <Check
                     size={12}
                     strokeWidth={2.5}
@@ -305,7 +468,7 @@ function AppUpdateCard() {
                     style={{ marginInlineEnd: 4, verticalAlign: '-2px' }}
                   />
                 )}
-                {check.updateAvailable ? t('updates.updateAvailable') : t('updates.upToDate')}
+                {updateAvailable ? t('updates.updateAvailable') : t('updates.upToDate')}
               </Badge>
             </span>
           ) : null}
@@ -315,49 +478,101 @@ function AppUpdateCard() {
           <p className={styles.emptyNote}>{t('updates.app.connectFirst')}</p>
         ) : (
           <>
-            {loading && !check ? (
+            <div className={styles.metaRow}>
+              {appVersion ? (
+                <div className={styles.metaPill}>
+                  <Tag size={14} aria-hidden />
+                  <span>{appVersion}</span>
+                </div>
+              ) : null}
+              <div className={styles.channelField}>
+                <Select
+                  aria-label={t('updates.app.channel')}
+                  value={channel ?? ''}
+                  onChange={(value) => {
+                    const next = value as AppUpdateChannel;
+                    setChannel(next);
+                    void loadReleases(next);
+                  }}
+                  options={APP_CHANNELS.map((c) => ({
+                    value: c,
+                    label: t(`updates.app.channels.${c}`),
+                  }))}
+                  disabled={!channel || installing}
+                />
+              </div>
+            </div>
+
+            {loading ? (
               <>
                 <MetaRowSkeleton />
                 <VersionTrackSkeleton />
               </>
             ) : null}
 
-            {error ? <p className={styles.emptyNote}>{error}</p> : null}
+            {error ? (
+              <EmptyState
+                title={t('updates.app.loadFailed')}
+                description={error}
+                actions={
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      if (channel) void loadReleases(channel);
+                    }}
+                    disabled={!channel}
+                  >
+                    <RefreshCw size={14} aria-hidden /> {t('updates.app.retry')}
+                  </Button>
+                }
+              />
+            ) : null}
 
-            {check ? (
-              <>
-                <div className={styles.metaRow}>
-                  <div className={styles.metaPill}>
-                    <Tag size={14} aria-hidden />
-                    <span>{check.appVersion}</span>
-                  </div>
-                  {releaseDate ? (
-                    <div className={styles.metaPill}>
-                      <CalendarClock size={14} aria-hidden />
-                      <span>{releaseDate}</span>
-                    </div>
-                  ) : null}
-                  {check.releaseUrl ? (
-                    <a
-                      className={`${styles.metaPill} ${styles.metaPillLink}`}
-                      href={check.releaseUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <ExternalLink size={14} aria-hidden className="rtl-flip" />
-                      <span>{t('updates.app.releaseNotes')}</span>
-                    </a>
-                  ) : null}
+            {releases && !updateAvailable ? (
+              <div className={styles.upToDate}>
+                <CheckCircle2 size={22} aria-hidden className={styles.upToDateIcon} />
+                <div className={styles.upToDateBody}>
+                  <span className={styles.versionStopLabel}>
+                    <Tag size={12} aria-hidden /> {t('updates.current')}
+                  </span>
+                  <span className={styles.versionStopValue} data-testid="app-current-version">
+                    {appVersion ?? '—'}
+                  </span>
+                  <span className={styles.channelNote}>
+                    {t('updates.app.latestInChannel', {
+                      channel: channel ? t(`updates.app.channels.${channel}`) : '',
+                    })}
+                  </span>
                 </div>
+              </div>
+            ) : null}
 
-                {check.updateAvailable ? (
+            {releases && !updateAvailable && hasOlder ? (
+              <div className={styles.olderField}>
+                <span className={styles.versionStopLabel}>
+                  <History size={12} aria-hidden /> {t('updates.app.olderVersions')}
+                </span>
+                <Select
+                  aria-label={t('updates.app.olderVersions')}
+                  placeholder={t('updates.app.chooseOlder')}
+                  value={selectedTag}
+                  onChange={setSelectedTag}
+                  options={versionOptions}
+                  disabled={installing}
+                />
+              </div>
+            ) : null}
+
+            {releases?.length && selected ? (
+              <>
+                {updateAvailable ? (
                   <div className={styles.versionTrack}>
                     <div className={styles.versionStop}>
                       <span className={styles.versionStopLabel}>
                         <Tag size={12} aria-hidden /> {t('updates.current')}
                       </span>
                       <span className={styles.versionStopValue} data-testid="app-current-version">
-                        {check.appVersion}
+                        {appVersion ?? '—'}
                       </span>
                     </div>
                     <ArrowRight
@@ -367,39 +582,96 @@ function AppUpdateCard() {
                     />
                     <div className={`${styles.versionStop} ${styles.versionStopHighlight}`}>
                       <span className={styles.versionStopLabel}>
-                        <Sparkles size={12} aria-hidden /> {t('updates.latest')}
+                        <Sparkles size={12} aria-hidden /> {t('updates.app.version')}
                       </span>
-                      <span className={styles.versionStopValue} data-testid="app-latest-version">
-                        {check.latestVersion}
-                      </span>
+                      <Select
+                        aria-label={t('updates.app.version')}
+                        value={selectedTag}
+                        onChange={setSelectedTag}
+                        options={versionOptions}
+                        disabled={installing}
+                      />
                     </div>
                   </div>
-                ) : (
-                  <div className={styles.upToDate}>
-                    <CheckCircle2 size={22} aria-hidden className={styles.upToDateIcon} />
-                    <div className={styles.upToDateBody}>
-                      <span className={styles.versionStopLabel}>
-                        <Tag size={12} aria-hidden /> {t('updates.current')}
-                      </span>
-                      <span className={styles.versionStopValue} data-testid="app-current-version">
-                        {check.appVersion}
-                      </span>
+                ) : null}
+
+                <div className={styles.metaRow}>
+                  {releaseDate ? (
+                    <div className={styles.metaPill}>
+                      <CalendarClock size={14} aria-hidden />
+                      <span>{releaseDate}</span>
                     </div>
-                  </div>
-                )}
+                  ) : null}
+                  {selected.prerelease ? (
+                    <Badge tone="info">{t('updates.app.prerelease')}</Badge>
+                  ) : null}
+                  {selected.releaseUrl ? (
+                    <a
+                      className={`${styles.metaPill} ${styles.metaPillLink}`}
+                      href={selected.releaseUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink size={14} aria-hidden className="rtl-flip" />
+                      <span>{t('updates.app.releaseNotes')}</span>
+                    </a>
+                  ) : null}
+                </div>
+
+                <div className={styles.changelog}>
+                  <span className={styles.versionStopLabel}>{t('updates.app.changelog')}</span>
+                  {selected.changelog.length ? (
+                    <ul>
+                      {selected.changelog.map((line, i) => (
+                        // Lines can repeat between releases, so the index keeps keys unique.
+                        // eslint-disable-next-line react/no-array-index-key
+                        <li key={`${selected.tag}-${i}`}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className={styles.emptyNote}>{t('updates.app.noChangelog')}</p>
+                  )}
+                </div>
+
+                {reconfigWarning && !blockedReason ? (
+                  <p
+                    className={`${styles.warningNote} ${selected.downgrade ? styles.warningNoteDanger : ''}`}
+                    role="note"
+                  >
+                    <TriangleAlert size={16} aria-hidden className={styles.warningNoteIcon} />
+                    <span>{reconfigWarning}</span>
+                  </p>
+                ) : null}
+
+                {blockedReason ? (
+                  <p className={styles.blockedNote} role="note">
+                    {blockedReason}
+                  </p>
+                ) : null}
               </>
             ) : null}
 
             {progress !== null ? (
               <Progress
                 value={progress}
-                label={progressStep ? t(`updates.progress.${progressStep}`) : ''}
+                label={
+                  progressStep === 'reconfiguring' && reconfigStep
+                    ? t('updates.progress.reconfiguringStep', { step: reconfigStep })
+                    : progressStep
+                      ? t(`updates.progress.${progressStep}`)
+                      : ''
+                }
+                tone="success"
               />
             ) : null}
 
-            {check?.updateAvailable ? (
+            {selected ? (
               <div className={styles.actions}>
-                <Button variant="success" onClick={() => setConfirming(true)} disabled={installing}>
+                <Button
+                  variant={selected.downgrade ? 'danger' : 'success'}
+                  onClick={() => setConfirming(true)}
+                  disabled={installing || complete || !!blockedReason}
+                >
                   {installing ? (
                     <>
                       <Loader2 size={14} aria-hidden /> {t('updates.installing')}
@@ -410,7 +682,10 @@ function AppUpdateCard() {
                     </>
                   ) : (
                     <>
-                      <Download size={14} aria-hidden /> {t('updates.app.updateButton')}
+                      <Download size={14} aria-hidden />{' '}
+                      {selected.downgrade
+                        ? t('updates.app.downgradeTo', { version: selected.tag })
+                        : t('updates.app.updateTo', { version: selected.tag })}
                     </>
                   )}
                 </Button>
@@ -422,10 +697,20 @@ function AppUpdateCard() {
 
       <ConfirmDialog
         open={confirming}
-        title={t('updates.app.confirmTitle')}
-        description={t('updates.app.confirmDescription')}
+        title={
+          selected?.downgrade
+            ? t('updates.app.confirmDowngradeTitle')
+            : t('updates.app.confirmTitle')
+        }
+        description={
+          selected?.downgrade
+            ? t('updates.app.confirmDescriptionDowngrade', { version: selected.tag })
+            : selected?.autoReconfigable
+              ? t('updates.app.confirmDescriptionReconfig', { version: selected.tag })
+              : t('updates.app.confirmDescriptionNoReconfig', { version: selected?.tag ?? '' })
+        }
         confirmLabel={t('updates.confirm')}
-        confirmVariant="success"
+        confirmVariant={selected?.downgrade ? 'danger' : 'success'}
         onConfirm={install}
         onCancel={() => setConfirming(false)}
       />
@@ -452,8 +737,18 @@ function FirmwareUpdateCard() {
   const [confirming, setConfirming] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [complete, setComplete] = useState(false);
+  const [progress, setProgress] = useState<FirmwareProgress | null>(null);
+  const watchingRef = useRef(false);
   const toast = useToast();
   const { t } = useTranslation('tools');
+  const format = useFormat();
+
+  useEffect(
+    () => () => {
+      watchingRef.current = false;
+    },
+    [],
+  );
 
   const reload = useCallback(async () => {
     if (!creds || !host) {
@@ -513,36 +808,115 @@ function FirmwareUpdateCard() {
     };
   }, [host, creds, t]);
 
+  const stopWatching = () => {
+    watchingRef.current = false;
+    setInstalling(false);
+  };
+
+  const watchUpdate = (startedAt: number, toVersion?: string) => {
+    if (!watchingRef.current || !creds || !host) return;
+    if (Date.now() - startedAt > FIRMWARE_UPDATE_TIMEOUT_MS) {
+      stopWatching();
+      setProgress(null);
+      toast.notify({
+        title: t('updates.firmware.failed'),
+        description: t('updates.firmware.timeout'),
+        tone: 'danger',
+      });
+      return;
+    }
+    const finish = (version: string) => {
+      stopWatching();
+      setProgress({ value: 100, step: 'done' });
+      setComplete(true);
+      toast.notify({
+        title: t('updates.firmware.updated', { version }),
+        tone: 'success',
+      });
+      void reload();
+    };
+    void fetchSystemUpdateStatus({ host, ...creds })
+      .catch(() => null)
+      .then(async (status) => {
+        if (!watchingRef.current) return;
+        if (status?.phase === 'error') {
+          stopWatching();
+          setProgress(null);
+          toast.notify({
+            title: t('updates.firmware.failed'),
+            description: status.message,
+            tone: 'danger',
+          });
+          return;
+        }
+        if (status?.phase === 'done') {
+          finish(status.toVersion ?? toVersion ?? '');
+          return;
+        }
+        // The panel restarts with the router and forgets the update, so ask the router directly.
+        if (toVersion && status?.phase !== 'downloading') {
+          const installed = await fetchUpdateInfo({ host, ...creds })
+            .then((r) => r.installedVersion)
+            .catch(() => null);
+          if (!watchingRef.current) return;
+          if (installed === toVersion) {
+            finish(toVersion);
+            return;
+          }
+        }
+        const next = status ? firmwareProgress(status) : null;
+        if (next) setProgress(next);
+        window.setTimeout(() => watchUpdate(startedAt, toVersion), FIRMWARE_POLL_MS);
+      });
+  };
+
+  // Pick up an update that is already running, for example after a page reload.
+  useEffect(() => {
+    if (!creds || !host) return;
+    let cancelled = false;
+    void fetchSystemUpdateStatus({ host, ...creds })
+      .then((status) => {
+        if (cancelled || watchingRef.current) return;
+        if (status.phase !== 'downloading' && status.phase !== 'rebooting') return;
+        const startedAt = status.startedAt ? Date.parse(status.startedAt) : Date.now();
+        setInstalling(true);
+        setProgress(firmwareProgress(status));
+        watchingRef.current = true;
+        watchUpdate(Number.isNaN(startedAt) ? Date.now() : startedAt, status.toVersion);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+    // watchUpdate reads the latest creds and host through this effect's own deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [host, creds]);
+
   const install = async () => {
     setConfirming(false);
     if (!creds || !host) return;
     setInstalling(true);
     setComplete(false);
+    setProgress({ value: 5, step: 'starting' });
     try {
       const result = await installUpdate({ host, ...creds });
-      setComplete(true);
-      if (result.success) {
-        toast.notify({
-          title: t('updates.firmware.started'),
-          description: result.message || t('updates.firmware.startedDetail'),
-          tone: 'success',
-        });
-      } else {
-        toast.notify({
-          title: t('updates.firmware.failed'),
-          description: result.message,
-          tone: 'danger',
-        });
+      if (!result.updateAvailable) {
+        setInstalling(false);
+        setProgress(null);
+        toast.notify({ title: t('updates.firmware.alreadyUpToDate'), tone: 'success' });
+        await reload();
+        return;
       }
-      await reload();
+      watchingRef.current = true;
+      watchUpdate(Date.now(), result.toVersion);
     } catch (err) {
+      setInstalling(false);
+      setProgress(null);
       toast.notify({
         title: t('updates.firmware.failed'),
         description: err instanceof Error ? err.message : undefined,
         tone: 'danger',
       });
-    } finally {
-      setInstalling(false);
     }
   };
 
@@ -653,7 +1027,21 @@ function FirmwareUpdateCard() {
               </>
             ) : null}
 
-            {check?.updateAvailable || downloaded ? (
+            {progress ? (
+              <Progress
+                value={progress.value}
+                label={
+                  progress.percent !== undefined
+                    ? t('updates.progress.downloadingFirmwarePercent', {
+                        percent: format.number(progress.percent),
+                      })
+                    : t(`updates.progress.${progress.step}`)
+                }
+                tone={progress.value > 60 ? 'success' : 'info'}
+              />
+            ) : null}
+
+            {check?.updateAvailable || downloaded || installing ? (
               <div className={styles.actions}>
                 <Button
                   variant="success"

@@ -17,7 +17,7 @@ test.describe('Wizard-gated navigation', () => {
     await resetMocks();
     await seedRouter({ id: 'rtr_fresh', name: 'Fresh Router', host: '10.0.0.70' });
     await mockOverviewBackend({ id: 'rtr_fresh' });
-    await context.route('**/api/wizard/status', async (route) => {
+    await context.route('**/api/config/wizard/status', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: freshStatus });
     });
 
@@ -39,7 +39,7 @@ test.describe('Wizard-gated navigation', () => {
     await resetMocks();
     await seedRouter({ id: 'rtr_err', name: 'Unreachable Router', host: '10.0.0.72' });
     await mockOverviewBackend({ id: 'rtr_err' });
-    await context.route('**/api/wizard/status', async (route) => {
+    await context.route('**/api/config/wizard/status', async (route) => {
       await route.abort('connectionrefused');
     });
 
@@ -77,7 +77,7 @@ test.describe('Wizard-gated navigation', () => {
       await resetMocks();
       await seedRouter({ id: 'rtr_mfresh', name: 'Fresh Mobile', host: '10.0.0.73' });
       await mockOverviewBackend({ id: 'rtr_mfresh' });
-      await context.route('**/api/wizard/status', async (route) => {
+      await context.route('**/api/config/wizard/status', async (route) => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: freshStatus });
       });
 

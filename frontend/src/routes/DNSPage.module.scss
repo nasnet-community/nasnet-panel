@@ -23,6 +23,13 @@
   align-items: start;
 }
 
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;

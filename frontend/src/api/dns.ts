@@ -55,11 +55,24 @@ export interface DnsFamilyResponse {
   vpn: DnsChangeResult;
 }
 
-function authHeaders({ host, username, password }: DnsCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
+export interface StaticDnsEntry {
+  id: string;
+  name: string;
+  address: string;
+  type: string;
+  ttl: string;
+  disabled: boolean;
+}
+
+export interface CreateStaticDnsRequest {
+  name: string;
+  address: string;
+}
+
+export interface UpdateStaticDnsRequest {
+  name?: string;
+  address?: string;
+  disabled?: boolean;
 }
 
 export async function fetchDnsForwarders(
@@ -68,7 +81,7 @@ export async function fetchDnsForwarders(
 ): Promise<DnsForwarderListItem[]> {
   const data = await apiRequest<DnsForwarderListItem[] | null>('/api/dns/list', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -81,7 +94,7 @@ export async function fetchDnsSuggestions(
 ): Promise<DnsSuggestResponse> {
   const data = await apiRequest<DnsSuggestResponse | null>('/api/dns/suggest', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -97,7 +110,7 @@ export async function validateDnsChange(
   const query = new URLSearchParams({ oldIP: oldIp, newIP: newIp });
   return apiRequest<DnsValidateResponse>(`/api/dns/validate?${query.toString()}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -110,7 +123,7 @@ export async function changeDns(
 ): Promise<void> {
   await apiRequest('/api/dns/change', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -123,7 +136,7 @@ export async function setDnsAdBlock(
 ): Promise<void> {
   await apiRequest('/api/dns/adblock', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ enabled }),
     signal,
   });
@@ -132,7 +145,7 @@ export async function setDnsAdBlock(
 export async function flushDnsCache(creds: DnsCredentials, signal?: AbortSignal): Promise<void> {
   await apiRequest('/api/dns/cache', {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -143,7 +156,7 @@ export async function setFamilyDns(
 ): Promise<DnsFamilyResponse> {
   return apiRequest<DnsFamilyResponse>('/api/dns/family', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -151,7 +164,50 @@ export async function setFamilyDns(
 export async function resetDns(creds: DnsCredentials, signal?: AbortSignal): Promise<void> {
   await apiRequest('/api/dns/reset', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
+  });
+}
+
+export async function fetchStaticDnsEntries(
+  creds: DnsCredentials,
+  signal?: AbortSignal,
+): Promise<StaticDnsEntry[]> {
+  const data = await apiRequest<StaticDnsEntry[] | null>('/api/dns/static', {
+    method: 'GET',
+    auth: creds,
+    signal,
+    cache: 'no-store',
+  });
+  return data ?? [];
+}
+
+export async function createStaticDnsEntry(
+  creds: DnsCredentials,
+  request: CreateStaticDnsRequest,
+): Promise<StaticDnsEntry> {
+  return apiRequest<StaticDnsEntry>('/api/dns/static', {
+    method: 'POST',
+    auth: creds,
+    body: JSON.stringify(request),
+  });
+}
+
+export async function updateStaticDnsEntry(
+  creds: DnsCredentials,
+  nameOrId: string,
+  request: UpdateStaticDnsRequest,
+): Promise<StaticDnsEntry> {
+  return apiRequest<StaticDnsEntry>(`/api/dns/static/${encodeURIComponent(nameOrId)}`, {
+    method: 'PUT',
+    auth: creds,
+    body: JSON.stringify(request),
+  });
+}
+
+export async function deleteStaticDnsEntry(creds: DnsCredentials, nameOrId: string): Promise<void> {
+  await apiRequest<void>(`/api/dns/static/${encodeURIComponent(nameOrId)}`, {
+    method: 'DELETE',
+    auth: creds,
   });
 }

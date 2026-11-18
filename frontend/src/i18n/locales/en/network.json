@@ -124,6 +124,45 @@
       "title": "Disable Family DNS?",
       "description": "The Foreign and VPN forwarders go back to their standard servers, and filtering stops.",
       "confirm": "Disable"
+    },
+    "static": {
+      "title": "Static DNS entries",
+      "description": "Names the router answers with a fixed IPv4 address, for devices on your network.",
+      "add": "Add entry",
+      "empty": "No static DNS entries yet.",
+      "loadFailed": "Failed to load static DNS entries.",
+      "enabledFor": "Enable {{name}}",
+      "editFor": "Edit {{name}}",
+      "deleteFor": "Delete {{name}}",
+      "delete": "Delete",
+      "deleting": "Deleting…",
+      "columns": {
+        "name": "Name",
+        "address": "IPv4 address",
+        "enabled": "Enabled"
+      },
+      "form": {
+        "addTitle": "Add static DNS entry",
+        "editTitle": "Edit static DNS entry",
+        "save": "Save",
+        "saving": "Saving…",
+        "nameRequired": "Name is required.",
+        "nameInvalid": "Use up to 253 letters, digits, dots, hyphens, underscores or *.",
+        "addressRequired": "Address is required.",
+        "addressInvalid": "Enter a valid IPv4 address."
+      },
+      "toasts": {
+        "added": "Entry \"{{name}}\" added",
+        "updated": "Entry \"{{name}}\" updated",
+        "deleted": "Entry \"{{name}}\" deleted",
+        "addFailed": "Failed to add static DNS entry",
+        "updateFailed": "Failed to update static DNS entry",
+        "deleteFailed": "Failed to delete static DNS entry"
+      },
+      "confirmDelete": {
+        "title": "Delete static DNS entry",
+        "description": "Remove \"{{name}}\" from this router? This cannot be undone."
+      }
     }
   },
   "dnsChange": {
@@ -150,23 +189,13 @@
     "hintSelect": "Turn on manual entry to type an IP that is not listed."
   },
   "firewall": {
-    "allChains": "All chains",
-    "nodes": {
-      "ingress": "Ingress",
+    "chains": {
       "input": "Input",
-      "router": "Router",
-      "output": "Output",
-      "egress": "Egress",
-      "forward": "Forward"
+      "forward": "Forward",
+      "output": "Output"
     },
-    "diagramAria": "Firewall packet flow diagram",
-    "nodeAria_one": "{{label}}, {{n}} rule",
-    "nodeAria_other": "{{label}}, {{n}} rules",
-    "ruleCount_one": "{{n}} rule",
-    "ruleCount_other": "{{n}} rules",
-    "noRules": "No rules",
+    "allChains": "All chains",
     "any": "any",
-    "noComment": "(no comment)",
     "loadFailed": "Failed to load firewall rules.",
     "columns": {
       "chain": "Chain",
@@ -187,7 +216,81 @@
     "chain": "Chain",
     "chainFilterAria": "Chain filter",
     "empty": "No firewall rules configured.",
-    "emptyInChain": "No firewall rules configured in the {{chain}} chain."
+    "emptyInChain": "No firewall rules configured in the {{chain}} chain.",
+    "domestic": {
+      "title": "Domestic addresses",
+      "description": "The DOMAddList address list holds the domestic IP ranges. The router keeps it up to date, and you can add your own addresses, which updates leave in place.",
+      "add": "Add address",
+      "loading": "Loading…",
+      "empty": "No addresses added yet.",
+      "loadFailed": "Failed to load the domestic address list.",
+      "never": "Never",
+      "editFor": "Edit {{address}}",
+      "deleteFor": "Delete {{address}}",
+      "delete": "Delete",
+      "deleting": "Deleting…",
+      "block": "Block domestic traffic",
+      "blockHint": "Drops traffic from your network and from the router itself to any address in the list.",
+      "blockPartial": "Only some of the block rules are enabled on the router. Turn the switch on or off to set them all.",
+      "blockLoadFailed": "Failed to load the domestic block status.",
+      "info": {
+        "total": "Total entries",
+        "auto": "Updated automatically",
+        "manual": "Added by you",
+        "lastUpdate": "Last update"
+      },
+      "columns": {
+        "address": "Address or range",
+        "timeout": "Timeout",
+        "created": "Added"
+      },
+      "form": {
+        "addTitle": "Add domestic address",
+        "editTitle": "Edit domestic address",
+        "save": "Save",
+        "saving": "Saving…",
+        "addressRequired": "Address is required.",
+        "addressInvalid": "Enter an IPv4 address or range, such as 203.0.113.0/24. /0 is not allowed.",
+        "keepTimeoutCurrent": "Keep current ({{timeout}})",
+        "keepTimeoutNever": "Keep current (never expires)",
+        "timeouts": {
+          "1h": "1 hour",
+          "6h": "6 hours",
+          "1d": "1 day",
+          "7d": "7 days",
+          "30d": "30 days"
+        }
+      },
+      "toasts": {
+        "added": "{{address}} added",
+        "updated": "{{address}} updated",
+        "deleted": "{{address}} deleted",
+        "addFailed": "Failed to add address",
+        "updateFailed": "Failed to update address",
+        "deleteFailed": "Failed to delete address",
+        "blockOn": "Traffic to domestic addresses is blocked",
+        "blockOff": "Traffic to domestic addresses is allowed",
+        "blockFailed": "Failed to change the domestic block"
+      },
+      "reserved": {
+        "unspecified": "{{conflict}} stands for any address, so it cannot be in the domestic list.",
+        "unspecifiedRange": "{{address}} contains {{conflict}}, which stands for any address, so it cannot be in the domestic list.",
+        "panelRoute": "{{conflict}} is used in the panel's routes and connectivity checks, so it cannot be in the domestic list.",
+        "panelRouteRange": "{{address}} contains {{conflict}}, which the panel uses in its routes and connectivity checks, so it cannot be in the domestic list.",
+        "netwatch": "{{conflict}} is monitored by Netwatch on the router, so it cannot be in the domestic list.",
+        "netwatchRange": "{{address}} contains {{conflict}}, which Netwatch monitors on the router, so it cannot be in the domestic list."
+      },
+      "confirmBlock": {
+        "title": "Block traffic to domestic addresses?",
+        "description": "Devices on your network and the router itself will not be able to reach any address in the domestic list until you turn this off.",
+        "confirm": "Block"
+      },
+      "confirmDelete": {
+        "title": "Delete domestic address",
+        "description": "Remove {{address}} from the domestic address list? This cannot be undone."
+      },
+      "edit": "Edit"
+    }
   },
   "bridge": {
     "kinds": {

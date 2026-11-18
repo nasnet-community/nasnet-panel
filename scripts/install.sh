@@ -36,6 +36,7 @@ MIN_STORAGE_MB=32
 
 LAN_BRIDGE="LANBridgeSplit"
 LAN_BRIDGE_IP="192.168.10.1"
+LAN_DST_NET="192.168.0.0/16"
 LAN_BASELINE_RSC="nasnet-lan-baseline.rsc"
 LAN_BASELINE_REMOTE="${PANEL_DIR}/${LAN_BASELINE_RSC}"
 
@@ -1495,12 +1496,12 @@ configure_network() {
 
   ros_ensure "dstnat tcp/${LAN_PORT} -> ${VETH_IP}:80" \
     /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat\"" \
-    "chain=dstnat action=dst-nat protocol=tcp dst-port=${LAN_PORT} to-addresses=${VETH_IP} to-ports=80 comment=\"${COMMENT_TAG}-dstnat\""
+    "chain=dstnat action=dst-nat protocol=tcp dst-address=${LAN_DST_NET} dst-port=${LAN_PORT} to-addresses=${VETH_IP} to-ports=80 comment=\"${COMMENT_TAG}-dstnat\""
   ros_move_to_top /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat\""
 
   ros_ensure "dstnat tcp/${HTTPS_LAN_PORT} -> ${VETH_IP}:443" \
     /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat-https\"" \
-    "chain=dstnat action=dst-nat protocol=tcp dst-port=${HTTPS_LAN_PORT} to-addresses=${VETH_IP} to-ports=443 comment=\"${COMMENT_TAG}-dstnat-https\""
+    "chain=dstnat action=dst-nat protocol=tcp dst-address=${LAN_DST_NET} dst-port=${HTTPS_LAN_PORT} to-addresses=${VETH_IP} to-ports=443 comment=\"${COMMENT_TAG}-dstnat-https\""
   ros_move_to_top /ip/firewall/nat "comment=\"${COMMENT_TAG}-dstnat-https\""
 
   ros_ensure "forward accept tcp/80 -> ${VETH_IP}" \

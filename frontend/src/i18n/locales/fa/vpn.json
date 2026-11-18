@@ -30,7 +30,10 @@
       "deleteFailed": "حذف کلاینت ناموفق بود",
       "deleteFailedDescription": "حذف کلاینت ناموفق بود.",
       "deletedNamed": "کلاینت «{{name}}» حذف شد",
-      "wgUpdated": "کلاینت WireGuard «{{name}}» به‌روزرسانی شد"
+      "wgUpdated": "کلاینت WireGuard «{{name}}» به‌روزرسانی شد",
+      "trafficReset": "ترافیک «{{name}}» بازنشانی شد",
+      "trafficResetFailed": "بازنشانی ترافیک ناموفق بود",
+      "trafficResetFailedDescription": "بازنشانی شمارنده ترافیک ناموفق بود."
     },
     "title": "کلاینت وی پی ان پنهان‌سازی استارلینک",
     "description": "کلاینت‌های وی پی ان که IP اینترنت استارلینک را پنهان می‌کنند.",
@@ -46,7 +49,8 @@
       "setGatewayFor": "تنظیم {{name}} به‌عنوان گیت‌وی استارلینک",
       "setGateway": "تنظیم گیت‌وی",
       "noMatch": "هیچ کلاینتی با فیلترهای فعلی مطابقت ندارد.",
-      "empty": "هنوز کلاینت وی پی انی وجود ندارد."
+      "empty": "هنوز کلاینت وی پی انی وجود ندارد.",
+      "resetTrafficFor": "بازنشانی ترافیک {{name}}"
     },
     "delete": {
       "wgTitle": "حذف کلاینت WireGuard",
@@ -61,6 +65,12 @@
       "newTitle": "کلاینت وی پی ان جدید",
       "endpointHost": "میزبان نقطهٔ پایانی (endpoint)",
       "endpointPort": "پورت نقطهٔ پایانی (endpoint)"
+    },
+    "resetTraffic": {
+      "title": "بازنشانی شمارنده ترافیک",
+      "description": "شمارنده‌های دانلود و آپلود «{{name}}» صفر شود؟ مقادیر قبلی نگه داشته نمی‌شوند.",
+      "confirm": "بازنشانی",
+      "resetting": "در حال بازنشانی…"
     }
   },
   "peers": {
