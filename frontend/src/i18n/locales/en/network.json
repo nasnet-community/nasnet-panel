@@ -189,6 +189,11 @@
     "hintSelect": "Turn on manual entry to type an IP that is not listed."
   },
   "firewall": {
+    "chains": {
+      "input": "Input",
+      "forward": "Forward",
+      "output": "Output"
+    },
     "allChains": "All chains",
     "any": "any",
     "loadFailed": "Failed to load firewall rules.",

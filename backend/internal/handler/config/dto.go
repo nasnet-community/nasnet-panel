@@ -106,6 +106,11 @@ type InterfaceConfig struct {
 	Type2     string
 	SSID      string
 	Password  string
+	AuthType  string
+
+	StaticIP     string
+	StaticPrefix int
+	Gateway      string
 }
 
 // InterfaceConfigRequest represents a network interface configuration. Type is
@@ -116,6 +121,9 @@ type InterfaceConfigRequest struct {
 	Type      string `json:"type" example:"ether"`
 	SSID      string `json:"ssid,omitempty" example:"MyWiFiNetwork"`
 	Password  string `json:"password,omitempty" example:"wifiPassword123"`
+	AuthType  string `json:"authType,omitempty" example:"wpa2-psk,wpa3-psk"`
+	IP        string `json:"ip,omitempty" example:"192.168.1.50/24"`
+	Gateway   string `json:"gateway,omitempty" example:"192.168.1.1"`
 }
 
 // L2tpClientConfig represents L2TP client configuration.

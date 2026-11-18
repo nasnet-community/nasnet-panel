@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test';
-import { test, expect } from './fixtures';
+import { test, expect, routerHostOf } from './fixtures';
 
 const ROUTER_ID = 'rtr_fw_domestic';
 
@@ -141,8 +141,36 @@ test.describe('Firewall page domestic addresses', () => {
     await page.goto(`/router/${ROUTER_ID}/firewall`);
 
     const row = page.getByRole('row', { name: /Block SSH from WAN/ });
-    await expect(row).toContainText('input');
+    await expect(row).toContainText('Input');
     await expect(row).toContainText('drop');
+  });
+
+  test('translates the built-in chain names and keeps custom ones', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('nasnet-panel.language', 'fa');
+    });
+    await mockFirewall(page, {
+      rules: [
+        {
+          id: '*2',
+          chain: 'forward',
+          action: 'accept',
+          disabled: false,
+          log: false,
+          comment: 'r1',
+        },
+        { id: '*3', chain: 'my-chain', action: 'drop', disabled: false, log: false, comment: 'r2' },
+      ],
+    });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await expect(page.getByRole('row', { name: /r1/ })).toContainText('عبوری');
+    await expect(page.getByRole('row', { name: /r2/ })).toContainText('my-chain');
+
+    await page.getByRole('combobox', { name: 'فیلتر زنجیره' }).click();
+    await expect(page.getByRole('option', { name: 'ورودی' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'عبوری' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'خروجی' })).toBeVisible();
   });
 
   test('shows the list summary and the user-added addresses', async ({ page }) => {
@@ -334,7 +362,7 @@ test.describe('Firewall page domestic addresses', () => {
       releaseOther = resolve;
     });
     await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
-      if (route.request().headers()['x-routeros-host'] !== '10.0.0.21') return route.fallback();
+      if (routerHostOf(route.request()) !== '10.0.0.21') return route.fallback();
       await otherPending;
       const path = new URL(route.request().url()).pathname;
       const data = path.endsWith('/info')
@@ -420,7 +448,7 @@ test.describe('Firewall page domestic addresses', () => {
       releaseFirst = resolve;
     });
     await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
-      const host = route.request().headers()['x-routeros-host'];
+      const host = routerHostOf(route.request());
       if (host === '10.0.0.22') {
         const path = new URL(route.request().url()).pathname;
         const data = path.endsWith('/info')

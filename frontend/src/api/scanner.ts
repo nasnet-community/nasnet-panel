@@ -58,13 +58,9 @@ export async function testCredentials(
   password: string,
   signal?: AbortSignal,
 ): Promise<RouterSystemInfo> {
-  const token = btoa(`${username}:${password}`);
   return apiRequest<RouterSystemInfo>('/api/system/info', {
     method: 'GET',
-    headers: {
-      Authorization: `Basic ${token}`,
-      'X-RouterOS-Host': host,
-    },
+    auth: { host, username, password },
     signal,
     skipAuthRedirect: true,
   });

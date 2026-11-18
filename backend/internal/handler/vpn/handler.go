@@ -20,8 +20,7 @@ import (
 // @Summary List VPN Clients
 // @Description Get a list of all VPN client interfaces on the RouterOS device
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]VPNClientResponse}
 // @Failure 500 {object} common.Response
@@ -80,8 +79,7 @@ func HandleListVPNClients(c echo.Context) error {
 // @Description types: PPP-based sessions (PPTP, L2TP, SSTP, OVPN, PPPoE) from /ppp/active,
 // @Description and WireGuard peers that have completed at least one handshake.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=ActiveVPNConnectionsResponse}
 // @Failure 500 {object} common.Response
@@ -112,8 +110,7 @@ func HandleListActiveVPNConnections(c echo.Context) error {
 // @Description Disconnects an active PPP-based VPN session (PPTP, L2TP, SSTP, OVPN or PPPoE),
 // @Description identified by its /ppp/active id, without touching its underlying PPP secret.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param id path string true "Active PPP session id"
 // @Produce json
 // @Success 200 {object} common.Response
@@ -142,8 +139,7 @@ func HandleRemovePPPActiveSession(c echo.Context) error {
 // @Summary Get VPN Client
 // @Description Get details of a specific VPN client interface
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "VPN client name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=VPNClientResponse}
@@ -175,8 +171,7 @@ func HandleGetVPNClient(c echo.Context) error {
 // @Summary Update VPN Client
 // @Description Update VPN client settings (enable/disable)
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "VPN client name or ID"
 // @Param request body UpdateVPNClientRequest true "Update request"
 // @Accept json
@@ -244,8 +239,7 @@ func HandleUpdateVPNClient(c echo.Context) error {
 // @Summary Add L2TP Client
 // @Description Add a new L2TP client connection with automatic profile creation if needed
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body AddL2TPClientRequest true "L2TP client configuration"
 // @Accept json
 // @Produce json
@@ -361,8 +355,7 @@ func HandleAddL2TPClient(c echo.Context) error {
 // @Description aes256-sha and aes256-gcm-sha384 ciphers, default profile, keepalive 60, all
 // @Description authentication methods). Port defaults to 443.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body AddSSTPClientRequest true "SSTP client configuration"
 // @Accept json
 // @Produce json
@@ -485,8 +478,7 @@ func HandleAddSSTPClient(c echo.Context) error {
 // @Summary Update SSTP Client
 // @Description Update SSTP client settings (connection address, port, credentials, etc.)
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "SSTP client name or ID"
 // @Param request body UpdateSSTPClientRequest true "SSTP client settings to update"
 // @Accept json
@@ -565,8 +557,7 @@ func HandleUpdateSSTPClient(c echo.Context) error {
 // @Summary Delete SSTP Client
 // @Description Remove an SSTP client connection
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "SSTP client name or ID"
 // @Produce json
 // @Success 204
@@ -609,8 +600,7 @@ func HandleDeleteSSTPClient(c echo.Context) error {
 // @Summary Get SSTP Client Details
 // @Description Get detailed information about an SSTP client
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "SSTP client name"
 // @Produce json
 // @Success 200 {object} common.Response{data=SSTPClientResponse}
@@ -641,8 +631,7 @@ func HandleGetSSTPClient(c echo.Context) error {
 // @Summary Update L2TP Client
 // @Description Update L2TP client settings (connection address, credentials, etc.)
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "L2TP client name or ID"
 // @Param request body UpdateL2TPClientRequest true "L2TP client settings to update"
 // @Accept json
@@ -724,8 +713,7 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 // @Summary Delete L2TP Client
 // @Description Remove an L2TP client connection
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "L2TP client name or ID"
 // @Produce json
 // @Success 204
@@ -767,8 +755,7 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 // @Summary Get L2TP Client Details
 // @Description Get detailed information about an L2TP client
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "L2TP client name"
 // @Produce json
 // @Success 200 {object} common.Response{data=L2TPClientResponse}
@@ -802,8 +789,7 @@ func HandleGetL2TPClient(c echo.Context) error {
 // @Description Get the list of OpenVPN, WireGuard, L2TP, and SSTP servers. By default, only
 // @Description enabled servers are returned; pass all=true to include disabled ones too.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param all query boolean false "Include disabled servers too (default: false, only enabled servers)"
 // @Produce json
 // @Success 200 {object} common.Response{data=VPNServersStatusResponse}
@@ -887,8 +873,7 @@ func HandleListVPNServers(c echo.Context) error {
 // @Summary Get OpenVPN Server Details
 // @Description Get detailed configuration of an OpenVPN server by name
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "OpenVPN server name"
 // @Produce json
 // @Success 200 {object} common.Response{data=OvpnServerDetailsResponse}
@@ -933,8 +918,7 @@ func HandleGetOvpnServerDetails(c echo.Context) error {
 // @Summary Get PPTP Server Details
 // @Description Get detailed configuration of the PPTP server
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=PptpServerDetailsResponse}
 // @Failure 500 {object} common.Response
@@ -985,8 +969,7 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 // @Summary Get L2TP Server Details
 // @Description Get detailed configuration of the L2TP server
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=L2tpServerDetailsResponse}
 // @Failure 500 {object} common.Response
@@ -1041,8 +1024,7 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 // @Summary Enable L2TP Server
 // @Description Enable the L2TP server with the given IPsec preshared key, and add the matching firewall/mangle rules
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body CreateL2tpServerRequest true "L2TP server configuration"
 // @Accept json
 // @Produce json
@@ -1158,8 +1140,7 @@ func HandleCreateL2tpServer(c echo.Context) error {
 // @Summary Disable L2TP Server
 // @Description Disable RouterOS's L2TP server and remove the firewall/mangle rules added when it was enabled
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response
 // @Failure 500 {object} common.Response
@@ -1208,8 +1189,7 @@ func HandleDeleteL2tpServer(c echo.Context) error {
 // @Summary Get SSTP Server Details
 // @Description Get detailed configuration of the SSTP server
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=SstpServerDetailsResponse}
 // @Failure 500 {object} common.Response
@@ -1266,8 +1246,7 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 // @Summary Create WireGuard Client Interface
 // @Description Create a new WireGuard client interface with the specified configuration. Returns 409 if any WireGuard interface with the same private key and IP address already exists.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body CreateWireGuardInterfaceRequest true "WireGuard client interface configuration"
 // @Produce json
 // @Success 200 {object} common.Response{data=WireGuardClientCreateResponse}
@@ -1435,8 +1414,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 // @Summary Create WireGuard Server Interface
 // @Description Create a new WireGuard server interface with the specified configuration
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body CreateWireGuardServerRequest true "WireGuard server interface configuration"
 // @Produce json
 // @Success 200 {object} common.Response{data=WireGuardServerCreateResponse}
@@ -1609,8 +1587,7 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 // @Summary Update WireGuard Interface
 // @Description Update the properties of an existing WireGuard interface
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WireGuard interface name or ID"
 // @Param body body UpdateWireGuardInterfaceRequest true "WireGuard interface update configuration"
 // @Produce json
@@ -1729,8 +1706,7 @@ func HandleUpdateWireGuardInterface(c echo.Context) error {
 // @Summary Update WireGuard Peer
 // @Description Update the properties of an existing WireGuard peer
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WireGuard peer name or ID"
 // @Param body body UpdateWireGuardPeerRequest true "WireGuard peer update configuration"
 // @Produce json
@@ -1844,8 +1820,7 @@ func HandleUpdateWireGuardPeer(c echo.Context) error {
 // @Summary Get WireGuard Client
 // @Description Get details of a specific WireGuard client interface including all configured peers
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "WireGuard client interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=WireGuardDetailedResponse}
@@ -1882,8 +1857,7 @@ func HandleGetWireGuardDetailed(c echo.Context) error {
 // @Summary Get WireGuard Interface
 // @Description Get interface details for a specific WireGuard interface
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WireGuard interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=WireGuardInterfaceResponse}
@@ -1913,8 +1887,7 @@ func HandleGetWireGuardInterface(c echo.Context) error {
 // @Summary Get WireGuard Peers
 // @Description Get all configured peers for a specific WireGuard interface
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "WireGuard interface name"
 // @Produce json
 // @Success 200 {object} common.Response{data=[]WireGuardPeerResponse}
@@ -1951,8 +1924,7 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 // @Description Generates and returns a peer's client configuration using RouterOS's
 // @Description /interface/wireguard/peers/show-client-config command
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID query string true "WireGuard peer name or ID"
 // @Param publicAddress query string true "Public IP address to set as the peer's client-endpoint"
 // @Produce json
@@ -2014,8 +1986,7 @@ func HandleExportWireGuardPeerConfig(c echo.Context) error {
 // @Description allowed-address matches the peer's own allowedAddresses, and listen-port matches
 // @Description the interface's listen port. Only the client endpoint may be supplied by the caller.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body CreateWireGuardServerPeerRequest true "Peer configuration"
 // @Produce json
 // @Success 200 {object} common.Response{data=WireGuardServerPeerCreateResponse}
@@ -2246,8 +2217,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 // @Summary Delete WireGuard Peer
 // @Description Delete a WireGuard peer by name or ID
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WireGuard peer name or ID"
 // @Produce json
 // @Success 200 {object} common.Response
@@ -2284,8 +2254,7 @@ func HandleDeleteWireGuardPeer(c echo.Context) error {
 // @Summary Delete WireGuard Interface
 // @Description Delete a WireGuard interface by name or ID, including all associated peers and IP addresses
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "WireGuard interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response
@@ -2352,8 +2321,7 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 // @Description public key already exists on the target interface is skipped and reported in
 // @Description skippedDuplicatePeers instead of failing the import.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body ImportWireGuardConfigRequest true "WireGuard configuration"
 // @Produce json
 // @Success 200 {object} common.Response{data=ImportWireGuardConfigResponse}
@@ -2577,8 +2545,7 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 // @Summary Create OpenVPN Server
 // @Description Start an asynchronous OpenVPN server creation task with an array of users
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body CreateOvpnServerRequest true "OpenVPN server creation request with users array"
 // @Accept json
 // @Produce json
@@ -2630,8 +2597,7 @@ func HandleCreateOvpnServer(c echo.Context) error {
 // @Summary Get OpenVPN Server Task Status
 // @Description Get the status and progress of an OpenVPN server creation task
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param taskId path string true "Task ID"
 // @Accept json
 // @Produce json
@@ -2687,8 +2653,7 @@ func HandleGetOvpnServerTaskStatus(c echo.Context) error {
 // @Description certificate pair. Rejects the request outright, before starting the task, if the
 // @Description SSTP server is already enabled. Takes no request body.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response
 // @Failure 409 {object} common.Response
@@ -2720,8 +2685,7 @@ func HandleCreateSstpServer(c echo.Context) error {
 // @Summary Get SSTP Server Task Status
 // @Description Get the status and progress of an SSTP server configuration task
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param taskId path string true "Task ID"
 // @Accept json
 // @Produce json
@@ -2772,8 +2736,7 @@ func HandleGetSstpServerTaskStatus(c echo.Context) error {
 // @Description from storage. Rejected while an SSTP server creation task is still running, so
 // @Description that task can't re-enable SSTP after this call disables it.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param deleteCertificateFiles query boolean false "Also delete the certificate and its files (default: false)"
 // @Produce json
 // @Success 200 {object} common.Response
@@ -2854,8 +2817,7 @@ func HandleDeleteSstpServer(c echo.Context) error {
 // @Description Enable or disable an existing OpenVPN server by name. Rejects the request if the
 // @Description server is already in the requested state.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "OpenVPN server name"
 // @Param request body UpdateOvpnServerEnabledRequest true "Enabled state to apply"
 // @Accept json
@@ -2913,8 +2875,7 @@ func HandleUpdateOvpnServerEnabled(c echo.Context) error {
 // @Summary Delete OpenVPN Server
 // @Description Delete an OpenVPN server and all related items (secrets, certificates, firewall rules)
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name path string true "OpenVPN server name"
 // @Param deleteCertificateFiles query boolean false "Delete certificate files from storage (default: false)"
 // @Accept json
@@ -3026,8 +2987,7 @@ func HandleDeleteOvpnServer(c echo.Context) error {
 // @Description Generates and returns OVPN client configuration file using RouterOS export command.
 // @Description The exported file is deleted from the router once it has been served.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param name query string true "OpenVPN server name"
 // @Param publicAddress query string true "Server public IP address"
 // @Produce text/plain
@@ -3089,8 +3049,7 @@ func HandleExportOvpnClient(c echo.Context) error {
 // @Summary List VPN users
 // @Description Returns all PPP secrets from RouterOS
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]VPNUserResponse}
 // @Failure 401 {object} common.Response
@@ -3122,8 +3081,7 @@ func HandleListVPNUsers(c echo.Context) error {
 // @Summary Create VPN user
 // @Description Creates a new PPP secret. The profile must exist and must not be the default profile.
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body CreateVPNUserRequest true "User details"
 // @Accept json
 // @Produce json
@@ -3220,8 +3178,7 @@ func HandleCreateVPNUser(c echo.Context) error {
 // @Summary Update VPN user
 // @Description Updates an existing PPP secret identified by name or RouterOS ID
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "User name or RouterOS ID"
 // @Param request body UpdateVPNUserByIDRequest true "Fields to update"
 // @Accept json
@@ -3320,8 +3277,7 @@ func HandleUpdateVPNUserByID(c echo.Context) error {
 // @Summary Delete VPN user
 // @Description Deletes a PPP secret identified by name or RouterOS ID
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "User name or RouterOS ID"
 // @Produce json
 // @Success 200 {object} common.Response
@@ -3361,8 +3317,7 @@ func HandleDeleteVPNUserByID(c echo.Context) error {
 // @Summary List VPN profiles
 // @Description Returns all PPP profiles from RouterOS
 // @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]VPNProfileResponse}
 // @Failure 401 {object} common.Response

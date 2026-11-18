@@ -81,7 +81,7 @@ test.describe('Auth and connectivity error handling', () => {
     await resetMocks();
     await seedRouter({ id: 'rtr_login', name: 'Login Router', host: '10.0.0.92' });
     await mockOverviewBackend();
-    await context.route('**/api/system/info', async (route) => {
+    await context.route('**/api/auth/login', async (route) => {
       await route.fulfill({ status: 401, contentType: 'application/json', body: unauthorized });
     });
 

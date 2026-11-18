@@ -159,6 +159,8 @@ export {
   fetchAppUpdateChannel,
   startAppUpdate,
   fetchAppUpdateProgress,
+  subscribeNewsletter,
+  type NewsletterRequest,
   type UpdateInfoResponse,
   type UpdateCheckResponse,
   type UpdateInstallResponse,
@@ -325,6 +327,7 @@ export {
   type ActiveVPNConnectionsResponse,
 } from './vpn';
 export { ApiError, setUnauthorizedHandler } from './http';
+export type { RouterAuth } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
 export { loadChatwoot, toggleChatwoot } from './chatwoot';

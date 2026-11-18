@@ -20,7 +20,14 @@ export function useRouterStatusPolling(
     upsertRef.current = upsertRouter;
   }, [routers, upsertRouter]);
 
-  const routerPollKey = useMemo(() => routers.map((r) => `${r.id}:${r.host}`).join('|'), [routers]);
+  const routerPollKey = useMemo(
+    () =>
+      routers
+        .map((r) => `${r.id}:${r.host}`)
+        .sort()
+        .join('|'),
+    [routers],
+  );
 
   useEffect(() => {
     if (!enabled) return;

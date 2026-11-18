@@ -33,7 +33,7 @@ func LoadStoredConfig(ctx context.Context, conn *sqlx.DB) (*StoredConfig, error)
 		dest  any
 		query string
 	}{
-		{"WANs", &cfg.WANs, `SELECT type, interface_type, interface FROM wans ORDER BY id`},
+		{"WANs", &cfg.WANs, `SELECT type, interface_type, interface, ip, gateway FROM wans ORDER BY id`},
 		{"WiFi interfaces", &cfg.WiFis,
 			`SELECT name, default_name, ssid, password, enabled, mode, is_virtual, master, bridge, auth_types FROM wifis ORDER BY id`},
 		{"bridge ports", &cfg.BridgePorts,

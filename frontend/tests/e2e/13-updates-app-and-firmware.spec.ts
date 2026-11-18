@@ -1,5 +1,5 @@
 import type { BrowserContext } from '@playwright/test';
-import { test, expect } from './fixtures';
+import { test, expect, routerHostOf } from './fixtures';
 
 type FirmwareStatus = { phase: string; message?: string; toVersion?: string; startedAt?: string };
 
@@ -615,13 +615,18 @@ test.describe('Updates page', () => {
     });
 
     const bodies: unknown[] = [];
-    await context.route('https://joinnasnet.com/api/newsletter/panel-subscribe', async (route) => {
+    const hosts: Array<string | undefined> = [];
+    await context.route('**/api/app/newsletter', async (route) => {
       bodies.push(route.request().postDataJSON());
+      hosts.push(routerHostOf(route.request()));
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: true }),
+        body: JSON.stringify({
+          status: 200,
+          message: 'Subscribed to the newsletter',
+          data: { ok: true },
+        }),
       });
     });
 
@@ -637,6 +642,7 @@ test.describe('Updates page', () => {
     await page.getByRole('button', { name: 'عضویت' }).click();
     await expect(page.getByText('سپاس، نشانی شما به فهرست اضافه شد.')).toBeVisible();
     expect(bodies).toEqual([{ email: 'User@Example.com', locale: 'fa', website: '' }]);
+    expect(hosts).toEqual(['192.168.88.1']);
     await expect(page.getByRole('link', { name: 'سیاست حریم خصوصی' })).toHaveAttribute(
       'href',
       'https://joinnasnet.com/fa/privacy/',
@@ -654,13 +660,16 @@ test.describe('Updates page', () => {
     await mockFirmware(context, [{ phase: 'idle' }]);
 
     let calls = 0;
-    await context.route('https://joinnasnet.com/api/newsletter/panel-subscribe', async (route) => {
+    await context.route('**/api/app/newsletter', async (route) => {
       calls += 1;
+      const status = calls === 1 ? 429 : 502;
       await route.fulfill({
-        status: calls === 1 ? 429 : 500,
+        status,
         contentType: 'application/json',
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ ok: false, error: calls === 1 ? 'rate_limited' : 'server' }),
+        body: JSON.stringify({
+          status,
+          message: calls === 1 ? 'Too many subscription attempts' : 'Newsletter service failed',
+        }),
       });
     });
 
