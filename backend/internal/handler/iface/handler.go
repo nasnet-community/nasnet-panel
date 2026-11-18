@@ -2,11 +2,13 @@ package iface
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/internal/graph"
 	"nasnet-panel/internal/handler/common"
@@ -20,8 +22,7 @@ import (
 // @Summary Get ethernet interface details
 // @Description Get detailed information for a specific ethernet interface including monitor data (link status, speed, etc.)
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=EthernetResponse}
@@ -59,8 +60,7 @@ func HandleGetEthernetInterface(c echo.Context) error {
 // @Description accordingly. The response's cablePairs field is only present when status is
 // @Description "no-link".
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=CableTestResponse}
@@ -95,8 +95,7 @@ func HandleTestEthernetCable(c echo.Context) error {
 // @Summary Get all ethernet interfaces
 // @Description Get detailed information for all ethernet interfaces including monitor data (link status, speed, etc.)
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]EthernetResponse}
 // @Failure 401 {object} common.Response
@@ -124,8 +123,7 @@ func HandleGetEthernetInterfaces(c echo.Context) error {
 // @Summary List interfaces
 // @Description Get all RouterOS interfaces, optionally filtered by interface type (?type=ether,bridge,sfp)
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param type query string false "Interface type filter"
 // @Produce json
 // @Success 200 {object} common.Response{data=[]InterfaceResponse}
@@ -173,8 +171,7 @@ func HandleListInterfaces(c echo.Context) error {
 // @Description start with "LANBridge". Rejects the request if the interface is already a port on
 // @Description the given bridge.
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body UpdateInterfaceBridgeRequest true "Interface and target bridge"
 // @Accept json
 // @Produce json
@@ -246,8 +243,7 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 // @Summary List LAN bridges
 // @Description Get every /interface/bridge entry whose name starts with "LANBridge"
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]BridgeResponse}
 // @Failure 401 {object} common.Response
@@ -283,8 +279,7 @@ func HandleListBridges(c echo.Context) error {
 // @Summary List bridge ports
 // @Description Get every /interface/bridge/port entry whose bridge name starts with "LANBridge"
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]BridgePortResponse}
 // @Failure 401 {object} common.Response
@@ -320,10 +315,12 @@ func HandleListBridgePorts(c echo.Context) error {
 // wires the new interface: macvlan, interface-list membership, DHCP client, and routes.
 //
 // @Summary Update WAN Interface
-// @Description Reassign a physical interface as foreign or domestic WAN using the change_wan template
+// @Description Reassign a physical interface as foreign or domestic WAN using the change_wan template.
+// @Description Optional ip is empty or "dhcp" for a DHCP client, or an IPv4 address with an optional prefix to set statically on the macvlan.
+// @Description A wifi interface requires ssid and a password of at least 8 characters. Other interfaces must not send them.
+// @Description Optional gateway defaults to the first address of the network and is only valid with a static ip.
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body UpdateWANInterfaceRequest true "WAN interface configuration"
 // @Accept json
 // @Produce json
@@ -350,6 +347,16 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "type must be 'foreign' or 'domestic'", nil)
 	}
 
+	addressing, message, err := ResolveWANAddressing(req.Type, req.IP, req.Gateway)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, message, err)
+	}
+
+	authTypeProvided := strings.TrimSpace(req.AuthType) != ""
+	if req.AuthType, err = NormalizeWANAuthTypes(req.AuthType); err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid authType", err)
+	}
+
 	iface, err := client.GetInterface(req.Interface)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
@@ -358,11 +365,30 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		req.Interface = *iface.DefaultName
 	}
 
+	var wifi *db.WiFi
+	if iface.Type == string(routeros.InterfaceTypeWiFi) {
+		if strings.TrimSpace(req.SSID) == "" {
+			return common.ErrorResponse(c, http.StatusBadRequest, "ssid is required for a wifi interface", nil)
+		}
+		if req.Password == "" {
+			req.AuthType = ""
+		} else if len(req.Password) < wanWiFiMinPasswordLength {
+			return common.ErrorResponse(c, http.StatusBadRequest,
+				fmt.Sprintf("password must be at least %d characters", wanWiFiMinPasswordLength), nil)
+		}
+		wifi = wanWiFiRecord(&req)
+	} else if req.SSID != "" || req.Password != "" || authTypeProvided {
+		return common.ErrorResponse(c, http.StatusBadRequest, "ssid, password and authType are only allowed for a wifi interface", nil)
+	}
+
 	doneToken := strconv.FormatInt(time.Now().UnixNano(), 10)
 	script, err := utils.RenderTemplate("change_wan.tmpl", wanChangeTemplateData{
 		UpdateWANInterfaceRequest: req.escaped(),
 		DoneToken:                 doneToken,
 		OldWiFiNames:              oldWANWiFiNames(client, req.Type),
+		StaticIP:                  addressing.StaticIP,
+		StaticPrefix:              addressing.Prefix,
+		Gateway:                   addressing.Gateway,
 	})
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render change_wan template", err)
@@ -372,11 +398,126 @@ func HandleUpdateWANInterface(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to execute WAN change script", err)
 	}
 
-	go persistNetworkConfigWhenDone(client, wanChangeDoneVariable, doneToken)
+	go persistNetworkConfigWhenDone(client, wanChangeDoneVariable, doneToken, wifi)
 
 	return common.SuccessResponse(c, http.StatusOK, "WAN interface configured successfully", map[string]interface{}{
 		"interface": req.Interface,
 		"type":      req.Type,
+		"ip":        wanIPResponse(addressing.StaticIP, addressing.Prefix),
+		"gateway":   addressing.Gateway,
+	})
+}
+
+// HandleListWANs lists the interfaces configured as foreign or domestic WAN.
+//
+// @Summary List WAN interfaces
+// @Description Lists the interfaces commented as foreign or domestic WAN links with their address and gateway.
+// @Tags Interface
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} common.Response{data=[]WANResponse}
+// @Failure 401 {object} common.Response
+// @Failure 500 {object} common.Response
+// @Router /api/interface/wans [get].
+func HandleListWANs(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	wans, err := listWANs(client)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to list WAN interfaces", err)
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "WAN interfaces retrieved successfully", wans)
+}
+
+// HandleGetWAN returns a single WAN interface.
+//
+// @Summary Get WAN interface
+// @Description Returns one interface whose comment starts with "WAN -" with its address and gateway.
+// @Tags Interface
+// @Security BearerAuth
+// @Param name path string true "Interface name"
+// @Produce json
+// @Success 200 {object} common.Response{data=WANResponse}
+// @Failure 401 {object} common.Response
+// @Failure 404 {object} common.Response
+// @Failure 500 {object} common.Response
+// @Router /api/interface/wan/{name} [get].
+func HandleGetWAN(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	wan, err := getWAN(client, c.Param("name"))
+	if errors.Is(err, errWANNotFound) {
+		return common.ErrorResponse(c, http.StatusNotFound, "WAN interface not found", err)
+	}
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to get WAN interface", err)
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "WAN interface retrieved successfully", wan)
+}
+
+// HandleDeleteWAN removes the WAN assignment of an interface and returns it to the LAN.
+// It removes the macvlan with its DHCP client, address, interface-list membership and routes,
+// then restores the interface and its bridge port.
+//
+// @Summary Delete WAN Interface
+// @Description Remove the foreign or domestic WAN assignment of an interface using the remove_wan template
+// @Tags Interface
+// @Security BearerAuth
+// @Param name path string true "Interface name"
+// @Produce json
+// @Success 200 {object} common.Response{data=map[string]interface{}}
+// @Failure 401 {object} common.Response
+// @Failure 404 {object} common.Response
+// @Failure 500 {object} common.Response
+// @Router /api/interface/wan/{name} [delete].
+func HandleDeleteWAN(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	iface, err := client.GetInterface(c.Param("name"))
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusNotFound, "Interface not found", err)
+	}
+	wanType, ok := dbsync.WANTypeFromComment(iface.Comment)
+	if !ok {
+		return common.ErrorResponse(c, http.StatusNotFound, "WAN interface not found", errWANNotFound)
+	}
+
+	name := iface.Name
+	if iface.DefaultName != nil {
+		name = *iface.DefaultName
+	}
+
+	doneToken := strconv.FormatInt(time.Now().UnixNano(), 10)
+	script, err := utils.RenderTemplate("remove_wan.tmpl", removeWANTemplateData{
+		Interface:    name,
+		Type:         wanType,
+		DoneToken:    doneToken,
+		OldWiFiNames: oldWANWiFiNames(client, wanType),
+	})
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render remove_wan template", err)
+	}
+
+	if err := client.ExecuteScriptString(script); err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to execute WAN removal script", err)
+	}
+
+	go persistNetworkConfigWhenDone(client, wanRemoveDoneVariable, doneToken, nil)
+
+	return common.SuccessResponse(c, http.StatusOK, "WAN interface removed successfully", map[string]interface{}{
+		"interface": name,
+		"type":      wanType,
 	})
 }
 
@@ -384,8 +525,7 @@ func HandleUpdateWANInterface(c echo.Context) error {
 // @Summary Get interface traffic graph
 // @Description Returns historical traffic data (send/receive rates) for a specific interface
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 200 {object} common.Response{data=map[string]interface{}}
@@ -423,8 +563,7 @@ func HandleGetInterfaceGraph(c echo.Context) error {
 // @Summary Reset interface traffic counter
 // @Description Resets the traffic counters (rx/tx bytes and packets) of the interface identified by name or ID
 // @Tags Interface
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Produce json
 // @Success 204

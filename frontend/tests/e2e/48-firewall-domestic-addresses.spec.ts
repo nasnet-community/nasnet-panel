@@ -1,5 +1,5 @@
 import type { Page, Route } from '@playwright/test';
-import { test, expect } from './fixtures';
+import { test, expect, routerHostOf } from './fixtures';
 
 const ROUTER_ID = 'rtr_fw_domestic';
 
@@ -141,8 +141,36 @@ test.describe('Firewall page domestic addresses', () => {
     await page.goto(`/router/${ROUTER_ID}/firewall`);
 
     const row = page.getByRole('row', { name: /Block SSH from WAN/ });
-    await expect(row).toContainText('input');
+    await expect(row).toContainText('Input');
     await expect(row).toContainText('drop');
+  });
+
+  test('translates the built-in chain names and keeps custom ones', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('nasnet-panel.language', 'fa');
+    });
+    await mockFirewall(page, {
+      rules: [
+        {
+          id: '*2',
+          chain: 'forward',
+          action: 'accept',
+          disabled: false,
+          log: false,
+          comment: 'r1',
+        },
+        { id: '*3', chain: 'my-chain', action: 'drop', disabled: false, log: false, comment: 'r2' },
+      ],
+    });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await expect(page.getByRole('row', { name: /r1/ })).toContainText('عبوری');
+    await expect(page.getByRole('row', { name: /r2/ })).toContainText('my-chain');
+
+    await page.getByRole('combobox', { name: 'فیلتر زنجیره' }).click();
+    await expect(page.getByRole('option', { name: 'ورودی' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'عبوری' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'خروجی' })).toBeVisible();
   });
 
   test('shows the list summary and the user-added addresses', async ({ page }) => {
@@ -158,15 +186,33 @@ test.describe('Firewall page domestic addresses', () => {
     await expect(
       page
         .getByTestId('domestic-block-card')
-        .getByRole('switch', { name: 'Block traffic to domestic addresses' }),
+        .getByRole('switch', { name: 'Block domestic traffic' }),
     ).not.toBeChecked();
   });
+
+  for (const language of ['en', 'fa']) {
+    test(`the block title fits on one line (${language})`, async ({ page }) => {
+      await page.addInitScript((lang) => {
+        window.localStorage.setItem('nasnet-panel.language', lang);
+      }, language);
+      await mockFirewall(page);
+      await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+      const title = page.getByTestId('domestic-block-card').locator('span').first();
+      await expect(title).toBeVisible();
+      const lines = await title.evaluate((el) => {
+        const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+        return Math.round(el.getBoundingClientRect().height / lineHeight);
+      });
+      expect(lines).toBe(1);
+    });
+  }
 
   test('turning the block on asks first, turning it off does not', async ({ page }) => {
     const calls = await mockFirewall(page);
     await page.goto(`/router/${ROUTER_ID}/firewall`);
 
-    const toggle = page.getByRole('switch', { name: 'Block traffic to domestic addresses' });
+    const toggle = page.getByRole('switch', { name: 'Block domestic traffic' });
     await toggle.click();
     const confirm = page.getByRole('dialog');
     await expect(
@@ -344,7 +390,7 @@ test.describe('Firewall page domestic addresses', () => {
       releaseOther = resolve;
     });
     await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
-      if (route.request().headers()['x-routeros-host'] !== '10.0.0.21') return route.fallback();
+      if (routerHostOf(route.request()) !== '10.0.0.21') return route.fallback();
       await otherPending;
       const path = new URL(route.request().url()).pathname;
       const data = path.endsWith('/info')
@@ -386,9 +432,7 @@ test.describe('Firewall page domestic addresses', () => {
 
     const side = page.getByTestId('domestic-block-card');
     await expect(side).toContainText('router timed out');
-    await expect(
-      side.getByRole('switch', { name: 'Block traffic to domestic addresses' }),
-    ).toBeDisabled();
+    await expect(side.getByRole('switch', { name: 'Block domestic traffic' })).toBeDisabled();
   });
 
   test('a double click on delete sends one request', async ({ page }) => {
@@ -432,7 +476,7 @@ test.describe('Firewall page domestic addresses', () => {
       releaseFirst = resolve;
     });
     await page.route('**/api/firewall/addresslist/domestic**', async (route) => {
-      const host = route.request().headers()['x-routeros-host'];
+      const host = routerHostOf(route.request());
       if (host === '10.0.0.22') {
         const path = new URL(route.request().url()).pathname;
         const data = path.endsWith('/info')

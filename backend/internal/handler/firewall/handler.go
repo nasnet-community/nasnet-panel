@@ -21,8 +21,7 @@ import (
 // @Tags Firewall
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param chain query string false "Filter by chain"
 // @Success 200 {object} map[string]interface{} "Firewall rules list"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -65,8 +64,7 @@ func HandleListFirewallFilterRules(c echo.Context) error {
 // @Tags Firewall
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=DomesticBlockResponse} "Block status"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 500 {object} common.Response "Internal server error"
@@ -98,8 +96,7 @@ func HandleGetDomesticBlock(c echo.Context) error {
 // @Tags Firewall
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body SetDomesticBlockRequest true "Block setting"
 // @Success 200 {object} common.Response{data=DomesticBlockResponse} "Block setting applied"
 // @Failure 400 {object} common.Response "Bad request"
@@ -159,8 +156,7 @@ func HandleSetDomesticBlock(c echo.Context) error {
 // @Description entry that was not added by a user as the last update.
 // @Tags Firewall
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=DomesticAddressListInfoResponse} "Domestic address list summary"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 500 {object} common.Response "Internal server error"
@@ -202,8 +198,7 @@ func HandleGetDomesticAddressListInfo(c echo.Context) error {
 // @Description "NasNet Panel: user added", read from the router.
 // @Tags Firewall
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=[]DomesticAddressItemResponse} "User added addresses"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 500 {object} common.Response "Internal server error"
@@ -243,8 +238,7 @@ func HandleListDomesticAddresses(c echo.Context) error {
 // @Tags Firewall
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param id path string true "RouterOS entry id" example(*1A)
 // @Param body body UpdateDomesticAddressRequest true "New address and optional timeout"
 // @Success 200 {object} common.Response{data=DomesticAddressItemResponse} "Entry updated"
@@ -335,8 +329,7 @@ func HandleUpdateDomesticAddress(c echo.Context) error {
 // @Description of the list, so the entries the list updater maintains cannot be deleted through this endpoint.
 // @Tags Firewall
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param id path string true "RouterOS entry id" example(*1A)
 // @Success 200 {object} common.Response "Entry deleted"
 // @Failure 400 {object} common.Response "Invalid id"
@@ -390,8 +383,7 @@ func HandleDeleteDomesticAddress(c echo.Context) error {
 // @Tags Firewall
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body AddDomesticAddressRequest true "Address to add"
 // @Success 201 {object} common.Response{data=DomesticAddressResponse} "Address added"
 // @Failure 400 {object} common.Response{data=DomesticAddressConflictResponse} "Invalid or reserved address"
@@ -457,8 +449,7 @@ func HandleAddDomesticAddress(c echo.Context) error {
 // @Tags Firewall
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 202 {object} common.Response "Script started"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 404 {object} common.Response "Script not found"
@@ -516,8 +507,7 @@ func HandleUpdateDomesticAddressList(c echo.Context) error {
 // @Tags Firewall
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=DomesticAddressListUpdateStatusResponse} "Update status"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 502 {object} common.Response "RouterOS lookup failed"

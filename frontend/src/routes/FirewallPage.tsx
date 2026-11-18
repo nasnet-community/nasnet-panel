@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Flame, ShieldOff } from 'lucide-react';
 import {
   Badge,
@@ -29,8 +30,17 @@ import { useFormat } from '../utils/useFormat';
 import { DomesticAddressCard } from './firewall/DomesticAddressCard';
 import { DomesticBlockCard } from './firewall/DomesticBlockCard';
 
-// Chain names are RouterOS values and stay untranslated.
 const CHAINS = ['input', 'forward', 'output'] as const;
+
+// Chain names come from the router; built-in chains get a translated label and
+// user-defined chains keep their own name.
+function isBuiltInChain(chain: string): chain is (typeof CHAINS)[number] {
+  return (CHAINS as readonly string[]).includes(chain);
+}
+
+function chainLabel(t: TFunction<'network'>, chain: string): string {
+  return isBuiltInChain(chain) ? t(`firewall.chains.${chain}`) : chain;
+}
 
 function actionTone(action: string): 'success' | 'danger' | 'warning' | 'info' {
   const a = action.toLowerCase();
@@ -55,7 +65,7 @@ export function FirewallPage() {
   const chainOptions = useMemo(
     () => [
       { value: '', label: t('firewall.allChains') },
-      ...CHAINS.map((c) => ({ value: c, label: c })),
+      ...CHAINS.map((c) => ({ value: c, label: chainLabel(t, c) })),
     ],
     [t],
   );
@@ -127,7 +137,7 @@ export function FirewallPage() {
     {
       key: 'chain',
       header: t('firewall.columns.chain'),
-      render: (r) => <Badge tone="info">{r.chain}</Badge>,
+      render: (r) => <Badge tone="info">{chainLabel(t, r.chain)}</Badge>,
     },
     {
       key: 'action',
@@ -282,7 +292,11 @@ export function FirewallPage() {
         ) : visibleRules.length === 0 ? (
           <div className={styles.empty}>
             <ShieldOff size={22} aria-hidden className={styles.emptyIcon} />
-            <p>{chain ? t('firewall.emptyInChain', { chain }) : t('firewall.empty')}</p>
+            <p>
+              {chain
+                ? t('firewall.emptyInChain', { chain: chainLabel(t, chain) })
+                : t('firewall.empty')}
+            </p>
           </div>
         ) : (
           <DataTable columns={columns} rows={visibleRules} rowKey={(r) => r.id} />

@@ -24,13 +24,6 @@ export interface FirewallRule {
   packets?: string;
 }
 
-function authHeaders({ host, username, password }: FirewallCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchFirewallRules(
   creds: FirewallCredentials,
   chain?: string,
@@ -39,7 +32,7 @@ export async function fetchFirewallRules(
   const query = chain ? `?${new URLSearchParams({ chain }).toString()}` : '';
   const rules = await apiRequest<FirewallRule[] | null>(`/api/firewall/filter${query}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -104,7 +97,7 @@ export async function fetchDomesticBlock(
 ): Promise<DomesticBlockResponse> {
   return apiRequest<DomesticBlockResponse>('/api/firewall/domestic', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -116,7 +109,7 @@ export async function setDomesticBlock(
 ): Promise<DomesticBlockResponse> {
   return apiRequest<DomesticBlockResponse>('/api/firewall/domestic', {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ block }),
   });
 }
@@ -127,7 +120,7 @@ export async function fetchDomesticAddresses(
 ): Promise<DomesticAddress[]> {
   const items = await apiRequest<DomesticAddress[] | null>('/api/firewall/addresslist/domestic', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -140,7 +133,7 @@ export async function fetchDomesticAddressListInfo(
 ): Promise<DomesticAddressListInfo> {
   return apiRequest<DomesticAddressListInfo>('/api/firewall/addresslist/domestic/info', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -152,7 +145,7 @@ export async function addDomesticAddress(
 ): Promise<void> {
   await apiRequest<unknown>('/api/firewall/addresslist/domestic', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ address }),
   });
 }
@@ -166,7 +159,7 @@ export async function updateDomesticAddress(
     `/api/firewall/addresslist/domestic/${encodeURIComponent(id)}`,
     {
       method: 'PUT',
-      headers: authHeaders(creds),
+      auth: creds,
       body: JSON.stringify(request),
     },
   );
@@ -175,7 +168,7 @@ export async function updateDomesticAddress(
 export async function deleteDomesticAddress(creds: FirewallCredentials, id: string): Promise<void> {
   await apiRequest<void>(`/api/firewall/addresslist/domestic/${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -197,7 +190,7 @@ export interface DomesticListUpdateStatus {
 export async function startDomesticListUpdate(creds: FirewallCredentials): Promise<void> {
   await apiRequest<unknown>('/api/firewall/addresslist/domestic/update', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -207,7 +200,7 @@ export async function fetchDomesticListUpdateStatus(
 ): Promise<DomesticListUpdateStatus> {
   return apiRequest<DomesticListUpdateStatus>('/api/firewall/addresslist/domestic/update/status', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -225,7 +218,7 @@ export async function fetchDomesticCountry(
 ): Promise<DomesticCountryResponse> {
   return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -237,7 +230,7 @@ export async function setDomesticCountry(
 ): Promise<DomesticCountryResponse> {
   return apiRequest<DomesticCountryResponse>('/api/firewall/addresslist/domestic/country', {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ country }),
   });
 }

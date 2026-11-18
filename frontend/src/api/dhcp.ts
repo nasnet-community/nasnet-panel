@@ -43,20 +43,13 @@ export interface DhcpLeaseAction {
   address: string;
 }
 
-function authHeaders({ host, username, password }: DhcpCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchDhcpLeases(
   creds: DhcpCredentials,
   signal?: AbortSignal,
 ): Promise<DhcpLease[]> {
   const leases = await apiRequest<DhcpLease[] | null>('/api/dhcp/leases', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -69,7 +62,7 @@ export async function fetchDhcpClients(
 ): Promise<DhcpClient[]> {
   const clients = await apiRequest<DhcpClient[] | null>('/api/dhcp/clients', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -84,7 +77,7 @@ export async function makeDhcpLeaseStatic(
   const params = new URLSearchParams({ macAddress });
   return apiRequest<DhcpLeaseAction>(`/api/dhcp/leases/make-static?${params.toString()}`, {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -97,7 +90,7 @@ export async function removeDhcpLease(
 ): Promise<DhcpLeaseAction> {
   return apiRequest<DhcpLeaseAction>(`/api/dhcp/leases/${encodeURIComponent(macAddress)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });

@@ -75,6 +75,9 @@ func subscribeNewsletter(ctx context.Context, req NewsletterRequest) (int, Newsl
 	if err != nil {
 		return 0, NewsletterResponse{}, err
 	}
+	if resp == nil {
+		return 0, NewsletterResponse{}, errors.New("empty response from the newsletter service")
+	}
 	defer func() { _ = resp.Body.Close() }()
 
 	var out NewsletterResponse

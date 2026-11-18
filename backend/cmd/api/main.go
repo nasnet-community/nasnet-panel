@@ -25,7 +25,10 @@ import (
 // @host localhost:8080
 // @basePath /
 // @schemes http https
-// @securityDefinitions.basic BasicAuth
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description The token from POST /api/auth/login, with or without the "Bearer " prefix.
 func main() {
 	databases, err := db.NewRegistry(databaseDir())
 	if err != nil {

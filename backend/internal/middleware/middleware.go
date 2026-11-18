@@ -8,7 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 
-	"nasnet-panel/internal/auth"
 	"nasnet-panel/internal/config"
 	"nasnet-panel/internal/web"
 )
@@ -43,7 +42,6 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 			echo.HeaderContentType,
 			echo.HeaderAccept,
 			echo.HeaderAuthorization,
-			auth.RouterOSHostHeader,
 		},
 	}))
 
