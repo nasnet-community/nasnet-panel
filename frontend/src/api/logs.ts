@@ -33,13 +33,6 @@ export interface FetchLogsOptions {
   severity?: LogSeverity;
 }
 
-function authHeaders({ host, username, password }: LogsCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchLogs(
   creds: LogsCredentials,
   opts: FetchLogsOptions = {},
@@ -54,7 +47,7 @@ export async function fetchLogs(
   const path = query ? `/api/logs?${query}` : '/api/logs';
   return apiRequest<GetLogsResponse>(path, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });

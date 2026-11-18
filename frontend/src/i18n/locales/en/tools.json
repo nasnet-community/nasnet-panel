@@ -132,6 +132,7 @@
     "downloading": "Downloading…",
     "restore": "Restore",
     "restoring": "Restoring…",
+    "restoreFromFile": "Restore from file",
     "delete": "Delete",
     "deleting": "Deleting…",
     "downloadFor": "Download {{file}}",
@@ -151,11 +152,24 @@
       "restoreStarted": "Restore started. The router is rebooting.",
       "restoreFailed": "Failed to restore backup",
       "deleted": "Backup {{file}} deleted",
-      "deleteFailed": "Failed to delete backup"
+      "deleteFailed": "Failed to delete backup",
+      "wrongFileType": "This is not a backup file",
+      "wrongFileTypeHint": "Pick a .backup file saved from a MikroTik router.",
+      "fileTooLarge": "Backup file is too large",
+      "fileTooLargeHint": "The backup file must be 16 MB or smaller.",
+      "fileEmpty": "The backup file is empty",
+      "sshUnavailable": "Could not connect to the router over SSH. Enable the router's SSH service in IP > Services and try again.",
+      "fileRejected": "The router could not load this backup ({{reason}}). Check that it was made on this router and that the password is right."
     },
     "confirmRestore": {
       "title": "Restore backup?",
       "description": "The router will replace its current configuration with {{file}} and reboot. Everything changed since this backup was made is lost, and the router is unreachable for a few minutes."
+    },
+    "confirmRestoreFile": {
+      "description": "The router will replace its current configuration with {{file}} ({{size}}) from this computer and reboot. The router is unreachable for a few minutes.",
+      "sameRouter": "Only restore a backup made on this same router. A backup carries the router's MAC addresses and replaces all of its settings.",
+      "password": "Backup password",
+      "passwordPlaceholder": "Only for an encrypted backup"
     },
     "confirmDelete": {
       "title": "Delete backup?",

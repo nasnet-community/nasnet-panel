@@ -131,6 +131,7 @@ export {
   addDomesticAddress,
   updateDomesticAddress,
   deleteDomesticAddress,
+  domesticAddressConflict,
   startDomesticListUpdate,
   fetchDomesticListUpdateStatus,
   fetchDomesticCountry,
@@ -143,6 +144,7 @@ export {
   type DomesticBlockResponse,
   type DomesticBlockRule,
   type DomesticAddress,
+  type DomesticAddressConflict,
   type DomesticAddressListInfo,
   type UpdateDomesticAddressRequest,
 } from './firewall';
@@ -159,6 +161,8 @@ export {
   fetchAppUpdateChannel,
   startAppUpdate,
   fetchAppUpdateProgress,
+  subscribeNewsletter,
+  type NewsletterRequest,
   type UpdateInfoResponse,
   type UpdateCheckResponse,
   type UpdateInstallResponse,
@@ -208,8 +212,10 @@ export {
   fetchBackups,
   createBackup,
   restoreBackup,
+  restoreBackupFromFile,
   deleteBackup,
   downloadBackup,
+  MAX_UPLOADED_BACKUP_BYTES,
   type BackupFileResponse,
 } from './backups';
 export { fetchNetStatus, type NetStatusEntry, type NetHostType } from './net';
@@ -325,6 +331,7 @@ export {
   type ActiveVPNConnectionsResponse,
 } from './vpn';
 export { ApiError, setUnauthorizedHandler } from './http';
+export type { RouterAuth } from './http';
 export { isAbortError } from './abort';
 export { BACKEND_URL } from './config';
 export { loadChatwoot, toggleChatwoot } from './chatwoot';

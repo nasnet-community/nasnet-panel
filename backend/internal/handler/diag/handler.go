@@ -17,8 +17,7 @@ import (
 // @Summary Generate Diagnostic Report
 // @Description Generate a new diagnostic report on the RouterOS device
 // @Tags Diagnostics
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.Response
@@ -55,8 +54,7 @@ func HandleGenerateDiag(c echo.Context) error {
 // @Summary Get Diagnostic Report Status
 // @Description Get the current status of the diagnostic report generation
 // @Tags Diagnostics
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.Response
@@ -109,8 +107,7 @@ func HandleGetDiagStatus(c echo.Context) error {
 // @Summary Download Diagnostic Report
 // @Description Download the generated diagnostic report file
 // @Tags Diagnostics
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce octet-stream
 // @Success 200 {file} file "Diagnostic report file"
 // @Failure 404 {object} common.Response
@@ -163,8 +160,7 @@ func HandleDownloadDiag(c echo.Context) error {
 // @Summary Delete Diagnostic Report File
 // @Description Delete the generated diagnostic report file from the RouterOS device
 // @Tags Diagnostics
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response
 // @Failure 404 {object} common.Response

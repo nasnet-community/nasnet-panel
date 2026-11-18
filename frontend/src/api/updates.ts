@@ -94,20 +94,13 @@ export interface AppReleaseOption extends AppRelease {
   downgrade: boolean;
 }
 
-function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchUpdateInfo(
   creds: SystemCredentials,
   signal?: AbortSignal,
 ): Promise<UpdateInfoResponse> {
   return apiRequest<UpdateInfoResponse>('/api/system/updates', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -119,7 +112,7 @@ export async function checkForUpdates(
 ): Promise<UpdateCheckResponse> {
   return apiRequest<UpdateCheckResponse>('/api/system/check-for-updates', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -128,7 +121,7 @@ export async function checkForUpdates(
 export async function installUpdate(creds: SystemCredentials): Promise<UpdateInstallResponse> {
   return apiRequest<UpdateInstallResponse>('/api/system/install-update', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -138,7 +131,7 @@ export async function fetchSystemUpdateStatus(
 ): Promise<SystemUpdateStatusResponse> {
   return apiRequest<SystemUpdateStatusResponse>('/api/system/update-status', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -150,7 +143,7 @@ export async function fetchAppVersion(
 ): Promise<AppVersionResponse> {
   return apiRequest<AppVersionResponse>('/api/app/version', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -162,7 +155,7 @@ export async function checkAppForUpdates(
 ): Promise<AppCheckForUpdatesResponse> {
   return apiRequest<AppCheckForUpdatesResponse>('/api/app/check-for-updates', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -173,7 +166,7 @@ export async function installAppUpdate(
 ): Promise<AppInstallUpdateResponse> {
   return apiRequest<AppInstallUpdateResponse>('/api/app/install-update', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -183,7 +176,7 @@ export async function fetchAppUpdateStatus(
 ): Promise<AppUpdateStatusResponse> {
   return apiRequest<AppUpdateStatusResponse>('/api/app/update-status', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -197,7 +190,7 @@ export async function fetchAppReleases(
   const list = (hideLowerVer: boolean) =>
     apiRequest<AppRelease[] | null>(
       `/api/app/updates?${new URLSearchParams({ channel, hideLowerVer: String(hideLowerVer) }).toString()}`,
-      { method: 'GET', headers: authHeaders(creds), cache: 'no-store', signal },
+      { method: 'GET', auth: creds, cache: 'no-store', signal },
     ).then((releases) => releases ?? []);
   // The backend decides which releases are lower than the running one: they are the ones
   // missing from the list that hides them.
@@ -212,7 +205,7 @@ export async function fetchAppUpdateChannel(
 ): Promise<AppUpdateChannel> {
   const data = await apiRequest<{ channel: AppUpdateChannel }>('/api/app/update/channel', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -225,7 +218,7 @@ export async function startAppUpdate(
 ): Promise<AppInstallUpdateResponse> {
   return apiRequest<AppInstallUpdateResponse>('/api/app/update', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ version }),
   });
 }
@@ -236,8 +229,26 @@ export async function fetchAppUpdateProgress(
 ): Promise<AppUpdateStatusResponse> {
   return apiRequest<AppUpdateStatusResponse>('/api/app/update/status', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
+  });
+}
+
+export interface NewsletterRequest {
+  email: string;
+  locale: string;
+  // Honeypot; real users leave it empty.
+  website: string;
+}
+
+export async function subscribeNewsletter(
+  creds: SystemCredentials,
+  request: NewsletterRequest,
+): Promise<void> {
+  await apiRequest<unknown>('/api/app/newsletter', {
+    method: 'POST',
+    auth: creds,
+    body: JSON.stringify(request),
   });
 }

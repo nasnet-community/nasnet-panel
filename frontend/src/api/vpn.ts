@@ -1,6 +1,6 @@
 import i18n from '../i18n';
 import { BACKEND_URL } from './config';
-import { ApiError, apiRequest } from './http';
+import { ApiError, apiRequest, authorizedFetch } from './http';
 
 export interface VPNCredentials {
   host: string;
@@ -481,13 +481,6 @@ export interface ImportWireguardConfigResponse extends WireguardPeerImportResult
   interfaceIP: string;
 }
 
-function authHeaders({ host, username, password }: VPNCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export interface NasnetVpnCredentialsResponse {
   username: string;
   password: string;
@@ -501,7 +494,7 @@ export async function fetchNasnetVpnCredentials(
 ): Promise<NasnetVpnCredentialsResponse> {
   return apiRequest<NasnetVpnCredentialsResponse>('/api/config/vpn', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: '{}',
     signal,
   });
@@ -561,7 +554,7 @@ export async function finalizeWizard(
 ): Promise<FinalizeWizardResponse> {
   return apiRequest<FinalizeWizardResponse>('/api/config/wizard/finalize', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -579,7 +572,7 @@ export async function fetchWizardStatus(
   signal?: AbortSignal,
 ): Promise<WizardStatus> {
   return apiRequest<WizardStatus>('/api/config/wizard/status', {
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -590,7 +583,7 @@ export async function listVPNClients(
 ): Promise<VPNClientResponse[]> {
   const data = await apiRequest<VPNClientResponse[] | null>('/api/vpn/clients', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -605,7 +598,7 @@ export async function updateVPNClient(
 ): Promise<VPNClientResponse> {
   return apiRequest<VPNClientResponse>(`/api/vpn/clients/${encodeURIComponent(name)}`, {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -618,7 +611,7 @@ export async function addL2TPClient(
 ): Promise<VPNClientResponse> {
   return apiRequest<VPNClientResponse>('/api/vpn/l2tp/client', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -631,7 +624,7 @@ export async function fetchL2TPClientDetails(
 ): Promise<L2TPClientDetailsResponse> {
   return apiRequest<L2TPClientDetailsResponse>(`/api/vpn/l2tp/client/${encodeURIComponent(name)}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -645,7 +638,7 @@ export async function updateL2TPClient(
 ): Promise<VPNClientResponse> {
   return apiRequest<VPNClientResponse>(`/api/vpn/l2tp/client/${encodeURIComponent(nameOrID)}`, {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -658,7 +651,7 @@ export async function deleteL2TPClient(
 ): Promise<void> {
   await apiRequest<void>(`/api/vpn/l2tp/client/${encodeURIComponent(nameOrID)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -671,7 +664,7 @@ export async function addSSTPClient(
 ): Promise<VPNClientResponse> {
   return apiRequest<VPNClientResponse>('/api/vpn/sstp/client', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -684,7 +677,7 @@ export async function fetchSSTPClientDetails(
 ): Promise<SSTPClientDetailsResponse> {
   return apiRequest<SSTPClientDetailsResponse>(`/api/vpn/sstp/client/${encodeURIComponent(name)}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -698,7 +691,7 @@ export async function updateSSTPClient(
 ): Promise<VPNClientResponse> {
   return apiRequest<VPNClientResponse>(`/api/vpn/sstp/client/${encodeURIComponent(nameOrID)}`, {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -711,7 +704,7 @@ export async function deleteSSTPClient(
 ): Promise<void> {
   await apiRequest<void>(`/api/vpn/sstp/client/${encodeURIComponent(nameOrID)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -723,7 +716,7 @@ export async function fetchVPNServersStatus(
 ): Promise<VPNServersStatusResponse> {
   const data = await apiRequest<VPNServersStatusResponse | null>('/api/vpn/servers', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -745,7 +738,7 @@ export async function fetchOvpnServerDetails(
 ): Promise<OvpnServerDetailsResponse> {
   return apiRequest<OvpnServerDetailsResponse>(`/api/vpn/ovpn/server/${encodeURIComponent(name)}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -757,7 +750,7 @@ export async function fetchPptpServerDetails(
 ): Promise<PptpServerDetailsResponse> {
   return apiRequest<PptpServerDetailsResponse>('/api/vpn/pptp/server', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -769,7 +762,7 @@ export async function fetchL2tpServerDetails(
 ): Promise<L2tpServerDetailsResponse> {
   return apiRequest<L2tpServerDetailsResponse>('/api/vpn/l2tp/server', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -781,7 +774,7 @@ export async function fetchSstpServerDetails(
 ): Promise<SstpServerDetailsResponse> {
   return apiRequest<SstpServerDetailsResponse>('/api/vpn/sstp/server', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -796,7 +789,7 @@ export async function fetchWireguardServerDetails(
     `/api/vpn/wireguard/interface/${encodeURIComponent(name)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -810,7 +803,7 @@ export async function createOvpnServer(
 ): Promise<CreateOvpnServerResponse> {
   return apiRequest<CreateOvpnServerResponse>('/api/vpn/ovpn/server', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -825,7 +818,7 @@ export async function fetchOvpnServerTaskStatus(
     `/api/vpn/ovpn/server/status/${encodeURIComponent(taskId)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -842,7 +835,7 @@ export async function updateOvpnServerEnabled(
     `/api/vpn/ovpn/server/${encodeURIComponent(name)}`,
     {
       method: 'PUT',
-      headers: authHeaders(creds),
+      auth: creds,
       body: JSON.stringify(body),
       signal,
     },
@@ -858,7 +851,7 @@ export async function deleteOvpnServer(
   const query = deleteCertificateFiles ? '?deleteCertificateFiles=true' : '';
   await apiRequest<void>(`/api/vpn/ovpn/server/${encodeURIComponent(name)}${query}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -870,7 +863,7 @@ export async function createL2tpServer(
 ): Promise<CreateL2tpServerResponse> {
   return apiRequest<CreateL2tpServerResponse>('/api/vpn/l2tp/server', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -882,7 +875,7 @@ export async function deleteL2tpServer(
 ): Promise<DeleteL2tpServerResponse> {
   return apiRequest<DeleteL2tpServerResponse>('/api/vpn/l2tp/server', {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -893,7 +886,7 @@ export async function createSstpServer(
 ): Promise<CreateSstpServerResponse> {
   return apiRequest<CreateSstpServerResponse>('/api/vpn/sstp/server', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -906,7 +899,7 @@ export async function deleteSstpServer(
   const query = deleteCertificateFiles ? '?deleteCertificateFiles=true' : '';
   return apiRequest<DeleteSstpServerResponse>(`/api/vpn/sstp/server${query}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -920,7 +913,7 @@ export async function fetchSstpServerTaskStatus(
     `/api/vpn/sstp/server/status/${encodeURIComponent(taskId)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -934,7 +927,7 @@ export async function createWireguardServer(
 ): Promise<CreateWireguardServerResponse> {
   return apiRequest<CreateWireguardServerResponse>('/api/vpn/wireguard/server', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -950,7 +943,7 @@ export async function updateWireguardInterface(
     `/api/vpn/wireguard/interface/${encodeURIComponent(nameOrID)}`,
     {
       method: 'PUT',
-      headers: authHeaders(creds),
+      auth: creds,
       body: JSON.stringify(body),
       signal,
     },
@@ -964,7 +957,7 @@ export async function deleteWireguardInterface(
 ): Promise<void> {
   await apiRequest<void>(`/api/vpn/wireguard/interface/${encodeURIComponent(nameOrID)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -978,7 +971,7 @@ export async function fetchWireguardDetailed(
     `/api/vpn/wireguard/detailed/${encodeURIComponent(nameOrID)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -994,7 +987,7 @@ export async function fetchWireguardPeers(
     `/api/vpn/wireguard/peers/${encodeURIComponent(interfaceName)}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -1009,7 +1002,7 @@ export async function createWireguardPeer(
 ): Promise<CreateWireguardPeerResponse> {
   return apiRequest<CreateWireguardPeerResponse>('/api/vpn/wireguard/peer', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -1025,7 +1018,7 @@ export async function updateWireguardPeer(
     `/api/vpn/wireguard/peer/${encodeURIComponent(nameOrID)}`,
     {
       method: 'PUT',
-      headers: authHeaders(creds),
+      auth: creds,
       body: JSON.stringify(body),
       signal,
     },
@@ -1039,7 +1032,7 @@ export async function deleteWireguardPeer(
 ): Promise<void> {
   await apiRequest<void>(`/api/vpn/wireguard/peer/${encodeURIComponent(nameOrID)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -1051,7 +1044,7 @@ export async function createWireguardClient(
 ): Promise<CreateWireguardClientResponse> {
   return apiRequest<CreateWireguardClientResponse>('/api/vpn/wireguard/client', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -1064,7 +1057,7 @@ export async function importWireguardConfig(
 ): Promise<ImportWireguardConfigResponse> {
   return apiRequest<ImportWireguardConfigResponse>('/api/vpn/wireguard/import-config', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -1086,7 +1079,7 @@ export async function exportWireguardPeerConfig(
     `/api/vpn/wireguard/peer/export?${params.toString()}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
@@ -1101,12 +1094,16 @@ export async function exportOvpnClient(
 ): Promise<{ filename: string; content: string }> {
   const params = new URLSearchParams({ name: serverName, publicAddress });
   const url = `${BACKEND_URL}/api/vpn/ovpn/server/export?${params.toString()}`;
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { ...authHeaders(creds), Accept: 'application/x-openvpn-profile, text/plain' },
-    cache: 'no-store',
-    signal,
-  });
+  const response = await authorizedFetch(
+    url,
+    {
+      method: 'GET',
+      headers: { Accept: 'application/x-openvpn-profile, text/plain' },
+      cache: 'no-store',
+      signal,
+    },
+    creds,
+  );
   if (!response.ok) {
     let message = i18n.t('api.requestFailed', { ns: 'ui', status: response.status });
     try {
@@ -1201,7 +1198,7 @@ export async function listActiveVPNConnections(
 ): Promise<ActiveVPNConnectionsResponse> {
   const data = await apiRequest<ActiveVPNConnectionsResponse | null>('/api/vpn/active', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -1218,7 +1215,7 @@ export async function disconnectActiveVPNSession(
 ): Promise<void> {
   await apiRequest<void>(`/api/vpn/active/${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -1244,7 +1241,7 @@ export async function listVPNUsers(
 ): Promise<VPNUserResponse[]> {
   const data = await apiRequest<VPNUserResponse[] | null>('/api/vpn/users', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -1258,7 +1255,7 @@ export async function createVPNUser(
 ): Promise<VPNUserResponse> {
   return apiRequest<VPNUserResponse>('/api/vpn/users', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -1272,7 +1269,7 @@ export async function updateVPNUser(
 ): Promise<VPNUserResponse> {
   return apiRequest<VPNUserResponse>(`/api/vpn/users/${encodeURIComponent(nameOrID)}`, {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(body),
     signal,
   });
@@ -1285,7 +1282,7 @@ export async function deleteVPNUser(
 ): Promise<void> {
   await apiRequest<void>(`/api/vpn/users/${encodeURIComponent(nameOrID)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -1297,7 +1294,7 @@ export async function listVPNProfiles(
 ): Promise<VPNProfileResponse[]> {
   const data = await apiRequest<VPNProfileResponse[] | null>('/api/vpn/profiles', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });

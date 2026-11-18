@@ -21,11 +21,13 @@ import {
   addDomesticAddress,
   deleteDomesticAddress,
   ApiError,
+  domesticAddressConflict,
   fetchDomesticAddresses,
   fetchDomesticCountry,
   fetchDomesticAddressListInfo,
   updateDomesticAddress,
   type DomesticAddress,
+  type DomesticAddressConflict,
   type DomesticAddressListInfo,
   type FirewallCredentials,
   type UpdateDomesticAddressRequest,
@@ -103,10 +105,33 @@ export function DomesticAddressCard({ creds, onInfo }: Props) {
     void reloadList().finally(() => setLoading(false));
   }, [creds, reloadList]);
 
+  const describeConflict = ({ address, conflict, reason }: DomesticAddressConflict): string => {
+    const range = address.includes('/') && !address.endsWith('/32');
+    switch (reason) {
+      case 'unspecified':
+        return range
+          ? t('firewall.domestic.reserved.unspecifiedRange', { address, conflict })
+          : t('firewall.domestic.reserved.unspecified', { conflict });
+      case 'panelRoute':
+        return range
+          ? t('firewall.domestic.reserved.panelRouteRange', { address, conflict })
+          : t('firewall.domestic.reserved.panelRoute', { conflict });
+      case 'netwatch':
+        return range
+          ? t('firewall.domestic.reserved.netwatchRange', { address, conflict })
+          : t('firewall.domestic.reserved.netwatch', { conflict });
+    }
+  };
+
   const notifyError = (title: string, err: unknown) => {
+    const conflict = domesticAddressConflict(err);
     toast.notify({
       title,
-      description: err instanceof Error ? err.message : t('common.unknownError'),
+      description: conflict
+        ? describeConflict(conflict)
+        : err instanceof Error
+          ? err.message
+          : t('common.unknownError'),
       tone: 'danger',
     });
   };

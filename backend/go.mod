@@ -3,6 +3,8 @@ module nasnet-panel
 go 1.26.2
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo/v4 v4.16.1
 	github.com/pkg/sftp v1.13.11
@@ -25,7 +27,6 @@ require (
 	github.com/go-openapi/swag/stringutils v0.26.0 // indirect
 	github.com/go-openapi/swag/typeutils v0.26.0 // indirect
 	github.com/go-openapi/swag/yamlutils v0.26.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/labstack/gommon v0.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect

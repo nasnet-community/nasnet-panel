@@ -161,10 +161,10 @@ func wizardWiFis(data *WizardSaveData) []db.WiFi {
 	}
 
 	if data.Foreign.Type == string(routeros.InterfaceTypeWiFi) {
-		wifis = append(wifis, wizardWANWiFi(data.Foreign, "Foreign", ""))
+		wifis = append(wifis, wizardWANWiFi(data.Foreign, "Foreign", data.Foreign.AuthType))
 	}
 	if data.DomesticEnabled && data.Domestic.Type == string(routeros.InterfaceTypeWiFi) {
-		wifis = append(wifis, wizardWANWiFi(data.Domestic, "Domestic", wizardWifiAuthTypes))
+		wifis = append(wifis, wizardWANWiFi(data.Domestic, "Domestic", data.Domestic.AuthType))
 	}
 
 	return wifis

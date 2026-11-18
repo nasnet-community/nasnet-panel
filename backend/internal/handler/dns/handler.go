@@ -20,8 +20,7 @@ import (
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "DNS information"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -50,8 +49,7 @@ func HandleGetDNSInfo(c echo.Context) error {
 // @Description Runs /ip/dns/cache/flush on the RouterOS device
 // @Tags DNS
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response
 // @Failure 401 {object} common.Response
 // @Failure 500 {object} common.Response
@@ -83,8 +81,7 @@ func HandleFlushDNSCache(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body AdBlockRequest true "Desired ad-block state"
 // @Success 200 {object} common.Response
 // @Failure 400 {object} common.Response
@@ -165,8 +162,7 @@ func HandleSetAdBlock(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=[]ForwarderListItem}
 // @Failure 401 {object} common.Response
 // @Failure 500 {object} common.Response
@@ -220,8 +216,7 @@ func HandleListDNSForwarders(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body UpdateDNSRequest true "DNS configuration"
 // @Success 200 {object} map[string]interface{} "DNS updated"
 // @Failure 400 {object} map[string]interface{} "Bad request"
@@ -289,8 +284,7 @@ func HandleUpdateDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param type query string false "Restrict to domestic or foreign (case-insensitive); omit for both"
 // @Success 200 {object} common.Response{data=SuggestResponse}
 // @Failure 400 {object} common.Response
@@ -329,8 +323,7 @@ func HandleSuggestDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param oldIP query string true "Current DNS forwarder IP"
 // @Param newIP query string true "Candidate replacement IP"
 // @Success 200 {object} common.Response{data=CheckResponse}
@@ -442,8 +435,7 @@ func HandleValidateDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body ChangeDNSRequest true "IP change to apply"
 // @Success 200 {object} common.Response{data=ChangeResponse}
 // @Failure 400 {object} common.Response
@@ -492,8 +484,7 @@ func HandleChangeDNS(c echo.Context) error {
 // @Description applied to the router.
 // @Tags DNS
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=FamilyResponse}
 // @Failure 404 {object} common.Response
 // @Failure 409 {object} common.Response
@@ -569,8 +560,7 @@ func HandleSetFamilyDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=ResetResponse}
 // @Failure 401 {object} common.Response
 // @Failure 500 {object} common.Response
@@ -760,8 +750,7 @@ func HandleResetDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} common.Response{data=[]StaticDNSResponse} "Static DNS entries"
 // @Failure 401 {object} common.Response "Unauthorized"
 // @Failure 500 {object} common.Response "Internal server error"
@@ -794,8 +783,7 @@ func HandleListStaticDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Entry name or ID"
 // @Success 200 {object} common.Response{data=StaticDNSResponse} "Static DNS entry"
 // @Failure 401 {object} common.Response "Unauthorized"
@@ -822,8 +810,7 @@ func HandleGetStaticDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body CreateStaticDNSRequest true "Static DNS entry"
 // @Success 201 {object} common.Response{data=StaticDNSResponse} "Created entry"
 // @Failure 400 {object} common.Response "Bad request"
@@ -874,8 +861,7 @@ func HandleCreateStaticDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Entry name or ID"
 // @Param body body UpdateStaticDNSRequest true "Fields to update"
 // @Success 200 {object} common.Response{data=StaticDNSResponse} "Updated entry"
@@ -943,8 +929,7 @@ func HandleUpdateStaticDNS(c echo.Context) error {
 // @Tags DNS
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Entry name or ID"
 // @Success 204
 // @Failure 401 {object} common.Response "Unauthorized"

@@ -1,5 +1,5 @@
 import i18n from '../i18n';
-import { apiRequest, ApiError } from './http';
+import { apiRequest, authorizedFetch, ApiError } from './http';
 import { BACKEND_URL } from './config';
 import type { SystemCredentials } from './system';
 
@@ -10,20 +10,13 @@ export interface BackupFileResponse {
   date: string;
 }
 
-function authHeaders({ host, username, password }: SystemCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
-}
-
 export async function fetchBackups(
   creds: SystemCredentials,
   signal?: AbortSignal,
 ): Promise<BackupFileResponse[]> {
   const data = await apiRequest<BackupFileResponse[] | null>('/api/system/backups', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -33,7 +26,7 @@ export async function fetchBackups(
 export async function createBackup(creds: SystemCredentials): Promise<BackupFileResponse> {
   return apiRequest<BackupFileResponse>('/api/system/backup', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
@@ -41,7 +34,7 @@ export async function createBackup(creds: SystemCredentials): Promise<BackupFile
 export async function restoreBackup(creds: SystemCredentials, filename: string): Promise<void> {
   await apiRequest<void>('/api/system/restore', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ filename }),
   });
 }
@@ -49,26 +42,51 @@ export async function restoreBackup(creds: SystemCredentials, filename: string):
 export async function deleteBackup(creds: SystemCredentials, filename: string): Promise<void> {
   await apiRequest<void>(`/api/system/backup/${encodeURIComponent(filename)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
   });
 }
 
-export async function downloadBackup(creds: SystemCredentials, filename: string): Promise<Blob> {
-  const response = await fetch(
-    `${BACKEND_URL}/api/system/backup/download/${encodeURIComponent(filename)}`,
-    { method: 'GET', headers: authHeaders(creds), cache: 'no-store' },
+// Largest .backup file the restore-from-file route accepts; the backend enforces the same limit.
+export const MAX_UPLOADED_BACKUP_BYTES = 16 * 1024 * 1024;
+
+async function throwResponseError(response: Response): Promise<never> {
+  const body = (await response.json().catch(() => null)) as {
+    error?: string;
+    message?: string;
+  } | null;
+  throw new ApiError(
+    body?.error ||
+      body?.message ||
+      i18n.t('api.requestFailed', { ns: 'ui', status: response.status }),
+    response.status,
   );
-  if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as {
-      error?: string;
-      message?: string;
-    } | null;
-    throw new ApiError(
-      body?.error ||
-        body?.message ||
-        i18n.t('api.requestFailed', { ns: 'ui', status: response.status }),
-      response.status,
-    );
-  }
+}
+
+// Uploads a .backup file from this computer to the router and restores it. Sent as multipart
+// without apiRequest, because it forces a JSON Content-Type. The router reboots to apply the
+// backup, so the connection drops after this returns.
+export async function restoreBackupFromFile(
+  creds: SystemCredentials,
+  file: File,
+  password?: string,
+): Promise<void> {
+  const form = new FormData();
+  form.append('file', file, file.name);
+  if (password) form.append('password', password);
+  const response = await authorizedFetch(
+    `${BACKEND_URL}/api/system/restore/upload`,
+    { method: 'POST', body: form },
+    creds,
+  );
+  if (!response.ok) await throwResponseError(response);
+}
+
+export async function downloadBackup(creds: SystemCredentials, filename: string): Promise<Blob> {
+  const response = await authorizedFetch(
+    `${BACKEND_URL}/api/system/backup/download/${encodeURIComponent(filename)}`,
+    { method: 'GET', cache: 'no-store' },
+    creds,
+  );
+  if (!response.ok) await throwResponseError(response);
   return response.blob();
 }

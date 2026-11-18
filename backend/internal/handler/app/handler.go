@@ -19,8 +19,7 @@ import (
 // @Summary Get panel version
 // @Description Returns the current running version of nasnet-panel
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=AppVersionResponse}
 // @Router /api/app/version [get].
@@ -36,8 +35,7 @@ func HandleAppVersion(c echo.Context) error {
 // @Description The minimum RouterOS version comes from the metadata embedded in the release body, 7.24 when the release has none.
 // @Description The isLowerVersion field is true when the release is lower than the running version, and always false when the running version is not a release version.
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param channel query string true "Release channel" Enums(stable, rc, dev)
 // @Param hideLowerVer query bool false "Hide releases lower than the running version. Versions are compared across channels, and by each channel's own numbering within one. Nothing is hidden when the running version is not a release version" default(false)
 // @Produce json
@@ -89,8 +87,7 @@ func HandleAppUpdates(c echo.Context) error {
 // @Summary Get a single nasnet-panel release
 // @Description Returns one GitHub release by tag, in the same format as the entries of GET /api/app/updates
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param tag path string true "Release tag" example(v0.0.2)
 // @Produce json
 // @Success 200 {object} common.Response{data=ReleaseUpdateResponse}
@@ -120,10 +117,9 @@ func HandleAppUpdateRelease(c echo.Context) error {
 
 // HandleAppUpdateChannel godoc
 // @Summary Get the last used update channel
-// @Description Returns the channel last requested from GET /api/app/updates for the router named by X-RouterOS-Host, stable when none was requested yet
+// @Description Returns the channel last requested from GET /api/app/updates for the router the token is logged in to, stable when none was requested yet
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=UpdateChannelResponse}
 // @Failure 500 {object} common.Response
@@ -157,8 +153,7 @@ func HandleAppUpdateChannel(c echo.Context) error {
 // @Description the router is reconfigured from its stored configuration after the new version is running, and
 // @Description the progress is reported by the same status endpoint.
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body StartUpdateRequest true "Release to update to"
 // @Accept json
 // @Produce json
@@ -258,8 +253,7 @@ func HandleAppUpdate(c echo.Context) error {
 // @Description state, current step and progress of the reconfiguration that runs once the new version is up. The new
 // @Description version starts it the first time this endpoint is called after it came up; until then the state is pending.
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=UpdateStatusResponse}
 // @Router /api/app/update/status [get].
@@ -280,10 +274,9 @@ func HandleAppUpdateProgress(c echo.Context) error {
 
 // HandleListSettings godoc
 // @Summary List app settings
-// @Description Returns every setting stored in the database of the router named by X-RouterOS-Host, ordered by key
+// @Description Returns every setting stored in the database of the router the token is logged in to, ordered by key
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Produce json
 // @Success 200 {object} common.Response{data=[]SettingResponse}
 // @Failure 500 {object} common.Response
@@ -311,8 +304,7 @@ func HandleListSettings(c echo.Context) error {
 // @Summary Get an app setting
 // @Description Returns one setting by key
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param key path string true "Setting key"
 // @Produce json
 // @Success 200 {object} common.Response{data=SettingResponse}
@@ -343,8 +335,7 @@ func HandleGetSetting(c echo.Context) error {
 // @Summary Create an app setting
 // @Description Stores a new setting. Returns 409 if the key already exists
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param body body CreateSettingRequest true "Setting to create"
 // @Accept json
 // @Produce json
@@ -382,8 +373,7 @@ func HandleCreateSetting(c echo.Context) error {
 // @Summary Update an app setting
 // @Description Changes the value of an existing setting
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param key path string true "Setting key"
 // @Param body body UpdateSettingRequest true "New value"
 // @Accept json
@@ -427,8 +417,7 @@ func HandleUpdateSetting(c echo.Context) error {
 // @Summary Delete an app setting
 // @Description Removes a setting by key
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param key path string true "Setting key"
 // @Produce json
 // @Success 204
@@ -459,8 +448,7 @@ func HandleDeleteSetting(c echo.Context) error {
 // @Description Forwards the subscription to the joinnasnet.com newsletter service with the same fields and returns its reply.
 // @Description The website field is a honeypot and must be left empty.
 // @Tags App
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param request body NewsletterRequest true "Newsletter subscription"
 // @Accept json
 // @Produce json

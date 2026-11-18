@@ -68,6 +68,16 @@ type DomesticAddressResponse struct {
 	Comment string `json:"comment"`
 }
 
+// DomesticAddressConflictResponse is the data of the 400 response that refuses a domestic list
+// address because it is, or contains, an address that must stay out of the list. Reason is
+// "unspecified" for 0.0.0.0, "panelRoute" for an address the panel routes and pings to check a
+// link, or "netwatch" for a host that Netwatch monitors on the router.
+type DomesticAddressConflictResponse struct {
+	Address  string         `json:"address"  example:"1.1.0.0/16"`
+	Conflict string         `json:"conflict" example:"1.1.1.1"`
+	Reason   ReservedReason `json:"reason"   example:"panelRoute"`
+}
+
 // DomesticAddressItemResponse is one user added entry of the domestic address list. Timeout is left
 // out for an entry that never expires.
 type DomesticAddressItemResponse struct {

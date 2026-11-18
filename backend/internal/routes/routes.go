@@ -2,6 +2,7 @@ package routes
 
 import (
 	"nasnet-panel/internal/handler/app"
+	"nasnet-panel/internal/handler/auth"
 	"nasnet-panel/internal/handler/config"
 	"nasnet-panel/internal/handler/dhcp"
 	"nasnet-panel/internal/handler/diag"
@@ -26,6 +27,10 @@ import (
 func RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", health.HandleHealthCheck)
 	initSwagger(e)
+
+	authGroup := e.Group("/api/auth")
+	authGroup.POST("/login", auth.HandleLogin)
+	authGroup.POST("/logout", auth.HandleLogout, middleware.RouterOSAuth)
 
 	appGroup := e.Group("/api/app")
 	appGroup.Use(middleware.RouterOSAuth)
@@ -109,6 +114,9 @@ func RegisterRoutes(e *echo.Echo) {
 	interfaceGroup.GET("/interfaces", iface.HandleListInterfaces)
 	interfaceGroup.DELETE("/traffic-counter/:nameOrID", iface.HandleResetInterfaceTrafficCounter)
 	interfaceGroup.PUT("/wan", iface.HandleUpdateWANInterface)
+	interfaceGroup.GET("/wan/:name", iface.HandleGetWAN)
+	interfaceGroup.DELETE("/wan/:name", iface.HandleDeleteWAN)
+	interfaceGroup.GET("/wans", iface.HandleListWANs)
 
 	logsGroup := e.Group("/api/logs")
 	logsGroup.Use(middleware.RouterOSAuth)
@@ -165,6 +173,7 @@ func RegisterRoutes(e *echo.Echo) {
 	systemGroup.POST("/reboot", system.HandleRebootSystem)
 	systemGroup.GET("/resources", system.HandleGetResourceInfo)
 	systemGroup.POST("/restore", system.HandleRestoreBackup)
+	systemGroup.POST("/restore/upload", system.HandleRestoreUploadedBackup)
 	systemGroup.GET("/scheduler/:name", system.HandleGetScheduler)
 	systemGroup.PUT("/scheduler/:name", system.HandleUpdateScheduler)
 	systemGroup.PUT("/service/:nameOrID", system.HandleUpdateIPService)
