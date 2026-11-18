@@ -118,6 +118,18 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.suffix }},value=${{ needs.meta.outputs.release == 'true' && needs.meta.outputs.tag || '' }}
             type=raw,value=${{ inputs.tag }}-${{ matrix.suffix }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
+      - id: router-key
+        name: Check router key secret
+        env:
+          ROUTER_KEY_SECRET: ${{ secrets.ROUTER_KEY_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ROUTER_KEY_SECRET" ]; then
+            echo "::error::ROUTER_KEY_SECRET is not set"
+            exit 1
+          fi
+          echo "fingerprint=$(printf '%s' "nasnet-router-key:$ROUTER_KEY_SECRET" | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+
       - id: build
         uses: docker/build-push-action@v7
         with:
@@ -130,6 +142,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             APP_VERSION=${{ needs.meta.outputs.tag }}
+            ROUTER_KEY_FINGERPRINT=${{ steps.router-key.outputs.fingerprint }}
           secrets: |
             router_key_secret=${{ secrets.ROUTER_KEY_SECRET }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
