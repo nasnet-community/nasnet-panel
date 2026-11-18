@@ -1,4 +1,4 @@
-import { apiRequest } from './http';
+import { ApiError, apiRequest } from './http';
 
 export interface FirewallCredentials {
   host: string;
@@ -68,6 +68,27 @@ export interface DomesticAddressListInfo {
 export interface UpdateDomesticAddressRequest {
   address: string;
   timeout?: string;
+}
+
+/**
+ * Why the backend refused a domestic list address: it is, or contains, 0.0.0.0 (`unspecified`), an
+ * address the panel routes and pings to check a link (`panelRoute`), or a Netwatch host (`netwatch`).
+ */
+export interface DomesticAddressConflict {
+  address: string;
+  conflict: string;
+  reason: 'unspecified' | 'panelRoute' | 'netwatch';
+}
+
+/** Returns the conflict carried by a 400 from the add or edit endpoint, or null for any other error. */
+export function domesticAddressConflict(err: unknown): DomesticAddressConflict | null {
+  if (!(err instanceof ApiError) || err.status !== 400) return null;
+  const data = err.data as Partial<DomesticAddressConflict> | undefined;
+  if (!data?.address || !data.conflict) return null;
+  if (data.reason !== 'unspecified' && data.reason !== 'panelRoute' && data.reason !== 'netwatch') {
+    return null;
+  }
+  return { address: data.address, conflict: data.conflict, reason: data.reason };
 }
 
 export async function fetchDomesticBlock(
