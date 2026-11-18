@@ -24,8 +24,9 @@ interface Call {
 // records every write so a test can assert what the page sent.
 async function mockFirewall(
   page: Page,
-  initial: { entries?: Entry[]; block?: boolean; rules?: unknown[] } = {},
+  initial: { entries?: Entry[]; block?: boolean; rules?: unknown[]; country?: string | null } = {},
 ) {
+  const country = initial.country === undefined ? 'IR' : initial.country;
   const entries = [...(initial.entries ?? [])];
   const rules = initial.rules ?? [];
   let block = initial.block ?? false;
@@ -51,6 +52,16 @@ async function mockFirewall(
       if (path === '/api/firewall/filter') return json(rules);
       if (path === '/api/firewall/domestic') return json(blockState());
       if (path === '/api/firewall/addresslist/domestic') return json(entries);
+      if (path === '/api/firewall/addresslist/domestic/country') {
+        if (country === null) {
+          return route.fulfill({
+            status: 404,
+            contentType: 'application/json',
+            body: JSON.stringify({ status: 404, message: 'Not Found' }),
+          });
+        }
+        return json({ country });
+      }
       if (path === '/api/firewall/addresslist/domestic/info') {
         return json({
           totalEntries: 1200 + entries.length,
@@ -143,6 +154,23 @@ test.describe('Firewall page domestic addresses', () => {
     const row = page.getByRole('row', { name: /Block SSH from WAN/ });
     await expect(row).toContainText('Input');
     await expect(row).toContainText('drop');
+  });
+
+  test('shows the flag of the country the list is fetched for', async ({ page }) => {
+    await mockFirewall(page, { country: 'CU' });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    const flag = page.getByTestId('domestic-country-flag');
+    await expect(flag).toHaveAttribute('src', '/flags/cu.svg');
+    await expect(flag).toHaveAttribute('alt', 'Cuba');
+    await expect(page.getByTestId('domestic-addresses')).not.toContainText('Cuba');
+  });
+
+  test('shows the Iran flag when the backend cannot report the country', async ({ page }) => {
+    await mockFirewall(page, { country: null });
+    await page.goto(`/router/${ROUTER_ID}/firewall`);
+
+    await expect(page.getByTestId('domestic-country-flag')).toHaveAttribute('src', '/flags/fa.svg');
   });
 
   test('translates the built-in chain names and keeps custom ones', async ({ page }) => {
