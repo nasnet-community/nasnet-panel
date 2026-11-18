@@ -78,6 +78,7 @@ type FirewallRuleConfig struct {
 	Log              bool
 	LogPrefix        string
 	Comment          string
+	PlaceBefore      string
 }
 
 type NATRuleConfig struct {
@@ -320,6 +321,10 @@ func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 	}
 	if config.Comment != "" {
 		args = append(args, "=comment="+config.Comment)
+	}
+
+	if config.PlaceBefore != "" {
+		args = append(args, "=place-before="+config.PlaceBefore)
 	}
 
 	id, err := c.Add("/ip/firewall/filter", args...)

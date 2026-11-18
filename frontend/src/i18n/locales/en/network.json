@@ -189,6 +189,11 @@
     "hintSelect": "Turn on manual entry to type an IP that is not listed."
   },
   "firewall": {
+    "chains": {
+      "input": "Input",
+      "forward": "Forward",
+      "output": "Output"
+    },
     "allChains": "All chains",
     "any": "any",
     "loadFailed": "Failed to load firewall rules.",
@@ -224,7 +229,7 @@
       "deleteFor": "Delete {{address}}",
       "delete": "Delete",
       "deleting": "Deleting…",
-      "block": "Block traffic to domestic addresses",
+      "block": "Block domestic traffic",
       "blockHint": "Drops traffic from your network and from the router itself to any address in the list.",
       "blockPartial": "Only some of the block rules are enabled on the router. Turn the switch on or off to set them all.",
       "blockLoadFailed": "Failed to load the domestic block status.",
@@ -266,6 +271,14 @@
         "blockOn": "Traffic to domestic addresses is blocked",
         "blockOff": "Traffic to domestic addresses is allowed",
         "blockFailed": "Failed to change the domestic block"
+      },
+      "reserved": {
+        "unspecified": "{{conflict}} stands for any address, so it cannot be in the domestic list.",
+        "unspecifiedRange": "{{address}} contains {{conflict}}, which stands for any address, so it cannot be in the domestic list.",
+        "panelRoute": "{{conflict}} is used in the panel's routes and connectivity checks, so it cannot be in the domestic list.",
+        "panelRouteRange": "{{address}} contains {{conflict}}, which the panel uses in its routes and connectivity checks, so it cannot be in the domestic list.",
+        "netwatch": "{{conflict}} is monitored by Netwatch on the router, so it cannot be in the domestic list.",
+        "netwatchRange": "{{address}} contains {{conflict}}, which Netwatch monitors on the router, so it cannot be in the domestic list."
       },
       "confirmBlock": {
         "title": "Block traffic to domestic addresses?",

@@ -72,19 +72,12 @@ export async function scanWifiAccessPoints(
     `/api/wifi/scan/${encodeURIComponent(interfaceName)}${query}`,
     {
       method: 'GET',
-      headers: authHeaders(creds),
+      auth: creds,
       cache: 'no-store',
       signal,
     },
   );
   return list ?? [];
-}
-
-function authHeaders({ host, username, password }: WifiCredentials): Record<string, string> {
-  return {
-    Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-    'X-RouterOS-Host': host,
-  };
 }
 
 export async function fetchWifiInterfaces(
@@ -93,7 +86,7 @@ export async function fetchWifiInterfaces(
 ): Promise<WifiInterfaceResponse[]> {
   const list = await apiRequest<WifiInterfaceResponse[] | null>('/api/wifi/interfaces', {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -107,7 +100,7 @@ export async function fetchWifiInterface(
 ): Promise<WifiInterfaceResponse> {
   return apiRequest<WifiInterfaceResponse>(`/api/wifi/interfaces/${encodeURIComponent(name)}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -121,7 +114,7 @@ export async function fetchWifiClients(
   const query = interfaceName ? `?interface=${encodeURIComponent(interfaceName)}` : '';
   const list = await apiRequest<WifiConnectedClientResponse[] | null>(`/api/wifi/clients${query}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -136,7 +129,7 @@ export async function updateWifiInterface(
 ): Promise<void> {
   await apiRequest(`/api/wifi/interfaces/${encodeURIComponent(name)}`, {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ enabled }),
     signal,
   });
@@ -157,7 +150,7 @@ export async function updateWifiSettings(
 ): Promise<void> {
   await apiRequest(`/api/wifi/settings/${encodeURIComponent(name)}`, {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(settings),
     signal,
   });
@@ -170,7 +163,7 @@ export async function removeWifiClient(
 ): Promise<void> {
   await apiRequest(`/api/wifi/clients/${encodeURIComponent(mac)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }
@@ -182,7 +175,7 @@ export async function fetchWifiPassphrase(
 ): Promise<WifiPassphraseResponse> {
   return apiRequest<WifiPassphraseResponse>(`/api/wifi/passphrase/${encodeURIComponent(name)}`, {
     method: 'GET',
-    headers: authHeaders(creds),
+    auth: creds,
     cache: 'no-store',
     signal,
   });
@@ -196,7 +189,7 @@ export async function updateWifiPassphrase(
 ): Promise<void> {
   await apiRequest(`/api/wifi/passphrase/${encodeURIComponent(name)}`, {
     method: 'PUT',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify({ passphrase }),
     signal,
   });
@@ -217,7 +210,7 @@ export async function createVirtualWifiInterface(
 ): Promise<WifiInterfaceResponse> {
   return apiRequest<WifiInterfaceResponse>('/api/wifi/virtual', {
     method: 'POST',
-    headers: authHeaders(creds),
+    auth: creds,
     body: JSON.stringify(request),
     signal,
   });
@@ -230,7 +223,7 @@ export async function deleteVirtualWifiInterface(
 ): Promise<void> {
   await apiRequest(`/api/wifi/virtual/${encodeURIComponent(name)}`, {
     method: 'DELETE',
-    headers: authHeaders(creds),
+    auth: creds,
     signal,
   });
 }

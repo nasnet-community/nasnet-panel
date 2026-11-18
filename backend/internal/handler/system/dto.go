@@ -24,9 +24,11 @@ type SetSystemIdentityRequest struct {
 	Name string `json:"name" form:"name"`
 }
 
-// RestoreBackupRequest names the backup file to restore from nasnet-panel/backups.
+// RestoreBackupRequest names the backup file to restore from nasnet-panel/backups. Password is only
+// needed for an encrypted backup.
 type RestoreBackupRequest struct {
 	Filename string `json:"filename" form:"filename"`
+	Password string `json:"password,omitempty" form:"password"`
 }
 
 type ChangeUserPasswordRequest struct {

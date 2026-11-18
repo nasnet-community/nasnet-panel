@@ -1,5 +1,7 @@
 package iface
 
+import "nasnet-panel/pkg/routeros"
+
 // UpdateInterfaceBridgeRequest is the request body for PUT /api/interface/bridge/port.
 type UpdateInterfaceBridgeRequest struct {
 	Interface string `json:"interface" binding:"required" example:"ether1"`
@@ -119,10 +121,55 @@ type UpdateWANInterfaceRequest struct {
 	Type      string `json:"type"      example:"foreign"`
 	SSID      string `json:"ssid"      example:"MyNetwork"`
 	Password  string `json:"password"  example:"secret"`
+	AuthType  string `json:"authType"  example:"wpa2-psk,wpa3-psk"`
+	IP        string `json:"ip"        example:"192.168.1.50/24"`
+	Gateway   string `json:"gateway"   example:"192.168.1.1"`
+}
+
+// WANResponse represents a configured WAN link.
+type WANResponse struct {
+	WANType       string  `json:"wanType"`
+	Interface     string  `json:"interface"`
+	InterfaceType string  `json:"interfaceType"`
+	Macvlan       string  `json:"macvlan,omitempty"`
+	SSID          *string `json:"ssid,omitempty"`
+	Password      *string `json:"password,omitempty"`
+	AuthType      string  `json:"authType,omitempty"`
+	Status        string  `json:"status,omitempty" enums:"scanning,connecting,authorized,link-ok,no-link" example:"link-ok"`
+	AddressType   string  `json:"addressType,omitempty"`
+	IP            string  `json:"ip,omitempty"`
+	Gateway       string  `json:"gateway,omitempty"`
+	Enabled       bool    `json:"enabled"`
+	Comment       string  `json:"comment,omitempty"`
+}
+
+type removeWANTemplateData struct {
+	Interface    string
+	Type         string
+	DoneToken    string
+	OldWiFiNames map[string]string
+}
+
+type wanData struct {
+	wifis       []routeros.WifiInfo
+	macvlans    []routeros.MacvlanInfo
+	dhcpClients []routeros.DHCPClientInfo
+	addresses   []routeros.IPAddressInfo
+	routes      []routeros.IPRouteInfo
+}
+
+// WANAddressing is the resolved addressing of a WAN link: an empty StaticIP means DHCP.
+type WANAddressing struct {
+	StaticIP string
+	Prefix   int
+	Gateway  string
 }
 
 type wanChangeTemplateData struct {
 	UpdateWANInterfaceRequest
 	DoneToken    string
 	OldWiFiNames map[string]string
+	StaticIP     string
+	StaticPrefix int
+	Gateway      string
 }

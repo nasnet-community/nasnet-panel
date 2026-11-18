@@ -1,7 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArchiveRestore, DatabaseBackup, Download, Plus, SearchX, Trash2 } from 'lucide-react';
+import {
+  ArchiveRestore,
+  DatabaseBackup,
+  Download,
+  Plus,
+  SearchX,
+  Trash2,
+  TriangleAlert,
+  Upload,
+} from 'lucide-react';
 import {
   Button,
   Card,
@@ -11,19 +20,26 @@ import {
   ConfirmDialog,
   DataTable,
   Inline,
+  Label,
+  PasswordInput,
   Skeleton,
+  Stack,
   Tooltip,
   useToast,
   type DataTableColumn,
 } from '@nasnet/ui';
 import styles from './BackupsCard.module.scss';
+import { useFormat } from '../utils/useFormat';
 import {
+  ApiError,
   createBackup,
   deleteBackup,
   downloadBackup,
   fetchBackups,
   isAbortError,
+  MAX_UPLOADED_BACKUP_BYTES,
   restoreBackup,
+  restoreBackupFromFile,
   type BackupFileResponse,
   type SystemCredentials,
 } from '../api';
@@ -31,6 +47,8 @@ import {
 interface Props {
   creds: SystemCredentials | null;
 }
+
+type PendingRestore = { kind: 'stored'; backup: BackupFileResponse } | { kind: 'file'; file: File };
 
 // Wraps a file name in a first-strong isolate so it keeps its order inside Persian text.
 const isolate = (text: string) => `\u2068${text}\u2069`;
@@ -50,12 +68,15 @@ export function BackupsCard({ creds }: Props) {
   const { t } = useTranslation('tools');
   const toast = useToast();
   const navigate = useNavigate();
+  const format = useFormat();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [backups, setBackups] = useState<BackupFileResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
-  const [pendingRestore, setPendingRestore] = useState<BackupFileResponse | null>(null);
+  const [pendingRestore, setPendingRestore] = useState<PendingRestore | null>(null);
+  const [backupPassword, setBackupPassword] = useState('');
   const [pendingDelete, setPendingDelete] = useState<BackupFileResponse | null>(null);
   const [restoring, setRestoring] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -124,18 +145,69 @@ export function BackupsCard({ creds }: Props) {
     }
   };
 
+  const pickFile = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Clear the input so picking the same file again still fires a change event.
+    event.target.value = '';
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.backup')) {
+      toast.notify({
+        title: t('backups.toasts.wrongFileType'),
+        description: t('backups.toasts.wrongFileTypeHint'),
+        tone: 'danger',
+      });
+      return;
+    }
+    if (file.size > MAX_UPLOADED_BACKUP_BYTES) {
+      toast.notify({
+        title: t('backups.toasts.fileTooLarge'),
+        description: t('backups.toasts.fileTooLargeHint'),
+        tone: 'danger',
+      });
+      return;
+    }
+    if (file.size === 0) {
+      toast.notify({ title: t('backups.toasts.fileEmpty'), tone: 'danger' });
+      return;
+    }
+    setBackupPassword('');
+    setPendingRestore({ kind: 'file', file });
+  };
+
+  const restoreFileErrorDescription = (err: unknown) => {
+    if (err instanceof ApiError) {
+      if (err.status === 502) return t('backups.toasts.sshUnavailable');
+      if (err.status === 413) return t('backups.toasts.fileTooLargeHint');
+      if (err.status === 400) return t('backups.toasts.fileRejected', { reason: err.message });
+    }
+    return err instanceof Error ? err.message : undefined;
+  };
+
   const confirmRestore = async () => {
     if (!creds || !pendingRestore) return;
     setRestoring(true);
     try {
-      await restoreBackup(creds, pendingRestore.filename);
+      if (pendingRestore.kind === 'file') {
+        await restoreBackupFromFile(creds, pendingRestore.file, backupPassword);
+      } else {
+        await restoreBackup(creds, pendingRestore.backup.filename);
+      }
     } catch (err) {
-      notifyError(t('backups.toasts.restoreFailed'), err);
+      if (pendingRestore.kind === 'file') {
+        toast.notify({
+          title: t('backups.toasts.restoreFailed'),
+          description: restoreFileErrorDescription(err),
+          tone: 'danger',
+        });
+      } else {
+        notifyError(t('backups.toasts.restoreFailed'), err);
+      }
       setRestoring(false);
       return;
     }
     setRestoring(false);
     setPendingRestore(null);
+    setBackupPassword('');
     toast.notify({ title: t('backups.toasts.restoreStarted'), tone: 'warning' });
     navigate('/');
   };
@@ -211,7 +283,7 @@ export function BackupsCard({ creds }: Props) {
               variant="secondary"
               disabled={!creds || busy}
               aria-label={t('backups.restoreFor', { file: row.filename })}
-              onClick={() => setPendingRestore(row)}
+              onClick={() => setPendingRestore({ kind: 'stored', backup: row })}
             >
               <ArchiveRestore size={14} aria-hidden />
             </Button>
@@ -244,6 +316,22 @@ export function BackupsCard({ creds }: Props) {
           <CardDescription>{t('backups.description')}</CardDescription>
         </div>
         <div className={styles.headerActions}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={!creds || busy}
+          >
+            <Upload size={14} aria-hidden /> {t('backups.restoreFromFile')}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".backup"
+            hidden
+            data-testid="backup-file-input"
+            onChange={pickFile}
+          />
           <Button
             size="sm"
             variant="success"
@@ -289,15 +377,42 @@ export function BackupsCard({ creds }: Props) {
         open={!!pendingRestore}
         title={t('backups.confirmRestore.title')}
         description={
-          pendingRestore
-            ? t('backups.confirmRestore.description', { file: isolate(pendingRestore.filename) })
-            : undefined
+          pendingRestore?.kind === 'stored'
+            ? t('backups.confirmRestore.description', {
+                file: isolate(pendingRestore.backup.filename),
+              })
+            : pendingRestore?.kind === 'file'
+              ? t('backups.confirmRestoreFile.description', {
+                  file: isolate(pendingRestore.file.name),
+                  size: isolate(format.bytes(pendingRestore.file.size)),
+                })
+              : undefined
         }
         confirmLabel={restoring ? t('backups.restoring') : t('backups.restore')}
         destructive
         onConfirm={confirmRestore}
         onCancel={() => (restoring ? undefined : setPendingRestore(null))}
-      />
+      >
+        {pendingRestore?.kind === 'file' ? (
+          <Stack>
+            <div className={styles.warning}>
+              <TriangleAlert size={16} aria-hidden className={styles.warningIcon} />
+              <p>{t('backups.confirmRestoreFile.sameRouter')}</p>
+            </div>
+            <Label>
+              <span>{t('backups.confirmRestoreFile.password')}</span>
+              <PasswordInput
+                value={backupPassword}
+                onChange={(e) => setBackupPassword(e.target.value)}
+                autoComplete="off"
+                aria-label={t('backups.confirmRestoreFile.password')}
+                placeholder={t('backups.confirmRestoreFile.passwordPlaceholder')}
+                disabled={restoring}
+              />
+            </Label>
+          </Stack>
+        ) : null}
+      </ConfirmDialog>
       <ConfirmDialog
         open={!!pendingDelete}
         title={t('backups.confirmDelete.title')}

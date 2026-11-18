@@ -16,8 +16,7 @@ import (
 // @Tags DHCP
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "DHCP leases list"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
@@ -47,8 +46,7 @@ func HandleListDHCPLeases(c echo.Context) error {
 // @Tags DHCP
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "DHCP clients list"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
@@ -77,8 +75,7 @@ func HandleListDHCPClients(c echo.Context) error {
 // @Tags DHCP
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Success 200 {object} map[string]interface{} "DHCP servers list"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
@@ -129,8 +126,7 @@ func HandleListDHCPServers(c echo.Context) error {
 // @Tags DHCP
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param macAddress query string true "MAC address of the lease to make static"
 // @Success 200 {object} map[string]interface{} "Lease made static successfully"
 // @Failure 400 {object} map[string]interface{} "Lease is not dynamic"
@@ -186,8 +182,7 @@ func HandleMakeDHCPLeaseStatic(c echo.Context) error {
 // @Tags DHCP
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param macAddress path string true "MAC address of the lease to remove"
 // @Success 200 {object} map[string]interface{} "Lease removed successfully"
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
@@ -243,8 +238,7 @@ func HandleRemoveDHCPLease(c echo.Context) error {
 // @Tags DHCP
 // @Accept json
 // @Produce json
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Security BearerAuth
 // @Param nameOrID path string true "Interface name or ID"
 // @Success 200 {object} common.Response{data=ConfigureDHCPClientResponse}
 // @Failure 400 {object} map[string]interface{} "Bad request"
