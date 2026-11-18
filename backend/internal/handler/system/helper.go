@@ -219,6 +219,36 @@ func isValidBackupFilename(name string) bool {
 	return strings.HasSuffix(name, ".backup") && !strings.ContainsAny(name, `/\`) && !strings.Contains(name, "..")
 }
 
+// hasBackupExtension reports whether name, as picked on the user's computer, ends in .backup in any letter case.
+func hasBackupExtension(name string) bool {
+	name = strings.TrimSpace(name)
+	return len(name) > len(".backup") && strings.EqualFold(name[len(name)-len(".backup"):], ".backup")
+}
+
+// uploadedBackupFilename names an uploaded backup inside nasnet-panel/backups after the time it was received.
+func uploadedBackupFilename(t time.Time) string {
+	return uploadedBackupPrefix + t.Format(backupFileTimeLayout) + ".backup"
+}
+
+// waitForRouterFile polls /file until path shows up, since RouterOS can list a file written over SFTP
+// slightly after the transfer ends.
+func waitForRouterFile(client *routeros.Client, path string) error {
+	deadline := time.Now().Add(uploadedBackupWaitTimeout)
+	for {
+		exists, err := client.FileExists(path)
+		if err != nil {
+			return err
+		}
+		if exists {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("%s did not appear on the router after the upload", path)
+		}
+		time.Sleep(uploadedBackupPollInterval)
+	}
+}
+
 // ToSystemInfoResponse converts RouterOS data to its API response form.
 func ToSystemInfoResponse(si *routeros.SystemInfo) *SystemInfoResponse {
 	if si == nil {

@@ -21,7 +21,17 @@ interface Call {
 interface MockOptions {
   listFails?: boolean;
   createConflict?: boolean;
+  uploadFails?: boolean;
 }
+
+interface UploadBody {
+  contentType: string;
+  multipart: string;
+}
+
+const UPLOAD_PATH = '/api/system/restore/upload';
+
+const uploadBody = (calls: Call[]) => calls.find((c) => c.path === UPLOAD_PATH)?.body as UploadBody;
 
 // Serves the backup endpoints from an in-memory list and records every write
 // so a test can assert what the page sent.
@@ -110,6 +120,38 @@ async function mockBackups(page: Page, initial: Backup[], options: MockOptions =
       path: '/api/system/restore',
       body: request.postDataJSON(),
     });
+    await route.fulfill({
+      status: 202,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 202,
+        message: 'Restore initiated; the router will reboot to apply the backup',
+      }),
+    });
+  });
+
+  await page.route('**/api/system/restore/upload', async (route) => {
+    const request = route.request();
+    calls.push({
+      method: request.method(),
+      path: UPLOAD_PATH,
+      body: {
+        contentType: (await request.headerValue('content-type')) ?? '',
+        multipart: request.postDataBuffer()?.toString('latin1') ?? '',
+      },
+    });
+    if (options.uploadFails) {
+      await route.fulfill({
+        status: 502,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 502,
+          message: 'Could not connect to the router over SSH',
+          error: 'failed to dial SSH: connection refused',
+        }),
+      });
+      return;
+    }
     await route.fulfill({
       status: 202,
       contentType: 'application/json',
@@ -229,5 +271,103 @@ test.describe('Diagnostics page backups', () => {
     expect(calls).toEqual([
       { method: 'POST', path: '/api/system/restore', body: { filename: older.filename } },
     ]);
+  });
+
+  test('picking a backup file opens the confirm dialog and sends nothing yet', async ({ page }) => {
+    const calls = await mockBackups(page, [older]);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
+
+    await page.getByTestId('backup-file-input').setInputFiles({
+      name: 'office.backup',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.from('backup-bytes'),
+    });
+
+    const confirm = page.getByRole('dialog');
+    await expect(confirm.getByRole('heading', { name: 'Restore backup?' })).toBeVisible();
+    await expect(confirm).toContainText('office.backup');
+    await expect(confirm).toContainText('12 B');
+    await expect(confirm).toContainText('made on this same router');
+    await expect(confirm.getByLabel('Backup password')).toHaveValue('');
+    await confirm.getByRole('button', { name: 'Cancel' }).click();
+
+    await expect(confirm).toBeHidden();
+    expect(calls).toEqual([]);
+  });
+
+  test('restores an uploaded backup with its password and leaves the router page', async ({
+    page,
+  }) => {
+    const calls = await mockBackups(page, [older]);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
+
+    await page.getByRole('button', { name: 'Restore from file' }).click();
+    await page.getByTestId('backup-file-input').setInputFiles({
+      name: 'Office.BACKUP',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.from('backup-bytes'),
+    });
+    const confirm = page.getByRole('dialog');
+    await confirm.getByLabel('Backup password').fill('s3cret pass');
+    await confirm.getByRole('button', { name: 'Restore' }).click();
+
+    await expect(page.getByText('Restore started. The router is rebooting.')).toBeVisible();
+    await expect(page).toHaveURL(/\/$/);
+    expect(calls.map((c) => `${c.method} ${c.path}`)).toEqual([`POST ${UPLOAD_PATH}`]);
+    const upload = uploadBody(calls);
+    expect(upload.contentType).toMatch(/^multipart\/form-data; boundary=/);
+    expect(upload.multipart).toContain('name="file"; filename="Office.BACKUP"');
+    expect(upload.multipart).toContain('backup-bytes');
+    expect(upload.multipart).toMatch(/name="password"\r\n\r\ns3cret pass\r\n/);
+  });
+
+  test('rejects a file that is not a .backup without sending it', async ({ page }) => {
+    const calls = await mockBackups(page, [older]);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
+
+    await page.getByTestId('backup-file-input').setInputFiles({
+      name: 'config.rsc',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('/ip address add'),
+    });
+
+    await expect(page.getByText('This is not a backup file')).toBeVisible();
+    await expect(page.getByRole('dialog')).toBeHidden();
+    expect(calls).toEqual([]);
+  });
+
+  test('rejects a backup file over 16 MB without sending it', async ({ page }) => {
+    const calls = await mockBackups(page, [older]);
+    await page.goto(`/router/${ROUTER_ID}/backups`);
+
+    await page.getByTestId('backup-file-input').setInputFiles({
+      name: 'huge.backup',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.alloc(16 * 1024 * 1024 + 1),
+    });
+
+    await expect(page.getByText('Backup file is too large')).toBeVisible();
+    await expect(page.getByRole('dialog')).toBeHidden();
+    expect(calls).toEqual([]);
+  });
+
+  test('shows a toast and stays on the page when the upload restore fails', async ({ page }) => {
+    const calls = await mockBackups(page, [older], { uploadFails: true });
+    await page.goto(`/router/${ROUTER_ID}/backups`);
+
+    await page.getByTestId('backup-file-input').setInputFiles({
+      name: 'office.backup',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.from('backup-bytes'),
+    });
+    const confirm = page.getByRole('dialog');
+    await confirm.getByRole('button', { name: 'Restore' }).click();
+
+    await expect(page.getByText('Failed to restore backup')).toBeVisible();
+    await expect(page.getByText(/Enable the router's SSH service/)).toBeVisible();
+    await expect(confirm).toBeVisible();
+    await expect(page).toHaveURL(/\/backups$/);
+    expect(calls).toHaveLength(1);
+    expect(uploadBody(calls).multipart).not.toContain('name="password"');
   });
 });

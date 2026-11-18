@@ -210,8 +210,10 @@ export {
   fetchBackups,
   createBackup,
   restoreBackup,
+  restoreBackupFromFile,
   deleteBackup,
   downloadBackup,
+  MAX_UPLOADED_BACKUP_BYTES,
   type BackupFileResponse,
 } from './backups';
 export { fetchNetStatus, type NetStatusEntry, type NetHostType } from './net';
