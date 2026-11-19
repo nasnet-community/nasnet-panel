@@ -10,6 +10,7 @@ import React, {
 import { fetchInstalledPlugins, type InstalledPluginResponse } from '../api';
 import { useSession } from './SessionContext';
 import { useRouter } from './RouterStoreContext';
+import { NotificationsProvider } from './NotificationsContext';
 
 interface InstalledPluginsContextValue {
   plugins: InstalledPluginResponse[];
@@ -74,7 +75,12 @@ export const InstalledPluginsProvider: React.FC<{ children: React.ReactNode }> =
     [loadedRouterId, activeRouterId, plugins, markInstalled, markUninstalled],
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  // The notifications state needs the same session and router store, so it is mounted here.
+  return (
+    <Ctx.Provider value={value}>
+      <NotificationsProvider>{children}</NotificationsProvider>
+    </Ctx.Provider>
+  );
 };
 
 export const useInstalledPlugins = (): InstalledPluginsContextValue => {

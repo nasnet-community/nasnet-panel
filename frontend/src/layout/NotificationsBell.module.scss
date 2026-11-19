@@ -1,0 +1,215 @@
+.root {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  appearance: none;
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: var(--color-surface-alt);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.count {
+  position: absolute;
+  top: 0;
+  inset-inline-end: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--color-surface);
+  background: var(--color-danger);
+  color: #fff;
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 14px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  width: 340px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 20;
+}
+
+@media (max-width: 768px) {
+  .trigger {
+    width: 40px;
+    height: 40px;
+  }
+
+  .panel {
+    position: fixed;
+    top: var(--panel-top);
+    inset-inline: var(--space-md);
+    width: auto;
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panelTitle {
+  font-size: var(--font-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.panelMeta {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(420px, 60vh);
+  overflow-y: auto;
+}
+
+.item {
+  appearance: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-alt);
+    outline: none;
+  }
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  flex-shrink: 0;
+}
+
+.itemTitle {
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemUnread .itemTitle {
+  font-weight: var(--weight-semibold);
+}
+
+.itemMessage {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.itemTime {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.loadingRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl) var(--space-md);
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+.viewAll {
+  display: block;
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-primary);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  text-align: center;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-alt);
+    text-decoration: none;
+    outline: none;
+  }
+}
