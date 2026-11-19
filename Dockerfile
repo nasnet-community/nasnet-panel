@@ -23,11 +23,18 @@ COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
 COPY --from=frontend /workspace/frontend/dist ./internal/web/dist
-RUN set -eux; \
+# CI sets this to a hash of router_key_secret. BuildKit leaves secrets out of the
+# cache key, so this is what makes a rotated secret rebuild the binary. When it is
+# set, a missing secret fails the build.
+ARG ROUTER_KEY_FINGERPRINT=""
+RUN --mount=type=secret,id=router_key_secret,required=false \
+    set -eu; \
+    ROUTER_KEY_SECRET=$(cat /run/secrets/router_key_secret 2>/dev/null || true); \
+    if [ -n "$ROUTER_KEY_FINGERPRINT" ] && [ -z "$ROUTER_KEY_SECRET" ]; then echo "router_key_secret is missing" >&2; exit 1; fi; \
     if [ "$TARGETARCH" = "arm" ] && [ -n "$TARGETVARIANT" ]; then export GOARM=${TARGETVARIANT#v}; fi; \
     CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
       go build -trimpath \
-      -ldflags="-w -s -extldflags '-static' -X nasnet-panel/internal/buildinfo.Version=${APP_VERSION}" \
+      -ldflags="-w -s -extldflags '-static' -X nasnet-panel/internal/buildinfo.Version=${APP_VERSION} -X nasnet-panel/internal/buildinfo.RouterKeySecret=${ROUTER_KEY_SECRET}" \
       -tags=netgo,production \
       -o /out/app ./cmd/api; \
     upx --best --lzma /out/app

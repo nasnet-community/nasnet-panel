@@ -46,6 +46,18 @@ jobs:
       - name: Resolve version
         run: echo "APP_VERSION=dev-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
 
+      - id: router-key
+        name: Check router key secret
+        env:
+          ROUTER_KEY_SECRET: ${{ secrets.ROUTER_KEY_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ROUTER_KEY_SECRET" ]; then
+            echo "::error::ROUTER_KEY_SECRET is not set"
+            exit 1
+          fi
+          echo "fingerprint=$(printf '%s' "nasnet-router-key:$ROUTER_KEY_SECRET" | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+
       - id: build
         uses: docker/build-push-action@v7
         with:
@@ -58,6 +70,9 @@ jobs:
           tags: ${{ env.IMAGE }}:dev-${{ matrix.suffix }}
           build-args: |
             APP_VERSION=${{ env.APP_VERSION }}
+            ROUTER_KEY_FINGERPRINT=${{ steps.router-key.outputs.fingerprint }}
+          secrets: |
+            router_key_secret=${{ secrets.ROUTER_KEY_SECRET }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
 
