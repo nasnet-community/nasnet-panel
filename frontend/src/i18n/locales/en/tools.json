@@ -434,5 +434,24 @@
         "countryFailed": "Could not change the country"
       }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "All notifications, newest first.",
+    "bell": "Notifications",
+    "bellUnread": "Notifications, {{count}} unread",
+    "viewAll": "View all",
+    "loading": "Loading notifications",
+    "empty": "No notifications",
+    "emptyDescription": "New notifications will show up here.",
+    "unread": "{{count}} unread",
+    "new": "New",
+    "markRead": "Mark as read",
+    "markAllRead": "Mark all as read",
+    "markFailed": "Failed to mark as read",
+    "columns": {
+      "notification": "Notification",
+      "time": "Time"
+    }
   }
 }

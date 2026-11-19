@@ -129,7 +129,7 @@ test.describe('Firewall page domestic addresses', () => {
     await mockFirewall(page);
     await page.goto(`/router/${ROUTER_ID}`);
 
-    await page.getByRole('tab', { name: 'Firewall' }).click();
+    await page.getByRole('tab', { name: 'Security' }).click();
     await expect(page).toHaveURL(new RegExp(`/router/${ROUTER_ID}/firewall$`));
     await expect(page.getByTestId('domestic-addresses')).toBeVisible();
   });

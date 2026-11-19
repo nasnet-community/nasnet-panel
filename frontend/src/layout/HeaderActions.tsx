@@ -16,6 +16,7 @@ import {
 import { useAppTheme } from '../state/ThemeContext';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { NotificationsBell } from './NotificationsBell';
 import type { RouterSection } from './routerSections';
 import styles from './HeaderActions.module.scss';
 
@@ -92,6 +93,7 @@ export function HeaderActions({
   return (
     <div className={styles.headerBar}>
       <LanguageSwitcher />
+      <NotificationsBell />
       <div className={styles.menuRoot} ref={menuRef}>
         <button
           type="button"

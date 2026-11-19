@@ -20,6 +20,7 @@ import { WirelessPage } from './routes/WirelessPage';
 import { LogsPage } from './routes/LogsPage';
 import { MonitorLogsPage } from './routes/MonitorLogsPage';
 import { UpdatesPage } from './routes/UpdatesPage';
+import { NotificationsPage } from './routes/NotificationsPage';
 import { PluginsPage } from './routes/PluginsPage';
 import { DHCPPage } from './routes/DHCPPage';
 import { DNSPage } from './routes/DNSPage';
@@ -87,6 +88,14 @@ export function App() {
                         element={
                           <AppShell>
                             <UpdatesPage />
+                          </AppShell>
+                        }
+                      />
+                      <Route
+                        path="/notifications"
+                        element={
+                          <AppShell>
+                            <NotificationsPage />
                           </AppShell>
                         }
                       />

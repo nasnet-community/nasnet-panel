@@ -225,6 +225,12 @@ export {
   MAX_UPLOADED_BACKUP_BYTES,
   type BackupFileResponse,
 } from './backups';
+export {
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  type AppNotification,
+} from './notifications';
 export { fetchNetStatus, type NetStatusEntry, type NetHostType } from './net';
 export { fetchHealth, type HealthResponse } from './health';
 export {
