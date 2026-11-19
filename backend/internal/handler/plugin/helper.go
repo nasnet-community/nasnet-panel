@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -223,6 +226,14 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		return
 	}
 
+	// Checked before anything is created on the router, so a bad manifest leaves nothing behind.
+	containerOpts, err := parseContainerOptions(manifest.Container)
+	if err != nil {
+		task.set(pluginInstallPhaseError, "plugin manifest has an invalid container setting: "+err.Error())
+		log.Printf("[plugin-install %s] invalid container settings: %v", pluginID, err)
+		return
+	}
+
 	iface := manifest.Container.Interface
 	if iface.Name == "" {
 		task.set(pluginInstallPhaseError, "plugin manifest is missing a container interface name")
@@ -326,9 +337,16 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		RemoteImage: manifest.Container.Image,
 		Env:         joinEnvPairs(resolveEnvPlaceholders(manifest.Container.Env, settingsValues)),
 		MountLists:  strings.Join(mountListNames, ","),
+		MemoryHigh:  containerOpts.MemoryHigh,
+		MemoryMax:   containerOpts.MemoryMax,
+		CPUList:     containerOpts.CPUList,
+		User:        containerOpts.User,
+		Devices:     containerOpts.Devices,
 		Logging:     true,
 		StartOnBoot: true,
 		Comment:     manifest.Version,
+
+		AutoRestartInterval: containerOpts.AutoRestartInterval,
 	})
 	if err != nil {
 		task.set(pluginInstallPhaseError, "failed to create plugin container: "+err.Error())
@@ -1024,4 +1042,151 @@ func keepPluginData(manifest *Manifest, keepData *bool) bool {
 		return *keepData
 	}
 	return manifest.KeepDataOnUninstall
+}
+
+// containerOptions is a manifest container's optional settings once checked,
+// in the form routeros.ContainerConfig takes them. A zero value means the
+// manifest left that setting out.
+type containerOptions struct {
+	MemoryHigh          int64
+	MemoryMax           int64
+	CPUList             string
+	User                string
+	Devices             string
+	AutoRestartInterval string
+}
+
+// minContainerMemoryMax is the least RouterOS accepts for memory-max.
+const minContainerMemoryMax = 1 << 20
+
+var (
+	memorySizePattern      = regexp.MustCompile(`^(\d+)([kKmMgG]?)$`)
+	cpuListPattern         = regexp.MustCompile(`^cpu\d{1,3}(,cpu\d{1,3})*$`)
+	userNamePattern        = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_.-]{0,31}$`)
+	deviceNamePattern      = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._:/+-]*$`)
+	restartIntervalPattern = regexp.MustCompile(`^(\d+w)?(\d+d)?(\d+h)?(\d+m)?(\d+s)?$`)
+)
+
+// parseContainerOptions checks the optional settings of a manifest's container
+// and converts them for routeros.ContainerConfig. Doing it up front means a
+// typo is reported by field name, where RouterOS would only refuse the whole
+// container.
+func parseContainerOptions(c ManifestContainer) (containerOptions, error) {
+	var opts containerOptions
+	var err error
+
+	if opts.MemoryHigh, err = parseMemorySize(c.MemoryHigh); err != nil {
+		return opts, fmt.Errorf("memoryHigh: %w", err)
+	}
+	if opts.MemoryMax, err = parseMemorySize(c.MemoryMax); err != nil {
+		return opts, fmt.Errorf("memoryMax: %w", err)
+	}
+	if opts.MemoryMax > 0 && opts.MemoryMax < minContainerMemoryMax {
+		return opts, fmt.Errorf("memoryMax: %q is below the 1M RouterOS accepts", c.MemoryMax)
+	}
+	if opts.MemoryHigh > 0 && opts.MemoryMax > 0 && opts.MemoryHigh > opts.MemoryMax {
+		return opts, errors.New("memoryHigh must not be larger than memoryMax")
+	}
+	if opts.CPUList, err = parseCPUList(c.CPUList); err != nil {
+		return opts, fmt.Errorf("cpuList: %w", err)
+	}
+	if opts.User, err = parseContainerUser(c.User); err != nil {
+		return opts, fmt.Errorf("user: %w", err)
+	}
+	if opts.Devices, err = parseDevices(c.Devices); err != nil {
+		return opts, fmt.Errorf("devices: %w", err)
+	}
+	if opts.AutoRestartInterval, err = parseRestartInterval(c.AutoRestartInterval); err != nil {
+		return opts, fmt.Errorf("autoRestartInterval: %w", err)
+	}
+	return opts, nil
+}
+
+// parseMemorySize turns "256M", "1G", "512k" or a plain byte count into bytes,
+// with 1024-based units. An empty value is not set and gives 0.
+func parseMemorySize(value string) (int64, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return 0, nil
+	}
+
+	m := memorySizePattern.FindStringSubmatch(value)
+	if m == nil {
+		return 0, fmt.Errorf("%q is not a size, use bytes or a number with a K, M or G suffix such as 256M", value)
+	}
+	multiplier := map[string]int64{"": 1, "K": 1 << 10, "M": 1 << 20, "G": 1 << 30}[strings.ToUpper(m[2])]
+
+	n, err := strconv.ParseInt(m[1], 10, 64)
+	if err != nil || n > math.MaxInt64/multiplier {
+		return 0, fmt.Errorf("%q is too large", value)
+	}
+	if n == 0 {
+		return 0, fmt.Errorf("%q must be more than zero, leave the field out for no limit", value)
+	}
+	return n * multiplier, nil
+}
+
+// parseCPUList checks a RouterOS cpu-list, which names its cores "cpu0",
+// "cpu1" and so on rather than numbering them.
+func parseCPUList(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value != "" && !cpuListPattern.MatchString(value) {
+		return "", fmt.Errorf("%q is not a CPU list, use core names such as cpu0 or cpu0,cpu1", value)
+	}
+	return value, nil
+}
+
+// parseContainerUser checks user[:group], where each part is a name or a
+// numeric id.
+func parseContainerUser(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
+
+	user, group, hasGroup := strings.Cut(value, ":")
+	if !validUserPart(user) || (hasGroup && !validUserPart(group)) {
+		return "", fmt.Errorf("%q is not a user, use user[:group] with names or numeric ids such as 1000:1000", value)
+	}
+	return value, nil
+}
+
+func validUserPart(part string) bool {
+	if part != "" && part[0] >= '0' && part[0] <= '9' {
+		_, err := strconv.ParseUint(part, 10, 32)
+		return err == nil
+	}
+	return userNamePattern.MatchString(part)
+}
+
+// parseDevices joins the manifest's device names into the comma-separated
+// list RouterOS takes. Which names exist depends on the router, so only their
+// shape is checked here.
+func parseDevices(devices []string) (string, error) {
+	names := make([]string, 0, len(devices))
+	for _, device := range devices {
+		device = strings.TrimSpace(device)
+		if !deviceNamePattern.MatchString(device) {
+			return "", fmt.Errorf("%q is not a device name, use one RouterOS lists such as serial0", device)
+		}
+		names = append(names, device)
+	}
+	return strings.Join(names, ","), nil
+}
+
+// parseRestartInterval checks a RouterOS time such as "30s", "5m" or "1h30m".
+func parseRestartInterval(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
+
+	if !restartIntervalPattern.MatchString(value) {
+		return "", fmt.Errorf("%q is not a time, use a number with a unit such as 30s, 5m or 1h30m", value)
+	}
+	// Nothing left once the zeros and unit letters are gone means a zero time.
+	if strings.Trim(value, "0wdhms") == "" {
+		return "", fmt.Errorf("%q must be more than zero, leave the field out for no restart", value)
+	}
+	return value, nil
 }
