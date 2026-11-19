@@ -5,6 +5,7 @@ import {
   Bell,
   ChevronDown,
   DatabaseBackup,
+  FileClock,
   KeyRound,
   LogOut,
   Menu,
@@ -232,6 +233,15 @@ export function HeaderActions({
                 >
                   <DatabaseBackup size={16} aria-hidden />
                   <span>{t('menu.backups')}</span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={styles.menuItem}
+                  onClick={goAndClose(`/router/${routerId}/monitor-logs`)}
+                >
+                  <FileClock size={16} aria-hidden />
+                  <span>{t('menu.monitorLogs')}</span>
                 </button>
               </>
             ) : null}

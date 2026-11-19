@@ -26,6 +26,7 @@
     "changePassword": "Change password",
     "settings": "Settings",
     "backups": "Backup & Restore",
+    "monitorLogs": "Monitor logs",
     "logout": "Logout"
   },
   "theme": {

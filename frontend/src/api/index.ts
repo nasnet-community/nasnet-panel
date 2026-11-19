@@ -87,6 +87,13 @@ export {
   type LogSeverity,
 } from './logs';
 export {
+  fetchMonitorLogs,
+  type MonitorSeverity,
+  type MonitorLogEntry,
+  type MonitorLogsResponse,
+  type FetchMonitorLogsOptions,
+} from './monitor';
+export {
   fetchDnsForwarders,
   fetchDnsSuggestions,
   validateDnsChange,

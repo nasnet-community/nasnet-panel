@@ -26,6 +26,7 @@
     "changePassword": "تغییر رمز عبور",
     "settings": "تنظیمات",
     "backups": "پشتیبان‌گیری و بازیابی",
+    "monitorLogs": "لاگ‌های پایش",
     "logout": "خروج"
   },
   "theme": {

@@ -18,6 +18,7 @@ import { WanPage } from './routes/WanPage';
 import { VPNPage } from './routes/VPNPage';
 import { WirelessPage } from './routes/WirelessPage';
 import { LogsPage } from './routes/LogsPage';
+import { MonitorLogsPage } from './routes/MonitorLogsPage';
 import { UpdatesPage } from './routes/UpdatesPage';
 import { PluginsPage } from './routes/PluginsPage';
 import { DHCPPage } from './routes/DHCPPage';
@@ -71,6 +72,7 @@ export function App() {
                         <Route path="vpn" element={<VPNPage />} />
                         <Route path="wireless" element={<WirelessPage />} />
                         <Route path="logs" element={<LogsPage />} />
+                        <Route path="monitor-logs" element={<MonitorLogsPage />} />
                         <Route path="lan" element={<DHCPPage />} />
                         <Route path="dns" element={<DNSPage />} />
                         <Route path="firewall" element={<FirewallPage />} />

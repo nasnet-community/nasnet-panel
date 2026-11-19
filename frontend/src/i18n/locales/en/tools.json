@@ -44,6 +44,30 @@
       "count": "Count"
     }
   },
+  "monitorLogs": {
+    "title": "Monitor logs",
+    "description": "Monitoring events from the system, newest first.",
+    "severity": "Severity",
+    "allSeverities": "All severities",
+    "source": "Source",
+    "searchSource": "Search source…",
+    "allSources": "All sources",
+    "timeRange": "Time range",
+    "ranges": {
+      "1h": "Last hour",
+      "1d": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "all": "All time"
+    },
+    "empty": "No monitoring events yet.",
+    "noMatch": "No events match the current filters.",
+    "openDetailsAria": "Open details for event {{id}}",
+    "details": {
+      "title": "Event details",
+      "eventId": "Event ID"
+    }
+  },
   "diagnostics": {
     "steps": {
       "systemInfo": {
