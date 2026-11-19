@@ -211,7 +211,7 @@
       "status": "Status"
     },
     "log": "log",
-    "title": "Firewall rules",
+    "title": "Security",
     "description": "Active filter rules on this router, ordered by priority.",
     "chain": "Chain",
     "chainFilterAria": "Chain filter",

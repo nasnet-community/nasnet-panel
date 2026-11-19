@@ -3,12 +3,12 @@ import {
   Blocks,
   Cable,
   CircleHelp,
-  Flame,
   Globe,
   LayoutGrid,
   Network,
   Server,
   Shield,
+  ShieldCheck,
   Wifi,
 } from 'lucide-react';
 import type { TabItem } from '@nasnet/ui';
@@ -23,8 +23,13 @@ const ROUTER_SECTIONS = [
   { id: 'wan', labelKey: 'sections.wan', path: 'wan', icon: <Cable size={16} /> },
   { id: 'lan', labelKey: 'sections.lan', path: 'lan', icon: <Network size={16} /> },
   { id: 'dns', labelKey: 'sections.dns', path: 'dns', icon: <Server size={16} /> },
-  { id: 'firewall', labelKey: 'sections.firewall', path: 'firewall', icon: <Flame size={16} /> },
   { id: 'wireless', labelKey: 'sections.wireless', path: 'wireless', icon: <Wifi size={16} /> },
+  {
+    id: 'firewall',
+    labelKey: 'sections.security',
+    path: 'firewall',
+    icon: <ShieldCheck size={16} />,
+  },
   { id: 'vpn', labelKey: 'sections.vpn', path: 'vpn', icon: <Shield size={16} /> },
   { id: 'plugins', labelKey: 'sections.plugins', path: 'plugins', icon: <Blocks size={16} /> },
   {
