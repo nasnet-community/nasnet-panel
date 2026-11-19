@@ -18,20 +18,35 @@ import { useWizardGate } from '../../state/WizardGateContext';
 import { buildEasyConfigScript, type EasyConfigInput } from '../../utils/rsc-builder';
 import { canAdvance } from './validation';
 import { initial, reducer, stepsForMode, type State } from './state';
+import { wanAddressingPayload } from './steps/wan/addressing';
+import { WAN_FIELDS, type WanFieldSet } from './steps/wan/fields';
 
 const POLL_INTERVAL_MS = 2000;
 const POLL_TIMEOUT_MS = 6 * 60 * 1000;
 
 function wanInterface(
-  type: State['starlinkInterfaceType'],
-  name: string,
-  ssid: string,
-  password: string,
+  state: State,
+  fields: WanFieldSet,
+  interfaces: InterfaceResponse[],
 ): FinalizeWizardInterface {
-  if (type === 'wireless') {
-    return { interface: name, ssid, password };
+  const addressing = wanAddressingPayload(
+    state[fields.ipModeField],
+    state[fields.staticIpField],
+    state[fields.gatewayField],
+  );
+  const name = toDefaultName(state[fields.nameField], interfaces);
+  if (state[fields.typeField] === 'wireless') {
+    const password = state[fields.passwordField];
+    const authType = password ? state[fields.authTypeField] : '';
+    return {
+      interface: name,
+      ssid: state[fields.ssidField],
+      password,
+      ...(authType ? { authType } : {}),
+      ...addressing,
+    };
   }
-  return { interface: name };
+  return { interface: name, ...addressing };
 }
 
 function toDefaultName(name: string, interfaces: InterfaceResponse[]): string {
@@ -44,21 +59,11 @@ function buildFinalizePayload(
   interfaces: InterfaceResponse[],
 ): FinalizeWizardRequest {
   const payload: FinalizeWizardRequest = {
-    foreign: wanInterface(
-      state.starlinkInterfaceType,
-      toDefaultName(state.starlinkInterface, interfaces),
-      state.starlinkWanSsid,
-      state.starlinkWanPassword,
-    ),
+    foreign: wanInterface(state, WAN_FIELDS.foreign, interfaces),
   };
 
   if (state.mode === 'dual-link') {
-    payload.domestic = wanInterface(
-      state.domesticInterfaceType,
-      toDefaultName(state.domesticInterface, interfaces),
-      state.domesticWanSsid,
-      state.domesticWanPassword,
-    );
+    payload.domestic = wanInterface(state, WAN_FIELDS.domestic, interfaces);
   }
 
   if (state.ipMaskEnabled) {
