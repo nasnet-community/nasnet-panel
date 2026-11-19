@@ -5,18 +5,18 @@ import { useToast } from '@nasnet/ui';
 import {
   ApiError,
   fetchInterfaces,
+  fetchWans,
   listVPNClients,
   type InterfaceResponse,
   type SystemCredentials,
   type VPNClient,
+  type WanResponse,
 } from '../api';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { usePolling } from '../utils/usePolling';
 import styles from './wan/WanPage.module.scss';
-import { StarlinkSection } from './wan/sections/StarlinkSection';
-import { DomesticUplinkSection } from './wan/sections/DomesticUplinkSection';
-import { matchesWanCategory } from './wan/types';
+import { WanSection } from './wan/sections/WanSection';
 import { mapClientFromBE } from './vpn/adapters';
 import { ClientsSection } from './vpn/sections/ClientsSection';
 
@@ -37,6 +37,9 @@ export function WanPage() {
 
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState(false);
+  const [wans, setWans] = useState<WanResponse[]>([]);
+  const [wansLoading, setWansLoading] = useState(false);
+  const [wansError, setWansError] = useState<string | null>(null);
   const [vpnClients, setVpnClients] = useState<VPNClient[]>([]);
   const [vpnDialogOpen, setVpnDialogOpen] = useState(false);
 
@@ -80,6 +83,32 @@ export function WanPage() {
     [resolveCreds, toast, t],
   );
 
+  const loadWans = useCallback(
+    async (silent = false) => {
+      const creds = resolveCreds();
+      if (!creds) {
+        setWans([]);
+        return;
+      }
+      if (!silent) setWansLoading(true);
+      try {
+        setWans(await fetchWans(creds));
+        setWansError(null);
+      } catch (err) {
+        setWansError(
+          err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : t('wan.loadWansFailedFallback'),
+        );
+      } finally {
+        if (!silent) setWansLoading(false);
+      }
+    },
+    [resolveCreds, t],
+  );
+
   const loadVpn = useCallback(async () => {
     const creds = resolveCreds();
     if (!id || !creds) {
@@ -103,35 +132,45 @@ export function WanPage() {
   const reloadAfterWanChange = useCallback(async () => {
     void loadVpn();
     await sleep(WAN_REFRESH_DELAY_MS);
-    await loadInterfaces(true);
-  }, [loadVpn, loadInterfaces]);
+    await Promise.all([loadInterfaces(true), loadWans(true)]);
+  }, [loadVpn, loadInterfaces, loadWans]);
 
   useEffect(() => {
     void loadInterfaces();
   }, [loadInterfaces]);
 
+  useEffect(() => {
+    void loadWans();
+  }, [loadWans]);
+
   usePolling(loadVpn, 5000, !!id && !vpnDialogOpen);
 
   if (!id) return null;
 
-  const foreign = interfaces.filter((i) => matchesWanCategory(i.comment, 'foreign'));
-  const domestic = interfaces.filter((i) => matchesWanCategory(i.comment, 'domestic'));
-  const foreignNames = foreign.map((i) => i.name);
-  const domesticNames = domestic.map((i) => i.name);
+  const foreign = wans.filter((w) => w.wanType === 'foreign');
+  const domestic = wans.filter((w) => w.wanType === 'domestic');
+  const foreignNames = foreign.map((w) => w.interface);
+  const domesticNames = domestic.map((w) => w.interface);
 
   return (
     <div className={styles.sectionGrid}>
-      <StarlinkSection
+      <WanSection
+        variant="foreign"
         routerId={id}
         items={foreign}
+        itemsLoading={wansLoading}
+        itemsError={wansError}
         interfaces={interfaces}
         otherNames={domesticNames}
         interfacesLoading={interfacesLoading}
         onChanged={reloadAfterWanChange}
       />
-      <DomesticUplinkSection
+      <WanSection
+        variant="domestic"
         routerId={id}
         items={domestic}
+        itemsLoading={wansLoading}
+        itemsError={wansError}
         interfaces={interfaces}
         otherNames={foreignNames}
         interfacesLoading={interfacesLoading}
