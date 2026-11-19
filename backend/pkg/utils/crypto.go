@@ -103,17 +103,6 @@ func GenerateRandomString(minLen, maxLen int) (string, error) {
 // receive it.
 const userIDPrefix = "6e6e7001-7631-6d6b"
 
-// GenerateUserID returns a UUID-shaped identifier whose first three groups are
-// the constant NasNet marker and whose last two groups are random.
-func GenerateUserID() (string, error) {
-	b := make([]byte, 8)
-	if _, err := rand.Read(b); err != nil {
-		return "", fmt.Errorf("failed to generate user ID: %w", err)
-	}
-
-	return fmt.Sprintf("%s-%x-%x", userIDPrefix, b[0:2], b[2:8]), nil
-}
-
 // GenerateRouterUserID returns a user ID derived from systemID (random if empty)
 // and signed with secret, as api.joinnasnet.com expects.
 func GenerateRouterUserID(systemID, secret string) (string, error) {
