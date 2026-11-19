@@ -9,6 +9,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"net/netip"
 	"regexp"
 	"sort"
 	"strconv"
@@ -262,7 +263,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	if _, err := client.GetInterface(iface.Name); err != nil {
 		if _, err := client.AddVethInterface(routeros.VethConfig{
 			Name:    iface.Name,
-			Address: iface.Address,
+			Address: iface.Address.RouterOS(),
 			Gateway: iface.Gateway,
 		}); err != nil {
 			task.set(pluginInstallPhaseError, "failed to create veth interface: "+err.Error())
@@ -727,6 +728,9 @@ func fetchPluginManifest(ctx context.Context, id string) (*Manifest, error) {
 	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/manifest.json", &manifest); err != nil {
 		return nil, err
 	}
+	if err := manifest.validate(); err != nil {
+		return nil, fmt.Errorf("manifest of %s: %w", id, err)
+	}
 	return &manifest, nil
 }
 
@@ -1189,4 +1193,84 @@ func parseRestartInterval(value string) (string, error) {
 		return "", fmt.Errorf("%q must be more than zero, leave the field out for no restart", value)
 	}
 	return value, nil
+}
+
+// UnmarshalJSON accepts a string or a list of strings.
+func (a *Addresses) UnmarshalJSON(data []byte) error {
+	var one string
+	if err := json.Unmarshal(data, &one); err == nil {
+		if strings.TrimSpace(one) == "" {
+			*a = nil // the same as leaving the field out
+			return nil
+		}
+		*a = splitAddresses([]string{one})
+		return nil
+	}
+
+	var many []string
+	if err := json.Unmarshal(data, &many); err != nil {
+		return errors.New("must be an address string or a list of address strings")
+	}
+	*a = splitAddresses(many)
+	return nil
+}
+
+// splitAddresses flattens comma-separated entries and trims each address. A
+// blank one is kept so that validation can name it.
+func splitAddresses(entries []string) Addresses {
+	var addresses Addresses
+	for _, entry := range entries {
+		for _, address := range strings.Split(entry, ",") {
+			addresses = append(addresses, strings.TrimSpace(address))
+		}
+	}
+	return addresses
+}
+
+// Primary is the container's own address, with its prefix length.
+func (a Addresses) Primary() string {
+	if len(a) == 0 {
+		return ""
+	}
+	return a[0]
+}
+
+// RouterOS renders the list as /interface/veth takes it.
+func (a Addresses) RouterOS() string {
+	return strings.Join(a, ",")
+}
+
+// validate checks what a manifest says about the router: the veth's addresses
+// and the RouterOS floor. It runs as the manifest is fetched, so a bad one is
+// refused before anything is built from it.
+func (m *Manifest) validate() error {
+	if err := validateVethAddresses(m.Container.Interface.Address); err != nil {
+		return fmt.Errorf("container.interface.address: %w", err)
+	}
+	if m.MinRouterOS != "" {
+		if _, err := routeros.ParseVersion(m.MinRouterOS); err != nil {
+			return fmt.Errorf("minRouterOS: %w", err)
+		}
+	}
+	return nil
+}
+
+// validateVethAddresses checks that each address is an IP with its prefix
+// length, which RouterOS insists on, and that none is listed twice.
+func validateVethAddresses(addresses Addresses) error {
+	seen := make(map[netip.Addr]bool, len(addresses))
+	for _, address := range addresses {
+		if address == "" {
+			return errors.New("the list has an empty entry, a stray comma perhaps")
+		}
+		prefix, err := netip.ParsePrefix(address)
+		if err != nil {
+			return fmt.Errorf("%q is not an address with its prefix length, such as 192.168.50.16/24", address)
+		}
+		if seen[prefix.Addr()] {
+			return fmt.Errorf("%s is listed twice", prefix.Addr())
+		}
+		seen[prefix.Addr()] = true
+	}
+	return nil
 }

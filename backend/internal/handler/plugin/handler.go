@@ -255,7 +255,7 @@ func HandleViewPlugin(c echo.Context) error {
 			return common.ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
 		}
 
-		host, _, _ := strings.Cut(manifest.Container.Interface.Address, "/")
+		host, _, _ := strings.Cut(manifest.Container.Interface.Address.Primary(), "/")
 		if host == "" {
 			return common.ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no interface address", nil)
 		}
