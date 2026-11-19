@@ -102,6 +102,9 @@ type Info struct {
 	Installing       bool   `json:"installing"`
 	Failed           bool   `json:"failed"`
 	Note             string `json:"note,omitempty"`
+	// KeepDataOnUninstall is read from the manifest of installed plugins only,
+	// so the uninstall dialog knows whether to offer deleting the data.
+	KeepDataOnUninstall bool `json:"keepDataOnUninstall,omitempty"`
 }
 
 // ListResponse is the response for GET /api/plugin/plugins.
@@ -185,6 +188,10 @@ type Manifest struct {
 	Container      ManifestContainer `json:"container"`
 	Scripts        ManifestScripts   `json:"scripts"`
 	SettingsSchema string            `json:"settingsSchema"`
+	// KeepDataOnUninstall is for plugins whose data folder holds something that
+	// is hard to recreate (a certificate authority, say): uninstalling leaves the
+	// folder in place unless the request asks for it to be deleted.
+	KeepDataOnUninstall bool `json:"keepDataOnUninstall"`
 }
 
 // SettingField describes one configurable setting for a plugin. Default

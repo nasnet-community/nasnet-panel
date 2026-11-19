@@ -6,6 +6,7 @@ import {
   Badge,
   Button,
   ButtonLink,
+  Checkbox,
   ConfirmDialog,
   EmptyState,
   PageShell,
@@ -183,6 +184,7 @@ export function PluginsPage() {
   const [error, setError] = useState<string | null>(null);
   const [installs, setInstalls] = useState<Record<string, ProgressState>>({});
   const [confirmingUninstall, setConfirmingUninstall] = useState<PluginInfoResponse | null>(null);
+  const [deletePluginData, setDeletePluginData] = useState(false);
   const [uninstallingId, setUninstallingId] = useState<string | null>(null);
   const [updates, setUpdates] = useState<Record<string, ProgressState>>({});
   const [confirmingUpdate, setConfirmingUpdate] = useState<PluginInfoResponse | null>(null);
@@ -418,13 +420,21 @@ export function PluginsPage() {
     }
   };
 
+  const closeUninstallDialog = () => {
+    setConfirmingUninstall(null);
+    setDeletePluginData(false);
+  };
+
   const uninstall = async () => {
     const plugin = confirmingUninstall;
-    setConfirmingUninstall(null);
+    const deleteData = deletePluginData;
+    closeUninstallDialog();
     if (!plugin || !creds) return;
     setUninstallingId(plugin.id);
     try {
-      const result = await uninstallPlugin(creds, plugin.id);
+      // Only plugins that offer the choice send it; for the rest the backend decides.
+      const keepData = plugin.keepDataOnUninstall ? !deleteData : undefined;
+      const result = await uninstallPlugin(creds, plugin.id, keepData);
       markUninstalled(plugin.id);
       if (result.warnings?.length) {
         toast.notify({
@@ -606,12 +616,24 @@ export function PluginsPage() {
         title={t('plugins.confirmUninstall.title', {
           name: confirmingUninstall?.name ?? t('plugins.pluginFallback'),
         })}
-        description={t('plugins.confirmUninstall.description')}
+        description={
+          confirmingUninstall?.keepDataOnUninstall
+            ? t('plugins.confirmUninstall.descriptionKeepData')
+            : t('plugins.confirmUninstall.description')
+        }
         destructive
         confirmLabel={t('plugins.uninstall')}
         onConfirm={uninstall}
-        onCancel={() => setConfirmingUninstall(null)}
-      />
+        onCancel={closeUninstallDialog}
+      >
+        {confirmingUninstall?.keepDataOnUninstall ? (
+          <Checkbox
+            label={t('plugins.confirmUninstall.deleteData')}
+            checked={deletePluginData}
+            onChange={(e) => setDeletePluginData(e.target.checked)}
+          />
+        ) : null}
+      </ConfirmDialog>
 
       <ConfirmDialog
         open={confirmingUpdate !== null}

@@ -24,6 +24,7 @@ import (
 // @Description Only plugins with visible=true in the registry are included, unless the
 // @Description build version contains "dev", in which case every plugin is listed. Hidden plugins can still be installed
 // @Description directly and are unaffected by this filter.
+// @Description Installed plugins also carry keepDataOnUninstall when their manifest sets it.
 // @Tags Plugin
 // @Security BearerAuth
 // @Produce json
@@ -62,9 +63,12 @@ func HandleListPlugins(c echo.Context) error {
 		}
 	}
 
+	plugins := filterVisiblePlugins(finalizePlugins(registry.Plugins, containers))
+	fillKeepDataOnUninstall(c.Request().Context(), plugins)
+
 	return common.SuccessResponse(c, http.StatusOK, "Plugins retrieved", ListResponse{
 		ContainerSupport: containerSupport,
-		Plugins:          filterVisiblePlugins(finalizePlugins(registry.Plugins, containers)),
+		Plugins:          plugins,
 	})
 }
 
@@ -516,11 +520,15 @@ func HandleGetPluginUpdateStatus(c echo.Context) error {
 // @Description manifest (if it names one), stops and removes its container, then
 // @Description removes the mount lists and veth interface the manifest declares, and
 // @Description deletes the plugin's volume directory (nasnet-panel/container-volumes/<pluginId>).
+// @Description A manifest that sets keepDataOnUninstall keeps that directory unless
+// @Description keepData=false is passed, and keepData=true keeps it for any plugin;
+// @Description installing the plugin again picks the directory up.
 // @Description Cleanup steps that fail once the container is already gone are
 // @Description reported in the response as warnings rather than failing the request.
 // @Tags Plugin
 // @Security BearerAuth
 // @Param name path string true "Plugin id, which is also its container name"
+// @Param keepData query boolean false "Keep the plugin's data directory (default: what the manifest's keepDataOnUninstall says, else false)"
 // @Produce json
 // @Success 200 {object} common.Response{data=UninstallPluginResponse}
 // @Failure 400 {object} common.Response
@@ -533,6 +541,10 @@ func HandleUninstallPlugin(c echo.Context) error {
 	name := c.Param("name")
 	if name == "" {
 		return common.ErrorResponse(c, http.StatusBadRequest, "plugin name is required", nil)
+	}
+	keepData, err := keepDataParam(c)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid keepData value", err)
 	}
 
 	// Reserved for the rest of this handler, which runs synchronously: an
@@ -551,6 +563,13 @@ func HandleUninstallPlugin(c echo.Context) error {
 		return err
 	}
 
+	return uninstallPlugin(c, client, name, keepData)
+}
+
+// uninstallPlugin is HandleUninstallPlugin from the point it holds the plugin's
+// lifecycle reservation and a router client. A nil keepData means the request
+// didn't say, which leaves the choice to the manifest.
+func uninstallPlugin(c echo.Context, client *routeros.Client, name string, keepData *bool) error {
 	ctx := c.Request().Context()
 
 	registry, err := getCachedPluginRegistry(ctx)
@@ -627,10 +646,15 @@ func HandleUninstallPlugin(c echo.Context) error {
 		removedLists = append(removedLists, listName)
 	}
 
-	removedVolumeDir, err := removePluginVolumeDir(client, name)
-	if err != nil {
-		warnings = append(warnings, "failed to remove plugin volume directory: "+err.Error())
-		log.Printf("[plugin-uninstall %s] failed to remove volume directory: %v", name, err)
+	// Kept data is picked up again by a reinstall, since preparePluginVolumeDir
+	// only creates the directories that are missing.
+	removedVolumeDir := ""
+	if !keepPluginData(manifest, keepData) {
+		removedVolumeDir, err = removePluginVolumeDir(client, name)
+		if err != nil {
+			warnings = append(warnings, "failed to remove plugin volume directory: "+err.Error())
+			log.Printf("[plugin-uninstall %s] failed to remove volume directory: %v", name, err)
+		}
 	}
 
 	removedInterface := strings.TrimSpace(manifest.Container.Interface.Name)
