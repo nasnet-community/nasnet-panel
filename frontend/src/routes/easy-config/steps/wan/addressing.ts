@@ -1,4 +1,3 @@
-import { isIPv4 } from '../../../../utils/validators';
 import type { WanInterfaceType } from '../../../../api';
 
 // Mirrors iface.ResolveWANAddressing on the backend: a bare address gets the
@@ -22,6 +21,10 @@ export const WAN_IP_PLACEHOLDER: Record<WanInterfaceType, string> = {
   foreign: '100.64.0.2/10',
   domestic: '192.168.1.2/24',
 };
+
+// The backend parses with Go's netip, which rejects leading zeros in octets and prefixes.
+const IPV4 = /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
+const isIPv4 = (value: string): boolean => IPV4.test(value.trim());
 
 const toInt = (ip: string): number =>
   ip
@@ -49,7 +52,7 @@ function parseStaticIp(
   let prefix = DEFAULT_PREFIX[wanType];
   if (parts.length === 2) {
     const text = parts[1] ?? '';
-    if (!/^\d{1,2}$/.test(text)) return 'wanIpInvalid';
+    if (!/^[1-9]\d?$/.test(text)) return 'wanIpInvalid';
     prefix = Number(text);
     if (prefix < 1 || prefix > MAX_PREFIX) return 'wanIpPrefixRange';
   }

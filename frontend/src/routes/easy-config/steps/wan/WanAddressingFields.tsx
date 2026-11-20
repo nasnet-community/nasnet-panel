@@ -60,6 +60,7 @@ export function WanAddressingFields({ state, dispatch, fields }: Props) {
               onBlur={() => setTouched((prev) => ({ ...prev, ip: true }))}
               aria-label={t('wan.addressing.ipAria', { link: linkLabel })}
               aria-invalid={!!showIpError}
+              aria-required={mode === 'static'}
               dir="ltr"
               inputMode="decimal"
               autoComplete="off"

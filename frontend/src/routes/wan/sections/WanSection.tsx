@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Cable, Pencil, SatelliteDish } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
@@ -60,7 +60,12 @@ export function WanSection({
   const [editing, setEditing] = useState<{ iface: InterfaceResponse; wan: WanResponse } | null>(
     null,
   );
-  const [pendingMove, setPendingMove] = useState<InterfaceResponse | null>(null);
+  // Bumped whenever a dialog opens or closes, so a slow edit read cannot open a stale dialog.
+  const dialogRequest = useRef(0);
+  const [pendingMove, setPendingMove] = useState<{
+    iface: InterfaceResponse;
+    wan: WanResponse;
+  } | null>(null);
   // Wireless moves need an SSID, asked for only after the move itself is confirmed.
   const [moveConfirmed, setMoveConfirmed] = useState(false);
   const [moveSubmitting, setMoveSubmitting] = useState(false);
@@ -91,12 +96,22 @@ export function WanSection({
       comment: wan.comment,
     };
 
+  const openChange = () => {
+    dialogRequest.current += 1;
+    setEditing(null);
+    setDialogOpen(true);
+  };
+
   const closeDialog = () => {
+    dialogRequest.current += 1;
     setDialogOpen(false);
     setEditing(null);
   };
 
   const openEdit = async (row: WanResponse) => {
+    dialogRequest.current += 1;
+    const request = dialogRequest.current;
+    setDialogOpen(false);
     const creds = resolveCreds();
     let wan = row;
     if (creds) {
@@ -106,6 +121,7 @@ export function WanSection({
         // The list row is a fine fallback when the single read fails.
       }
     }
+    if (request !== dialogRequest.current) return;
     setEditing({ iface: interfaceFor(row), wan });
   };
 
@@ -132,7 +148,7 @@ export function WanSection({
 
   const startMove = (row: WanResponse) => {
     setMoveConfirmed(false);
-    setPendingMove(interfaceFor(row));
+    setPendingMove({ iface: interfaceFor(row), wan: row });
   };
 
   const cancelMove = () => {
@@ -140,7 +156,7 @@ export function WanSection({
     setMoveConfirmed(false);
   };
 
-  const moveWireless = pendingMove ? classifyInterface(pendingMove) === 'wireless' : false;
+  const moveWireless = pendingMove ? classifyInterface(pendingMove.iface) === 'wireless' : false;
 
   const onConfirmMove = async () => {
     if (!pendingMove) return;
@@ -148,7 +164,7 @@ export function WanSection({
       setMoveConfirmed(true);
       return;
     }
-    const target = pendingMove;
+    const { iface: target, wan } = pendingMove;
     const creds = resolveCreds();
     if (!creds) {
       notifyMissingCreds();
@@ -156,7 +172,14 @@ export function WanSection({
     }
     setMoveSubmitting(true);
     try {
-      await updateWanInterface(creds, { interface: target.name, type: other });
+      // A static WAN keeps its address and gateway; the backend would otherwise fall back to DHCP.
+      await updateWanInterface(creds, {
+        interface: target.name,
+        type: other,
+        ...(wan.addressType === 'static' && wan.ip
+          ? { ip: wan.ip, ...(wan.gateway ? { gateway: wan.gateway } : {}) }
+          : {}),
+      });
     } catch (err) {
       toast.notify({
         title: t('wan.section.moveFailedTitle'),
@@ -215,7 +238,7 @@ export function WanSection({
           description={t(`wan.${variant}.description`)}
           action={{
             label: t('wan.section.change'),
-            onClick: () => setDialogOpen(true),
+            onClick: openChange,
             icon: <Pencil size={14} aria-hidden />,
           }}
         />
@@ -266,12 +289,15 @@ export function WanSection({
       {pendingMove && moveWireless && moveConfirmed ? (
         <WanUplinkDialog
           variant={other}
-          title={t(`wan.${variant}.moveLabel`, { name: pendingMove.name })}
-          description={t(`wan.${variant}.moveWirelessDescription`, { name: pendingMove.name })}
+          title={t(`wan.${variant}.moveLabel`, { name: pendingMove.iface.name })}
+          description={t(`wan.${variant}.moveWirelessDescription`, {
+            name: pendingMove.iface.name,
+          })}
           submitLabel={t('wan.section.move')}
           submittingLabel={t('wan.section.moving')}
-          interfaces={[pendingMove]}
-          initialInterface={pendingMove}
+          interfaces={[pendingMove.iface]}
+          initialInterface={pendingMove.iface}
+          initialWan={pendingMove.wan}
           onCancel={cancelMove}
           onSubmit={onMoveSubmit}
         />
@@ -284,10 +310,10 @@ export function WanSection({
             ? undefined
             : otherNames.length > 0
               ? t(`wan.${variant}.confirmDescriptionReplace`, {
-                  name: pendingMove.name,
+                  name: pendingMove.iface.name,
                   current: otherNames.join(', '),
                 })
-              : t(`wan.${variant}.confirmDescription`, { name: pendingMove.name })
+              : t(`wan.${variant}.confirmDescription`, { name: pendingMove.iface.name })
         }
         destructive={otherNames.length > 0}
         confirmLabel={

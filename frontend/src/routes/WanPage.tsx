@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@nasnet/ui';
@@ -22,6 +22,9 @@ import { ClientsSection } from './vpn/sections/ClientsSection';
 
 const WAN_INTERFACE_TYPES = ['ether', 'wireless', 'wifi', 'wlan', 'w60g', 'lte'];
 const WAN_REFRESH_DELAY_MS = 3000;
+// The router applies a WAN change in a script that can still be running at the first read,
+// so the list is read again a few times after it.
+const WAN_FOLLOW_UP_DELAYS_MS = [3000, 5000, 8000];
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -40,6 +43,9 @@ export function WanPage() {
   const [wans, setWans] = useState<WanResponse[]>([]);
   const [wansLoading, setWansLoading] = useState(false);
   const [wansError, setWansError] = useState<string | null>(null);
+  // Only the latest WAN-list read may update the page; older ones can finish later.
+  const wansRequest = useRef(0);
+  const wanChange = useRef(0);
   const [vpnClients, setVpnClients] = useState<VPNClient[]>([]);
   const [vpnDialogOpen, setVpnDialogOpen] = useState(false);
 
@@ -85,16 +91,22 @@ export function WanPage() {
 
   const loadWans = useCallback(
     async (silent = false) => {
+      wansRequest.current += 1;
+      const request = wansRequest.current;
       const creds = resolveCreds();
       if (!creds) {
         setWans([]);
+        setWansLoading(false);
         return;
       }
       if (!silent) setWansLoading(true);
       try {
-        setWans(await fetchWans(creds));
+        const list = await fetchWans(creds);
+        if (request !== wansRequest.current) return;
+        setWans(list);
         setWansError(null);
       } catch (err) {
+        if (request !== wansRequest.current) return;
         setWansError(
           err instanceof ApiError
             ? err.message
@@ -102,9 +114,8 @@ export function WanPage() {
               ? err.message
               : t('wan.loadWansFailedFallback'),
         );
-      } finally {
-        if (!silent) setWansLoading(false);
       }
+      setWansLoading(false);
     },
     [resolveCreds, t],
   );
@@ -130,9 +141,19 @@ export function WanPage() {
   }, [id, resolveCreds, toast, t]);
 
   const reloadAfterWanChange = useCallback(async () => {
+    wanChange.current += 1;
+    const change = wanChange.current;
     void loadVpn();
     await sleep(WAN_REFRESH_DELAY_MS);
     await Promise.all([loadInterfaces(true), loadWans(true)]);
+    // Runs after the dialog has closed; a newer change takes over the follow-up reads.
+    void (async () => {
+      for (const delay of WAN_FOLLOW_UP_DELAYS_MS) {
+        await sleep(delay);
+        if (change !== wanChange.current) return;
+        await loadWans(true);
+      }
+    })();
   }, [loadVpn, loadInterfaces, loadWans]);
 
   useEffect(() => {

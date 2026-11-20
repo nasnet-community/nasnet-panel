@@ -10,10 +10,12 @@ type SsidField = 'starlinkWanSsid' | 'domesticWanSsid';
 type PasswordField = 'starlinkWanPassword' | 'domesticWanPassword';
 type AuthTypeField = 'starlinkWanAuthType' | 'domesticWanAuthType';
 
-// Empty lets the backend pick its default, WPA2 and WPA3.
-const AUTH_TYPES = ['', 'wpa2-psk', 'wpa3-psk', 'wpa-psk,wpa2-psk'] as const;
+// An empty auth type lets the backend pick its default, WPA2 and WPA3. Select treats an
+// empty value as no selection, so the list uses DEFAULT_OPTION for it.
+const DEFAULT_OPTION = 'default';
+const AUTH_TYPES = [DEFAULT_OPTION, 'wpa2-psk', 'wpa3-psk', 'wpa-psk,wpa2-psk'] as const;
 const AUTH_TYPE_LABEL_KEY = {
-  '': 'wan.wireless.security.wpa2wpa3',
+  [DEFAULT_OPTION]: 'wan.wireless.security.wpa2wpa3',
   'wpa2-psk': 'wan.wireless.security.wpa2',
   'wpa3-psk': 'wan.wireless.security.wpa3',
   'wpa-psk,wpa2-psk': 'wan.wireless.security.wpawpa2',
@@ -43,7 +45,7 @@ export function WanWirelessFields({
   const [open, setOpen] = useState(false);
   const ssid = state[ssidField];
   const hasPassword = state[passwordField] !== '';
-  const authType = state[authTypeField];
+  const authType = state[authTypeField] || DEFAULT_OPTION;
   const authOptions: SelectOption[] = AUTH_TYPES.map((value) => ({
     value,
     label: t(AUTH_TYPE_LABEL_KEY[value]),
@@ -87,7 +89,13 @@ export function WanWirelessFields({
             <Select
               aria-label={t('wan.wireless.security.aria', { link: label })}
               value={authType}
-              onChange={(v) => dispatch({ type: 'setField', field: authTypeField, value: v })}
+              onChange={(v) =>
+                dispatch({
+                  type: 'setField',
+                  field: authTypeField,
+                  value: v === DEFAULT_OPTION ? '' : v,
+                })
+              }
               options={authOptions}
             />
           </Label>
