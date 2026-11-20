@@ -304,7 +304,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		identity = req.WiFiAP.SSID
 	}
 
-	randomUserID, err := utils.GenerateUserID()
+	randomUserID, err := routerUserID(client)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}

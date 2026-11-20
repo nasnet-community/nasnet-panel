@@ -180,9 +180,9 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 		identity = utils.GenerateName(3, "", utils.PascalCase)
 	}
 
-	randomUserID, err := utils.GenerateUserID()
+	randomUserID, err := routerUserID(client)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate user ID: %w", err)
+		return nil, err
 	}
 
 	now := time.Now()
@@ -1693,4 +1693,19 @@ func ensureInterfaceListMember(client *routeros.Client, list, ifaceName, comment
 	}
 	_, err = client.AddInterfaceListMemberWithComment(list, ifaceName, comment)
 	return err
+}
+
+// routerUserID returns the signed user ID api.joinnasnet.com accepts for this router.
+// A router whose system ID can't be read gets a random one.
+func routerUserID(client *routeros.Client) (string, error) {
+	systemID, err := client.GetSystemID()
+	if err != nil {
+		log.Printf("router user ID: no system ID, using a random one: %v", err)
+		systemID = ""
+	}
+	id, err := utils.GenerateRouterUserID(systemID, buildinfo.RouterKeySecret)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate user ID: %w", err)
+	}
+	return id, nil
 }
