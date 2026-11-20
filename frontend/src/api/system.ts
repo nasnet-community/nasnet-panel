@@ -191,11 +191,77 @@ export async function resetInterfaceTrafficCounter(
 
 export type WanInterfaceType = 'foreign' | 'domestic';
 
+/** Comma-separated list of `wpa-psk`, `wpa2-psk` and `wpa3-psk`. Empty means `wpa2-psk,wpa3-psk`. */
+export type WanAuthType = string;
+
 export interface UpdateWanInterfaceRequest {
   interface: string;
   type: WanInterfaceType;
   ssid?: string;
   password?: string;
+  authType?: WanAuthType;
+  /** Empty or `dhcp` for DHCP, otherwise an IPv4 address with an optional prefix. */
+  ip?: string;
+  /** Only with a static `ip`. Defaults to the first address of its network. */
+  gateway?: string;
+}
+
+export type WanStatus = 'scanning' | 'connecting' | 'authorized' | 'link-ok' | 'no-link';
+
+export interface WanResponse {
+  wanType: WanInterfaceType;
+  interface: string;
+  interfaceType: string;
+  macvlan?: string;
+  ssid?: string;
+  password?: string;
+  authType?: WanAuthType;
+  status?: WanStatus | string;
+  addressType?: 'dhcp' | 'static';
+  /** Static addresses carry their prefix (`10.42.0.2/24`); DHCP ones do not. */
+  ip?: string;
+  gateway?: string;
+  enabled: boolean;
+  comment?: string;
+}
+
+export interface RemoveWanResponse {
+  interface: string;
+  type: WanInterfaceType;
+}
+
+export async function fetchWans(
+  creds: SystemCredentials,
+  signal?: AbortSignal,
+): Promise<WanResponse[]> {
+  const list = await apiRequest<WanResponse[] | null>('/api/interface/wans', {
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+  return list ?? [];
+}
+
+export async function fetchWan(
+  creds: SystemCredentials,
+  name: string,
+  signal?: AbortSignal,
+): Promise<WanResponse> {
+  return apiRequest<WanResponse>(`/api/interface/wan/${encodeURIComponent(name)}`, {
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function removeWanInterface(
+  creds: SystemCredentials,
+  name: string,
+): Promise<RemoveWanResponse> {
+  return apiRequest<RemoveWanResponse>(`/api/interface/wan/${encodeURIComponent(name)}`, {
+    method: 'DELETE',
+    auth: creds,
+  });
 }
 
 export async function updateWanInterface(

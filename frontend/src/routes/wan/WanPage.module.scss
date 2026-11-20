@@ -20,3 +20,45 @@
 .iconBtn {
   padding: 4px 6px;
 }
+
+.nameCell {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.subtle {
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+.address {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  white-space: nowrap;
+}
+
+.skeletonRows {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md) 0;
+}
+
+.errorNote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl);
+  color: var(--color-text-muted);
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.errorIcon {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}

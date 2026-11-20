@@ -39,8 +39,19 @@ interface WanRouteState {
     comment?: string;
   }>;
   wanPuts: Array<{
-    body: { interface: string; type: string; ssid?: string; password?: string };
+    body: {
+      interface: string;
+      type: string;
+      ssid?: string;
+      password?: string;
+      authType?: string;
+      ip?: string;
+      gateway?: string;
+    };
   }>;
+  wanDeletes: string[];
+  /** Static addressing per interface, as the WAN list reports it. */
+  wanAddressing: Record<string, { ip: string; gateway: string }>;
   vpnPuts: Array<{ name: string; body: Record<string, unknown> }>;
   l2tpPosts: Array<Record<string, unknown>>;
   wgImports: Array<Record<string, unknown>>;
@@ -73,19 +84,75 @@ const setupWanRoutes = async (
     });
   });
 
+  const wanList = () =>
+    state.interfaces.flatMap((i) => {
+      const wanType =
+        i.comment === 'WAN - Foreign Link'
+          ? 'foreign'
+          : i.comment === 'WAN - Domestic Link'
+            ? 'domestic'
+            : null;
+      if (!wanType) return [];
+      const fixed = state.wanAddressing[i.name];
+      return [
+        {
+          wanType,
+          interface: i.name,
+          interfaceType: i.type,
+          enabled: !i.disabled,
+          comment: i.comment,
+          status: 'link-ok',
+          addressType: fixed ? 'static' : 'dhcp',
+          ip: fixed ? fixed.ip : '100.64.0.5',
+          gateway: fixed ? fixed.gateway : '100.64.0.1',
+        },
+      ];
+    });
+
+  await context.route('**/api/interface/wans', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: envelope(wanList()),
+    });
+  });
+
+  await context.route('**/api/interface/wan/*', async (route) => {
+    const name = decodeURIComponent(route.request().url().split('/').pop() ?? '');
+    const method = route.request().method();
+    if (method === 'GET') {
+      const wan = wanList().find((w) => w.interface === name);
+      return route.fulfill({
+        status: wan ? 200 : 404,
+        contentType: 'application/json',
+        body: envelope(wan ?? null, wan ? 200 : 404),
+      });
+    }
+    if (method !== 'DELETE') return route.fallback();
+    state.wanDeletes.push(name);
+    const idx = state.interfaces.findIndex((i) => i.name === name);
+    if (idx >= 0) state.interfaces[idx] = { ...state.interfaces[idx], comment: undefined };
+    delete state.wanAddressing[name];
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: envelope({ interface: name, type: 'foreign' }),
+    });
+  });
+
   await context.route('**/api/interface/wan', async (route) => {
     if (route.request().method() !== 'PUT') return route.fallback();
-    const body = route.request().postDataJSON() as {
-      interface: string;
-      type: 'foreign' | 'domestic';
-      ssid?: string;
-      password?: string;
-    };
+    const body = route.request().postDataJSON() as WanRouteState['wanPuts'][number]['body'];
     state.wanPuts.push({ body });
     const comment = body.type === 'foreign' ? 'WAN - Foreign Link' : 'WAN - Domestic Link';
     const apply = () => {
       const idx = state.interfaces.findIndex((i) => i.name === body.interface);
       if (idx >= 0) state.interfaces[idx] = { ...state.interfaces[idx], comment };
+      if (body.ip) {
+        state.wanAddressing[body.interface] = { ip: body.ip, gateway: body.gateway ?? '' };
+      } else {
+        delete state.wanAddressing[body.interface];
+      }
     };
     if (opts.wanApplyDelayMs) setTimeout(apply, opts.wanApplyDelayMs);
     else apply();
@@ -217,6 +284,8 @@ const blankState = (): WanRouteState => ({
   ],
   vpnClients: [],
   wanPuts: [],
+  wanDeletes: [],
+  wanAddressing: {},
   vpnPuts: [],
   l2tpPosts: [],
   wgImports: [],
@@ -504,6 +573,79 @@ test.describe('WAN tab', () => {
     expect(state.wanPuts[0]).toMatchObject({
       body: { interface: 'wifi1', type: 'foreign', ssid: 'CafeNet', password: 'secret-pass' },
     });
+  });
+
+  test('edit a WAN to a static IP validates the address and sends it', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
+    await setSessionCreds(context, ROUTER_ID);
+    const state = blankState();
+    state.interfaces[0].comment = 'WAN - Foreign Link';
+    await setupWanRoutes(context, state);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await expect(page.getByRole('cell', { name: /100\.64\.0\.5/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Edit ether1' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Edit ether1' });
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByRole('radio', { name: /^Static/ }).check();
+    const ip = dialog.getByLabel('Starlink static IP');
+    await ip.fill('10.42.0.0/24');
+    await ip.blur();
+    await expect(dialog.getByText('Use a host address')).toBeVisible();
+    await expect(dialog.getByRole('button', { name: /^save$/i })).toBeDisabled();
+
+    await ip.fill('10.42.0.2/24');
+    const gateway = dialog.getByLabel('Starlink gateway');
+    await gateway.fill('10.43.0.1');
+    await gateway.blur();
+    await expect(dialog.getByText('Gateway must be in the same network')).toBeVisible();
+    await gateway.fill('10.42.0.254');
+    await dialog.getByRole('button', { name: /^save$/i }).click();
+
+    await expect.poll(() => state.wanPuts.length).toBe(1);
+    expect(state.wanPuts[0].body).toEqual({
+      interface: 'ether1',
+      type: 'foreign',
+      ip: '10.42.0.2/24',
+      gateway: '10.42.0.254',
+    });
+    await expect(page.getByRole('cell', { name: /10\.42\.0\.2\/24/ })).toBeVisible({
+      timeout: 10_000,
+    });
+  });
+
+  test('free a WAN interface after confirming', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'WAN Router' });
+    await setSessionCreds(context, ROUTER_ID);
+    const state = blankState();
+    state.interfaces[1].comment = 'WAN - Domestic Link';
+    await setupWanRoutes(context, state);
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await page.getByRole('button', { name: 'Free ether2' }).click();
+    const confirm = page.getByRole('dialog').filter({ hasText: 'Free WAN interface' });
+    await expect(confirm).toContainText('its port returns to the LAN');
+    await confirm.getByRole('button', { name: 'Cancel' }).click();
+    expect(state.wanDeletes).toHaveLength(0);
+
+    await page.getByRole('button', { name: 'Free ether2' }).click();
+    await confirm.getByRole('button', { name: 'Free', exact: true }).click();
+
+    await expect.poll(() => state.wanDeletes).toEqual(['ether2']);
+    await expect(page.getByText('No domestic uplinks yet')).toBeVisible({ timeout: 10_000 });
   });
 
   test('add an L2TP VPN client via the masking section', async ({

@@ -73,9 +73,26 @@
       "dns": "DNS",
       "dnsAria": "Static DNS"
     },
+    "addressing": {
+      "link": { "foreign": "Starlink", "domestic": "Domestic" },
+      "modeAria": "{{link}} addressing",
+      "dhcp": { "label": "DHCP", "description": "Address from the upstream router." },
+      "static": { "label": "Static", "description": "Set the IP by hand." },
+      "ipAria": "{{link}} static IP",
+      "gatewayOptional": "Gateway (optional)",
+      "gatewayAria": "{{link}} gateway"
+    },
     "wireless": {
       "change": "Change",
-      "choose": "Choose wireless network"
+      "choose": "Choose wireless network",
+      "security": {
+        "label": "Security",
+        "aria": "{{link}} security",
+        "wpa2wpa3": "WPA2/WPA3",
+        "wpa2": "WPA2",
+        "wpa3": "WPA3",
+        "wpawpa2": "WPA/WPA2"
+      }
     },
     "scan": {
       "title": "Choose a wireless network",
@@ -240,6 +257,14 @@
     "certPassphraseRequired": "Certificate passphrase is required.",
     "certPassphraseShort": "Certificate passphrase must be at least {{min}} characters.",
     "passwordRequired": "Password is required.",
-    "passwordShort": "Password must be at least {{min}} characters."
+    "passwordShort": "Password must be at least {{min}} characters.",
+    "wanIpRequired": "Enter the static IP.",
+    "wanIpInvalid": "Enter an IPv4 address, e.g. 192.168.1.2/24.",
+    "wanIpPrefixRange": "Prefix must be between 1 and 30.",
+    "wanIpNotHost": "Use a host address, not the network or broadcast address.",
+    "wanGatewayInvalid": "Gateway must be an IPv4 address.",
+    "wanGatewayOutside": "Gateway must be in the same network as the IP.",
+    "wanGatewaySameAsIp": "Gateway must differ from the IP.",
+    "wanGatewayRequired": "Enter a gateway; this IP is the first address of its network."
   }
 }
