@@ -504,6 +504,11 @@ export interface FinalizeWizardInterface {
   interface: string;
   ssid?: string;
   password?: string;
+  /** Wireless only. Comma-separated `wpa-psk`, `wpa2-psk`, `wpa3-psk`. */
+  authType?: string;
+  /** Empty for DHCP, otherwise an IPv4 address with an optional prefix. */
+  ip?: string;
+  gateway?: string;
 }
 
 export interface FinalizeWizardL2tpClient {

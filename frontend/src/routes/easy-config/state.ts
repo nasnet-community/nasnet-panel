@@ -1,5 +1,6 @@
 import i18n from '../../i18n';
 import type enCatalog from '../../i18n/locales/en/easyConfig.json';
+import type { WanIpMode } from './steps/wan/addressing';
 
 export type Mode = 'starlink-only' | 'dual-link';
 export type StepId = 'mode' | 'wan' | 'ipmask' | 'wifi' | 'vpnsrv';
@@ -30,8 +31,16 @@ export interface State {
   starlinkWanPassword: string;
   domesticWanSsid: string;
   domesticWanPassword: string;
+  starlinkWanAuthType: string;
+  domesticWanAuthType: string;
   starlinkInterface: string;
   domesticInterface: string;
+  starlinkIpMode: WanIpMode;
+  starlinkStaticIp: string;
+  starlinkGateway: string;
+  domesticIpMode: WanIpMode;
+  domesticStaticIp: string;
+  domesticGateway: string;
   domesticMode: 'dhcp' | 'static' | 'pppoe';
   pppoeUser: string;
   pppoePassword: string;
@@ -89,8 +98,16 @@ export const initial: State = {
   starlinkWanPassword: '',
   domesticWanSsid: '',
   domesticWanPassword: '',
+  starlinkWanAuthType: '',
+  domesticWanAuthType: '',
   starlinkInterface: '',
   domesticInterface: '',
+  starlinkIpMode: 'dhcp',
+  starlinkStaticIp: '',
+  starlinkGateway: '',
+  domesticIpMode: 'dhcp',
+  domesticStaticIp: '',
+  domesticGateway: '',
   domesticMode: 'dhcp',
   pppoeUser: '',
   pppoePassword: '',

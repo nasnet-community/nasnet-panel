@@ -7,6 +7,8 @@ import type { Action, InterfaceType, State } from '../../state';
 import { InterfaceTypePicker } from '../components/InterfaceTypePicker';
 import { Collapsible } from '../components/Collapsible';
 import { WanWirelessFields } from './WanWirelessFields';
+import { WanAddressingFields } from './WanAddressingFields';
+import type { WanFieldSet } from './fields';
 
 const WIRELESS_BE_TYPES = new Set(['wifi', 'wireless', 'wlan', 'w60g']);
 
@@ -75,11 +77,8 @@ interface Props {
   loading?: boolean;
   heading: string;
   ariaLabel: string;
-  typeField: 'starlinkInterfaceType' | 'domesticInterfaceType';
-  nameField: 'starlinkInterface' | 'domesticInterface';
+  fields: WanFieldSet;
   excludeName?: string;
-  ssidField: 'starlinkWanSsid' | 'domesticWanSsid';
-  passwordField: 'starlinkWanPassword' | 'domesticWanPassword';
   wirelessLabel: string;
 }
 
@@ -91,14 +90,12 @@ export function WanInterfaceSelect({
   loading,
   heading,
   ariaLabel,
-  typeField,
-  nameField,
+  fields,
   excludeName,
-  ssidField,
-  passwordField,
   wirelessLabel,
 }: Props) {
   const { t } = useTranslation('easyConfig');
+  const { typeField, nameField, ssidField, passwordField, authTypeField } = fields;
   const type = state[typeField];
   const placeholder = t('wan.selectInterface');
   const options = useMemo(
@@ -163,10 +160,12 @@ export function WanInterfaceSelect({
           dispatch={dispatch}
           ssidField={ssidField}
           passwordField={passwordField}
+          authTypeField={authTypeField}
           label={wirelessLabel}
           interfaceName={state[nameField]}
         />
       </Collapsible>
+      <WanAddressingFields state={state} dispatch={dispatch} fields={fields} />
     </Stack>
   );
 }

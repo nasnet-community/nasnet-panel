@@ -50,18 +50,25 @@
     "loadInterfacesFailedFallback": "Failed to load interfaces.",
     "loadVpnFailedTitle": "Failed to load VPN",
     "loadVpnFailedFallback": "Failed to load VPN clients.",
+    "loadWansFailedFallback": "Failed to load WAN links.",
     "table": {
       "name": "Name",
       "type": "Type",
-      "detail": "Detail",
-      "enabled": "Enabled",
-      "statusEnabled": "enabled",
       "statusDisabled": "disabled",
-      "toggleAria": "toggle {{name}}",
       "moveTitle": "Move {{name}}",
       "moveAria": "move {{name}}",
-      "deleteTitle": "Delete {{name}}",
-      "deleteAria": "delete {{name}}"
+      "address": "Address",
+      "gateway": "Gateway",
+      "status": "Status",
+      "dhcp": "DHCP",
+      "static": "Static",
+      "statusUp": "Connected",
+      "statusConnecting": "Connecting",
+      "statusNoLink": "No link",
+      "statusUnknown": "Unknown",
+      "editTitle": "Edit {{name}}",
+      "freeTitle": "Free {{name}}",
+      "loadFailed": "Couldn't load WAN links: {{error}}"
     },
     "section": {
       "missingCredsTitle": "Missing router credentials",
@@ -71,7 +78,14 @@
       "change": "Change",
       "move": "Move",
       "moving": "Moving…",
-      "continue": "Continue"
+      "continue": "Continue",
+      "editTitle": "Edit {{name}}",
+      "free": "Free",
+      "freeConfirmTitle": "Free WAN interface",
+      "freeConfirmDescription": "\"{{name}}\" stops being a WAN link and its port returns to the LAN.",
+      "freeFailedTitle": "Failed to free WAN interface",
+      "freeFailedFallback": "Failed to free the interface.",
+      "freed": "\"{{name}}\" returned to the LAN"
     },
     "foreign": {
       "title": "Foreign / Starlink",

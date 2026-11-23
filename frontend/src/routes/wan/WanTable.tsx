@@ -1,76 +1,126 @@
 import React from 'react';
-import { ArrowUpDown, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Pencil, SearchX, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Badge, Button, DataTable, Switch } from '@nasnet/ui';
+import type { TFunction } from 'i18next';
+import { Badge, Button, DataTable, Skeleton } from '@nasnet/ui';
+import type { WanResponse } from '../../api';
 import styles from './WanPage.module.scss';
 
-interface Props<T> {
-  rows: T[];
-  rowKey: (row: T) => string;
-  name: (row: T) => string;
-  tag: (row: T) => string;
-  detail: (row: T) => string;
-  enabled: (row: T) => boolean;
+interface Props {
+  rows: WanResponse[];
+  loading?: boolean;
+  error?: string | null;
   emptyIcon: React.ReactNode;
   emptyMessage: string;
-  onToggle?: (row: T, enabled: boolean) => void;
-  onMove?: (row: T) => void;
-  moveLabel?: (row: T) => string;
-  onDelete?: (row: T) => void;
+  onEdit?: (row: WanResponse) => void;
+  onMove?: (row: WanResponse) => void;
+  moveLabel?: (row: WanResponse) => string;
+  onFree?: (row: WanResponse) => void;
 }
 
-export function WanTable<T>({
+type Tone = React.ComponentProps<typeof Badge>['tone'];
+
+function statusBadge(t: TFunction<'internet'>, row: WanResponse): { tone: Tone; label: string } {
+  if (!row.enabled) return { tone: 'neutral', label: t('wan.table.statusDisabled') };
+  switch (row.status) {
+    case 'link-ok':
+    case 'authorized':
+      return { tone: 'success', label: t('wan.table.statusUp') };
+    case 'connecting':
+    case 'scanning':
+      return { tone: 'warning', label: t('wan.table.statusConnecting') };
+    case 'no-link':
+      return { tone: 'danger', label: t('wan.table.statusNoLink') };
+    default:
+      return { tone: 'neutral', label: t('wan.table.statusUnknown') };
+  }
+}
+
+export function WanTable({
   rows,
-  rowKey,
-  name,
-  tag,
-  detail,
-  enabled,
+  loading,
+  error,
   emptyIcon,
   emptyMessage,
-  onToggle,
+  onEdit,
   onMove,
   moveLabel,
-  onDelete,
-}: Props<T>) {
+  onFree,
+}: Props) {
   const { t } = useTranslation('internet');
-  const showActions = !!onMove || !!onDelete;
+
+  if (loading && rows.length === 0) {
+    return (
+      <div className={styles.skeletonRows} data-testid="wan-skeleton">
+        <Skeleton height={36} />
+        <Skeleton height={36} />
+      </div>
+    );
+  }
+
+  if (error && rows.length === 0) {
+    return (
+      <div className={styles.errorNote}>
+        <SearchX size={28} aria-hidden className={styles.errorIcon} />
+        <p>{t('wan.table.loadFailed', { error })}</p>
+      </div>
+    );
+  }
+
+  const showActions = !!onEdit || !!onMove || !!onFree;
   return (
-    <DataTable<T>
+    <DataTable<WanResponse>
       rows={rows}
-      rowKey={rowKey}
+      rowKey={(r) => r.interface}
       emptyIcon={emptyIcon}
       emptyMessage={emptyMessage}
       columns={[
-        { key: 'name', header: t('wan.table.name'), render: (r) => name(r), sortValue: name },
         {
-          key: 'tag',
-          header: t('wan.table.type'),
-          render: (r) => <Badge tone="primary">{tag(r)}</Badge>,
-          sortValue: tag,
+          key: 'name',
+          header: t('wan.table.name'),
+          sortValue: (r) => r.interface,
+          render: (r) => (
+            <span className={styles.nameCell}>
+              <span>{r.interface}</span>
+              {r.ssid ? <span className={styles.subtle}>{r.ssid}</span> : null}
+            </span>
+          ),
         },
         {
-          key: 'detail',
-          header: t('wan.table.detail'),
-          render: (r) => detail(r),
-          sortValue: detail,
+          key: 'type',
+          header: t('wan.table.type'),
+          sortValue: (r) => r.interfaceType,
+          render: (r) => <Badge tone="primary">{r.interfaceType}</Badge>,
+        },
+        {
+          key: 'address',
+          header: t('wan.table.address'),
+          sortValue: (r) => r.ip ?? null,
+          render: (r) => (
+            <span className={styles.address} dir="ltr">
+              {r.addressType ? (
+                <Badge tone={r.addressType === 'static' ? 'info' : 'neutral'}>
+                  {r.addressType === 'static' ? t('wan.table.static') : t('wan.table.dhcp')}
+                </Badge>
+              ) : null}
+              {r.ip || '—'}
+            </span>
+          ),
+        },
+        {
+          key: 'gateway',
+          header: t('wan.table.gateway'),
+          sortValue: (r) => r.gateway ?? null,
+          render: (r) => <span dir="ltr">{r.gateway || '—'}</span>,
         },
         {
           key: 'status',
-          header: t('wan.table.enabled'),
-          sortValue: enabled,
-          render: (r) =>
-            onToggle ? (
-              <Switch
-                checked={enabled(r)}
-                onChange={(e) => onToggle(r, e.target.checked)}
-                aria-label={t('wan.table.toggleAria', { name: name(r) })}
-              />
-            ) : (
-              <Badge tone={enabled(r) ? 'success' : 'neutral'}>
-                {enabled(r) ? t('wan.table.statusEnabled') : t('wan.table.statusDisabled')}
-              </Badge>
-            ),
+          header: t('wan.table.status'),
+          sortValue: (r) => (r.enabled ? (r.status ?? '') : null),
+          render: (r) => {
+            const { tone, label } = statusBadge(t, r);
+            return <Badge tone={tone}>{label}</Badge>;
+          },
         },
         ...(showActions
           ? [
@@ -78,32 +128,44 @@ export function WanTable<T>({
                 key: 'actions',
                 header: '',
                 sortable: false,
-                render: (r: T) => (
+                render: (r: WanResponse) => (
                   <span className={styles.rowActions}>
+                    {onEdit ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className={styles.iconBtn}
+                        title={t('wan.table.editTitle', { name: r.interface })}
+                        aria-label={t('wan.table.editTitle', { name: r.interface })}
+                        onClick={() => onEdit(r)}
+                      >
+                        <Pencil size={14} aria-hidden />
+                      </Button>
+                    ) : null}
                     {onMove ? (
                       <Button
                         size="sm"
                         variant="secondary"
                         className={styles.iconBtn}
                         title={
-                          moveLabel ? moveLabel(r) : t('wan.table.moveTitle', { name: name(r) })
+                          moveLabel ? moveLabel(r) : t('wan.table.moveTitle', { name: r.interface })
                         }
                         aria-label={
-                          moveLabel ? moveLabel(r) : t('wan.table.moveAria', { name: name(r) })
+                          moveLabel ? moveLabel(r) : t('wan.table.moveAria', { name: r.interface })
                         }
                         onClick={() => onMove(r)}
                       >
                         <ArrowUpDown size={14} aria-hidden />
                       </Button>
                     ) : null}
-                    {onDelete ? (
+                    {onFree ? (
                       <Button
                         size="sm"
                         variant="danger"
                         className={styles.iconBtn}
-                        title={t('wan.table.deleteTitle', { name: name(r) })}
-                        aria-label={t('wan.table.deleteAria', { name: name(r) })}
-                        onClick={() => onDelete(r)}
+                        title={t('wan.table.freeTitle', { name: r.interface })}
+                        aria-label={t('wan.table.freeTitle', { name: r.interface })}
+                        onClick={() => onFree(r)}
                       >
                         <Trash2 size={14} aria-hidden />
                       </Button>
