@@ -7,6 +7,8 @@ import {
   isWifiPassword,
 } from '../../utils/validators';
 import type { Message, MessageKey, State } from './state';
+import { wanAddressingProblem } from './steps/wan/addressing';
+import { WAN_FIELDS, type WanFieldSet } from './steps/wan/fields';
 
 const FORBIDDEN_SSID_WORDS = ['star', 'starlink', 'vpn', 'iran'];
 
@@ -33,11 +35,21 @@ export function ovpnSecretProblem(
   return null;
 }
 
+function addressingProblem(state: State, fields: WanFieldSet): Message | null {
+  const key = wanAddressingProblem(
+    state[fields.ipModeField],
+    state[fields.staticIpField],
+    state[fields.gatewayField],
+    fields.wanType,
+  );
+  return key ? problem(`validation.${key}`) : null;
+}
+
 export function canAdvance(state: State): Message | null {
   switch (state.currentStep) {
     case 'mode':
       return state.mode ? null : problem('validation.pickMode');
-    case 'wan':
+    case 'wan': {
       if (!isRequired(state.starlinkInterface)) return problem('validation.selectStarlink');
       if (state.starlinkInterfaceType === 'wireless') {
         if (!isRequired(state.starlinkWanSsid)) return problem('validation.starlinkSsidRequired');
@@ -45,6 +57,8 @@ export function canAdvance(state: State): Message | null {
           return problem('validation.starlinkPasswordShort');
         }
       }
+      const starlinkAddressing = addressingProblem(state, WAN_FIELDS.foreign);
+      if (starlinkAddressing) return starlinkAddressing;
       if (state.mode === 'dual-link') {
         if (!isRequired(state.domesticInterface)) return problem('validation.selectDomestic');
         if (state.domesticInterfaceType === 'wireless') {
@@ -55,6 +69,8 @@ export function canAdvance(state: State): Message | null {
             return problem('validation.domesticPasswordShort');
           }
         }
+        const domesticAddressing = addressingProblem(state, WAN_FIELDS.domestic);
+        if (domesticAddressing) return domesticAddressing;
         if (state.domesticMode === 'pppoe') {
           if (!isRequired(state.pppoeUser) || !isRequired(state.pppoePassword)) {
             return problem('validation.pppoeRequired');
@@ -65,6 +81,7 @@ export function canAdvance(state: State): Message | null {
         }
       }
       return null;
+    }
     case 'ipmask':
       if (!state.ipMaskEnabled) return null;
       if (state.ipMaskKind === 'wireguard') {

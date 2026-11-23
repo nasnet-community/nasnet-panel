@@ -73,9 +73,26 @@
       "dns": "دی ان اس",
       "dnsAria": "دی ان اس ایستا"
     },
+    "addressing": {
+      "link": { "foreign": "استارلینک", "domestic": "داخلی" },
+      "modeAria": "نحوهٔ آدرس‌دهی {{link}}",
+      "dhcp": { "label": "DHCP", "description": "دریافت آدرس از روتر بالادستی." },
+      "static": { "label": "ایستا", "description": "تعیین دستی IP." },
+      "ipAria": "IP ایستای {{link}}",
+      "gatewayOptional": "درگاه (اختیاری)",
+      "gatewayAria": "درگاه {{link}}"
+    },
     "wireless": {
       "change": "تغییر",
-      "choose": "انتخاب شبکه بی‌سیم"
+      "choose": "انتخاب شبکه بی‌سیم",
+      "security": {
+        "label": "امنیت",
+        "aria": "امنیت {{link}}",
+        "wpa2wpa3": "WPA2/WPA3",
+        "wpa2": "WPA2",
+        "wpa3": "WPA3",
+        "wpawpa2": "WPA/WPA2"
+      }
     },
     "scan": {
       "title": "انتخاب شبکه بی‌سیم",
@@ -240,6 +257,14 @@
     "certPassphraseRequired": "عبارت عبور گواهی الزامی است.",
     "certPassphraseShort": "عبارت عبور گواهی باید دست‌کم {{min}} نویسه باشد.",
     "passwordRequired": "رمز عبور الزامی است.",
-    "passwordShort": "رمز عبور باید دست‌کم {{min}} نویسه باشد."
+    "passwordShort": "رمز عبور باید دست‌کم {{min}} نویسه باشد.",
+    "wanIpRequired": "IP ایستا را وارد کنید.",
+    "wanIpInvalid": "یک آدرس IPv4 وارد کنید؛ مانند 192.168.1.2/24.",
+    "wanIpPrefixRange": "پیشوند باید بین 1 تا 30 باشد.",
+    "wanIpNotHost": "از آدرس میزبان استفاده کنید، نه آدرس شبکه یا برودکست.",
+    "wanGatewayInvalid": "درگاه باید یک آدرس IPv4 باشد.",
+    "wanGatewayOutside": "درگاه باید در همان شبکهٔ IP باشد.",
+    "wanGatewaySameAsIp": "درگاه باید با IP متفاوت باشد.",
+    "wanGatewayRequired": "درگاه را وارد کنید؛ این IP نخستین آدرس شبکهٔ خود است."
   }
 }

@@ -19,6 +19,7 @@ import {
   availableInterfaceTypes,
   interfaceIcon,
 } from './wan/WanInterfaceSelect';
+import { WAN_FIELDS } from './wan/fields';
 
 interface Props {
   state: State;
@@ -71,11 +72,8 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
               loading={interfacesLoading}
               heading={t('wan.starlinkHeading')}
               ariaLabel={t('wan.starlinkHeading')}
-              typeField="starlinkInterfaceType"
-              nameField="starlinkInterface"
+              fields={WAN_FIELDS.foreign}
               excludeName={state.domesticInterface}
-              ssidField="starlinkWanSsid"
-              passwordField="starlinkWanPassword"
               wirelessLabel={t('wan.starlinkWireless')}
             />
           </section>
@@ -90,11 +88,8 @@ export function WanStep({ state, dispatch, interfaces, interfacesLoading, footer
                 loading={interfacesLoading}
                 heading={t('wan.domesticHeading')}
                 ariaLabel={t('wan.domesticHeading')}
-                typeField="domesticInterfaceType"
-                nameField="domesticInterface"
+                fields={WAN_FIELDS.domestic}
                 excludeName={state.starlinkInterface}
-                ssidField="domesticWanSsid"
-                passwordField="domesticWanPassword"
                 wirelessLabel={t('wan.domesticWireless')}
               />
             </section>

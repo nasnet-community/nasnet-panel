@@ -1,27 +1,30 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@nasnet/ui';
 import {
   ApiError,
   fetchInterfaces,
+  fetchWans,
   listVPNClients,
   type InterfaceResponse,
   type SystemCredentials,
   type VPNClient,
+  type WanResponse,
 } from '../api';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
 import { usePolling } from '../utils/usePolling';
 import styles from './wan/WanPage.module.scss';
-import { StarlinkSection } from './wan/sections/StarlinkSection';
-import { DomesticUplinkSection } from './wan/sections/DomesticUplinkSection';
-import { matchesWanCategory } from './wan/types';
+import { WanSection } from './wan/sections/WanSection';
 import { mapClientFromBE } from './vpn/adapters';
 import { ClientsSection } from './vpn/sections/ClientsSection';
 
 const WAN_INTERFACE_TYPES = ['ether', 'wireless', 'wifi', 'wlan', 'w60g', 'lte'];
 const WAN_REFRESH_DELAY_MS = 3000;
+// The router applies a WAN change in a script that can still be running at the first read,
+// so the list is read again a few times after it.
+const WAN_FOLLOW_UP_DELAYS_MS = [3000, 5000, 8000];
 
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -37,6 +40,12 @@ export function WanPage() {
 
   const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
   const [interfacesLoading, setInterfacesLoading] = useState(false);
+  const [wans, setWans] = useState<WanResponse[]>([]);
+  const [wansLoading, setWansLoading] = useState(false);
+  const [wansError, setWansError] = useState<string | null>(null);
+  // Only the latest WAN-list read may update the page; older ones can finish later.
+  const wansRequest = useRef(0);
+  const wanChange = useRef(0);
   const [vpnClients, setVpnClients] = useState<VPNClient[]>([]);
   const [vpnDialogOpen, setVpnDialogOpen] = useState(false);
 
@@ -80,6 +89,37 @@ export function WanPage() {
     [resolveCreds, toast, t],
   );
 
+  const loadWans = useCallback(
+    async (silent = false) => {
+      wansRequest.current += 1;
+      const request = wansRequest.current;
+      const creds = resolveCreds();
+      if (!creds) {
+        setWans([]);
+        setWansLoading(false);
+        return;
+      }
+      if (!silent) setWansLoading(true);
+      try {
+        const list = await fetchWans(creds);
+        if (request !== wansRequest.current) return;
+        setWans(list);
+        setWansError(null);
+      } catch (err) {
+        if (request !== wansRequest.current) return;
+        setWansError(
+          err instanceof ApiError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : t('wan.loadWansFailedFallback'),
+        );
+      }
+      setWansLoading(false);
+    },
+    [resolveCreds, t],
+  );
+
   const loadVpn = useCallback(async () => {
     const creds = resolveCreds();
     if (!id || !creds) {
@@ -101,37 +141,57 @@ export function WanPage() {
   }, [id, resolveCreds, toast, t]);
 
   const reloadAfterWanChange = useCallback(async () => {
+    wanChange.current += 1;
+    const change = wanChange.current;
     void loadVpn();
     await sleep(WAN_REFRESH_DELAY_MS);
-    await loadInterfaces(true);
-  }, [loadVpn, loadInterfaces]);
+    await Promise.all([loadInterfaces(true), loadWans(true)]);
+    // Runs after the dialog has closed; a newer change takes over the follow-up reads.
+    void (async () => {
+      for (const delay of WAN_FOLLOW_UP_DELAYS_MS) {
+        await sleep(delay);
+        if (change !== wanChange.current) return;
+        await loadWans(true);
+      }
+    })();
+  }, [loadVpn, loadInterfaces, loadWans]);
 
   useEffect(() => {
     void loadInterfaces();
   }, [loadInterfaces]);
 
+  useEffect(() => {
+    void loadWans();
+  }, [loadWans]);
+
   usePolling(loadVpn, 5000, !!id && !vpnDialogOpen);
 
   if (!id) return null;
 
-  const foreign = interfaces.filter((i) => matchesWanCategory(i.comment, 'foreign'));
-  const domestic = interfaces.filter((i) => matchesWanCategory(i.comment, 'domestic'));
-  const foreignNames = foreign.map((i) => i.name);
-  const domesticNames = domestic.map((i) => i.name);
+  const foreign = wans.filter((w) => w.wanType === 'foreign');
+  const domestic = wans.filter((w) => w.wanType === 'domestic');
+  const foreignNames = foreign.map((w) => w.interface);
+  const domesticNames = domestic.map((w) => w.interface);
 
   return (
     <div className={styles.sectionGrid}>
-      <StarlinkSection
+      <WanSection
+        variant="foreign"
         routerId={id}
         items={foreign}
+        itemsLoading={wansLoading}
+        itemsError={wansError}
         interfaces={interfaces}
         otherNames={domesticNames}
         interfacesLoading={interfacesLoading}
         onChanged={reloadAfterWanChange}
       />
-      <DomesticUplinkSection
+      <WanSection
+        variant="domestic"
         routerId={id}
         items={domestic}
+        itemsLoading={wansLoading}
+        itemsError={wansError}
         interfaces={interfaces}
         otherNames={foreignNames}
         interfacesLoading={interfacesLoading}

@@ -50,18 +50,25 @@
     "loadInterfacesFailedFallback": "بارگذاری اینترفیس‌ها ناموفق بود.",
     "loadVpnFailedTitle": "بارگذاری وی پی ان ناموفق بود",
     "loadVpnFailedFallback": "بارگذاری کلاینت‌های وی پی ان ناموفق بود.",
+    "loadWansFailedFallback": "بارگذاری لینک‌های ون ناموفق بود.",
     "table": {
       "name": "نام",
       "type": "نوع",
-      "detail": "جزئیات",
-      "enabled": "فعال",
-      "statusEnabled": "فعال",
       "statusDisabled": "غیرفعال",
-      "toggleAria": "فعال/غیرفعال کردن {{name}}",
       "moveTitle": "انتقال {{name}}",
       "moveAria": "انتقال {{name}}",
-      "deleteTitle": "حذف {{name}}",
-      "deleteAria": "حذف {{name}}"
+      "address": "آدرس",
+      "gateway": "درگاه",
+      "status": "وضعیت",
+      "dhcp": "DHCP",
+      "static": "ایستا",
+      "statusUp": "متصل",
+      "statusConnecting": "در حال اتصال",
+      "statusNoLink": "بدون لینک",
+      "statusUnknown": "نامشخص",
+      "editTitle": "ویرایش {{name}}",
+      "freeTitle": "آزادسازی {{name}}",
+      "loadFailed": "بارگذاری لینک‌های ون ناموفق بود: {{error}}"
     },
     "section": {
       "missingCredsTitle": "اطلاعات ورود روتر موجود نیست",
@@ -71,7 +78,14 @@
       "change": "تغییر",
       "move": "انتقال",
       "moving": "در حال انتقال…",
-      "continue": "ادامه"
+      "continue": "ادامه",
+      "editTitle": "ویرایش {{name}}",
+      "free": "آزادسازی",
+      "freeConfirmTitle": "آزادسازی اینترفیس ون",
+      "freeConfirmDescription": "«{{name}}» دیگر لینک ون نخواهد بود و پورت آن به لن بازگردانده می‌شود.",
+      "freeFailedTitle": "آزادسازی اینترفیس ون ناموفق بود",
+      "freeFailedFallback": "آزادسازی اینترفیس ناموفق بود.",
+      "freed": "«{{name}}» به لن بازگردانده شد"
     },
     "foreign": {
       "title": "خارجی / استارلینک",
