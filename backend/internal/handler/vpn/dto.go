@@ -77,6 +77,7 @@ type VPNClientResponse struct {
 	PeerCount    *int   `json:"peerCount,omitempty"`
 
 	FailoverRole string `json:"failoverRole,omitempty" example:"primary"`
+	Warning      string `json:"warning,omitempty" example:"This VPN client uses shared fallback credentials."`
 }
 
 // UpdateVPNClientRequest represents a request to update VPN client settings. FailoverRole

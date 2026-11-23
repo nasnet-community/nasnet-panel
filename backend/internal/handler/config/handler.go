@@ -11,22 +11,22 @@ import (
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/firewall"
 	"nasnet-panel/internal/handler/iface"
-	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )
 
-// HandleGetVPNCredentials retrieves VPN credentials from NasNet API using system ID.
+// HandleGetVPNCredentials returns the router's VPN account from the NasNet API.
 // @Summary Get VPN Credentials
-// @Description Fetch L2TP VPN credentials from NasNet using the router's system ID
+// @Description Get the router's L2TP VPN account from api.joinnasnet.com. The router is identified by its signed user ID, so the same account comes back every time. Server is the primary server, Fallback1 and Fallback2 are the backups.
 // @Tags Config
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Success 200 {object} common.Response{data=VPNCredentialsResponse}
 // @Failure 500 {object} common.Response
+// @Failure 502 {object} common.Response
 // @Router /api/config/vpn [post].
 func HandleGetVPNCredentials(c echo.Context) error {
 	client, err := common.GetRouterOSClient(c)
@@ -34,21 +34,22 @@ func HandleGetVPNCredentials(c echo.Context) error {
 		return err
 	}
 
-	systemID, err := client.GetSystemID()
+	userID, err := routerUserID(client)
 	if err != nil {
-		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve system ID", err)
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}
 
-	credentials, err := tools.GetNasNetVPNCredentials(systemID)
+	account, err := fetchVPNAccount(c.Request().Context(), userID)
 	if err != nil {
-		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN credentials", err)
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to retrieve VPN credentials", err)
 	}
 
 	response := VPNCredentialsResponse{
-		Username:   credentials.Username,
-		Password:   credentials.Password,
-		Server:     credentials.Server,
-		ExpiryDate: credentials.ExpiryDate,
+		Username:  account.Username,
+		Password:  account.Password,
+		Server:    account.Primary,
+		Fallback1: account.Fallback1,
+		Fallback2: account.Fallback2,
 	}
 
 	return common.SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", response)
@@ -337,10 +338,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"DomesticUserEntryComment": firewall.DomesticUserEntryComment,
 	}
 
-	vpnClients, message, err := fetchVPNClients(c.Request().Context(), randomUserID)
-	if err != nil {
-		return common.ErrorResponse(c, http.StatusBadGateway, message, err)
-	}
+	vpnClients := fetchVPNClients(c.Request().Context(), randomUserID)
 	templateData["VPNClients"] = vpnClients
 
 	if req.OvpnServer != nil {

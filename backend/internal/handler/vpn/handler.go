@@ -79,6 +79,14 @@ func HandleListVPNClients(c echo.Context) error {
 			response[i].FailoverRole = roles[response[i].Name]
 		}
 	}
+	for i := range response {
+		if response[i].Type != string(routeros.VPNTypeL2TPOut) {
+			continue
+		}
+		if info, err := client.GetL2TPClientInfo(response[i].Name); err == nil && failover.UsesFallback(info.User, info.Password) {
+			response[i].Warning = fallbackAccountWarning
+		}
+	}
 	return common.SuccessResponse(c, http.StatusOK, "VPN clients retrieved successfully", response)
 }
 

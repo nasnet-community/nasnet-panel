@@ -12,6 +12,8 @@ import (
 // is up). Used across VPN client types, not just WireGuard.
 const vpnStatusCheckIP = "1.0.0.1"
 
+const fallbackAccountWarning = "This VPN client uses the shared fallback account because NasNet could not provide your own. Replace its credentials immediately."
+
 // vpnLANAddressList is the firewall address list the VPN routing rules match
 // on as src-address-list, set up by the wizard template.
 const (

@@ -1153,19 +1153,28 @@ func newVPNClient(index int, name string, l2tp *L2tpClientConfig, wg *WireGuardC
 	}
 }
 
-func fetchVPNClients(ctx context.Context, userID string) ([]VPNClient, string, error) {
+func fetchVPNAccount(ctx context.Context, userID string) (*nasnetapi.VPNAccount, error) {
 	ctx, cancel := context.WithTimeout(ctx, vpnAccountTimeout)
 	defer cancel()
 
-	account, err := nasnetapi.New(userID).VPN(ctx)
-	if err != nil {
-		return nil, "Failed to get the VPN account from NasNet", err
-	}
-	if strings.TrimSpace(account.Username) == "" {
-		return nil, "NasNet returned a VPN account without a username", errInvalidVPNClient
+	return nasnetapi.New(userID).VPN(ctx)
+}
+
+func fetchVPNClients(ctx context.Context, userID string) []VPNClient {
+	account, err := fetchVPNAccount(ctx, userID)
+	if err == nil {
+		clients := accountVPNClients(account.Username, account.Password, []string{account.Primary, account.Fallback1, account.Fallback2})
+		if strings.TrimSpace(account.Username) != "" && len(clients) > 0 {
+			return clients
+		}
+		err = errInvalidVPNClient
 	}
 
-	servers := []string{account.Primary, account.Fallback1, account.Fallback2}
+	log.Printf("NasNet VPN account unavailable, using the fallback account: %v", err)
+	return accountVPNClients(failover.FallbackUser, failover.FallbackPassword, failover.FallbackServers[:])
+}
+
+func accountVPNClients(username, password string, servers []string) []VPNClient {
 	clients := make([]VPNClient, 0, len(servers))
 	for _, server := range servers {
 		server = strings.TrimSpace(server)
@@ -1174,14 +1183,10 @@ func fetchVPNClients(ctx context.Context, userID string) ([]VPNClient, string, e
 		}
 		index := len(clients) + 1
 		clients = append(clients, newVPNClient(index, failoverClientName(failoverL2TPPrefix, index), &L2tpClientConfig{
-			ConnectTo: server, User: account.Username, Password: account.Password,
+			ConnectTo: server, User: username, Password: password,
 		}, nil))
 	}
-	if len(clients) == 0 {
-		return nil, "NasNet returned a VPN account without servers", errInvalidVPNClient
-	}
-
-	return clients, "", nil
+	return clients
 }
 
 func reconfigVPNClients(stored *db.StoredConfig) []VPNClient {
