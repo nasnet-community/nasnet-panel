@@ -15,10 +15,12 @@ import (
 	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
+	"nasnet-panel/internal/failover"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/firewall"
 	"nasnet-panel/internal/handler/iface"
 	"nasnet-panel/internal/handler/vpn"
+	"nasnet-panel/pkg/nasnetapi"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/sftp"
 	"nasnet-panel/pkg/utils"
@@ -210,6 +212,9 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 		"DomesticUserEntryComment": firewall.DomesticUserEntryComment,
 	}
 	templateData["DomesticInterface"] = reconfigInterface(domestic, stored.WiFis)
+	if clients := reconfigVPNClients(stored); len(clients) > 0 {
+		templateData["VPNClients"] = clients
+	}
 
 	plan.templateData = templateData
 	return plan, nil
@@ -361,10 +366,8 @@ func waitForBaseConfig(parent context.Context, job *reconfigJob, client *routero
 
 func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB, plan *reconfigPlan) []reconfigExtra {
 	stored := plan.stored
-	linkGateway := foreignLinkGateway(stored.WANs)
 	return []reconfigExtra{
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
-		{"Restoring the wizard VPN clients", func() []error { return restoreWizardClients(client, stored, linkGateway) }},
 		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring the domestic block setting", func() []error {
 			return restoreDomesticBlock(client, stored.Settings[dbsync.SettingKeyDomesticBlockEnabled])
@@ -380,9 +383,7 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 		{"Restoring the OpenVPN users", func() []error { return restoreOvpnUsers(client, stored.VPNUsers) }},
 		{"Restoring VPN users", func() []error { return restoreVPNUsers(client, stored.VPNUsers) }},
 		{"Restoring WireGuard interfaces", func() []error { return restoreWireGuardInterfaces(client, stored.WireGuards, plan.livePorts) }},
-		{"Restoring the foreign gateway", func() []error {
-			return restoreForeignGateway(client, stored.Settings[dbsync.SettingKeyForeignGateway], linkGateway)
-		}},
+		{"Restoring failover routes", func() []error { return failover.Restore(client, stored.FailoverInterfaces) }},
 	}
 }
 
@@ -818,15 +819,6 @@ func restoreDomesticBlock(client *routeros.Client, setting string) []error {
 	return nil
 }
 
-func foreignLinkGateway(wans []db.WAN) string {
-	for i := range wans {
-		if wans[i].Type == "foreign" && wans[i].Gateway != "" {
-			return wans[i].Gateway
-		}
-	}
-	return vpnClientForeignLinkGateway
-}
-
 func restoreOvpnServers(client *routeros.Client, stored *db.StoredConfig) []error {
 	if len(stored.OvpnServers) == 0 {
 		return nil
@@ -1120,11 +1112,161 @@ func buildWireGuardClientTemplateData(rawConfig string) (*WireGuardClientTemplat
 	return data, nil
 }
 
+func failoverClientName(prefix string, index int) string {
+	return prefix + strconv.Itoa(index)
+}
+
+func failoverClientIndex(name string) (int, bool) {
+	for _, prefix := range []string{failoverL2TPPrefix, failoverWireGuardPrefix} {
+		if rest, ok := strings.CutPrefix(name, prefix); ok {
+			index, err := strconv.Atoi(rest)
+			if err == nil && index >= 1 && index <= failoverMaxClients {
+				return index, true
+			}
+		}
+	}
+	return 0, false
+}
+
+func isFailoverClientName(name string) bool {
+	_, ok := failoverClientIndex(name)
+	return ok
+}
+
+func newVPNClient(index int, name string, l2tp *L2tpClientConfig, wg *WireGuardClientTemplateData) VPNClient {
+	subnet := fmt.Sprintf(failoverSubnetFormat, index)
+	return VPNClient{
+		Index:     index,
+		Name:      name,
+		Role:      failoverRoles[index-1],
+		ProbeIP:   failover.ProbePool[index-1],
+		Bridge:    failoverBridgePrefix + name,
+		ListName:  name + failoverListSuffix,
+		Table:     failoverTablePrefix + name,
+		Subnet:    subnet + ".0/24",
+		Network:   subnet + ".0",
+		Gateway:   subnet + ".1",
+		Address:   subnet + ".1/24",
+		PoolRange: subnet + ".2-" + subnet + ".254",
+		L2tp:      l2tp,
+		WireGuard: wg,
+	}
+}
+
+func fetchVPNClients(ctx context.Context, userID string) ([]VPNClient, string, error) {
+	ctx, cancel := context.WithTimeout(ctx, vpnAccountTimeout)
+	defer cancel()
+
+	account, err := nasnetapi.New(userID).VPN(ctx)
+	if err != nil {
+		return nil, "Failed to get the VPN account from NasNet", err
+	}
+	if strings.TrimSpace(account.Username) == "" {
+		return nil, "NasNet returned a VPN account without a username", errInvalidVPNClient
+	}
+
+	servers := []string{account.Primary, account.Fallback1, account.Fallback2}
+	clients := make([]VPNClient, 0, len(servers))
+	for _, server := range servers {
+		server = strings.TrimSpace(server)
+		if server == "" {
+			continue
+		}
+		index := len(clients) + 1
+		clients = append(clients, newVPNClient(index, failoverClientName(failoverL2TPPrefix, index), &L2tpClientConfig{
+			ConnectTo: server, User: account.Username, Password: account.Password,
+		}, nil))
+	}
+	if len(clients) == 0 {
+		return nil, "NasNet returned a VPN account without servers", errInvalidVPNClient
+	}
+
+	return clients, "", nil
+}
+
+func reconfigVPNClients(stored *db.StoredConfig) []VPNClient {
+	byIndex := make(map[int]VPNClient, failoverMaxClients)
+
+	for i := range stored.L2TPClients {
+		l2tp := &stored.L2TPClients[i]
+		if !strings.HasPrefix(l2tp.Name, failoverL2TPPrefix) {
+			continue
+		}
+		if index, ok := failoverClientIndex(l2tp.Name); ok {
+			byIndex[index] = newVPNClient(index, l2tp.Name, &L2tpClientConfig{
+				ConnectTo: l2tp.ConnectTo, User: l2tp.User, Password: l2tp.Password, IPsecSecret: l2tp.IPsecSecret,
+			}, nil)
+		}
+	}
+
+	for i := range stored.WireGuards {
+		wg := &stored.WireGuards[i]
+		if !strings.HasPrefix(wg.Name, failoverWireGuardPrefix) {
+			continue
+		}
+		index, ok := failoverClientIndex(wg.Name)
+		if !ok {
+			continue
+		}
+		data := &WireGuardClientTemplateData{InterfacePrivateKey: wg.PrivateKey, InterfaceAddress: wg.Address}
+		for j := range wg.Peers {
+			peer := &wg.Peers[j]
+			p := WireGuardPeerTemplateData{
+				PublicKey: peer.PublicKey, EndpointAddress: peer.EndpointAddress, PreSharedKey: peer.PresharedKey,
+				AllowedAddress: peer.AllowedAddress,
+			}
+			if peer.EndpointPort > 0 {
+				p.EndpointPort = strconv.Itoa(peer.EndpointPort)
+			}
+			if peer.PersistentKeepalive > 0 {
+				p.PersistentKeepalive = strconv.Itoa(peer.PersistentKeepalive)
+			}
+			data.Peers = append(data.Peers, p)
+		}
+		byIndex[index] = newVPNClient(index, wg.Name, nil, data)
+	}
+
+	clients := make([]VPNClient, 0, len(byIndex))
+	for index := 1; index <= failoverMaxClients; index++ {
+		if client, ok := byIndex[index]; ok {
+			clients = append(clients, client)
+		}
+	}
+	return clients
+}
+
 func escapeWiFiAP(ap WiFiAP) WiFiAP {
 	ap.NameToSet = utils.EscapeRouterOSString(ap.NameToSet)
 	ap.SSID = utils.EscapeRouterOSString(ap.SSID)
 	ap.Password = utils.EscapeRouterOSString(ap.Password)
 	return ap
+}
+
+func escapeVPNClient(client VPNClient) VPNClient {
+	if client.L2tp != nil {
+		client.L2tp = &L2tpClientConfig{
+			ConnectTo:   utils.EscapeRouterOSString(client.L2tp.ConnectTo),
+			User:        utils.EscapeRouterOSString(client.L2tp.User),
+			Password:    utils.EscapeRouterOSString(client.L2tp.Password),
+			IPsecSecret: utils.EscapeRouterOSString(client.L2tp.IPsecSecret),
+		}
+	}
+	if client.WireGuard != nil {
+		peers := make([]WireGuardPeerTemplateData, len(client.WireGuard.Peers))
+		for i, peer := range client.WireGuard.Peers {
+			peer.PublicKey = utils.EscapeRouterOSString(peer.PublicKey)
+			peer.EndpointAddress = utils.EscapeRouterOSString(peer.EndpointAddress)
+			peer.AllowedAddress = utils.EscapeRouterOSString(peer.AllowedAddress)
+			peer.PreSharedKey = utils.EscapeRouterOSString(peer.PreSharedKey)
+			peers[i] = peer
+		}
+		client.WireGuard = &WireGuardClientTemplateData{
+			InterfacePrivateKey: utils.EscapeRouterOSString(client.WireGuard.InterfacePrivateKey),
+			InterfaceAddress:    utils.EscapeRouterOSString(client.WireGuard.InterfaceAddress),
+			Peers:               peers,
+		}
+	}
+	return client
 }
 
 func escapeInterfaceConfig(cfg InterfaceConfig) InterfaceConfig {
@@ -1163,14 +1305,6 @@ func escapeWizardTemplateData(data map[string]any) map[string]any {
 			escaped[key] = utils.EscapeRouterOSString(v)
 		}
 	}
-	if v, ok := data["L2tpClient"].(*L2tpClientConfig); ok && v != nil {
-		escaped["L2tpClient"] = &L2tpClientConfig{
-			ConnectTo:   utils.EscapeRouterOSString(v.ConnectTo),
-			User:        utils.EscapeRouterOSString(v.User),
-			Password:    utils.EscapeRouterOSString(v.Password),
-			IPsecSecret: utils.EscapeRouterOSString(v.IPsecSecret),
-		}
-	}
 	if v, ok := data["OvpnServer"].(*OvpnServerConfig); ok && v != nil {
 		users := make([]OvpnUser, len(v.Users))
 		for i, user := range v.Users {
@@ -1184,20 +1318,12 @@ func escapeWizardTemplateData(data map[string]any) map[string]any {
 			Users:                     users,
 		}
 	}
-	if v, ok := data["WireGuardClient"].(*WireGuardClientTemplateData); ok && v != nil {
-		peers := make([]WireGuardPeerTemplateData, len(v.Peers))
-		for i, peer := range v.Peers {
-			peer.PublicKey = utils.EscapeRouterOSString(peer.PublicKey)
-			peer.EndpointAddress = utils.EscapeRouterOSString(peer.EndpointAddress)
-			peer.AllowedAddress = utils.EscapeRouterOSString(peer.AllowedAddress)
-			peer.PreSharedKey = utils.EscapeRouterOSString(peer.PreSharedKey)
-			peers[i] = peer
+	if v, ok := data["VPNClients"].([]VPNClient); ok {
+		clients := make([]VPNClient, len(v))
+		for i := range v {
+			clients[i] = escapeVPNClient(v[i])
 		}
-		escaped["WireGuardClient"] = &WireGuardClientTemplateData{
-			InterfacePrivateKey: utils.EscapeRouterOSString(v.InterfacePrivateKey),
-			InterfaceAddress:    utils.EscapeRouterOSString(v.InterfaceAddress),
-			Peers:               peers,
-		}
+		escaped["VPNClients"] = clients
 	}
 
 	return escaped
@@ -1248,7 +1374,7 @@ func restoreL2TPClients(client *routeros.Client, clients []db.L2TPClient) []erro
 	var errs []error
 	for i := range clients {
 		l2tp := &clients[i]
-		if l2tp.Name == wizardL2TPName {
+		if isFailoverClientName(l2tp.Name) {
 			continue
 		}
 		if !present[l2tp.Name] {
@@ -1325,7 +1451,7 @@ func restoreWireGuardInterfaces(client *routeros.Client, interfaces []db.WireGua
 	var errs []error
 	for i := range interfaces {
 		wg := &interfaces[i]
-		if wg.Name == wizardWireGuardName {
+		if isFailoverClientName(wg.Name) {
 			continue
 		}
 
@@ -1407,31 +1533,6 @@ func restoreWireGuardServerRules(client *routeros.Client, wg *db.WireGuardInterf
 	return errs
 }
 
-func restoreForeignGateway(client *routeros.Client, gateway, linkGateway string) []error {
-	if gateway == "" {
-		return nil
-	}
-
-	routes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Comment: reconfigGatewayRouteComment})
-	if err != nil {
-		return []error{fmt.Errorf("failed to list the %s routes: %w", reconfigGatewayRouteComment, err)}
-	}
-	if len(routes) == 0 {
-		return setUpGatewayRouting(client, gateway, linkGateway)
-	}
-
-	var errs []error
-	for i := range routes {
-		if routes[i].Gateway == gateway {
-			continue
-		}
-		if err := client.UpdateIPRoute(routes[i].ID, routeros.IPRouteConfig{Gateway: gateway}); err != nil {
-			errs = append(errs, fmt.Errorf("failed to set the foreign gateway %s: %w", gateway, err))
-		}
-	}
-	return errs
-}
-
 func restoreWireGuardPeer(client *routeros.Client, interfaceName string, peer *db.WireGuardPeer) error {
 	disabled := !peer.Enabled
 	config := routeros.WireGuardPeerConfig{
@@ -1461,243 +1562,13 @@ func restoreWireGuardPeer(client *routeros.Client, interfaceName string, peer *d
 	return nil
 }
 
-func restoreWizardClients(client *routeros.Client, stored *db.StoredConfig, linkGateway string) []error {
-	var errs []error
-	for i := range stored.L2TPClients {
-		if stored.L2TPClients[i].Name == wizardL2TPName {
-			errs = append(errs, restoreWizardL2TPClient(client, &stored.L2TPClients[i], linkGateway)...)
-		}
-	}
-	for i := range stored.WireGuards {
-		if stored.WireGuards[i].Name == wizardWireGuardName {
-			errs = append(errs, restoreWizardWireGuardClient(client, &stored.WireGuards[i], linkGateway)...)
-		}
-	}
-	return errs
-}
-
-func restoreWizardL2TPClient(client *routeros.Client, l2tp *db.L2TPClient, linkGateway string) []error {
-	var errs []error
-	try := func(what string, err error) {
-		if err != nil {
-			errs = append(errs, fmt.Errorf("L2TP client %s: %w", what, err))
-		}
-	}
-	listComment := "VPN-" + l2tp.Name
-
-	try("bridge", ensureBridge(client, l2tpClientBridge, l2tpClientComment))
-	try("interface", client.AddL2TPClient(routeros.AddL2TPClientConfig{
-		Name: l2tp.Name, ConnectTo: l2tp.ConnectTo, User: l2tp.User, Password: l2tp.Password,
-		ProfileName: l2tpClientDefaultProfile, IPsecSecret: l2tp.IPsecSecret, Comment: l2tp.Comment,
-		UseIPsec: l2tp.IPsecSecret != "", Disabled: !l2tp.Enabled,
-		RandomSourcePort: true, AllowFastPath: true, Allow: "mschap2,mschap1", ProtoVersion: "l2tpv2",
-	}))
-
-	try("WAN interface list", ensureInterfaceList(client, l2tpClientListWAN, l2tpClientComment))
-	try("LAN interface list", ensureInterfaceList(client, l2tpClientListLAN, l2tpClientComment))
-
-	_, err := client.AddIPPool(routeros.IPPoolConfig{Name: l2tpClientPool, Ranges: l2tpClientPoolRange, Comment: l2tpClientComment})
-	try("address pool", err)
-	_, err = client.AddDHCPServer(routeros.DHCPServerConfig{
-		Name: l2tpClientDHCPServer, Interface: l2tpClientBridge, PoolName: l2tpClientPool,
-		Authoritative: true, ConflictDetection: true, Comment: l2tpClientComment,
-	})
-	try("DHCP server", err)
-	_, err = client.AddDHCPServerNetwork(routeros.DHCPServerNetworkConfig{
-		Address: l2tpClientSubnet, Gateway: l2tpClientGatewayIP, DNSServers: l2tpClientGatewayIP, Comment: l2tpClientComment,
-	})
-	try("DHCP network", err)
-
-	try("routing table", ensureRoutingTable(client, vpnClientRoutingTable, l2tpClientComment))
-	_, err = client.AddRoutingRule(routeros.RoutingRuleConfig{
-		Action: "lookup-only-in-table", Comment: "Routing the VPN-L2TP-Client SRC Address",
-		SrcAddress: l2tpClientSubnet, Table: vpnClientRoutingTable,
-	})
-	try("source routing rule", err)
-	_, err = client.AddRoutingRule(routeros.RoutingRuleConfig{
-		Action: "lookup-only-in-table", Comment: "Routing the VPN-L2TP-Client Routing Mark",
-		RoutingMark: vpnClientRoutingTable, Table: vpnClientRoutingTable,
-	})
-	try("routing mark rule", err)
-
-	try("WAN interface list member", ensureInterfaceListMember(client, "WAN", l2tp.Name, listComment))
-	try("VPN-WAN interface list member", ensureInterfaceListMember(client, "VPN-WAN", l2tp.Name, listComment))
-	try("bridge LAN interface list member", ensureInterfaceListMember(client, "LAN", l2tpClientBridge, l2tpClientComment))
-	try("bridge client LAN interface list member", ensureInterfaceListMember(client, l2tpClientListLAN, l2tpClientBridge, l2tpClientComment))
-
-	_, err = client.AddIPAddress(routeros.IPAddressConfig{
-		Interface: l2tpClientBridge, Address: l2tpClientAddress, Network: "192.168.41.0", Comment: l2tpClientComment,
-	})
-	try("bridge address", err)
-	_, err = client.AddFirewallAddressListItem(l2tpClientListLAN, l2tpClientSubnet, false, l2tpClientComment)
-	try("address list entry", err)
-
-	_, err = client.AddMangleRule(routeros.MangleRuleConfig{
-		Chain: "prerouting", Action: "mark-routing", Comment: "VPN-L2TP-Client Routing",
-		NewRoutingMark: vpnClientRoutingTable, SrcAddressList: l2tpClientListLAN,
-	})
-	try("mangle rule", err)
-
-	for _, protocol := range []string{"udp", "tcp"} {
-		_, err = client.AddNATRule(routeros.NATRuleConfig{
-			Chain: "dstnat", Action: "dst-nat", Protocol: protocol, DstPort: "53", Disabled: true,
-			SrcAddressList: l2tpClientListLAN, ToAddresses: vpnClientCheckHost, Comment: "DNS " + l2tpClientComment,
-		})
-		try("DNS "+protocol+" NAT rule", err)
-	}
-
-	_, err = client.AddNatPMPInterface(l2tpClientBridge, "internal")
-	try("NAT-PMP interface", err)
-
-	errs = append(errs, addVPNClientRoutes(client, l2tp.Name, linkGateway)...)
-	errs = append(errs, addVPNClientNetwatch(client)...)
-	return errs
-}
-
-func restoreWizardWireGuardClient(client *routeros.Client, wg *db.WireGuardInterface, linkGateway string) []error {
-	var errs []error
-	try := func(what string, err error) {
-		if err != nil {
-			errs = append(errs, fmt.Errorf("WireGuard client %s: %w", what, err))
-		}
-	}
-	listComment := "VPN-" + wg.Name
-
-	try("bridge", ensureBridge(client, wgClientBridge, wgClientBridgeComment))
-
-	vrf := reconfigTunnelVRF
-	disabled := !wg.Enabled
-	_, err := client.CreateWireGuardInterface(routeros.WireGuardClientConfig{
-		Name: wg.Name, PrivateKey: &wg.PrivateKey, Comment: &wg.Comment, VRF: &vrf, Disabled: &disabled,
-	})
-	try("interface", err)
-	for i := range wg.Peers {
-		try("peer", restoreWireGuardPeer(client, wg.Name, &wg.Peers[i]))
-	}
-
-	try("routing table", ensureRoutingTable(client, vpnClientRoutingTable, wgClientComment))
-
-	try("WAN interface list member", ensureInterfaceListMember(client, "WAN", wg.Name, listComment))
-	try("VPN-WAN interface list member", ensureInterfaceListMember(client, "VPN-WAN", wg.Name, listComment))
-
-	_, err = client.AddIPAddress(routeros.IPAddressConfig{Interface: wg.Name, Address: wg.Address, Comment: wgClientAddressComment})
-	try("interface address", err)
-	_, err = client.AddIPAddress(routeros.IPAddressConfig{
-		Interface: wgClientBridge, Address: wgClientBridgeAddress, Network: wgClientBridgeNetwork, Comment: wgClientBridgeComment,
-	})
-	try("bridge address", err)
-
-	errs = append(errs, addVPNClientRoutes(client, wg.Name, linkGateway)...)
-	errs = append(errs, addVPNClientNetwatch(client)...)
-	return errs
-}
-
-func setUpGatewayRouting(client *routeros.Client, gateway, linkGateway string) []error {
-	var errs []error
-	try := func(what string, err error) {
-		if err != nil {
-			errs = append(errs, fmt.Errorf("foreign gateway %s %s: %w", gateway, what, err))
-		}
-	}
-	listComment := "VPN-" + gateway
-
-	try("routing table", ensureRoutingTable(client, vpnClientRoutingTable, wgClientComment))
-	try("WAN interface list member", ensureInterfaceListMember(client, "WAN", gateway, listComment))
-	try("VPN-WAN interface list member", ensureInterfaceListMember(client, "VPN-WAN", gateway, listComment))
-	errs = append(errs, addVPNClientRoutes(client, gateway, linkGateway)...)
-
-	exists, err := client.NetwatchExistsByComment(vpnClientNetwatchComment)
-	if err != nil {
-		return append(errs, err)
-	}
-	if !exists {
-		errs = append(errs, addVPNClientNetwatch(client)...)
-	}
-	return errs
-}
-
-func addVPNClientRoutes(client *routeros.Client, gateway, linkGateway string) []error {
-	const (
-		routeComment = reconfigGatewayRouteComment
-		ping         = "ping"
-	)
-	routes := []routeros.RouteConfig{
-		{DstAddress: "0.0.0.0/0", Gateway: gateway, RoutingTable: vpnClientRoutingTable, Scope: 30, TargetScope: 10, Comment: routeComment},
-		{DstAddress: vpnClientCheckHost, Gateway: gateway, RoutingTable: vpnClientRoutingTable, CheckGateway: ping, Distance: 1, TargetScope: 11, Comment: routeComment},
-		{DstAddress: "0.0.0.0/0", Gateway: gateway, RoutingTable: vpnRoutingTable, Distance: 1, Comment: routeComment},
-		{DstAddress: vpnClientCheckHost, Gateway: gateway, RoutingTable: vpnRoutingTable, CheckGateway: ping, Distance: 1, TargetScope: 11, Comment: routeComment},
-		{DstAddress: vpnClientCheckHost, Gateway: gateway, RoutingTable: "main", Scope: 10, Comment: routeComment},
-		{DstAddress: "0.0.0.0/0", Gateway: vpnClientCheckHost, RoutingTable: "main", CheckGateway: ping, Distance: 1, TargetScope: 11, Comment: vpnClientCheckRouteComment},
-		{DstAddress: "0.0.0.0/0", Blackhole: true, RoutingTable: vpnClientRoutingTable, Distance: 99, Comment: "Blackhole"},
-		{DstAddress: "192.168.100.0/24", Gateway: linkGateway, RoutingTable: vpnClientRoutingTable, Distance: 1, Comment: "Route-to-Foreign-Foreign Link 1"},
-	}
-
-	var errs []error
-	for i := range routes {
-		if _, err := client.AddRoute(routes[i]); err != nil {
-			errs = append(errs, fmt.Errorf("VPN client route: %w", err))
-		}
-	}
-	return errs
-}
-
-func addVPNClientNetwatch(client *routeros.Client) []error {
-	interval, timeout, zeroMs, zeroS := "5s", "2s", "0ms", "0s"
-	up := `/ip route enable [find comment="` + vpnClientCheckRouteComment + `"]; `
-	down := `/ip route disable [find comment="` + vpnClientCheckRouteComment + `"]; `
-	ignoreDown, ignoreUp := false, true
-	comment := vpnClientNetwatchComment
-
-	_, err := client.AddNetwatch(routeros.AddNetwatchParams{
-		Host: vpnClientCheckHost, Type: routeros.NetwatchTypeSimple, Interval: &interval, Timeout: &timeout,
-		IgnoreInitialDown: &ignoreDown, IgnoreInitialUp: &ignoreUp, StartDelay: &zeroMs, StartupDelay: &zeroS,
-		UpScript: &up, DownScript: &down, Comment: &comment,
-	})
-	if err != nil {
-		return []error{fmt.Errorf("VPN client netwatch: %w", err)}
-	}
-	return nil
-}
-
-func ensureBridge(client *routeros.Client, name, comment string) error {
-	exists, err := client.BridgeExists(name)
-	if err != nil || exists {
-		return err
-	}
-	_, err = client.AddBridgeInterface(routeros.BridgeConfig{Name: name, Comment: comment})
-	return err
-}
-
-func ensureInterfaceList(client *routeros.Client, name, comment string) error {
-	exists, err := client.InterfaceListExists(name)
-	if err != nil || exists {
-		return err
-	}
-	_, err = client.AddInterfaceList(routeros.InterfaceListConfig{Name: name, Comment: comment})
-	return err
-}
-
-func ensureRoutingTable(client *routeros.Client, name, comment string) error {
-	exists, err := client.RoutingTableExists(name)
-	if err != nil || exists {
-		return err
-	}
-	_, err = client.AddRoutingTable(routeros.RoutingTableConfig{Name: name, FIB: true, Comment: comment})
-	return err
-}
-
-func ensureInterfaceListMember(client *routeros.Client, list, ifaceName, comment string) error {
-	exists, err := client.InterfaceListMemberExists(list, ifaceName)
-	if err != nil || exists {
-		return err
-	}
-	_, err = client.AddInterfaceListMemberWithComment(list, ifaceName, comment)
-	return err
-}
-
 // routerUserID returns the signed user ID api.joinnasnet.com accepts for this router.
-// A router whose system ID can't be read gets a random one.
+// A router whose system ID can't be read gets a random one. Development builds
+// use NASNET_DEV_USER_ID instead when it is set.
 func routerUserID(client *routeros.Client) (string, error) {
+	if id := buildinfo.DevRouterUserID(); id != "" {
+		return id, nil
+	}
 	systemID, err := client.GetSystemID()
 	if err != nil {
 		log.Printf("router user ID: no system ID, using a random one: %v", err)

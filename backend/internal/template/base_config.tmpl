@@ -772,9 +772,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :global BaseConfigProgress "95"
 :set BaseConfigMessage "Setting up VPN clients"
 
-{{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
-
-{{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
+{{ if .VPNClients }}{{ template "failover.tmpl" . }}{{ end }}
 :global BaseConfigProgress "96"
 :set BaseConfigMessage "Removing temporary management access"
 /ip dhcp-server network remove [find address="192.168.210.0/24"]

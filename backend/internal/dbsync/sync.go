@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"nasnet-panel/internal/db"
+	"nasnet-panel/internal/failover"
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/jmoiron/sqlx"
@@ -20,6 +21,7 @@ func syncExistingConfig(ctx context.Context, client *routeros.Client, conn *sqlx
 		{"WANs, WiFi interfaces and bridge ports", syncExistingNetwork},
 		{"VPN clients", syncExistingVPNClients},
 		{"WireGuard interfaces", syncExistingWireGuardInterfaces},
+		{"failover interfaces", syncExistingFailover},
 		{"OpenVPN servers", syncExistingOvpnServers},
 		{"VPN users", syncExistingVPNUsers},
 		{"SSTP and L2TP servers", syncExistingVPNServers},
@@ -202,4 +204,12 @@ func syncExistingNetwork(ctx context.Context, client *routeros.Client, conn *sql
 	}
 
 	return db.SaveNetworkConfig(ctx, conn, cfg)
+}
+
+func syncExistingFailover(ctx context.Context, client *routeros.Client, conn *sqlx.DB) error {
+	rows, err := failover.Records(client)
+	if err != nil {
+		return err
+	}
+	return db.ReplaceFailoverInterfaces(ctx, conn, rows)
 }

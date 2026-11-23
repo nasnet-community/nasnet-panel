@@ -25,6 +25,7 @@ type IPRouteInfo struct {
 	TargetScope string
 	Disabled    bool
 	Dynamic     bool
+	Active      bool
 	Comment     string
 }
 
@@ -168,6 +169,7 @@ func (c *Client) ListIPRoutes() ([]IPRouteInfo, error) {
 			TargetScope: result["target-scope"],
 			Disabled:    result["disabled"] == "true",
 			Dynamic:     result["dynamic"] == "true",
+			Active:      result["active"] == "true",
 			Comment:     result["comment"],
 		})
 	}
@@ -245,6 +247,7 @@ func (c *Client) ListIPRoutesWithFilters(filter IPRouteFilter) ([]IPRouteInfo, e
 			TargetScope: result["target-scope"],
 			Disabled:    result["disabled"] == "true",
 			Dynamic:     result["dynamic"] == "true",
+			Active:      result["active"] == "true",
 			Comment:     result["comment"],
 		})
 	}
@@ -291,6 +294,15 @@ func (c *Client) RemoveIPRoute(id string) error {
 		return fmt.Errorf("failed to remove IP route: %w", err)
 	}
 
+	return nil
+}
+
+// SetIPRouteDistance changes only the distance of a route, leaving its other
+// properties, including whether it is disabled, as they are.
+func (c *Client) SetIPRouteDistance(id string, distance int) error {
+	if _, err := c.Set("/ip/route", "=.id="+id, "=distance="+strconv.Itoa(distance)); err != nil {
+		return fmt.Errorf("failed to set the distance of IP route %s: %w", id, err)
+	}
 	return nil
 }
 

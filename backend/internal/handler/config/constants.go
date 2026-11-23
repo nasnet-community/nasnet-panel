@@ -10,16 +10,8 @@ import (
 )
 
 const (
-	wizardWireGuardName    = "wireguard-client-wg-client"
-	wizardWireGuardComment = "wg-client-wg-client"
-
-	wizardWireGuardPeerName    = "wireguard-client-wg-client-peer"
-	wizardWireGuardPeerComment = "wireguard-client-wg-client-peer"
-
-	wizardOvpnPort    = 1194
-	wizardVPNProfile  = "VPN-VPN"
-	wizardL2TPName    = "wizard-l2tp-client"
-	wizardL2TPComment = "L2TP-Client L2TP"
+	wizardOvpnPort   = 1194
+	wizardVPNProfile = "VPN-VPN"
 
 	wizardLANBridge             = "LANBridgeSplit"
 	wizardBridgePortComment     = "Split"
@@ -42,17 +34,16 @@ const wizardSuccessFile = common.NasnetPanelDir + "/nasnet-panel-base-config-suc
 const wizardScriptFile = common.NasnetPanelDir + "/wizard.rsc"
 
 const (
-	settingKeyPendingReconfig   = "pending_reconfig"
-	reconfigBaseStart           = 2
-	reconfigBaseEnd             = 80
-	reconfigExtrasEnd           = 98
-	reconfigPollInterval        = 2 * time.Second
-	reconfigSaveTimeout         = time.Minute
-	reconfigSSTPDefault         = 443
-	reconfigSSTPServerPort      = 4433
-	reconfigTunnelVRF           = "VRF-TunnelEnds"
-	reconfigGatewayRouteComment = "Route-to-VPN-Client"
-	reconfigVPNUserSecret       = "any"
+	settingKeyPendingReconfig = "pending_reconfig"
+	reconfigBaseStart         = 2
+	reconfigBaseEnd           = 80
+	reconfigExtrasEnd         = 98
+	reconfigPollInterval      = 2 * time.Second
+	reconfigSaveTimeout       = time.Minute
+	reconfigSSTPDefault       = 443
+	reconfigSSTPServerPort    = 4433
+	reconfigTunnelVRF         = "VRF-TunnelEnds"
+	reconfigVPNUserSecret     = "any"
 )
 
 var (
@@ -62,32 +53,22 @@ var (
 )
 
 const (
-	vpnClientRoutingTable       = "to-VPN-Client"
-	vpnClientCheckRouteComment  = "CheckIP-Route-to-VPN-Client"
+	failoverMaxClients      = 3
+	vpnAccountTimeout       = 30 * time.Second
+	failoverL2TPPrefix      = "L2TP-VPN-"
+	failoverWireGuardPrefix = "WG-VPN-"
+	failoverBridgePrefix    = "LANBridge-"
+	failoverTablePrefix     = "to-"
+	failoverListSuffix      = "-LAN"
+	failoverSubnetFormat    = "192.168.6%d"
+	failoverPeerSuffix      = "-peer"
+	failoverCommentPrefix   = "Failover "
+
 	managementPortsBlockComment = "Block WAN access to management ports"
-	vpnClientCheckHost          = "1.0.0.1"
-	vpnClientNetwatchComment    = "Failover Netwatch - VPN-Client"
-	vpnClientForeignLinkGateway = "100.64.0.1"
-	vpnRoutingTable             = "to-VPN"
+)
 
-	l2tpClientBridge         = "LANBridgeVPN-L2TP-Client"
-	l2tpClientComment        = "VPN-L2TP-Client"
-	l2tpClientListWAN        = "VPN-L2TP-Client-WAN"
-	l2tpClientListLAN        = "VPN-L2TP-Client-LAN"
-	l2tpClientPool           = "DHCP-pool-VPN-L2TP-Client"
-	l2tpClientDHCPServer     = "DHCP-VPN-L2TP-Client"
-	l2tpClientSubnet         = "192.168.41.0/24"
-	l2tpClientGatewayIP      = "192.168.41.1"
-	l2tpClientAddress        = "192.168.41.1/24"
-	l2tpClientPoolRange      = "192.168.41.2-192.168.41.254"
-	l2tpClientDefaultProfile = "default-encryption"
-
-	wgClientBridge         = "LANBridgeVPN-wg-client"
-	wgClientBridgeComment  = "VPN-wg-client"
-	wgClientAddressComment = "VPN-client-wg-client"
-	wgClientBridgeAddress  = "192.168.42.1/24"
-	wgClientBridgeNetwork  = "192.168.42.0"
-	wgClientComment        = "VPN-client"
+var (
+	failoverRoles = [failoverMaxClients]string{"Primary", "Backup1", "Backup2"}
 )
 
 const (
@@ -106,4 +87,7 @@ const (
 	reconfigStateFailed    = "failed"
 )
 
-var errReconfigNoConfig = errors.New("no stored configuration to apply, run the wizard first")
+var (
+	errReconfigNoConfig = errors.New("no stored configuration to apply, run the wizard first")
+	errInvalidVPNClient = errors.New("invalid VPN client")
+)

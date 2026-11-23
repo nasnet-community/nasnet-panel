@@ -1,13 +1,16 @@
 package vpn
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"strings"
 
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
+	"nasnet-panel/internal/failover"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
@@ -69,7 +72,13 @@ func HandleListVPNClients(c echo.Context) error {
 	}
 
 	response := ToVPNClientResponseList(filtered)
-
+	if roles, err := failover.Roles(client); err != nil {
+		log.Printf("failed to read the failover routes: %v", err)
+	} else {
+		for i := range response {
+			response[i].FailoverRole = roles[response[i].Name]
+		}
+	}
 	return common.SuccessResponse(c, http.StatusOK, "VPN clients retrieved successfully", response)
 }
 
@@ -169,7 +178,10 @@ func HandleGetVPNClient(c echo.Context) error {
 
 // HandleUpdateVPNClient updates a VPN client
 // @Summary Update VPN Client
-// @Description Update VPN client settings (enable/disable)
+// @Description Update VPN client settings: enable/disable, comment, and failoverRole (primary, backup1 or backup2).
+// @Description Setting failoverRole gives the client the distance of that position on its failover routes,
+// @Description and the client that held the position is moved above all failover clients. A client
+// @Description that is not in the failover yet gets its failover routes created first.
 // @Tags VPN
 // @Security BearerAuth
 // @Param name path string true "VPN client name or ID"
@@ -197,8 +209,26 @@ func HandleUpdateVPNClient(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
-	if req.Disabled == nil && req.Comment == nil {
-		return common.ErrorResponse(c, http.StatusBadRequest, "At least one field (disabled or comment) must be provided for update", nil)
+	if req.Disabled == nil && req.Comment == nil && req.FailoverRole == nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "At least one field (disabled, comment or failoverRole) must be provided for update", nil)
+	}
+
+	if req.FailoverRole != nil && failover.RoleIndex(*req.FailoverRole) < 0 {
+		return common.ErrorResponse(c, http.StatusBadRequest, "failoverRole must be one of primary, backup1, backup2", nil)
+	}
+
+	if req.FailoverRole != nil {
+		current, err := client.GetVPNClient(name)
+		if err != nil {
+			return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN client", err)
+		}
+		if err := failover.Assign(client, current.Name, *req.FailoverRole); err != nil {
+			if errors.Is(err, failover.ErrNoFreeProbe) {
+				return common.ErrorResponse(c, http.StatusConflict, "No free failover probe address is left", err)
+			}
+			return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to set the failover role", err)
+		}
+		persistFailover(c, client)
 	}
 
 	if err := client.UpdateVPNClientSettings(name, req.Disabled, req.Comment); err != nil {
@@ -228,6 +258,12 @@ func HandleUpdateVPNClient(c echo.Context) error {
 		LastLinkDown: vpnClient.LastLinkDown,
 		LinkDowns:    vpnClient.LinkDowns,
 		Comment:      vpnClient.Comment,
+	}
+
+	if roles, err := failover.Roles(client); err != nil {
+		log.Printf("failed to read the failover routes: %v", err)
+	} else {
+		response.FailoverRole = roles[vpnClient.Name]
 	}
 
 	persistVPNClient(c, client, vpnClient)

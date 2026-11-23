@@ -337,18 +337,11 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"DomesticUserEntryComment": firewall.DomesticUserEntryComment,
 	}
 
-	if req.L2tpClient != nil {
-		templateData["L2tpClient"] = req.L2tpClient
+	vpnClients, message, err := fetchVPNClients(c.Request().Context(), randomUserID)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadGateway, message, err)
 	}
-
-	var wgData *WireGuardClientTemplateData
-	if req.WireGuardClient != nil && req.WireGuardClient.Config != "" {
-		wgData, err = buildWireGuardClientTemplateData(req.WireGuardClient.Config)
-		if err != nil {
-			return common.ErrorResponse(c, http.StatusBadRequest, "Failed to parse WireGuard config", err)
-		}
-		templateData["WireGuardClient"] = wgData
-	}
+	templateData["VPNClients"] = vpnClients
 
 	if req.OvpnServer != nil {
 		templateData["OvpnServer"] = req.OvpnServer
@@ -368,7 +361,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		DomesticEnabled:      domesticEnabled,
 		Foreign:              &foreignInterface,
 		Domestic:             &domesticInterface,
-		WireGuard:            wgData,
+		VPNClients:           vpnClients,
 		CertificateTimestamp: currentTimestamp,
 		WifiAPs:              wifiAPs,
 		BridgePorts:          bridgePorts,

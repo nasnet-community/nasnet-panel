@@ -9,19 +9,20 @@ import (
 
 // StoredConfig is everything kept in a router's database that a reconfiguration applies again.
 type StoredConfig struct {
-	WANs              []WAN
-	WiFis             []WiFi
-	BridgePorts       []BridgePort
-	WireGuards        []WireGuardInterface
-	L2TPClients       []L2TPClient
-	SSTPClients       []SSTPClient
-	OvpnServers       []OvpnServer
-	VPNServers        []VPNServer
-	VPNUsers          []VPNUser
-	DNSStaticEntries  []DNSStaticEntry
-	DomesticAddresses []string
-	DNSServers        []DNSServer
-	Settings          map[string]string
+	WANs               []WAN
+	WiFis              []WiFi
+	BridgePorts        []BridgePort
+	WireGuards         []WireGuardInterface
+	L2TPClients        []L2TPClient
+	SSTPClients        []SSTPClient
+	FailoverInterfaces []FailoverInterface
+	OvpnServers        []OvpnServer
+	VPNServers         []VPNServer
+	VPNUsers           []VPNUser
+	DNSStaticEntries   []DNSStaticEntry
+	DomesticAddresses  []string
+	DNSServers         []DNSServer
+	Settings           map[string]string
 }
 
 // LoadStoredConfig reads every table a reconfiguration needs from the router's database.
@@ -42,6 +43,8 @@ func LoadStoredConfig(ctx context.Context, conn *sqlx.DB) (*StoredConfig, error)
 			`SELECT name, comment, connect_to, user, password, ipsec_secret, enabled FROM l2tp_clients ORDER BY id`},
 		{"SSTP clients", &cfg.SSTPClients,
 			`SELECT name, comment, connect_to, port, user, password, enabled FROM sstp_clients ORDER BY id`},
+		{"failover interfaces", &cfg.FailoverInterfaces,
+			`SELECT interface, probe_ip, distance FROM failover_interfaces ORDER BY distance, id`},
 		{"OpenVPN servers", &cfg.OvpnServers,
 			`SELECT name, certificate_timestamp, protocol, port, client_certificate_password, enabled FROM ovpn_servers ORDER BY id`},
 		{"VPN servers", &cfg.VPNServers,

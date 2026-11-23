@@ -75,12 +75,17 @@ type VPNClientResponse struct {
 	Comment      string `json:"comment,omitempty"`
 	PingTime     string `json:"pingTime,omitempty"`
 	PeerCount    *int   `json:"peerCount,omitempty"`
+
+	FailoverRole string `json:"failoverRole,omitempty" example:"primary"`
 }
 
-// UpdateVPNClientRequest represents a request to update VPN client settings.
+// UpdateVPNClientRequest represents a request to update VPN client settings. FailoverRole
+// is primary, backup1 or backup2 and moves the client's failover routes to that position.
 type UpdateVPNClientRequest struct {
 	Disabled *bool   `json:"disabled" example:"false"`
 	Comment  *string `json:"comment" example:"Updated comment"`
+
+	FailoverRole *string `json:"failoverRole" example:"primary" enums:"primary,backup1,backup2"`
 }
 
 // AddL2TPClientRequest represents a request to add an L2TP client. If Name
