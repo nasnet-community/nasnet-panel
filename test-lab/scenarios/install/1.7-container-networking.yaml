@@ -1,0 +1,28 @@
+id: '1.7-container-networking'
+stage: install
+title: Panel container has its network, reaches the router API and is only exposed to LAN
+profiles: [all]
+start: installed
+requires:
+  lab: [image-tar]
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: api
+    api: { method: GET, path: /api/system/identity, status: 200 }
+expect:
+  values:
+    - path: /interface/veth
+      where: { name: veth-nasnet-panel }
+      fields: { address: '~192.168.50.2', gateway: 192.168.50.1 }
+    - path: /ip/address
+      where: { interface: containers }
+      fields: { address: 192.168.50.1/24 }
+    - path: /ip/firewall/nat
+      where: { comment: nasnet-panel-installer-srcnat }
+  ports:
+    - { from: split, port: 8080, open: true }
+    - { from: starlink-side, port: 8080, open: false }
+    - { from: domestic-side, port: 8080, open: false }

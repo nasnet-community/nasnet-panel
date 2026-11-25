@@ -1,0 +1,21 @@
+id: '3.4-l2tp-down'
+stage: resilience
+title: VPN tunnel down (l2tp) blocks VPN traffic and recovers
+profiles: [all]
+requires: { roles: [starlink, domestic, split], lab: [l2tp] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  l2tp_client: true
+  wait_domestic_list: true
+steps:
+  - do: vpn_server_down
+    with: { type: l2tp }
+    expect:
+      traffic:
+        - { from: split, to: foreign-host, exits: blocked, within: 15s }
+  - do: vpn_server_up
+    with: { type: l2tp }
+    expect:
+      traffic:
+        - { from: split, to: foreign-host, exits: vpn, within: 30s }

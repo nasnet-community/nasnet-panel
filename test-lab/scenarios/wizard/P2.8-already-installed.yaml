@@ -1,0 +1,20 @@
+id: 'P2.8-already-installed'
+stage: wizard
+title: Installing an installed plugin is refused and the list matches the router
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+  - do: api
+    api: { method: POST, path: /api/plugin/install, body: { id: lab-echo }, status: 409 }
+expect:
+  plugins:
+    - { id: lab-echo, installed: true, running: true }

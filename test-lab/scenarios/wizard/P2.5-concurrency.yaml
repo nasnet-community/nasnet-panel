@@ -1,0 +1,22 @@
+id: 'P2.5-concurrency'
+stage: wizard
+title: Duplicate installs and uninstall during install are refused
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: api
+    api: { method: POST, path: /api/plugin/install, body: { id: lab-echo }, status: 200 }
+  - do: api
+    api: { method: POST, path: /api/plugin/install, body: { id: lab-echo }, status: 409 }
+  - do: api
+    api: { method: DELETE, path: /api/plugin/plugin/lab-echo, status: 409 }
+expect:
+  plugins:
+    - { id: lab-echo, installed: true, running: true, within: 5m }

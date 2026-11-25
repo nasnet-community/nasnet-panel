@@ -1,0 +1,26 @@
+id: 'P3.5-panel-update'
+stage: resilience
+title: Plugins and their settings survive a panel update
+profiles: [all]
+start: container-ready
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar, previous-image-tar, cli-install] }
+steps:
+  - do: install
+    with: { installer: cli, image: previous }
+  - do: wizard
+    wizard:
+      foreign: starlink
+      domestic: domestic
+      wait_domestic_list: true
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+  - do: install
+    with: { installer: cli }
+expect:
+  container:
+    - name: lab-echo
+      running: true
+  plugins:
+    - { id: lab-echo, installed: true }

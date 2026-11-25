@@ -1,0 +1,35 @@
+name: rb5009-poe
+model: RB5009UPr+S+IN
+arch: arm64
+memory_mb: 1024
+storage_mb: 1024
+cpus: 1
+capabilities: [ethernet, container, sfp, usb, 2.5g, poe-out]
+ports:
+  - name: ether1
+    kind: 2.5g-poe
+    role: starlink
+  - name: ether2
+    kind: poe-out
+    role: domestic
+  - name: ether3
+    kind: poe-out
+    role: split
+  - name: ether4
+    kind: poe-out
+    role: spare
+  - name: ether5
+    kind: poe-out
+    role: spare
+  - name: ether6
+    kind: poe-out
+    role: spare
+  - name: ether7
+    kind: poe-out
+    role: spare
+  - name: ether8
+    kind: poe-out
+    role: spare
+  - name: sfp-sfpplus1
+    kind: sfp+
+    role: spare

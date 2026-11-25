@@ -1,0 +1,47 @@
+id: '3.1-reboot'
+stage: resilience
+title: Config, lists and traffic survive a reboot
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: reboot
+  - do: wait_domestic_list
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }
+  traffic:
+    - { from: split, to: domestic-host, exits: domestic }
+  dns:
+    - { from: split, name: lab.ir, resolver: domestic, exits: domestic }
+  leak:
+    starlink_to_domestic: true

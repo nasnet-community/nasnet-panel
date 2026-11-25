@@ -1,0 +1,19 @@
+id: '3.6-change-wan'
+stage: resilience
+title: Changing the domestic WAN re-points its uplink
+profiles: [chr-x86]
+requires: { roles: [starlink, domestic, split, spare] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: change_wan
+    with: { role: spare, type: domestic }
+  - do: sleep
+    with: { for: 30s }
+expect:
+  sections:
+    - path: /interface/macvlan
+      key: interface
+      present: [ether4]

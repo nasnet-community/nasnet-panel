@@ -9,6 +9,7 @@ build/
 coverage/
 /playwright-report/
 /test-results/
+/test-lab/artifacts/
 /playwright/.cache/
 /backend/docs/*
 .agents

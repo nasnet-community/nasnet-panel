@@ -1,0 +1,17 @@
+id: 'E-upnp'
+stage: wizard
+title: UPnP and NAT-PMP are off
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  values:
+    - path: /ip/upnp
+      fields: { enabled: 'no' }
+      known_bug: UPnP stays enabled after the wizard
+    - path: /ip/nat-pmp
+      fields: { enabled: 'no' }
+      known_bug: NAT-PMP stays enabled after the wizard

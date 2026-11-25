@@ -1,0 +1,14 @@
+id: 'D2.1-forwarders-starlink-only'
+stage: wizard
+title: Starlink-only has no Domestic forwarder
+profiles: [all]
+requires: { roles: [starlink, split] }
+wizard:
+  foreign: starlink
+  wait_domestic_list: true
+expect:
+  sections:
+    - path: /ip/dns/forwarders
+      key: name
+      present: [Foreign, VPN, General]
+      absent: [Domestic]

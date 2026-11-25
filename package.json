@@ -16,6 +16,8 @@
     "e2e": "playwright test",
     "e2e:headed": "playwright test --headed",
     "e2e:install-browsers": "playwright install chromium",
+    "lab": "go -C test-lab test -tags lab -v -count=1 -timeout 600m .",
+    "lab:check": "go -C test-lab run ./cmd/labcheck",
     "prepare": "husky"
   },
   "dependencies": {

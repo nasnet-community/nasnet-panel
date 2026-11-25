@@ -1,0 +1,23 @@
+id: 'P3.6-registry-down-uninstall'
+stage: resilience
+title: Uninstall with the registry unreachable fails clearly and removes nothing
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-echo }
+  - do: filter
+    with: { target: registry }
+  - do: plugin_uninstall
+    with: { id: lab-echo, status: '502' }
+expect:
+  container:
+    - name: lab-echo
+      running: true

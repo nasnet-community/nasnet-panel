@@ -1,0 +1,55 @@
+{
+  "registryVersion": 1,
+  "plugins": [
+    {
+      "id": "lab-echo",
+      "version": "1.0.0",
+      "name": "Lab Echo",
+      "author": "test-lab",
+      "category": "Testing",
+      "tagline": "Answers with the caller's source IP",
+      "url": "https://github.com/nasnet-community/nasnet-panel",
+      "canInstall": true
+    },
+    {
+      "id": "lab-broken-image",
+      "version": "1.0.0",
+      "name": "Lab Broken Image",
+      "author": "test-lab",
+      "category": "Testing",
+      "tagline": "Image that does not exist",
+      "url": "https://github.com/nasnet-community/nasnet-panel",
+      "canInstall": true
+    },
+    {
+      "id": "lab-broken-script",
+      "version": "1.0.0",
+      "name": "Lab Broken Script",
+      "author": "test-lab",
+      "category": "Testing",
+      "tagline": "Post-install script that fails",
+      "url": "https://github.com/nasnet-community/nasnet-panel",
+      "canInstall": true
+    },
+    {
+      "id": "lab-arm-only",
+      "version": "1.0.0",
+      "name": "Lab Arm Only",
+      "author": "test-lab",
+      "category": "Testing",
+      "tagline": "Only supports 32-bit ARM",
+      "url": "https://github.com/nasnet-community/nasnet-panel",
+      "canInstall": true
+    },
+    {
+      "id": "lab-amd64",
+      "version": "1.0.0",
+      "name": "Lab Amd64",
+      "author": "test-lab",
+      "category": "Testing",
+      "tagline": "Lists architectures the way registry plugins do",
+      "url": "https://github.com/nasnet-community/nasnet-panel",
+      "canInstall": true
+    }
+  ]
+}

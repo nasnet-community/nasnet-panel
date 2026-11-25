@@ -1,0 +1,12 @@
+id: 'E-ddns-starlink-only'
+stage: wizard
+title: Cloud DDNS is off without a domestic link
+profiles: [all]
+requires: { roles: [starlink, split] }
+wizard:
+  foreign: starlink
+expect:
+  values:
+    - path: /ip/cloud
+      fields: { ddns-enabled: 'no' }
+      known_bug: Cloud DDNS stays on without a domestic link and would publish the Starlink IP

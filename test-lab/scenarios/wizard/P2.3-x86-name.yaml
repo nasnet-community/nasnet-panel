@@ -1,0 +1,20 @@
+id: 'P2.3-x86-name'
+stage: wizard
+title: Plugin listing amd64 installs on an x86_64 router
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar], live_arch: [x86_64] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-amd64 }
+    known_bug: The panel rejects x86_64 routers for plugins that list amd64
+expect:
+  container:
+    - name: lab-amd64
+      running: true

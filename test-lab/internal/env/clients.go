@@ -1,0 +1,72 @@
+package env
+
+import (
+	"context"
+	"fmt"
+	"net"
+	"path/filepath"
+
+	"nasnet-panel/test-lab/internal/profile"
+	"nasnet-panel/test-lab/internal/sh"
+)
+
+func (e *Env) AttachSegmentClient(ctx context.Context, client, bridge string) error {
+	idx, ok := e.net.spare[client]
+	if !ok {
+		return fmt.Errorf("no spare port client %q", client)
+	}
+	port := profile.LabInterface(idx)
+	n, err := e.Router.SetWhere(ctx, "/interface/bridge/port", map[string]string{"interface": port}, map[string]string{"bridge": bridge})
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		if _, err := e.Router.Run(ctx, "/interface/bridge/port/add", "=bridge="+bridge, "=interface="+port); err != nil {
+			return err
+		}
+	}
+
+	offer, err := e.Probe.DHCP(ctx, client)
+	if err != nil {
+		return fmt.Errorf("segment client on %s got no lease: %w", bridge, err)
+	}
+	mask := net.IPMask(net.ParseIP(offer["mask"]).To4())
+	ones, _ := mask.Size()
+	if ones == 0 {
+		ones = 24
+	}
+	ns := e.net.ns(client)
+	_ = sh.Run("ip", "-n", ns, "addr", "flush", "dev", "lan0")
+	cmds := [][]string{{"ip", "-n", ns, "addr", "add", fmt.Sprintf("%s/%d", offer["ip"], ones), "dev", "lan0"}}
+	if offer["router"] != "" {
+		cmds = append(cmds, []string{"ip", "-n", ns, "route", "replace", "default", "via", offer["router"]})
+	}
+	return sh.RunAll(cmds...)
+}
+
+func (e *Env) PrepareLabRegistry(ctx context.Context) error {
+	if err := e.Upload(ctx, e.assets.caFile(), "test-lab-ca.pem"); err != nil {
+		return err
+	}
+	if _, err := e.Router.Run(ctx, "/certificate/import", "=file-name=test-lab-ca.pem", "=passphrase=", "=trusted=yes"); err != nil {
+		return err
+	}
+	if e.opts.Internet {
+		return nil
+	}
+	_, err := e.Router.Run(ctx, "/container/config/set", "=registry-url=https://registry.lab.test", "=tmpdir="+filepath.Join("images", "tmp"))
+	return err
+}
+
+func (e *Env) OvpnServerName(ctx context.Context) (string, error) {
+	rows, err := e.Router.Print(ctx, "/interface/ovpn-server/server")
+	if err != nil {
+		return "", err
+	}
+	for _, row := range rows {
+		if row["name"] != "" {
+			return row["name"], nil
+		}
+	}
+	return "", fmt.Errorf("no OpenVPN server on the router")
+}

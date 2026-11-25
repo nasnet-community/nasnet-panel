@@ -1,0 +1,14 @@
+id: 'D2.2-domestic-type'
+stage: wizard
+title: Domestic names use the domestic resolver over the domestic link only
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+expect:
+  dns:
+    - { from: split, name: lab.ir, resolver: domestic, exits: domestic }
+  leak:
+    starlink_to_domestic: true

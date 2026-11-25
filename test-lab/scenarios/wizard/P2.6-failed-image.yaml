@@ -1,0 +1,25 @@
+id: 'P2.6-failed-image'
+stage: wizard
+title: Image pull failure ends in an error and leaves nothing behind
+profiles: [all]
+start: installed
+panel: host
+requires: { roles: [starlink, domestic, split], lab: [image-tar] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  wait_domestic_list: true
+steps:
+  - do: lab_registry
+  - do: plugin_install
+    with: { id: lab-broken-image, phase: error }
+expect:
+  container:
+    - name: lab-broken-image
+      present: false
+      known_bug: A failed plugin install leaves its container, network link and mounts behind
+  values:
+    - path: /interface/veth
+      where: { name: veth-lab-broken-image }
+      absent: true
+      known_bug: A failed plugin install leaves its container, network link and mounts behind

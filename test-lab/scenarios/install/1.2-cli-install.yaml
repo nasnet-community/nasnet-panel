@@ -1,0 +1,24 @@
+id: '1.2-cli-install'
+stage: install
+title: CLI installer happy path with the image built from this checkout
+profiles: [all]
+requires:
+  lab: [image-tar, cli-install]
+steps:
+  - do: install
+    with: { installer: cli }
+expect:
+  container:
+    - name: nasnet-panel
+      running: true
+      fields: { start-on-boot: 'yes', logging: 'yes', interface: veth-nasnet-panel }
+  values:
+    - path: /interface/bridge
+      where: { name: containers }
+    - path: /ip/address
+      where: { address: 192.168.50.1/24 }
+    - path: /ip/firewall/nat
+      where: { comment: nasnet-panel-installer-dstnat }
+      fields: { dst-port: '8080' }
+  ports:
+    - { from: split, port: 8080, open: true }

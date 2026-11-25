@@ -1,0 +1,46 @@
+id: '2.1-dual-link-ovpn-server'
+stage: wizard
+title: Dual-link with the OpenVPN server applies the expected config
+profiles: [all]
+requires: { roles: [starlink, domestic, split] }
+wizard:
+  foreign: starlink
+  domestic: domestic
+  ovpn_server: true
+  wait_domestic_list: true
+expect:
+  applied:
+    {
+      sections:
+        [
+          bridges,
+          interface-lists,
+          macvlans,
+          addresses,
+          dhcp-servers,
+          dhcp-networks,
+          pools,
+          dns,
+          dns-static,
+          routing-tables,
+          routing-rules,
+          routes,
+          blackholes,
+          firewall-filter,
+          nat,
+          mangle,
+          address-lists,
+          netwatch,
+          scripts,
+          schedulers,
+          ppp-profiles,
+          marker,
+        ],
+    }
+  values:
+    - path: /interface/ovpn-server/server
+      where: { protocol: udp }
+      fields: { name: '~ovpn-server' }
+    - path: /ppp/secret
+      where: { name: labuser }
+      fields: { profile: VPN-VPN }
