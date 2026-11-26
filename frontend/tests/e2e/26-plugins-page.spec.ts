@@ -1,3 +1,4 @@
+import type { BrowserContext } from '@playwright/test';
 import { test, expect } from './fixtures';
 
 const ROUTER = { id: 'rtr_plugins', name: 'Plugins Router', host: '10.0.0.6' };
@@ -401,5 +402,132 @@ test.describe('Plugins page', () => {
     await expect(unavailable.first()).toBeDisabled();
     await expect(unavailable.last()).toBeDisabled();
     await expect(page.getByRole('button', { name: /^install$/i })).toHaveCount(0);
+  });
+
+  test.describe('uninstall data choice', () => {
+    // Serves xray-server as installed and records the URL of every uninstall
+    // request. An undefined flag is left out of the JSON, like the backend does.
+    const mockInstalledXray = async (context: BrowserContext, keepDataOnUninstall?: boolean) => {
+      const deleteUrls: string[] = [];
+
+      await context.route('**/api/plugin/plugins', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({
+            containerSupport: true,
+            plugins: [
+              { ...CATALOG[0], installed: true, running: true, keepDataOnUninstall },
+              CATALOG[1],
+            ],
+          }),
+        });
+      });
+
+      await context.route(
+        (url) => url.pathname === '/api/plugin/plugin/xray-server',
+        async (route) => {
+          if (route.request().method() !== 'DELETE') return route.fallback();
+          deleteUrls.push(route.request().url());
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: envelope({ id: 'xray-server' }),
+          });
+        },
+      );
+
+      return deleteUrls;
+    };
+
+    test.beforeEach(async ({ resetMocks, seedRouter, seedCredentials }) => {
+      await resetMocks();
+      await seedRouter(ROUTER);
+      await seedCredentials(ROUTER.id);
+    });
+
+    test('a plugin that keeps its data offers an unchecked box and keeps it by default', async ({
+      context,
+      page,
+    }) => {
+      const deleteUrls = await mockInstalledXray(context, true);
+
+      await page.goto(`/router/${ROUTER.id}/plugins`);
+      const xrayCard = page
+        .getByRole('article')
+        .filter({ has: page.getByRole('heading', { name: 'V2Ray / Xray' }) });
+      await xrayCard.getByRole('button', { name: /uninstall/i }).click();
+
+      const confirm = page.getByRole('dialog');
+      await expect(confirm.getByText(/Its data stays/)).toBeVisible();
+      const checkbox = confirm.getByRole('checkbox', { name: 'Also delete its data' });
+      await expect(checkbox).toBeVisible();
+      await expect(checkbox).not.toBeChecked();
+      await confirm.getByRole('button', { name: /uninstall/i }).click();
+
+      await expect.poll(() => deleteUrls.length).toBe(1);
+      expect(new URL(deleteUrls[0]).searchParams.get('keepData')).toBe('true');
+      await expect(page.getByText('V2Ray / Xray uninstalled')).toBeVisible();
+    });
+
+    test('ticking the box deletes the data', async ({ context, page }) => {
+      const deleteUrls = await mockInstalledXray(context, true);
+
+      await page.goto(`/router/${ROUTER.id}/plugins`);
+      const xrayCard = page
+        .getByRole('article')
+        .filter({ has: page.getByRole('heading', { name: 'V2Ray / Xray' }) });
+      await xrayCard.getByRole('button', { name: /uninstall/i }).click();
+
+      const confirm = page.getByRole('dialog');
+      await confirm.getByRole('checkbox', { name: 'Also delete its data' }).check();
+      await confirm.getByRole('button', { name: /uninstall/i }).click();
+
+      await expect.poll(() => deleteUrls.length).toBe(1);
+      expect(new URL(deleteUrls[0]).searchParams.get('keepData')).toBe('false');
+    });
+
+    test('a plugin that does not keep its data has no box and sends no choice', async ({
+      context,
+      page,
+    }) => {
+      const deleteUrls = await mockInstalledXray(context);
+
+      await page.goto(`/router/${ROUTER.id}/plugins`);
+      const xrayCard = page
+        .getByRole('article')
+        .filter({ has: page.getByRole('heading', { name: 'V2Ray / Xray' }) });
+      await xrayCard.getByRole('button', { name: /uninstall/i }).click();
+
+      const confirm = page.getByRole('dialog');
+      await expect(confirm).toBeVisible();
+      await expect(confirm.getByRole('checkbox')).toHaveCount(0);
+      await expect(confirm.getByText(/Its data stays/)).toHaveCount(0);
+      await confirm.getByRole('button', { name: /uninstall/i }).click();
+
+      await expect.poll(() => deleteUrls.length).toBe(1);
+      expect(new URL(deleteUrls[0]).searchParams.has('keepData')).toBe(false);
+    });
+
+    test('resets the box when the dialog is cancelled', async ({ context, page }) => {
+      const deleteUrls = await mockInstalledXray(context, true);
+
+      await page.goto(`/router/${ROUTER.id}/plugins`);
+      const xrayCard = page
+        .getByRole('article')
+        .filter({ has: page.getByRole('heading', { name: 'V2Ray / Xray' }) });
+      await xrayCard.getByRole('button', { name: /uninstall/i }).click();
+
+      const confirm = page.getByRole('dialog');
+      await confirm.getByRole('checkbox', { name: 'Also delete its data' }).check();
+      await confirm.getByRole('button', { name: 'Cancel' }).click();
+      await expect(confirm).toBeHidden();
+
+      await xrayCard.getByRole('button', { name: /uninstall/i }).click();
+      await expect(
+        page.getByRole('dialog').getByRole('checkbox', { name: 'Also delete its data' }),
+      ).not.toBeChecked();
+      expect(deleteUrls).toHaveLength(0);
+    });
   });
 });

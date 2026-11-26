@@ -19,6 +19,7 @@ import (
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/firewall"
 	"nasnet-panel/internal/handler/iface"
+	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/internal/handler/vpn"
 	"nasnet-panel/pkg/nasnetapi"
 	"nasnet-panel/pkg/routeros"
@@ -216,6 +217,9 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 		templateData["VPNClients"] = clients
 	}
 
+	// the base configuration removes every routing rule, the containers' exit classes too
+	templateData["ContainerExitClasses"] = plugin.ExitClassesScript(domesticEnabled)
+
 	plan.templateData = templateData
 	return plan, nil
 }
@@ -309,11 +313,16 @@ func runReconfig(ctx context.Context, job *reconfigJob, client *routeros.Client,
 	}
 	job.update("Applying the base configuration", reconfigBaseStart)
 
+	// Until the script is done, since it rewrites the exit classes.
+	release := plugin.HoldExitClasses()
 	if message, err := startBaseConfigScript(client, creds, rendered); err != nil {
+		release()
 		job.fail(message + ": " + err.Error())
 		return
 	}
-	if err := waitForBaseConfig(ctx, job, client); err != nil {
+	err := waitForBaseConfig(ctx, job, client)
+	release()
+	if err != nil {
 		job.fail(err.Error())
 		return
 	}
@@ -367,6 +376,7 @@ func waitForBaseConfig(parent context.Context, job *reconfigJob, client *routero
 func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB, plan *reconfigPlan) []reconfigExtra {
 	stored := plan.stored
 	return []reconfigExtra{
+		{"Running the plugins' post-wizard scripts", func() []error { return plugin.RunPostWizard(client) }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
 		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring the domestic block setting", func() []error {

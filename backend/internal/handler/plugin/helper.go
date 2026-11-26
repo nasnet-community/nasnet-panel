@@ -3,18 +3,26 @@ package plugin
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
+	"net/netip"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
+
+	"github.com/labstack/echo/v4"
 )
 
 // cachePluginRegistry stores registry as the shared plugin registry cache.
@@ -200,7 +208,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	pluginID := task.pluginID
 	ctx := context.Background()
 
-	manifest, err := fetchPluginManifest(ctx, pluginID)
+	manifest, err := fetchInstallManifest(ctx, pluginID)
 	if err != nil {
 		task.set(pluginInstallPhaseError, "failed to fetch plugin manifest: "+err.Error())
 		log.Printf("[plugin-install %s] failed to fetch manifest: %v", pluginID, err)
@@ -216,6 +224,19 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	if !supportsArchitecture(manifest.Architectures, resources.Architecture) {
 		task.set(pluginInstallPhaseError, fmt.Sprintf("router architecture %s not supported (plugin supports %s)",
 			resources.Architecture, strings.Join(manifest.Architectures, ", ")))
+		return
+	}
+	if err := checkMinRouterOS(manifest.MinRouterOS, resources.Version); err != nil {
+		task.set(pluginInstallPhaseError, err.Error())
+		log.Printf("[plugin-install %s] %v", pluginID, err)
+		return
+	}
+
+	// Checked before anything is created on the router, so a bad manifest leaves nothing behind.
+	containerOpts, err := parseContainerOptions(manifest.Container)
+	if err != nil {
+		task.set(pluginInstallPhaseError, "plugin manifest has an invalid container setting: "+err.Error())
+		log.Printf("[plugin-install %s] invalid container settings: %v", pluginID, err)
 		return
 	}
 
@@ -243,11 +264,23 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		}
 	}
 
+	// The wizard runs it later with no registry to ask, so a copy is kept on the router.
+	postWizardScript := ""
+	if manifest.Scripts.PostWizard != "" {
+		script, err := fetchPluginScript(ctx, pluginID, manifest.Scripts.PostWizard)
+		if err != nil {
+			task.set(pluginInstallPhaseError, "failed to fetch post-wizard script: "+err.Error())
+			log.Printf("[plugin-install %s] failed to fetch post-wizard script: %v", pluginID, err)
+			return
+		}
+		postWizardScript = resolveSettingsPlaceholders(script, settingsValues)
+	}
+
 	task.set(pluginInstallPhaseCreatingInterface, "creating veth interface "+iface.Name)
 	if _, err := client.GetInterface(iface.Name); err != nil {
 		if _, err := client.AddVethInterface(routeros.VethConfig{
 			Name:    iface.Name,
-			Address: iface.Address,
+			Address: iface.Address.RouterOS(),
 			Gateway: iface.Gateway,
 		}); err != nil {
 			task.set(pluginInstallPhaseError, "failed to create veth interface: "+err.Error())
@@ -268,6 +301,24 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			log.Printf("[plugin-install %s] failed to add veth interface to bridge: %v", pluginID, err)
 			return
 		}
+	}
+
+	// Before anything can run from the veth, so its first packet already meets
+	// its class's rule. The pre-install script comes after, and sees them.
+	if iface.Address.usesExitClasses() {
+		task.set(pluginInstallPhaseCreatingInterface, "setting up the containers' exit classes")
+		if err := ensureExitClasses(client); err != nil {
+			task.set(pluginInstallPhaseError, "failed to set up the containers' exit classes: "+err.Error())
+			log.Printf("[plugin-install %s] failed to set up the exit classes: %v", pluginID, err)
+			return
+		}
+	}
+	// With no script too: one an earlier install kept before it failed would
+	// run after the next wizard.
+	if err := savePluginPostWizard(client, pluginID, postWizardScript); err != nil {
+		task.set(pluginInstallPhaseError, "failed to keep the post-wizard script on the router: "+err.Error())
+		log.Printf("[plugin-install %s] failed to save the post-wizard script: %v", pluginID, err)
+		return
 	}
 
 	task.set(pluginInstallPhaseCreatingMounts, "creating container mounts")
@@ -322,9 +373,16 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		RemoteImage: manifest.Container.Image,
 		Env:         joinEnvPairs(resolveEnvPlaceholders(manifest.Container.Env, settingsValues)),
 		MountLists:  strings.Join(mountListNames, ","),
+		MemoryHigh:  containerOpts.MemoryHigh,
+		MemoryMax:   containerOpts.MemoryMax,
+		CPUList:     containerOpts.CPUList,
+		User:        containerOpts.User,
+		Devices:     containerOpts.Devices,
 		Logging:     true,
 		StartOnBoot: true,
 		Comment:     manifest.Version,
+
+		AutoRestartInterval: containerOpts.AutoRestartInterval,
 	})
 	if err != nil {
 		task.set(pluginInstallPhaseError, "failed to create plugin container: "+err.Error())
@@ -418,6 +476,7 @@ func startPluginContainer(ctx context.Context, client *routeros.Client, task *pl
 // the HTTP request that triggered it, in its own goroutine.
 func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest *Manifest) {
 	pluginID := task.pluginID
+	ctx := context.Background()
 	task.setVersion(manifest.Version)
 
 	before, err := client.GetContainer(pluginID)
@@ -515,6 +574,25 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 			}
 		}
 
+		// The version is recorded while the container is still stopped: RouterOS
+		// restarts a running container when one of its properties is set, which
+		// stopped the plugin just after this started it and left it killed
+		// before it had finished starting.
+		var recordErr error
+		if imageChanged {
+			task.set(pluginUpdatePhaseUpdatingComment, "recording updated version")
+			recordErr = client.EditContainer(pluginID, map[string]string{"comment": manifest.Version})
+		}
+
+		// The new manifest takes over before the plugin runs again: an update used
+		// to leave a plugin on the addresses and router script of its install.
+		task.set(pluginUpdatePhaseRepulling, "bringing the router up to date for "+pluginID)
+		if err := applyManifestOnUpdate(ctx, client, pluginID, manifest); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to bring the router up to date: "+err.Error())
+			log.Printf("[plugin-update %s] failed to apply the new manifest: %v", pluginID, err)
+			return
+		}
+
 		task.set(pluginUpdatePhaseStartingContainer, "starting container "+pluginID)
 		if err := client.StartContainer(pluginID); err != nil {
 			task.set(pluginUpdatePhaseError, "failed to start container: "+err.Error())
@@ -537,10 +615,10 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 			return
 		}
 
-		task.set(pluginUpdatePhaseUpdatingComment, "recording updated version")
-		if err := client.EditContainer(pluginID, map[string]string{"comment": manifest.Version}); err != nil {
-			task.set(pluginUpdatePhaseError, "failed to record updated version: "+err.Error())
-			log.Printf("[plugin-update %s] failed to update container comment: %v", pluginID, err)
+		if recordErr != nil {
+			// The plugin is running again either way; only its version is wrong.
+			task.set(pluginUpdatePhaseError, "failed to record updated version: "+recordErr.Error())
+			log.Printf("[plugin-update %s] failed to update container comment: %v", pluginID, recordErr)
 			return
 		}
 
@@ -667,7 +745,7 @@ func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scr
 // preInstall/postInstall entry from a plugin's manifest.json), named relative
 // to the plugin's directory in the registry repository.
 func fetchPluginScript(ctx context.Context, id, scriptPath string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, pluginAssetsBaseURL+"/"+id+"/"+scriptPath, http.NoBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, pluginFilesURL+"/"+id+"/"+scriptPath, http.NoBody)
 	if err != nil {
 		return "", err
 	}
@@ -702,10 +780,24 @@ func fetchPluginRegistry(ctx context.Context) (*Registry, error) {
 
 func fetchPluginManifest(ctx context.Context, id string) (*Manifest, error) {
 	var manifest Manifest
-	if err := fetchPluginJSON(ctx, pluginAssetsBaseURL+"/"+id+"/manifest.json", &manifest); err != nil {
+	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/manifest.json", &manifest); err != nil {
 		return nil, err
 	}
 	return &manifest, nil
+}
+
+// fetchInstallManifest is fetchPluginManifest for an install or an update,
+// which apply the manifest and so refuse one the panel can't apply. An
+// uninstall, or the plugin list, still works whatever the manifest says.
+func fetchInstallManifest(ctx context.Context, id string) (*Manifest, error) {
+	manifest, err := fetchPluginManifest(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := manifest.validate(); err != nil {
+		return nil, fmt.Errorf("manifest of %s: %w", id, err)
+	}
+	return manifest, nil
 }
 
 // fetchPluginSettings fetches a plugin's settings schema, at the filename the
@@ -713,7 +805,7 @@ func fetchPluginManifest(ctx context.Context, id string) (*Manifest, error) {
 // "settings.json", but not assumed to always be).
 func fetchPluginSettings(ctx context.Context, id, settingsSchema string) (*SettingsSchema, error) {
 	var schema SettingsSchema
-	if err := fetchPluginJSON(ctx, pluginAssetsBaseURL+"/"+id+"/"+settingsSchema, &schema); err != nil {
+	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/"+settingsSchema, &schema); err != nil {
 		return nil, err
 	}
 	return &schema, nil
@@ -955,4 +1047,320 @@ func supportsArchitecture(manifestArchitectures []string, routerArch string) boo
 		}
 	}
 	return false
+}
+
+// pluginKeepData caches each plugin's manifest keepDataOnUninstall flag, keyed
+// by plugin id and registry version, so the plugin list (polled every few
+// seconds) only fetches a manifest again after the plugin has been updated.
+var (
+	pluginKeepData   = map[string]bool{}
+	pluginKeepDataMu sync.Mutex
+)
+
+// fillKeepDataOnUninstall sets KeepDataOnUninstall on every installed plugin
+// from its manifest, which the registry entry doesn't carry. A manifest that
+// can't be fetched leaves the flag as is and is tried again on the next list.
+func fillKeepDataOnUninstall(ctx context.Context, plugins []Info) {
+	for i := range plugins {
+		if !plugins[i].Installed {
+			continue
+		}
+
+		key := plugins[i].ID + "@" + plugins[i].Version
+		pluginKeepDataMu.Lock()
+		keep, cached := pluginKeepData[key]
+		pluginKeepDataMu.Unlock()
+
+		if !cached {
+			manifest, err := fetchPluginManifest(ctx, plugins[i].ID)
+			if err != nil {
+				log.Printf("[plugin-list %s] failed to fetch manifest for keepDataOnUninstall: %v", plugins[i].ID, err)
+				continue
+			}
+			keep = manifest.KeepDataOnUninstall
+
+			pluginKeepDataMu.Lock()
+			pluginKeepData[key] = keep
+			pluginKeepDataMu.Unlock()
+		}
+		plugins[i].KeepDataOnUninstall = keep
+	}
+}
+
+// keepDataParam reads the optional keepData query parameter: nil when it's
+// absent, its value otherwise. Anything but true or false is an error, so a
+// typo can't end up deleting data.
+func keepDataParam(c echo.Context) (*bool, error) {
+	var keep bool
+	switch c.QueryParam("keepData") {
+	case "":
+		return nil, nil
+	case "true":
+		keep = true
+	case "false":
+	default:
+		return nil, errors.New("keepData must be true or false")
+	}
+	return &keep, nil
+}
+
+// keepPluginData reports whether uninstalling leaves the plugin's data folder in
+// place. A keepData from the request wins; without one the manifest decides, so
+// a plugin that asks to keep its data is safe from a client that never sends it.
+func keepPluginData(manifest *Manifest, keepData *bool) bool {
+	if keepData != nil {
+		return *keepData
+	}
+	return manifest.KeepDataOnUninstall
+}
+
+// containerOptions is a manifest container's optional settings once checked,
+// in the form routeros.ContainerConfig takes them. A zero value means the
+// manifest left that setting out.
+type containerOptions struct {
+	MemoryHigh          int64
+	MemoryMax           int64
+	CPUList             string
+	User                string
+	Devices             string
+	AutoRestartInterval string
+}
+
+// minContainerMemoryMax is the least RouterOS accepts for memory-max.
+const minContainerMemoryMax = 1 << 20
+
+var (
+	memorySizePattern      = regexp.MustCompile(`^(\d+)([kKmMgG]?)$`)
+	cpuListPattern         = regexp.MustCompile(`^cpu\d{1,3}(,cpu\d{1,3})*$`)
+	userNamePattern        = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_.-]{0,31}$`)
+	deviceNamePattern      = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._:/+-]*$`)
+	restartIntervalPattern = regexp.MustCompile(`^(\d+w)?(\d+d)?(\d+h)?(\d+m)?(\d+s)?$`)
+)
+
+// parseContainerOptions checks the optional settings of a manifest's container
+// and converts them for routeros.ContainerConfig. Doing it up front means a
+// typo is reported by field name, where RouterOS would only refuse the whole
+// container.
+func parseContainerOptions(c ManifestContainer) (containerOptions, error) {
+	var opts containerOptions
+	var err error
+
+	if opts.MemoryHigh, err = parseMemorySize(c.MemoryHigh); err != nil {
+		return opts, fmt.Errorf("memoryHigh: %w", err)
+	}
+	if opts.MemoryMax, err = parseMemorySize(c.MemoryMax); err != nil {
+		return opts, fmt.Errorf("memoryMax: %w", err)
+	}
+	if opts.MemoryMax > 0 && opts.MemoryMax < minContainerMemoryMax {
+		return opts, fmt.Errorf("memoryMax: %q is below the 1M RouterOS accepts", c.MemoryMax)
+	}
+	if opts.MemoryHigh > 0 && opts.MemoryMax > 0 && opts.MemoryHigh > opts.MemoryMax {
+		return opts, errors.New("memoryHigh must not be larger than memoryMax")
+	}
+	if opts.CPUList, err = parseCPUList(c.CPUList); err != nil {
+		return opts, fmt.Errorf("cpuList: %w", err)
+	}
+	if opts.User, err = parseContainerUser(c.User); err != nil {
+		return opts, fmt.Errorf("user: %w", err)
+	}
+	if opts.Devices, err = parseDevices(c.Devices); err != nil {
+		return opts, fmt.Errorf("devices: %w", err)
+	}
+	if opts.AutoRestartInterval, err = parseRestartInterval(c.AutoRestartInterval); err != nil {
+		return opts, fmt.Errorf("autoRestartInterval: %w", err)
+	}
+	return opts, nil
+}
+
+// parseMemorySize turns "256M", "1G", "512k" or a plain byte count into bytes,
+// with 1024-based units. An empty value is not set and gives 0.
+func parseMemorySize(value string) (int64, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return 0, nil
+	}
+
+	m := memorySizePattern.FindStringSubmatch(value)
+	if m == nil {
+		return 0, fmt.Errorf("%q is not a size, use bytes or a number with a K, M or G suffix such as 256M", value)
+	}
+	multiplier := map[string]int64{"": 1, "K": 1 << 10, "M": 1 << 20, "G": 1 << 30}[strings.ToUpper(m[2])]
+
+	n, err := strconv.ParseInt(m[1], 10, 64)
+	if err != nil || n > math.MaxInt64/multiplier {
+		return 0, fmt.Errorf("%q is too large", value)
+	}
+	if n == 0 {
+		return 0, fmt.Errorf("%q must be more than zero, leave the field out for no limit", value)
+	}
+	return n * multiplier, nil
+}
+
+// parseCPUList checks a RouterOS cpu-list, which names its cores "cpu0",
+// "cpu1" and so on rather than numbering them.
+func parseCPUList(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value != "" && !cpuListPattern.MatchString(value) {
+		return "", fmt.Errorf("%q is not a CPU list, use core names such as cpu0 or cpu0,cpu1", value)
+	}
+	return value, nil
+}
+
+// parseContainerUser checks user[:group], where each part is a name or a
+// numeric id.
+func parseContainerUser(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
+
+	user, group, hasGroup := strings.Cut(value, ":")
+	if !validUserPart(user) || (hasGroup && !validUserPart(group)) {
+		return "", fmt.Errorf("%q is not a user, use user[:group] with names or numeric ids such as 1000:1000", value)
+	}
+	return value, nil
+}
+
+func validUserPart(part string) bool {
+	if part != "" && part[0] >= '0' && part[0] <= '9' {
+		_, err := strconv.ParseUint(part, 10, 32)
+		return err == nil
+	}
+	return userNamePattern.MatchString(part)
+}
+
+// parseDevices joins the manifest's device names into the comma-separated
+// list RouterOS takes. Which names exist depends on the router, so only their
+// shape is checked here.
+func parseDevices(devices []string) (string, error) {
+	names := make([]string, 0, len(devices))
+	for _, device := range devices {
+		device = strings.TrimSpace(device)
+		if !deviceNamePattern.MatchString(device) {
+			return "", fmt.Errorf("%q is not a device name, use one RouterOS lists such as serial0", device)
+		}
+		names = append(names, device)
+	}
+	return strings.Join(names, ","), nil
+}
+
+// parseRestartInterval checks a RouterOS time such as "30s", "5m" or "1h30m".
+func parseRestartInterval(value string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
+
+	if !restartIntervalPattern.MatchString(value) {
+		return "", fmt.Errorf("%q is not a time, use a number with a unit such as 30s, 5m or 1h30m", value)
+	}
+	// Nothing left once the zeros and unit letters are gone means a zero time.
+	if strings.Trim(value, "0wdhms") == "" {
+		return "", fmt.Errorf("%q must be more than zero, leave the field out for no restart", value)
+	}
+	return value, nil
+}
+
+// UnmarshalJSON accepts a string or a list of strings.
+func (a *Addresses) UnmarshalJSON(data []byte) error {
+	var one string
+	if err := json.Unmarshal(data, &one); err == nil {
+		if strings.TrimSpace(one) == "" {
+			*a = nil // the same as leaving the field out
+			return nil
+		}
+		*a = splitAddresses([]string{one})
+		return nil
+	}
+
+	var many []string
+	if err := json.Unmarshal(data, &many); err != nil {
+		return errors.New("must be an address string or a list of address strings")
+	}
+	*a = splitAddresses(many)
+	return nil
+}
+
+// splitAddresses flattens comma-separated entries and trims each address. A
+// blank one is kept so that validation can name it.
+func splitAddresses(entries []string) Addresses {
+	var addresses Addresses
+	for _, entry := range entries {
+		for _, address := range strings.Split(entry, ",") {
+			addresses = append(addresses, strings.TrimSpace(address))
+		}
+	}
+	return addresses
+}
+
+// Primary is the container's own address, with its prefix length.
+func (a Addresses) Primary() string {
+	if len(a) == 0 {
+		return ""
+	}
+	return a[0]
+}
+
+// RouterOS renders the list as /interface/veth takes it.
+func (a Addresses) RouterOS() string {
+	return strings.Join(a, ",")
+}
+
+// validate checks what a manifest says about the router: the veth's addresses
+// and the RouterOS floor. It runs as the manifest is fetched, so a bad one is
+// refused before anything is built from it.
+func (m *Manifest) validate() error {
+	if err := validateVethAddresses(m.Container.Interface.Address); err != nil {
+		return fmt.Errorf("container.interface.address: %w", err)
+	}
+	if m.MinRouterOS != "" {
+		if _, err := routeros.ParseVersion(m.MinRouterOS); err != nil {
+			return fmt.Errorf("minRouterOS: %w", err)
+		}
+	}
+	return nil
+}
+
+// validateVethAddresses checks that each address is an IP with its prefix
+// length, which RouterOS insists on, and that none is listed twice.
+func validateVethAddresses(addresses Addresses) error {
+	seen := make(map[netip.Addr]bool, len(addresses))
+	for _, address := range addresses {
+		if address == "" {
+			return errors.New("the list has an empty entry, a stray comma perhaps")
+		}
+		prefix, err := netip.ParsePrefix(address)
+		if err != nil {
+			return fmt.Errorf("%q is not an address with its prefix length, such as 192.168.50.16/24", address)
+		}
+		if seen[prefix.Addr()] {
+			return fmt.Errorf("%s is listed twice", prefix.Addr())
+		}
+		seen[prefix.Addr()] = true
+		if err := validateExitClassAddress(prefix); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// checkMinRouterOS refuses a router older than the manifest's minRouterOS. A
+// version it can't read is refused too: letting it through would hand the plugin
+// to a router it may not work on.
+func checkMinRouterOS(minVersion, routerVersion string) error {
+	if minVersion == "" {
+		return nil
+	}
+	need, err := routeros.ParseVersion(minVersion)
+	if err != nil {
+		return fmt.Errorf("minRouterOS: %w", err)
+	}
+	have, err := routeros.ParseVersion(routerVersion)
+	if err != nil {
+		return fmt.Errorf("can't tell which RouterOS the router runs: %w", err)
+	}
+	if have.Compare(need) < 0 {
+		return fmt.Errorf("this plugin needs RouterOS %s or newer and the router runs %s: update RouterOS, then install it again", need, have)
+	}
+	return nil
 }

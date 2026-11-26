@@ -12,12 +12,16 @@ import (
 	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/dns"
+	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/jmoiron/sqlx"
 )
 
-func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {
+// saveWizardConfigWhenDone calls release once the wizard's script has ended,
+// however it ended.
+func saveWizardConfigWhenDone(client *routeros.Client, release func(), data *WizardSaveData) {
+	defer release()
 	ctx, cancel := context.WithTimeout(context.Background(), wizardSaveTimeout)
 	defer cancel()
 
@@ -37,7 +41,12 @@ func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {
 			return
 		}
 		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
+			release()
+			// The save first, so it doesn't share what's left of ctx with the scripts.
 			saveWizardConfig(ctx, client, data)
+			for _, err := range plugin.RunPostWizard(client) {
+				log.Printf("[plugin-post-wizard] %v", err)
+			}
 			return
 		}
 	}

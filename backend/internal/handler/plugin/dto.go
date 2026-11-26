@@ -102,6 +102,9 @@ type Info struct {
 	Installing       bool   `json:"installing"`
 	Failed           bool   `json:"failed"`
 	Note             string `json:"note,omitempty"`
+	// KeepDataOnUninstall is read from the manifest of installed plugins only,
+	// so the uninstall dialog knows whether to offer deleting the data.
+	KeepDataOnUninstall bool `json:"keepDataOnUninstall,omitempty"`
 }
 
 // ListResponse is the response for GET /api/plugin/plugins.
@@ -126,10 +129,17 @@ type Registry struct {
 // ManifestInterface describes the veth interface a plugin's container
 // is attached to.
 type ManifestInterface struct {
-	Name    string `json:"name"`
-	Address string `json:"address"`
-	Gateway string `json:"gateway"`
+	Name    string    `json:"name"`
+	Address Addresses `json:"address"`
+	Gateway string    `json:"gateway"`
 }
+
+// Addresses are the addresses of a plugin's veth, each with its prefix
+// length ("192.168.50.16/24"). A manifest writes one as a plain string, as they
+// all used to, or several as a list. A string holding a comma-separated list is
+// a list too: it is how RouterOS takes them, and how a manifest already does.
+// The first address is the container's own.
+type Addresses []string
 
 // ManifestMount describes one directory a plugin's container mounts.
 // Name groups this entry under a /container/mounts list of the same name.
@@ -157,6 +167,18 @@ type ManifestContainer struct {
 	Env       map[string]string `json:"env"`
 	Mounts    []ManifestMount   `json:"mounts"`
 	Ports     []ManifestPort    `json:"ports"`
+
+	// The rest are optional container settings. They apply when the container
+	// is created (updating a plugin leaves them alone) and are taken literally,
+	// "{{settings.<key>}}" is not expanded. A bad value fails the install before
+	// the router is touched; leave them out and the container is created as it
+	// always was.
+	MemoryHigh          string   `json:"memoryHigh"`          // size: bytes, or a number with a K, M or G suffix ("128M")
+	MemoryMax           string   `json:"memoryMax"`           // size like memoryHigh, at least 1M and not below memoryHigh
+	CPUList             string   `json:"cpuList"`             // cores to run on, named as RouterOS does: "cpu0" or "cpu0,cpu1"
+	User                string   `json:"user"`                // user[:group], each a name or a numeric id: "1000:1000"
+	Devices             []string `json:"devices"`             // devices to hand through, as RouterOS names them: ["serial0"]
+	AutoRestartInterval string   `json:"autoRestartInterval"` // RouterOS time ("30s", "5m", "1h30m"): restart the container this long after it exits
 }
 
 // ManifestScripts names RouterOS scripts run at various install and
@@ -166,6 +188,10 @@ type ManifestScripts struct {
 	PreInstall   string `json:"preInstall"`
 	PostInstall  string `json:"postInstall"`
 	PreUninstall string `json:"preUninstall"`
+	// PostWizard runs after the wizard has rebuilt the router, which wipes what
+	// install scripts set up. The panel keeps a copy on the router from install
+	// on, so running it needs no network.
+	PostWizard string `json:"postWizard"`
 }
 
 // Manifest is the per-plugin manifest.json fetched from the community
@@ -185,6 +211,13 @@ type Manifest struct {
 	Container      ManifestContainer `json:"container"`
 	Scripts        ManifestScripts   `json:"scripts"`
 	SettingsSchema string            `json:"settingsSchema"`
+	// MinRouterOS is the oldest RouterOS the plugin works on ("7.11"). An install
+	// on an older router is refused.
+	MinRouterOS string `json:"minRouterOS"`
+	// KeepDataOnUninstall is for plugins whose data folder holds something that
+	// is hard to recreate (a certificate authority, say): uninstalling leaves the
+	// folder in place unless the request asks for it to be deleted.
+	KeepDataOnUninstall bool `json:"keepDataOnUninstall"`
 }
 
 // SettingField describes one configurable setting for a plugin. Default

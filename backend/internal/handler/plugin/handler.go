@@ -24,6 +24,7 @@ import (
 // @Description Only plugins with visible=true in the registry are included, unless the
 // @Description build version contains "dev", in which case every plugin is listed. Hidden plugins can still be installed
 // @Description directly and are unaffected by this filter.
+// @Description Installed plugins also carry keepDataOnUninstall when their manifest sets it.
 // @Tags Plugin
 // @Security BearerAuth
 // @Produce json
@@ -62,9 +63,12 @@ func HandleListPlugins(c echo.Context) error {
 		}
 	}
 
+	plugins := filterVisiblePlugins(finalizePlugins(registry.Plugins, containers))
+	fillKeepDataOnUninstall(c.Request().Context(), plugins)
+
 	return common.SuccessResponse(c, http.StatusOK, "Plugins retrieved", ListResponse{
 		ContainerSupport: containerSupport,
-		Plugins:          filterVisiblePlugins(finalizePlugins(registry.Plugins, containers)),
+		Plugins:          plugins,
 	})
 }
 
@@ -251,7 +255,7 @@ func HandleViewPlugin(c echo.Context) error {
 			return common.ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
 		}
 
-		host, _, _ := strings.Cut(manifest.Container.Interface.Address, "/")
+		host, _, _ := strings.Cut(manifest.Container.Interface.Address.Primary(), "/")
 		if host == "" {
 			return common.ErrorResponse(c, http.StatusInternalServerError, "Plugin manifest has no interface address", nil)
 		}
@@ -294,8 +298,10 @@ func HandleViewPlugin(c echo.Context) error {
 // @Summary Install a plugin
 // @Description Starts an async install of a plugin from the community registry:
 // @Description creates the veth interface its manifest specifies (if not already
-// @Description present), creates its mounts, and adds its container, then waits for
-// @Description the image to finish pulling. Poll GET /api/plugin/install/status/{pluginId} for
+// @Description present) with every address it lists, puts the containers' exit classes on the
+// @Description router when one of them is in 192.168.150.0/24, creates its mounts, and adds its
+// @Description container, then waits for the image to finish pulling. A router older than the
+// @Description manifest's minRouterOS is refused. Poll GET /api/plugin/install/status/{pluginId} for
 // @Description progress. At most one install per plugin id may run at a time;
 // @Description different plugins may install concurrently.
 // @Tags Plugin
@@ -414,8 +420,11 @@ func HandleGetPluginInstallStatus(c echo.Context) error {
 // @Description Checks the community registry's version for pluginId against the
 // @Description version recorded in its container's comment; if the registry version
 // @Description is newer, starts an async update: repulls the container's image from
-// @Description the registry-declared image, restarts the container, then records the
-// @Description new version in the container's comment. Poll
+// @Description the registry-declared image and, with the container stopped, records the
+// @Description new version in its comment, gives its veth the new manifest's addresses and
+// @Description gateway, puts the containers' exit classes on the router when one of those
+// @Description addresses is in 192.168.150.0/24, and keeps and runs the new post-wizard
+// @Description script, then starts the container again. Poll
 // @Description GET /api/plugin/update/status/{pluginId} for progress.
 // @Tags Plugin
 // @Security BearerAuth
@@ -458,7 +467,7 @@ func HandleUpdatePlugin(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
 	}
 
-	manifest, err := fetchPluginManifest(ctx, pluginID)
+	manifest, err := fetchInstallManifest(ctx, pluginID)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
 	}
@@ -513,14 +522,18 @@ func HandleGetPluginUpdateStatus(c echo.Context) error {
 // HandleUninstallPlugin godoc
 // @Summary Uninstall a plugin
 // @Description Removes an installed plugin: runs the preUninstall script from its
-// @Description manifest (if it names one), stops and removes its container, then
-// @Description removes the mount lists and veth interface the manifest declares, and
+// @Description manifest (if it names one), stops and removes its container, removes the
+// @Description post-wizard script the panel kept for it, then removes the mount lists and veth interface the manifest declares, and
 // @Description deletes the plugin's volume directory (nasnet-panel/container-volumes/<pluginId>).
+// @Description A manifest that sets keepDataOnUninstall keeps that directory unless
+// @Description keepData=false is passed, and keepData=true keeps it for any plugin;
+// @Description installing the plugin again picks the directory up.
 // @Description Cleanup steps that fail once the container is already gone are
 // @Description reported in the response as warnings rather than failing the request.
 // @Tags Plugin
 // @Security BearerAuth
 // @Param name path string true "Plugin id, which is also its container name"
+// @Param keepData query boolean false "Keep the plugin's data directory (default: what the manifest's keepDataOnUninstall says, else false)"
 // @Produce json
 // @Success 200 {object} common.Response{data=UninstallPluginResponse}
 // @Failure 400 {object} common.Response
@@ -533,6 +546,10 @@ func HandleUninstallPlugin(c echo.Context) error {
 	name := c.Param("name")
 	if name == "" {
 		return common.ErrorResponse(c, http.StatusBadRequest, "plugin name is required", nil)
+	}
+	keepData, err := keepDataParam(c)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid keepData value", err)
 	}
 
 	// Reserved for the rest of this handler, which runs synchronously: an
@@ -551,6 +568,13 @@ func HandleUninstallPlugin(c echo.Context) error {
 		return err
 	}
 
+	return uninstallPlugin(c, client, name, keepData)
+}
+
+// uninstallPlugin is HandleUninstallPlugin from the point it holds the plugin's
+// lifecycle reservation and a router client. A nil keepData means the request
+// didn't say, which leaves the choice to the manifest.
+func uninstallPlugin(c echo.Context, client *routeros.Client, name string, keepData *bool) error {
 	ctx := c.Request().Context()
 
 	registry, err := getCachedPluginRegistry(ctx)
@@ -610,6 +634,12 @@ func HandleUninstallPlugin(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to remove plugin container", err)
 	}
 
+	// The exit classes are the router's, for every container, so they stay.
+	if err := removePluginState(client, name); err != nil {
+		warnings = append(warnings, "failed to remove the plugin's saved post-wizard script: "+err.Error())
+		log.Printf("[plugin-uninstall %s] failed to remove its saved state: %v", name, err)
+	}
+
 	removedLists := make([]string, 0, len(manifest.Container.Mounts))
 	seen := make(map[string]bool, len(manifest.Container.Mounts))
 	for i := range manifest.Container.Mounts {
@@ -627,10 +657,15 @@ func HandleUninstallPlugin(c echo.Context) error {
 		removedLists = append(removedLists, listName)
 	}
 
-	removedVolumeDir, err := removePluginVolumeDir(client, name)
-	if err != nil {
-		warnings = append(warnings, "failed to remove plugin volume directory: "+err.Error())
-		log.Printf("[plugin-uninstall %s] failed to remove volume directory: %v", name, err)
+	// Kept data is picked up again by a reinstall, since preparePluginVolumeDir
+	// only creates the directories that are missing.
+	removedVolumeDir := ""
+	if !keepPluginData(manifest, keepData) {
+		removedVolumeDir, err = removePluginVolumeDir(client, name)
+		if err != nil {
+			warnings = append(warnings, "failed to remove plugin volume directory: "+err.Error())
+			log.Printf("[plugin-uninstall %s] failed to remove volume directory: %v", name, err)
+		}
 	}
 
 	removedInterface := strings.TrimSpace(manifest.Container.Interface.Name)

@@ -326,7 +326,8 @@ add action=lookup-only-in-table comment="Routing the VPN Routing Mark" disabled=
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link SRC Address" disabled=no src-address="192.168.31.0/24" table="to-Foreign-Foreign Link"
 add action=lookup-only-in-table comment="Routing the Foreign-Foreign Link Routing Mark" disabled=no routing-mark="to-Foreign-Foreign Link" table="to-Foreign-Foreign Link"
 add action=lookup-only-in-table comment="Tunnel endpoints always leave via Foreign" disabled=no table=to-Foreign src-address=10.255.255.2/32
-
+{{/* The containers' exit classes: each /28 of 192.168.150.0/24 leaves through one link, or is dropped while there is none. */}}
+{{ with .ContainerExitClasses }}{{ . }}{{ end }}
 
 /interface bridge port
 remove [find bridge="LANBridgeSplit" interface=[/interface/get [/interface/{{ .ForeignInterface.Type2 }} find default-name={{ .ForeignInterface.Interface }}] name]]
