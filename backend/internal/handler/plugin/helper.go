@@ -313,12 +313,12 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			return
 		}
 	}
-	if postWizardScript != "" {
-		if err := savePluginPostWizard(client, pluginID, postWizardScript); err != nil {
-			task.set(pluginInstallPhaseError, "failed to keep the post-wizard script on the router: "+err.Error())
-			log.Printf("[plugin-install %s] failed to save the post-wizard script: %v", pluginID, err)
-			return
-		}
+	// With no script too: one an earlier install kept before it failed would
+	// run after the next wizard.
+	if err := savePluginPostWizard(client, pluginID, postWizardScript); err != nil {
+		task.set(pluginInstallPhaseError, "failed to keep the post-wizard script on the router: "+err.Error())
+		log.Printf("[plugin-install %s] failed to save the post-wizard script: %v", pluginID, err)
+		return
 	}
 
 	task.set(pluginInstallPhaseCreatingMounts, "creating container mounts")

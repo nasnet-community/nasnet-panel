@@ -26,6 +26,9 @@ func pluginStateDir(client *routeros.Client, pluginID string) string {
 // the one an earlier install left when there is none.
 func savePluginPostWizard(client *routeros.Client, pluginID, script string) error {
 	if !pluginIDPattern.MatchString(pluginID) {
+		if script == "" {
+			return nil // nothing can have been kept for it
+		}
 		return fmt.Errorf("%q is not a plugin id", pluginID)
 	}
 
