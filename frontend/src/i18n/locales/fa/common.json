@@ -3,15 +3,15 @@
     "label": "زبان"
   },
   "units": {
-    "B": "{{value}} بایت",
-    "KB": "{{value}} کیلوبایت",
-    "MB": "{{value}} مگابایت",
-    "GB": "{{value}} گیگابایت",
-    "TB": "{{value}} ترابایت",
-    "Bps": "{{value}} بایت بر ثانیه",
-    "KBps": "{{value}} کیلوبایت بر ثانیه",
-    "MBps": "{{value}} مگابایت بر ثانیه",
-    "GBps": "{{value}} گیگابایت بر ثانیه",
-    "TBps": "{{value}} ترابایت بر ثانیه"
+    "B": "⁦{{value}} B⁩",
+    "KB": "⁦{{value}} KB⁩",
+    "MB": "⁦{{value}} MB⁩",
+    "GB": "⁦{{value}} GB⁩",
+    "TB": "⁦{{value}} TB⁩",
+    "Bps": "⁦{{value}} B/s⁩",
+    "KBps": "⁦{{value}} KB/s⁩",
+    "MBps": "⁦{{value}} MB/s⁩",
+    "GBps": "⁦{{value}} GB/s⁩",
+    "TBps": "⁦{{value}} TB/s⁩"
   }
 }

@@ -11,49 +11,12 @@ import (
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/firewall"
 	"nasnet-panel/internal/handler/iface"
+	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )
-
-// HandleGetVPNCredentials returns the router's VPN account from the NasNet API.
-// @Summary Get VPN Credentials
-// @Description Get the router's L2TP VPN account from api.joinnasnet.com. The router is identified by its signed user ID, so the same account comes back every time. Server is the primary server, Fallback1 and Fallback2 are the backups.
-// @Tags Config
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Success 200 {object} common.Response{data=VPNCredentialsResponse}
-// @Failure 500 {object} common.Response
-// @Failure 502 {object} common.Response
-// @Router /api/config/vpn [post].
-func HandleGetVPNCredentials(c echo.Context) error {
-	client, err := common.GetRouterOSClient(c)
-	if err != nil {
-		return err
-	}
-
-	userID, err := routerUserID(client)
-	if err != nil {
-		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
-	}
-
-	account, err := fetchVPNAccount(c.Request().Context(), userID)
-	if err != nil {
-		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to retrieve VPN credentials", err)
-	}
-
-	response := VPNCredentialsResponse{
-		Username:  account.Username,
-		Password:  account.Password,
-		Server:    account.Primary,
-		Fallback1: account.Fallback1,
-		Fallback2: account.Fallback2,
-	}
-
-	return common.SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", response)
-}
 
 // HandleGetWizardStatus retrieves the wizard status: Completed from the
 // wizardSuccessFile marker, Progress from environment variables.
@@ -305,7 +268,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		identity = req.WiFiAP.SSID
 	}
 
-	randomUserID, err := routerUserID(client)
+	randomUserID, err := common.RouterUserID(client)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}
@@ -350,11 +313,13 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}
 
+	release := plugin.HoldExitClasses()
 	if message, err := startBaseConfigScript(client, creds, rendered); err != nil {
+		release()
 		return common.ErrorResponse(c, http.StatusInternalServerError, message, err)
 	}
 
-	go saveWizardConfigWhenDone(client, &WizardSaveData{
+	go saveWizardConfigWhenDone(client, release, &WizardSaveData{
 		Request:              &req,
 		DomesticEnabled:      domesticEnabled,
 		Foreign:              &foreignInterface,

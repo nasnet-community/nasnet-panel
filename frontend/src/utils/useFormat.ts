@@ -16,6 +16,9 @@ export function useFormat() {
     const number = (value: number, options?: Intl.NumberFormatOptions) =>
       new Intl.NumberFormat(intlLocale, options).format(value);
 
+    const latinNumber = (value: number, options?: Intl.NumberFormatOptions) =>
+      new Intl.NumberFormat('en-US', options).format(value);
+
     return {
       number,
       percent: (fraction: number, maximumFractionDigits = 0) =>
@@ -35,10 +38,10 @@ export function useFormat() {
         }
         const digits = unit === 0 ? 0 : 2;
         return t(`units.${BYTE_UNITS[unit]}`, {
-          value: number(value, {
+          value: latinNumber(value, {
             minimumFractionDigits: digits,
             maximumFractionDigits: digits,
-            // Match formatBytes exactly: no thousands separators.
+            // Sizes always use Latin digits and units, in every language.
             useGrouping: false,
           }),
         });
@@ -50,7 +53,7 @@ export function useFormat() {
         if (!label || !match) return label;
         const [, amount, unit, perSecond] = match;
         const decimals = amount.split('.')[1]?.length ?? 0;
-        const value = number(Number(amount), {
+        const value = latinNumber(Number(amount), {
           minimumFractionDigits: decimals,
           maximumFractionDigits: decimals,
           useGrouping: false,

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/netip"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -569,4 +570,19 @@ func fillWANAddress(wan *WANResponse, macvlans []routeros.MacvlanInfo, dhcpClien
 func stripPrefix(address string) string {
 	ip, _, _ := strings.Cut(address, "/")
 	return ip
+}
+
+func compareRouterOSIDs(a, b string) int {
+	left, leftErr := strconv.ParseUint(strings.TrimPrefix(a, "*"), 16, 64)
+	right, rightErr := strconv.ParseUint(strings.TrimPrefix(b, "*"), 16, 64)
+	switch {
+	case leftErr != nil || rightErr != nil:
+		return strings.Compare(a, b)
+	case left < right:
+		return -1
+	case left > right:
+		return 1
+	default:
+		return 0
+	}
 }

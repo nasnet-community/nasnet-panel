@@ -306,6 +306,14 @@ func (c *Client) SetIPRouteDistance(id string, distance int) error {
 	return nil
 }
 
+// SetIPRouteComment sets the comment of an IP route.
+func (c *Client) SetIPRouteComment(id, comment string) error {
+	if _, err := c.Set("/ip/route", "=.id="+id, "=comment="+comment); err != nil {
+		return fmt.Errorf("failed to set the comment of IP route %s: %w", id, err)
+	}
+	return nil
+}
+
 // UpdateIPRoute updates an existing IP route with new configuration.
 func (c *Client) UpdateIPRoute(id string, config IPRouteConfig) error {
 	args := []string{"=.id=" + id}

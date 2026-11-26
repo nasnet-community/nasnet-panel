@@ -76,8 +76,12 @@ type VPNClientResponse struct {
 	PingTime     string `json:"pingTime,omitempty"`
 	PeerCount    *int   `json:"peerCount,omitempty"`
 
-	FailoverRole string `json:"failoverRole,omitempty" example:"primary"`
-	Warning      string `json:"warning,omitempty" example:"This VPN client uses shared fallback credentials."`
+	FailoverRole string `json:"failoverRole,omitempty" example:"primary" enums:"primary,backup1,backup2,standby"`
+	// FailoverActive is true for the client whose failover route the router is using right now.
+	FailoverActive bool   `json:"failoverActive" example:"false"`
+	Warning        string `json:"warning,omitempty" example:"This VPN client uses shared fallback credentials."`
+	// Fallback is true when the client uses the shared fallback account.
+	Fallback bool `json:"fallback" example:"false"`
 }
 
 // UpdateVPNClientRequest represents a request to update VPN client settings. FailoverRole
@@ -643,4 +647,27 @@ type VPNProfileResponse struct {
 	SessionTimeout     string   `json:"sessionTimeout,omitempty"`
 	IdleTimeout        string   `json:"idleTimeout,omitempty"`
 	Comment            string   `json:"comment,omitempty"`
+}
+
+// ClaimVPNResponse represents the router's VPN account in the API response.
+type ClaimVPNResponse struct {
+	Username  string `json:"username" example:"NNC_zN9RI61d"`
+	Password  string `json:"password" example:"UmAaItfM"`
+	Server    string `json:"server" example:"dij5t.vpn.s4i.co"`
+	Fallback1 string `json:"fallback1" example:"ai4mo.vpn.s4i.co"`
+	Fallback2 string `json:"fallback2" example:"vav9r.vpn.s4i.co"`
+}
+
+// ClaimVPNChange is one change POST /api/vpn/claim made, or why it skipped one.
+type ClaimVPNChange struct {
+	Name    string `json:"name" example:"L2TP-VPN-1"`
+	Action  string `json:"action" example:"added" enums:"added,updated,role,deleted,skipped"`
+	Role    string `json:"role,omitempty" example:"primary"`
+	Message string `json:"message,omitempty" example:"The failover setup failed"`
+}
+
+// ClaimVPNApplyResponse lists what POST /api/vpn/claim changed. An empty list means the
+// router already matched the claimed account.
+type ClaimVPNApplyResponse struct {
+	Changes []ClaimVPNChange `json:"changes"`
 }

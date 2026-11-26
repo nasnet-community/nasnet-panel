@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -241,7 +242,7 @@ func HandleUpdateInterfaceBridge(c echo.Context) error {
 
 // HandleListBridges lists every bridge whose name starts with "LANBridge".
 // @Summary List LAN bridges
-// @Description Get every /interface/bridge entry whose name starts with "LANBridge"
+// @Description Get every /interface/bridge entry whose name starts with "LANBridge", sorted by id
 // @Tags Interface
 // @Security BearerAuth
 // @Produce json
@@ -270,6 +271,7 @@ func HandleListBridges(c echo.Context) error {
 		}
 		response = append(response, toBridgeResponse(&bridges[i]))
 	}
+	slices.SortStableFunc(response, func(a, b BridgeResponse) int { return compareRouterOSIDs(a.ID, b.ID) })
 
 	return common.SuccessResponse(c, http.StatusOK, "Bridges retrieved successfully", response)
 }

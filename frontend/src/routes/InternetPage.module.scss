@@ -159,6 +159,12 @@
   unicode-bidi: plaintext;
 }
 
+.nodeLabelOpaque {
+  // The router's vertical links run behind its label, so the label paints over them.
+  padding: 0 6px;
+  background: var(--color-surface);
+}
+
 .nodeSubLabel {
   font-size: 10px;
   color: var(--color-text-muted);

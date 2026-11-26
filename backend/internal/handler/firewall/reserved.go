@@ -30,13 +30,15 @@ type reservedAddress struct {
 }
 
 // panelRouteAddresses are the check IPs the wizard templates route through each link and ping to
-// tell whether the link is up: the domestic, foreign and VPN client check routes and the panel's
+// tell whether the link is up: the domestic, foreign and VPN resolver routes and the panel's
 // VPN status ping. Putting one of them in the domestic list sends its traffic out the wrong link.
 var panelRouteAddresses = []reservedAddress{
 	{addr: netip.IPv4Unspecified(), reason: ReservedUnspecified},
 	{addr: netip.MustParseAddr(dns.DNSDefaultDomesticIP), reason: ReservedPanelRoute},
 	{addr: netip.MustParseAddr(dns.DNSDefaultForeignIP), reason: ReservedPanelRoute},
-	{addr: netip.MustParseAddr(dns.DNSDefaultVPNIP), reason: ReservedPanelRoute},
+	{addr: netip.MustParseAddr(dns.DNSDefaultVPNPrimaryIP), reason: ReservedPanelRoute},
+	{addr: netip.MustParseAddr(dns.DNSDefaultVPNBackup1IP), reason: ReservedPanelRoute},
+	{addr: netip.MustParseAddr(dns.DNSDefaultVPNBackup2IP), reason: ReservedPanelRoute},
 }
 
 // reservedConflict describes a domestic list address that equals or contains a reserved address.

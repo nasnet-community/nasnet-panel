@@ -89,6 +89,21 @@ async function mockTopologyApi(context: BrowserContext, opts: TopologyMockOption
     });
   });
 
+  const wanComments = ['WAN - Foreign Link', 'WAN - Domestic Link'];
+  const wans = (opts.interfaces ?? defaultInterfaces)
+    .filter((i) => i.comment && wanComments.includes(i.comment))
+    .map((i) => ({
+      wanType: i.comment === 'WAN - Domestic Link' ? 'domestic' : 'foreign',
+      interface: i.name,
+      interfaceType: 'ether',
+      status: i.running ? 'link-ok' : 'no-link',
+      enabled: !i.disabled,
+      comment: i.comment,
+    }));
+  await context.route('**/api/interface/wans', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: envelope(wans) });
+  });
+
   await context.route('**/api/interface/interfaces', async (route) => {
     await route.fulfill({
       status: 200,
@@ -97,11 +112,23 @@ async function mockTopologyApi(context: BrowserContext, opts: TopologyMockOption
     });
   });
 
-  await context.route('**/api/route/foreign-gateway', async (route) => {
+  const vpnIfaces = (opts.interfaces ?? defaultInterfaces).filter((i) =>
+    i.name.includes('-client-'),
+  );
+  const clients = vpnIfaces.map((i) => ({
+    id: i.id,
+    name: i.name,
+    type: i.type,
+    running: i.running,
+    disabled: i.disabled,
+    comment: i.comment,
+    failoverRole: i.name === opts.gateway ? 'primary' : opts.gateway ? 'backup1' : undefined,
+  }));
+  await context.route('**/api/vpn/clients', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: envelope({ gateway: opts.gateway === undefined ? 'wg-client-mask' : opts.gateway }),
+      body: envelope(clients),
     });
   });
 }
@@ -363,7 +390,7 @@ test.describe('Internet routing page', () => {
       gateway: 'wg-client-alt',
     });
 
-    let targetPutBody: { disabled?: boolean } | null = null;
+    let targetPutBody: { disabled?: boolean; failoverRole?: string } | null = null;
     await context.route('**/api/vpn/clients/wg-client-mask', async (route) => {
       targetPutBody = route.request().postDataJSON() as typeof targetPutBody;
       await route.fulfill({
@@ -385,32 +412,16 @@ test.describe('Internet routing page', () => {
       });
     });
 
-    let gatewayPutBody: { gateway?: string } | null = null;
-    await context.route('**/api/route/foreign-gateway', async (route) => {
-      if (route.request().method() === 'PUT') {
-        gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope({ gateway: 'wg-client-mask', routesUpdated: 2 }),
-        });
-        return;
-      }
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: envelope({ gateway: 'wg-client-alt' }),
-      });
-    });
-
     await page.goto(`/router/${ROUTER_ID}/internet`);
 
     await page.getByRole('button', { name: 'Configure wg-mask' }).click();
-    await page.getByRole('switch', { name: /active/i }).click();
-    await page.getByRole('button', { name: 'Save' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('switch', { name: /enabled/i }).click();
+    await dialog.getByRole('radio', { name: /^Primary/ }).check();
+    await dialog.getByRole('button', { name: 'Save' }).click();
 
     await expect.poll(() => targetPutBody?.disabled).toBe(false);
-    await expect.poll(() => gatewayPutBody?.gateway).toBe('wg-client-mask');
+    await expect.poll(() => targetPutBody?.failoverRole).toBe('primary');
     await expect(page.getByText('VPN tunnel updated')).toBeVisible();
     expect(otherPutSeen).toBe(false);
   });

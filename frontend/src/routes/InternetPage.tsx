@@ -3,16 +3,16 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardDescription, CardHeader, CardTitle, Stack, useToast } from '@nasnet/ui';
 import type { RoutingTopology } from '@nasnet/mocks';
-import { ApiError, updateForeignGateway, updateVPNClient } from '../api';
+import { ApiError, updateVPNClient } from '../api';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
 import { usePolling } from '../utils/usePolling';
 import { buildTopology } from './internet/buildTopology';
 import { computeColumnLayout } from './internet/columnLayout';
 import { Edge } from './internet/Edge';
-import { HopEditDialog } from './internet/HopEditDialog';
+import { VpnClientDialog, type VpnClientChange } from './internet/VpnClientDialog';
 import { NodeBubble } from './internet/NodeBubble';
-import { COLUMN_ORDER, computeReachable, hopForNode, type Positioned } from './internet/layout';
+import { COLUMN_ORDER, computeReachable, type Positioned } from './internet/layout';
 import styles from './InternetPage.module.scss';
 
 const HEADER_BAND = 44;
@@ -25,7 +25,7 @@ export function InternetPage() {
   const { t } = useTranslation('internet');
   const [topology, setTopology] = useState<RoutingTopology | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [editingHopId, setEditingHopId] = useState<string | null>(null);
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
   const creds = useMemo(() => {
     if (!id) return null;
@@ -56,45 +56,32 @@ export function InternetPage() {
     }
   }, [id, creds, toast, t]);
 
-  usePolling(reload, 5000, !!creds && editingHopId === null);
+  usePolling(reload, 5000, !!creds && editingNodeId === null);
 
-  const handleSaveHop = useCallback(
-    async ({ hopId, isActive }: { hopId: string; isActive: boolean }) => {
-      if (!creds || !topology) return;
-      const hop = topology.hops.find((h) => h.id === hopId);
-      const target = hop ? topology.nodes.find((n) => n.id === hop.toId) : undefined;
-      if (!hop || !target) return;
-      if (target.kind !== 'vpn') {
-        toast.notify({
-          title: t('internet.notSupportedTitle'),
-          description: t('internet.notSupportedDescription'),
-          tone: 'warning',
-        });
-        return;
-      }
-      const vpnName = target.id.replace(/^vpn_/, '');
+  const handleSaveVpn = useCallback(
+    async ({ name, enabled, role }: VpnClientChange) => {
+      if (!creds) return;
       try {
-        await updateVPNClient(creds, vpnName, { disabled: !isActive });
-        if (isActive) {
-          await updateForeignGateway(creds, vpnName);
-        }
+        await updateVPNClient(creds, name, {
+          disabled: !enabled,
+          ...(role ? { failoverRole: role } : {}),
+        });
         await reload();
         toast.notify({ title: t('internet.tunnelUpdated'), tone: 'success' });
       } catch (err) {
         const message =
-          err instanceof ApiError
+          err instanceof ApiError || err instanceof Error
             ? err.message
-            : err instanceof Error
-              ? err.message
-              : t('internet.updateFailedFallback');
+            : t('internet.updateFailedFallback');
         toast.notify({
           title: t('internet.updateFailedTitle'),
           description: message,
           tone: 'danger',
         });
+        throw err;
       }
     },
-    [creds, topology, toast, reload, t],
+    [creds, toast, reload, t],
   );
 
   const reachable = useMemo(
@@ -120,6 +107,8 @@ export function InternetPage() {
       x: layout.columnX.get(kind) ?? 0,
     }));
   }, [layout]);
+
+  const editingNode = topology?.nodes.find((n) => n.id === editingNodeId);
 
   if (!id) return null;
 
@@ -207,14 +196,7 @@ export function InternetPage() {
                       <NodeBubble
                         key={node.id}
                         node={node}
-                        onSelect={
-                          editable && topology
-                            ? (n) => {
-                                const hop = hopForNode(n, topology);
-                                if (hop) setEditingHopId(hop.id);
-                              }
-                            : undefined
-                        }
+                        onSelect={editable ? (n) => setEditingNodeId(n.id) : undefined}
                       />
                     );
                   })}
@@ -245,12 +227,12 @@ export function InternetPage() {
           </div>
         </div>
       </Card>
-      {topology && editingHopId ? (
-        <HopEditDialog
-          topology={topology}
-          hopId={editingHopId}
-          onClose={() => setEditingHopId(null)}
-          onSave={handleSaveHop}
+      {editingNode ? (
+        <VpnClientDialog
+          key={editingNode.id}
+          node={editingNode}
+          onClose={() => setEditingNodeId(null)}
+          onSave={handleSaveVpn}
         />
       ) : null}
     </Stack>

@@ -594,7 +594,7 @@ test.describe('WAN tab', () => {
     const dialog = page.getByRole('dialog', { name: 'Edit ether1' });
     await expect(dialog).toBeVisible();
 
-    await dialog.getByRole('radio', { name: /^Static/ }).check();
+    await dialog.getByRole('switch', { name: 'Starlink addressing' }).check();
     const ip = dialog.getByLabel('Starlink static IP');
     await ip.fill('10.42.0.0/24');
     await ip.blur();
@@ -682,7 +682,7 @@ test.describe('WAN tab', () => {
     await expect(page.getByRole('cell', { name: 'mask one', exact: true })).toBeVisible();
   });
 
-  test('claims a free VPN into the L2TP add dialog', async ({
+  test('claims a free VPN from the header button and refreshes the clients', async ({
     page,
     context,
     resetMocks,
@@ -694,28 +694,24 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, blankState());
 
     let claimCalls = 0;
-    await context.route('**/api/config/vpn', async (route) => {
+    await context.route('**/api/vpn/claim', async (route) => {
       if (route.request().method() !== 'POST') return route.fallback();
       claimCalls += 1;
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: envelope({
-          server: 'free.nasnet.example',
-          username: 'free-user',
-          password: 'free-pass',
-          expiryDate: '2026-01-01',
+          changes: [
+            { name: 'L2TP-VPN-1', action: 'added' },
+            { name: 'old-fallback', action: 'deleted' },
+          ],
         }),
       });
     });
 
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newClientButton(page).click();
-    const dialog = page.getByRole('dialog').first();
-    await expect(dialog).toBeVisible();
-
-    await dialog.getByRole('button', { name: 'Claim free VPN' }).click();
+    await page.getByRole('button', { name: 'Claim free VPN' }).click();
 
     const claimDialog = page.getByRole('dialog', { name: /Hyper Speed VPN/ });
     await expect(claimDialog).toBeVisible();
@@ -723,12 +719,11 @@ test.describe('WAN tab', () => {
 
     await expect.poll(() => claimCalls).toBe(1);
     await expect(claimDialog).toBeHidden();
-    await expect(dialog.getByLabel('Connect to')).toHaveValue('free.nasnet.example');
-    await expect(dialog.getByLabel('User')).toHaveValue('free-user');
-    await expect(dialog.getByLabel('Password', { exact: true })).toHaveValue('free-pass');
+    await expect(page.getByText('Free VPN applied')).toBeVisible();
+    await expect(page.getByText('Added 1, removed 1 fallback.')).toBeVisible();
   });
 
-  test('the claim button is hidden for WireGuard clients', async ({
+  test('the claim button sits beside New and the add dialog no longer has it', async ({
     page,
     context,
     resetMocks,
@@ -740,42 +735,20 @@ test.describe('WAN tab', () => {
     await setupWanRoutes(context, blankState());
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
-    await newClientButton(page).click();
-    const dialog = page.getByRole('dialog');
-    await expect(dialog.getByRole('button', { name: 'Claim free VPN' })).toBeVisible();
+    const claim = page.getByRole('button', { name: 'Claim free VPN' });
+    const add = newClientButton(page);
+    await expect(add).toBeEnabled();
+    await expect(claim).toBeEnabled();
+    await page.waitForLoadState('networkidle');
+    const claimBox = await claim.boundingBox();
+    const addBox = await add.boundingBox();
+    if (!claimBox || !addBox) throw new Error('missing layout boxes');
+    expect(Math.abs(claimBox.y - addBox.y)).toBeLessThan(addBox.height / 2);
+    expect(claimBox.x).toBeLessThan(addBox.x);
 
-    await dialog.getByRole('radio', { name: 'WireGuard' }).click();
-    await expect(dialog.getByRole('button', { name: 'Claim free VPN' })).toBeHidden();
-  });
-
-  test('the claim button shares a full-width row with the connect-to field', async ({
-    page,
-    context,
-    resetMocks,
-    seedRouter,
-  }) => {
-    await resetMocks();
-    await seedRouter({ id: ROUTER_ID, name: 'WAN Router', host: '10.0.0.10' });
-    await setSessionCreds(context, ROUTER_ID);
-    await setupWanRoutes(context, blankState());
-    await page.goto(`/router/${ROUTER_ID}/wan`);
-
-    await newClientButton(page).click();
+    await add.click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-
-    const connectTo = dialog.getByLabel('Connect to');
-    const claim = dialog.getByRole('button', { name: 'Claim free VPN' });
-    const user = dialog.getByLabel('User');
-
-    const connectToBox = await connectTo.boundingBox();
-    const claimBox = await claim.boundingBox();
-    const userBox = await user.boundingBox();
-    if (!connectToBox || !claimBox || !userBox) throw new Error('missing layout boxes');
-
-    expect(Math.abs(connectToBox.y - claimBox.y)).toBeLessThan(connectToBox.height / 2);
-    expect(claimBox.x).toBeGreaterThan(connectToBox.x + connectToBox.width - 1);
-    expect(connectToBox.width).toBeGreaterThan(claimBox.width);
-    expect(userBox.y).toBeGreaterThan(connectToBox.y + connectToBox.height);
+    await expect(dialog.getByRole('button', { name: 'Claim free VPN' })).toHaveCount(0);
   });
 });

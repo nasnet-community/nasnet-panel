@@ -12,6 +12,23 @@ import (
 // is up). Used across VPN client types, not just WireGuard.
 const vpnStatusCheckIP = "1.0.0.1"
 
+const (
+	claimClientPrefix = "L2TP-VPN-"
+	claimProfileName  = "default"
+	vrfTunnelEnds     = "@VRF-TunnelEnds"
+
+	claimActionAdded   = "added"
+	claimActionUpdated = "updated"
+	claimActionRole    = "role"
+	claimActionDeleted = "deleted"
+	claimActionSkipped = "skipped"
+)
+
+// vpnAccountTimeout bounds the call to the NasNet API for the router's VPN account.
+const vpnAccountTimeout = 30 * time.Second
+
+const failoverEnrollFailedMessage = "The VPN client was added, but its failover setup (routes, pinned LAN segment) failed: %v"
+
 const fallbackAccountWarning = "This VPN client uses the shared fallback account because NasNet could not provide your own. Replace its credentials immediately."
 
 // vpnLANAddressList is the firewall address list the VPN routing rules match

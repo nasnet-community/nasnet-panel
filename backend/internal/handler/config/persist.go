@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
+	"nasnet-panel/internal/failover"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/dns"
 	"nasnet-panel/internal/handler/plugin"
@@ -190,23 +192,25 @@ func replaceStoredStaticDNS(parent context.Context, conn *sqlx.DB, oldID string,
 }
 
 func wizardDNSServers(domesticEnabled bool) []db.DNSServer {
-	general := []string{dns.DNSDefaultVPNIP}
+	resolvers := []string{dns.DNSDefaultVPNPrimaryIP, dns.DNSDefaultVPNBackup1IP, dns.DNSDefaultVPNBackup2IP}
+	general := slices.Clone(resolvers)
 	if domesticEnabled {
 		general = append(general, dns.DNSDefaultDomesticIP)
 	}
 	general = append(general, dns.DNSDefaultForeignIP)
-	generalServers := strings.Join(general, ",")
 
 	servers := []db.DNSServer{
-		{Name: dbsync.DNSGlobalServerName, Type: db.DNSServerTypeGlobal, DNSServers: generalServers},
-		{Name: "VPN", Type: db.DNSServerTypeForwarder, DNSServers: dns.DNSDefaultVPNIP},
+		{Name: dbsync.DNSGlobalServerName, Type: db.DNSServerTypeGlobal, DNSServers: strings.Join(resolvers, ",")},
+	}
+	for i, name := range failover.ResolverNames {
+		servers = append(servers, db.DNSServer{Name: name, Type: db.DNSServerTypeForwarder, DNSServers: resolvers[i]})
 	}
 	if domesticEnabled {
 		servers = append(servers, db.DNSServer{Name: "Domestic", Type: db.DNSServerTypeForwarder, DNSServers: dns.DNSDefaultDomesticIP})
 	}
 	servers = append(servers,
 		db.DNSServer{Name: "Foreign", Type: db.DNSServerTypeForwarder, DNSServers: dns.DNSDefaultForeignIP},
-		db.DNSServer{Name: "General", Type: db.DNSServerTypeForwarder, DNSServers: generalServers},
+		db.DNSServer{Name: "General", Type: db.DNSServerTypeForwarder, DNSServers: strings.Join(general, ",")},
 	)
 
 	return servers

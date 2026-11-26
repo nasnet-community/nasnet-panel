@@ -21,7 +21,6 @@ import (
 	"nasnet-panel/internal/handler/iface"
 	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/internal/handler/vpn"
-	"nasnet-panel/pkg/nasnetapi"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/sftp"
 	"nasnet-panel/pkg/utils"
@@ -183,7 +182,7 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 		identity = utils.GenerateName(3, "", utils.PascalCase)
 	}
 
-	randomUserID, err := routerUserID(client)
+	randomUserID, err := common.RouterUserID(client)
 	if err != nil {
 		return nil, err
 	}
@@ -1163,15 +1162,8 @@ func newVPNClient(index int, name string, l2tp *L2tpClientConfig, wg *WireGuardC
 	}
 }
 
-func fetchVPNAccount(ctx context.Context, userID string) (*nasnetapi.VPNAccount, error) {
-	ctx, cancel := context.WithTimeout(ctx, vpnAccountTimeout)
-	defer cancel()
-
-	return nasnetapi.New(userID).VPN(ctx)
-}
-
 func fetchVPNClients(ctx context.Context, userID string) []VPNClient {
-	account, err := fetchVPNAccount(ctx, userID)
+	account, err := vpn.FetchAccount(ctx, userID)
 	if err == nil {
 		clients := accountVPNClients(account.Username, account.Password, []string{account.Primary, account.Fallback1, account.Fallback2})
 		if strings.TrimSpace(account.Username) != "" && len(clients) > 0 {
@@ -1575,23 +1567,4 @@ func restoreWireGuardPeer(client *routeros.Client, interfaceName string, peer *d
 		return fmt.Errorf("WireGuard interface %s peer %s: %w", interfaceName, peer.PublicKey, err)
 	}
 	return nil
-}
-
-// routerUserID returns the signed user ID api.joinnasnet.com accepts for this router.
-// A router whose system ID can't be read gets a random one. Development builds
-// use NASNET_DEV_USER_ID instead when it is set.
-func routerUserID(client *routeros.Client) (string, error) {
-	if id := buildinfo.DevRouterUserID(); id != "" {
-		return id, nil
-	}
-	systemID, err := client.GetSystemID()
-	if err != nil {
-		log.Printf("router user ID: no system ID, using a random one: %v", err)
-		systemID = ""
-	}
-	id, err := utils.GenerateRouterUserID(systemID, buildinfo.RouterKeySecret)
-	if err != nil {
-		return "", fmt.Errorf("failed to generate user ID: %w", err)
-	}
-	return id, nil
 }

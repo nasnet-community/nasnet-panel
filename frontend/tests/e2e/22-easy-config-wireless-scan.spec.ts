@@ -41,18 +41,7 @@ test.describe('Easy-Mode wizard — wireless WAN scan', () => {
     await expect(page.getByText('NasNet-Home', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: /^next$/i }).click();
 
-    // Step 3 — IP-Mask (WireGuard default, fill config and advance)
-    await page.getByLabel(/wireguard configuration/i).fill(`[Interface]
-PrivateKey = 4AjT3jhk6L8h3GVe7Mw3lP3xQK4n5cL2yR6f8tWvX1c=
-Address = 10.0.0.2/32
-
-[Peer]
-PublicKey = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-Endpoint = mask.example.com:51820
-AllowedIPs = 0.0.0.0/0`);
-    await page.getByRole('button', { name: /^next$/i }).click();
-
-    // Step 4 — WiFi (last step) — Apply
+    // Step 3 — WiFi (last step) — Apply
     await page.getByLabel('Network name (SSID)', { exact: true }).fill('Wireless-Net');
     await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
     await page.getByRole('button', { name: /^apply$/i }).click();

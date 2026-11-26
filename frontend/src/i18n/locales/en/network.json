@@ -65,7 +65,9 @@
     "types": {
       "Domestic": "Domestic",
       "Foreign": "Foreign",
-      "VPN": "VPN"
+      "VPN-Primary": "VPN Primary",
+      "VPN-Backup1": "VPN Backup 1",
+      "VPN-Backup2": "VPN Backup 2"
     },
     "loadFailed": "Failed to load DNS servers.",
     "toasts": {
@@ -98,7 +100,7 @@
     },
     "edit": "Edit",
     "editAria": "Edit {{name}} DNS server",
-    "description": "DNS servers configured on this router, grouped by domestic, foreign and VPN traffic.",
+    "description": "DNS servers configured on this router: the VPN resolvers (primary and two backups), foreign and domestic.",
     "refresh": "Refresh",
     "resetting": "Resetting…",
     "reset": "Reset",
@@ -108,6 +110,12 @@
     "purging": "Purging…",
     "purge": "Purge cache",
     "family": "Family DNS",
+    "familyStatus": {
+      "on": "Family DNS is on",
+      "off": "Family DNS is off",
+      "partial": "Family DNS is on for some servers only"
+    },
+    "familyTurnOff": "Turn off",
     "adBlock": "Ad-block",
     "adBlockHint": "Blocks ad and tracker domains for every device on the network.",
     "adBlockWarning": "Some sites stop working while it is on.",
@@ -117,12 +125,12 @@
     },
     "confirmEnableFamily": {
       "title": "Enable Family DNS?",
-      "description": "The Foreign and VPN forwarders switch to filtering servers.",
+      "description": "Foreign and VPN Primary switch to Cloudflare Family, and VPN Backup 1 and 2 switch to OpenDNS FamilyShield.",
       "confirm": "Enable"
     },
     "confirmDisableFamily": {
       "title": "Disable Family DNS?",
-      "description": "The Foreign and VPN forwarders go back to their standard servers, and filtering stops.",
+      "description": "Every server that uses a family DNS address goes back to its standard server, and filtering stops.",
       "confirm": "Disable"
     },
     "static": {

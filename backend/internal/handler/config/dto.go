@@ -103,15 +103,6 @@ type VPNClient struct {
 	WireGuard *WireGuardClientTemplateData
 }
 
-// VPNCredentialsResponse represents the router's VPN account in the API response.
-type VPNCredentialsResponse struct {
-	Username  string `json:"username" example:"NNC_zN9RI61d"`
-	Password  string `json:"password" example:"UmAaItfM"`
-	Server    string `json:"server" example:"dij5t.vpn.s4i.co"`
-	Fallback1 string `json:"fallback1" example:"ai4mo.vpn.s4i.co"`
-	Fallback2 string `json:"fallback2" example:"vav9r.vpn.s4i.co"`
-}
-
 // WizardStatus represents the current status of a setup wizard.
 type WizardStatus struct {
 	Completed bool   `json:"completed" example:"false"`

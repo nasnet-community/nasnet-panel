@@ -15,7 +15,6 @@ const (
 
 	SettingKeyAdBlockEnabled       = "adblock_enabled"
 	SettingKeyDomesticBlockEnabled = "domestic_block_enabled"
-	SettingKeyForeignGateway       = "foreign_gateway"
 
 	wanMacvlanPrefix      = "MacVLAN-"
 	wireGuardClientSuffix = "-wg-client"

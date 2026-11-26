@@ -54,7 +54,6 @@ var (
 
 const (
 	failoverMaxClients      = 3
-	vpnAccountTimeout       = 30 * time.Second
 	failoverL2TPPrefix      = "L2TP-VPN-"
 	failoverWireGuardPrefix = "WG-VPN-"
 	failoverBridgePrefix    = "LANBridge-"

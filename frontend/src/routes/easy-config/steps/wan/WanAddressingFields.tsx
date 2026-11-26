@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FieldRow, FieldStack, FormError, Input, Label, RadioGroup } from '@nasnet/ui';
+import { FieldRow, FieldStack, FormError, Input, Label, Switch } from '@nasnet/ui';
 import type { Action, State } from '../../state';
 import { Collapsible } from '../components/Collapsible';
 import type { WanFieldSet } from './fields';
@@ -33,18 +33,16 @@ export function WanAddressingFields({ state, dispatch, fields }: Props) {
 
   return (
     <FieldStack>
-      <RadioGroup
-        name={`wan-ip-mode-${fields.wanType}`}
-        ariaLabel={t('wan.addressing.modeAria', { link: linkLabel })}
-        value={mode}
-        orientation="row"
-        options={(['dhcp', 'static'] as const).map((value) => ({
-          value,
-          label: t(`wan.addressing.${value}.label`),
-          description: t(`wan.addressing.${value}.description`),
-        }))}
-        onChange={(v) =>
-          dispatch({ type: 'setField', field: fields.ipModeField, value: v as WanIpMode })
+      <Switch
+        label={t('wan.addressing.manual')}
+        aria-label={t('wan.addressing.modeAria', { link: linkLabel })}
+        checked={mode === 'static'}
+        onChange={(e) =>
+          dispatch({
+            type: 'setField',
+            field: fields.ipModeField,
+            value: (e.target.checked ? 'static' : 'dhcp') as WanIpMode,
+          })
         }
       />
       <Collapsible open={mode === 'static'}>

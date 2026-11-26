@@ -3,15 +3,14 @@ import type enCatalog from '../../i18n/locales/en/easyConfig.json';
 import type { WanIpMode } from './steps/wan/addressing';
 
 export type Mode = 'starlink-only' | 'dual-link';
-export type StepId = 'mode' | 'wan' | 'ipmask' | 'wifi' | 'vpnsrv';
+export type StepId = 'mode' | 'wan' | 'wifi' | 'vpnsrv';
 export type InterfaceType = 'ethernet' | 'wireless' | 'sfp' | 'lte';
 export type VpnServerProtocol = 'wireguard' | 'openvpn' | 'l2tp';
 
 export type MessageKey =
   | `validation.${keyof typeof enCatalog.validation}`
   | `errors.${keyof typeof enCatalog.errors}`
-  | `wan.scan.${keyof typeof enCatalog.wan.scan}`
-  | `ipMask.wireguard.${keyof typeof enCatalog.ipMask.wireguard}`;
+  | `wan.scan.${keyof typeof enCatalog.wan.scan}`;
 
 // A user-facing message. Catalog keys are translated when shown, so a language switch
 // re-renders them; `text` carries server-supplied messages verbatim.
@@ -55,23 +54,6 @@ export interface State {
   security: 'WPA2-PSK' | 'WPA3-PSK';
   band: '2.4ghz' | '5ghz';
   countryCode: string;
-  ipMaskEnabled: boolean;
-  ipMaskKind: 'wireguard' | 'l2tp';
-  wgConfig: string;
-  wgEndpoint: string;
-  wgEndpointPort: string;
-  wgPeerPublicKey: string;
-  wgPrivateKey: string;
-  wgPublicKey: string;
-  wgAllowedIps: string;
-  wgKeepalive: string;
-  wgMtu: string;
-  l2tpServer: string;
-  l2tpUsername: string;
-  l2tpPassword: string;
-  l2tpUseIpsec: boolean;
-  l2tpIpsecSecret: string;
-  l2tpProfile: string;
   vpnServerEnabled: boolean;
   vpnServerProtocol: VpnServerProtocol;
   vpnServerPort: string;
@@ -122,23 +104,6 @@ export const initial: State = {
   security: 'WPA2-PSK',
   band: '5ghz',
   countryCode: 'US',
-  ipMaskEnabled: true,
-  ipMaskKind: 'wireguard',
-  wgConfig: '',
-  wgEndpoint: '',
-  wgEndpointPort: '51820',
-  wgPeerPublicKey: '',
-  wgPrivateKey: '',
-  wgPublicKey: '',
-  wgAllowedIps: '0.0.0.0/0',
-  wgKeepalive: '25',
-  wgMtu: '1420',
-  l2tpServer: '',
-  l2tpUsername: '',
-  l2tpPassword: '',
-  l2tpUseIpsec: false,
-  l2tpIpsecSecret: '',
-  l2tpProfile: 'default-encryption',
   vpnServerEnabled: false,
   vpnServerProtocol: 'openvpn',
   vpnServerPort: '51820',
@@ -160,7 +125,6 @@ export const initial: State = {
 export type Action =
   | { type: 'setMode'; mode: Mode }
   | { type: 'setField'; field: keyof State; value: State[keyof State] }
-  | { type: 'setKeys'; privateKey: string; publicKey: string }
   | { type: 'step'; step: StepId }
   | { type: 'error'; message: Message | null }
   | { type: 'applying'; value: boolean }
@@ -179,8 +143,6 @@ export function reducer(state: State, action: Action): State {
       };
     case 'setField':
       return { ...state, [action.field]: action.value } as State;
-    case 'setKeys':
-      return { ...state, wgPrivateKey: action.privateKey, wgPublicKey: action.publicKey };
     case 'step':
       return { ...state, currentStep: action.step, error: null };
     case 'error':
@@ -202,7 +164,7 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-export const stepOrder: StepId[] = ['mode', 'wan', 'ipmask', 'wifi', 'vpnsrv'];
+export const stepOrder: StepId[] = ['mode', 'wan', 'wifi', 'vpnsrv'];
 
 export function stepsForMode(mode: Mode | null): StepId[] {
   return mode === 'starlink-only' ? stepOrder.filter((s) => s !== 'vpnsrv') : stepOrder;

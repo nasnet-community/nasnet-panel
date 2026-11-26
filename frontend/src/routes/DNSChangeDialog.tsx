@@ -22,6 +22,7 @@ import {
   validateDnsChange,
   type DnsCredentials,
   type DnsForwarderListItem,
+  type DnsForwarderType,
   type DnsSuggestion,
 } from '../api';
 
@@ -34,10 +35,28 @@ interface DNSChangeDialogProps {
 }
 
 // Forwarder names come from the API; only the displayed label is translated.
+const FORWARDER_TYPES: readonly DnsForwarderType[] = [
+  'VPN-Primary',
+  'VPN-Backup1',
+  'VPN-Backup2',
+  'Foreign',
+  'Domestic',
+];
+
+const IP_PLACEHOLDERS: Record<DnsForwarderType, string> = {
+  'VPN-Primary': '1.0.0.1',
+  'VPN-Backup1': '9.9.9.9',
+  'VPN-Backup2': '8.8.8.8',
+  Foreign: '1.1.1.1',
+  Domestic: '217.218.127.127',
+};
+
+function isForwarderType(name: string): name is DnsForwarderType {
+  return (FORWARDER_TYPES as readonly string[]).includes(name);
+}
+
 export function dnsTypeLabel(t: TFunction<'network'>, name: string): string {
-  return name === 'Domestic' || name === 'Foreign' || name === 'VPN'
-    ? t(`dns.types.${name}`)
-    : name;
+  return isForwarderType(name) ? t(`dns.types.${name}`) : name;
 }
 
 function splitIps(ip: string): string[] {
@@ -216,7 +235,9 @@ export function DNSChangeDialog({
                 setNewIp(e.target.value);
                 setWarning(null);
               }}
-              placeholder={forwarder.name === 'Domestic' ? '217.218.127.127' : '1.1.1.1'}
+              placeholder={
+                isForwarderType(forwarder.name) ? IP_PLACEHOLDERS[forwarder.name] : '1.1.1.1'
+              }
               disabled={busy}
             />
           ) : (

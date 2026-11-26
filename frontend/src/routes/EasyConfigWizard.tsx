@@ -7,7 +7,6 @@ import { messageText, stepTitle, stepsForMode } from './easy-config/state';
 import { useEasyConfig } from './easy-config/useEasyConfig';
 import { ModeStep } from './easy-config/steps/ModeStep';
 import { WanStep } from './easy-config/steps/WanStep';
-import { IpMaskStep } from './easy-config/steps/IpMaskStep';
 import { WifiStep } from './easy-config/steps/WifiStep';
 import { VpnServerStep } from './easy-config/steps/VpnServerStep';
 import { ApplyDialog } from './easy-config/steps/show/ApplyDialog';
@@ -103,8 +102,6 @@ export function EasyConfigWizard() {
             footer={footer}
           />
         );
-      case 'ipmask':
-        return <IpMaskStep state={state} dispatch={dispatch} footer={footer} />;
       case 'wifi':
         return (
           <WifiStep

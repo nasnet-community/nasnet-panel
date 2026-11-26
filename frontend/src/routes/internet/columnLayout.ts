@@ -3,10 +3,13 @@ import { COLUMN_ORDER, NODE_BOX_H, NODE_BOX_W } from './layout';
 
 const COL_GAP = 48;
 const ROW_H = 200;
+const LANE_OFFSET = ROW_H / 2;
 const MARGIN = 16;
 const ANCHOR_X = 50;
 const ANCHOR_TOP = 50;
 const ANCHOR_BOTTOM = NODE_BOX_H / 2 + 6;
+const ROUTER_EXIT = 36;
+const ENTRY_SPACING = 16;
 
 export interface ColumnLayoutResult {
   positions: Map<string, { x: number; y: number }>;
@@ -86,6 +89,16 @@ export function computeColumnLayout(topology: RoutingTopology): ColumnLayoutResu
     groupsByPair.set(pair, groups);
   });
 
+  const isVpnToInternet = (h: { fromId: string; toId: string }) =>
+    kindById.get(h.fromId) === 'vpn' && kindById.get(h.toId) === 'internet';
+  const entryOffsets = new Map<string, number>();
+  const internetEntries = topology.hops
+    .filter(isVpnToInternet)
+    .sort((a, b) => (positions.get(a.fromId)?.y ?? 0) - (positions.get(b.fromId)?.y ?? 0));
+  internetEntries.forEach((h, i) => {
+    entryOffsets.set(h.id, (i - (internetEntries.length - 1) / 2) * ENTRY_SPACING);
+  });
+
   const edges = new Map<string, string>();
   topology.hops.forEach((h) => {
     const src = positions.get(h.fromId);
@@ -108,16 +121,25 @@ export function computeColumnLayout(topology: RoutingTopology): ColumnLayoutResu
         return;
       }
       const bx = src.x + NODE_BOX_W / 2 + 8;
-      const laneY = Math.max(sameRow ? src.y + ROW_H / 2 : src.y - dir * (ROW_H / 2), 8);
+      const below = sameRow || dir === -1;
+      const crossed = topology.nodes
+        .filter((n) => n.id !== h.fromId && n.id !== h.toId)
+        .map((n) => ({ id: n.id, p: positions.get(n.id) }))
+        .filter(
+          (n) => n.p && n.p.x - NODE_BOX_W / 2 < dst.x && n.p.x + NODE_BOX_W / 2 > src.x + ANCHOR_X,
+        )
+        .map((n) => n.p?.y ?? 0);
+      const clearBelow = Math.max(src.y, ...crossed) + LANE_OFFSET;
+      const laneY = Math.max(below ? clearBelow : src.y - LANE_OFFSET, 8);
       height = Math.max(height, laneY + MARGIN);
       edges.set(
         h.id,
         `M ${src.x + ANCHOR_X} ${src.y} L ${bx} ${src.y} L ${bx} ${laneY} L ${dst.x} ${laneY} L ${dst.x} ${entryY}`,
       );
-    } else if (sameRow) {
+    } else if (sameRow && !isVpnToInternet(h)) {
       edges.set(h.id, `M ${src.x + ANCHOR_X} ${src.y} L ${dst.x - ANCHOR_X} ${dst.y}`);
     } else if (fromKind === 'router' && toKind === 'wan') {
-      const sy = dst.y > src.y ? src.y + ANCHOR_BOTTOM : src.y - ANCHOR_TOP;
+      const sy = dst.y > src.y ? src.y + ROUTER_EXIT : src.y - ROUTER_EXIT;
       edges.set(h.id, `M ${src.x} ${sy} L ${src.x} ${dst.y} L ${dst.x - ANCHOR_X} ${dst.y}`);
     } else {
       const pair = laneKey(h);
@@ -125,8 +147,10 @@ export function computeColumnLayout(topology: RoutingTopology): ColumnLayoutResu
       const groupIdx = groups.indexOf(groupKey(h));
       const mx = (src.x + dst.x) / 2 + (groupIdx - (groups.length - 1) / 2) * 12;
       const dir = dst.y > src.y ? 1 : -1;
-      const sy = h.isActive ? src.y : src.y + dir * 12;
-      const ey = h.isActive ? dst.y : dst.y - dir * 12;
+      const entryOffset = entryOffsets.get(h.id);
+      const sy = entryOffset !== undefined || h.isActive ? src.y : src.y + dir * 12;
+      const ey =
+        entryOffset !== undefined ? dst.y + entryOffset : h.isActive ? dst.y : dst.y - dir * 12;
       edges.set(
         h.id,
         `M ${src.x + ANCHOR_X} ${sy} L ${mx} ${sy} L ${mx} ${ey} L ${dst.x - ANCHOR_X} ${ey}`,

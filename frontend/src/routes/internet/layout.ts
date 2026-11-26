@@ -1,5 +1,5 @@
 import i18n from '../../i18n';
-import type { RoutingHop, RoutingNode, RoutingNodeKind, RoutingTopology } from '@nasnet/mocks';
+import type { RoutingNode, RoutingNodeKind, RoutingTopology } from '@nasnet/mocks';
 
 export const NODE_BOX_W = 160;
 export const NODE_BOX_H = 150;
@@ -54,9 +54,4 @@ export function computeReachable(topology: RoutingTopology): Set<string> {
     }
   }
   return reachable;
-}
-
-export function hopForNode(node: RoutingNode, topology: RoutingTopology): RoutingHop | undefined {
-  if (node.kind === 'group') return topology.hops.find((h) => h.fromId === node.id);
-  return topology.hops.find((h) => h.toId === node.id);
 }

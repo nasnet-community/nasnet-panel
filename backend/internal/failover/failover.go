@@ -51,8 +51,12 @@ func LoadEntries(client *routeros.Client) ([]Entry, error) {
 		return nil, err
 	}
 
+	resolverDsts, err := resolverRoutes(client)
+	if err != nil {
+		return nil, err
+	}
 	var resolvers []routeros.IPRouteInfo
-	for _, dst := range resolverRoutes {
+	for _, dst := range resolverDsts {
 		found, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{RoutingTable: "main", DstAddress: dst})
 		if err != nil {
 			return nil, err
@@ -91,8 +95,11 @@ func LoadEntries(client *routeros.Client) ([]Entry, error) {
 	return entries, nil
 }
 
-// Roles maps each failover client's interface to its role. Only the first three
-// clients by distance have one.
+// StandbyRole is the role name of a failover client that is behind the three roles.
+const StandbyRole = "standby"
+
+// Roles maps each failover client's interface to its role: the first three clients by
+// distance are primary, backup1 and backup2, every one after them is standby.
 func Roles(client *routeros.Client) (map[string]string, error) {
 	entries, err := LoadEntries(client)
 	if err != nil {
@@ -102,11 +109,27 @@ func Roles(client *routeros.Client) (map[string]string, error) {
 	result := make(map[string]string, len(roleNames))
 	for i := range entries {
 		if i >= len(roleNames) {
-			break
+			result[entries[i].Interface] = StandbyRole
+			continue
 		}
 		result[entries[i].Interface] = roleNames[i]
 	}
 	return result, nil
+}
+
+// ActiveInterface returns the interface whose to-VPN default route the router is using, or
+// an empty string when none is active.
+func ActiveInterface(client *routeros.Client) (string, error) {
+	entries, err := LoadEntries(client)
+	if err != nil {
+		return "", err
+	}
+	for i := range entries {
+		if len(entries[i].Routes) > 0 && entries[i].Routes[0].Active {
+			return entries[i].Interface, nil
+		}
+	}
+	return "", nil
 }
 
 // Records returns the failover clients as the database stores them.
@@ -126,6 +149,13 @@ func Records(client *routeros.Client) ([]db.FailoverInterface, error) {
 // Assign gives the interface the failover role. The client that held the role is moved
 // above every failover client. An interface that is not in the failover yet gets its routes created.
 func Assign(client *routeros.Client, interfaceName, role string) error {
+	if err := applyRole(client, interfaceName, role); err != nil {
+		return err
+	}
+	return Relabel(client)
+}
+
+func applyRole(client *routeros.Client, interfaceName, role string) error {
 	slot := RoleIndex(role)
 	if slot < 0 {
 		return fmt.Errorf("failoverRole must be one of %s", strings.Join(roleNames[:], ", "))
@@ -223,7 +253,81 @@ func Restore(client *routeros.Client, rows []db.FailoverInterface) []error {
 		}
 		usedProbes[row.ProbeIP] = row.Interface
 	}
+	if err := Relabel(client); err != nil {
+		errs = append(errs, fmt.Errorf("failover route comments: %w", err))
+	}
 	return errs
+}
+
+// Relabel rewrites the comments of every failover route so each names the role its client
+// holds by distance order: the probe, probe guard, default and resolver routes.
+func Relabel(client *routeros.Client) error {
+	entries, err := LoadEntries(client)
+	if err != nil {
+		return err
+	}
+	resolverDsts, err := resolverRoutes(client)
+	if err != nil {
+		return err
+	}
+
+	for i := range entries {
+		entry := &entries[i]
+		label := standbyLabel
+		if i < len(roleLabels) {
+			label = roleLabels[i]
+		}
+		suffix := " (" + entry.Interface + ")"
+
+		for j := range entry.Routes {
+			route := &entry.Routes[j]
+			comment := failoverCommentPrefix + label + suffix
+			if j > 0 {
+				name := ""
+				for k, dst := range resolverDsts {
+					if dst == route.DstAddress {
+						name = ResolverNames[k]
+						break
+					}
+				}
+				if name == "" {
+					continue
+				}
+				comment = failoverCommentPrefix + "resolver " + name + " " + label + suffix
+			}
+			if err := setComment(client, route, comment); err != nil {
+				return err
+			}
+		}
+
+		probes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{RoutingTable: "main", DstAddress: entry.Gateway + "/32"})
+		if err != nil {
+			return err
+		}
+		for j := range probes {
+			route := &probes[j]
+			var comment string
+			switch {
+			case strings.HasPrefix(route.Comment, probeGuardCommentPrefix):
+				comment = probeGuardCommentPrefix + label
+			case strings.HasPrefix(route.Comment, probeCommentPrefix):
+				comment = probeCommentPrefix + label + suffix
+			default:
+				continue
+			}
+			if err := setComment(client, route, comment); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func setComment(client *routeros.Client, route *routeros.IPRouteInfo, comment string) error {
+	if route.Comment == comment {
+		return nil
+	}
+	return client.SetIPRouteComment(route.ID, comment)
 }
 
 func setDistance(client *routeros.Client, entry *Entry, distance int) error {
@@ -248,7 +352,34 @@ func freeProbe(entries []Entry) (string, error) {
 	return "", ErrNoFreeProbe
 }
 
+// resolverRoutes returns the /32 destinations of the VPN resolvers, which are the first
+// address of the VPN-Primary, VPN-Backup1 and VPN-Backup2 DNS forwarders. A forwarder that is
+// missing or empty falls back to its default address.
+func resolverRoutes(client *routeros.Client) ([]string, error) {
+	forwarders, err := client.ListDNSForwarders()
+	if err != nil {
+		return nil, err
+	}
+
+	routes := make([]string, len(ResolverNames))
+	for i, name := range ResolverNames {
+		routes[i] = defaultResolverIPs[i] + "/32"
+		for j := range forwarders {
+			if strings.TrimSpace(forwarders[j].Name) == name && len(forwarders[j].DNSServers) > 0 {
+				routes[i] = forwarders[j].DNSServers[0] + "/32"
+				break
+			}
+		}
+	}
+	return routes, nil
+}
+
 func addRoutes(client *routeros.Client, interfaceName, probe, label string, distance int) error {
+	resolverDsts, err := resolverRoutes(client)
+	if err != nil {
+		return err
+	}
+
 	var created []string
 	add := func(config routeros.RouteConfig) error {
 		id, err := client.AddRoute(config)
@@ -259,7 +390,7 @@ func addRoutes(client *routeros.Client, interfaceName, probe, label string, dist
 		return nil
 	}
 
-	err := func() error {
+	err = func() error {
 		if err := add(routeros.RouteConfig{
 			DstAddress: probe + "/32", Gateway: interfaceName, RoutingTable: "main", Scope: 10,
 			Comment: "Failover probe " + label + " (" + interfaceName + ")",
@@ -279,11 +410,11 @@ func addRoutes(client *routeros.Client, interfaceName, probe, label string, dist
 		}); err != nil {
 			return err
 		}
-		for _, dst := range resolverRoutes {
+		for i, dst := range resolverDsts {
 			if err := add(routeros.RouteConfig{
 				DstAddress: dst, Gateway: probe, RoutingTable: "main", Distance: distance,
 				TargetScope: targetScope, CheckGateway: "ping",
-				Comment: "Failover resolver " + strings.TrimSuffix(dst, "/32") + " " + label + " (" + interfaceName + ")",
+				Comment: "Failover resolver " + ResolverNames[i] + " " + label + " (" + interfaceName + ")",
 			}); err != nil {
 				return err
 			}

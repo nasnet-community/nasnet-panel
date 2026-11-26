@@ -8,16 +8,6 @@ async function stepToApply(page: import('@playwright/test').Page) {
   await page.getByRole('option', { name: 'ether1' }).click();
   await page.getByRole('button', { name: /^next$/i }).click();
 
-  await page.getByLabel(/wireguard configuration/i).fill(`[Interface]
-PrivateKey = 4AjT3jhk6L8h3GVe7Mw3lP3xQK4n5cL2yR6f8tWvX1c=
-Address = 10.0.0.2/32
-
-[Peer]
-PublicKey = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-Endpoint = mask.example.com:51820
-AllowedIPs = 0.0.0.0/0`);
-  await page.getByRole('button', { name: /^next$/i }).click();
-
   await page.getByLabel('Network name (SSID)', { exact: true }).fill('Progress-Net');
   await page.getByLabel('Wi-Fi password', { exact: true }).fill('longpassword');
   await page.getByRole('button', { name: /^apply$/i }).click();

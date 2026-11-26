@@ -9,9 +9,6 @@
       "deleted": "Client deleted",
       "updateFailed": "Failed to update client",
       "updateFailedDescription": "Failed to update client.",
-      "gatewaySet": "Starlink gateway set to \"{{name}}\"",
-      "gatewayFailed": "Failed to set gateway",
-      "gatewayFailedDescription": "Failed to set gateway.",
       "addFailed": "Failed to add VPN client",
       "addL2tpFailedDescription": "Failed to add L2TP client.",
       "l2tpAdded": "L2TP client \"{{name}}\" added",
@@ -33,24 +30,33 @@
       "wgUpdated": "WireGuard client \"{{name}}\" updated",
       "trafficReset": "Traffic of \"{{name}}\" reset",
       "trafficResetFailed": "Failed to reset traffic",
-      "trafficResetFailedDescription": "Failed to reset the traffic counter."
+      "trafficResetFailedDescription": "Failed to reset the traffic counter.",
+      "roleSet": "{{name}} is now {{role}}",
+      "roleFailed": "Failed to set the failover role",
+      "roleFailedDescription": "Failed to set the failover role."
     },
     "title": "Starlink Masking VPN Client",
     "description": "VPN clients that conceal the Starlink IP.",
     "new": "New",
     "table": {
       "ping": "Ping",
+      "role": {
+        "primary": "Primary",
+        "backup1": "Backup 1",
+        "backup2": "Backup 2",
+        "standby": "Standby"
+      },
+      "peersCount": "Peers: {{count}}",
       "traffic": "Traffic",
       "lastLink": "Last link",
       "lastConnected": "Connected: {{time}}",
       "lastDisconnected": "Disconnected: {{time}}",
-      "starlinkGateway": "Starlink gateway",
-      "gateway": "Gateway",
-      "setGatewayFor": "Set {{name}} as Starlink gateway",
-      "setGateway": "Set gateway",
       "noMatch": "No clients match the current filters.",
       "empty": "No VPN clients yet.",
-      "resetTrafficFor": "Reset traffic of {{name}}"
+      "resetTrafficFor": "Reset traffic of {{name}}",
+      "failoverRole": "Failover role",
+      "setRoleFor": "Set failover role of {{name}}",
+      "setRole": "Set role"
     },
     "delete": {
       "wgTitle": "Delete WireGuard client",
@@ -71,7 +77,23 @@
       "description": "Reset the download and upload counters of \"{{name}}\" to zero? The previous totals are not kept.",
       "confirm": "Reset",
       "resetting": "Resetting…"
-    }
+    },
+    "roleDialog": {
+      "title": "Failover role of {{name}}",
+      "description": "The client that currently holds the chosen role moves to the end of the failover order.",
+      "save": "Save",
+      "hint": {
+        "primary": "Carries all traffic while it is connected. Use your fastest and most reliable VPN.",
+        "backup1": "Takes over automatically when the primary is down.",
+        "backup2": "Last resort. Takes over when both the primary and Backup 1 are down."
+      }
+    },
+    "fallback": {
+      "badge": "Automatic fallback VPN",
+      "alertTitle": "Automatic fallback VPN in use",
+      "alertBody": "VPN clients marked with an orange exclamation mark are automatic fallback VPNs. They were set up because no internet connection was available when the configuration wizard ran, so they may have a speed limit and lower performance. For the best performance, we strongly recommend claiming the free VPNs we provide or adding your own VPN connections."
+    },
+    "claimFree": "Claim free VPN"
   },
   "peers": {
     "toast": {
@@ -414,7 +436,6 @@
     "typeLabel": "VPN client type",
     "typeLegend": "Choose VPN client type",
     "importExisting": "Import existing config",
-    "claimFree": "Claim free VPN",
     "localAddressCidr": "Interface local address (CIDR)",
     "localAddress": "Interface local address",
     "allowedAddressCidr": "Allowed address (CIDR list)",

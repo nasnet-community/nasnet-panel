@@ -10,13 +10,34 @@ const (
 	guardScope    = 30
 	guardDistance = 254
 	standbyLabel  = "Standby"
+
+	failoverCommentPrefix   = "Failover "
+	probeCommentPrefix      = "Failover probe "
+	probeGuardCommentPrefix = "Failover probe guard "
+
+	segmentBridgePrefix = "LANBridge-"
+	segmentTablePrefix  = "to-"
+	segmentListSuffix   = "-LAN"
+	segmentSubnetFormat = "192.168.6%d"
+	segmentMaxIndex     = 9
+)
+
+// Default addresses of the VPN resolvers, which the VPN-Primary, VPN-Backup1 and VPN-Backup2
+// DNS forwarders hold and which the failover routes through the active VPN client.
+const (
+	ResolverPrimaryIP = "1.0.0.1"
+	ResolverBackup1IP = "9.9.9.9"
+	ResolverBackup2IP = "8.8.8.8"
 )
 
 var (
 	roleNames  = [...]string{"primary", "backup1", "backup2"}
 	roleLabels = [...]string{"Primary", "Backup1", "Backup2"}
 
-	resolverRoutes = [...]string{"1.0.0.1/32", "9.9.9.9/32", "8.8.8.8/32"}
+	// ResolverNames are the names of the DNS forwarders that hold the VPN resolvers, in failover order.
+	ResolverNames = [...]string{"VPN-Primary", "VPN-Backup1", "VPN-Backup2"}
+
+	defaultResolverIPs = [...]string{ResolverPrimaryIP, ResolverBackup1IP, ResolverBackup2IP}
 
 	// ProbePool lists the probe addresses a failover client can be given. The first three
 	// belong to the wizard's clients, in failover order.

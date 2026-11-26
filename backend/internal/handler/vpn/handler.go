@@ -79,12 +79,20 @@ func HandleListVPNClients(c echo.Context) error {
 			response[i].FailoverRole = roles[response[i].Name]
 		}
 	}
+	if active, err := failover.ActiveInterface(client); err != nil {
+		log.Printf("failed to read the active failover route: %v", err)
+	} else {
+		for i := range response {
+			response[i].FailoverActive = active != "" && response[i].Name == active
+		}
+	}
 	for i := range response {
 		if response[i].Type != string(routeros.VPNTypeL2TPOut) {
 			continue
 		}
 		if info, err := client.GetL2TPClientInfo(response[i].Name); err == nil && failover.UsesFallback(info.User, info.Password) {
 			response[i].Warning = fallbackAccountWarning
+			response[i].Fallback = true
 		}
 	}
 	return common.SuccessResponse(c, http.StatusOK, "VPN clients retrieved successfully", response)
@@ -281,6 +289,7 @@ func HandleUpdateVPNClient(c echo.Context) error {
 
 // HandleAddL2TPClient adds a new L2TP client
 // @Summary Add L2TP Client
+// @Description The client gets the same failover setup as the wizard's VPN clients: probe, to-VPN and resolver routes, and a pinned LAN segment (bridge, interface list, DHCP server, routing table, rules and DNS redirect). If that setup fails the client is still added and the response carries a warning.
 // @Description Add a new L2TP client connection with automatic profile creation if needed
 // @Tags VPN
 // @Security BearerAuth
@@ -335,7 +344,7 @@ func HandleAddL2TPClient(c echo.Context) error {
 		disabled = *req.Disabled
 	}
 
-	if err := client.AddL2TPClient(routeros.AddL2TPClientConfig{
+	if err := addL2TPInterface(c, client, routeros.AddL2TPClientConfig{
 		Name:        interfaceName,
 		ConnectTo:   req.ConnectTo,
 		User:        req.User,
@@ -347,20 +356,6 @@ func HandleAddL2TPClient(c echo.Context) error {
 		Disabled:    disabled,
 	}); err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
-	}
-
-	for _, list := range []string{"WAN", "VPN-WAN"} {
-		onList, err := client.InterfaceListMemberExists(list, interfaceName)
-		if err != nil {
-			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
-			continue
-		}
-		if onList {
-			continue
-		}
-		if _, err := client.AddInterfaceListMember(list, interfaceName); err != nil {
-			c.Logger().Errorf("Failed to add %s to %s interface list: %v", interfaceName, list, err)
-		}
 	}
 
 	vpnClient, err := client.GetVPNClient(interfaceName)
@@ -388,6 +383,8 @@ func HandleAddL2TPClient(c echo.Context) error {
 		Comment:      vpnClient.Comment,
 	}
 
+	response.Warning = enrollFailover(c, client, interfaceName)
+
 	persistL2TPClient(c, client, interfaceName)
 
 	return common.SuccessResponse(c, http.StatusCreated, "L2TP client added successfully", response)
@@ -395,6 +392,7 @@ func HandleAddL2TPClient(c echo.Context) error {
 
 // HandleAddSSTPClient adds a new SSTP client
 // @Summary Add SSTP Client
+// @Description The client gets the same failover setup as the wizard's VPN clients: probe, to-VPN and resolver routes, and a pinned LAN segment (bridge, interface list, DHCP server, routing table, rules and DNS redirect). If that setup fails the client is still added and the response carries a warning.
 // @Description Add a new SSTP client connection (TLS any, no certificate verification, no PFS,
 // @Description aes256-sha and aes256-gcm-sha384 ciphers, default profile, keepalive 60, all
 // @Description authentication methods). Port defaults to 443.
@@ -513,6 +511,8 @@ func HandleAddSSTPClient(c echo.Context) error {
 		Comment:      vpnClient.Comment,
 	}
 
+	response.Warning = enrollFailover(c, client, interfaceName)
+
 	persistSSTPClient(c, client, interfaceName)
 
 	return common.SuccessResponse(c, http.StatusCreated, "SSTP client added successfully", response)
@@ -599,6 +599,7 @@ func HandleUpdateSSTPClient(c echo.Context) error {
 
 // HandleDeleteSSTPClient deletes an SSTP client
 // @Summary Delete SSTP Client
+// @Description Also removes the client's failover routes and pinned LAN segment.
 // @Description Remove an SSTP client connection
 // @Tags VPN
 // @Security BearerAuth
@@ -635,6 +636,7 @@ func HandleDeleteSSTPClient(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete SSTP client", err)
 	}
 
+	withdrawFailover(c, client, sstpClient.Name)
 	removeSSTPClientFromDB(c, client, sstpClient.Name)
 
 	return c.NoContent(http.StatusNoContent)
@@ -755,6 +757,7 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 
 // HandleDeleteL2TPClient deletes an L2TP client
 // @Summary Delete L2TP Client
+// @Description Also removes the client's failover routes and pinned LAN segment.
 // @Description Remove an L2TP client connection
 // @Tags VPN
 // @Security BearerAuth
@@ -780,17 +783,9 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
 	}
 
-	for _, list := range []string{"WAN", "VPN-WAN"} {
-		if err := client.RemoveInterfaceListMember(list, l2tpClient.Name); err != nil {
-			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", l2tpClient.Name, list, err)
-		}
-	}
-
-	if err := client.RemoveL2TPClient(nameOrID); err != nil {
+	if err := removeL2TPInterface(c, client, l2tpClient.Name); err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete L2TP client", err)
 	}
-
-	removeL2TPClientFromDB(c, client, l2tpClient.Name)
 
 	return c.NoContent(http.StatusNoContent)
 }
@@ -1288,6 +1283,7 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 
 // HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
+// @Description The client gets the same failover setup as the wizard's VPN clients: probe, to-VPN and resolver routes, and a pinned LAN segment (bridge, interface list, DHCP server, routing table, rules and DNS redirect). If that setup fails the client is still added and the response carries a warning.
 // @Description Create a new WireGuard client interface with the specified configuration. Returns 409 if any WireGuard interface with the same private key and IP address already exists.
 // @Tags VPN
 // @Security BearerAuth
@@ -1448,6 +1444,8 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 		EndpointPort:          req.EndpointPort,
 		AllowedAddress:        req.AllowedAddress,
 	}
+
+	enrollFailover(c, client, wireguard.Name)
 
 	persistWireGuardInterface(c, client, wireguard.Name)
 
@@ -2296,6 +2294,7 @@ func HandleDeleteWireGuardPeer(c echo.Context) error {
 
 // HandleDeleteWireGuardInterface deletes a WireGuard interface along with all its peers and IP addresses.
 // @Summary Delete WireGuard Interface
+// @Description Also removes the client's failover routes and pinned LAN segment.
 // @Description Delete a WireGuard interface by name or ID, including all associated peers and IP addresses
 // @Tags VPN
 // @Security BearerAuth
@@ -2352,6 +2351,7 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 		c.Logger().Errorf("Failed to remove mangle rule for interface %s: %v", wireguard.Name, err)
 	}
 
+	withdrawFailover(c, client, wireguard.Name)
 	removeWireGuardInterfaceFromDB(c, client, wireguard.Name)
 
 	return common.SuccessResponse(c, http.StatusOK, "WireGuard interface deleted successfully", nil)
@@ -2359,6 +2359,7 @@ func HandleDeleteWireGuardInterface(c echo.Context) error {
 
 // HandleImportWireGuardConfig imports a WireGuard configuration from a config string.
 // @Summary Import WireGuard Configuration
+// @Description The client gets the same failover setup as the wizard's VPN clients: probe, to-VPN and resolver routes, and a pinned LAN segment (bridge, interface list, DHCP server, routing table, rules and DNS redirect). If that setup fails the client is still added and the response carries a warning.
 // @Description Import a WireGuard interface and peers from a configuration file format. If any
 // @Description existing WireGuard interface already has the exact same private key and IP address,
 // @Description its peers are added to that interface instead of creating a new one. A peer whose
@@ -2579,6 +2580,8 @@ func HandleImportWireGuardConfig(c echo.Context) error {
 		ReusedExistingInterface: reusedExistingInterface,
 		SkippedDuplicatePeers:   skippedDuplicatePeers,
 	}
+
+	enrollFailover(c, client, wg.Name)
 
 	persistWireGuardInterface(c, client, wg.Name)
 
@@ -3406,4 +3409,79 @@ func HandleListVPNProfiles(c echo.Context) error {
 	}
 
 	return common.SuccessResponse(c, http.StatusOK, "VPN profiles retrieved successfully", response)
+}
+
+// HandleClaimVPN returns the router's VPN account from the NasNet API.
+// @Summary Claim VPN
+// @Description Get the router's L2TP VPN account from api.joinnasnet.com. The router is identified by its signed user ID, so the same account comes back every time. Server is the primary server, Fallback1 and Fallback2 are the backups.
+// @Tags VPN
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} common.Response{data=ClaimVPNResponse}
+// @Failure 500 {object} common.Response
+// @Failure 502 {object} common.Response
+// @Router /api/vpn/claim [get].
+func HandleClaimVPN(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	userID, err := common.RouterUserID(client)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
+	}
+
+	account, err := FetchAccount(c.Request().Context(), userID)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to retrieve VPN credentials", err)
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", ClaimVPNResponse{
+		Username:  account.Username,
+		Password:  account.Password,
+		Server:    account.Primary,
+		Fallback1: account.Fallback1,
+		Fallback2: account.Fallback2,
+	})
+}
+
+// HandleApplyClaimedVPN applies the router's NasNet VPN account to its VPN clients.
+// @Summary Apply Claimed VPN
+// @Description Gets the router's L2TP account from api.joinnasnet.com and applies it. Claimed servers that have no client yet are added with the same setup as the wizard's clients (L2TP-VPN-1 to L2TP-VPN-3 when those names are free). Clients that use the shared fallback account are deleted. The claimed clients take the failover roles (primary, backup1, backup2) that your own VPN clients do not hold, in server order; your own clients keep their roles. The response lists the changes; an empty list means the router already matched the account.
+// @Tags VPN
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} common.Response{data=ClaimVPNApplyResponse}
+// @Failure 500 {object} common.Response
+// @Failure 502 {object} common.Response
+// @Router /api/vpn/claim [post].
+func HandleApplyClaimedVPN(c echo.Context) error {
+	client, err := common.GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	userID, err := common.RouterUserID(client)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
+	}
+
+	account, err := FetchAccount(c.Request().Context(), userID)
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to retrieve VPN credentials", err)
+	}
+
+	changes, err := applyClaim(c, client, account)
+	if errors.Is(err, errIncompleteClaim) {
+		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to retrieve VPN credentials", err)
+	}
+	if err != nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to apply the claimed VPN", err)
+	}
+	if changes == nil {
+		changes = []ClaimVPNChange{}
+	}
+
+	return common.SuccessResponse(c, http.StatusOK, "Claimed VPN applied successfully", ClaimVPNApplyResponse{Changes: changes})
 }

@@ -1,13 +1,17 @@
 package common
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"nasnet-panel/internal/auth"
+	"nasnet-panel/internal/buildinfo"
 	ctxpkg "nasnet-panel/internal/context"
 	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -274,4 +278,23 @@ func GetWifiBandFromRadios(radios []routeros.WiFiRadio, wifiInterfaceName string
 		}
 	}
 	return ""
+}
+
+// RouterUserID returns the signed user ID api.joinnasnet.com accepts for this router.
+// A router whose system ID can't be read gets a random one. Development builds
+// use NASNET_DEV_USER_ID instead when it is set.
+func RouterUserID(client *routeros.Client) (string, error) {
+	if id := buildinfo.DevRouterUserID(); id != "" {
+		return id, nil
+	}
+	systemID, err := client.GetSystemID()
+	if err != nil {
+		log.Printf("router user ID: no system ID, using a random one: %v", err)
+		systemID = ""
+	}
+	id, err := utils.GenerateRouterUserID(systemID, buildinfo.RouterKeySecret)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate user ID: %w", err)
+	}
+	return id, nil
 }

@@ -186,14 +186,6 @@ func syncExistingSettings(ctx context.Context, client *routeros.Client, conn *sq
 		errs = append(errs, db.UpsertSetting(ctx, conn, SettingKeyDomesticBlockEnabled, strconv.FormatBool(DomesticBlockRulesMatch(rules, true))))
 	}
 
-	routes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Comment: "Route-to-VPN-Client", RoutingTable: "main"})
-	switch {
-	case err != nil:
-		errs = append(errs, err)
-	case len(routes) > 0:
-		errs = append(errs, db.UpsertSetting(ctx, conn, SettingKeyForeignGateway, routes[0].Gateway))
-	}
-
 	return errors.Join(errs...)
 }
 

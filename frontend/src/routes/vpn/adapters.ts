@@ -33,6 +33,8 @@ export function mapClientFromBE(r: VPNClientResponse, routerId: string): VPNClie
     comment: r.comment,
     pingTime: r.pingTime,
     peerCount: r.peerCount,
+    failoverRole: r.failoverRole,
+    fallback: r.fallback,
   };
 }
 
