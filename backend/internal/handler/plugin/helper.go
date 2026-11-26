@@ -476,6 +476,7 @@ func startPluginContainer(ctx context.Context, client *routeros.Client, task *pl
 // the HTTP request that triggered it, in its own goroutine.
 func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest *Manifest) {
 	pluginID := task.pluginID
+	ctx := context.Background()
 	task.setVersion(manifest.Version)
 
 	before, err := client.GetContainer(pluginID)
@@ -573,6 +574,25 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 			}
 		}
 
+		// The version is recorded while the container is still stopped: RouterOS
+		// restarts a running container when one of its properties is set, which
+		// stopped the plugin just after this started it and left it killed
+		// before it had finished starting.
+		var recordErr error
+		if imageChanged {
+			task.set(pluginUpdatePhaseUpdatingComment, "recording updated version")
+			recordErr = client.EditContainer(pluginID, map[string]string{"comment": manifest.Version})
+		}
+
+		// The new manifest takes over before the plugin runs again: an update used
+		// to leave a plugin on the addresses and router script of its install.
+		task.set(pluginUpdatePhaseRepulling, "bringing the router up to date for "+pluginID)
+		if err := applyManifestOnUpdate(ctx, client, pluginID, manifest); err != nil {
+			task.set(pluginUpdatePhaseError, "failed to bring the router up to date: "+err.Error())
+			log.Printf("[plugin-update %s] failed to apply the new manifest: %v", pluginID, err)
+			return
+		}
+
 		task.set(pluginUpdatePhaseStartingContainer, "starting container "+pluginID)
 		if err := client.StartContainer(pluginID); err != nil {
 			task.set(pluginUpdatePhaseError, "failed to start container: "+err.Error())
@@ -595,10 +615,10 @@ func updatePluginAsync(client *routeros.Client, task *pluginUpdateTask, manifest
 			return
 		}
 
-		task.set(pluginUpdatePhaseUpdatingComment, "recording updated version")
-		if err := client.EditContainer(pluginID, map[string]string{"comment": manifest.Version}); err != nil {
-			task.set(pluginUpdatePhaseError, "failed to record updated version: "+err.Error())
-			log.Printf("[plugin-update %s] failed to update container comment: %v", pluginID, err)
+		if recordErr != nil {
+			// The plugin is running again either way; only its version is wrong.
+			task.set(pluginUpdatePhaseError, "failed to record updated version: "+recordErr.Error())
+			log.Printf("[plugin-update %s] failed to update container comment: %v", pluginID, recordErr)
 			return
 		}
 

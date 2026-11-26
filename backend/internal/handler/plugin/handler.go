@@ -420,8 +420,11 @@ func HandleGetPluginInstallStatus(c echo.Context) error {
 // @Description Checks the community registry's version for pluginId against the
 // @Description version recorded in its container's comment; if the registry version
 // @Description is newer, starts an async update: repulls the container's image from
-// @Description the registry-declared image, restarts the container, then records the
-// @Description new version in the container's comment. Poll
+// @Description the registry-declared image and, with the container stopped, records the
+// @Description new version in its comment, gives its veth the new manifest's addresses and
+// @Description gateway, puts the containers' exit classes on the router when one of those
+// @Description addresses is in 192.168.150.0/24, and keeps and runs the new post-wizard
+// @Description script, then starts the container again. Poll
 // @Description GET /api/plugin/update/status/{pluginId} for progress.
 // @Tags Plugin
 // @Security BearerAuth

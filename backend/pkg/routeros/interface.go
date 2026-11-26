@@ -1154,6 +1154,37 @@ func (c *Client) AddVethInterface(config VethConfig) (string, error) {
 	return id, nil
 }
 
+// VethInfo is a veth interface as the router reports it.
+type VethInfo struct {
+	ID      string
+	Name    string
+	Address string // the addresses, comma-separated, each with its prefix length
+	Gateway string
+}
+
+// GetVethInterface returns the veth interface with the given name, or
+// ErrInterfaceNotFound when there is none.
+func (c *Client) GetVethInterface(name string) (*VethInfo, error) {
+	results, err := c.GetAll("/interface/veth", "?=name="+name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to look up veth interface %s: %w", name, err)
+	}
+	for _, result := range results {
+		if result["name"] == name {
+			return &VethInfo{ID: result[".id"], Name: name, Address: result["address"], Gateway: result["gateway"]}, nil
+		}
+	}
+	return nil, fmt.Errorf("veth interface %s: %w", name, ErrInterfaceNotFound)
+}
+
+// SetVethAddresses replaces a veth interface's addresses and gateway.
+func (c *Client) SetVethAddresses(id, address, gateway string) error {
+	if _, err := c.Set("/interface/veth", "=.id="+id, "=address="+address, "=gateway="+gateway); err != nil {
+		return fmt.Errorf("failed to set the veth interface's addresses: %w", err)
+	}
+	return nil
+}
+
 // RemoveVethInterface deletes the veth interface with the given name. An
 // interface that is already gone is not an error, so callers cleaning up after
 // a partially applied configuration can call this unconditionally.
