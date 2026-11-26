@@ -1,19 +1,42 @@
 package vpn
 
 import (
+	"context"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"math"
 	"net"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"nasnet-panel/internal/db"
+	"nasnet-panel/internal/failover"
+	"nasnet-panel/pkg/nasnetapi"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
+
+	"github.com/labstack/echo/v4"
 )
+
+func enrollFailover(c echo.Context, client *routeros.Client, name string) string {
+	if err := failover.Enroll(client, name); err != nil {
+		c.Logger().Errorf("Failed to set up the failover of %s: %v", name, err)
+		return fmt.Sprintf(failoverEnrollFailedMessage, err)
+	}
+	persistFailover(c, client)
+	return ""
+}
+
+func withdrawFailover(c echo.Context, client *routeros.Client, name string) {
+	if err := failover.Withdraw(client, name); err != nil {
+		c.Logger().Errorf("Failed to remove the failover setup of %s: %v", name, err)
+	}
+	persistFailover(c, client)
+}
 
 func startCleanupIfNeeded() {
 	ovpnServerPool.cleanupStartedMu.Lock()
@@ -1195,3 +1218,213 @@ func ToActiveVPNConnectionsResponse(sessions []routeros.PPPActiveSessionInfo, pe
 		WireGuardPeers: activePeers,
 	}
 }
+
+// FetchAccount returns the router's VPN account from the NasNet API.
+func FetchAccount(ctx context.Context, userID string) (*nasnetapi.VPNAccount, error) {
+	ctx, cancel := context.WithTimeout(ctx, vpnAccountTimeout)
+	defer cancel()
+
+	return nasnetapi.New(userID).VPN(ctx)
+}
+
+func addL2TPInterface(c echo.Context, client *routeros.Client, cfg routeros.AddL2TPClientConfig) error {
+	cfg.RandomSourcePort = true
+	cfg.AllowFastPath = true
+	cfg.Allow = "mschap2,mschap1"
+	cfg.ProtoVersion = "l2tpv2"
+	if err := client.AddL2TPClient(cfg); err != nil {
+		return err
+	}
+
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		onList, err := client.InterfaceListMemberExists(list, cfg.Name)
+		if err != nil {
+			c.Logger().Errorf("Failed to check %s interface list membership: %v", list, err)
+			continue
+		}
+		if onList {
+			continue
+		}
+		if _, err := client.AddInterfaceListMember(list, cfg.Name); err != nil {
+			c.Logger().Errorf("Failed to add %s to %s interface list: %v", cfg.Name, list, err)
+		}
+	}
+	return nil
+}
+
+func removeL2TPInterface(c echo.Context, client *routeros.Client, name string) error {
+	for _, list := range []string{"WAN", "VPN-WAN"} {
+		if err := client.RemoveInterfaceListMember(list, name); err != nil {
+			c.Logger().Errorf("Failed to remove %s from %s interface list: %v", name, list, err)
+		}
+	}
+
+	if err := client.RemoveL2TPClient(name); err != nil {
+		return err
+	}
+
+	withdrawFailover(c, client, name)
+	removeL2TPClientFromDB(c, client, name)
+	return nil
+}
+
+type claimTarget struct {
+	server string
+	name   string
+}
+
+func claimServers(account *nasnetapi.VPNAccount) []string {
+	servers := make([]string, 0, 3)
+	for _, server := range []string{account.Primary, account.Fallback1, account.Fallback2} {
+		server = strings.TrimSpace(server)
+		if server == "" || slices.ContainsFunc(servers, func(s string) bool { return strings.EqualFold(s, server) }) {
+			continue
+		}
+		servers = append(servers, server)
+	}
+	return servers
+}
+
+func claimClientName(server int, taken map[string]bool) string {
+	if name := claimClientPrefix + strconv.Itoa(server+1); !taken[name] {
+		return name
+	}
+	for {
+		name := utils.GenerateName(2, "-", utils.LowerCase) + "-l2tp-client"
+		if !taken[name] {
+			return name
+		}
+	}
+}
+
+// applyClaim brings the router in line with the claimed account: it deletes the clients
+// that use the shared fallback account, adds the claimed servers that are missing, and gives
+// the claimed clients the failover roles your own clients do not hold.
+func applyClaim(c echo.Context, client *routeros.Client, account *nasnetapi.VPNAccount) ([]ClaimVPNChange, error) {
+	servers := claimServers(account)
+	if strings.TrimSpace(account.Username) == "" || len(servers) == 0 {
+		return nil, errIncompleteClaim
+	}
+
+	vpnClients, err := client.ListVPNClients()
+	if err != nil {
+		return nil, err
+	}
+	roles, err := failover.Roles(client)
+	if err != nil {
+		return nil, err
+	}
+
+	claimed := make(map[int]*routeros.L2TPClientInfo, len(servers))
+	var fallbacks []string
+	for i := range vpnClients {
+		if vpnClients[i].Type != routeros.VPNTypeL2TPOut {
+			continue
+		}
+		info, err := client.GetL2TPClientInfo(vpnClients[i].Name)
+		if err != nil {
+			continue
+		}
+		host := strings.TrimSuffix(info.ConnectTo, vrfTunnelEnds)
+		index := slices.IndexFunc(servers, func(s string) bool { return strings.EqualFold(s, host) })
+		switch {
+		case info.User == account.Username && index >= 0 && claimed[index] == nil:
+			claimed[index] = info
+		case failover.UsesFallback(info.User, info.Password):
+			fallbacks = append(fallbacks, info.Name)
+		}
+	}
+
+	isClaimed := make(map[string]bool, len(claimed))
+	for _, info := range claimed {
+		isClaimed[info.Name] = true
+	}
+	ownRoles := make(map[int]string, len(failover.RoleNames()))
+	for name, role := range roles {
+		if slot := failover.RoleIndex(role); slot >= 0 && !isClaimed[name] && !slices.Contains(fallbacks, name) {
+			ownRoles[slot] = name
+		}
+	}
+
+	var changes []ClaimVPNChange
+	for _, name := range fallbacks {
+		if err := removeL2TPInterface(c, client, name); err != nil {
+			changes = append(changes, ClaimVPNChange{Name: name, Action: claimActionSkipped, Message: "Failed to delete the fallback client: " + err.Error()})
+			continue
+		}
+		changes = append(changes, ClaimVPNChange{Name: name, Action: claimActionDeleted})
+	}
+
+	taken := make(map[string]bool)
+	if remaining, err := client.ListVPNClients(); err == nil {
+		for i := range remaining {
+			taken[remaining[i].Name] = true
+		}
+	}
+
+	var targets []claimTarget
+	for i, server := range servers {
+		if info := claimed[i]; info != nil {
+			targets = append(targets, claimTarget{server: server, name: info.Name})
+			if info.Password != account.Password {
+				password := account.Password
+				if err := client.UpdateL2TPClient(info.Name, routeros.UpdateL2TPClientConfig{Password: &password}); err != nil {
+					changes = append(changes, ClaimVPNChange{Name: info.Name, Action: claimActionSkipped, Message: "Failed to update the password: " + err.Error()})
+					continue
+				}
+				persistL2TPClient(c, client, info.Name)
+				changes = append(changes, ClaimVPNChange{Name: info.Name, Action: claimActionUpdated})
+			}
+			continue
+		}
+
+		name := claimClientName(i, taken)
+		if err := addL2TPInterface(c, client, routeros.AddL2TPClientConfig{
+			Name:        name,
+			ConnectTo:   server,
+			User:        account.Username,
+			Password:    account.Password,
+			ProfileName: claimProfileName,
+		}); err != nil {
+			changes = append(changes, ClaimVPNChange{Name: server, Action: claimActionSkipped, Message: "Failed to add the client: " + err.Error()})
+			continue
+		}
+		taken[name] = true
+		targets = append(targets, claimTarget{server: server, name: name})
+		change := ClaimVPNChange{Name: name, Action: claimActionAdded, Message: enrollFailover(c, client, name)}
+		persistL2TPClient(c, client, name)
+		changes = append(changes, change)
+	}
+
+	roleNames := failover.RoleNames()
+	desired := make(map[int]string, len(roleNames))
+	for slot, name := range ownRoles {
+		desired[slot] = name
+	}
+	next := 0
+	for slot := range roleNames {
+		if _, own := ownRoles[slot]; own || next >= len(targets) {
+			continue
+		}
+		desired[slot] = targets[next].name
+		next++
+	}
+	for slot := range roleNames {
+		name, ok := desired[slot]
+		if !ok {
+			continue
+		}
+		if err := failover.Assign(client, name, roleNames[slot]); err != nil {
+			changes = append(changes, ClaimVPNChange{Name: name, Action: claimActionSkipped, Role: roleNames[slot], Message: "Failed to set the failover role: " + err.Error()})
+			continue
+		}
+		if _, own := ownRoles[slot]; !own {
+			changes = append(changes, ClaimVPNChange{Name: name, Action: claimActionRole, Role: roleNames[slot]})
+		}
+	}
+	persistFailover(c, client)
+
+	return changes, nil
+}
+
+var errIncompleteClaim = errors.New("NasNet returned an incomplete VPN account")

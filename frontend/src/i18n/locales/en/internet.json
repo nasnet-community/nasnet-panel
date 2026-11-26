@@ -1,11 +1,9 @@
 {
   "internet": {
     "title": "Internet routing",
-    "description": "Live view of how clients reach the internet via WAN uplinks and VPN tunnels. Click a VPN tunnel to enable or disable it.",
+    "description": "Live view of how clients reach the internet via WAN uplinks and VPN tunnels. Click a VPN tunnel to enable or disable it and set its failover role.",
     "loadFailedTitle": "Failed to load Internet topology",
     "loadFailedFallback": "Failed to load routing topology.",
-    "notSupportedTitle": "Not supported yet",
-    "notSupportedDescription": "Only VPN tunnels can be toggled from this view.",
     "tunnelUpdated": "VPN tunnel updated",
     "updateFailedTitle": "Update failed",
     "updateFailedFallback": "Failed to update VPN tunnel.",
@@ -16,7 +14,7 @@
       "activeLink": "Active link",
       "configuredIdle": "Configured, idle",
       "liveTraffic": "Live traffic",
-      "clickToToggle": "Click a VPN tunnel to toggle"
+      "clickToToggle": "Click a VPN tunnel to set its role or toggle it"
     },
     "columns": {
       "group": "Clients",
@@ -31,18 +29,25 @@
       "internet": "Internet",
       "configure": "Configure {{name}}"
     },
-    "hopDialog": {
-      "title": "{{from}} → {{to}}",
-      "description": "Toggle this hop. Changes take effect immediately.",
-      "active": "Active",
-      "cancel": "Cancel",
-      "save": "Save",
-      "saving": "Saving…"
+    "roles": {
+      "primary": "Primary",
+      "backup1": "Backup 1",
+      "backup2": "Backup 2",
+      "standby": "Standby"
     },
     "carriers": {
       "starlink": "Starlink",
       "hamrahAval": "Hamrah-e-Aval",
       "irancell": "Irancell"
+    },
+    "vpnDialog": {
+      "title": "{{name}}",
+      "description": "Enable or disable this VPN tunnel and choose its failover role. Changes take effect immediately.",
+      "enabled": "Enabled",
+      "role": "Failover role",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
     }
   },
   "wan": {

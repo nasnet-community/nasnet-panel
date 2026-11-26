@@ -6,19 +6,29 @@
     "applied": "اعمال شد"
   },
   "stepper": {
-    "mode": { "title": "انتخاب", "description": "نوع راه‌اندازی" },
-    "wan": { "title": "ون", "description": "رابط‌های اتصال" },
-    "ipmask": { "title": "پنهان‌سازی IP", "description": "کلاینت وی پی ان برای استارلینک" },
-    "wifi": { "title": "وای‌فای", "description": "شبکه بی‌سیم" },
-    "vpnsrv": { "title": "سرور وی پی ان", "description": "وی پی ان ورودی" }
+    "mode": {
+      "title": "انتخاب",
+      "description": "نوع راه‌اندازی"
+    },
+    "wan": {
+      "title": "ون",
+      "description": "رابط‌های اتصال"
+    },
+    "wifi": {
+      "title": "وای‌فای",
+      "description": "شبکه بی‌سیم"
+    },
+    "vpnsrv": {
+      "title": "سرور وی پی ان",
+      "description": "وی پی ان ورودی"
+    }
   },
   "flow": {
     "starlink": "استارلینک",
     "user": "کاربر",
     "router": "روتر",
     "foreignSite": "سایت خارجی",
-    "starlinkOnlyAria": "مسیر ترافیک در حالت فقط استارلینک",
-    "ipMaskAria": "مسیر پنهان‌سازی IP در استارلینک"
+    "starlinkOnlyAria": "مسیر ترافیک در حالت فقط استارلینک"
   },
   "mode": {
     "title": "حالت راه‌اندازی",
@@ -57,9 +67,18 @@
     },
     "domestic": {
       "ariaLabel": "نوع اتصال داخلی",
-      "dhcp": { "label": "DHCP", "description": "پیکربندی خودکار از ISP." },
-      "static": { "label": "ایستا", "description": "تعیین دستی IPها." },
-      "pppoe": { "label": "PPPoE", "description": "نام کاربری + رمز عبور." }
+      "dhcp": {
+        "label": "DHCP",
+        "description": "پیکربندی خودکار از ISP."
+      },
+      "static": {
+        "label": "ایستا",
+        "description": "تعیین دستی IPها."
+      },
+      "pppoe": {
+        "label": "PPPoE",
+        "description": "نام کاربری + رمز عبور."
+      }
     },
     "pppoe": {
       "username": "نام کاربری PPPoE",
@@ -74,13 +93,15 @@
       "dnsAria": "دی ان اس ایستا"
     },
     "addressing": {
-      "link": { "foreign": "استارلینک", "domestic": "داخلی" },
+      "link": {
+        "foreign": "استارلینک",
+        "domestic": "داخلی"
+      },
       "modeAria": "نحوهٔ آدرس‌دهی {{link}}",
-      "dhcp": { "label": "DHCP", "description": "دریافت آدرس از روتر بالادستی." },
-      "static": { "label": "ایستا", "description": "تعیین دستی IP." },
       "ipAria": "IP ایستای {{link}}",
       "gatewayOptional": "درگاه (اختیاری)",
-      "gatewayAria": "درگاه {{link}}"
+      "gatewayAria": "درگاه {{link}}",
+      "manual": "پیکربندی دستی IP"
     },
     "wireless": {
       "change": "تغییر",
@@ -112,31 +133,6 @@
       "scanFailed": "جست‌وجوی شبکه‌ها ناموفق بود."
     }
   },
-  "ipMask": {
-    "title": "کلاینت وی پی ان پنهان‌سازی IP برای استارلینک",
-    "description": "استفاده شما از استارلینک قابل ردیابی تا هویت شماست. یک کلاینت وی پی ان تنظیم کنید تا IP مربوط به استارلینک پنهان شود.",
-    "protocolAria": "پروتکل پنهان‌سازی IP",
-    "wireguardDescription": "وی پی ان سریع و مدرن با رمزنگاری پیشرفته.",
-    "l2tpDescription": "پروتکلی با پشتیبانی گسترده و رمزنگاری IPsec.",
-    "wireguard": {
-      "placeholder": "پیکربندی WireGuard خود را اینجا جای‌گذاری کنید. فایل باید بخش‌های [Interface] و [Peer] را داشته باشد.",
-      "ariaLabel": "پیکربندی WireGuard",
-      "upload": "بارگذاری پیکربندی",
-      "paste": "جای‌گذاری پیکربندی",
-      "caption": "فایل پیکربندی WireGuard خود را جای‌گذاری یا بارگذاری کنید.",
-      "invalid": "پیکربندی WireGuard نامعتبر است: بخش [Interface] یا [Peer] وجود ندارد.",
-      "clipboardEmpty": "کلیپ‌بورد خالی است.",
-      "clipboardFailed": "خواندن از کلیپ‌بورد ممکن نیست. به‌جای آن دستی جای‌گذاری کنید."
-    },
-    "l2tp": {
-      "server": "سرور",
-      "claimFree": "دریافت وی پی ان رایگان",
-      "username": "نام کاربری",
-      "password": "رمز عبور",
-      "useIpsec": "استفاده از رمزنگاری IPsec",
-      "ipsecSecret": "کلید IPsec"
-    }
-  },
   "hyperSpeed": {
     "hotDeal": "پیشنهاد ویژه",
     "availableNow": "هم‌اکنون در دسترس",
@@ -156,10 +152,11 @@
     "toast": {
       "missingTitle": "اطلاعات ورود روتر موجود نیست",
       "missingDescription": "پیش از دریافت وی پی ان به روتر متصل شوید.",
-      "successTitle": "اطلاعات ورود وی پی ان رایگان اعمال شد",
-      "validUntil": "معتبر تا {{date}}.",
+      "successTitle": "وی پی ان رایگان اعمال شد",
       "failedTitle": "دریافت ناموفق بود",
-      "fallbackError": "مشکلی پیش آمد"
+      "fallbackError": "مشکلی پیش آمد",
+      "summary": "{{added}} مورد اضافه و {{deleted}} وی پی ان جایگزین حذف شد.",
+      "upToDate": "کلاینت‌های وی پی ان شما از قبل با وی پی ان رایگان شما یکسان است."
     }
   },
   "wifi": {
@@ -245,11 +242,6 @@
     "domesticPasswordShort": "رمز عبور بی‌سیم داخلی باید دست‌کم 8 نویسه باشد.",
     "pppoeRequired": "اطلاعات ورود PPPoE الزامی است.",
     "staticIpInvalid": "یک IP ایستای معتبر وارد کنید.",
-    "endpointRequired": "Endpoint و پورت الزامی است.",
-    "peerKeyRequired": "کلید عمومی Peer الزامی است.",
-    "l2tpServerRequired": "آدرس سرور L2TP الزامی است.",
-    "l2tpCredentialsRequired": "اطلاعات ورود L2TP الزامی است.",
-    "ipsecSecretRequired": "وقتی رمزنگاری IPsec فعال است، کلید IPsec الزامی است.",
     "ssidRequired": "SSID الزامی است.",
     "ssidForbiddenWord": "SSID نمی‌تواند شامل «{{word}}» باشد.",
     "wifiPasswordLength": "رمز عبور وای‌فای باید بین 8 تا 63 نویسه باشد.",

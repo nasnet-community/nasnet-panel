@@ -6,7 +6,8 @@ export interface DnsCredentials {
   password: string;
 }
 
-export type DnsForwarderType = 'Domestic' | 'Foreign' | 'VPN';
+export type DnsForwarderType =
+  'Domestic' | 'Foreign' | 'VPN-Primary' | 'VPN-Backup1' | 'VPN-Backup2';
 
 export interface DnsForwarderListItem {
   name: string;
@@ -48,11 +49,28 @@ export interface DnsChangeResult {
   updatedNetwatchProbes: string[];
   updatedAddressListItems: string[];
   updatedNatRules: string[];
+  updatedScripts: string[];
 }
 
 export interface DnsFamilyResponse {
   foreign: DnsChangeResult;
   vpn: DnsChangeResult;
+  backup1: DnsChangeResult;
+  backup2: DnsChangeResult;
+  cacheFlushed: boolean;
+}
+
+export interface DnsFamilyForwarderStatus {
+  name: string;
+  ip: string;
+  familyIp: string;
+  family: boolean;
+}
+
+export interface DnsFamilyStatus {
+  enabled: boolean;
+  partial: boolean;
+  forwarders: DnsFamilyForwarderStatus[];
 }
 
 export interface StaticDnsEntry {
@@ -150,13 +168,27 @@ export async function flushDnsCache(creds: DnsCredentials, signal?: AbortSignal)
   });
 }
 
+export async function fetchFamilyDns(
+  creds: DnsCredentials,
+  signal?: AbortSignal,
+): Promise<DnsFamilyStatus> {
+  return apiRequest<DnsFamilyStatus>('/api/dns/family', {
+    method: 'GET',
+    auth: creds,
+    cache: 'no-store',
+    signal,
+  });
+}
+
 export async function setFamilyDns(
   creds: DnsCredentials,
+  enabled: boolean,
   signal?: AbortSignal,
 ): Promise<DnsFamilyResponse> {
   return apiRequest<DnsFamilyResponse>('/api/dns/family', {
-    method: 'POST',
+    method: 'PUT',
     auth: creds,
+    body: JSON.stringify({ enabled }),
     signal,
   });
 }

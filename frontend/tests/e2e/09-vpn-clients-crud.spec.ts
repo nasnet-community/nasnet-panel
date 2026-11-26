@@ -156,7 +156,7 @@ test.describe('WAN VPN clients section', () => {
       });
     });
 
-    let lastPutBody: { disabled?: boolean; comment?: string } | null = null;
+    let lastPutBody: { disabled?: boolean; comment?: string; failoverRole?: string } | null = null;
     await context.route('**/api/vpn/clients/home-l2tp', async (route) => {
       if (route.request().method() === 'PUT') {
         lastPutBody = route.request().postDataJSON() as typeof lastPutBody;
@@ -164,28 +164,6 @@ test.describe('WAN VPN clients section', () => {
           status: 200,
           contentType: 'application/json',
           body: envelope({ ...baseClient, disabled: false }),
-        });
-        return;
-      }
-      await route.fallback();
-    });
-
-    let gatewayPutBody: { gateway?: string } | null = null;
-    await context.route('**/api/route/foreign-gateway', async (route) => {
-      if (route.request().method() === 'GET') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope({ gateway: null }),
-        });
-        return;
-      }
-      if (route.request().method() === 'PUT') {
-        gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope({ gateway: 'home-l2tp', routesUpdated: 2 }),
         });
         return;
       }
@@ -200,14 +178,18 @@ test.describe('WAN VPN clients section', () => {
 
     await row.getByRole('switch', { name: /enabled/i }).click();
     await expect.poll(() => lastPutBody?.disabled).toBe(false);
-    expect(gatewayPutBody).toBeNull();
+    expect(lastPutBody?.failoverRole).toBeUndefined();
 
-    await row.getByRole('button', { name: /set home-l2tp as starlink gateway/i }).click();
-    await expect.poll(() => gatewayPutBody?.gateway).toBe('home-l2tp');
-    await expect(row.getByText('Gateway', { exact: true })).toBeVisible();
+    await row.getByRole('button', { name: /set failover role of home-l2tp/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await dialog.getByRole('radio', { name: /^Backup 1/ }).check();
+    await dialog.getByRole('button', { name: 'Save' }).click();
+    await expect.poll(() => lastPutBody?.failoverRole).toBe('backup1');
+    await expect(dialog).toBeHidden();
   });
 
-  test('enabling a client leaves others untouched and gateway button points routes at it', async ({
+  test('enabling a client leaves others untouched and the role dialog assigns a failover role', async ({
     page,
     context,
     resetMocks,
@@ -259,7 +241,7 @@ test.describe('WAN VPN clients section', () => {
       });
     });
 
-    let targetPutBody: { disabled?: boolean } | null = null;
+    let targetPutBody: { disabled?: boolean; failoverRole?: string } | null = null;
     await context.route('**/api/vpn/clients/home-l2tp', async (route) => {
       if (route.request().method() === 'PUT') {
         targetPutBody = route.request().postDataJSON() as typeof targetPutBody;
@@ -287,48 +269,80 @@ test.describe('WAN VPN clients section', () => {
       await route.fallback();
     });
 
-    let gatewayPutBody: { gateway?: string } | null = null;
-    await context.route('**/api/route/foreign-gateway', async (route) => {
-      if (route.request().method() === 'GET') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope({ gateway: 'office-wg' }),
-        });
-        return;
-      }
-      if (route.request().method() === 'PUT') {
-        gatewayPutBody = route.request().postDataJSON() as typeof gatewayPutBody;
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: envelope({ gateway: 'home-l2tp', routesUpdated: 2 }),
-        });
-        return;
-      }
-      await route.fallback();
-    });
-
     await page.goto(`/router/${ROUTER_ID}/wan`);
 
     const targetRow = page.getByRole('row', { name: /home-l2tp/ });
     const otherRow = page.getByRole('row', { name: /office-wg/ });
     await expect(targetRow).toBeVisible();
     await expect(otherRow.getByRole('switch', { name: /enabled/i })).toBeChecked();
-    await expect(otherRow.getByText('Gateway', { exact: true })).toBeVisible();
 
     await targetRow.getByRole('switch', { name: /enabled/i }).click();
 
     await expect.poll(() => targetPutBody?.disabled).toBe(false);
-    expect(gatewayPutBody).toBeNull();
     expect(otherPutBody).toBeNull();
     await expect(otherRow.getByRole('switch', { name: /enabled/i })).toBeChecked();
 
-    await targetRow.getByRole('button', { name: /set home-l2tp as starlink gateway/i }).click();
+    await targetRow.getByRole('button', { name: /set failover role of home-l2tp/i }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('radio', { name: /^Primary/ }).check();
+    await dialog.getByRole('button', { name: 'Save' }).click();
 
-    await expect.poll(() => gatewayPutBody?.gateway).toBe('home-l2tp');
-    await expect(targetRow.getByText('Gateway', { exact: true })).toBeVisible();
-    await expect(otherRow.getByText('Gateway', { exact: true })).toBeHidden();
+    await expect.poll(() => targetPutBody?.failoverRole).toBe('primary');
+    expect(otherPutBody).toBeNull();
+  });
+
+  test('flags fallback VPN clients with a red mark and an alert above the table', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([
+          { ...baseClient, fallback: true, running: true, disabled: false },
+          { ...baseClient, id: '*2', name: 'own-wg', type: 'wg', fallback: false },
+        ]),
+      });
+    });
+
+    await context.route('**/api/interface/interfaces', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([]),
+      });
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/wan`);
+
+    await expect(page.getByRole('alert').filter({ hasText: /fallback VPN/i })).toBeVisible();
+    await expect(
+      page.getByRole('row', { name: /home-l2tp/ }).getByRole('img', { name: /fallback VPN/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('row', { name: /own-wg/ }).getByRole('img', { name: /fallback VPN/i }),
+    ).toHaveCount(0);
   });
 
   test('validates name and host inputs in add dialog and limits selectable types', async ({
@@ -1345,7 +1359,7 @@ test.describe('WAN VPN clients section', () => {
 
     await expect(confirm).toBeHidden();
     expect(resetCalls).toBe(1);
-    await expect(row).toContainText(/0 B\s*\/\s*0 B/);
+    await expect(row).toContainText(/0 B\s*0 B/);
   });
 
   test('renders empty-state icon when no clients are configured', async ({

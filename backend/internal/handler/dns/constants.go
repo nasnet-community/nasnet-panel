@@ -5,18 +5,27 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"nasnet-panel/internal/failover"
 )
 
-// Default DNS server IPs for the Domestic, Foreign and VPN roles.
+// Default DNS server IPs for the Domestic, Foreign and VPN roles. The three VPN resolvers are
+// the only servers of /ip/dns; Domestic and Foreign are only used by the forwarders.
 const (
-	DNSDefaultDomesticIP = "217.218.127.127"
-	DNSDefaultForeignIP  = "1.1.1.1"
-	DNSDefaultVPNIP      = "1.0.0.1"
+	DNSDefaultDomesticIP    = "217.218.127.127"
+	DNSDefaultDomesticAltIP = "2.185.239.133"
+	DNSDefaultForeignIP     = "1.1.1.1"
+	DNSDefaultVPNPrimaryIP  = failover.ResolverPrimaryIP
+	DNSDefaultVPNBackup1IP  = failover.ResolverBackup1IP
+	DNSDefaultVPNBackup2IP  = failover.ResolverBackup2IP
 
-	// Cloudflare Family DNS IPs applied by POST /api/dns/family: Primary to
-	// the Foreign forwarder, Secondary to the VPN forwarder.
-	DNSFamilyPrimaryIP   = "1.1.1.3"
-	DNSFamilySecondaryIP = "1.0.0.3"
+	// Family DNS IPs applied by PUT /api/dns/family: Cloudflare Family Primary
+	// to the Foreign forwarder and Secondary to VPN-Primary, OpenDNS FamilyShield
+	// Primary to VPN-Backup1 and Secondary to VPN-Backup2.
+	DNSFamilyPrimaryIP         = "1.1.1.3"
+	DNSFamilySecondaryIP       = "1.0.0.3"
+	DNSFamilyShieldPrimaryIP   = "208.67.222.123"
+	DNSFamilyShieldSecondaryIP = "208.67.220.123"
 
 	DefaultRouteDstAddress = "0.0.0.0/0"
 	WanDomesticLinkComment = "WAN - Domestic Link"
@@ -29,50 +38,65 @@ const (
 
 var staticDNSNamePattern = regexp.MustCompile(`^[A-Za-z0-9*_.-]+$`)
 
-// dnsForwarderType names the three recognized DNS forwarder roles, carried in
-// a forwarder's name.
+// dnsForwarderType names the recognized DNS forwarder roles, carried in a
+// forwarder's name.
 const (
-	dnsForwarderTypeDomestic = "Domestic"
-	dnsForwarderTypeForeign  = "Foreign"
-	dnsForwarderTypeVPN      = "VPN"
-	dnsForwarderTypeUnknown  = "Unknown"
+	dnsForwarderTypeDomestic   = "Domestic"
+	dnsForwarderTypeForeign    = "Foreign"
+	dnsForwarderTypeVPNPrimary = "VPN-Primary"
+	dnsForwarderTypeVPNBackup1 = "VPN-Backup1"
+	dnsForwarderTypeVPNBackup2 = "VPN-Backup2"
+	dnsForwarderTypeGeneral    = "General"
+	dnsForwarderTypeUnknown    = "Unknown"
 
 	domesticAddressListName = "DOMAddList"
 	dnsAddressListName      = "DNS"
 )
 
-// dnsResetServers and dnsResetForwarders define the fixed state GET
-// /api/dns/reset restores /ip/dns and /ip/dns/forwarders to.
+// dnsResetServers and dnsResetForwarders define the fixed state POST
+// /api/dns/reset restores /ip/dns and /ip/dns/forwarders to. /ip/dns only holds
+// the VPN resolvers; the General forwarder is built by dnsResetGeneralServers.
 var (
-	dnsResetServers = strings.Join([]string{DNSDefaultVPNIP, DNSDefaultDomesticIP, DNSDefaultForeignIP}, ",")
+	dnsResetServers = strings.Join([]string{DNSDefaultVPNPrimaryIP, DNSDefaultVPNBackup1IP, DNSDefaultVPNBackup2IP}, ",")
 
 	dnsResetForwarders = []dnsResetForwarder{
+		{Name: dnsForwarderTypeVPNPrimary, DNSServers: DNSDefaultVPNPrimaryIP},
+		{Name: dnsForwarderTypeVPNBackup1, DNSServers: DNSDefaultVPNBackup1IP},
+		{Name: dnsForwarderTypeVPNBackup2, DNSServers: DNSDefaultVPNBackup2IP},
 		{Name: dnsForwarderTypeDomestic, DNSServers: DNSDefaultDomesticIP, Domestic: true},
 		{Name: dnsForwarderTypeForeign, DNSServers: DNSDefaultForeignIP},
-		{Name: "General", DNSServers: dnsResetServers},
-		{Name: dnsForwarderTypeVPN, DNSServers: DNSDefaultVPNIP},
+	}
+
+	// The order GET /api/dns/list returns the forwarders in.
+	forwarderOrder = []string{
+		dnsForwarderTypeVPNPrimary, dnsForwarderTypeVPNBackup1, dnsForwarderTypeVPNBackup2,
+		dnsForwarderTypeForeign, dnsForwarderTypeDomestic,
 	}
 
 	// CheckIP routes, identified by comment, and the gateway each is reset to.
 	dnsResetCheckIPRoutes = []dnsResetCheckIPRoute{
 		{Comment: "CheckIP-Route-to-Domestic-Domestic Link", Gateway: DNSDefaultDomesticIP, Domestic: true},
 		{Comment: "CheckIP-Route-to-Foreign-Foreign Link", Gateway: DNSDefaultForeignIP},
-		{Comment: "CheckIP-Route-to-VPN-Client", Gateway: DNSDefaultVPNIP},
 	}
 
-	// Domestic/Foreign/VPN link routes, identified by comment, whose
+	// Domestic/Foreign link routes, identified by comment, whose
 	// dst-address is reset unless it's the default route (0.0.0.0/0).
 	dnsResetRouteDstAddresses = []dnsResetRouteDstAddress{
 		{Comment: "Route-to-Domestic-Domestic Link", DstAddress: DNSDefaultDomesticIP, Domestic: true},
 		{Comment: "Route-to-Foreign-Foreign Link", DstAddress: DNSDefaultForeignIP},
-		{Comment: "Route-to-VPN-Client", DstAddress: DNSDefaultVPNIP},
 	}
 
-	// Failover netwatch probes, identified by comment, and the host each is reset to.
+	// Failover netwatch probes, identified by comment, and the host or DNS
+	// server each is reset to.
 	dnsResetNetwatchProbes = []dnsResetNetwatchProbe{
 		{Comment: "Failover Netwatch - Domestic Link", Host: DNSDefaultDomesticIP, Domestic: true},
 		{Comment: "Failover Netwatch - Foreign Link", Host: DNSDefaultForeignIP},
-		{Comment: "Failover Netwatch - VPN-Client", Host: DNSDefaultVPNIP},
+		{Comment: "Failover DNS probe VPN-Primary", DNSServer: DNSDefaultVPNPrimaryIP},
+		{Comment: "Failover DNS probe VPN-Backup1", DNSServer: DNSDefaultVPNBackup1IP},
+		{Comment: "Failover DNS probe VPN-Backup2", DNSServer: DNSDefaultVPNBackup2IP},
+		{Comment: "Failover DNS probe Domestic", DNSServer: DNSDefaultDomesticIP, Domestic: true},
+		{Comment: "Failover DNS probe Domestic-Alt", DNSServer: DNSDefaultDomesticAltIP, Domestic: true},
+		{Comment: "Failover DNS probe Foreign", DNSServer: DNSDefaultForeignIP},
 	}
 )
 
@@ -86,41 +110,31 @@ const (
 
 // domesticDNSSuggestions lists known-good domestic (Iranian) DNS server IPs.
 var domesticDNSSuggestions = []Suggestion{
-	{IP: "217.218.127.127", Description: "ICT DNS"},
-	{IP: "217.218.155.155", Description: "ICT DNS"},
-	{IP: "5.202.100.101", Description: "Iranian ISP"},
-	{IP: "37.156.145.229", Description: "Iranian ISP"},
-	{IP: "37.156.145.21", Description: "Iranian ISP"},
-	{IP: "46.224.1.42", Description: "Iranian ISP"},
-	{IP: "78.157.42.100", Description: "Iranian ISP"},
-	{IP: "78.157.42.101", Description: "Iranian ISP"},
-	{IP: "80.191.40.41", Description: "Iranian ISP"},
-	{IP: "81.91.144.116", Description: "Iranian ISP"},
-	{IP: "91.99.101.12", Description: "Iranian ISP"},
-	{IP: "91.245.229.1", Description: "Iranian ISP"},
-	{IP: "92.119.56.162", Description: "Iranian ISP"},
-	{IP: "178.22.122.100", Description: "Asiatech DNS"},
-	{IP: "185.51.200.2", Description: "Shatel DNS"},
-	{IP: "185.51.200.10", Description: "Shatel DNS"},
-	{IP: "185.51.200.50", Description: "Shatel DNS"},
-	{IP: "185.55.225.25", Description: "Iranian ISP"},
-	{IP: "185.55.226.26", Description: "Iranian ISP"},
-	{IP: "185.97.117.187", Description: "Iranian ISP"},
-	{IP: "185.113.59.253", Description: "Iranian ISP"},
-	{IP: "185.161.112.33", Description: "Iranian ISP"},
-	{IP: "185.161.112.34", Description: "Iranian ISP"},
-	{IP: "185.186.242.161", Description: "Iranian ISP"},
-	{IP: "185.187.84.15", Description: "Iranian ISP"},
-	{IP: "185.231.182.126", Description: "Iranian ISP"},
-	{IP: "194.36.174.161", Description: "Iranian ISP"},
-	{IP: "194.225.62.80", Description: "Iranian ISP"},
-	{IP: "194.225.73.141", Description: "Iranian ISP"},
-	{IP: "213.176.123.5", Description: "Iranian ISP"},
-	{IP: "217.218.155.155", Description: "Iranian ISP"},
-	{IP: "2.188.21.130", Description: "Iranian ISP"},
-	{IP: "2.188.21.131", Description: "Iranian ISP"},
-	{IP: "2.188.21.132", Description: "Iranian ISP"},
-	{IP: "2.189.44.44", Description: "Iranian ISP"},
+	{IP: "217.218.127.127", Description: "ITC (DCI) DNS"},
+	{IP: "217.218.155.155", Description: "ITC (DCI) DNS"},
+	{IP: "78.157.42.100", Description: "Electro DNS"},
+	{IP: "78.157.42.101", Description: "Electro DNS"},
+	{IP: "91.245.229.1", Description: "Kish Cell Pars Co. (PJS)"},
+	{IP: "178.22.122.100", Description: "Shecan DNS"},
+	{IP: "185.51.200.2", Description: "Shecan DNS"},
+	{IP: "185.55.226.26", Description: "Begzar DNS"},
+	{IP: "185.161.112.33", Description: "Parvaz System DNS"},
+	{IP: "185.161.112.34", Description: "Parvaz System DNS"},
+	{IP: "194.225.62.80", Description: "Tehran University of Medical Sciences DNS"},
+	{IP: "2.189.44.44", Description: "Iran Information Technology Company PJSC"},
+	{IP: "194.225.152.10", Description: "IPM (IRANET) DNS"},
+	{IP: "185.53.143.3", Description: "Mobinhost DNS"},
+	{IP: "89.144.144.144", Description: "Andishe Sabz Khazar DNS"},
+	{IP: "5.145.112.38", Description: "E-Money Net Developers 24 DNS"},
+	{IP: "5.145.112.39", Description: "E-Money Net Developers 24 DNS"},
+	{IP: "2.185.239.133", Description: "TCI DNS"},
+	{IP: "2.185.239.134", Description: "TCI DNS"},
+	{IP: "2.185.239.136", Description: "TCI DNS"},
+	{IP: "2.185.239.137", Description: "TCI DNS"},
+	{IP: "2.185.239.138", Description: "TCI DNS"},
+	{IP: "2.185.239.139", Description: "TCI DNS"},
+	{IP: "85.185.85.6", Description: "TCI DNS"},
+	{IP: "217.219.132.88", Description: "TCI DNS"},
 }
 
 // foreignDNSSuggestions lists known-good foreign (international) DNS server IPs.
@@ -139,6 +153,8 @@ var foreignDNSSuggestions = []Suggestion{
 	{IP: "149.112.112.112", Description: "Quad9 DNS"},
 	{IP: "208.67.222.222", Description: "OpenDNS"},
 	{IP: "208.67.220.220", Description: "OpenDNS"},
+	{IP: "208.67.222.123", Description: "OpenDNS FamilyShield Primary"},
+	{IP: "208.67.220.123", Description: "OpenDNS FamilyShield Secondary"},
 	{IP: "64.6.64.6", Description: "Verisign Public DNS"},
 	{IP: "64.6.65.6", Description: "Verisign Public DNS"},
 	{IP: "84.200.69.80", Description: "DNS.Watch"},

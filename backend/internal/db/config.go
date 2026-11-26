@@ -7,19 +7,20 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Config is everything the user entered in the wizard. A nil pointer means
+// Config is everything the user entered in the wizard. An empty slice means
 // that part was not configured. Settings are stored in the settings table. Every SSTP,
 // L2TP and IKEv2 server is disabled because the wizard configures none of them.
 type Config struct {
-	Settings    map[string]string
-	WANs        []WAN
-	WireGuard   *WireGuardInterface
-	L2TP        *L2TPClient
-	WiFis       []WiFi
-	BridgePorts []BridgePort
-	OvpnServers []OvpnServer
-	VPNUsers    []VPNUser
-	DNSServers  []DNSServer
+	Settings           map[string]string
+	WANs               []WAN
+	WireGuards         []WireGuardInterface
+	L2TPs              []L2TPClient
+	FailoverInterfaces []FailoverInterface
+	WiFis              []WiFi
+	BridgePorts        []BridgePort
+	OvpnServers        []OvpnServer
+	VPNUsers           []VPNUser
+	DNSServers         []DNSServer
 }
 
 // SaveConfig makes the router's stored configuration match cfg in one transaction. Rows that
@@ -43,25 +44,29 @@ func saveConfigImpl(ctx context.Context, tx *sqlx.Tx, cfg *Config) error {
 		return err
 	}
 
-	var wireGuardNames []string
-	if cfg.WireGuard != nil {
-		if err := saveWireGuardInterface(ctx, tx, cfg.WireGuard); err != nil {
+	wireGuardNames := make([]string, 0, len(cfg.WireGuards))
+	for i := range cfg.WireGuards {
+		if err := saveWireGuardInterface(ctx, tx, &cfg.WireGuards[i]); err != nil {
 			return err
 		}
-		wireGuardNames = append(wireGuardNames, cfg.WireGuard.Name)
+		wireGuardNames = append(wireGuardNames, cfg.WireGuards[i].Name)
 	}
 	if err := deleteMissing(ctx, tx, "wireguard_interfaces", "name", wireGuardNames, ""); err != nil {
 		return err
 	}
 
-	var l2tpNames []string
-	if cfg.L2TP != nil {
-		if err := upsertL2TPClientImpl(ctx, tx, cfg.L2TP); err != nil {
+	l2tpNames := make([]string, 0, len(cfg.L2TPs))
+	for i := range cfg.L2TPs {
+		if err := upsertL2TPClientImpl(ctx, tx, &cfg.L2TPs[i]); err != nil {
 			return err
 		}
-		l2tpNames = append(l2tpNames, cfg.L2TP.Name)
+		l2tpNames = append(l2tpNames, cfg.L2TPs[i].Name)
 	}
 	if err := deleteMissing(ctx, tx, "l2tp_clients", "name", l2tpNames, ""); err != nil {
+		return err
+	}
+
+	if err := saveFailoverInterfacesImpl(ctx, tx, cfg.FailoverInterfaces); err != nil {
 		return err
 	}
 

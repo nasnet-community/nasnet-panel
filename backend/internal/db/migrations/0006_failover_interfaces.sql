@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS failover_interfaces (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    interface  TEXT NOT NULL UNIQUE,
+    probe_ip   TEXT NOT NULL UNIQUE,
+    distance   INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

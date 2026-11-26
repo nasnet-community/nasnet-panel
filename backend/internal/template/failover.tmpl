@@ -1,0 +1,46 @@
+{{ range .VPNClients }}{{ template "failover_tunnel.tmpl" . }}{{ end }}
+
+/ip route
+{{ range .VPNClients }}
+add dst-address={{ .ProbeIP }}/32 gateway={{ .Name }} scope=10 routing-table=main comment="Failover probe {{ .Role }} ({{ .Name }})"
+add blackhole dst-address={{ .ProbeIP }}/32 distance=254 scope=30 routing-table=main comment="Failover probe guard {{ .Role }}"
+{{ end }}
+
+{{ range .VPNClients }}
+add dst-address=0.0.0.0/0 gateway={{ .ProbeIP }}@main distance={{ .Index }} target-scope=11 check-gateway=ping routing-table=to-VPN comment="Failover {{ .Role }} ({{ .Name }})"
+{{ end }}
+
+add blackhole dst-address=9.9.9.9/32 distance=254 scope=30 routing-table=main comment="Failover resolver guard VPN-Backup1"
+add blackhole dst-address=8.8.8.8/32 distance=254 scope=30 routing-table=main comment="Failover resolver guard VPN-Backup2"
+{{ range .VPNClients }}
+add dst-address=1.0.0.1/32 gateway={{ .ProbeIP }} distance={{ .Index }} target-scope=11 check-gateway=ping routing-table=main comment="Failover resolver VPN-Primary {{ .Role }} ({{ .Name }})"
+{{ end }}
+{{ range .VPNClients }}
+add dst-address=9.9.9.9/32 gateway={{ .ProbeIP }} distance={{ .Index }} target-scope=11 check-gateway=ping routing-table=main comment="Failover resolver VPN-Backup1 {{ .Role }} ({{ .Name }})"
+{{ end }}
+{{ range .VPNClients }}
+add dst-address=8.8.8.8/32 gateway={{ .ProbeIP }} distance={{ .Index }} target-scope=11 check-gateway=ping routing-table=main comment="Failover resolver VPN-Backup2 {{ .Role }} ({{ .Name }})"
+{{ end }}
+
+/ip dns set servers=1.0.0.1,9.9.9.9,8.8.8.8
+/system script add name=Failover-dns-eval policy=read,write,test comment="Failover shared evaluator run by the Failover DNS probes" source="{{ if .DomesticEnabled }}:local s1 [/tool netwatch get [find comment=\"Failover DNS probe VPN-Primary\"] status]; :local s2 [/tool netwatch get [find comment=\"Failover DNS probe VPN-Backup1\"] status]; :local s3 [/tool netwatch get [find comment=\"Failover DNS probe VPN-Backup2\"] status]; :local s4 [/tool netwatch get [find comment=\"Failover DNS probe Domestic-Alt\"] status]; :local s5 [/tool netwatch get [find comment=\"Failover DNS probe Domestic\"] status]; :local s6 [/tool netwatch get [find comment=\"Failover DNS probe Foreign\"] status]; :if (\$s1=\"unknown\" || \$s2=\"unknown\" || \$s3=\"unknown\" || \$s4=\"unknown\" || \$s5=\"unknown\" || \$s6=\"unknown\") do={ :log info \"Failover DNS: a probe has not reported yet, no change\" } else={ :local e1 (\$s1=\"up\"); :local e2 (\$s2=\"up\"); :local e3 (\$s3=\"up\"); :local d1 (\$s4=\"up\"); :local d2 (\$s5=\"up\"); :local f1 (\$s6=\"up\"); :local fw \"217.218.127.127\"; :if (!\$d2 && \$d1) do={ :set fw \"2.185.239.133\" }; :if ([:tostr [/ip dns forwarders get [find name=Domestic] dns-servers]] != \$fw) do={ /ip dns forwarders set [find name=Domestic] dns-servers=\$fw; :log warning (\"Failover DNS: .ir forwarder (Domestic) -> \" . \$fw) }; :local dom \"\"; :if (\$d2) do={ :set dom \"217.218.127.127\" } else={ :if (\$d1) do={ :set dom \"2.185.239.133\" } }; :local g \"\"; :local gc \"\"; :if (\$e1) do={ :if (\$g = \"\") do={ :set g \"1.0.0.1\"; :set gc \"1.0.0.1\" } else={ :set g (\$g . \",1.0.0.1\"); :set gc (\$gc . \";1.0.0.1\") } }; :if (\$e2) do={ :if (\$g = \"\") do={ :set g \"9.9.9.9\"; :set gc \"9.9.9.9\" } else={ :set g (\$g . \",9.9.9.9\"); :set gc (\$gc . \";9.9.9.9\") } }; :if (\$e3) do={ :if (\$g = \"\") do={ :set g \"8.8.8.8\"; :set gc \"8.8.8.8\" } else={ :set g (\$g . \",8.8.8.8\"); :set gc (\$gc . \";8.8.8.8\") } }; :if (\$dom != \"\") do={ :if (\$g = \"\") do={ :set g \$dom; :set gc \$dom } else={ :set g (\$g . \",\" . \$dom); :set gc (\$gc . \";\" . \$dom) } }; :if (\$f1) do={ :if (\$g = \"\") do={ :set g \"1.1.1.1\"; :set gc \"1.1.1.1\" } else={ :set g (\$g . \",1.1.1.1\"); :set gc (\$gc . \";1.1.1.1\") } }; :if (\$g = \"\") do={ :set g \"1.0.0.1,9.9.9.9,8.8.8.8,2.185.239.133,1.1.1.1\"; :set gc \"1.0.0.1;9.9.9.9;8.8.8.8;2.185.239.133;1.1.1.1\" }; :if ([:tostr [/ip dns forwarders get [find name=General] dns-servers]] != \$gc) do={ /ip dns forwarders set [find name=General] dns-servers=\$g; :log warning (\"Failover DNS: General forwarder -> \" . \$g) }; :local seg \"1.0.0.1\"; :if (!\$e1) do={ :if (\$e2) do={ :set seg \"9.9.9.9\" } else={ :if (\$e3) do={ :set seg \"8.8.8.8\" } } }; :foreach r in=[/ip firewall nat find where (comment~\"^Failover DNS .*-VPN-[0-9]\" || comment=\"DNS VPN\")] do={ :if ([:tostr [/ip firewall nat get \$r to-addresses]] != \$seg) do={ /ip firewall nat set \$r to-addresses=\$seg; :log warning (\"Failover DNS: segment DNS rule \" . [/ip firewall nat get \$r comment] . \" -> \" . \$seg) } } }{{ else }}:local s1 [/tool netwatch get [find comment=\"Failover DNS probe VPN-Primary\"] status]; :local s2 [/tool netwatch get [find comment=\"Failover DNS probe VPN-Backup1\"] status]; :local s3 [/tool netwatch get [find comment=\"Failover DNS probe VPN-Backup2\"] status]; :local s6 [/tool netwatch get [find comment=\"Failover DNS probe Foreign\"] status]; :if (\$s1=\"unknown\" || \$s2=\"unknown\" || \$s3=\"unknown\" || \$s6=\"unknown\") do={ :log info \"Failover DNS: a probe has not reported yet, no change\" } else={ :local e1 (\$s1=\"up\"); :local e2 (\$s2=\"up\"); :local e3 (\$s3=\"up\"); :local f1 (\$s6=\"up\"); :local g \"\"; :local gc \"\"; :if (\$e1) do={ :if (\$g = \"\") do={ :set g \"1.0.0.1\"; :set gc \"1.0.0.1\" } else={ :set g (\$g . \",1.0.0.1\"); :set gc (\$gc . \";1.0.0.1\") } }; :if (\$e2) do={ :if (\$g = \"\") do={ :set g \"9.9.9.9\"; :set gc \"9.9.9.9\" } else={ :set g (\$g . \",9.9.9.9\"); :set gc (\$gc . \";9.9.9.9\") } }; :if (\$e3) do={ :if (\$g = \"\") do={ :set g \"8.8.8.8\"; :set gc \"8.8.8.8\" } else={ :set g (\$g . \",8.8.8.8\"); :set gc (\$gc . \";8.8.8.8\") } }; :if (\$f1) do={ :if (\$g = \"\") do={ :set g \"1.1.1.1\"; :set gc \"1.1.1.1\" } else={ :set g (\$g . \",1.1.1.1\"); :set gc (\$gc . \";1.1.1.1\") } }; :if (\$g = \"\") do={ :set g \"1.0.0.1,9.9.9.9,8.8.8.8,1.1.1.1\"; :set gc \"1.0.0.1;9.9.9.9;8.8.8.8;1.1.1.1\" }; :if ([:tostr [/ip dns forwarders get [find name=General] dns-servers]] != \$gc) do={ /ip dns forwarders set [find name=General] dns-servers=\$g; :log warning (\"Failover DNS: General forwarder -> \" . \$g) }; :local seg \"1.0.0.1\"; :if (!\$e1) do={ :if (\$e2) do={ :set seg \"9.9.9.9\" } else={ :if (\$e3) do={ :set seg \"8.8.8.8\" } } }; :foreach r in=[/ip firewall nat find where (comment~\"^Failover DNS .*-VPN-[0-9]\" || comment=\"DNS VPN\")] do={ :if ([:tostr [/ip firewall nat get \$r to-addresses]] != \$seg) do={ /ip firewall nat set \$r to-addresses=\$seg; :log warning (\"Failover DNS: segment DNS rule \" . [/ip firewall nat get \$r comment] . \" -> \" . \$seg) } } }{{ end }}"
+/tool netwatch
+add comment="Failover DNS probe VPN-Primary" type=dns host=example.com dns-server=1.0.0.1 record-type=A interval=15s timeout=3s up-script="/system script run Failover-dns-eval" down-script="/system script run Failover-dns-eval"
+add comment="Failover DNS probe VPN-Backup1" type=dns host=example.com dns-server=9.9.9.9 record-type=A interval=15s timeout=3s up-script="/system script run Failover-dns-eval" down-script="/system script run Failover-dns-eval"
+add comment="Failover DNS probe VPN-Backup2" type=dns host=example.com dns-server=8.8.8.8 record-type=A interval=15s timeout=3s up-script="/system script run Failover-dns-eval" down-script="/system script run Failover-dns-eval"
+{{ if .DomesticEnabled }}
+add comment="Failover DNS probe Domestic-Alt" type=dns host=nic.ir dns-server=2.185.239.133 record-type=A interval=15s timeout=3s up-script="/system script run Failover-dns-eval" down-script="/system script run Failover-dns-eval"
+add comment="Failover DNS probe Domestic" type=dns host=nic.ir dns-server=217.218.127.127 record-type=A interval=15s timeout=3s up-script="/system script run Failover-dns-eval" down-script="/system script run Failover-dns-eval"
+{{ end }}
+add comment="Failover DNS probe Foreign" type=dns host=example.com dns-server=1.1.1.1 record-type=A interval=15s timeout=3s up-script="/system script run Failover-dns-eval" down-script="/system script run Failover-dns-eval"
+
+{{ range .VPNClients }}
+{{ template "failover_segment.tmpl" . }}
+{{ end }}
+
+/ip firewall nat set [find comment="DNS VPN"] disabled=no
+/routing rule add action=lookup-only-in-table src-address=192.168.120.0/24 table=to-VPN comment="Failover VPN-VPN pool SRC -> to-VPN"
+
+/ip firewall nat move [find comment~"^Failover DNS"] destination=[:pick [find comment="Redirect DNS"] 0]
+
+:log info "Failover apply: VPN failover (to-VPN) and pinned segments for {{ range $i, $c := .VPNClients }}{{ if $i }}/{{ end }}{{ $c.Name }}{{ end }} installed"

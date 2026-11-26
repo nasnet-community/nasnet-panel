@@ -54,11 +54,13 @@ type dnsResetRouteDstAddress struct {
 }
 
 // dnsResetNetwatchProbe describes one failover netwatch probe, identified by
-// comment, whose host GET /api/dns/reset resets.
+// comment, whose host (ping probes) or DNS server (DNS probes) POST
+// /api/dns/reset resets. Exactly one of Host and DNSServer is set.
 type dnsResetNetwatchProbe struct {
-	Comment  string
-	Host     string
-	Domestic bool
+	Comment   string
+	Host      string
+	DNSServer string
+	Domestic  bool
 }
 
 // AdBlockRequest is the request body for POST /api/dns/adblock.
@@ -92,12 +94,49 @@ type ChangeResponse struct {
 	UpdatedNetwatchProbes   []string `json:"updatedNetwatchProbes"`
 	UpdatedAddressListItems []string `json:"updatedAddressListItems"`
 	UpdatedNATRules         []string `json:"updatedNatRules"`
+	UpdatedScripts          []string `json:"updatedScripts"`
 }
 
-// FamilyResponse is the response for POST /api/dns/family.
+// familySwap is the change of one forwarder by PUT /api/dns/family.
+type familySwap struct {
+	forwarder string
+	familyIP  string
+	defaultIP string
+	oldIP     string
+	newIP     string
+	result    *ChangeResponse
+}
+
+// FamilyForwarderStatus is the family state of one forwarder in GET /api/dns/family.
+type FamilyForwarderStatus struct {
+	Name     string `json:"name" example:"VPN-Backup1"`
+	IP       string `json:"ip" example:"208.67.222.123"`
+	FamilyIP string `json:"familyIp" example:"208.67.222.123"`
+	Family   bool   `json:"family"`
+}
+
+// FamilyStatusResponse is the response for GET /api/dns/family. Enabled is true when every
+// forwarder holds its family IP, Partial when only some do.
+type FamilyStatusResponse struct {
+	Enabled    bool                    `json:"enabled"`
+	Partial    bool                    `json:"partial"`
+	Forwarders []FamilyForwarderStatus `json:"forwarders"`
+}
+
+// SetFamilyRequest is the request body for PUT /api/dns/family.
+type SetFamilyRequest struct {
+	Enabled *bool `json:"enabled" example:"true"`
+}
+
+// FamilyResponse is the response for PUT /api/dns/family. VPN is the change of
+// the VPN-Primary forwarder; Backup1 and Backup2 are those of VPN-Backup1 and VPN-Backup2.
 type FamilyResponse struct {
 	Foreign ChangeResponse `json:"foreign"`
 	VPN     ChangeResponse `json:"vpn"`
+	Backup1 ChangeResponse `json:"backup1"`
+	Backup2 ChangeResponse `json:"backup2"`
+	// CacheFlushed tells whether the DNS cache was flushed after the change.
+	CacheFlushed bool `json:"cacheFlushed"`
 }
 
 // ForwarderResult describes one DNS forwarder created by POST /api/dns/reset.
@@ -116,6 +155,7 @@ type ResetResponse struct {
 	UpdatedNetwatchProbes    []string          `json:"updatedNetwatchProbes"`
 	CreatedAddressListItems  []string          `json:"createdAddressListItems"`
 	UpdatedNATRules          []string          `json:"updatedNatRules"`
+	CacheFlushed             bool              `json:"cacheFlushed"`
 }
 
 // Suggestion is a single suggested DNS server IP with a short description

@@ -13,7 +13,6 @@ import (
 	"nasnet-panel/internal/handler/logs"
 	"nasnet-panel/internal/handler/net"
 	"nasnet-panel/internal/handler/plugin"
-	"nasnet-panel/internal/handler/route"
 	"nasnet-panel/internal/handler/scan"
 	"nasnet-panel/internal/handler/system"
 	"nasnet-panel/internal/handler/vpn"
@@ -51,7 +50,6 @@ func RegisterRoutes(e *echo.Echo) {
 	configGroup.Use(middleware.RouterOSAuth)
 	configGroup.POST("/reconfig", config.HandleStartReconfig)
 	configGroup.GET("/reconfig/status", config.HandleGetReconfigStatus)
-	configGroup.POST("/vpn", config.HandleGetVPNCredentials)
 	configGroup.POST("/wizard/finalize", config.HandleFinalizeWizard)
 	configGroup.GET("/wizard/status", config.HandleGetWizardStatus)
 
@@ -76,7 +74,8 @@ func RegisterRoutes(e *echo.Echo) {
 	dnsGroup.POST("/adblock", dns.HandleSetAdBlock)
 	dnsGroup.DELETE("/cache", dns.HandleFlushDNSCache)
 	dnsGroup.POST("/change", dns.HandleChangeDNS)
-	dnsGroup.POST("/family", dns.HandleSetFamilyDNS)
+	dnsGroup.GET("/family", dns.HandleGetFamilyDNS)
+	dnsGroup.PUT("/family", dns.HandleSetFamilyDNS)
 	dnsGroup.GET("/info", dns.HandleGetDNSInfo)
 	dnsGroup.PUT("/info", dns.HandleUpdateDNS)
 	dnsGroup.GET("/list", dns.HandleListDNSForwarders)
@@ -146,11 +145,6 @@ func RegisterRoutes(e *echo.Echo) {
 	pluginGroup.GET("/update/status/:pluginId", plugin.HandleGetPluginUpdateStatus)
 	pluginGroup.POST("/update/:pluginId", plugin.HandleUpdatePlugin)
 
-	routeGroup := e.Group("/api/route")
-	routeGroup.Use(middleware.RouterOSAuth)
-	routeGroup.GET("/foreign-gateway", route.HandleGetForeignGateway)
-	routeGroup.PUT("/foreign-gateway", route.HandleUpdateForeignGateway)
-
 	scanGroup := e.Group("/api/scan")
 	scanGroup.POST("", scan.HandleStartScan)
 	scanGroup.POST("/auto", scan.HandleAutoScan)
@@ -186,6 +180,8 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.Use(middleware.RouterOSAuth)
 	vpnGroup.GET("/active", vpn.HandleListActiveVPNConnections)
 	vpnGroup.DELETE("/active/:id", vpn.HandleRemovePPPActiveSession)
+	vpnGroup.GET("/claim", vpn.HandleClaimVPN)
+	vpnGroup.POST("/claim", vpn.HandleApplyClaimedVPN)
 	vpnGroup.GET("/clients", vpn.HandleListVPNClients)
 	vpnGroup.GET("/clients/:name", vpn.HandleGetVPNClient)
 	vpnGroup.PUT("/clients/:name", vpn.HandleUpdateVPNClient)

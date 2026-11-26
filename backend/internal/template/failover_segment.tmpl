@@ -1,0 +1,23 @@
+/interface bridge add name={{ .Bridge }} comment="Failover pinned {{ .Name }}"
+/interface list add name={{ .ListName }} comment="Failover pinned {{ .Name }}"
+/interface list member
+add interface={{ .Bridge }} list=LAN comment="Failover pinned {{ .Name }}"
+add interface={{ .Bridge }} list={{ .ListName }} comment="Failover pinned {{ .Name }}"
+/ip address add address={{ .Address }} interface={{ .Bridge }} network={{ .Network }} comment="Failover pinned {{ .Name }}"
+/ip pool add name=DHCP-pool-{{ .Name }} ranges={{ .PoolRange }} comment="Failover pinned {{ .Name }}"
+/ip dhcp-server add name=DHCP-{{ .Name }} address-pool=DHCP-pool-{{ .Name }} interface={{ .Bridge }} comment="Failover pinned {{ .Name }}"
+/ip dhcp-server network add address={{ .Subnet }} gateway={{ .Gateway }} dns-server={{ .Gateway }} comment="Failover pinned {{ .Name }}"
+/ip firewall address-list add address={{ .Subnet }} list={{ .ListName }} comment="Failover pinned {{ .Name }}"
+/routing table add fib name={{ .Table }} comment="Failover pinned {{ .Name }}"
+/routing rule
+add action=lookup-only-in-table src-address={{ .Gateway }}/32 dst-address={{ .Subnet }} table=main comment="Failover pinned {{ .Name }} router"
+add action=lookup-only-in-table src-address={{ .Subnet }} table={{ .Table }} comment="Failover pinned {{ .Name }} SRC"
+add action=lookup-only-in-table routing-mark={{ .Table }} table={{ .Table }} comment="Failover pinned {{ .Name }} mark"
+/ip firewall mangle add chain=prerouting action=mark-routing new-routing-mark={{ .Table }} passthrough=no src-address-list={{ .ListName }} comment="Failover pinned {{ .Name }} routing"
+/ip route
+add dst-address=0.0.0.0/0 gateway={{ .ProbeIP }}@main distance=1 target-scope=11 check-gateway=ping routing-table={{ .Table }} comment="Failover pinned {{ .Name }} default"
+add blackhole dst-address=0.0.0.0/0 distance=99 routing-table={{ .Table }} comment="Failover pinned {{ .Name }} blackhole"
+/ip nat-pmp interfaces add interface={{ .Bridge }} type=internal
+/ip firewall nat
+add chain=dstnat action=dst-nat protocol=udp dst-port=53 src-address-list={{ .ListName }} to-addresses=1.0.0.1 comment="Failover DNS {{ .Name }}"
+add chain=dstnat action=dst-nat protocol=tcp dst-port=53 src-address-list={{ .ListName }} to-addresses=1.0.0.1 comment="Failover DNS {{ .Name }}"

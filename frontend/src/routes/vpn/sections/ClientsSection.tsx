@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Sparkles } from 'lucide-react';
 import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
@@ -26,6 +27,7 @@ import {
   type VPNCredentials,
 } from '../../../api';
 import { AddVpnClientDialog } from '../dialogs/AddVpnClientDialog';
+import { HyperSpeedClaimDialog } from '../../easy-config/steps/ipmask/HyperSpeedClaimDialog';
 import { EditL2tpClientDialog } from '../dialogs/EditL2tpClientDialog';
 import { EditSstpClientDialog } from '../dialogs/EditSstpClientDialog';
 import { EditWgClientDialog } from '../dialogs/EditWgClientDialog';
@@ -64,6 +66,7 @@ export function ClientsSection({
   const toast = useToast();
   const { t } = useTranslation('vpn');
   const [adding, setAdding] = useState(false);
+  const [claiming, setClaiming] = useState(false);
   const [editing, setEditing] = useState<VPNClient | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNClient | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
@@ -306,6 +309,14 @@ export function ClientsSection({
         <SectionHeader
           title={t('clients.title')}
           description={t('clients.description')}
+          extraActions={[
+            {
+              label: t('clients.claimFree'),
+              disabled: !creds,
+              icon: <Sparkles size={14} aria-hidden />,
+              onClick: () => setClaiming(true),
+            },
+          ]}
           action={{
             label: t('clients.new'),
             disabled: !creds,
@@ -332,6 +343,11 @@ export function ClientsSection({
           />
         </div>
       </Card>
+      <HyperSpeedClaimDialog
+        open={claiming}
+        onClose={() => setClaiming(false)}
+        onClaimed={() => onChanged()}
+      />
       {adding ? (
         <AddVpnClientDialog
           onCancel={() => setAdding(false)}

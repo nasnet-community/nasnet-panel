@@ -313,6 +313,13 @@ add fib name="to-Foreign-Foreign Link" comment="Foreign-Foreign Link"
 
 /routing rule
 {{ if .DomesticEnabled}}
+add action=lookup-only-in-table comment="Router replies on the Domestic LAN" disabled=no src-address=192.168.20.1/32 dst-address=192.168.20.0/24 table=main
+add action=lookup-only-in-table comment="Router replies on the Domestic-Domestic Link LAN" disabled=no src-address=192.168.21.1/32 dst-address=192.168.21.0/24 table=main
+{{ end }}
+add action=lookup-only-in-table comment="Router replies on the Foreign LAN" disabled=no src-address=192.168.30.1/32 dst-address=192.168.30.0/24 table=main
+add action=lookup-only-in-table comment="Router replies on the Foreign-Foreign Link LAN" disabled=no src-address=192.168.31.1/32 dst-address=192.168.31.0/24 table=main
+add action=lookup-only-in-table comment="Router replies on the VPN LAN" disabled=no src-address=192.168.40.1/32 dst-address=192.168.40.0/24 table=main
+{{ if .DomesticEnabled}}
 add action=lookup-only-in-table comment="Router traffic sourced from Domestic WAN address leaves via Domestic" disabled=no src-address={{ or .DomesticInterface.StaticIP "192.168.1.2" }}/32 table=to-Domestic
 add action=lookup-only-in-table comment="Routing the Domestic SRC Address" disabled=no src-address="192.168.20.0/24" table="to-Domestic"
 add action=lookup-only-in-table comment="Routing the Domestic Routing Mark" disabled=no routing-mark="to-Domestic" table="to-Domestic"
@@ -449,15 +456,17 @@ add add-default-route=no comment="Domestic Link to Domestic" interface="MacVLAN-
 
 /ip dns
 set allow-remote-requests=yes  max-concurrent-queries=500 max-concurrent-tcp-sessions=50 cache-size=20480KiB cache-max-ttl=7d
-set servers=1.0.0.1,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}1.1.1.1
+set servers=1.0.0.1,9.9.9.9,8.8.8.8
 
 /ip dns forwarders
-add name=VPN dns-servers=1.0.0.1 verify-doh-cert=no
+add name=VPN-Primary dns-servers=1.0.0.1 verify-doh-cert=no
+add name=VPN-Backup1 dns-servers=9.9.9.9 verify-doh-cert=no
+add name=VPN-Backup2 dns-servers=8.8.8.8 verify-doh-cert=no
 {{ if .DomesticEnabled}}
 add name=Domestic dns-servers=217.218.127.127 verify-doh-cert=no
 {{ end }}
 add name=Foreign dns-servers=1.1.1.1 verify-doh-cert=no
-add name=General dns-servers=1.0.0.1,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}1.1.1.1 verify-doh-cert=no
+add name=General dns-servers=1.0.0.1,9.9.9.9,8.8.8.8,{{ if .DomesticEnabled}}217.218.127.127,{{ end }}1.1.1.1 verify-doh-cert=no
 
 /ip dns static
 {{ if .DomesticEnabled}}
@@ -500,6 +509,8 @@ add comment="LOCAL-IP" address="192.168.0.0/16" list="LOCAL-IP"
 add comment="LOCAL-IP" address="172.16.0.0/12" list="LOCAL-IP"
 add comment="LOCAL-IP" address="10.0.0.0/8" list="LOCAL-IP"
 add comment="DNS" address="1.0.0.1" list="DNS"
+add comment="DNS" address="9.9.9.9" list="DNS"
+add comment="DNS" address="8.8.8.8" list="DNS"
 add comment="DNS" address="217.218.127.127" list="DNS"
 add comment="DNS" address="1.1.1.1" list="DNS"
 add address="192.168.10.0/24" list="Split-LAN" comment="Split"
@@ -643,7 +654,7 @@ add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 ga
 add comment=Blackhole blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-VPN"
 add comment="Route-to-Foreign-Foreign Link 1" distance=1 dst-address=192.168.100.0/24 gateway={{ or .ForeignInterface.Gateway "100.64.0.1" }} routing-table="to-VPN"
 add comment="Blackhole" blackhole disabled=no distance=99 dst-address=0.0.0.0/0 gateway="" routing-table="to-Foreign-Foreign Link"
-add comment="VPN DNS leak guard" blackhole dst-address=1.0.0.1/32 routing-table=main distance=254 scope=30
+add comment="VPN-Primary DNS leak guard" blackhole dst-address=1.0.0.1/32 routing-table=main distance=254 scope=30
 add comment="Foreign DNS leak guard" blackhole dst-address=1.1.1.1/32 routing-table=main distance=254 scope=30
 add comment="Tunnel endpoints -> hairpin -> main" dst-address=0.0.0.0/0 gateway="10.255.255.1@VRF-TunnelEnds" routing-table="VRF-TunnelEnds"
 :global BaseConfigProgress "68"
@@ -773,9 +784,7 @@ up-script="/ip route enable [find comment=\"CheckIP-Route-to-Foreign-Foreign Lin
 :global BaseConfigProgress "95"
 :set BaseConfigMessage "Setting up VPN clients"
 
-{{if .L2tpClient}}{{ template "l2tp_client.tmpl" . }}{{end}}
-
-{{if .WireGuardClient}}{{ template "wg_client.tmpl" . }}{{end}}
+{{ if .VPNClients }}{{ template "failover.tmpl" . }}{{ end }}
 :global BaseConfigProgress "96"
 :set BaseConfigMessage "Removing temporary management access"
 /ip dhcp-server network remove [find address="192.168.210.0/24"]

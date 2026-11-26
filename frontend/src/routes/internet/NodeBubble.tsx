@@ -21,7 +21,15 @@ export function NodeBubble({ node, onSelect }: NodeBubbleProps) {
     <>
       <div className={iconClass}>{nodeIcon(node)}</div>
       <div className={styles.nodeLabelWrap}>
-        <div className={styles.nodeLabel}>{label}</div>
+        <div
+          className={
+            node.kind === 'router'
+              ? `${styles.nodeLabel} ${styles.nodeLabelOpaque}`
+              : styles.nodeLabel
+          }
+        >
+          {label}
+        </div>
         {sub ? <div className={styles.nodeSubLabel}>{sub}</div> : null}
       </div>
     </>

@@ -336,37 +336,6 @@ export async function updateInterfaceBridge(
   });
 }
 
-export interface ForeignGatewayResponse {
-  gateway: string | null;
-}
-
-export async function fetchForeignGateway(
-  creds: SystemCredentials,
-  signal?: AbortSignal,
-): Promise<string | null> {
-  const data = await apiRequest<ForeignGatewayResponse | null>('/api/route/foreign-gateway', {
-    method: 'GET',
-    auth: creds,
-    cache: 'no-store',
-    signal,
-  });
-  return data?.gateway ?? null;
-}
-
-export async function updateForeignGateway(
-  creds: SystemCredentials,
-  gateway: string,
-  signal?: AbortSignal,
-): Promise<void> {
-  await apiRequest<unknown>('/api/route/foreign-gateway', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    auth: creds,
-    body: JSON.stringify({ gateway }),
-    signal,
-  });
-}
-
 export async function fetchVPNClients(
   creds: SystemCredentials,
   signal?: AbortSignal,

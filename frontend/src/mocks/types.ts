@@ -164,6 +164,8 @@ export interface VPNClient {
   comment?: string;
   pingTime?: string;
   peerCount?: number;
+  failoverRole?: 'primary' | 'backup1' | 'backup2' | 'standby';
+  fallback?: boolean;
 }
 
 export interface VPNServer {
@@ -236,6 +238,8 @@ export interface RoutingNode {
   protocol?: VPNProtocol;
   subnet?: string;
   pingTime?: string;
+  failoverRole?: 'primary' | 'backup1' | 'backup2' | 'standby';
+  enabled?: boolean;
 }
 
 export interface RoutingHop {

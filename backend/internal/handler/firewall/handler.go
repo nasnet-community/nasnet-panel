@@ -377,7 +377,7 @@ func HandleDeleteDomesticAddress(c echo.Context) error {
 // @Description Validates an IPv4 address or CIDR range and adds it to the DOMAddList firewall address list
 // @Description with the comment "NasNet Panel: user added", so entries added by a user can be told apart from
 // @Description the ones the list updater maintains. Returns 400 when the address is, or contains, 0.0.0.0, an
-// @Description address the panel routes and pings to check a link (217.218.127.127, 1.1.1.1, 1.0.0.1) or a host
+// @Description address the panel routes and pings to check a link (217.218.127.127, 1.1.1.1, 1.0.0.1, 9.9.9.9, 8.8.8.8) or a host
 // @Description Netwatch monitors on the router; the data then names the conflicting address and the reason.
 // @Description Returns 409 when an entry that already covers the address is in the list.
 // @Tags Firewall

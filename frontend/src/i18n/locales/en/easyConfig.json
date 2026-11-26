@@ -6,19 +6,29 @@
     "applied": "Applied"
   },
   "stepper": {
-    "mode": { "title": "Choose", "description": "Setup type" },
-    "wan": { "title": "WAN", "description": "Uplink interfaces" },
-    "ipmask": { "title": "IP-Mask", "description": "Starlink VPN client" },
-    "wifi": { "title": "WiFi", "description": "Wireless network" },
-    "vpnsrv": { "title": "VPN Server", "description": "Inbound VPN" }
+    "mode": {
+      "title": "Choose",
+      "description": "Setup type"
+    },
+    "wan": {
+      "title": "WAN",
+      "description": "Uplink interfaces"
+    },
+    "wifi": {
+      "title": "WiFi",
+      "description": "Wireless network"
+    },
+    "vpnsrv": {
+      "title": "VPN Server",
+      "description": "Inbound VPN"
+    }
   },
   "flow": {
     "starlink": "Starlink",
     "user": "USER",
     "router": "Router",
     "foreignSite": "Foreign Site",
-    "starlinkOnlyAria": "Starlink-only traffic flow",
-    "ipMaskAria": "Starlink IP-mask flow"
+    "starlinkOnlyAria": "Starlink-only traffic flow"
   },
   "mode": {
     "title": "Setup mode",
@@ -57,9 +67,18 @@
     },
     "domestic": {
       "ariaLabel": "Domestic connection type",
-      "dhcp": { "label": "DHCP", "description": "Auto-config from ISP." },
-      "static": { "label": "Static", "description": "Manually assign IPs." },
-      "pppoe": { "label": "PPPoE", "description": "Username + password." }
+      "dhcp": {
+        "label": "DHCP",
+        "description": "Auto-config from ISP."
+      },
+      "static": {
+        "label": "Static",
+        "description": "Manually assign IPs."
+      },
+      "pppoe": {
+        "label": "PPPoE",
+        "description": "Username + password."
+      }
     },
     "pppoe": {
       "username": "PPPoE username",
@@ -74,13 +93,15 @@
       "dnsAria": "Static DNS"
     },
     "addressing": {
-      "link": { "foreign": "Starlink", "domestic": "Domestic" },
+      "link": {
+        "foreign": "Starlink",
+        "domestic": "Domestic"
+      },
       "modeAria": "{{link}} addressing",
-      "dhcp": { "label": "DHCP", "description": "Address from the upstream router." },
-      "static": { "label": "Static", "description": "Set the IP by hand." },
       "ipAria": "{{link}} static IP",
       "gatewayOptional": "Gateway (optional)",
-      "gatewayAria": "{{link}} gateway"
+      "gatewayAria": "{{link}} gateway",
+      "manual": "Manual IP configuration"
     },
     "wireless": {
       "change": "Change",
@@ -112,31 +133,6 @@
       "scanFailed": "Failed to scan networks."
     }
   },
-  "ipMask": {
-    "title": "Starlink IP-mask VPN client",
-    "description": "Your use of Starlink can be traced back to your identity. Configure a single VPN client to conceal your Starlink IP.",
-    "protocolAria": "IP-mask protocol",
-    "wireguardDescription": "Fast, modern VPN with state-of-the-art cryptography.",
-    "l2tpDescription": "Widely supported protocol with IPsec encryption.",
-    "wireguard": {
-      "placeholder": "Paste your Wireguard configuration here. The file should include [Interface] and [Peer] sections.",
-      "ariaLabel": "WireGuard configuration",
-      "upload": "Upload Config",
-      "paste": "Paste Config",
-      "caption": "Paste or upload your WireGuard configuration file.",
-      "invalid": "Invalid WireGuard config: missing [Interface] or [Peer] sections.",
-      "clipboardEmpty": "Clipboard is empty.",
-      "clipboardFailed": "Cannot read from clipboard. Paste manually instead."
-    },
-    "l2tp": {
-      "server": "Server",
-      "claimFree": "Claim free VPN",
-      "username": "Username",
-      "password": "Password",
-      "useIpsec": "Use IPsec encryption",
-      "ipsecSecret": "IPsec secret"
-    }
-  },
   "hyperSpeed": {
     "hotDeal": "Hot Deal",
     "availableNow": "Available now",
@@ -156,10 +152,11 @@
     "toast": {
       "missingTitle": "Missing router credentials",
       "missingDescription": "Connect to the router before claiming a VPN.",
-      "successTitle": "Free VPN credentials applied",
-      "validUntil": "Valid until {{date}}.",
+      "successTitle": "Free VPN applied",
       "failedTitle": "Claim failed",
-      "fallbackError": "Something went wrong"
+      "fallbackError": "Something went wrong",
+      "summary": "Added {{added}}, removed {{deleted}} fallback.",
+      "upToDate": "Your VPN clients already match your free VPN."
     }
   },
   "wifi": {
@@ -245,11 +242,6 @@
     "domesticPasswordShort": "Domestic wireless password must be at least 8 characters.",
     "pppoeRequired": "PPPoE credentials are required.",
     "staticIpInvalid": "Provide a valid static IP.",
-    "endpointRequired": "Endpoint and port are required.",
-    "peerKeyRequired": "Peer public key is required.",
-    "l2tpServerRequired": "L2TP server address is required.",
-    "l2tpCredentialsRequired": "L2TP credentials are required.",
-    "ipsecSecretRequired": "IPsec secret is required when IPsec encryption is enabled.",
     "ssidRequired": "SSID is required.",
     "ssidForbiddenWord": "SSID cannot contain \"{{word}}\".",
     "wifiPasswordLength": "Wi-Fi password must be 8–63 characters.",

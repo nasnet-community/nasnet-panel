@@ -70,7 +70,7 @@ type WizardSaveData struct {
 	DomesticEnabled      bool
 	Foreign              *InterfaceConfig
 	Domestic             *InterfaceConfig
-	WireGuard            *WireGuardClientTemplateData
+	VPNClients           []VPNClient
 	CertificateTimestamp int64
 	WifiAPs              []WiFiAP
 	BridgePorts          []BridgePort
@@ -83,12 +83,24 @@ type WireGuardClientTemplateData struct {
 	Peers               []WireGuardPeerTemplateData
 }
 
-// VPNCredentialsResponse represents VPN credentials in the API response.
-type VPNCredentialsResponse struct {
-	Username   string `json:"username" example:"NNC_zN9RI61d"`
-	Password   string `json:"password" example:"UmAaItfM"`
-	Server     string `json:"server" example:"dij5t.vpn.s4i.co"`
-	ExpiryDate string `json:"expiryDate" example:"11/21/2026"`
+// VPNClient is one failover VPN client as the templates see it: its tunnel, its
+// place in the failover order and its pinned LAN segment. Index starts at 1 and
+// decides the role, the probe address and the segment subnet.
+type VPNClient struct {
+	Index     int
+	Name      string
+	Role      string
+	ProbeIP   string
+	Bridge    string
+	ListName  string
+	Table     string
+	Subnet    string
+	Network   string
+	Gateway   string
+	Address   string
+	PoolRange string
+	L2tp      *L2tpClientConfig
+	WireGuard *WireGuardClientTemplateData
 }
 
 // WizardStatus represents the current status of a setup wizard.
@@ -175,12 +187,11 @@ type OvpnServerConfig struct {
 	Users                     []OvpnUser `json:"users"`
 }
 
-// FinalizeWizardRequest represents the complete wizard finalization request.
+// FinalizeWizardRequest represents the complete wizard finalization request. The VPN
+// clients are not part of it: they come from the NasNet API account of the router.
 type FinalizeWizardRequest struct {
-	Foreign         *InterfaceConfigRequest `json:"foreign"`
-	Domestic        *InterfaceConfigRequest `json:"domestic"`
-	L2tpClient      *L2tpClientConfig       `json:"l2tpClient,omitempty"`
-	WireGuardClient *WireGuardClientConfig  `json:"wireguardClient,omitempty"`
-	WiFiAP          *WiFiAPConfig           `json:"wifiAp,omitempty"`
-	OvpnServer      *OvpnServerConfig       `json:"ovpnServer,omitempty"`
+	Foreign    *InterfaceConfigRequest `json:"foreign"`
+	Domestic   *InterfaceConfigRequest `json:"domestic"`
+	WiFiAP     *WiFiAPConfig           `json:"wifiAp,omitempty"`
+	OvpnServer *OvpnServerConfig       `json:"ovpnServer,omitempty"`
 }

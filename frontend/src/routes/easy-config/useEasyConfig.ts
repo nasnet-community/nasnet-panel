@@ -66,19 +66,6 @@ function buildFinalizePayload(
     payload.domestic = wanInterface(state, WAN_FIELDS.domestic, interfaces);
   }
 
-  if (state.ipMaskEnabled) {
-    if (state.ipMaskKind === 'l2tp') {
-      payload.l2tpClient = {
-        connectTo: state.l2tpServer,
-        user: state.l2tpUsername,
-        password: state.l2tpPassword,
-        ipsecSecret: state.l2tpUseIpsec ? state.l2tpIpsecSecret : '',
-      };
-    } else if (state.ipMaskKind === 'wireguard') {
-      payload.wireguardClient = { config: state.wgConfig };
-    }
-  }
-
   if (state.wifiEnabled) {
     payload.wifiAp = {
       ssid: state.ssid,
@@ -131,28 +118,6 @@ function buildScript(state: State): string {
         ? { ssid: `${state.ssid}-5G`, password: state.wifiPassword }
         : undefined,
     },
-    ipMask: state.ipMaskEnabled
-      ? state.ipMaskKind === 'wireguard'
-        ? {
-            kind: 'wireguard',
-            endpoint: state.wgEndpoint,
-            endpointPort: Number(state.wgEndpointPort) || 51820,
-            peerPublicKey: state.wgPeerPublicKey,
-            privateKey: state.wgPrivateKey,
-            allowedIps: state.wgAllowedIps,
-            persistentKeepalive: Number(state.wgKeepalive) || 25,
-            mtu: Number(state.wgMtu) || 1420,
-          }
-        : {
-            kind: 'l2tp',
-            server: state.l2tpServer,
-            username: state.l2tpUsername,
-            password: state.l2tpPassword,
-            useIpsec: state.l2tpUseIpsec,
-            ipsecSecret: state.l2tpIpsecSecret,
-            profile: state.l2tpProfile,
-          }
-      : undefined,
     vpnServer: state.vpnServerEnabled
       ? {
           protocol: state.vpnServerProtocol,

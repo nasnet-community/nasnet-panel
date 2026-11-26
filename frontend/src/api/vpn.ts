@@ -26,11 +26,15 @@ export interface VPNClientResponse {
   comment?: string;
   pingTime?: string;
   peerCount?: number;
+  failoverRole?: 'primary' | 'backup1' | 'backup2' | 'standby';
+  failoverActive?: boolean;
+  fallback?: boolean;
 }
 
 export interface UpdateVPNClientRequest {
   disabled?: boolean;
   comment?: string;
+  failoverRole?: 'primary' | 'backup1' | 'backup2';
 }
 
 export interface AddL2TPClientRequest {
@@ -481,18 +485,22 @@ export interface ImportWireguardConfigResponse extends WireguardPeerImportResult
   interfaceIP: string;
 }
 
-export interface NasnetVpnCredentialsResponse {
-  username: string;
-  password: string;
-  server: string;
-  expiryDate?: string;
+export interface ClaimVpnChange {
+  name: string;
+  action: 'added' | 'updated' | 'role' | 'deleted' | 'skipped';
+  role?: string;
+  message?: string;
 }
 
-export async function fetchNasnetVpnCredentials(
+export interface ClaimVpnResponse {
+  changes: ClaimVpnChange[];
+}
+
+export async function claimNasnetVpn(
   creds: VPNCredentials,
   signal?: AbortSignal,
-): Promise<NasnetVpnCredentialsResponse> {
-  return apiRequest<NasnetVpnCredentialsResponse>('/api/config/vpn', {
+): Promise<ClaimVpnResponse> {
+  return apiRequest<ClaimVpnResponse>('/api/vpn/claim', {
     method: 'POST',
     auth: creds,
     body: '{}',
@@ -509,17 +517,6 @@ export interface FinalizeWizardInterface {
   /** Empty for DHCP, otherwise an IPv4 address with an optional prefix. */
   ip?: string;
   gateway?: string;
-}
-
-export interface FinalizeWizardL2tpClient {
-  connectTo: string;
-  user: string;
-  password: string;
-  ipsecSecret: string;
-}
-
-export interface FinalizeWizardWireGuardClient {
-  config: string;
 }
 
 export interface FinalizeWizardWifiAp {
@@ -541,8 +538,6 @@ export interface FinalizeWizardOvpnServer {
 export interface FinalizeWizardRequest {
   foreign: FinalizeWizardInterface;
   domestic?: FinalizeWizardInterface;
-  l2tpClient?: FinalizeWizardL2tpClient;
-  wireguardClient?: FinalizeWizardWireGuardClient;
   wifiAp?: FinalizeWizardWifiAp;
   ovpnServer?: FinalizeWizardOvpnServer;
 }

@@ -98,6 +98,9 @@ linters:
       - path: internal/dbsync
         linters:
           - misspell
+      - path: internal/failover
+        linters:
+          - misspell
       - path: internal/preinit
         linters:
           - misspell

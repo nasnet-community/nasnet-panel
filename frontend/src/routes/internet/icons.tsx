@@ -8,6 +8,7 @@ import {
   Signal,
 } from 'lucide-react';
 import type { RoutingNode } from '@nasnet/mocks';
+import i18n from '../../i18n';
 
 function wanIcon(kind: string | undefined) {
   switch (kind) {
@@ -42,7 +43,11 @@ const VPN_PROTOCOL_LABELS: Record<string, string> = {
 export function nodeSubLabel(node: RoutingNode): string | undefined {
   if (node.kind === 'vpn' && node.protocol) {
     const label = VPN_PROTOCOL_LABELS[node.protocol] ?? node.protocol.toUpperCase();
-    return node.pingTime ? `${label} · ${node.pingTime}` : label;
+    const parts = [label];
+    if (node.failoverRole)
+      parts.push(i18n.t(`internet.roles.${node.failoverRole}`, { ns: 'internet' }));
+    if (node.pingTime) parts.push(node.pingTime);
+    return parts.join(' · ');
   }
   return node.subnet;
 }

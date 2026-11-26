@@ -35,18 +35,7 @@ test.describe('Easy-Mode wizard — multi-band WiFi', () => {
     await page.getByRole('option', { name: 'ether1' }).click();
     await page.getByRole('button', { name: /^next$/i }).click();
 
-    // Step 3 — WireGuard config
-    await page.getByLabel(/wireguard configuration/i).fill(`[Interface]
-PrivateKey = 4AjT3jhk6L8h3GVe7Mw3lP3xQK4n5cL2yR6f8tWvX1c=
-Address = 10.0.0.2/32
-
-[Peer]
-PublicKey = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-Endpoint = mask.example.com:51820
-AllowedIPs = 0.0.0.0/0`);
-    await page.getByRole('button', { name: /^next$/i }).click();
-
-    // Step 4 — the router reports three radios, so the split toggle is offered, off by default
+    // Step 3 — the router reports three radios, so the split toggle is offered, off by default
     const splitToggle = page.getByRole('switch', { name: /split across bands/i });
     await expect(splitToggle).toBeVisible();
     await expect(splitToggle).not.toBeChecked();
@@ -99,16 +88,6 @@ AllowedIPs = 0.0.0.0/0`);
     await page.getByLabel(/starlink wan/i).click();
     await page.getByRole('option', { name: 'ether1' }).click();
     await page.getByRole('button', { name: /^next$/i }).click();
-    await page.getByLabel(/wireguard configuration/i).fill(`[Interface]
-PrivateKey = 4AjT3jhk6L8h3GVe7Mw3lP3xQK4n5cL2yR6f8tWvX1c=
-Address = 10.0.0.2/32
-
-[Peer]
-PublicKey = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-Endpoint = mask.example.com:51820
-AllowedIPs = 0.0.0.0/0`);
-    await page.getByRole('button', { name: /^next$/i }).click();
-
     await expect(page.getByLabel('Network name (SSID)', { exact: true })).toBeVisible();
     await expect(page.getByRole('switch', { name: /split across bands/i })).toHaveCount(0);
   });

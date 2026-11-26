@@ -12,48 +12,11 @@ import (
 	"nasnet-panel/internal/handler/firewall"
 	"nasnet-panel/internal/handler/iface"
 	"nasnet-panel/internal/handler/plugin"
-	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )
-
-// HandleGetVPNCredentials retrieves VPN credentials from NasNet API using system ID.
-// @Summary Get VPN Credentials
-// @Description Fetch L2TP VPN credentials from NasNet using the router's system ID
-// @Tags Config
-// @Security BearerAuth
-// @Accept json
-// @Produce json
-// @Success 200 {object} common.Response{data=VPNCredentialsResponse}
-// @Failure 500 {object} common.Response
-// @Router /api/config/vpn [post].
-func HandleGetVPNCredentials(c echo.Context) error {
-	client, err := common.GetRouterOSClient(c)
-	if err != nil {
-		return err
-	}
-
-	systemID, err := client.GetSystemID()
-	if err != nil {
-		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve system ID", err)
-	}
-
-	credentials, err := tools.GetNasNetVPNCredentials(systemID)
-	if err != nil {
-		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN credentials", err)
-	}
-
-	response := VPNCredentialsResponse{
-		Username:   credentials.Username,
-		Password:   credentials.Password,
-		Server:     credentials.Server,
-		ExpiryDate: credentials.ExpiryDate,
-	}
-
-	return common.SuccessResponse(c, http.StatusOK, "VPN credentials retrieved successfully", response)
-}
 
 // HandleGetWizardStatus retrieves the wizard status: Completed from the
 // wizardSuccessFile marker, Progress from environment variables.
@@ -305,7 +268,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		identity = req.WiFiAP.SSID
 	}
 
-	randomUserID, err := routerUserID(client)
+	randomUserID, err := common.RouterUserID(client)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to generate user ID", err)
 	}
@@ -338,32 +301,18 @@ func HandleFinalizeWizard(c echo.Context) error {
 		"DomesticUserEntryComment": firewall.DomesticUserEntryComment,
 	}
 
-	if req.L2tpClient != nil {
-		templateData["L2tpClient"] = req.L2tpClient
-	}
-
-	var wgData *WireGuardClientTemplateData
-	if req.WireGuardClient != nil && req.WireGuardClient.Config != "" {
-		wgData, err = buildWireGuardClientTemplateData(req.WireGuardClient.Config)
-		if err != nil {
-			return common.ErrorResponse(c, http.StatusBadRequest, "Failed to parse WireGuard config", err)
-		}
-		templateData["WireGuardClient"] = wgData
-	}
+	vpnClients := fetchVPNClients(c.Request().Context(), randomUserID)
+	templateData["VPNClients"] = vpnClients
 
 	if req.OvpnServer != nil {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
-
-	// The wizard removes every routing rule, the containers' exit classes too.
-	templateData["ContainerExitClasses"] = plugin.ExitClassesScript(domesticEnabled)
 
 	rendered, err := utils.RenderTemplate("base_config.tmpl", escapeWizardTemplateData(templateData))
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}
 
-	// Until the script is done, since it rewrites the exit classes.
 	release := plugin.HoldExitClasses()
 	if message, err := startBaseConfigScript(client, creds, rendered); err != nil {
 		release()
@@ -375,7 +324,7 @@ func HandleFinalizeWizard(c echo.Context) error {
 		DomesticEnabled:      domesticEnabled,
 		Foreign:              &foreignInterface,
 		Domestic:             &domesticInterface,
-		WireGuard:            wgData,
+		VPNClients:           vpnClients,
 		CertificateTimestamp: currentTimestamp,
 		WifiAPs:              wifiAPs,
 		BridgePorts:          bridgePorts,

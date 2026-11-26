@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
+	"nasnet-panel/internal/failover"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/dns"
 	"nasnet-panel/internal/handler/plugin"
@@ -61,47 +63,24 @@ func saveWizardConfig(ctx context.Context, client *routeros.Client, data *Wizard
 		cfg.WANs = append(cfg.WANs, wizardWAN("domestic", data.Domestic))
 	}
 
-	if data.WireGuard != nil {
-		wg := &db.WireGuardInterface{
-			Name:       wizardWireGuardName,
-			Comment:    wizardWireGuardComment,
-			Type:       db.WireGuardTypeClient,
-			PrivateKey: data.WireGuard.InterfacePrivateKey,
-			Address:    data.WireGuard.InterfaceAddress,
-			Enabled:    true,
-		}
-		for i := range data.WireGuard.Peers {
-			peer := &data.WireGuard.Peers[i]
-			port, _ := strconv.Atoi(peer.EndpointPort)
-			keepalive, _ := strconv.Atoi(peer.PersistentKeepalive)
-			wg.Peers = append(wg.Peers, db.WireGuardPeer{
-				Name:                wizardWireGuardPeerName,
-				Comment:             wizardWireGuardPeerComment,
-				Enabled:             true,
-				PublicKey:           peer.PublicKey,
-				PresharedKey:        peer.PreSharedKey,
-				EndpointAddress:     peer.EndpointAddress,
-				EndpointPort:        port,
-				AllowedAddress:      peer.AllowedAddress,
-				PersistentKeepalive: keepalive,
+	for i := range data.VPNClients {
+		client := &data.VPNClients[i]
+		cfg.FailoverInterfaces = append(cfg.FailoverInterfaces, db.FailoverInterface{
+			Interface: client.Name, ProbeIP: client.ProbeIP, Distance: client.Index,
+		})
+		if client.L2tp != nil {
+			cfg.L2TPs = append(cfg.L2TPs, db.L2TPClient{
+				Name:        client.Name,
+				Comment:     client.Name,
+				ConnectTo:   client.L2tp.ConnectTo,
+				User:        client.L2tp.User,
+				Password:    client.L2tp.Password,
+				IPsecSecret: client.L2tp.IPsecSecret,
+				Enabled:     true,
 			})
 		}
-		cfg.WireGuard = wg
-		cfg.Settings = map[string]string{dbsync.SettingKeyForeignGateway: wizardWireGuardName}
-	}
-
-	if req.L2tpClient != nil {
-		cfg.L2TP = &db.L2TPClient{
-			Name:        wizardL2TPName,
-			Comment:     wizardL2TPComment,
-			ConnectTo:   req.L2tpClient.ConnectTo,
-			User:        req.L2tpClient.User,
-			Password:    req.L2tpClient.Password,
-			IPsecSecret: req.L2tpClient.IPsecSecret,
-			Enabled:     true,
-		}
-		if cfg.Settings == nil {
-			cfg.Settings = map[string]string{dbsync.SettingKeyForeignGateway: wizardL2TPName}
+		if client.WireGuard != nil {
+			cfg.WireGuards = append(cfg.WireGuards, wizardWireGuardClient(client))
 		}
 	}
 
@@ -135,9 +114,36 @@ func saveWizardConfig(ctx context.Context, client *routeros.Client, data *Wizard
 	}
 }
 
+func wizardWireGuardClient(client *VPNClient) db.WireGuardInterface {
+	wg := db.WireGuardInterface{
+		Name:       client.Name,
+		Comment:    client.Name,
+		Type:       db.WireGuardTypeClient,
+		PrivateKey: client.WireGuard.InterfacePrivateKey,
+		Address:    client.WireGuard.InterfaceAddress,
+		Enabled:    true,
+	}
+	for i := range client.WireGuard.Peers {
+		peer := &client.WireGuard.Peers[i]
+		port, _ := strconv.Atoi(peer.EndpointPort)
+		keepalive, _ := strconv.Atoi(peer.PersistentKeepalive)
+		wg.Peers = append(wg.Peers, db.WireGuardPeer{
+			Name:                client.Name + failoverPeerSuffix,
+			Comment:             client.Name + failoverPeerSuffix,
+			Enabled:             true,
+			PublicKey:           peer.PublicKey,
+			PresharedKey:        peer.PreSharedKey,
+			EndpointAddress:     peer.EndpointAddress,
+			EndpointPort:        port,
+			AllowedAddress:      peer.AllowedAddress,
+			PersistentKeepalive: keepalive,
+		})
+	}
+	return wg
+}
+
 func wizardBridgePorts(data *WizardSaveData) []db.BridgePort {
 	ports := make([]db.BridgePort, 0, len(data.BridgePorts))
-
 	for i := range data.BridgePorts {
 		port := &data.BridgePorts[i]
 		name := port.Name
@@ -186,23 +192,25 @@ func replaceStoredStaticDNS(parent context.Context, conn *sqlx.DB, oldID string,
 }
 
 func wizardDNSServers(domesticEnabled bool) []db.DNSServer {
-	general := []string{dns.DNSDefaultVPNIP}
+	resolvers := []string{dns.DNSDefaultVPNPrimaryIP, dns.DNSDefaultVPNBackup1IP, dns.DNSDefaultVPNBackup2IP}
+	general := slices.Clone(resolvers)
 	if domesticEnabled {
 		general = append(general, dns.DNSDefaultDomesticIP)
 	}
 	general = append(general, dns.DNSDefaultForeignIP)
-	generalServers := strings.Join(general, ",")
 
 	servers := []db.DNSServer{
-		{Name: dbsync.DNSGlobalServerName, Type: db.DNSServerTypeGlobal, DNSServers: generalServers},
-		{Name: "VPN", Type: db.DNSServerTypeForwarder, DNSServers: dns.DNSDefaultVPNIP},
+		{Name: dbsync.DNSGlobalServerName, Type: db.DNSServerTypeGlobal, DNSServers: strings.Join(resolvers, ",")},
+	}
+	for i, name := range failover.ResolverNames {
+		servers = append(servers, db.DNSServer{Name: name, Type: db.DNSServerTypeForwarder, DNSServers: resolvers[i]})
 	}
 	if domesticEnabled {
 		servers = append(servers, db.DNSServer{Name: "Domestic", Type: db.DNSServerTypeForwarder, DNSServers: dns.DNSDefaultDomesticIP})
 	}
 	servers = append(servers,
 		db.DNSServer{Name: "Foreign", Type: db.DNSServerTypeForwarder, DNSServers: dns.DNSDefaultForeignIP},
-		db.DNSServer{Name: "General", Type: db.DNSServerTypeForwarder, DNSServers: generalServers},
+		db.DNSServer{Name: "General", Type: db.DNSServerTypeForwarder, DNSServers: strings.Join(general, ",")},
 	)
 
 	return servers

@@ -1,10 +1,9 @@
 import {
-  fetchForeignGateway,
-  fetchInterfaces,
+  fetchWans,
   fetchNetStatus,
   listVPNClients,
-  type InterfaceResponse,
   type NetStatusEntry,
+  type WanResponse,
 } from '../../api';
 import type {
   RoutingHop,
@@ -13,25 +12,14 @@ import type {
   RoutingWanKind,
   VPNProtocol,
 } from '@nasnet/mocks';
-import { matchesWanCategory } from '../wan/types';
+
+const ROLE_ORDER = ['primary', 'backup1', 'backup2', 'standby'];
 
 interface Creds {
   host: string;
   username: string;
   password: string;
 }
-
-const VPN_INTERFACE_TYPES = new Set([
-  'wg',
-  'l2tp-out',
-  'l2tp-in',
-  'pptp-out',
-  'pptp-in',
-  'ovpn-out',
-  'ovpn-in',
-  'sstp-out',
-  'sstp-in',
-]);
 
 const TYPE_TO_PROTOCOL: Record<string, VPNProtocol> = {
   wg: 'wireguard',
@@ -45,7 +33,10 @@ const TYPE_TO_PROTOCOL: Record<string, VPNProtocol> = {
   'sstp-in': 'sstp',
 };
 
-function classifyWan(iface: InterfaceResponse): { kind: RoutingWanKind; label: string } {
+function classifyWan(iface: { name: string; comment?: string }): {
+  kind: RoutingWanKind;
+  label: string;
+} {
   const comment = (iface.comment ?? '').toLowerCase();
   if (comment.includes('starlink')) return { kind: 'starlink', label: 'Starlink' };
   if (comment.includes('hamrah')) return { kind: 'mobile', label: 'Hamrah-e-Aval' };
@@ -62,12 +53,22 @@ function classifyWan(iface: InterfaceResponse): { kind: RoutingWanKind; label: s
   return { kind: 'ether', label: iface.name.toUpperCase() };
 }
 
-function pickWanInterfaces(ifaces: InterfaceResponse[]): InterfaceResponse[] {
-  return ifaces.filter(
-    (i) =>
-      !i.disabled &&
-      (matchesWanCategory(i.comment, 'domestic') || matchesWanCategory(i.comment, 'foreign')),
-  );
+interface WanLink {
+  name: string;
+  comment?: string;
+  running: boolean;
+  domestic: boolean;
+}
+
+function toWanLinks(wans: WanResponse[]): WanLink[] {
+  return wans
+    .filter((w) => w.enabled)
+    .map((w) => ({
+      name: w.interface,
+      comment: w.comment,
+      running: w.status === 'link-ok' || w.status === 'authorized',
+      domestic: w.wanType === 'domestic',
+    }));
 }
 
 export async function buildTopology(
@@ -75,13 +76,19 @@ export async function buildTopology(
   creds: Creds,
   signal?: AbortSignal,
 ): Promise<RoutingTopology> {
-  const [ifaces, foreignGateway, netStatus, vpnClients] = await Promise.all([
-    fetchInterfaces(creds, signal),
-    fetchForeignGateway(creds, signal).catch(() => null),
+  const [wanResponses, netStatus, vpnClients] = await Promise.all([
+    fetchWans(creds, signal),
     fetchNetStatus(creds, signal).catch((): NetStatusEntry[] => []),
     listVPNClients(creds, signal).catch(() => []),
   ]);
-  const pingByName = new Map(vpnClients.map((c) => [c.name, c.pingTime]));
+  const reportsActive = vpnClients.some((c) => c.failoverActive !== undefined);
+  const routedName = reportsActive
+    ? vpnClients.find((c) => c.failoverActive)?.name
+    : vpnClients
+        .filter((c) => c.failoverRole && c.running && !c.disabled)
+        .sort(
+          (a, b) => ROLE_ORDER.indexOf(a.failoverRole!) - ROLE_ORDER.indexOf(b.failoverRole!),
+        )[0]?.name;
 
   const isNetDown = (type: NetStatusEntry['type']) =>
     netStatus.some((e) => e.type === type && e.status === 'down');
@@ -99,14 +106,14 @@ export async function buildTopology(
   nodes.push({ id: ROUTER_ID, kind: 'router', label: 'Router' });
 
   const INTERNET_ID = 'internet';
-  const domesticWans: InterfaceResponse[] = [];
-  const foreignWans: InterfaceResponse[] = [];
+  const domesticWans: WanLink[] = [];
+  const foreignWans: WanLink[] = [];
 
-  const wans = pickWanInterfaces(ifaces);
+  const wans = toWanLinks(wanResponses);
   wans.forEach((wan) => {
     const id = `wan_${wan.name}`;
     const { kind, label } = classifyWan(wan);
-    const isDomestic = matchesWanCategory(wan.comment, 'domestic');
+    const isDomestic = wan.domestic;
     nodes.push({ id, kind: 'wan', label, wanKind: kind });
     hops.push({
       id: `h_${ROUTER_ID}_${wan.name}`,
@@ -120,12 +127,8 @@ export async function buildTopology(
 
   const vpnUpstream =
     foreignWans.find((w) => w.running) ?? foreignWans[0] ?? wans.find((w) => w.running) ?? wans[0];
-  const vpnTunnels = ifaces.filter((i) => {
-    if (!VPN_INTERFACE_TYPES.has(i.type) || i.type.endsWith('-in')) return false;
-    const name = i.name.toLowerCase();
-    return name.includes('wg-client') || name.includes('l2tp-client');
-  });
-  const isRouted = (name: string) => foreignGateway === name;
+  const vpnTunnels = vpnClients.filter((c) => !c.type.endsWith('-in'));
+  const isRouted = (name: string) => routedName === name;
   vpnTunnels.forEach((vpn) => {
     const id = `vpn_${vpn.name}`;
     nodes.push({
@@ -133,7 +136,9 @@ export async function buildTopology(
       kind: 'vpn',
       label: vpn.comment?.trim() ? vpn.comment : vpn.name,
       protocol: TYPE_TO_PROTOCOL[vpn.type],
-      pingTime: pingByName.get(vpn.name),
+      pingTime: vpn.pingTime,
+      failoverRole: vpn.failoverRole,
+      enabled: !vpn.disabled,
     });
     if (vpnUpstream) {
       hops.push({

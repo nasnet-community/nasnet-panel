@@ -24,13 +24,14 @@ import { DNSChangeDialog, dnsTypeLabel } from './DNSChangeDialog';
 import { StaticDnsCard } from './dns/StaticDnsCard';
 import {
   ApiError,
-  changeDns,
   fetchDnsForwarders,
+  fetchFamilyDns,
   flushDnsCache,
   resetDns,
   setDnsAdBlock,
   setFamilyDns,
   type DnsCredentials,
+  type DnsFamilyStatus,
   type DnsForwarderListItem,
 } from '../api';
 import { useSession } from '../state/SessionContext';
@@ -39,7 +40,9 @@ import { useRouter } from '../state/RouterStoreContext';
 const TYPE_TONES: Record<string, 'info' | 'primary' | 'success'> = {
   Domestic: 'info',
   Foreign: 'primary',
-  VPN: 'success',
+  'VPN-Primary': 'success',
+  'VPN-Backup1': 'success',
+  'VPN-Backup2': 'success',
 };
 
 const ADBLOCK_STORAGE_PREFIX = 'nasnet-panel.dns-adblock.';
@@ -62,27 +65,7 @@ function storeAdBlock(routerId: string | undefined, enabled: boolean): void {
   }
 }
 
-const FAMILY_PROVIDER_PREFIX = 'Cloudflare Family';
-const FAMILY_FOREIGN_IP = '1.1.1.3';
-const FAMILY_VPN_IP = '1.0.0.3';
-const PLAIN_FOREIGN_IP = '1.1.1.1';
-const PLAIN_VPN_IP = '1.0.0.1';
 const FLUSH_MIN_DURATION_MS = 1000;
-
-function firstIp(ip: string): string {
-  return ip.split(',')[0]?.trim() ?? '';
-}
-
-function isFamilyForwarder(
-  forwarders: DnsForwarderListItem[],
-  name: string,
-  familyIp: string,
-): boolean {
-  const forwarder = forwarders.find((row) => row.name === name);
-  if (!forwarder) return false;
-  if (forwarder.description?.startsWith(FAMILY_PROVIDER_PREFIX)) return true;
-  return firstIp(forwarder.ip) === familyIp;
-}
 
 export function DNSPage() {
   const { id } = useParams<{ id: string }>();
@@ -104,9 +87,15 @@ export function DNSPage() {
   const [confirmingFamily, setConfirmingFamily] = useState<'enable' | 'disable' | null>(null);
   const [applyingFamily, setApplyingFamily] = useState(false);
 
-  const familyEnabled =
-    isFamilyForwarder(forwarders, 'Foreign', FAMILY_FOREIGN_IP) &&
-    isFamilyForwarder(forwarders, 'VPN', FAMILY_VPN_IP);
+  const [familyStatus, setFamilyStatus] = useState<DnsFamilyStatus | null>(null);
+
+  const familyEnabled = familyStatus?.enabled ?? false;
+  const familyPartial = familyStatus?.partial ?? false;
+  const familyStatusLabel = familyEnabled
+    ? t('dns.familyStatus.on')
+    : familyPartial
+      ? t('dns.familyStatus.partial')
+      : t('dns.familyStatus.off');
 
   const creds = useMemo<DnsCredentials | null>(() => {
     if (!id) return null;
@@ -125,8 +114,12 @@ export function DNSPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchDnsForwarders(creds);
+      const [data, family] = await Promise.all([
+        fetchDnsForwarders(creds),
+        fetchFamilyDns(creds).catch(() => null),
+      ]);
       setForwarders(data);
+      setFamilyStatus(family);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('dns.loadFailed');
       setError(message);
@@ -220,7 +213,7 @@ export function DNSPage() {
     setConfirmingFamily(null);
     setApplyingFamily(true);
     try {
-      await setFamilyDns(creds);
+      await setFamilyDns(creds, true);
       toast.notify({ title: t('dns.toasts.familyEnabled'), tone: 'success' });
     } catch (err) {
       const message = err instanceof Error ? err.message : t('dns.toasts.familyEnableFailedDetail');
@@ -240,8 +233,7 @@ export function DNSPage() {
     setConfirmingFamily(null);
     setApplyingFamily(true);
     try {
-      await changeDns(creds, { oldIp: FAMILY_FOREIGN_IP, newIp: PLAIN_FOREIGN_IP });
-      await changeDns(creds, { oldIp: FAMILY_VPN_IP, newIp: PLAIN_VPN_IP });
+      await setFamilyDns(creds, false);
       toast.notify({ title: t('dns.toasts.familyDisabled'), tone: 'success' });
     } catch (err) {
       const message =
@@ -404,7 +396,20 @@ export function DNSPage() {
                 disabled={loading || resetting || flushing || applyingFamily || !creds}
               />
             </div>
-            {applyingFamily ? <p className={styles.settingStatus}>{familyToggleLabel}</p> : null}
+            <p className={styles.settingStatus} data-testid="dns-family-status">
+              {applyingFamily ? familyToggleLabel : familyStatusLabel}
+            </p>
+            {familyPartial && !applyingFamily ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setConfirmingFamily('disable')}
+                disabled={loading || resetting || flushing || !creds}
+                data-testid="dns-family-turn-off"
+              >
+                {t('dns.familyTurnOff')}
+              </Button>
+            ) : null}
 
             <div
               className={`${styles.settingRow} ${styles.settingRowSpaced}`}

@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import type { DnsFamilyResponse } from '../../src/api/dns';
+import type { DnsChangeResult, DnsFamilyResponse, DnsFamilyStatus } from '../../src/api/dns';
 import type { Router } from '../../src/mocks/types';
 
 export interface SeedInput extends Partial<Router> {
@@ -71,6 +71,7 @@ export interface DhcpBackendOptions {
 export interface DnsBackendOptions {
   id?: string;
   familyStatus?: number;
+  initialFamily?: 'on' | 'partial';
   adBlockStatus?: number;
   flushFails?: boolean;
 }
@@ -169,6 +170,34 @@ export const test = base.extend<TestFixtures>({
           message: 'OK',
           data: { completed: true, progress: 100 },
         }),
+      });
+    });
+    // endpoints the shell and overview read on every page; an unmocked call reaches the real
+    // backend, answers 401 and logs the session out. Specs that test them override these routes.
+    for (const endpoint of [
+      '**/api/interface/ethernets',
+      '**/api/plugin/installed',
+      '**/api/net/status',
+      '**/api/interface/wans',
+      '**/api/vpn/active',
+      '**/api/vpn/clients',
+      '**/api/wifi/interfaces',
+      '**/api/vpn/wireguard/peers/*',
+    ]) {
+      await context.route(endpoint, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ status: 200, message: 'OK', data: [] }),
+        });
+      });
+    }
+    // the top bar polls notifications on every page; specs that test them override this route
+    await context.route('**/api/notifications', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: 200, message: 'OK', data: [] }),
       });
     });
     await use(async () => {
@@ -913,11 +942,57 @@ export const test = base.extend<TestFixtures>({
       const envelope = <T>(data: T, status = 200) =>
         JSON.stringify({ status, message: 'OK', data });
 
+      const providerNames: Record<string, string> = {
+        '1.1.1.1': 'Cloudflare Primary',
+        '1.0.0.1': 'Cloudflare Secondary',
+        '9.9.9.9': 'Quad9 DNS',
+        '8.8.8.8': 'Google Primary',
+        '217.218.127.127': 'ICT DNS',
+        '1.1.1.3': 'Cloudflare Family Primary',
+        '1.0.0.3': 'Cloudflare Family Secondary',
+        '208.67.222.123': 'OpenDNS FamilyShield Primary',
+        '208.67.220.123': 'OpenDNS FamilyShield Secondary',
+      };
+
       const forwarders = [
-        { name: 'Domestic', ip: '217.218.127.127', description: 'ICT DNS', comment: '' },
-        { name: 'Foreign', ip: '1.1.1.1', description: 'Cloudflare Primary', comment: '' },
-        { name: 'VPN', ip: '1.0.0.1', description: 'Cloudflare Secondary', comment: '' },
-      ];
+        { name: 'VPN-Primary', ip: '1.0.0.1' },
+        { name: 'VPN-Backup1', ip: '9.9.9.9' },
+        { name: 'VPN-Backup2', ip: '8.8.8.8' },
+        { name: 'Foreign', ip: '1.1.1.1' },
+        { name: 'Domestic', ip: '217.218.127.127' },
+      ].map((row) => ({ ...row, description: providerNames[row.ip] ?? '', comment: '' }));
+
+      const familyPlan = [
+        { name: 'Foreign', plain: '1.1.1.1', family: '1.1.1.3', key: 'foreign' },
+        { name: 'VPN-Primary', plain: '1.0.0.1', family: '1.0.0.3', key: 'vpn' },
+        { name: 'VPN-Backup1', plain: '9.9.9.9', family: '208.67.222.123', key: 'backup1' },
+        { name: 'VPN-Backup2', plain: '8.8.8.8', family: '208.67.220.123', key: 'backup2' },
+      ] as const;
+
+      const setForwarderIp = (name: string, ip: string) => {
+        const target = forwarders.find((row) => row.name === name);
+        if (!target) return;
+        target.ip = ip;
+        target.description = providerNames[ip] ?? '';
+      };
+
+      if (options.initialFamily) {
+        const planned = options.initialFamily === 'partial' ? familyPlan.slice(0, 1) : familyPlan;
+        planned.forEach((row) => setForwarderIp(row.name, row.family));
+      }
+
+      const changeResult = (oldIp: string, newIp: string): DnsChangeResult => ({
+        oldIp,
+        newIp,
+        servers: [],
+        updatedForwarders: [],
+        updatedDstAddressRoutes: [],
+        updatedGatewayRoutes: [],
+        updatedNetwatchProbes: [],
+        updatedAddressListItems: [],
+        updatedNatRules: [],
+        updatedScripts: [],
+      });
 
       await context.route('**/api/dns/list', async (route) => {
         await route.fulfill({
@@ -942,21 +1017,11 @@ export const test = base.extend<TestFixtures>({
         });
       });
 
-      const providerNames: Record<string, string> = {
-        '1.1.1.1': 'Cloudflare Primary',
-        '1.0.0.1': 'Cloudflare Secondary',
-        '1.1.1.3': 'Cloudflare Family Primary',
-        '1.0.0.3': 'Cloudflare Family Secondary',
-      };
-
       await context.route('**/api/dns/change', async (route) => {
         if (route.request().method() !== 'POST') return route.fallback();
         const body = route.request().postDataJSON() as { oldIp?: string; newIp?: string } | null;
         const target = forwarders.find((row) => row.ip === body?.oldIp);
-        if (target && body?.newIp) {
-          target.ip = body.newIp;
-          target.description = providerNames[body.newIp] ?? '';
-        }
+        if (target && body?.newIp) setForwarderIp(target.name, body.newIp);
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
@@ -966,58 +1031,61 @@ export const test = base.extend<TestFixtures>({
 
       const familyStatus = options.familyStatus ?? 200;
       await context.route('**/api/dns/family', async (route) => {
-        if (route.request().method() !== 'POST') return route.fallback();
+        const method = route.request().method();
+        if (method === 'GET') {
+          const rows = familyPlan.map((plan) => {
+            const ip = forwarders.find((row) => row.name === plan.name)?.ip ?? '';
+            return { name: plan.name, ip, familyIp: plan.family, family: ip === plan.family };
+          });
+          const count = rows.filter((row) => row.family).length;
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: envelope<DnsFamilyStatus>({
+              enabled: count === rows.length,
+              partial: count > 0 && count < rows.length,
+              forwarders: rows,
+            }),
+          });
+          return;
+        }
+        if (method !== 'PUT') return route.fallback();
+        const requested = (route.request().postDataJSON() as { enabled?: boolean } | null)?.enabled;
+        if (typeof requested !== 'boolean') {
+          await route.fulfill({
+            status: 400,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              status: 400,
+              message: 'enabled is required',
+              error: 'enabled is required',
+            }),
+          });
+          return;
+        }
         if (familyStatus !== 200) {
           await route.fulfill({
             status: familyStatus,
             contentType: 'application/json',
             body: JSON.stringify({
               status: familyStatus,
-              message: 'VPN DNS forwarder not found',
-              error: 'VPN DNS forwarder not found',
+              message: 'VPN-Primary DNS forwarder not found',
+              error: 'VPN-Primary DNS forwarder not found',
             }),
           });
           return;
         }
-        forwarders[1] = {
-          name: 'Foreign',
-          ip: '1.1.1.3',
-          description: 'Cloudflare Family Primary',
-          comment: '',
-        };
-        forwarders[2] = {
-          name: 'VPN',
-          ip: '1.0.0.3',
-          description: 'Cloudflare Family Secondary',
-          comment: '',
-        };
+        const results: Record<string, DnsChangeResult> = {};
+        familyPlan.forEach((plan) => {
+          const current = forwarders.find((row) => row.name === plan.name)?.ip ?? '';
+          const next = requested ? plan.family : current === plan.family ? plan.plain : current;
+          results[plan.key] = changeResult(current, next);
+          setForwarderIp(plan.name, next);
+        });
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope<DnsFamilyResponse>({
-            foreign: {
-              oldIp: '1.1.1.1',
-              newIp: '1.1.1.3',
-              servers: ['1.1.1.3'],
-              updatedForwarders: [],
-              updatedDstAddressRoutes: [],
-              updatedGatewayRoutes: [],
-              updatedNetwatchProbes: [],
-              updatedAddressListItems: [],
-              updatedNatRules: [],
-            },
-            vpn: {
-              oldIp: '1.0.0.1',
-              newIp: '1.0.0.3',
-              servers: ['1.0.0.3'],
-              updatedForwarders: [],
-              updatedDstAddressRoutes: [],
-              updatedGatewayRoutes: [],
-              updatedNetwatchProbes: [],
-              updatedAddressListItems: [],
-              updatedNatRules: [],
-            },
-          }),
+          body: envelope({ ...results, cacheFlushed: true } as unknown as DnsFamilyResponse),
         });
       });
 

@@ -59,12 +59,12 @@ func respondDNSChangeStepErrorWithData(c echo.Context, err error, data interface
 	})
 }
 
-// changeDNSIP replaces oldIP with newIP across /ip/dns servers, the
-// dns-servers list of every DNS forwarder that contains it, the "DNS"
-// firewall address list, every dst-nat NAT rule whose to-addresses is oldIP,
-// every /ip/route entry whose dst-address or gateway is oldIP, and every
-// /tool/netwatch probe whose host is oldIP. Callers must ensure oldIP and
-// newIP differ before calling.
+// changeDNSIP replaces oldIP with newIP across /ip/dns servers (when it is one of them),
+// the dns-servers list of every DNS forwarder that contains it, the "DNS" firewall
+// address list, every dst-nat NAT rule whose to-addresses is oldIP, every /ip/route entry
+// whose dst-address or gateway is oldIP, every /tool/netwatch probe whose host or
+// dns-server is oldIP, and the source of every /system/script that contains it. Callers
+// must ensure oldIP and newIP differ before calling.
 func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*ChangeResponse, error) {
 	newIPForwarders, err := client.FindDNSForwarders(routeros.DNSForwarderFilter{DNSServers: newIP})
 	if err != nil {
@@ -82,28 +82,26 @@ func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*ChangeResponse,
 	if err != nil {
 		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to get DNS info", err}
 	}
-	if !slices.Contains(info.Servers, oldIP) {
-		return nil, &dnsChangeStepError{http.StatusNotFound,
-			fmt.Sprintf("Old IP %s not found in /ip/dns servers", oldIP), nil}
-	}
-
-	newServers := make([]string, len(info.Servers))
-	for i, server := range info.Servers {
-		if server == oldIP {
-			newServers[i] = newIP
-		} else {
-			newServers[i] = server
-		}
-	}
-
-	serversStr := strings.Join(newServers, ",")
-	if err := client.UpdateDNSConfig(routeros.DNSUpdateConfig{Servers: &serversStr}); err != nil {
-		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to update DNS configuration", err}
-	}
-
 	forwarders, err := client.ListDNSForwarders()
 	if err != nil {
 		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list DNS forwarders", err}
+	}
+
+	inServers := slices.Contains(info.Servers, oldIP)
+	inForwarders := slices.ContainsFunc(forwarders, func(f routeros.DNSForwarder) bool {
+		return slices.Contains(f.DNSServers, oldIP)
+	})
+	if !inServers && !inForwarders {
+		return nil, &dnsChangeStepError{http.StatusNotFound,
+			fmt.Sprintf("Old IP %s not found in /ip/dns servers or DNS forwarders", oldIP), nil}
+	}
+
+	newServers := replaceInList(info.Servers, oldIP, newIP)
+	if inServers {
+		serversStr := strings.Join(newServers, ",")
+		if err := client.UpdateDNSConfig(routeros.DNSUpdateConfig{Servers: &serversStr}); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to update DNS configuration", err}
+		}
 	}
 
 	updatedForwarders := make([]string, 0)
@@ -113,16 +111,7 @@ func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*ChangeResponse,
 			continue
 		}
 
-		newForwarderServers := make([]string, len(forwarder.DNSServers))
-		for j, server := range forwarder.DNSServers {
-			if server == oldIP {
-				newForwarderServers[j] = newIP
-			} else {
-				newForwarderServers[j] = server
-			}
-		}
-
-		if err := client.SetDNSForwarderServers(forwarder.ID, strings.Join(newForwarderServers, ",")); err != nil {
+		if err := client.SetDNSForwarderServers(forwarder.ID, strings.Join(replaceInList(forwarder.DNSServers, oldIP, newIP), ",")); err != nil {
 			return nil, &dnsChangeStepError{http.StatusInternalServerError,
 				fmt.Sprintf("Failed to update DNS forwarder %q", forwarder.Name), err}
 		}
@@ -163,18 +152,25 @@ func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*ChangeResponse,
 		updatedNATRules = append(updatedNATRules, rule.ID)
 	}
 
-	dstAddressRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{DstAddress: oldIP})
-	if err != nil {
-		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list IP routes by dst-address", err}
-	}
-	updatedDstAddressRoutes := make([]string, 0, len(dstAddressRoutes))
-	for i := range dstAddressRoutes {
-		route := &dstAddressRoutes[i]
-		if err := client.UpdateIPRoute(route.ID, routeros.IPRouteConfig{DstAddress: newIP}); err != nil {
-			return nil, &dnsChangeStepError{http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update route %s dst-address", route.ID), err}
+	updatedDstAddressRoutes := make([]string, 0)
+	seenRoutes := make(map[string]bool)
+	for _, dst := range []string{oldIP, oldIP + "/32"} {
+		dstAddressRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{DstAddress: dst})
+		if err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list IP routes by dst-address", err}
 		}
-		updatedDstAddressRoutes = append(updatedDstAddressRoutes, route.ID)
+		for i := range dstAddressRoutes {
+			route := &dstAddressRoutes[i]
+			if seenRoutes[route.ID] {
+				continue
+			}
+			seenRoutes[route.ID] = true
+			if err := client.UpdateIPRoute(route.ID, routeros.IPRouteConfig{DstAddress: newIP}); err != nil {
+				return nil, &dnsChangeStepError{http.StatusInternalServerError,
+					fmt.Sprintf("Failed to update route %s dst-address", route.ID), err}
+			}
+			updatedDstAddressRoutes = append(updatedDstAddressRoutes, route.ID)
+		}
 	}
 
 	gatewayRoutes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Gateway: oldIP})
@@ -191,18 +187,14 @@ func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*ChangeResponse,
 		updatedGatewayRoutes = append(updatedGatewayRoutes, route.ID)
 	}
 
-	netwatchProbes, err := client.ListNetwatch(routeros.NetwatchFilter{Host: &oldIP})
+	updatedNetwatchProbes, err := changeNetwatchIP(client, oldIP, newIP)
 	if err != nil {
-		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list netwatch probes", err}
+		return nil, err
 	}
-	updatedNetwatchProbes := make([]string, 0, len(netwatchProbes))
-	for i := range netwatchProbes {
-		probe := &netwatchProbes[i]
-		if _, err := client.UpdateNetwatch(probe.ID, routeros.UpdateNetwatchParams{Host: &newIP}); err != nil {
-			return nil, &dnsChangeStepError{http.StatusInternalServerError,
-				fmt.Sprintf("Failed to update netwatch probe %s", probe.ID), err}
-		}
-		updatedNetwatchProbes = append(updatedNetwatchProbes, probe.ID)
+
+	updatedScripts, err := changeScriptsIP(client, oldIP, newIP)
+	if err != nil {
+		return nil, err
 	}
 
 	return &ChangeResponse{
@@ -215,7 +207,166 @@ func changeDNSIP(client *routeros.Client, oldIP, newIP string) (*ChangeResponse,
 		UpdatedNetwatchProbes:   updatedNetwatchProbes,
 		UpdatedAddressListItems: updatedAddressListItems,
 		UpdatedNATRules:         updatedNATRules,
+		UpdatedScripts:          updatedScripts,
 	}, nil
+}
+
+// changeNetwatchIP replaces oldIP with newIP in the host and dns-server of every netwatch
+// probe, and in its comment, which the failover script uses to find the probe.
+func changeNetwatchIP(client *routeros.Client, oldIP, newIP string) ([]string, error) {
+	probes, err := client.ListNetwatch(routeros.NetwatchFilter{})
+	if err != nil {
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list netwatch probes", err}
+	}
+
+	updated := make([]string, 0)
+	for i := range probes {
+		probe := &probes[i]
+		params := routeros.UpdateNetwatchParams{}
+		changed := false
+		if probe.Host == oldIP {
+			params.Host = &newIP
+			changed = true
+		}
+		if probe.DNSServer == oldIP {
+			params.DNSServer = &newIP
+			changed = true
+		}
+		if comment := replaceIPLiteral(probe.Comment, oldIP, newIP); comment != probe.Comment {
+			params.Comment = &comment
+			changed = true
+		}
+		if !changed {
+			continue
+		}
+
+		if _, err := client.UpdateNetwatch(probe.ID, params); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update netwatch probe %s", probe.ID), err}
+		}
+		updated = append(updated, probe.ID)
+	}
+	return updated, nil
+}
+
+// changeScriptsIP replaces oldIP with newIP in the source of every script that contains it,
+// such as the failover DNS evaluator.
+func changeScriptsIP(client *routeros.Client, oldIP, newIP string) ([]string, error) {
+	scripts, err := client.ListScripts()
+	if err != nil {
+		return nil, &dnsChangeStepError{http.StatusInternalServerError, "Failed to list scripts", err}
+	}
+
+	updated := make([]string, 0)
+	for i := range scripts {
+		script := &scripts[i]
+		source := replaceIPLiteral(script.Source, oldIP, newIP)
+		if source == script.Source {
+			continue
+		}
+		if err := client.SetScriptSource(script.ID, source); err != nil {
+			return nil, &dnsChangeStepError{http.StatusInternalServerError,
+				fmt.Sprintf("Failed to update script %q", script.Name), err}
+		}
+		updated = append(updated, script.Name)
+	}
+	return updated, nil
+}
+
+// replaceInList returns a copy of list with every oldValue replaced by newValue.
+func replaceInList(list []string, oldValue, newValue string) []string {
+	result := make([]string, len(list))
+	for i, value := range list {
+		if value == oldValue {
+			result[i] = newValue
+		} else {
+			result[i] = value
+		}
+	}
+	return result
+}
+
+// replaceIPLiteral replaces every occurrence of oldIP in text that is a whole IP address,
+// not part of a longer one such as 11.0.0.12.
+func replaceIPLiteral(text, oldIP, newIP string) string {
+	var out strings.Builder
+	cursor := 0
+	for {
+		found := strings.Index(text[cursor:], oldIP)
+		if found < 0 {
+			break
+		}
+		start := cursor + found
+		end := start + len(oldIP)
+		out.WriteString(text[cursor:start])
+		if (start == 0 || !isIPChar(text[start-1])) && (end == len(text) || !isIPChar(text[end])) {
+			out.WriteString(newIP)
+		} else {
+			out.WriteString(oldIP)
+		}
+		cursor = end
+	}
+	out.WriteString(text[cursor:])
+	return out.String()
+}
+
+func isIPChar(b byte) bool {
+	return b == '.' || (b >= '0' && b <= '9')
+}
+
+// flushDNSCacheLogged flushes the DNS cache and reports whether it worked. A failure is only
+// logged, because the change that made the flush necessary has already been applied.
+func flushDNSCacheLogged(c echo.Context, client *routeros.Client) bool {
+	if err := client.FlushDNSCache(); err != nil {
+		c.Logger().Errorf("Failed to flush the DNS cache: %v", err)
+		return false
+	}
+	return true
+}
+
+// familySwaps lists the forwarders family mode changes with their family and default IPs. A
+// non-nil response is where each swap stores its result.
+func familySwaps(response *FamilyResponse) []familySwap {
+	var foreign, vpn, backup1, backup2 *ChangeResponse
+	if response != nil {
+		foreign, vpn, backup1, backup2 = &response.Foreign, &response.VPN, &response.Backup1, &response.Backup2
+	}
+	return []familySwap{
+		{forwarder: dnsForwarderTypeForeign, familyIP: DNSFamilyPrimaryIP, defaultIP: DNSDefaultForeignIP, result: foreign},
+		{forwarder: dnsForwarderTypeVPNPrimary, familyIP: DNSFamilySecondaryIP, defaultIP: DNSDefaultVPNPrimaryIP, result: vpn},
+		{forwarder: dnsForwarderTypeVPNBackup1, familyIP: DNSFamilyShieldPrimaryIP, defaultIP: DNSDefaultVPNBackup1IP, result: backup1},
+		{forwarder: dnsForwarderTypeVPNBackup2, familyIP: DNSFamilyShieldSecondaryIP, defaultIP: DNSDefaultVPNBackup2IP, result: backup2},
+	}
+}
+
+// dnsResetGeneralServers returns the servers of the General forwarder: the VPN resolvers,
+// Domestic when the router has a domestic link, and Foreign.
+func dnsResetGeneralServers(hasDomesticLink bool) string {
+	servers := []string{DNSDefaultVPNPrimaryIP, DNSDefaultVPNBackup1IP, DNSDefaultVPNBackup2IP}
+	if hasDomesticLink {
+		servers = append(servers, DNSDefaultDomesticIP)
+	}
+	return strings.Join(append(servers, DNSDefaultForeignIP), ",")
+}
+
+// dnsResetAddressListServers returns the addresses of the "DNS" firewall address list: every
+// default DNS server the router uses.
+func dnsResetAddressListServers(hasDomesticLink bool) []string {
+	return strings.Split(dnsResetGeneralServers(hasDomesticLink), ",")
+}
+
+// sortForwarders orders forwarders as forwarderOrder lists them; unknown ones keep their
+// relative order after them.
+func sortForwarders(forwarders []routeros.DNSForwarder) {
+	rank := func(name string) int {
+		if i := slices.Index(forwarderOrder, strings.TrimSpace(name)); i >= 0 {
+			return i
+		}
+		return len(forwarderOrder)
+	}
+	slices.SortStableFunc(forwarders, func(a, b routeros.DNSForwarder) int {
+		return rank(a.Name) - rank(b.Name)
+	})
 }
 
 // dnsForwarderCurrentIP returns the first DNS server IP configured on the
@@ -247,6 +398,7 @@ func changeDNSIPOrNoop(client *routeros.Client, oldIP, newIP string) (*ChangeRes
 			UpdatedNetwatchProbes:   []string{},
 			UpdatedAddressListItems: []string{},
 			UpdatedNATRules:         []string{},
+			UpdatedScripts:          []string{},
 		}, nil
 	}
 	return changeDNSIP(client, oldIP, newIP)

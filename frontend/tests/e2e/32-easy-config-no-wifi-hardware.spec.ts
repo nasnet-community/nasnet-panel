@@ -26,16 +26,6 @@ test.describe('Easy-Mode wizard — router without WiFi hardware', () => {
     await page.getByRole('option', { name: 'ether1' }).click();
     await page.getByRole('button', { name: /^next$/i }).click();
 
-    await page.getByLabel(/wireguard configuration/i).fill(`[Interface]
-PrivateKey = 4AjT3jhk6L8h3GVe7Mw3lP3xQK4n5cL2yR6f8tWvX1c=
-Address = 10.0.0.2/32
-
-[Peer]
-PublicKey = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-Endpoint = mask.example.com:51820
-AllowedIPs = 0.0.0.0/0`);
-    await page.getByRole('button', { name: /^next$/i }).click();
-
     const wifiToggle = page.getByRole('switch', { name: /wi-fi not available/i });
     await expect(wifiToggle).toBeVisible();
     await expect(wifiToggle).toBeDisabled();

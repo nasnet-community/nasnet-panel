@@ -148,6 +148,19 @@ func (c *Client) ListScripts() ([]ScriptInfo, error) {
 	return scripts, nil
 }
 
+// SetScriptSource replaces the source of the script with the given ID.
+func (c *Client) SetScriptSource(id, source string) error {
+	if id == "" {
+		return fmt.Errorf("script ID is required")
+	}
+
+	if _, err := c.Set("/system/script", "=.id="+id, "=source="+source); err != nil {
+		return fmt.Errorf("failed to update script %s: %w", id, err)
+	}
+
+	return nil
+}
+
 // RunScript executes a named script on RouterOS.
 // The scriptName parameter should be the name of an existing script in RouterOS.
 func (c *Client) RunScript(scriptName string) error {

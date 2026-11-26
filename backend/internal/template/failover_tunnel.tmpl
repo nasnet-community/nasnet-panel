@@ -1,0 +1,22 @@
+{{ if .L2tp }}
+/interface l2tp-client
+add name="{{ .Name }}" connect-to="{{ .L2tp.ConnectTo }}@VRF-TunnelEnds" comment="{{ .Name }}" \
+random-source-port=yes user="{{ .L2tp.User }}" password="{{ .L2tp.Password }}" \
+{{ if .L2tp.IPsecSecret }}use-ipsec=yes ipsec-secret="{{ .L2tp.IPsecSecret }}"{{ else }}use-ipsec=no{{ end }} allow-fast-path=yes allow=mschap2,mschap1 \
+l2tp-proto-version=l2tpv2 dial-on-demand=no disabled=no
+{{ else }}
+/interface wireguard
+add name="{{ .Name }}" private-key="{{ .WireGuard.InterfacePrivateKey }}" comment="{{ .Name }}" vrf="VRF-TunnelEnds"
+/interface wireguard peers
+{{ $name := .Name }}{{ range .WireGuard.Peers }}
+add name="{{ $name }}-peer" interface="{{ $name }}" public-key="{{ .PublicKey }}" \
+{{ if .EndpointAddress }}endpoint-address="{{ .EndpointAddress }}" endpoint-port={{ .EndpointPort }} \
+{{ end }}allowed-address="{{ .AllowedAddress }}" comment="{{ $name }}-peer"{{ if .PreSharedKey }} preshared-key="{{ .PreSharedKey }}"{{ end }}{{ if .PersistentKeepalive }} \
+persistent-keepalive={{ .PersistentKeepalive }}{{ end }}
+{{ end }}
+/ip address
+add address="{{ .WireGuard.InterfaceAddress }}" interface="{{ .Name }}" comment="{{ .Name }}"
+{{ end }}
+/interface list member
+add interface="{{ .Name }}" list="WAN" comment="{{ .Name }}"
+add interface="{{ .Name }}" list="VPN-WAN" comment="{{ .Name }}"

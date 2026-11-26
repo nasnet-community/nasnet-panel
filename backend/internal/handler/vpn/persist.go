@@ -6,6 +6,7 @@ import (
 
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/dbsync"
+	"nasnet-panel/internal/failover"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/routeros"
 
@@ -29,6 +30,7 @@ func removeL2TPClientFromDB(c echo.Context, client *routeros.Client, name string
 	common.WithRouterDB(c, client, "delete L2TP client "+name, func(ctx context.Context, conn *sqlx.DB) error {
 		return db.DeleteL2TPClient(ctx, conn, name)
 	})
+	removeFailoverInterfaceFromDB(c, client, name)
 }
 
 func persistSSTPClient(c echo.Context, client *routeros.Client, nameOrID string) {
@@ -47,6 +49,7 @@ func removeSSTPClientFromDB(c echo.Context, client *routeros.Client, name string
 	common.WithRouterDB(c, client, "delete SSTP client "+name, func(ctx context.Context, conn *sqlx.DB) error {
 		return db.DeleteSSTPClient(ctx, conn, name)
 	})
+	removeFailoverInterfaceFromDB(c, client, name)
 }
 
 func persistWireGuardInterface(c echo.Context, client *routeros.Client, nameOrID string) {
@@ -71,6 +74,7 @@ func renameWireGuardPeerKeyInDB(c echo.Context, client *routeros.Client, interfa
 }
 
 func removeWireGuardInterfaceFromDB(c echo.Context, client *routeros.Client, name string) {
+	removeFailoverInterfaceFromDB(c, client, name)
 	if dbsync.WireGuardInterfaceType(name) == "" {
 		return
 	}
@@ -168,5 +172,23 @@ func persistCreatedOvpnServers(client *routeros.Client, servers []db.OvpnServer,
 			}
 		}
 		return nil
+	})
+}
+
+func persistFailover(c echo.Context, client *routeros.Client) {
+	rows, err := failover.Records(client)
+	if err != nil {
+		c.Logger().Errorf("Failed to read the failover interfaces for the database: %v", err)
+		return
+	}
+
+	common.WithRouterDB(c, client, "save the failover interfaces", func(ctx context.Context, conn *sqlx.DB) error {
+		return db.ReplaceFailoverInterfaces(ctx, conn, rows)
+	})
+}
+
+func removeFailoverInterfaceFromDB(c echo.Context, client *routeros.Client, name string) {
+	common.WithRouterDB(c, client, "delete failover interface "+name, func(ctx context.Context, conn *sqlx.DB) error {
+		return db.DeleteFailoverInterface(ctx, conn, name)
 	})
 }

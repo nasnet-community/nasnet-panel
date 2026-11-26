@@ -1,7 +1,6 @@
 import {
   OVPN_PASSWORD_MIN_LENGTH,
   isIPv4,
-  isPort,
   isRequired,
   isSsid,
   isWifiPassword,
@@ -82,26 +81,6 @@ export function canAdvance(state: State): Message | null {
       }
       return null;
     }
-    case 'ipmask':
-      if (!state.ipMaskEnabled) return null;
-      if (state.ipMaskKind === 'wireguard') {
-        if (!isRequired(state.wgEndpoint) || !isPort(state.wgEndpointPort)) {
-          return problem('validation.endpointRequired');
-        }
-        if (!isRequired(state.wgPeerPublicKey)) {
-          return problem('validation.peerKeyRequired');
-        }
-      }
-      if (state.ipMaskKind === 'l2tp') {
-        if (!isRequired(state.l2tpServer)) return problem('validation.l2tpServerRequired');
-        if (!isRequired(state.l2tpUsername) || !isRequired(state.l2tpPassword)) {
-          return problem('validation.l2tpCredentialsRequired');
-        }
-        if (state.l2tpUseIpsec && !isRequired(state.l2tpIpsecSecret)) {
-          return problem('validation.ipsecSecretRequired');
-        }
-      }
-      return null;
     case 'wifi': {
       if (!state.wifiEnabled) return null;
       if (!isSsid(state.ssid)) return problem('validation.ssidRequired');
