@@ -146,8 +146,8 @@ func Records(client *routeros.Client) ([]db.FailoverInterface, error) {
 	return rows, nil
 }
 
-// Assign gives the interface the failover role. The client that held the role is moved
-// above every failover client. An interface that is not in the failover yet gets its routes created.
+// Assign gives the interface the failover role. The client that held the role takes the
+// interface's previous position, or goes behind every failover client when the interface is new. An interface that is not in the failover yet gets its routes created.
 func Assign(client *routeros.Client, interfaceName, role string) error {
 	if err := applyRole(client, interfaceName, role); err != nil {
 		return err
@@ -184,6 +184,10 @@ func applyRole(client *routeros.Client, interfaceName, role string) error {
 	if slot < len(entries) {
 		slotDistance = entries[slot].Distance
 	}
+	holderDistance := highest + 1
+	if target >= 0 {
+		holderDistance = entries[target].Distance
+	}
 
 	if target < 0 {
 		probe, err := freeProbe(entries)
@@ -198,7 +202,7 @@ func applyRole(client *routeros.Client, interfaceName, role string) error {
 	}
 
 	if slot < len(entries) {
-		return setDistance(client, &entries[slot], highest+1)
+		return setDistance(client, &entries[slot], holderDistance)
 	}
 	return nil
 }
