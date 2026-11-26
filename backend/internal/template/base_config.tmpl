@@ -550,6 +550,9 @@ add action=accept chain=forward comment="Accept" dst-address-list="LOCAL-IP" src
 add action=accept chain=output comment="Netwatch probe exempt" dst-address-list="DNS" protocol=icmp
 add action=mark-routing chain=output comment="S4I Route" content="s4i.co" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="NasNet API Route" content="api.joinnasnet.com" new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output comment="GitHub Route" content="github.com" new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output comment="GitHub Container Registry Route" content="ghcr.io" new-routing-mark="to-Foreign" passthrough=no
+add action=mark-routing chain=output comment="GitHub Content Route" content="githubusercontent.com" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" src-address=192.168.39.12 new-routing-mark="to-Foreign" passthrough=no
 {{ if .DomesticEnabled}}
 add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \

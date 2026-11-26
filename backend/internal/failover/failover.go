@@ -1,6 +1,7 @@
 package failover
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -146,8 +147,9 @@ func Records(client *routeros.Client) ([]db.FailoverInterface, error) {
 	return rows, nil
 }
 
-// Assign gives the interface the failover role. The client that held the role is moved
-// above every failover client. An interface that is not in the failover yet gets its routes created.
+// Assign gives the interface the failover role. The client that held the role takes the
+// interface's previous position, or goes behind every failover client when the interface is
+// new. An interface that is not in the failover yet gets its routes created.
 func Assign(client *routeros.Client, interfaceName, role string) error {
 	if err := applyRole(client, interfaceName, role); err != nil {
 		return err
@@ -180,12 +182,11 @@ func applyRole(client *routeros.Client, interfaceName, role string) error {
 		return nil
 	}
 
-	slotDistance := slot + 1
-	if slot < len(entries) {
-		slotDistance = entries[slot].Distance
-	}
-
 	if target < 0 {
+		slotDistance := slot + 1
+		if slot < len(entries) {
+			slotDistance = entries[slot].Distance
+		}
 		probe, err := freeProbe(entries)
 		if err != nil {
 			return err
@@ -193,12 +194,82 @@ func applyRole(client *routeros.Client, interfaceName, role string) error {
 		if err := addRoutes(client, interfaceName, probe, roleLabels[slot], slotDistance); err != nil {
 			return err
 		}
-	} else if err := setDistance(client, &entries[target], slotDistance); err != nil {
-		return err
+		if slot < len(entries) {
+			return setDistance(client, &entries[slot], highest+1)
+		}
+		return nil
 	}
 
+	return applyDistances(client, entries, planDistances(entries, target, slot))
+}
+
+// planDistances returns the distance each entry should have once the target holds the slot.
+// The slot's holder takes the target's old position. When any distances are tied, before or
+// after the swap, every entry is renumbered in its new order so the target ends up strictly
+// ahead of the holder it displaced.
+func planDistances(entries []Entry, target, slot int) []int {
+	planned := make([]int, len(entries))
+	for i := range entries {
+		planned[i] = entries[i].Distance
+	}
 	if slot < len(entries) {
-		return setDistance(client, &entries[slot], highest+1)
+		planned[target], planned[slot] = entries[slot].Distance, entries[target].Distance
+	} else {
+		planned[target] = slot + 1
+	}
+
+	current := make([]int, len(entries))
+	for i := range entries {
+		current[i] = entries[i].Distance
+	}
+	if !hasDuplicate(current) && !hasDuplicate(planned) {
+		return planned
+	}
+
+	order := make([]int, len(entries))
+	for i := range order {
+		order[i] = i
+	}
+	if slot < len(entries) {
+		order[slot], order[target] = target, slot
+	} else {
+		order = append(append(order[:target:target], order[target+1:]...), target)
+	}
+	for position, index := range order {
+		planned[index] = position + 1
+	}
+	return planned
+}
+
+func hasDuplicate(values []int) bool {
+	seen := make(map[int]bool, len(values))
+	for _, value := range values {
+		if seen[value] {
+			return true
+		}
+		seen[value] = true
+	}
+	return false
+}
+
+// applyDistances sets the planned distances. When one write fails, every entry already
+// changed is put back to its original distance, and a failure of that is returned with it.
+func applyDistances(client *routeros.Client, entries []Entry, planned []int) error {
+	var changed []int
+	for i := range entries {
+		if planned[i] == entries[i].Distance {
+			continue
+		}
+		changed = append(changed, i)
+		if err := setDistance(client, &entries[i], planned[i]); err != nil {
+			errs := []error{err}
+			for _, j := range changed {
+				if rollbackErr := setDistance(client, &entries[j], entries[j].Distance); rollbackErr != nil {
+					errs = append(errs, fmt.Errorf("restoring the distance of %s: %w", entries[j].Interface, rollbackErr))
+				}
+			}
+			return errors.Join(errs...)
+		}
 	}
 	return nil
 }
