@@ -689,7 +689,7 @@ func runPluginScript(ctx context.Context, client *routeros.Client, pluginID, scr
 // preInstall/postInstall entry from a plugin's manifest.json), named relative
 // to the plugin's directory in the registry repository.
 func fetchPluginScript(ctx context.Context, id, scriptPath string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, pluginAssetsBaseURL+"/"+id+"/"+scriptPath, http.NoBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, pluginFilesURL+"/"+id+"/"+scriptPath, http.NoBody)
 	if err != nil {
 		return "", err
 	}
@@ -724,7 +724,7 @@ func fetchPluginRegistry(ctx context.Context) (*Registry, error) {
 
 func fetchPluginManifest(ctx context.Context, id string) (*Manifest, error) {
 	var manifest Manifest
-	if err := fetchPluginJSON(ctx, pluginAssetsBaseURL+"/"+id+"/manifest.json", &manifest); err != nil {
+	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/manifest.json", &manifest); err != nil {
 		return nil, err
 	}
 	return &manifest, nil
@@ -735,7 +735,7 @@ func fetchPluginManifest(ctx context.Context, id string) (*Manifest, error) {
 // "settings.json", but not assumed to always be).
 func fetchPluginSettings(ctx context.Context, id, settingsSchema string) (*SettingsSchema, error) {
 	var schema SettingsSchema
-	if err := fetchPluginJSON(ctx, pluginAssetsBaseURL+"/"+id+"/"+settingsSchema, &schema); err != nil {
+	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/"+settingsSchema, &schema); err != nil {
 		return nil, err
 	}
 	return &schema, nil

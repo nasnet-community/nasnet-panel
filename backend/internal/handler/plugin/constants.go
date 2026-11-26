@@ -3,11 +3,28 @@ package plugin
 
 import (
 	"net/http"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
 
-const pluginRegistryURL = "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/main/plugins.json"
+// pluginCatalogURL is the community plugin registry: plugins.json at its root and
+// each plugin's files under plugins/<id>. PLUGIN_CATALOG_URL points a dev router at
+// a local copy instead; PLUGIN_ICON_URL does the same for the icons the browser loads.
+var pluginCatalogURL = catalogURL(os.Getenv("PLUGIN_CATALOG_URL"))
+
+func catalogURL(override string) string {
+	if u := strings.TrimRight(strings.TrimSpace(override), "/"); u != "" {
+		return u
+	}
+	return "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/main"
+}
+
+var (
+	pluginRegistryURL = pluginCatalogURL + "/plugins.json"
+	pluginFilesURL    = pluginCatalogURL + "/plugins"
+)
 
 // pluginContainersBridge is the bridge every plugin's veth interface is
 // attached to, protected from removal by the wizard's cleanup script, and
@@ -103,6 +120,14 @@ const (
 
 var pluginLifecycles = &pluginLifecycle{busy: make(map[string]pluginLifecycleOp)}
 
-// Base URL hosting per-plugin assets (such as the icon and manifest) in the
-// community plugin registry repository, keyed by plugin id.
-const pluginAssetsBaseURL = "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/refs/heads/main/plugins"
+// Base URL the browser loads each plugin's icon from, keyed by plugin id: the public
+// registry, unless PLUGIN_ICON_URL points a dev browser at a local copy. It is apart
+// from PLUGIN_CATALOG_URL because the browser and the router reach that copy differently.
+var pluginAssetsBaseURL = iconURL(os.Getenv("PLUGIN_ICON_URL"))
+
+func iconURL(override string) string {
+	if u := strings.TrimRight(strings.TrimSpace(override), "/"); u != "" {
+		return u
+	}
+	return "https://raw.githubusercontent.com/nasnet-community/nasnet-panel-plugins/refs/heads/main/plugins"
+}
