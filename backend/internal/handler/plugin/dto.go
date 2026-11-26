@@ -160,6 +160,18 @@ type ManifestContainer struct {
 	Env       map[string]string `json:"env"`
 	Mounts    []ManifestMount   `json:"mounts"`
 	Ports     []ManifestPort    `json:"ports"`
+
+	// The rest are optional container settings. They apply when the container
+	// is created (updating a plugin leaves them alone) and are taken literally,
+	// "{{settings.<key>}}" is not expanded. A bad value fails the install before
+	// the router is touched; leave them out and the container is created as it
+	// always was.
+	MemoryHigh          string   `json:"memoryHigh"`          // size: bytes, or a number with a K, M or G suffix ("128M")
+	MemoryMax           string   `json:"memoryMax"`           // size like memoryHigh, at least 1M and not below memoryHigh
+	CPUList             string   `json:"cpuList"`             // cores to run on, named as RouterOS does: "cpu0" or "cpu0,cpu1"
+	User                string   `json:"user"`                // user[:group], each a name or a numeric id: "1000:1000"
+	Devices             []string `json:"devices"`             // devices to hand through, as RouterOS names them: ["serial0"]
+	AutoRestartInterval string   `json:"autoRestartInterval"` // RouterOS time ("30s", "5m", "1h30m"): restart the container this long after it exits
 }
 
 // ManifestScripts names RouterOS scripts run at various install and

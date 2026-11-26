@@ -35,6 +35,8 @@ type ContainerConfig struct {
 	Logging     bool
 	StartOnBoot bool
 	Comment     string
+	// RouterOS time such as "30s": restart the container this long after it exits.
+	AutoRestartInterval string
 }
 
 // ContainerInfo represents a container as reported by RouterOS, including the
@@ -258,6 +260,11 @@ func (c *Client) AddContainer(config ContainerConfig) (string, error) {
 	}
 	if config.StartOnBoot {
 		args = append(args, "=start-on-boot=yes")
+	}
+	if config.AutoRestartInterval != "" {
+		// RouterOS 7.24 rejects auto-restart-interval; a restart policy plus
+		// an interval took its place.
+		args = append(args, "=restart-policy=always", "=restart-interval="+config.AutoRestartInterval)
 	}
 	if config.Comment != "" {
 		args = append(args, "=comment="+config.Comment)
