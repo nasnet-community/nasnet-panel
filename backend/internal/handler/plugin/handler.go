@@ -464,7 +464,7 @@ func HandleUpdatePlugin(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusNotFound, "Plugin is not installed", err)
 	}
 
-	manifest, err := fetchPluginManifest(ctx, pluginID)
+	manifest, err := fetchInstallManifest(ctx, pluginID)
 	if err != nil {
 		return common.ErrorResponse(c, http.StatusBadGateway, "Failed to fetch plugin manifest", err)
 	}

@@ -208,7 +208,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	pluginID := task.pluginID
 	ctx := context.Background()
 
-	manifest, err := fetchPluginManifest(ctx, pluginID)
+	manifest, err := fetchInstallManifest(ctx, pluginID)
 	if err != nil {
 		task.set(pluginInstallPhaseError, "failed to fetch plugin manifest: "+err.Error())
 		log.Printf("[plugin-install %s] failed to fetch manifest: %v", pluginID, err)
@@ -763,10 +763,21 @@ func fetchPluginManifest(ctx context.Context, id string) (*Manifest, error) {
 	if err := fetchPluginJSON(ctx, pluginFilesURL+"/"+id+"/manifest.json", &manifest); err != nil {
 		return nil, err
 	}
+	return &manifest, nil
+}
+
+// fetchInstallManifest is fetchPluginManifest for an install or an update,
+// which apply the manifest and so refuse one the panel can't apply. An
+// uninstall, or the plugin list, still works whatever the manifest says.
+func fetchInstallManifest(ctx context.Context, id string) (*Manifest, error) {
+	manifest, err := fetchPluginManifest(ctx, id)
+	if err != nil {
+		return nil, err
+	}
 	if err := manifest.validate(); err != nil {
 		return nil, fmt.Errorf("manifest of %s: %w", id, err)
 	}
-	return &manifest, nil
+	return manifest, nil
 }
 
 // fetchPluginSettings fetches a plugin's settings schema, at the filename the
