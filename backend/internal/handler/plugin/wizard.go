@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"fmt"
-	"log"
 	"sort"
 	"strings"
 
@@ -67,34 +66,47 @@ func installedPluginNames(client *routeros.Client) ([]string, error) {
 // RunPostWizard runs the post-wizard script of each installed plugin that
 // has one. The wizard has just removed every script and scheduler on the
 // router, so this is what brings back the ones a plugin keeps there. The
-// scripts run in the background on the router, one after another here, and a
-// failing one is logged and does not stop the rest.
-func RunPostWizard(client *routeros.Client) {
+// scripts run in the background on the router, one after another here. A
+// failing one does not stop the rest; what failed is returned.
+func RunPostWizard(client *routeros.Client) []error {
 	names, err := installedPluginNames(client)
 	if err != nil {
-		log.Printf("[plugin-post-wizard] failed to list the installed plugins: %v", err)
-		return
+		return []error{fmt.Errorf("failed to list the installed plugins: %w", err)}
 	}
 
+	var errs []error
 	for _, name := range names {
-		file := pluginStateDir(client, name) + "/" + pluginStatePostWizard
-		exists, err := client.FileExists(file)
-		if err != nil || !exists {
-			if err != nil {
-				log.Printf("[plugin-post-wizard %s] failed to look for its script: %v", name, err)
-			}
-			continue
-		}
-		script, err := client.GetFileContents(file, 0)
-		if err != nil {
-			log.Printf("[plugin-post-wizard %s] failed to read its script: %v", name, err)
-			continue
-		}
-		if strings.TrimSpace(script) == "" {
-			continue
-		}
-		if err := client.ExecuteScriptString(script); err != nil {
-			log.Printf("[plugin-post-wizard %s] its script failed: %v", name, err)
+		if err := runPluginPostWizard(client, name); err != nil {
+			errs = append(errs, fmt.Errorf("post-wizard script of %s: %w", name, err))
 		}
 	}
+	return errs
+}
+
+// runPluginPostWizard holds the plugin while it reads and sends its script, so
+// an uninstall can't remove the script in between and have it run for a plugin
+// that is gone. A plugin busy installing, updating or uninstalling is skipped.
+func runPluginPostWizard(client *routeros.Client, name string) error {
+	release, err := pluginLifecycles.acquire(name, pluginLifecycleOpPostWizard)
+	if err != nil {
+		return fmt.Errorf("skipped: %w", err)
+	}
+	defer release()
+
+	file := pluginStateDir(client, name) + "/" + pluginStatePostWizard
+	exists, err := client.FileExists(file)
+	if err != nil {
+		return fmt.Errorf("failed to look for it: %w", err)
+	}
+	if !exists {
+		return nil
+	}
+	script, err := client.GetFileContents(file, 0)
+	if err != nil {
+		return fmt.Errorf("failed to read it: %w", err)
+	}
+	if strings.TrimSpace(script) == "" {
+		return nil
+	}
+	return client.ExecuteScriptString(script)
 }

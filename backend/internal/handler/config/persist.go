@@ -38,8 +38,11 @@ func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {
 			return
 		}
 		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
-			plugin.RunPostWizard(client)
+			// The save first, so it doesn't share what's left of ctx with the scripts.
 			saveWizardConfig(ctx, client, data)
+			for _, err := range plugin.RunPostWizard(client) {
+				log.Printf("[plugin-post-wizard] %v", err)
+			}
 			return
 		}
 	}

@@ -367,7 +367,7 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 	stored := plan.stored
 	linkGateway := foreignLinkGateway(stored.WANs)
 	return []reconfigExtra{
-		{"Running the plugins' post-wizard scripts", func() []error { plugin.RunPostWizard(client); return nil }},
+		{"Running the plugins' post-wizard scripts", func() []error { return plugin.RunPostWizard(client) }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
 		{"Restoring the wizard VPN clients", func() []error { return restoreWizardClients(client, stored, linkGateway) }},
 		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
