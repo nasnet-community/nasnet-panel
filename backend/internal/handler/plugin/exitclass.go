@@ -1,11 +1,11 @@
 package plugin
 
 import (
-	"errors"
 	"fmt"
 	"net/netip"
 	"strconv"
 	"strings"
+	"sync"
 
 	"nasnet-panel/pkg/routeros"
 )
@@ -108,11 +108,19 @@ func (r exitClassRule) matches(have *routeros.RoutingRuleInfo) bool {
 		have.DstAddress == r.Dst && have.Table == r.Table && have.RoutingMark == "" && !have.Disabled
 }
 
+// exitClassMu lets one reconciliation run at a time. Two installs that listed
+// the rules together would each remove only what they saw, and could leave one
+// install's class rules ahead of the other's local ones.
+var exitClassMu sync.Mutex
+
 // ensureExitClasses puts the gateway address and the rules on the router,
 // changing nothing when they are right already. A set that differs is added
 // whole before the old one goes: the rules are tried in order, so the old ones
 // decide until they are removed and no address is unrouted in between.
 func ensureExitClasses(client *routeros.Client) error {
+	exitClassMu.Lock()
+	defer exitClassMu.Unlock()
+
 	if err := ensureExitClassGateway(client); err != nil {
 		return err
 	}
@@ -131,7 +139,7 @@ func ensureExitClasses(client *routeros.Client) error {
 	if err != nil {
 		return err
 	}
-	var ours []routeros.RoutingRuleInfo
+	ours := make([]routeros.RoutingRuleInfo, 0, len(wanted))
 	for i := range existing {
 		if strings.HasPrefix(existing[i].Comment, exitClassPrefix) {
 			ours = append(ours, existing[i])
@@ -158,11 +166,14 @@ func ensureExitClasses(client *routeros.Client) error {
 			return err
 		}
 	}
-	var errs []error
-	for i := range ours {
-		errs = append(errs, client.RemoveRoutingRule(ours[i].ID))
+	// From the end, so the old local rules stay first until the old classes
+	// are gone. A failed removal stops here; the next run replaces what's left.
+	for i := len(ours) - 1; i >= 0; i-- {
+		if err := client.RemoveRoutingRule(ours[i].ID); err != nil {
+			return err
+		}
 	}
-	return errors.Join(errs...)
+	return nil
 }
 
 // ensureExitClassGateway puts 192.168.150.254/24 on the containers bridge,
