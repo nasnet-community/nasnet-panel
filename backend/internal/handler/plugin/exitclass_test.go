@@ -118,3 +118,17 @@ func TestAddressesUseExitClasses(t *testing.T) {
 		}
 	}
 }
+
+func TestHoldExitClasses(t *testing.T) {
+	release := HoldExitClasses()
+	if exitClassMu.TryLock() {
+		exitClassMu.Unlock()
+		t.Fatal("an install could change the exit classes while the wizard holds them")
+	}
+	release()
+	release() // the wizard's deferred call after the early one
+	if !exitClassMu.TryLock() {
+		t.Fatal("the exit classes stay held after release")
+	}
+	exitClassMu.Unlock()
+}

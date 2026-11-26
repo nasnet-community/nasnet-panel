@@ -363,11 +363,14 @@ func HandleFinalizeWizard(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to render template", err)
 	}
 
+	// Until the script is done, since it rewrites the exit classes.
+	release := plugin.HoldExitClasses()
 	if message, err := startBaseConfigScript(client, creds, rendered); err != nil {
+		release()
 		return common.ErrorResponse(c, http.StatusInternalServerError, message, err)
 	}
 
-	go saveWizardConfigWhenDone(client, &WizardSaveData{
+	go saveWizardConfigWhenDone(client, release, &WizardSaveData{
 		Request:              &req,
 		DomesticEnabled:      domesticEnabled,
 		Foreign:              &foreignInterface,

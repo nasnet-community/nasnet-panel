@@ -113,6 +113,17 @@ func (r exitClassRule) matches(have *routeros.RoutingRuleInfo) bool {
 // install's class rules ahead of the other's local ones.
 var exitClassMu sync.Mutex
 
+// HoldExitClasses keeps installs and updates from changing the exit classes
+// until release is called. The wizard holds it while its script removes every
+// routing rule and writes the classes again: an install in between could have
+// one of its rules removed and the next land ahead of the wizard's local ones.
+// Calling release more than once is fine.
+func HoldExitClasses() (release func()) {
+	exitClassMu.Lock()
+	var once sync.Once
+	return func() { once.Do(exitClassMu.Unlock) }
+}
+
 // ensureExitClasses puts the gateway address and the rules on the router,
 // changing nothing when they are right already. A set that differs is added
 // whole before the old one goes: the rules are tried in order, so the old ones

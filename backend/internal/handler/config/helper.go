@@ -308,11 +308,16 @@ func runReconfig(ctx context.Context, job *reconfigJob, client *routeros.Client,
 	}
 	job.update("Applying the base configuration", reconfigBaseStart)
 
+	// Until the script is done, since it rewrites the exit classes.
+	release := plugin.HoldExitClasses()
 	if message, err := startBaseConfigScript(client, creds, rendered); err != nil {
+		release()
 		job.fail(message + ": " + err.Error())
 		return
 	}
-	if err := waitForBaseConfig(ctx, job, client); err != nil {
+	err := waitForBaseConfig(ctx, job, client)
+	release()
+	if err != nil {
 		job.fail(err.Error())
 		return
 	}
