@@ -129,10 +129,17 @@ type Registry struct {
 // ManifestInterface describes the veth interface a plugin's container
 // is attached to.
 type ManifestInterface struct {
-	Name    string `json:"name"`
-	Address string `json:"address"`
-	Gateway string `json:"gateway"`
+	Name    string    `json:"name"`
+	Address Addresses `json:"address"`
+	Gateway string    `json:"gateway"`
 }
+
+// Addresses are the addresses of a plugin's veth, each with its prefix
+// length ("192.168.50.16/24"). A manifest writes one as a plain string, as they
+// all used to, or several as a list. A string holding a comma-separated list is
+// a list too: it is how RouterOS takes them, and how a manifest already does.
+// The first address is the container's own.
+type Addresses []string
 
 // ManifestMount describes one directory a plugin's container mounts.
 // Name groups this entry under a /container/mounts list of the same name.
@@ -181,6 +188,10 @@ type ManifestScripts struct {
 	PreInstall   string `json:"preInstall"`
 	PostInstall  string `json:"postInstall"`
 	PreUninstall string `json:"preUninstall"`
+	// PostWizard runs after the wizard has rebuilt the router, which wipes what
+	// install scripts set up. The panel keeps a copy on the router from install
+	// on, so running it needs no network.
+	PostWizard string `json:"postWizard"`
 }
 
 // Manifest is the per-plugin manifest.json fetched from the community
@@ -200,6 +211,9 @@ type Manifest struct {
 	Container      ManifestContainer `json:"container"`
 	Scripts        ManifestScripts   `json:"scripts"`
 	SettingsSchema string            `json:"settingsSchema"`
+	// MinRouterOS is the oldest RouterOS the plugin works on ("7.11"). An install
+	// on an older router is refused.
+	MinRouterOS string `json:"minRouterOS"`
 	// KeepDataOnUninstall is for plugins whose data folder holds something that
 	// is hard to recreate (a certificate authority, say): uninstalling leaves the
 	// folder in place unless the request asks for it to be deleted.

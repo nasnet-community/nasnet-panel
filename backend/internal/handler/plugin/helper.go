@@ -9,6 +9,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"net/netip"
 	"regexp"
 	"sort"
 	"strconv"
@@ -207,7 +208,7 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	pluginID := task.pluginID
 	ctx := context.Background()
 
-	manifest, err := fetchPluginManifest(ctx, pluginID)
+	manifest, err := fetchInstallManifest(ctx, pluginID)
 	if err != nil {
 		task.set(pluginInstallPhaseError, "failed to fetch plugin manifest: "+err.Error())
 		log.Printf("[plugin-install %s] failed to fetch manifest: %v", pluginID, err)
@@ -223,6 +224,11 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 	if !supportsArchitecture(manifest.Architectures, resources.Architecture) {
 		task.set(pluginInstallPhaseError, fmt.Sprintf("router architecture %s not supported (plugin supports %s)",
 			resources.Architecture, strings.Join(manifest.Architectures, ", ")))
+		return
+	}
+	if err := checkMinRouterOS(manifest.MinRouterOS, resources.Version); err != nil {
+		task.set(pluginInstallPhaseError, err.Error())
+		log.Printf("[plugin-install %s] %v", pluginID, err)
 		return
 	}
 
@@ -258,11 +264,23 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		}
 	}
 
+	// The wizard runs it later with no registry to ask, so a copy is kept on the router.
+	postWizardScript := ""
+	if manifest.Scripts.PostWizard != "" {
+		script, err := fetchPluginScript(ctx, pluginID, manifest.Scripts.PostWizard)
+		if err != nil {
+			task.set(pluginInstallPhaseError, "failed to fetch post-wizard script: "+err.Error())
+			log.Printf("[plugin-install %s] failed to fetch post-wizard script: %v", pluginID, err)
+			return
+		}
+		postWizardScript = resolveSettingsPlaceholders(script, settingsValues)
+	}
+
 	task.set(pluginInstallPhaseCreatingInterface, "creating veth interface "+iface.Name)
 	if _, err := client.GetInterface(iface.Name); err != nil {
 		if _, err := client.AddVethInterface(routeros.VethConfig{
 			Name:    iface.Name,
-			Address: iface.Address,
+			Address: iface.Address.RouterOS(),
 			Gateway: iface.Gateway,
 		}); err != nil {
 			task.set(pluginInstallPhaseError, "failed to create veth interface: "+err.Error())
@@ -283,6 +301,24 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			log.Printf("[plugin-install %s] failed to add veth interface to bridge: %v", pluginID, err)
 			return
 		}
+	}
+
+	// Before anything can run from the veth, so its first packet already meets
+	// its class's rule. The pre-install script comes after, and sees them.
+	if iface.Address.usesExitClasses() {
+		task.set(pluginInstallPhaseCreatingInterface, "setting up the containers' exit classes")
+		if err := ensureExitClasses(client); err != nil {
+			task.set(pluginInstallPhaseError, "failed to set up the containers' exit classes: "+err.Error())
+			log.Printf("[plugin-install %s] failed to set up the exit classes: %v", pluginID, err)
+			return
+		}
+	}
+	// With no script too: one an earlier install kept before it failed would
+	// run after the next wizard.
+	if err := savePluginPostWizard(client, pluginID, postWizardScript); err != nil {
+		task.set(pluginInstallPhaseError, "failed to keep the post-wizard script on the router: "+err.Error())
+		log.Printf("[plugin-install %s] failed to save the post-wizard script: %v", pluginID, err)
+		return
 	}
 
 	task.set(pluginInstallPhaseCreatingMounts, "creating container mounts")
@@ -728,6 +764,20 @@ func fetchPluginManifest(ctx context.Context, id string) (*Manifest, error) {
 		return nil, err
 	}
 	return &manifest, nil
+}
+
+// fetchInstallManifest is fetchPluginManifest for an install or an update,
+// which apply the manifest and so refuse one the panel can't apply. An
+// uninstall, or the plugin list, still works whatever the manifest says.
+func fetchInstallManifest(ctx context.Context, id string) (*Manifest, error) {
+	manifest, err := fetchPluginManifest(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := manifest.validate(); err != nil {
+		return nil, fmt.Errorf("manifest of %s: %w", id, err)
+	}
+	return manifest, nil
 }
 
 // fetchPluginSettings fetches a plugin's settings schema, at the filename the
@@ -1189,4 +1239,108 @@ func parseRestartInterval(value string) (string, error) {
 		return "", fmt.Errorf("%q must be more than zero, leave the field out for no restart", value)
 	}
 	return value, nil
+}
+
+// UnmarshalJSON accepts a string or a list of strings.
+func (a *Addresses) UnmarshalJSON(data []byte) error {
+	var one string
+	if err := json.Unmarshal(data, &one); err == nil {
+		if strings.TrimSpace(one) == "" {
+			*a = nil // the same as leaving the field out
+			return nil
+		}
+		*a = splitAddresses([]string{one})
+		return nil
+	}
+
+	var many []string
+	if err := json.Unmarshal(data, &many); err != nil {
+		return errors.New("must be an address string or a list of address strings")
+	}
+	*a = splitAddresses(many)
+	return nil
+}
+
+// splitAddresses flattens comma-separated entries and trims each address. A
+// blank one is kept so that validation can name it.
+func splitAddresses(entries []string) Addresses {
+	var addresses Addresses
+	for _, entry := range entries {
+		for _, address := range strings.Split(entry, ",") {
+			addresses = append(addresses, strings.TrimSpace(address))
+		}
+	}
+	return addresses
+}
+
+// Primary is the container's own address, with its prefix length.
+func (a Addresses) Primary() string {
+	if len(a) == 0 {
+		return ""
+	}
+	return a[0]
+}
+
+// RouterOS renders the list as /interface/veth takes it.
+func (a Addresses) RouterOS() string {
+	return strings.Join(a, ",")
+}
+
+// validate checks what a manifest says about the router: the veth's addresses
+// and the RouterOS floor. It runs as the manifest is fetched, so a bad one is
+// refused before anything is built from it.
+func (m *Manifest) validate() error {
+	if err := validateVethAddresses(m.Container.Interface.Address); err != nil {
+		return fmt.Errorf("container.interface.address: %w", err)
+	}
+	if m.MinRouterOS != "" {
+		if _, err := routeros.ParseVersion(m.MinRouterOS); err != nil {
+			return fmt.Errorf("minRouterOS: %w", err)
+		}
+	}
+	return nil
+}
+
+// validateVethAddresses checks that each address is an IP with its prefix
+// length, which RouterOS insists on, and that none is listed twice.
+func validateVethAddresses(addresses Addresses) error {
+	seen := make(map[netip.Addr]bool, len(addresses))
+	for _, address := range addresses {
+		if address == "" {
+			return errors.New("the list has an empty entry, a stray comma perhaps")
+		}
+		prefix, err := netip.ParsePrefix(address)
+		if err != nil {
+			return fmt.Errorf("%q is not an address with its prefix length, such as 192.168.50.16/24", address)
+		}
+		if seen[prefix.Addr()] {
+			return fmt.Errorf("%s is listed twice", prefix.Addr())
+		}
+		seen[prefix.Addr()] = true
+		if err := validateExitClassAddress(prefix); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// checkMinRouterOS refuses a router older than the manifest's minRouterOS. A
+// version it can't read is refused too: letting it through would hand the plugin
+// to a router it may not work on.
+func checkMinRouterOS(minVersion, routerVersion string) error {
+	if minVersion == "" {
+		return nil
+	}
+	need, err := routeros.ParseVersion(minVersion)
+	if err != nil {
+		return fmt.Errorf("minRouterOS: %w", err)
+	}
+	have, err := routeros.ParseVersion(routerVersion)
+	if err != nil {
+		return fmt.Errorf("can't tell which RouterOS the router runs: %w", err)
+	}
+	if have.Compare(need) < 0 {
+		return fmt.Errorf("this plugin needs RouterOS %s or newer and the router runs %s: update RouterOS, then install it again", need, have)
+	}
+	return nil
 }

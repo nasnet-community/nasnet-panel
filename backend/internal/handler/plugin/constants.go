@@ -116,6 +116,8 @@ const (
 	pluginLifecycleOpInstall   pluginLifecycleOp = "installed"
 	pluginLifecycleOpUpdate    pluginLifecycleOp = "updated"
 	pluginLifecycleOpUninstall pluginLifecycleOp = "uninstalled"
+	// Held by the wizard while it runs the plugin's post-wizard script.
+	pluginLifecycleOpPostWizard pluginLifecycleOp = "restored after the wizard"
 )
 
 var pluginLifecycles = &pluginLifecycle{busy: make(map[string]pluginLifecycleOp)}
