@@ -226,6 +226,11 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 			resources.Architecture, strings.Join(manifest.Architectures, ", ")))
 		return
 	}
+	if err := checkMinRouterOS(manifest.MinRouterOS, resources.Version); err != nil {
+		task.set(pluginInstallPhaseError, err.Error())
+		log.Printf("[plugin-install %s] %v", pluginID, err)
+		return
+	}
 
 	// Checked before anything is created on the router, so a bad manifest leaves nothing behind.
 	containerOpts, err := parseContainerOptions(manifest.Container)
@@ -259,6 +264,18 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		}
 	}
 
+	// The wizard runs it later with no registry to ask, so a copy is kept on the router.
+	postWizardScript := ""
+	if manifest.Scripts.PostWizard != "" {
+		script, err := fetchPluginScript(ctx, pluginID, manifest.Scripts.PostWizard)
+		if err != nil {
+			task.set(pluginInstallPhaseError, "failed to fetch post-wizard script: "+err.Error())
+			log.Printf("[plugin-install %s] failed to fetch post-wizard script: %v", pluginID, err)
+			return
+		}
+		postWizardScript = resolveSettingsPlaceholders(script, settingsValues)
+	}
+
 	task.set(pluginInstallPhaseCreatingInterface, "creating veth interface "+iface.Name)
 	if _, err := client.GetInterface(iface.Name); err != nil {
 		if _, err := client.AddVethInterface(routeros.VethConfig{
@@ -282,6 +299,24 @@ func installPluginAsync(client *routeros.Client, task *pluginInstallTask) {
 		if err := client.AddBridgeMember(pluginContainersBridge, iface.Name, pluginID); err != nil {
 			task.set(pluginInstallPhaseError, "failed to add veth interface to "+pluginContainersBridge+" bridge: "+err.Error())
 			log.Printf("[plugin-install %s] failed to add veth interface to bridge: %v", pluginID, err)
+			return
+		}
+	}
+
+	// Before anything can run from the veth, so its first packet already meets
+	// its class's rule. The pre-install script comes after, and sees them.
+	if iface.Address.usesExitClasses() {
+		task.set(pluginInstallPhaseCreatingInterface, "setting up the containers' exit classes")
+		if err := ensureExitClasses(client); err != nil {
+			task.set(pluginInstallPhaseError, "failed to set up the containers' exit classes: "+err.Error())
+			log.Printf("[plugin-install %s] failed to set up the exit classes: %v", pluginID, err)
+			return
+		}
+	}
+	if postWizardScript != "" {
+		if err := savePluginPostWizard(client, pluginID, postWizardScript); err != nil {
+			task.set(pluginInstallPhaseError, "failed to keep the post-wizard script on the router: "+err.Error())
+			log.Printf("[plugin-install %s] failed to save the post-wizard script: %v", pluginID, err)
 			return
 		}
 	}
@@ -1271,6 +1306,30 @@ func validateVethAddresses(addresses Addresses) error {
 			return fmt.Errorf("%s is listed twice", prefix.Addr())
 		}
 		seen[prefix.Addr()] = true
+		if err := validateExitClassAddress(prefix); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// checkMinRouterOS refuses a router older than the manifest's minRouterOS. A
+// version it can't read is refused too: letting it through would hand the plugin
+// to a router it may not work on.
+func checkMinRouterOS(minVersion, routerVersion string) error {
+	if minVersion == "" {
+		return nil
+	}
+	need, err := routeros.ParseVersion(minVersion)
+	if err != nil {
+		return fmt.Errorf("minRouterOS: %w", err)
+	}
+	have, err := routeros.ParseVersion(routerVersion)
+	if err != nil {
+		return fmt.Errorf("can't tell which RouterOS the router runs: %w", err)
+	}
+	if have.Compare(need) < 0 {
+		return fmt.Errorf("this plugin needs RouterOS %s or newer and the router runs %s: update RouterOS, then install it again", need, have)
 	}
 	return nil
 }

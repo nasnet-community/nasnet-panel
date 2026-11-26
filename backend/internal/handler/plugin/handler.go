@@ -298,8 +298,10 @@ func HandleViewPlugin(c echo.Context) error {
 // @Summary Install a plugin
 // @Description Starts an async install of a plugin from the community registry:
 // @Description creates the veth interface its manifest specifies (if not already
-// @Description present), creates its mounts, and adds its container, then waits for
-// @Description the image to finish pulling. Poll GET /api/plugin/install/status/{pluginId} for
+// @Description present) with every address it lists, puts the containers' exit classes on the
+// @Description router when one of them is in 192.168.150.0/24, creates its mounts, and adds its
+// @Description container, then waits for the image to finish pulling. A router older than the
+// @Description manifest's minRouterOS is refused. Poll GET /api/plugin/install/status/{pluginId} for
 // @Description progress. At most one install per plugin id may run at a time;
 // @Description different plugins may install concurrently.
 // @Tags Plugin
@@ -517,8 +519,8 @@ func HandleGetPluginUpdateStatus(c echo.Context) error {
 // HandleUninstallPlugin godoc
 // @Summary Uninstall a plugin
 // @Description Removes an installed plugin: runs the preUninstall script from its
-// @Description manifest (if it names one), stops and removes its container, then
-// @Description removes the mount lists and veth interface the manifest declares, and
+// @Description manifest (if it names one), stops and removes its container, removes the
+// @Description post-wizard script the panel kept for it, then removes the mount lists and veth interface the manifest declares, and
 // @Description deletes the plugin's volume directory (nasnet-panel/container-volumes/<pluginId>).
 // @Description A manifest that sets keepDataOnUninstall keeps that directory unless
 // @Description keepData=false is passed, and keepData=true keeps it for any plugin;
@@ -627,6 +629,12 @@ func uninstallPlugin(c echo.Context, client *routeros.Client, name string, keepD
 
 	if err := client.RemoveContainer(name); err != nil {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to remove plugin container", err)
+	}
+
+	// The exit classes are the router's, for every container, so they stay.
+	if err := removePluginState(client, name); err != nil {
+		warnings = append(warnings, "failed to remove the plugin's saved post-wizard script: "+err.Error())
+		log.Printf("[plugin-uninstall %s] failed to remove its saved state: %v", name, err)
 	}
 
 	removedLists := make([]string, 0, len(manifest.Container.Mounts))

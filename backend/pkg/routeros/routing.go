@@ -124,18 +124,25 @@ func parseRoutingTableInfo(result map[string]string) RoutingTableInfo {
 type RoutingRuleConfig struct {
 	Action      string
 	SrcAddress  string
+	DstAddress  string
 	RoutingMark string
-	Table       string
+	Table       string // left out when empty, as a drop has none
 	Disabled    bool
 	Comment     string
 }
 
 // AddRoutingRule creates a /routing/rule entry and returns its .id.
 func (c *Client) AddRoutingRule(config RoutingRuleConfig) (string, error) {
-	args := []string{"=action=" + config.Action, "=table=" + config.Table}
+	args := []string{"=action=" + config.Action}
 
+	if config.Table != "" {
+		args = append(args, "=table="+config.Table)
+	}
 	if config.SrcAddress != "" {
 		args = append(args, "=src-address="+config.SrcAddress)
+	}
+	if config.DstAddress != "" {
+		args = append(args, "=dst-address="+config.DstAddress)
 	}
 	if config.RoutingMark != "" {
 		args = append(args, "=routing-mark="+config.RoutingMark)
@@ -153,6 +160,49 @@ func (c *Client) AddRoutingRule(config RoutingRuleConfig) (string, error) {
 	}
 
 	return id, nil
+}
+
+// RoutingRuleInfo is a /routing/rule entry as the router reports it.
+type RoutingRuleInfo struct {
+	ID          string
+	Action      string
+	SrcAddress  string
+	DstAddress  string
+	RoutingMark string
+	Table       string
+	Disabled    bool
+	Comment     string
+}
+
+// ListRoutingRules returns the routing rules in the order the router tries them.
+func (c *Client) ListRoutingRules() ([]RoutingRuleInfo, error) {
+	results, err := c.GetAll("/routing/rule")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list routing rules: %w", err)
+	}
+
+	rules := make([]RoutingRuleInfo, 0, len(results))
+	for _, result := range results {
+		rules = append(rules, RoutingRuleInfo{
+			ID:          result[".id"],
+			Action:      result["action"],
+			SrcAddress:  result["src-address"],
+			DstAddress:  result["dst-address"],
+			RoutingMark: result["routing-mark"],
+			Table:       result["table"],
+			Disabled:    result["disabled"] == "true",
+			Comment:     result["comment"],
+		})
+	}
+	return rules, nil
+}
+
+// RemoveRoutingRule deletes a routing rule by its .id.
+func (c *Client) RemoveRoutingRule(id string) error {
+	if _, err := c.Remove("/routing/rule", "=.id="+id); err != nil {
+		return fmt.Errorf("failed to remove routing rule: %w", err)
+	}
+	return nil
 }
 
 // RoutingTableExists reports whether a routing table with the given name exists.
