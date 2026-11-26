@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   version:
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     permissions:
       contents: write
     outputs:

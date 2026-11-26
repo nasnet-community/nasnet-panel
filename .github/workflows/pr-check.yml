@@ -16,7 +16,7 @@ concurrency:
 jobs:
   up-to-date:
     name: Up-to-date with ${{ github.base_ref }}
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 1
     steps:
       - name: Compare PR head to ${{ github.base_ref }}
@@ -32,7 +32,7 @@ jobs:
 
   changes:
     name: Detect changed areas
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 2
     outputs:
       frontend: ${{ steps.areas.outputs.frontend }}
@@ -69,7 +69,7 @@ jobs:
 
   frontend:
     name: Frontend (format · typecheck · build)
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 10
     needs: [up-to-date, changes]
     if: needs.changes.outputs.frontend == 'true'
@@ -91,7 +91,7 @@ jobs:
 
   eslint:
     name: ESLint
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 5
     needs: [up-to-date, changes]
     if: needs.changes.outputs.frontend == 'true'
@@ -107,7 +107,7 @@ jobs:
 
   backend:
     name: Backend (fmt · vet · lint · build · test)
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 10
     needs: [up-to-date, changes]
     if: needs.changes.outputs.backend == 'true'
@@ -148,7 +148,7 @@ jobs:
 
   nilaway:
     name: Nilaway
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 10
     needs: [up-to-date, changes]
     if: needs.changes.outputs.backend == 'true'
@@ -170,7 +170,7 @@ jobs:
 
   installer:
     name: Installer (fmt · vet · build)
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 10
     needs: [up-to-date, changes]
     if: needs.changes.outputs.installer == 'true'
@@ -199,7 +199,7 @@ jobs:
 
   e2e:
     name: E2E (Playwright) shard ${{ matrix.shard }}/3
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     timeout-minutes: 20
     needs: [up-to-date, changes]
     if: needs.changes.outputs.frontend == 'true'
@@ -214,9 +214,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Cache Playwright browsers
+      # Restore only: Depot Cache is shared across PRs, so only the
+      # warm-cache workflow (pushes to dev) saves these entries.
+      - name: Restore Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v5
+        uses: actions/cache/restore@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ hashFiles('package-lock.json') }}
@@ -242,7 +244,7 @@ jobs:
 
   status:
     name: PR Status
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     needs: [up-to-date, changes, frontend, eslint, backend, nilaway, installer, e2e]
     if: always()
     steps:
