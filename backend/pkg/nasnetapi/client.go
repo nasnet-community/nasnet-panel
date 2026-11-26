@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+var errEmptyResponse = errors.New("nasnet api: empty response")
+
 const (
 	// DefaultBaseURL is the production API address.
 	DefaultBaseURL = "https://api.joinnasnet.com"
@@ -356,6 +358,9 @@ func (c *Client) getJSON(ctx context.Context, path string, query url.Values, sig
 	if err != nil {
 		return fmt.Errorf("nasnet api: request failed: %w", err)
 	}
+	if resp == nil {
+		return errEmptyResponse
+	}
 	defer func() { _ = resp.Body.Close() }()
 
 	body, err := readBody(resp)
@@ -376,6 +381,9 @@ func (c *Client) send(req *http.Request, out any) error {
 	resp, err := c.httpClient.Do(req) //nolint:gosec // base URL is client configuration, not request input
 	if err != nil {
 		return fmt.Errorf("nasnet api: request failed: %w", err)
+	}
+	if resp == nil {
+		return errEmptyResponse
 	}
 	defer func() { _ = resp.Body.Close() }()
 
@@ -400,6 +408,9 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 	resp, err := c.httpClient.Do(req) //nolint:gosec // base URL is client configuration, not request input
 	if err != nil {
 		return nil, fmt.Errorf("nasnet api: request failed: %w", err)
+	}
+	if resp == nil {
+		return nil, errEmptyResponse
 	}
 	return resp, nil
 }
