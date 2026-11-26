@@ -214,9 +214,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Cache Playwright browsers
+      # Restore only: Depot Cache is shared across PRs, so only the
+      # warm-cache workflow (pushes to dev) saves these entries.
+      - name: Restore Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v5
+        uses: actions/cache/restore@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ hashFiles('package-lock.json') }}

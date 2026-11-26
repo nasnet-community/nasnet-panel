@@ -1,0 +1,53 @@
+name: Warm cache
+
+# Depot Cache is shared across branches and PRs, so PR Check only restores
+# caches. This workflow runs on trusted pushes to dev and saves the
+# node_modules and Playwright browser caches that PR Check restores.
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - package-lock.json
+      - .github/actions/setup-node-workspace/**
+      - .github/workflows/warm-cache.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: warm-cache
+  cancel-in-progress: true
+
+jobs:
+  warm:
+    name: Warm node_modules and Playwright caches
+    runs-on: depot-ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-node-workspace
+        with:
+          node-version: '20'
+          save-cache: 'true'
+
+      - name: Restore Playwright browsers
+        id: playwright-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+
+      - name: Save Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.playwright-cache.outputs.cache-primary-key }}

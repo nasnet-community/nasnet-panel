@@ -10,6 +10,12 @@ inputs:
     description: Command used to install dependencies on cache miss
     required: false
     default: npm ci --no-audit --no-fund
+  save-cache:
+    description: >-
+      Save node_modules to the cache on a miss. Only trusted runs (pushes to
+      dev) may save, because Depot Cache is shared across branches and PRs.
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -19,7 +25,7 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: npm
 
-    - uses: actions/cache@v5
+    - uses: actions/cache/restore@v5
       id: npm-cache
       with:
         path: node_modules
@@ -29,3 +35,10 @@ runs:
       if: steps.npm-cache.outputs.cache-hit != 'true'
       shell: bash
       run: ${{ inputs.install-command }}
+
+    - name: Save node_modules cache
+      if: inputs.save-cache == 'true' && steps.npm-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v5
+      with:
+        path: node_modules
+        key: ${{ steps.npm-cache.outputs.cache-primary-key }}
