@@ -21,6 +21,8 @@ export interface PluginInfoResponse {
   installedVersion?: string;
   updateAvailable: boolean;
   note?: string;
+  // Set for installed plugins whose manifest keeps their data on uninstall.
+  keepDataOnUninstall?: boolean;
 }
 
 export interface GetPluginsResponse {
@@ -169,12 +171,19 @@ export async function fetchPluginUpdateStatus(
   );
 }
 
+// keepData is left out unless the user got a choice, so the backend's default
+// for the plugin applies.
 export async function uninstallPlugin(
   creds: PluginCredentials,
   name: string,
+  keepData?: boolean,
 ): Promise<UninstallPluginResponse> {
-  return apiRequest<UninstallPluginResponse>(`/api/plugin/plugin/${encodeURIComponent(name)}`, {
-    method: 'DELETE',
-    auth: creds,
-  });
+  const query = keepData === undefined ? '' : `?keepData=${keepData}`;
+  return apiRequest<UninstallPluginResponse>(
+    `/api/plugin/plugin/${encodeURIComponent(name)}${query}`,
+    {
+      method: 'DELETE',
+      auth: creds,
+    },
+  );
 }

@@ -3,18 +3,22 @@ package plugin
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"nasnet-panel/internal/buildinfo"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
+
+	"github.com/labstack/echo/v4"
 )
 
 // cachePluginRegistry stores registry as the shared plugin registry cache.
@@ -955,4 +959,69 @@ func supportsArchitecture(manifestArchitectures []string, routerArch string) boo
 		}
 	}
 	return false
+}
+
+// pluginKeepData caches each plugin's manifest keepDataOnUninstall flag, keyed
+// by plugin id and registry version, so the plugin list (polled every few
+// seconds) only fetches a manifest again after the plugin has been updated.
+var (
+	pluginKeepData   = map[string]bool{}
+	pluginKeepDataMu sync.Mutex
+)
+
+// fillKeepDataOnUninstall sets KeepDataOnUninstall on every installed plugin
+// from its manifest, which the registry entry doesn't carry. A manifest that
+// can't be fetched leaves the flag as is and is tried again on the next list.
+func fillKeepDataOnUninstall(ctx context.Context, plugins []Info) {
+	for i := range plugins {
+		if !plugins[i].Installed {
+			continue
+		}
+
+		key := plugins[i].ID + "@" + plugins[i].Version
+		pluginKeepDataMu.Lock()
+		keep, cached := pluginKeepData[key]
+		pluginKeepDataMu.Unlock()
+
+		if !cached {
+			manifest, err := fetchPluginManifest(ctx, plugins[i].ID)
+			if err != nil {
+				log.Printf("[plugin-list %s] failed to fetch manifest for keepDataOnUninstall: %v", plugins[i].ID, err)
+				continue
+			}
+			keep = manifest.KeepDataOnUninstall
+
+			pluginKeepDataMu.Lock()
+			pluginKeepData[key] = keep
+			pluginKeepDataMu.Unlock()
+		}
+		plugins[i].KeepDataOnUninstall = keep
+	}
+}
+
+// keepDataParam reads the optional keepData query parameter: nil when it's
+// absent, its value otherwise. Anything but true or false is an error, so a
+// typo can't end up deleting data.
+func keepDataParam(c echo.Context) (*bool, error) {
+	var keep bool
+	switch c.QueryParam("keepData") {
+	case "":
+		return nil, nil
+	case "true":
+		keep = true
+	case "false":
+	default:
+		return nil, errors.New("keepData must be true or false")
+	}
+	return &keep, nil
+}
+
+// keepPluginData reports whether uninstalling leaves the plugin's data folder in
+// place. A keepData from the request wins; without one the manifest decides, so
+// a plugin that asks to keep its data is safe from a client that never sends it.
+func keepPluginData(manifest *Manifest, keepData *bool) bool {
+	if keepData != nil {
+		return *keepData
+	}
+	return manifest.KeepDataOnUninstall
 }
