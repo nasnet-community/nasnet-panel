@@ -12,6 +12,7 @@ import (
 	"nasnet-panel/internal/dbsync"
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/dns"
+	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/pkg/routeros"
 
 	"github.com/jmoiron/sqlx"
@@ -37,6 +38,7 @@ func saveWizardConfigWhenDone(client *routeros.Client, data *WizardSaveData) {
 			return
 		}
 		if exists, err := client.FileExists(wizardSuccessFile); err == nil && exists {
+			plugin.RunPostWizard(client)
 			saveWizardConfig(ctx, client, data)
 			return
 		}

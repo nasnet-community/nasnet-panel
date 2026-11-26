@@ -11,6 +11,7 @@ import (
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/firewall"
 	"nasnet-panel/internal/handler/iface"
+	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/internal/tools"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
@@ -353,6 +354,9 @@ func HandleFinalizeWizard(c echo.Context) error {
 	if req.OvpnServer != nil {
 		templateData["OvpnServer"] = req.OvpnServer
 	}
+
+	// The wizard removes every routing rule, the containers' exit classes too.
+	templateData["ContainerExitClasses"] = plugin.ExitClassesScript(domesticEnabled)
 
 	rendered, err := utils.RenderTemplate("base_config.tmpl", escapeWizardTemplateData(templateData))
 	if err != nil {

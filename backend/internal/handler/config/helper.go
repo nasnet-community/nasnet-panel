@@ -18,6 +18,7 @@ import (
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/firewall"
 	"nasnet-panel/internal/handler/iface"
+	"nasnet-panel/internal/handler/plugin"
 	"nasnet-panel/internal/handler/vpn"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/sftp"
@@ -211,6 +212,9 @@ func buildReconfigPlan(client *routeros.Client, creds *auth.Credentials, stored 
 	}
 	templateData["DomesticInterface"] = reconfigInterface(domestic, stored.WiFis)
 
+	// the base configuration removes every routing rule, the containers' exit classes too
+	templateData["ContainerExitClasses"] = plugin.ExitClassesScript(domesticEnabled)
+
 	plan.templateData = templateData
 	return plan, nil
 }
@@ -363,6 +367,7 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 	stored := plan.stored
 	linkGateway := foreignLinkGateway(stored.WANs)
 	return []reconfigExtra{
+		{"Running the plugins' post-wizard scripts", func() []error { plugin.RunPostWizard(client); return nil }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
 		{"Restoring the wizard VPN clients", func() []error { return restoreWizardClients(client, stored, linkGateway) }},
 		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
