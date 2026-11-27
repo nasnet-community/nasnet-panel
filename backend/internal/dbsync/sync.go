@@ -9,6 +9,7 @@ import (
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/failover"
 	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/utils"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -27,6 +28,7 @@ func syncExistingConfig(ctx context.Context, client *routeros.Client, conn *sqlx
 		{"SSTP and L2TP servers", syncExistingVPNServers},
 		{"DNS servers", syncExistingDNSServers},
 		{"static DNS entries", syncExistingStaticDNS},
+		{"domestic addresses", syncExistingDomesticAddresses},
 		{"settings", syncExistingSettings},
 	}
 	for _, step := range steps {
@@ -157,6 +159,23 @@ func syncExistingStaticDNS(ctx context.Context, client *routeros.Client, conn *s
 	var errs []error
 	for i := range entries {
 		errs = append(errs, db.UpsertDNSStaticEntry(ctx, conn, DNSStaticEntryRecord(&entries[i])))
+	}
+
+	return errors.Join(errs...)
+}
+
+func syncExistingDomesticAddresses(ctx context.Context, client *routeros.Client, conn *sqlx.DB) error {
+	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{
+		ListName: DomesticAddressList,
+		Comment:  DomesticUserEntryComment,
+	})
+	if err != nil {
+		return err
+	}
+
+	var errs []error
+	for i := range items {
+		errs = append(errs, db.AddDomesticAddress(ctx, conn, items[i].Address, utils.RouterOSTimeSeconds(items[i].Timeout)))
 	}
 
 	return errors.Join(errs...)

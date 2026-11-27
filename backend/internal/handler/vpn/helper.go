@@ -5,8 +5,10 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"net"
+	"net/http"
 	"slices"
 	"strconv"
 	"strings"
@@ -15,6 +17,7 @@ import (
 
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/failover"
+	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/nasnetapi"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
@@ -1225,6 +1228,86 @@ func FetchAccount(ctx context.Context, userID string) (*nasnetapi.VPNAccount, er
 	defer cancel()
 
 	return nasnetapi.New(userID).VPN(ctx)
+}
+
+// StartClaimRetry starts a goroutine for the router that tries to claim the router's VPN account from the
+// NasNet API and apply it 20 seconds after it starts and then every two minutes, until no client that uses
+// the shared fallback account is left. It does nothing when one is already running for that router.
+func StartClaimRetry(client *routeros.Client) {
+	host := client.Host()
+	if _, running := claimRetries.LoadOrStore(host, struct{}{}); running {
+		return
+	}
+
+	go func() {
+		defer claimRetries.Delete(host)
+
+		timer := time.NewTimer(claimRetryFirstDelay)
+		defer timer.Stop()
+
+		for range timer.C {
+			if retryClaim(host, client) {
+				return
+			}
+			timer.Reset(claimRetryInterval)
+		}
+	}()
+}
+
+func retryClaim(host string, client *routeros.Client) (done bool) {
+	usesFallback, err := routerUsesFallback(client)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to read the VPN clients: %v", host, err)
+		return false
+	}
+	if !usesFallback {
+		return true
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), claimRetryAttemptTimeout)
+	defer cancel()
+
+	userID, err := common.RouterUserID(client)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to generate the user ID: %v", host, err)
+		return false
+	}
+	account, err := FetchAccount(ctx, userID)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to retrieve the VPN credentials: %v", host, err)
+		return false
+	}
+
+	changes, err := applyClaim(backgroundContext(ctx), client, account)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to apply the claimed VPN: %v", host, err)
+		return false
+	}
+	log.Printf("[claim-retry] %s: claimed the VPN account, %d changes", host, len(changes))
+
+	return false
+}
+
+func routerUsesFallback(client *routeros.Client) (bool, error) {
+	vpnClients, err := client.ListVPNClients()
+	if err != nil {
+		return false, err
+	}
+	for i := range vpnClients {
+		if vpnClients[i].Type != routeros.VPNTypeL2TPOut {
+			continue
+		}
+		info, err := client.GetL2TPClientInfo(vpnClients[i].Name)
+		if err == nil && failover.UsesFallback(info.User, info.Password) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func backgroundContext(ctx context.Context) echo.Context {
+	request := (&http.Request{Method: http.MethodPost}).WithContext(ctx)
+	return echo.New().NewContext(request, &discardResponseWriter{})
 }
 
 func addL2TPInterface(c echo.Context, client *routeros.Client, cfg routeros.AddL2TPClientConfig) error {

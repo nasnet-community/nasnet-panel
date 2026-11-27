@@ -798,6 +798,28 @@ func (c *Client) AddFirewallAddressListItem(listName, address string, disabled b
 	return id, nil
 }
 
+// AddFirewallAddressListItemWithTimeout adds an item that RouterOS removes itself once timeout has passed. A
+// timeout of "" adds an item that never expires.
+func (c *Client) AddFirewallAddressListItemWithTimeout(listName, address, comment, timeout string) (string, error) {
+	args := []string{
+		"=list=" + listName,
+		"=address=" + address,
+	}
+	if comment != "" {
+		args = append(args, "=comment="+comment)
+	}
+	if timeout != "" {
+		args = append(args, "=timeout="+timeout)
+	}
+
+	id, err := c.Add("/ip/firewall/address-list", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add firewall address list item: %w", err)
+	}
+
+	return id, nil
+}
+
 // RemoveFirewallAddressListItem removes an item from a firewall address list by ID.
 func (c *Client) RemoveFirewallAddressListItem(id string) error {
 	_, err := c.Remove("/ip/firewall/address-list", "=.id="+id)

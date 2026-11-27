@@ -27,6 +27,14 @@ const (
 // vpnAccountTimeout bounds the call to the NasNet API for the router's VPN account.
 const vpnAccountTimeout = 30 * time.Second
 
+const (
+	claimRetryFirstDelay     = 20 * time.Second
+	claimRetryInterval       = 2 * time.Minute
+	claimRetryAttemptTimeout = 90 * time.Second
+)
+
+var claimRetries sync.Map
+
 const failoverEnrollFailedMessage = "The VPN client was added, but its failover setup (routes, pinned LAN segment) failed: %v"
 
 const fallbackAccountWarning = "This VPN client uses the shared fallback account because NasNet could not provide your own. Replace its credentials immediately."

@@ -205,6 +205,25 @@ func RouterOSDurationSeconds(routerOSTime string) int64 {
 	return int64(days)*86400 + int64(hours)*3600 + int64(minutes)*60 + int64(seconds)
 }
 
+// RouterOSTimeSeconds converts a RouterOS time, either a duration such as "1d12h30m" or a clock
+// value such as "00:10:00", to its length in whole seconds. An empty or unparsable value returns 0.
+func RouterOSTimeSeconds(routerOSTime string) int64 {
+	routerOSTime = strings.TrimSpace(routerOSTime)
+	if !strings.Contains(routerOSTime, ":") {
+		return RouterOSDurationSeconds(routerOSTime)
+	}
+
+	var total int64
+	for _, part := range strings.Split(routerOSTime, ":") {
+		value, err := strconv.ParseInt(part, 10, 64)
+		if err != nil {
+			return 0
+		}
+		total = total*60 + value
+	}
+	return total
+}
+
 // StripPingTimeMicroseconds drops a trailing "<digits>us" component from a
 // RouterOS ping duration (e.g. "53ms945us" -> "53ms"), since sub-millisecond
 // precision isn't useful in the API response.

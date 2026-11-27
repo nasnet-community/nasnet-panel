@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 
@@ -20,12 +22,16 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+const expiryCleanupTimeout = 10 * time.Second
+
 // Registry opens one SQLite database per router, each in its own file named
 // after the router's system ID, and keeps the opened connections.
 type Registry struct {
-	dir   string
-	mu    sync.Mutex
-	conns map[string]*sqlx.DB
+	dir      string
+	mu       sync.Mutex
+	conns    map[string]*sqlx.DB
+	stop     chan struct{}
+	stopOnce sync.Once
 }
 
 //go:embed migrations/*.sql
@@ -36,7 +42,7 @@ func NewRegistry(dir string) (*Registry, error) {
 	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, fmt.Errorf("failed to create database directory %s: %w", dir, err)
 	}
-	return &Registry{dir: dir, conns: make(map[string]*sqlx.DB)}, nil
+	return &Registry{dir: dir, conns: make(map[string]*sqlx.DB), stop: make(chan struct{})}, nil
 }
 
 // ForRouter returns the database of the router with the given system ID,
@@ -51,7 +57,10 @@ func (r *Registry) ForRouter(ctx context.Context, systemID string) (*sqlx.DB, er
 	defer r.mu.Unlock()
 
 	if conn, ok := r.conns[name]; ok {
-		return conn, nil
+		if !r.fileMissing(name) {
+			return conn, nil
+		}
+		r.discard(name, conn)
 	}
 
 	conn, err := Open(ctx, r.dir, name)
@@ -59,12 +68,93 @@ func (r *Registry) ForRouter(ctx context.Context, systemID string) (*sqlx.DB, er
 		return nil, err
 	}
 	r.conns[name] = conn
+	if _, err := DeleteExpiredDomesticAddresses(ctx, conn); err != nil {
+		log.Printf("Failed to remove the expired domestic addresses of database %s: %v", name, err)
+	}
 
 	return conn, nil
 }
 
+func (r *Registry) fileMissing(name string) bool {
+	_, err := os.Stat(filepath.Join(r.dir, name+".db"))
+	return errors.Is(err, os.ErrNotExist)
+}
+
+func (r *Registry) discard(name string, conn *sqlx.DB) {
+	if err := conn.Close(); err != nil {
+		log.Printf("Failed to close the deleted database %s: %v", name, err)
+	}
+	delete(r.conns, name)
+	for _, suffix := range []string{".db-wal", ".db-shm"} {
+		if err := os.Remove(filepath.Join(r.dir, name+suffix)); err != nil && !errors.Is(err, os.ErrNotExist) {
+			log.Printf("Failed to delete %s: %v", name+suffix, err)
+		}
+	}
+}
+
+// StartExpiryCleanup starts a goroutine that, every interval, deletes the expired domestic
+// addresses from every database the registry has open. Close stops it.
+func (r *Registry) StartExpiryCleanup(interval time.Duration) {
+	go func() {
+		ticker := time.NewTicker(interval)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-r.stop:
+				return
+			case <-ticker.C:
+				r.deleteExpired()
+			}
+		}
+	}()
+}
+
+func (r *Registry) deleteExpired() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	ctx, cancel := context.WithTimeout(context.Background(), expiryCleanupTimeout)
+	defer cancel()
+
+	for name, conn := range r.conns {
+		if _, err := DeleteExpiredDomesticAddresses(ctx, conn); err != nil {
+			log.Printf("Failed to remove the expired domestic addresses of database %s: %v", name, err)
+		}
+	}
+}
+
+// Reset closes the database of the router with the given system ID and deletes its files, so the
+// next ForRouter call creates and migrates an empty one.
+func (r *Registry) Reset(systemID string) error {
+	name, err := SanitizeName(systemID)
+	if err != nil {
+		return err
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	var errs []error
+	if conn, ok := r.conns[name]; ok {
+		if err := conn.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("failed to close database %s: %w", name, err))
+		}
+		delete(r.conns, name)
+	}
+	for _, suffix := range []string{".db", ".db-wal", ".db-shm"} {
+		if err := os.Remove(filepath.Join(r.dir, name+suffix)); err != nil && !errors.Is(err, os.ErrNotExist) {
+			errs = append(errs, fmt.Errorf("failed to delete %s: %w", name+suffix, err))
+		}
+	}
+
+	return errors.Join(errs...)
+}
+
 // Close closes every database the registry has opened.
 func (r *Registry) Close() error {
+	r.stopOnce.Do(func() { close(r.stop) })
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

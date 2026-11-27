@@ -100,6 +100,45 @@ func Enroll(client *routeros.Client, interfaceName string) error {
 	return nil
 }
 
+// SegmentBridges returns the names of the bridges that already exist on the router.
+func SegmentBridges(client *routeros.Client) (map[string]bool, error) {
+	bridges, err := client.ListBridges()
+	if err != nil {
+		return nil, err
+	}
+	names := make(map[string]bool, len(bridges))
+	for i := range bridges {
+		names[bridges[i].Name] = true
+	}
+	return names, nil
+}
+
+// EnsureSegment gives a failover VPN client its pinned LAN segment when the router has none
+// for it, using the probe address its failover routes already use. A client whose segment
+// exists is left as it is. The existing map is the result of SegmentBridges and is updated.
+func EnsureSegment(client *routeros.Client, existing map[string]bool, interfaceName, probe string) error {
+	if !clientNamePattern.MatchString(interfaceName) {
+		return ErrInvalidClientName
+	}
+	if existing[segmentBridgePrefix+interfaceName] {
+		return nil
+	}
+
+	index, err := freeSegmentIndex(client)
+	if err != nil {
+		return err
+	}
+	script, err := renderSegment(newSegment(interfaceName, probe, index))
+	if err == nil {
+		err = client.ExecuteScriptString(script)
+	}
+	if err != nil {
+		return fmt.Errorf("failed to create the pinned segment of %s: %w", interfaceName, err)
+	}
+	existing[segmentBridgePrefix+interfaceName] = true
+	return nil
+}
+
 // Withdraw removes everything Enroll or the wizard created for a VPN client: its failover
 // routes and its pinned LAN segment. Missing pieces are not an error.
 func Withdraw(client *routeros.Client, interfaceName string) error {

@@ -276,7 +276,8 @@ func applyDistances(client *routeros.Client, entries []Entry, planned []int) err
 
 // Restore makes the router's failover routes match the stored failover interfaces. An
 // interface that already has failover routes only gets its distance set; one that has none
-// gets them created. Problems are returned per interface and do not stop the others.
+// gets them created. Each interface also gets its pinned LAN segment when the router has none
+// for it. Problems are returned per interface and do not stop the others.
 func Restore(client *routeros.Client, rows []db.FailoverInterface) []error {
 	if len(rows) == 0 {
 		return nil
@@ -293,36 +294,46 @@ func Restore(client *routeros.Client, rows []db.FailoverInterface) []error {
 		usedProbes[entries[i].Gateway] = entries[i].Interface
 	}
 
+	segments, err := SegmentBridges(client)
+	if err != nil {
+		return []error{err}
+	}
+
 	var errs []error
 	for i := range rows {
 		row := &rows[i]
+		probe := row.ProbeIP
 		if entry, ok := byInterface[row.Interface]; ok {
+			probe = entry.Gateway
 			if entry.Distance != row.Distance {
 				if err := setDistance(client, entry, row.Distance); err != nil {
 					errs = append(errs, fmt.Errorf("failover interface %s: %w", row.Interface, err))
 				}
 			}
-			continue
+		} else {
+			if owner, taken := usedProbes[row.ProbeIP]; taken {
+				errs = append(errs, fmt.Errorf("failover interface %s: probe address %s already belongs to %s", row.Interface, row.ProbeIP, owner))
+				continue
+			}
+			if _, err := client.GetVPNClient(row.Interface); err != nil {
+				errs = append(errs, fmt.Errorf("failover interface %s: the VPN client does not exist: %w", row.Interface, err))
+				continue
+			}
+
+			label := standbyLabel
+			if i < len(roleLabels) {
+				label = roleLabels[i]
+			}
+			if err := addRoutes(client, row.Interface, row.ProbeIP, label, row.Distance); err != nil {
+				errs = append(errs, fmt.Errorf("failover interface %s: %w", row.Interface, err))
+				continue
+			}
+			usedProbes[row.ProbeIP] = row.Interface
 		}
 
-		if owner, taken := usedProbes[row.ProbeIP]; taken {
-			errs = append(errs, fmt.Errorf("failover interface %s: probe address %s already belongs to %s", row.Interface, row.ProbeIP, owner))
-			continue
-		}
-		if _, err := client.GetVPNClient(row.Interface); err != nil {
-			errs = append(errs, fmt.Errorf("failover interface %s: the VPN client does not exist: %w", row.Interface, err))
-			continue
-		}
-
-		label := standbyLabel
-		if i < len(roleLabels) {
-			label = roleLabels[i]
-		}
-		if err := addRoutes(client, row.Interface, row.ProbeIP, label, row.Distance); err != nil {
+		if err := EnsureSegment(client, segments, row.Interface, probe); err != nil {
 			errs = append(errs, fmt.Errorf("failover interface %s: %w", row.Interface, err))
-			continue
 		}
-		usedProbes[row.ProbeIP] = row.Interface
 	}
 	if err := Relabel(client); err != nil {
 		errs = append(errs, fmt.Errorf("failover route comments: %w", err))

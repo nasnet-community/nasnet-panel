@@ -297,6 +297,11 @@ func extractRetID(reply *ros.Reply) string {
 	return ""
 }
 
+// Host returns the address of the router the client is connected to.
+func (c *Client) Host() string {
+	return c.config.Address
+}
+
 // IsConnected checks if the connection reference exists (doesn't perform actual query).
 func (c *Client) IsConnected() bool {
 	if !c.mu.TryLock() {
