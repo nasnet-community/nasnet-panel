@@ -1257,6 +1257,9 @@ func runClaimRetry(endpoint string) {
 		claimRetries.Lock()
 		current := claimRetries.clients[endpoint]
 		claimRetries.Unlock()
+		if current == nil {
+			return
+		}
 
 		done := false
 		if live, err := routeros.GetOrCreateClient(current.ConnectionConfig()); err != nil {
