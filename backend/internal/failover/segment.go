@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 
 	nastemplate "nasnet-panel/internal/template"
 	"nasnet-panel/pkg/routeros"
@@ -16,6 +17,9 @@ var ErrInvalidClientName = errors.New("the VPN client name may only contain lett
 
 // ErrNoFreeSegment means every pinned segment subnet is already in use.
 var ErrNoFreeSegment = errors.New("no free failover segment subnet is left")
+
+// ErrSegmentSetupTimeout means the router did not finish creating the pinned segment in time.
+var ErrSegmentSetupTimeout = errors.New("the router did not finish creating the pinned segment in time")
 
 var clientNamePattern = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 
@@ -100,22 +104,42 @@ func Enroll(client *routeros.Client, interfaceName string) error {
 	return nil
 }
 
-// SegmentBridges returns the names of the bridges that already exist on the router.
+// SegmentBridges returns the names of the segment bridges whose segment is complete: the bridge exists
+// and so does the segment's default route, which the setup script creates near its end.
 func SegmentBridges(client *routeros.Client) (map[string]bool, error) {
 	bridges, err := client.ListBridges()
 	if err != nil {
 		return nil, err
 	}
+	routes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Dynamic: "false"})
+	if err != nil {
+		return nil, err
+	}
+
+	finished := make(map[string]bool)
+	for i := range routes {
+		name, ok := strings.CutPrefix(routes[i].Comment, segmentCommentPrefix)
+		if !ok {
+			continue
+		}
+		if name, ok = strings.CutSuffix(name, segmentDefaultRouteSuffix); ok {
+			finished[segmentBridgePrefix+name] = true
+		}
+	}
+
 	names := make(map[string]bool, len(bridges))
 	for i := range bridges {
-		names[bridges[i].Name] = true
+		if finished[bridges[i].Name] {
+			names[bridges[i].Name] = true
+		}
 	}
 	return names, nil
 }
 
 // EnsureSegment gives a failover VPN client its pinned LAN segment when the router has none
-// for it, using the probe address its failover routes already use. A client whose segment
-// exists is left as it is. The existing map is the result of SegmentBridges and is updated.
+// for it, using the probe address its failover routes already use. A client whose segment is
+// complete is left as it is; the leftovers of an unfinished one are removed first, in the same
+// script. The existing map is the result of SegmentBridges and is updated.
 func EnsureSegment(client *routeros.Client, existing map[string]bool, interfaceName, probe string) error {
 	if !clientNamePattern.MatchString(interfaceName) {
 		return ErrInvalidClientName
@@ -130,13 +154,33 @@ func EnsureSegment(client *routeros.Client, existing map[string]bool, interfaceN
 	}
 	script, err := renderSegment(newSegment(interfaceName, probe, index))
 	if err == nil {
-		err = client.ExecuteScriptString(script)
+		err = client.ExecuteScriptString(withdrawScript(interfaceName) + "\n" + script)
+	}
+	if err == nil {
+		err = waitSegmentComplete(client, interfaceName)
 	}
 	if err != nil {
 		return fmt.Errorf("failed to create the pinned segment of %s: %w", interfaceName, err)
 	}
 	existing[segmentBridgePrefix+interfaceName] = true
 	return nil
+}
+
+func waitSegmentComplete(client *routeros.Client, interfaceName string) error {
+	deadline := time.Now().Add(segmentSetupTimeout)
+	for {
+		complete, err := SegmentBridges(client)
+		if err != nil {
+			return err
+		}
+		if complete[segmentBridgePrefix+interfaceName] {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return ErrSegmentSetupTimeout
+		}
+		time.Sleep(segmentSetupPollInterval)
+	}
 }
 
 // Withdraw removes everything Enroll or the wizard created for a VPN client: its failover

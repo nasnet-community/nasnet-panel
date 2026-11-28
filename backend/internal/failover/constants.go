@@ -1,7 +1,10 @@
 // Package failover reads, changes, stores and restores the failover routes of the VPN clients.
 package failover
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 const (
 	routingTable  = "to-VPN"
@@ -15,11 +18,15 @@ const (
 	probeCommentPrefix      = "Failover probe "
 	probeGuardCommentPrefix = "Failover probe guard "
 
-	segmentBridgePrefix = "LANBridge-"
-	segmentTablePrefix  = "to-"
-	segmentListSuffix   = "-LAN"
-	segmentSubnetFormat = "192.168.6%d"
-	segmentMaxIndex     = 9
+	segmentBridgePrefix       = "LANBridge-"
+	segmentCommentPrefix      = "Failover pinned "
+	segmentDefaultRouteSuffix = " default"
+	segmentTablePrefix        = "to-"
+	segmentListSuffix         = "-LAN"
+	segmentSubnetFormat       = "192.168.6%d"
+	segmentMaxIndex           = 9
+	segmentSetupTimeout       = 30 * time.Second
+	segmentSetupPollInterval  = time.Second
 )
 
 // Default addresses of the VPN resolvers, which the VPN-Primary, VPN-Backup1 and VPN-Backup2

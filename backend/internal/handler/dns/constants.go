@@ -4,6 +4,7 @@ package dns
 import (
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"nasnet-panel/internal/failover"
@@ -37,6 +38,10 @@ const (
 )
 
 var staticDNSNamePattern = regexp.MustCompile(`^[A-Za-z0-9*_.-]+$`)
+
+// staticDNSChange serializes the read-change-store sequence of editing and deleting a static DNS entry,
+// so two requests cannot leave the stored copy under a name that no longer exists on the router.
+var staticDNSChange sync.Mutex
 
 // dnsForwarderType names the recognized DNS forwarder roles, carried in a
 // forwarder's name.

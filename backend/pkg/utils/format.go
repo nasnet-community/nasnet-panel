@@ -205,21 +205,51 @@ func RouterOSDurationSeconds(routerOSTime string) int64 {
 	return int64(days)*86400 + int64(hours)*3600 + int64(minutes)*60 + int64(seconds)
 }
 
-// RouterOSTimeSeconds converts a RouterOS time, either a duration such as "1d12h30m" or a clock
-// value such as "00:10:00", to its length in whole seconds. An empty or unparsable value returns 0.
+var (
+	routerOSClockTimePattern = regexp.MustCompile(`(\d+):(\d{2})(?::(\d{2}))?(?:\.\d+)?$`)
+	routerOSUnitTimePattern  = regexp.MustCompile(`(\d+)(ms|w|d|h|m|s)`)
+)
+
+// RouterOSTimeSeconds converts a RouterOS time to its length in whole seconds. It accepts units
+// ("1d12h30m", "1m1m"), a clock value ("00:10:00") and a unit prefix before a clock value
+// ("1d00:00:00"); repeated units add up and fractions of a second are dropped. A value with
+// nothing to read returns 0.
 func RouterOSTimeSeconds(routerOSTime string) int64 {
 	routerOSTime = strings.TrimSpace(routerOSTime)
-	if !strings.Contains(routerOSTime, ":") {
-		return RouterOSDurationSeconds(routerOSTime)
-	}
 
 	var total int64
-	for _, part := range strings.Split(routerOSTime, ":") {
-		value, err := strconv.ParseInt(part, 10, 64)
+	if clock := routerOSClockTimePattern.FindStringSubmatchIndex(routerOSTime); clock != nil {
+		parts := routerOSClockTimePattern.FindStringSubmatch(routerOSTime)
+		if parts[3] == "" {
+			parts[3] = "0"
+		}
+		for _, part := range parts[1:4] {
+			value, err := strconv.ParseInt(part, 10, 64)
+			if err != nil {
+				return 0
+			}
+			total = total*60 + value
+		}
+		routerOSTime = routerOSTime[:clock[0]]
+	}
+
+	for _, match := range routerOSUnitTimePattern.FindAllStringSubmatch(routerOSTime, -1) {
+		value, err := strconv.ParseInt(match[1], 10, 64)
 		if err != nil {
 			return 0
 		}
-		total = total*60 + value
+		switch match[2] {
+		case "w":
+			total += value * 604800
+		case "d":
+			total += value * 86400
+		case "h":
+			total += value * 3600
+		case "m":
+			total += value * 60
+		case "s":
+			total += value
+		}
 	}
 	return total
 }

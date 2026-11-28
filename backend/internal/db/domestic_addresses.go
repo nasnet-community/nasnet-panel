@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -28,11 +29,11 @@ func (a *DomesticAddress) Remaining(now time.Time) (seconds int64, expired bool)
 	if err != nil {
 		return a.TimeoutSeconds, false
 	}
-	left := int64(created.Add(time.Duration(a.TimeoutSeconds) * time.Second).Sub(now).Seconds())
+	left := created.Add(time.Duration(a.TimeoutSeconds) * time.Second).Sub(now)
 	if left <= 0 {
 		return 0, true
 	}
-	return left, false
+	return int64(math.Ceil(left.Seconds())), false
 }
 
 // AddDomesticAddress stores an address a user added to the router's domestic address list with its

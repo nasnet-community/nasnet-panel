@@ -1235,18 +1235,27 @@ func FetchAccount(ctx context.Context, userID string) (*nasnetapi.VPNAccount, er
 // the shared fallback account is left. It does nothing when one is already running for that router.
 func StartClaimRetry(client *routeros.Client) {
 	host := client.Host()
-	if _, running := claimRetries.LoadOrStore(host, struct{}{}); running {
+	if _, running := claimRetries.Swap(host, client); running {
 		return
 	}
 
 	go func() {
 		defer claimRetries.Delete(host)
 
+		unfinished := false
 		timer := time.NewTimer(claimRetryFirstDelay)
 		defer timer.Stop()
 
 		for range timer.C {
-			if retryClaim(host, client) {
+			current, ok := claimRetries.Load(host)
+			if !ok {
+				return
+			}
+			latest, ok := current.(*routeros.Client)
+			if !ok {
+				return
+			}
+			if retryClaim(host, latest, &unfinished) {
 				return
 			}
 			timer.Reset(claimRetryInterval)
@@ -1254,13 +1263,13 @@ func StartClaimRetry(client *routeros.Client) {
 	}()
 }
 
-func retryClaim(host string, client *routeros.Client) (done bool) {
+func retryClaim(host string, client *routeros.Client, unfinished *bool) (done bool) {
 	usesFallback, err := routerUsesFallback(client)
 	if err != nil {
 		log.Printf("[claim-retry] %s: failed to read the VPN clients: %v", host, err)
 		return false
 	}
-	if !usesFallback {
+	if !usesFallback && !*unfinished {
 		return true
 	}
 
@@ -1283,9 +1292,10 @@ func retryClaim(host string, client *routeros.Client) (done bool) {
 		log.Printf("[claim-retry] %s: failed to apply the claimed VPN: %v", host, err)
 		return false
 	}
-	log.Printf("[claim-retry] %s: claimed the VPN account, %d changes", host, len(changes))
+	*unfinished = slices.ContainsFunc(changes, func(change ClaimVPNChange) bool { return change.Action == claimActionSkipped })
+	log.Printf("[claim-retry] %s: claimed the VPN account, %d changes, complete: %t", host, len(changes), !*unfinished)
 
-	return false
+	return !*unfinished
 }
 
 func routerUsesFallback(client *routeros.Client) (bool, error) {
@@ -1298,7 +1308,10 @@ func routerUsesFallback(client *routeros.Client) (bool, error) {
 			continue
 		}
 		info, err := client.GetL2TPClientInfo(vpnClients[i].Name)
-		if err == nil && failover.UsesFallback(info.User, info.Password) {
+		if err != nil {
+			return false, fmt.Errorf("failed to read the VPN client %s: %w", vpnClients[i].Name, err)
+		}
+		if failover.UsesFallback(info.User, info.Password) {
 			return true, nil
 		}
 	}

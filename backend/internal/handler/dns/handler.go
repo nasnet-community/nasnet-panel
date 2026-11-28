@@ -1013,6 +1013,9 @@ func HandleUpdateStaticDNS(c echo.Context) error {
 		return err
 	}
 
+	staticDNSChange.Lock()
+	defer staticDNSChange.Unlock()
+
 	entry, err := client.GetUserStaticDNS(c.Param("nameOrID"))
 	if err != nil {
 		return staticDNSLookupError(c, err)
@@ -1055,6 +1058,9 @@ func HandleDeleteStaticDNS(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	staticDNSChange.Lock()
+	defer staticDNSChange.Unlock()
 
 	entry, err := client.GetUserStaticDNS(c.Param("nameOrID"))
 	if err != nil {

@@ -314,12 +314,18 @@ func HandleUpdateDomesticAddress(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to update the address", err)
 	}
 
-	updated, err := userAddedDomesticEntry(client, id)
-	if err != nil || updated == nil {
-		return common.ErrorResponse(c, http.StatusInternalServerError, "Address was updated but could not be read back", err)
+	updated, readErr := userAddedDomesticEntry(client, id)
+	seconds := utils.RouterOSTimeSeconds(timeout)
+	if seconds == 0 {
+		seconds = utils.RouterOSTimeSeconds(current.Timeout)
 	}
-
-	persistDomesticAddressChange(c, client, current.Address, address, utils.RouterOSTimeSeconds(updated.Timeout))
+	if readErr == nil && updated != nil {
+		seconds = utils.RouterOSTimeSeconds(updated.Timeout)
+	}
+	persistDomesticAddressChange(c, client, current.Address, address, seconds)
+	if readErr != nil || updated == nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Address was updated but could not be read back", readErr)
+	}
 
 	return common.SuccessResponse(c, http.StatusOK, "Domestic address updated", toDomesticAddressItemResponse(updated))
 }

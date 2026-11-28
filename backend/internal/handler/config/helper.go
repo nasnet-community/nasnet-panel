@@ -377,7 +377,6 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 	return []reconfigExtra{
 		{"Running the plugins' post-wizard scripts", func() []error { return plugin.RunPostWizard(client) }},
 		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(ctx, client, conn, stored.DomesticAddresses) }},
-		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 		{"Restoring the domestic block setting", func() []error {
 			return restoreDomesticBlock(client, stored.Settings[dbsync.SettingKeyDomesticBlockEnabled])
 		}},
@@ -393,6 +392,7 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 		{"Restoring VPN users", func() []error { return restoreVPNUsers(client, stored.VPNUsers) }},
 		{"Restoring WireGuard interfaces", func() []error { return restoreWireGuardInterfaces(client, stored.WireGuards, plan.livePorts) }},
 		{"Restoring failover routes", func() []error { return failover.Restore(client, stored.FailoverInterfaces) }},
+		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 	}
 }
 

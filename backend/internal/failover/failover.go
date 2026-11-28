@@ -215,7 +215,11 @@ func planDistances(entries []Entry, target, slot int) []int {
 	if slot < len(entries) {
 		planned[target], planned[slot] = entries[slot].Distance, entries[target].Distance
 	} else {
-		planned[target] = slot + 1
+		highest := 0
+		for i := range entries {
+			highest = max(highest, entries[i].Distance)
+		}
+		planned[target] = highest + 1
 	}
 
 	current := make([]int, len(entries))
