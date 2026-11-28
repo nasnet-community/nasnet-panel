@@ -950,6 +950,9 @@ func HandleCreateStaticDNS(c echo.Context) error {
 		return err
 	}
 
+	staticDNSChange.Lock()
+	defer staticDNSChange.Unlock()
+
 	id, err := client.AddUserStaticDNS(req.Name, req.Address)
 	if err != nil {
 		if common.IsCredentialError(err) {
@@ -1013,6 +1016,9 @@ func HandleUpdateStaticDNS(c echo.Context) error {
 		return err
 	}
 
+	staticDNSChange.Lock()
+	defer staticDNSChange.Unlock()
+
 	entry, err := client.GetUserStaticDNS(c.Param("nameOrID"))
 	if err != nil {
 		return staticDNSLookupError(c, err)
@@ -1028,10 +1034,21 @@ func HandleUpdateStaticDNS(c echo.Context) error {
 
 	updated, err := client.GetUserStaticDNS(entry.ID)
 	if err != nil {
+		expected := *entry
+		if req.Name != nil {
+			expected.Name = *req.Name
+		}
+		if req.Address != nil {
+			expected.Address = *req.Address
+		}
+		if req.Disabled != nil {
+			expected.Disabled = *req.Disabled
+		}
+		replaceDNSStaticEntryInDB(c, client, entry, &expected)
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated static DNS entry", err)
 	}
 
-	persistDNSStaticEntry(c, client, updated)
+	replaceDNSStaticEntryInDB(c, client, entry, updated)
 
 	return common.SuccessResponse(c, http.StatusOK, "Static DNS entry updated", ToStaticDNSResponse(updated))
 }
@@ -1056,15 +1073,22 @@ func HandleDeleteStaticDNS(c echo.Context) error {
 		return err
 	}
 
-	removedID, err := client.RemoveUserStaticDNS(c.Param("nameOrID"))
+	staticDNSChange.Lock()
+	defer staticDNSChange.Unlock()
+
+	entry, err := client.GetUserStaticDNS(c.Param("nameOrID"))
 	if err != nil {
+		return staticDNSLookupError(c, err)
+	}
+
+	if _, err := client.RemoveUserStaticDNS(entry.ID); err != nil {
 		if errors.Is(err, routeros.ErrStaticDNSNotFound) || common.IsCredentialError(err) {
 			return staticDNSLookupError(c, err)
 		}
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to delete static DNS entry", err)
 	}
 
-	removeDNSStaticEntryFromDB(c, client, removedID)
+	removeDNSStaticEntryFromDB(c, client, entry)
 
 	return c.NoContent(http.StatusNoContent)
 }

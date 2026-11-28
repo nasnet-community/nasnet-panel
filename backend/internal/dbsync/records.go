@@ -90,13 +90,11 @@ func DNSServerRecords(info *routeros.DNSInfo, forwarders []routeros.DNSForwarder
 // DNSStaticEntryRecord converts a router static DNS entry to its database record.
 func DNSStaticEntryRecord(entry *routeros.StaticDNSEntry) *db.DNSStaticEntry {
 	return &db.DNSStaticEntry{
-		RouterID: entry.ID,
-		Name:     entry.Name,
-		Address:  entry.Address,
-		Type:     entry.Type,
-		TTL:      entry.TTL,
-		Comment:  entry.Comment,
-		Enabled:  !entry.Disabled,
+		Name:    entry.Name,
+		Address: entry.Address,
+		Type:    entry.Type,
+		TTL:     entry.TTL,
+		Enabled: !entry.Disabled,
 	}
 }
 

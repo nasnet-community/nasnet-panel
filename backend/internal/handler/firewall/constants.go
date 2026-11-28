@@ -4,6 +4,8 @@ package firewall
 import (
 	"regexp"
 	"time"
+
+	"nasnet-panel/internal/dbsync"
 )
 
 var (
@@ -13,9 +15,9 @@ var (
 
 // DomesticAddressList and the following names identify the domestic block list, interface list and user entries.
 const (
-	DomesticAddressList      = "DOMAddList"
+	DomesticAddressList      = dbsync.DomesticAddressList
 	DomesticWANInterfaceList = "!Domestic-WAN"
-	DomesticUserEntryComment = "NasNet Panel: user added"
+	DomesticUserEntryComment = dbsync.DomesticUserEntryComment
 )
 
 const domesticAddressListUpdateScriptName = "DomesticIPUpdate"

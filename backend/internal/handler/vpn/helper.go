@@ -5,8 +5,10 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"net"
+	"net/http"
 	"slices"
 	"strconv"
 	"strings"
@@ -15,6 +17,7 @@ import (
 
 	"nasnet-panel/internal/db"
 	"nasnet-panel/internal/failover"
+	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/pkg/nasnetapi"
 	"nasnet-panel/pkg/routeros"
 	"nasnet-panel/pkg/utils"
@@ -1225,6 +1228,119 @@ func FetchAccount(ctx context.Context, userID string) (*nasnetapi.VPNAccount, er
 	defer cancel()
 
 	return nasnetapi.New(userID).VPN(ctx)
+}
+
+// StartClaimRetry starts a goroutine for the router that tries to claim the router's VPN account from the
+// NasNet API and apply it 20 seconds after it starts and then every two minutes, until no client that uses
+// the shared fallback account is left. A worker that is already running for that router only gets the new
+// client, and is kept running if it was about to finish.
+func StartClaimRetry(client *routeros.Client) {
+	endpoint := client.Endpoint()
+
+	claimRetries.Lock()
+	_, running := claimRetries.clients[endpoint]
+	claimRetries.clients[endpoint] = client
+	claimRetries.Unlock()
+	if running {
+		return
+	}
+
+	go runClaimRetry(endpoint)
+}
+
+func runClaimRetry(endpoint string) {
+	unfinished := false
+	timer := time.NewTimer(claimRetryFirstDelay)
+	defer timer.Stop()
+
+	for range timer.C {
+		claimRetries.Lock()
+		current := claimRetries.clients[endpoint]
+		claimRetries.Unlock()
+		if current == nil {
+			return
+		}
+
+		done := false
+		if live, err := routeros.GetOrCreateClient(current.ConnectionConfig()); err != nil {
+			log.Printf("[claim-retry] %s: failed to connect: %v", endpoint, err)
+		} else {
+			done = retryClaim(endpoint, live, &unfinished)
+		}
+
+		claimRetries.Lock()
+		if done && claimRetries.clients[endpoint] == current {
+			delete(claimRetries.clients, endpoint)
+			claimRetries.Unlock()
+			return
+		}
+		claimRetries.Unlock()
+		timer.Reset(claimRetryInterval)
+	}
+}
+
+func retryClaim(host string, client *routeros.Client, unfinished *bool) (done bool) {
+	usesFallback, err := routerUsesFallback(client)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to read the VPN clients: %v", host, err)
+		return false
+	}
+	if !usesFallback && !*unfinished {
+		return true
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), claimRetryAttemptTimeout)
+	defer cancel()
+
+	userID, err := common.RouterUserID(client)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to generate the user ID: %v", host, err)
+		return false
+	}
+	account, err := FetchAccount(ctx, userID)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to retrieve the VPN credentials: %v", host, err)
+		return false
+	}
+
+	changes, err := applyClaim(backgroundContext(ctx), client, account)
+	if err != nil {
+		log.Printf("[claim-retry] %s: failed to apply the claimed VPN: %v", host, err)
+		return false
+	}
+	*unfinished = slices.ContainsFunc(changes, func(change ClaimVPNChange) bool { return change.Action == claimActionSkipped })
+	log.Printf("[claim-retry] %s: claimed the VPN account, %d changes, complete: %t", host, len(changes), !*unfinished)
+	if *unfinished {
+		return false
+	}
+
+	stillFallback, err := routerUsesFallback(client)
+	return err == nil && !stillFallback
+}
+
+func routerUsesFallback(client *routeros.Client) (bool, error) {
+	vpnClients, err := client.ListVPNClients()
+	if err != nil {
+		return false, err
+	}
+	for i := range vpnClients {
+		if vpnClients[i].Type != routeros.VPNTypeL2TPOut {
+			continue
+		}
+		info, err := client.GetL2TPClientInfo(vpnClients[i].Name)
+		if err != nil {
+			return false, fmt.Errorf("failed to read the VPN client %s: %w", vpnClients[i].Name, err)
+		}
+		if failover.UsesFallback(info.User, info.Password) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func backgroundContext(ctx context.Context) echo.Context {
+	request := (&http.Request{Method: http.MethodPost}).WithContext(ctx)
+	return echo.New().NewContext(request, &discardResponseWriter{})
 }
 
 func addL2TPInterface(c echo.Context, client *routeros.Client, cfg routeros.AddL2TPClientConfig) error {

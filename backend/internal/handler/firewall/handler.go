@@ -11,6 +11,7 @@ import (
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/dns"
 	"nasnet-panel/pkg/routeros"
+	"nasnet-panel/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -313,11 +314,17 @@ func HandleUpdateDomesticAddress(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to update the address", err)
 	}
 
-	persistDomesticAddressChange(c, client, current.Address, address)
-
-	updated, err := userAddedDomesticEntry(client, id)
-	if err != nil || updated == nil {
-		return common.ErrorResponse(c, http.StatusInternalServerError, "Address was updated but could not be read back", err)
+	updated, readErr := userAddedDomesticEntry(client, id)
+	seconds := utils.RouterOSTimeSeconds(timeout)
+	if seconds == 0 {
+		seconds = utils.RouterOSTimeSeconds(current.Timeout)
+	}
+	if readErr == nil && updated != nil {
+		seconds = utils.RouterOSTimeSeconds(updated.Timeout)
+	}
+	persistDomesticAddressChange(c, client, current.Address, address, seconds)
+	if readErr != nil || updated == nil {
+		return common.ErrorResponse(c, http.StatusInternalServerError, "Address was updated but could not be read back", readErr)
 	}
 
 	return common.SuccessResponse(c, http.StatusOK, "Domestic address updated", toDomesticAddressItemResponse(updated))
@@ -380,6 +387,8 @@ func HandleDeleteDomesticAddress(c echo.Context) error {
 // @Description address the panel routes and pings to check a link (217.218.127.127, 1.1.1.1, 1.0.0.1, 9.9.9.9, 8.8.8.8) or a host
 // @Description Netwatch monitors on the router; the data then names the conflicting address and the reason.
 // @Description Returns 409 when an entry that already covers the address is in the list.
+// @Description The optional timeout is a RouterOS time such as 1d, 2h30m or 00:10:00; RouterOS removes the entry
+// @Description when it has passed, and the stored copy is dropped with it. Without a timeout the entry never expires.
 // @Tags Firewall
 // @Accept json
 // @Produce json
@@ -400,6 +409,11 @@ func HandleAddDomesticAddress(c echo.Context) error {
 	address := strings.TrimSpace(req.Address)
 	if err := validateIPv4OrCIDR(address); err != nil {
 		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid address", err)
+	}
+	timeout := strings.TrimSpace(req.Timeout)
+	if timeout != "" && !routerOSTimePattern.MatchString(timeout) {
+		return common.ErrorResponse(c, http.StatusBadRequest, "Invalid timeout",
+			errors.New("must be a RouterOS time such as 1d, 2h30m or 00:10:00"))
 	}
 
 	client, err := common.GetRouterOSClient(c)
@@ -423,7 +437,7 @@ func HandleAddDomesticAddress(c echo.Context) error {
 			fmt.Errorf("%s is covered by %s", address, existing[0].Address))
 	}
 
-	id, err := client.AddFirewallAddressListItem(DomesticAddressList, address, false, DomesticUserEntryComment)
+	id, err := client.AddFirewallAddressListItemWithTimeout(DomesticAddressList, address, DomesticUserEntryComment, timeout)
 	if err != nil {
 		if common.IsCredentialError(err) {
 			return common.ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
@@ -431,7 +445,7 @@ func HandleAddDomesticAddress(c echo.Context) error {
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to add the address", err)
 	}
 
-	persistDomesticAddress(c, client, address)
+	persistDomesticAddress(c, client, address, utils.RouterOSTimeSeconds(timeout))
 
 	return common.SuccessResponse(c, http.StatusCreated, "Address added to the domestic address list", DomesticAddressResponse{
 		ID:      id,

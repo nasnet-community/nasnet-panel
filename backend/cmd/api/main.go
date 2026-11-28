@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -35,6 +36,7 @@ func main() {
 		log.Fatalf("Failed to prepare database directory: %v", err)
 	}
 	defer func() { _ = databases.Close() }()
+	databases.StartExpiryCleanup(expiryCleanupInterval)
 	common.SetDatabases(databases)
 
 	e := echo.New()
@@ -77,6 +79,8 @@ func main() {
 		log.Fatalf("HTTPS server error: %v", err)
 	}
 }
+
+const expiryCleanupInterval = time.Minute
 
 func databaseDir() string {
 	if dir := os.Getenv("DATABASE_DIR"); dir != "" {

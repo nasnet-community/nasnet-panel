@@ -22,7 +22,7 @@ var (
 // time that database is used, so records created before the database existed are not missing.
 // It is best effort: a part that fails to sync is logged and skipped, never blocks the request.
 func EnsureInitialSync(ctx context.Context, client *routeros.Client, systemID string, conn *sqlx.DB) {
-	if _, ok := initialSynced.Load(systemID); ok {
+	if synced, ok := initialSynced.Load(systemID); ok && synced == conn {
 		return
 	}
 
@@ -33,7 +33,7 @@ func EnsureInitialSync(ctx context.Context, client *routeros.Client, systemID st
 	}
 	mu.Lock()
 	defer mu.Unlock()
-	if _, ok := initialSynced.Load(systemID); ok {
+	if synced, ok := initialSynced.Load(systemID); ok && synced == conn {
 		return
 	}
 
@@ -50,5 +50,5 @@ func EnsureInitialSync(ctx context.Context, client *routeros.Client, systemID st
 		}
 	}
 
-	initialSynced.Store(systemID, struct{}{})
+	initialSynced.Store(systemID, conn)
 }

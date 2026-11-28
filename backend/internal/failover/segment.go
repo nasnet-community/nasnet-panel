@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 	"text/template"
+	"time"
 
 	nastemplate "nasnet-panel/internal/template"
 	"nasnet-panel/pkg/routeros"
@@ -16,6 +18,9 @@ var ErrInvalidClientName = errors.New("the VPN client name may only contain lett
 
 // ErrNoFreeSegment means every pinned segment subnet is already in use.
 var ErrNoFreeSegment = errors.New("no free failover segment subnet is left")
+
+// ErrSegmentSetupTimeout means the router did not finish creating the pinned segment in time.
+var ErrSegmentSetupTimeout = errors.New("the router did not finish creating the pinned segment in time")
 
 var clientNamePattern = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 
@@ -76,7 +81,7 @@ func Enroll(client *routeros.Client, interfaceName string) error {
 	if err != nil {
 		return err
 	}
-	index, err := freeSegmentIndex(client)
+	index, err := freeSegmentIndex(client, interfaceName)
 	if err != nil {
 		return err
 	}
@@ -98,6 +103,98 @@ func Enroll(client *routeros.Client, interfaceName string) error {
 		return fmt.Errorf("failed to create the pinned segment of %s: %w", interfaceName, err)
 	}
 	return nil
+}
+
+// SegmentBridges returns the names of the segment bridges whose segment is complete: the bridge exists
+// and so do the segment's default route and its TCP DNS redirect, the last rule the setup script creates.
+func SegmentBridges(client *routeros.Client) (map[string]bool, error) {
+	bridges, err := client.ListBridges()
+	if err != nil {
+		return nil, err
+	}
+	routes, err := client.ListIPRoutesWithFilters(routeros.IPRouteFilter{Dynamic: "false"})
+	if err != nil {
+		return nil, err
+	}
+
+	rules, err := client.ListNATRules(routeros.NATRuleFilter{Action: "dst-nat"})
+	if err != nil {
+		return nil, err
+	}
+
+	redirected := make(map[string]bool)
+	for i := range rules {
+		if name, ok := strings.CutPrefix(rules[i].Comment, segmentDNSCommentPrefix); ok && rules[i].Protocol == "tcp" {
+			redirected[name] = true
+		}
+	}
+
+	finished := make(map[string]bool)
+	for i := range routes {
+		name, ok := strings.CutPrefix(routes[i].Comment, segmentCommentPrefix)
+		if !ok {
+			continue
+		}
+		if name, ok = strings.CutSuffix(name, segmentDefaultRouteSuffix); ok && redirected[name] {
+			finished[segmentBridgePrefix+name] = true
+		}
+	}
+
+	names := make(map[string]bool, len(bridges))
+	for i := range bridges {
+		if finished[bridges[i].Name] {
+			names[bridges[i].Name] = true
+		}
+	}
+	return names, nil
+}
+
+// EnsureSegment gives a failover VPN client its pinned LAN segment when the router has none
+// for it, using the probe address its failover routes already use. A client whose segment is
+// complete is left as it is; the leftovers of an unfinished one are removed first, in the same
+// script. The existing map is the result of SegmentBridges and is updated.
+func EnsureSegment(client *routeros.Client, existing map[string]bool, interfaceName, probe string) error {
+	if !clientNamePattern.MatchString(interfaceName) {
+		return ErrInvalidClientName
+	}
+	if existing[segmentBridgePrefix+interfaceName] {
+		return nil
+	}
+
+	index, err := freeSegmentIndex(client, interfaceName)
+	if err != nil {
+		return err
+	}
+	script, err := renderSegment(newSegment(interfaceName, probe, index))
+	if err == nil {
+		err = client.ExecuteScriptString(withdrawScript(interfaceName) + "\n" + script)
+	}
+	if err == nil {
+		err = waitSegmentComplete(client, interfaceName)
+	}
+	if err != nil {
+		return fmt.Errorf("failed to create the pinned segment of %s: %w", interfaceName, err)
+	}
+	existing[segmentBridgePrefix+interfaceName] = true
+	return nil
+}
+
+func waitSegmentComplete(client *routeros.Client, interfaceName string) error {
+	deadline := time.Now().Add(segmentSetupTimeout)
+	for {
+		complete, err := SegmentBridges(client)
+		if err != nil {
+			return err
+		}
+		if complete[segmentBridgePrefix+interfaceName] {
+			releaseSegmentIndex(interfaceName)
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return ErrSegmentSetupTimeout
+		}
+		time.Sleep(segmentSetupPollInterval)
+	}
 }
 
 // Withdraw removes everything Enroll or the wizard created for a VPN client: its failover
@@ -160,21 +257,53 @@ func removeRoutesByComment(client *routeros.Client, interfaceName string) {
 	}
 }
 
-func freeSegmentIndex(client *routeros.Client) (int, error) {
+type segmentReservation struct {
+	owner string
+	until time.Time
+}
+
+var segmentReservations = struct {
+	sync.Mutex
+	byIndex map[int]segmentReservation
+}{byIndex: make(map[int]segmentReservation)}
+
+func releaseSegmentIndex(owner string) {
+	segmentReservations.Lock()
+	defer segmentReservations.Unlock()
+
+	for index, reservation := range segmentReservations.byIndex {
+		if reservation.owner == owner {
+			delete(segmentReservations.byIndex, index)
+		}
+	}
+}
+
+// freeSegmentIndex picks a segment subnet no other segment uses and reserves it for the owner while
+// its setup script may still be running. A subnet the owner's own leftovers hold counts as free.
+func freeSegmentIndex(client *routeros.Client, owner string) (int, error) {
+	segmentReservations.Lock()
+	defer segmentReservations.Unlock()
+
 	addresses, err := client.ListIPAddresses()
 	if err != nil {
 		return 0, err
 	}
+	ownComment := segmentCommentPrefix + owner
+	now := time.Now()
 	for index := 1; index <= segmentMaxIndex; index++ {
+		if reservation, ok := segmentReservations.byIndex[index]; ok && reservation.owner != owner && now.Before(reservation.until) {
+			continue
+		}
 		prefix := fmt.Sprintf(segmentSubnetFormat, index) + "."
 		used := false
 		for i := range addresses {
-			if strings.HasPrefix(addresses[i].Address, prefix) {
+			if strings.HasPrefix(addresses[i].Address, prefix) && addresses[i].Comment != ownComment {
 				used = true
 				break
 			}
 		}
 		if !used {
+			segmentReservations.byIndex[index] = segmentReservation{owner: owner, until: now.Add(segmentReservationTTL)}
 			return index, nil
 		}
 	}

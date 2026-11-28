@@ -1,6 +1,7 @@
 package vpn
 
 import (
+	"net/http"
 	"sync"
 	"time"
 )
@@ -46,6 +47,22 @@ type SstpServerPool struct {
 	cleanupStarted   bool
 	cleanupStartedMu sync.Mutex
 }
+
+// discardResponseWriter is the response writer of the context a background job runs the handlers' helpers with.
+type discardResponseWriter struct {
+	header http.Header
+}
+
+func (w *discardResponseWriter) Header() http.Header {
+	if w.header == nil {
+		w.header = make(http.Header)
+	}
+	return w.header
+}
+
+func (*discardResponseWriter) Write(p []byte) (int, error) { return len(p), nil }
+
+func (*discardResponseWriter) WriteHeader(int) {}
 
 // L2tpRuleSpec describes one firewall rule the L2TP server needs.
 type L2tpRuleSpec struct {

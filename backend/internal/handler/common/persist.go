@@ -83,6 +83,25 @@ func DatabaseForClient(ctx context.Context, client *routeros.Client) (*sqlx.DB, 
 	return conn, nil
 }
 
+// ResetDatabaseForClient deletes the database of the router the client is connected to and
+// returns a new, empty one.
+func ResetDatabaseForClient(ctx context.Context, client *routeros.Client) (*sqlx.DB, error) {
+	systemID, err := client.GetSystemID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read the router system ID: %w", err)
+	}
+
+	registry := AppDatabases
+	if registry == nil {
+		return nil, errors.New("the router database is not available")
+	}
+	if err := registry.Reset(systemID); err != nil {
+		return nil, err
+	}
+
+	return DatabaseForClient(ctx, client)
+}
+
 // PersistInRouterDB runs a save function against the router database and logs failures.
 func PersistInRouterDB(ctx context.Context, logf func(format string, args ...interface{}), client *routeros.Client, action string, fn func(ctx context.Context, conn *sqlx.DB) error) {
 	conn, err := DatabaseForClient(ctx, client)

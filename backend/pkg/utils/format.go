@@ -205,6 +205,59 @@ func RouterOSDurationSeconds(routerOSTime string) int64 {
 	return int64(days)*86400 + int64(hours)*3600 + int64(minutes)*60 + int64(seconds)
 }
 
+var (
+	routerOSClockTimePattern = regexp.MustCompile(`(\d+):(\d{2})(?::(\d{2}))?(?:\.(\d+))?$`)
+	routerOSUnitTimePattern  = regexp.MustCompile(`(\d+)(ms|w|d|h|m|s)`)
+)
+
+// RouterOSTimeSeconds converts a RouterOS time to its length in whole seconds. It accepts units
+// ("1d12h30m", "1m1m"), a clock value ("00:10:00") and a unit prefix before a clock value
+// ("1d00:00:00"); repeated units add up and a fraction of a second rounds up, so a finite time is never 0. A value with
+// nothing to read returns 0.
+func RouterOSTimeSeconds(routerOSTime string) int64 {
+	routerOSTime = strings.TrimSpace(routerOSTime)
+
+	var total, millis int64
+	if parts := routerOSClockTimePattern.FindStringSubmatch(routerOSTime); parts != nil {
+		if parts[3] == "" {
+			parts[3] = "0"
+		}
+		if strings.Trim(parts[4], "0") != "" {
+			millis++
+		}
+		for _, part := range parts[1:4] {
+			value, err := strconv.ParseInt(part, 10, 64)
+			if err != nil {
+				return 0
+			}
+			total = total*60 + value
+		}
+		routerOSTime = routerOSTime[:len(routerOSTime)-len(parts[0])]
+	}
+
+	for _, match := range routerOSUnitTimePattern.FindAllStringSubmatch(routerOSTime, -1) {
+		value, err := strconv.ParseInt(match[1], 10, 64)
+		if err != nil {
+			return 0
+		}
+		switch match[2] {
+		case "w":
+			total += value * 604800
+		case "d":
+			total += value * 86400
+		case "h":
+			total += value * 3600
+		case "m":
+			total += value * 60
+		case "s":
+			total += value
+		case "ms":
+			millis += value
+		}
+	}
+	return total + (millis+999)/1000
+}
+
 // StripPingTimeMicroseconds drops a trailing "<digits>us" component from a
 // RouterOS ping duration (e.g. "53ms945us" -> "53ms"), since sub-millisecond
 // precision isn't useful in the API response.

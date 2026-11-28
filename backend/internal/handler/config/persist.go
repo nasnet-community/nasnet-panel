@@ -15,9 +15,8 @@ import (
 	"nasnet-panel/internal/handler/common"
 	"nasnet-panel/internal/handler/dns"
 	"nasnet-panel/internal/handler/plugin"
+	"nasnet-panel/internal/handler/vpn"
 	"nasnet-panel/pkg/routeros"
-
-	"github.com/jmoiron/sqlx"
 )
 
 // saveWizardConfigWhenDone calls release once the wizard's script has ended,
@@ -49,9 +48,18 @@ func saveWizardConfigWhenDone(client *routeros.Client, release func(), data *Wiz
 			for _, err := range plugin.RunPostWizard(client) {
 				log.Printf("[plugin-post-wizard] %v", err)
 			}
+			if wizardUsesFallbackAccount(data.VPNClients) {
+				vpn.StartClaimRetry(client)
+			}
 			return
 		}
 	}
+}
+
+func wizardUsesFallbackAccount(clients []VPNClient) bool {
+	return slices.ContainsFunc(clients, func(c VPNClient) bool {
+		return c.L2tp != nil && failover.UsesFallback(c.L2tp.User, c.L2tp.Password)
+	})
 }
 
 func saveWizardConfig(ctx context.Context, client *routeros.Client, data *WizardSaveData) {
@@ -105,7 +113,7 @@ func saveWizardConfig(ctx context.Context, client *routeros.Client, data *Wizard
 		}
 	}
 
-	conn, err := common.DatabaseForClient(ctx, client)
+	conn, err := common.ResetDatabaseForClient(ctx, client)
 	if err == nil {
 		err = db.SaveConfig(ctx, conn, &cfg)
 	}
@@ -183,12 +191,6 @@ func wizardWiFis(data *WizardSaveData) []db.WiFi {
 	}
 
 	return wifis
-}
-
-func replaceStoredStaticDNS(parent context.Context, conn *sqlx.DB, oldID string, entry *db.DNSStaticEntry) error {
-	ctx, cancel := context.WithTimeout(parent, reconfigSaveTimeout)
-	defer cancel()
-	return db.ReplaceDNSStaticEntry(ctx, conn, oldID, entry)
 }
 
 func wizardDNSServers(domesticEnabled bool) []db.DNSServer {

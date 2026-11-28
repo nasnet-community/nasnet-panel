@@ -10,6 +10,8 @@ const (
 	DNSAdBlockURL            = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 	DNSGlobalServerName      = "global"
 	DomesticBlockRuleComment = "Block traffic to DOMAddList"
+	DomesticAddressList      = "DOMAddList"
+	DomesticUserEntryComment = "NasNet Panel: user added"
 	OvpnServerCommentPrefix  = "Client Certificate Password: "
 	VPNClientVRFSuffix       = "@VRF-TunnelEnds"
 

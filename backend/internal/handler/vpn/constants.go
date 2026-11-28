@@ -4,6 +4,8 @@ package vpn
 import (
 	"sync"
 	"time"
+
+	"nasnet-panel/pkg/routeros"
 )
 
 // vpnStatusCheckIP is the well-known address pinged through a VPN client
@@ -26,6 +28,17 @@ const (
 
 // vpnAccountTimeout bounds the call to the NasNet API for the router's VPN account.
 const vpnAccountTimeout = 30 * time.Second
+
+const (
+	claimRetryFirstDelay     = 20 * time.Second
+	claimRetryInterval       = 2 * time.Minute
+	claimRetryAttemptTimeout = 90 * time.Second
+)
+
+var claimRetries = struct {
+	sync.Mutex
+	clients map[string]*routeros.Client
+}{clients: make(map[string]*routeros.Client)}
 
 const failoverEnrollFailedMessage = "The VPN client was added, but its failover setup (routes, pinned LAN segment) failed: %v"
 

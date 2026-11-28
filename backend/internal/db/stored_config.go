@@ -20,7 +20,7 @@ type StoredConfig struct {
 	VPNServers         []VPNServer
 	VPNUsers           []VPNUser
 	DNSStaticEntries   []DNSStaticEntry
-	DomesticAddresses  []string
+	DomesticAddresses  []DomesticAddress
 	DNSServers         []DNSServer
 	Settings           map[string]string
 }
@@ -53,8 +53,8 @@ func LoadStoredConfig(ctx context.Context, conn *sqlx.DB) (*StoredConfig, error)
 		{"DNS servers", &cfg.DNSServers,
 			`SELECT name, type, dns_servers, doh_servers, verify_doh_cert, comment FROM dns_servers ORDER BY id`},
 		{"static DNS entries", &cfg.DNSStaticEntries,
-			`SELECT router_id, name, address, type, ttl, comment, enabled FROM dns_static_entries ORDER BY id`},
-		{"domestic addresses", &cfg.DomesticAddresses, `SELECT address FROM domestic_addresses ORDER BY id`},
+			`SELECT name, address, type, ttl, enabled FROM dns_static_entries ORDER BY id`},
+		{"domestic addresses", &cfg.DomesticAddresses, `SELECT address, timeout_seconds, created_at FROM domestic_addresses ORDER BY id`},
 		{"WireGuard interfaces", &cfg.WireGuards,
 			`SELECT name, comment, type, private_key, address, listen_port, enabled FROM wireguard_interfaces ORDER BY id`},
 	}

@@ -19,15 +19,15 @@ func persistDomesticBlockSetting(c echo.Context, client *routeros.Client, blocke
 	})
 }
 
-func persistDomesticAddress(c echo.Context, client *routeros.Client, address string) {
+func persistDomesticAddress(c echo.Context, client *routeros.Client, address string, timeoutSeconds int64) {
 	common.WithRouterDB(c, client, "save domestic address "+address, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.AddDomesticAddress(ctx, conn, address)
+		return db.AddDomesticAddress(ctx, conn, address, timeoutSeconds)
 	})
 }
 
-func persistDomesticAddressChange(c echo.Context, client *routeros.Client, oldAddress, newAddress string) {
+func persistDomesticAddressChange(c echo.Context, client *routeros.Client, oldAddress, newAddress string, timeoutSeconds int64) {
 	common.WithRouterDB(c, client, "update domestic address "+oldAddress, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.ReplaceDomesticAddress(ctx, conn, oldAddress, newAddress)
+		return db.ReplaceDomesticAddress(ctx, conn, oldAddress, newAddress, timeoutSeconds)
 	})
 }
 

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -295,6 +297,21 @@ func extractRetID(reply *ros.Reply) string {
 		return id
 	}
 	return ""
+}
+
+// Endpoint returns the address and API port of the router the client is connected to.
+func (c *Client) Endpoint() string {
+	return net.JoinHostPort(c.config.Address, strconv.Itoa(c.config.Port))
+}
+
+// ConnectionConfig returns the settings the client was connected with.
+func (c *Client) ConnectionConfig() ConnectionConfig {
+	return c.config
+}
+
+// Host returns the address of the router the client is connected to.
+func (c *Client) Host() string {
+	return c.config.Address
 }
 
 // IsConnected checks if the connection reference exists (doesn't perform actual query).

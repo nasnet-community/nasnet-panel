@@ -37,9 +37,15 @@ func persistDNSStaticEntry(c echo.Context, client *routeros.Client, entry *route
 	})
 }
 
-func removeDNSStaticEntryFromDB(c echo.Context, client *routeros.Client, routerID string) {
-	common.WithRouterDB(c, client, "delete static DNS entry "+routerID, func(ctx context.Context, conn *sqlx.DB) error {
-		return db.DeleteDNSStaticEntry(ctx, conn, routerID)
+func replaceDNSStaticEntryInDB(c echo.Context, client *routeros.Client, previous, updated *routeros.StaticDNSEntry) {
+	common.WithRouterDB(c, client, "save static DNS entry "+updated.Name, func(ctx context.Context, conn *sqlx.DB) error {
+		return db.ReplaceDNSStaticEntry(ctx, conn, previous.Name, previous.Address, dbsync.DNSStaticEntryRecord(updated))
+	})
+}
+
+func removeDNSStaticEntryFromDB(c echo.Context, client *routeros.Client, entry *routeros.StaticDNSEntry) {
+	common.WithRouterDB(c, client, "delete static DNS entry "+entry.Name, func(ctx context.Context, conn *sqlx.DB) error {
+		return db.DeleteDNSStaticEntry(ctx, conn, entry.Name, entry.Address)
 	})
 }
 

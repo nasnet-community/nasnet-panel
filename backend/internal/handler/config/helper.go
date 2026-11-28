@@ -376,14 +376,13 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 	stored := plan.stored
 	return []reconfigExtra{
 		{"Running the plugins' post-wizard scripts", func() []error { return plugin.RunPostWizard(client) }},
-		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(client, stored.DomesticAddresses) }},
-		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
+		{"Restoring domestic addresses", func() []error { return restoreDomesticAddresses(ctx, client, conn, stored.DomesticAddresses) }},
 		{"Restoring the domestic block setting", func() []error {
 			return restoreDomesticBlock(client, stored.Settings[dbsync.SettingKeyDomesticBlockEnabled])
 		}},
 		{"Restoring DNS servers", func() []error { return restoreDNSServers(client, stored.DNSServers) }},
 		{"Restoring the ad-block setting", func() []error { return restoreAdBlock(client, stored.Settings[dbsync.SettingKeyAdBlockEnabled]) }},
-		{"Restoring static DNS entries", func() []error { return restoreStaticDNS(ctx, client, conn, stored.DNSStaticEntries) }},
+		{"Restoring static DNS entries", func() []error { return restoreStaticDNS(client, stored.DNSStaticEntries) }},
 		{"Restoring SSTP clients", func() []error { return restoreSSTPClients(client, stored.SSTPClients) }},
 		{"Restoring L2TP clients", func() []error { return restoreL2TPClients(client, stored.L2TPClients) }},
 		{"Restoring the SSTP server", func() []error { return restoreSSTPServer(client, stored.VPNServers) }},
@@ -393,33 +392,48 @@ func reconfigExtras(ctx context.Context, client *routeros.Client, conn *sqlx.DB,
 		{"Restoring VPN users", func() []error { return restoreVPNUsers(client, stored.VPNUsers) }},
 		{"Restoring WireGuard interfaces", func() []error { return restoreWireGuardInterfaces(client, stored.WireGuards, plan.livePorts) }},
 		{"Restoring failover routes", func() []error { return failover.Restore(client, stored.FailoverInterfaces) }},
+		{"Restoring bridge ports and virtual WiFi interfaces", func() []error { return restoreBridgeAssignments(client, stored.WiFis, stored.BridgePorts) }},
 	}
 }
 
-func restoreDomesticAddresses(client *routeros.Client, addresses []string) []error {
+func restoreDomesticAddresses(ctx context.Context, client *routeros.Client, conn *sqlx.DB, addresses []db.DomesticAddress) []error {
 	items, err := client.ListFirewallAddressListItems(routeros.FirewallAddressListFilter{ListName: firewall.DomesticAddressList})
 	if err != nil {
 		return []error{fmt.Errorf("failed to list %s: %w", firewall.DomesticAddressList, err)}
 	}
 
 	var errs []error
-	for _, address := range addresses {
-		covering, err := routeros.FilterAddressListByContainment(items, address)
+	for i := range addresses {
+		entry := &addresses[i]
+		remaining, expired := entry.Remaining(time.Now().UTC())
+		if expired {
+			if err := db.DeleteDomesticAddress(ctx, conn, entry.Address); err != nil {
+				errs = append(errs, err)
+			}
+			continue
+		}
+
+		covering, err := routeros.FilterAddressListByContainment(items, entry.Address)
 		if err != nil {
-			errs = append(errs, fmt.Errorf("domestic address %s: %w", address, err))
+			errs = append(errs, fmt.Errorf("domestic address %s: %w", entry.Address, err))
 			continue
 		}
 		if len(covering) > 0 {
 			continue
 		}
-		if _, err := client.AddFirewallAddressListItem(firewall.DomesticAddressList, address, false, firewall.DomesticUserEntryComment); err != nil {
-			errs = append(errs, fmt.Errorf("domestic address %s: %w", address, err))
+
+		timeout := ""
+		if remaining > 0 {
+			timeout = strconv.FormatInt(remaining, 10) + "s"
+		}
+		if _, err := client.AddFirewallAddressListItemWithTimeout(firewall.DomesticAddressList, entry.Address, firewall.DomesticUserEntryComment, timeout); err != nil {
+			errs = append(errs, fmt.Errorf("domestic address %s: %w", entry.Address, err))
 		}
 	}
 	return errs
 }
 
-func restoreStaticDNS(parent context.Context, client *routeros.Client, conn *sqlx.DB, entries []db.DNSStaticEntry) []error {
+func restoreStaticDNS(client *routeros.Client, entries []db.DNSStaticEntry) []error {
 	var errs []error
 	for i := range entries {
 		entry := &entries[i]
@@ -433,12 +447,6 @@ func restoreStaticDNS(parent context.Context, client *routeros.Client, conn *sql
 			if err := client.UpdateUserStaticDNS(id, routeros.UpdateStaticDNSParams{Disabled: &disabled}); err != nil {
 				errs = append(errs, err)
 			}
-		}
-
-		oldID := entry.RouterID
-		entry.RouterID = id
-		if err := replaceStoredStaticDNS(parent, conn, oldID, entry); err != nil {
-			errs = append(errs, err)
 		}
 	}
 	return errs
