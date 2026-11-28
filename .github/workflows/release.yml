@@ -35,7 +35,7 @@ jobs:
   # triggers it directly; dev-release.yml calls it with release_tag, in which
   # case github.ref_name is the branch, so the tag is resolved once here.
   meta:
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     outputs:
       tag: ${{ steps.resolve.outputs.tag }}
       release: ${{ steps.resolve.outputs.release }}
@@ -79,7 +79,7 @@ jobs:
 
   build:
     needs: meta
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -167,7 +167,7 @@ jobs:
 
   manifest:
     needs: [meta, build]
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     env:
       TAG: ${{ needs.meta.outputs.tag }}
     steps:
@@ -239,7 +239,7 @@ jobs:
   package:
     needs: [meta, build, manifest]
     if: needs.meta.outputs.release == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     env:
       TAG: ${{ needs.meta.outputs.tag }}
     permissions:
@@ -304,7 +304,7 @@ jobs:
   installer-windows:
     needs: [meta, package]
     if: needs.meta.outputs.release == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: depot-ubuntu-24.04
     permissions:
       contents: write
     env:
