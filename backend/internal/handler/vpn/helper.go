@@ -1232,35 +1232,48 @@ func FetchAccount(ctx context.Context, userID string) (*nasnetapi.VPNAccount, er
 
 // StartClaimRetry starts a goroutine for the router that tries to claim the router's VPN account from the
 // NasNet API and apply it 20 seconds after it starts and then every two minutes, until no client that uses
-// the shared fallback account is left. It does nothing when one is already running for that router.
+// the shared fallback account is left. A worker that is already running for that router only gets the new
+// client, and is kept running if it was about to finish.
 func StartClaimRetry(client *routeros.Client) {
-	host := client.Host()
-	if _, running := claimRetries.Swap(host, client); running {
+	endpoint := client.Endpoint()
+
+	claimRetries.Lock()
+	_, running := claimRetries.clients[endpoint]
+	claimRetries.clients[endpoint] = client
+	claimRetries.Unlock()
+	if running {
 		return
 	}
 
-	go func() {
-		defer claimRetries.Delete(host)
+	go runClaimRetry(endpoint)
+}
 
-		unfinished := false
-		timer := time.NewTimer(claimRetryFirstDelay)
-		defer timer.Stop()
+func runClaimRetry(endpoint string) {
+	unfinished := false
+	timer := time.NewTimer(claimRetryFirstDelay)
+	defer timer.Stop()
 
-		for range timer.C {
-			current, ok := claimRetries.Load(host)
-			if !ok {
-				return
-			}
-			latest, ok := current.(*routeros.Client)
-			if !ok {
-				return
-			}
-			if retryClaim(host, latest, &unfinished) {
-				return
-			}
-			timer.Reset(claimRetryInterval)
+	for range timer.C {
+		claimRetries.Lock()
+		current := claimRetries.clients[endpoint]
+		claimRetries.Unlock()
+
+		done := false
+		if live, err := routeros.GetOrCreateClient(current.ConnectionConfig()); err != nil {
+			log.Printf("[claim-retry] %s: failed to connect: %v", endpoint, err)
+		} else {
+			done = retryClaim(endpoint, live, &unfinished)
 		}
-	}()
+
+		claimRetries.Lock()
+		if done && claimRetries.clients[endpoint] == current {
+			delete(claimRetries.clients, endpoint)
+			claimRetries.Unlock()
+			return
+		}
+		claimRetries.Unlock()
+		timer.Reset(claimRetryInterval)
+	}
 }
 
 func retryClaim(host string, client *routeros.Client, unfinished *bool) (done bool) {
@@ -1294,8 +1307,12 @@ func retryClaim(host string, client *routeros.Client, unfinished *bool) (done bo
 	}
 	*unfinished = slices.ContainsFunc(changes, func(change ClaimVPNChange) bool { return change.Action == claimActionSkipped })
 	log.Printf("[claim-retry] %s: claimed the VPN account, %d changes, complete: %t", host, len(changes), !*unfinished)
+	if *unfinished {
+		return false
+	}
 
-	return !*unfinished
+	stillFallback, err := routerUsesFallback(client)
+	return err == nil && !stillFallback
 }
 
 func routerUsesFallback(client *routeros.Client) (bool, error) {

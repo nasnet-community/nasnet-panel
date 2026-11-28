@@ -403,10 +403,9 @@ func restoreDomesticAddresses(ctx context.Context, client *routeros.Client, conn
 	}
 
 	var errs []error
-	now := time.Now().UTC()
 	for i := range addresses {
 		entry := &addresses[i]
-		remaining, expired := entry.Remaining(now)
+		remaining, expired := entry.Remaining(time.Now().UTC())
 		if expired {
 			if err := db.DeleteDomesticAddress(ctx, conn, entry.Address); err != nil {
 				errs = append(errs, err)

@@ -12,7 +12,9 @@ const (
 	targetScope   = 11
 	guardScope    = 30
 	guardDistance = 254
-	standbyLabel  = "Standby"
+
+	maxRouteDistance = 255
+	standbyLabel     = "Standby"
 
 	failoverCommentPrefix   = "Failover "
 	probeCommentPrefix      = "Failover probe "
@@ -25,6 +27,8 @@ const (
 	segmentListSuffix         = "-LAN"
 	segmentSubnetFormat       = "192.168.6%d"
 	segmentMaxIndex           = 9
+	segmentReservationTTL     = 5 * time.Minute
+	segmentDNSCommentPrefix   = "Failover DNS "
 	segmentSetupTimeout       = 30 * time.Second
 	segmentSetupPollInterval  = time.Second
 )

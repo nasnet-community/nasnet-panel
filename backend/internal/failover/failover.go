@@ -226,7 +226,7 @@ func planDistances(entries []Entry, target, slot int) []int {
 	for i := range entries {
 		current[i] = entries[i].Distance
 	}
-	if !hasDuplicate(current) && !hasDuplicate(planned) {
+	if !hasDuplicate(current) && !hasDuplicate(planned) && planned[target] <= maxRouteDistance {
 		return planned
 	}
 

@@ -533,6 +533,7 @@ add list="Router To Foreign" address="api.github.com" comment="GitHub API"
 add list="Router To Foreign" address="codeload.github.com" comment="GitHub Source Archives"
 add list="Router To Foreign" address="ghcr.io" comment="GitHub Container Registry"
 add list="Router To Foreign" address="objects.githubusercontent.com" comment="GitHub Release Assets"
+add list="Router To Foreign" address="release-assets.githubusercontent.com" comment="GitHub Release Assets"
 add list="Router To Foreign" address="pkg-containers.githubusercontent.com" comment="GitHub Container Layers"
 add list="Router To Foreign" address="upgrade.mikrotik.com" comment="MikroTik RouterOS Updates"
 add list="Router To Foreign" address="download.mikrotik.com" comment="MikroTik RouterOS Downloads"
@@ -558,7 +559,8 @@ add action=accept chain=output comment="Accept" dst-address-list="LOCAL-IP" src-
 add action=accept chain=input comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
 add action=accept chain=forward comment="Accept" dst-address-list="LOCAL-IP" src-address-list="LOCAL-IP"
 add action=accept chain=output comment="Netwatch probe exempt" dst-address-list="DNS" protocol=icmp
-add action=mark-routing chain=output comment="Router to Foreign Route" protocol=tcp dst-port=443 dst-address-list="Router To Foreign" new-routing-mark="to-Foreign" passthrough=no
+add action=mark-connection chain=output comment="Router to Foreign Connection" connection-state=new protocol=tcp dst-port=443 dst-address-list="Router To Foreign" new-connection-mark="conn-router-foreign" passthrough=yes
+add action=mark-routing chain=output comment="Router to Foreign Route" connection-mark="conn-router-foreign" new-routing-mark="to-Foreign" passthrough=no
 add action=mark-routing chain=output comment="S4I Route" src-address=192.168.39.12 new-routing-mark="to-Foreign" passthrough=no
 {{ if .DomesticEnabled}}
 add action=mark-routing chain=output dst-address-list="MikroTik-Cloud-Services" \

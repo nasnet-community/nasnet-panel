@@ -950,6 +950,9 @@ func HandleCreateStaticDNS(c echo.Context) error {
 		return err
 	}
 
+	staticDNSChange.Lock()
+	defer staticDNSChange.Unlock()
+
 	id, err := client.AddUserStaticDNS(req.Name, req.Address)
 	if err != nil {
 		if common.IsCredentialError(err) {
@@ -1031,6 +1034,17 @@ func HandleUpdateStaticDNS(c echo.Context) error {
 
 	updated, err := client.GetUserStaticDNS(entry.ID)
 	if err != nil {
+		expected := *entry
+		if req.Name != nil {
+			expected.Name = *req.Name
+		}
+		if req.Address != nil {
+			expected.Address = *req.Address
+		}
+		if req.Disabled != nil {
+			expected.Disabled = *req.Disabled
+		}
+		replaceDNSStaticEntryInDB(c, client, entry, &expected)
 		return common.ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated static DNS entry", err)
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
 
@@ -80,7 +81,7 @@ func Enroll(client *routeros.Client, interfaceName string) error {
 	if err != nil {
 		return err
 	}
-	index, err := freeSegmentIndex(client)
+	index, err := freeSegmentIndex(client, interfaceName)
 	if err != nil {
 		return err
 	}
@@ -105,7 +106,7 @@ func Enroll(client *routeros.Client, interfaceName string) error {
 }
 
 // SegmentBridges returns the names of the segment bridges whose segment is complete: the bridge exists
-// and so does the segment's default route, which the setup script creates near its end.
+// and so do the segment's default route and its TCP DNS redirect, the last rule the setup script creates.
 func SegmentBridges(client *routeros.Client) (map[string]bool, error) {
 	bridges, err := client.ListBridges()
 	if err != nil {
@@ -116,13 +117,25 @@ func SegmentBridges(client *routeros.Client) (map[string]bool, error) {
 		return nil, err
 	}
 
+	rules, err := client.ListNATRules(routeros.NATRuleFilter{Action: "dst-nat"})
+	if err != nil {
+		return nil, err
+	}
+
+	redirected := make(map[string]bool)
+	for i := range rules {
+		if name, ok := strings.CutPrefix(rules[i].Comment, segmentDNSCommentPrefix); ok && rules[i].Protocol == "tcp" {
+			redirected[name] = true
+		}
+	}
+
 	finished := make(map[string]bool)
 	for i := range routes {
 		name, ok := strings.CutPrefix(routes[i].Comment, segmentCommentPrefix)
 		if !ok {
 			continue
 		}
-		if name, ok = strings.CutSuffix(name, segmentDefaultRouteSuffix); ok {
+		if name, ok = strings.CutSuffix(name, segmentDefaultRouteSuffix); ok && redirected[name] {
 			finished[segmentBridgePrefix+name] = true
 		}
 	}
@@ -148,7 +161,7 @@ func EnsureSegment(client *routeros.Client, existing map[string]bool, interfaceN
 		return nil
 	}
 
-	index, err := freeSegmentIndex(client)
+	index, err := freeSegmentIndex(client, interfaceName)
 	if err != nil {
 		return err
 	}
@@ -174,6 +187,7 @@ func waitSegmentComplete(client *routeros.Client, interfaceName string) error {
 			return err
 		}
 		if complete[segmentBridgePrefix+interfaceName] {
+			releaseSegmentIndex(interfaceName)
 			return nil
 		}
 		if time.Now().After(deadline) {
@@ -243,21 +257,53 @@ func removeRoutesByComment(client *routeros.Client, interfaceName string) {
 	}
 }
 
-func freeSegmentIndex(client *routeros.Client) (int, error) {
+type segmentReservation struct {
+	owner string
+	until time.Time
+}
+
+var segmentReservations = struct {
+	sync.Mutex
+	byIndex map[int]segmentReservation
+}{byIndex: make(map[int]segmentReservation)}
+
+func releaseSegmentIndex(owner string) {
+	segmentReservations.Lock()
+	defer segmentReservations.Unlock()
+
+	for index, reservation := range segmentReservations.byIndex {
+		if reservation.owner == owner {
+			delete(segmentReservations.byIndex, index)
+		}
+	}
+}
+
+// freeSegmentIndex picks a segment subnet no other segment uses and reserves it for the owner while
+// its setup script may still be running. A subnet the owner's own leftovers hold counts as free.
+func freeSegmentIndex(client *routeros.Client, owner string) (int, error) {
+	segmentReservations.Lock()
+	defer segmentReservations.Unlock()
+
 	addresses, err := client.ListIPAddresses()
 	if err != nil {
 		return 0, err
 	}
+	ownComment := segmentCommentPrefix + owner
+	now := time.Now()
 	for index := 1; index <= segmentMaxIndex; index++ {
+		if reservation, ok := segmentReservations.byIndex[index]; ok && reservation.owner != owner && now.Before(reservation.until) {
+			continue
+		}
 		prefix := fmt.Sprintf(segmentSubnetFormat, index) + "."
 		used := false
 		for i := range addresses {
-			if strings.HasPrefix(addresses[i].Address, prefix) {
+			if strings.HasPrefix(addresses[i].Address, prefix) && addresses[i].Comment != ownComment {
 				used = true
 				break
 			}
 		}
 		if !used {
+			segmentReservations.byIndex[index] = segmentReservation{owner: owner, until: now.Add(segmentReservationTTL)}
 			return index, nil
 		}
 	}
