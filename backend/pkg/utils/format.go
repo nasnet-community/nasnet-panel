@@ -218,8 +218,7 @@ func RouterOSTimeSeconds(routerOSTime string) int64 {
 	routerOSTime = strings.TrimSpace(routerOSTime)
 
 	var total int64
-	if clock := routerOSClockTimePattern.FindStringSubmatchIndex(routerOSTime); clock != nil {
-		parts := routerOSClockTimePattern.FindStringSubmatch(routerOSTime)
+	if parts := routerOSClockTimePattern.FindStringSubmatch(routerOSTime); parts != nil {
 		if parts[3] == "" {
 			parts[3] = "0"
 		}
@@ -230,7 +229,7 @@ func RouterOSTimeSeconds(routerOSTime string) int64 {
 			}
 			total = total*60 + value
 		}
-		routerOSTime = routerOSTime[:clock[0]]
+		routerOSTime = routerOSTime[:len(routerOSTime)-len(parts[0])]
 	}
 
 	for _, match := range routerOSUnitTimePattern.FindAllStringSubmatch(routerOSTime, -1) {
