@@ -1,11 +1,16 @@
-# Redeploys the demo on each push to dev by starting the Deploy workflow in
-# nasnet-panel-preview. Needs the PREVIEW_DISPATCH_TOKEN secret: a fine-grained
-# token with Contents: read and write on nasnet-panel-preview.
+# Redeploys the demo when a push to dev changes the frontend, by starting the
+# Deploy workflow in nasnet-panel-preview. The demo runs only the frontend
+# against mocks, so backend-only changes do not redeploy it. Needs the
+# PREVIEW_DISPATCH_TOKEN secret: a fine-grained token with Contents: read and
+# write on nasnet-panel-preview.
 name: Rebuild demo
 
 on:
   push:
     branches: [dev]
+    paths:
+      - 'frontend/**'
+      - '!frontend/tests/**'
   workflow_dispatch:
 
 permissions: {}
